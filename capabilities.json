@@ -1549,6 +1549,20 @@
       "source_still_in": {"repo_kind": "retired bitfield-packages repository", "paths": ["bitfield-packages/packages/signed-event-effects/", "bitfield-packages/packages/capability-effect-lifecycle/", "bitfield-packages/packages/product-access/", "bitfield-packages/packages/material-delivery/"]}
     },
     {
+      "capability": "write the access grants a person gives people by hand (a gift, a member who moved over, a pass with an end date) and the revokes that end one, as the access-grant records the paid-access reader holds",
+      "owner": [
+        "tools/paid-access/"
+      ],
+      "entry": "tools/paid-access/tool-rows.json",
+      "evidence": "pre-scrub checkout commit e8d80ef15 (tools/paid-access/do-work/paid-access.mjs grantPaidAccessToPeople, read-data/access-grants.mjs, test/grant-paid-access.test.mjs, ports/access-grants.json REF-PAID-ACCESS-GRANT-WRITER-RECOVERY); row tool:grant-paid-access-to-people; restored on origin main",
+      "distinct_from": [
+        {
+          "job": "say which paid access a buyer holds now, check a buyer may open a gated thing, and deliver a paid file only to a buyer who holds its access",
+          "why": "that reads and delivers access from payments and grants; this writes and revokes the access-grant records a person keeps by hand"
+        }
+      ]
+    },
+    {
       "capability": "pull a person's messages and saved items from connected accounts (Discord, Slack, Telegram, Signal, Instagram, Messenger, X bookmarks, Pinterest) into snapshot records",
       "owner": ["tools/pull-from-connected-accounts/"],
       "entry": "tools/pull-from-connected-accounts/tool-rows.json",

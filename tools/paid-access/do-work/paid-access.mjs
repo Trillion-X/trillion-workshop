@@ -9,6 +9,9 @@ import { holdsAnyRequiredAccessRef } from '../read-data/holds-any-required-acces
 
 export { heldAccess };
 
+/** tool:grant-paid-access-to-people: the access-grant records for people who hold access by hand, and the revokes that end one. */
+export { grantAccess as grantPaidAccessToPeople } from '../read-data/access-grants.mjs';
+
 /** tool:see-who-holds-paid-access: the access refs one buyer holds now, and why. The clock is this run's own. */
 export function seeWhoHoldsPaidAccess(input, context) {
   return readHeldAccess(input ?? {}, { door: context.door, nowMs: context.nowMs ?? Date.now() });

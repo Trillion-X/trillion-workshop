@@ -1,0 +1,115 @@
+// tool:grant-paid-access-to-people runs as its row runs it, against the stand-in records door with exactly the row's
+// rights: a grant it writes is then held by heldAccess (the one answer every gate asks), asking again writes nothing,
+// a window the reader would never hold is refused with why, and a revoke ends the grant. Every value here is made up.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
+import rows from '../tool-rows.json' with { type: 'json' };
+import { heldAccess } from '../read-data/who-holds-access.mjs';
+import { grantId, revokeId } from '../read-data/access-grants.mjs';
+
+const grant = rowOf(rows, 'tool:grant-paid-access-to-people');
+const NOW = Date.UTC(2026, 5, 1);
+const DAY = 86_400_000;
+const ANA = 'ana@example.com';
+const BO = 'bo@example.com';
+
+const valuesOf = kept => kept.filter(item => item.type === 'access-grant').map(item => item.value);
+const heldBy = (kept, subject) => heldAccess({ subject, nowMs: NOW, grants: valuesOf(kept) }).held_access_refs;
+
+test('a written grant is held, in exactly the shape the reader reads, and a second run writes nothing', async () => {
+  const input = { grants: [
+    { subject: ANA, access_ref: 'access:course-a' },
+    { subject: BO, access_ref: 'access:course-a', grant_ref: 'grant:imported-1', valid_from_ms: NOW - DAY, expires_at_ms: NOW + DAY, note: 'moved over' },
+  ] };
+  const first = await answerOf(grant, input);
+  assert.equal(first.status, 0, first.error);
+  assert.deepEqual(first.result, { written: 2, already: 0, refused: [] });
+  assert.deepEqual(first.kept.map(item => item.type), ['access-grant', 'access-grant']);
+  assert.deepEqual(first.kept.find(item => item.id === grantId(ANA, 'grant:access:course-a')).value,
+    { kind: 'license_access', subject: ANA, object: 'access:course-a', material: { grant_ref: 'grant:access:course-a' } });
+  assert.deepEqual(first.kept.find(item => item.id === grantId(BO, 'grant:imported-1')).value,
+    { kind: 'license_access', subject: BO, object: 'access:course-a', material: { grant_ref: 'grant:imported-1', valid_from_ms: NOW - DAY, expires_at_ms: NOW + DAY }, note: 'moved over' });
+  assert.deepEqual([heldBy(first.kept, ANA), heldBy(first.kept, BO), heldBy(first.kept, 'cy@example.com')], [['access:course-a'], ['access:course-a'], []]);
+
+  const second = await answerOf(grant, input, { records: first.kept });
+  assert.equal(second.status, 0, second.error);
+  assert.deepEqual(second.result, { written: 0, already: 2, refused: [] });
+  assert.deepEqual(second.kept, first.kept, 'nothing new is kept');
+  assert.ok(!second.calls.some(call => call.method === 'records:write'), 'the second run does not write');
+});
+
+test('a window the reader would never hold is refused with why, and nothing is written for it', async () => {
+  const answer = await answerOf(grant, { grants: [
+    { subject: ANA, access_ref: 'access:course-a', expires_at_ms: NOW + DAY },
+    { subject: ANA, access_ref: 'access:course-b', valid_from_ms: NOW, expires_at_ms: NOW },
+    { subject: ANA, access_ref: 'access:course-c', valid_from_ms: NOW - DAY, expires_at_ms: 1.5 },
+    { subject: '', access_ref: 'access:course-d' },
+    { subject: ANA, access_ref: ' ' },
+    { subject: ANA, access_ref: 'access:course-e', valid_from_ms: NOW - DAY, expires_at_ms: NOW + DAY },
+  ] });
+  assert.equal(answer.status, 0, answer.error);
+  assert.equal(answer.result.written, 1);
+  assert.deepEqual(answer.result.refused.map(item => item.index), [0, 1, 2, 3, 4]);
+  assert.match(answer.result.refused[0].reason, /both valid_from_ms and expires_at_ms/);
+  assert.match(answer.result.refused[1].reason, /must be after valid_from_ms/);
+  assert.match(answer.result.refused[2].reason, /whole number/);
+  assert.match(answer.result.refused[3].reason, /subject must name the person/);
+  assert.match(answer.result.refused[4].reason, /access_ref must name the access/);
+  assert.deepEqual(answer.kept.map(item => item.value.object), ['access:course-e']);
+  assert.deepEqual(heldBy(answer.kept, ANA), ['access:course-e']);
+});
+
+test('a revoke ends the grant, stays ended, and a grant kept with other terms is refused rather than changed', async () => {
+  const given = await answerOf(grant, { grants: [{ subject: ANA, access_ref: 'access:course-a' }, { subject: ANA, access_ref: 'access:course-b', grant_ref: 'grant:gift' }] });
+  assert.deepEqual(heldBy(given.kept, ANA), ['access:course-a', 'access:course-b']);
+
+  const ended = await answerOf(grant, { grants: [{ subject: BO, access_ref: 'access:course-a' }], revoke: [{ subject: ANA, grant_ref: 'grant:access:course-a' }, { subject: ANA, grant_ref: '' }] }, { records: given.kept });
+  assert.equal(ended.status, 0, ended.error);
+  assert.deepEqual(ended.result, { written: 2, already: 0, refused: [{ index: 2, reason: 'grant_ref must name the grant to end (a grant given without one is named "grant:" and its access ref)' }] });
+  assert.deepEqual(ended.kept.find(item => item.id === revokeId(ANA, 'grant:access:course-a')).value,
+    { kind: 'revoke', subject: ANA, material: { revokes_grant_ref: 'grant:access:course-a' } });
+  assert.deepEqual(heldBy(ended.kept, ANA), ['access:course-b'], 'only the ended grant is gone');
+  assert.deepEqual(heldBy(ended.kept, BO), ['access:course-a']);
+
+  const again = await answerOf(grant, { grants: [{ subject: BO, access_ref: 'access:course-a' }], revoke: [{ subject: ANA, grant_ref: 'grant:access:course-a' }] }, { records: ended.kept });
+  assert.deepEqual(again.result, { written: 0, already: 2, refused: [] });
+
+  const regrant = await answerOf(grant, { grants: [{ subject: ANA, access_ref: 'access:course-a' }] }, { records: ended.kept });
+  assert.equal(regrant.result.written, 0);
+  assert.match(regrant.result.refused[0].reason, /stays ended; give this grant a new grant_ref/);
+  assert.deepEqual(heldBy(regrant.kept, ANA), ['access:course-b']);
+
+  const changed = await answerOf(grant, { grants: [{ subject: ANA, access_ref: 'access:course-b', grant_ref: 'grant:gift', valid_from_ms: NOW - DAY, expires_at_ms: NOW + DAY }] }, { records: ended.kept });
+  assert.equal(changed.result.written, 0);
+  assert.match(changed.result.refused[0].reason, /already kept with different terms/);
+});
+
+test('one request names a grant once: the same item twice is already, the same reference with other terms is refused', async () => {
+  const same = { subject: ANA, access_ref: 'access:course-a' };
+  const answer = await answerOf(grant, { grants: [same, { ...same }, { ...same, note: 'other terms' }] });
+  assert.deepEqual(answer.result, { written: 1, already: 1, refused: [{ index: 2, reason: `an earlier item in this request gives ${grantId(ANA, 'grant:access:course-a')} different terms` }] });
+});
+
+test('a request of 256 grants is written whole, in writes small enough for the door, and a 257th item is refused', async () => {
+  const many = Array.from({ length: 256 }, (_, at) => ({ subject: `member-${at}@example.com`, access_ref: 'access:course-a', note: 'x'.repeat(200) }));
+  const answer = await answerOf(grant, { grants: many });
+  assert.equal(answer.status, 0, answer.error);
+  assert.deepEqual(answer.result, { written: 256, already: 0, refused: [] });
+  const writes = answer.calls.filter(call => call.method === 'records:write');
+  assert.deepEqual(writes.map(call => call.input.records.length), [100, 100, 56]);
+  assert.ok(writes.every(call => JSON.stringify(call.input).length < 65_536));
+  assert.ok(writes.every(call => call.input.records.every(record => record.expected === null)), 'a grant already there is never overwritten');
+
+  const tooMany = await answerOf(grant, { grants: [...many, many[0]] });
+  assert.equal(tooMany.status, 1);
+  assert.match(tooMany.error, /from 1 to 256 grants/);
+  assert.deepEqual(tooMany.kept, []);
+});
+
+test('the row reads and writes only access-grant records and holds no key, network or person', () => {
+  assert.deepEqual(grant.invoke.records.rights, [{ kind: 'access-grant', operations: ['records:read', 'records:write'] }]);
+  assert.equal(grant.invoke.internet, false);
+  assert.equal(grant.invoke.credential_mounts, undefined);
+  assert.doesNotMatch(grant.maker, /trillion|bitfield/i);
+});

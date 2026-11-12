@@ -1,0 +1,728 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PAID-ACCESS-GRANT-WRITER-RECOVERY",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "01a1b7de-2fce-7412-a6a9-4b091acf90cd",
+    "speaker": "agent",
+    "message_multihash": "1f:f04d8dd6a3deb108e866de7f11713183fdec20aa728f1effff30c4d7bc4896ba",
+    "quote": "Restore and verify the existing c9fbccd8 paid-access grant writer in the declared paid-access owner, retaining immutable grant/revoke behavior while supporting revoke-only requests and admitted byte-bounded writes; use only synthetic checks and normal commit gates."
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/paid-access/read-data/access-grants.mjs"
+    }
+  ],
+  "preserve": [
+    "The existing access-grant reader shape and immutable subject/grant-reference identities",
+    "Conditional creation, idempotent repeats and refusal to change existing terms",
+    "Revocations remain monotonic tombstones, including when they arrive before a grant",
+    "Output reports accepted writes, not a promise that access is currently held",
+    "No payment, buyer, session, credential or network mutation"
+  ],
+  "allowed_deltas": [
+    "Accept a revoke-only request without requiring an unrelated grant; descriptor and function express the same nonempty either-or rule",
+    "Reuse the shared byte-and-row write batcher and refuse a record too large for one admitted message",
+    "Add synthetic packed-row and reader consumer checks for revoke-only, tombstones, paired writes, expiry and large Unicode inputs"
+  ],
+  "banned_substitutions": [
+    "A second grant store or access projection",
+    "Rewriting payment history",
+    "Testing with real member grants"
+  ],
+  "baseline": {
+    "scope": "Not a source-first port. The writer was authored with its descriptor and tests in Workshop commit c9fbccd8f03da99611a2a9fa405f7649b310ec85; that commit is authorship history, not a source-only copy baseline or a candidate ancestor."
+  },
+  "lineage_qualification": {
+    "state": "original-workshop-authorship-with-current-narrow-search-proof",
+    "reader_lineage": {
+      "repository": "bitfield-packages",
+      "commit": "4a05349784ea62f3652a8e9c028eaafc2ab24afe",
+      "path": "packages/product-access/read-data/read-granted-access-refs.ts",
+      "workshop_introduction": "6181d69723a15822aa6ed84647fc48c76003b7d5",
+      "relationship": "The writer emits the license_access/revoke records this earlier reader consumes. This reader is a different mechanism, not a claimed byte-copy source for the writer."
+    },
+    "recovery": {
+      "commit": "1367d8c0138889c68d871ad7bf90b0d6455a41f2",
+      "committed_at": "2026-11-07T16:21:11-06:00",
+      "relationship": "This commit restores the same Workshop writer with adaptations. The original authorship commit is not its ancestor. This is recovery history, not an ancestral exact-copy baseline."
+    },
+    "policy_since": "e854b028bb7ba2ed3163f9987ca7edf8daf667cd",
+    "boundary": "NO_PRIOR_OWNER applies only to the original Workshop-authored manual immutable access-grant record adapter, with the current six-repository and native capability searches retained below. It makes no claim that paid access, checkout grant issuance, grant projection or generic persistence lacked an earlier owner. The restored runtime remains in its existing public file."
+  },
+  "proof": {
+    "test_refs": [
+      "tools/paid-access/test/grant-paid-access.test.mjs",
+      "tools/paid-access/test/paid-access-rows.test.mjs",
+      "tools/paid-access/test/read-granted-access-refs.test.ts"
+    ],
+    "search": {
+      "phrasings": [
+        "Write immutable access-grant records and revocation tombstones for a person with conditional creation, repeat safety and optional expiry windows",
+        "Give people paid access by hand, import members, gifts and time-limited passes, and revoke one grant permanently",
+        "Grant and revoke access refs through records door without changing payment history"
+      ],
+      "capability_rows": [
+        {
+          "capability": "administer a rented server over SSH: the arguments, user and port to reach it, and the optional engine proxy, for every door tool that reaches the same host",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/administer-a-rented-host/"
+          ],
+          "words": 0.249,
+          "near": false,
+          "query": "Write immutable access-grant records and revocation tombstones for a person with conditional creation, repeat safety and optional expiry windows"
+        },
+        {
+          "capability": "grant a tool to one context and record installs, pointing at the one definition instead of copying it",
+          "repository": "trillion",
+          "owner": [
+            "src/workshop-grants.mjs"
+          ],
+          "words": 0.233,
+          "near": false,
+          "query": "Write immutable access-grant records and revocation tombstones for a person with conditional creation, repeat safety and optional expiry windows"
+        },
+        {
+          "capability": "run work later or on a repeat: recurring schedules in a named time zone that keep the right local time across clock changes, one-off actions, and a receipt for each run",
+          "repository": "trillion",
+          "owner": [
+            "parts/timed-action/"
+          ],
+          "words": 0.227,
+          "near": false,
+          "query": "Write immutable access-grant records and revocation tombstones for a person with conditional creation, repeat safety and optional expiry windows"
+        },
+        {
+          "capability": "run work later or on a repeat: recurring schedules in a named time zone that keep the right local time across clock changes, one-off actions, and a receipt for each run",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/run-work-later-or-on-a-repeat/"
+          ],
+          "words": 0.227,
+          "near": false,
+          "query": "Write immutable access-grant records and revocation tombstones for a person with conditional creation, repeat safety and optional expiry windows"
+        },
+        {
+          "capability": "read and write records for tools: the generic record journal, queries, values and record models",
+          "repository": "trillion-rust",
+          "owner": [
+            "src/record_log.rs",
+            "src/record_log",
+            "src/record_source.rs",
+            "src/record_source",
+            "src/record_value.rs",
+            "src/record_value",
+            "src/record_sealed.rs",
+            "src/record_sealed",
+            "src/record_canonical.rs",
+            "src/record_canonical",
+            "src/record_stamps.rs",
+            "src/record_stamps",
+            "src/record_write_model.rs",
+            "src/record_write_model",
+            "src/record_model_policy.rs",
+            "src/record_model_policy",
+            "src/records.rs",
+            "src/records",
+            "src/record_indexes.rs",
+            "src/record_indexes",
+            "src/store.rs",
+            "src/store",
+            "src/scan.rs",
+            "src/scan",
+            "src/sqlite_work.rs",
+            "src/sqlite_work",
+            "src/eeaf_store.rs",
+            "src/eeaf_store",
+            "src/eeaf_value.rs",
+            "src/eeaf_value",
+            "src/ecma_json.rs",
+            "src/ecma_json",
+            "src/current_record_keys.rs",
+            "src/current_record_keys",
+            "src/kept_runs.rs",
+            "src/kept_runs",
+            "src/local_account/resource_affinity.rs",
+            "src/local_account/service_records.rs",
+            "src/transfer_graph.rs",
+            "src/transfer_graph",
+            "crates/json-canonicalization",
+            "crates/icu-collation"
+          ],
+          "words": 0.221,
+          "near": false,
+          "query": "Write immutable access-grant records and revocation tombstones for a person with conditional creation, repeat safety and optional expiry windows"
+        },
+        {
+          "capability": "pull a time window of audio, or one video frame, from a camera file in cloud storage",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/pull-a-time-window-from-a-stored-camera-file/"
+          ],
+          "words": 0.213,
+          "near": false,
+          "query": "Write immutable access-grant records and revocation tombstones for a person with conditional creation, repeat safety and optional expiry windows"
+        },
+        {
+          "capability": "read what a person is doing on their Mac as text from the front window (the app, window title, page address and visible words) when they switch windows and on a timer for a short watch, never from a password manager, Keychain, Settings or a private browser window, with passwords, keys and card numbers removed on the Mac before anything leaves it",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/read-what-is-on-screen/"
+          ],
+          "words": 0.212,
+          "near": false,
+          "query": "Write immutable access-grant records and revocation tombstones for a person with conditional creation, repeat safety and optional expiry windows"
+        },
+        {
+          "capability": "record one chosen display or window of the person's Mac as a movie with pause, resume and stop, note the pointer beside it (positions and presses, never keys), leave out the apps, window titles and categories of places the person listed, and save it only under the person's allow-list",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/record-the-screen/"
+          ],
+          "words": 0.196,
+          "near": false,
+          "query": "Write immutable access-grant records and revocation tombstones for a person with conditional creation, repeat safety and optional expiry windows"
+        },
+        {
+          "capability": "space out when a record book settles ended usage grants, so one resource that keeps opening grants does not keep the book busy",
+          "repository": "trillion",
+          "owner": [
+            "src/alarm-pace.mjs"
+          ],
+          "words": 0.195,
+          "near": false,
+          "query": "Write immutable access-grant records and revocation tombstones for a person with conditional creation, repeat safety and optional expiry windows"
+        },
+        {
+          "capability": "keep a model working a job in a loop from spinning: nudge it once when it repeats the same call, and give the job back when it keeps repeating or its tools keep failing",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/keep-an-ai-loop-from-spinning/"
+          ],
+          "words": 0.194,
+          "near": false,
+          "query": "Write immutable access-grant records and revocation tombstones for a person with conditional creation, repeat safety and optional expiry windows"
+        },
+        {
+          "capability": "let an account store that has been retired hand out its full export, hand over its access rules and erase itself, and nothing else",
+          "repository": "trillion",
+          "owner": [
+            "src/retired-exit.mjs"
+          ],
+          "words": 0.439,
+          "near": false,
+          "query": "Give people paid access by hand, import members, gifts and time-limited passes, and revoke one grant permanently"
+        },
+        {
+          "capability": "say which paid access a buyer holds now, check a buyer may open a gated thing, and deliver a paid file only to a buyer who holds its access",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/paid-access/"
+          ],
+          "words": 0.439,
+          "near": false,
+          "query": "Give people paid access by hand, import members, gifts and time-limited passes, and revoke one grant permanently"
+        },
+        {
+          "capability": "let only a few pieces of work run at once, make others wait a limited time, and refuse the rest with a busy answer",
+          "repository": "trillion",
+          "owner": [
+            "src/bounded-turns.mjs"
+          ],
+          "words": 0.425,
+          "near": false,
+          "query": "Give people paid access by hand, import members, gifts and time-limited passes, and revoke one grant permanently"
+        },
+        {
+          "capability": "read optional public data from another address within a time limit, so a slow answer never holds a page",
+          "repository": "trillion-site",
+          "owner": [
+            "worker/public-json.js"
+          ],
+          "words": 0.291,
+          "near": false,
+          "query": "Give people paid access by hand, import members, gifts and time-limited passes, and revoke one grant permanently"
+        },
+        {
+          "capability": "put gettrillion.ai live from committed bytes only, after the checks, build and tests pass",
+          "repository": "trillion-site",
+          "owner": [
+            "scripts/deploy-from-commit.mjs",
+            "scripts/build-inputs.mjs"
+          ],
+          "words": 0.29,
+          "near": false,
+          "query": "Give people paid access by hand, import members, gifts and time-limited passes, and revoke one grant permanently"
+        },
+        {
+          "capability": "run the command line an installed app keeps inside its own bundle, with the app and entry passed in",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/run-an-installed-apps-command-line/"
+          ],
+          "words": 0.282,
+          "near": false,
+          "query": "Give people paid access by hand, import members, gifts and time-limited passes, and revoke one grant permanently"
+        },
+        {
+          "capability": "turn a sales contract's follow-ups into the rules and schedules that run them once the deal is sent: a paid follow-up for this deal only, a dated one at its time, with the deal's own words filled in",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/build-and-send-a-sales-contract/"
+          ],
+          "words": 0.279,
+          "near": false,
+          "query": "Give people paid access by hand, import members, gifts and time-limited passes, and revoke one grant permanently"
+        },
+        {
+          "capability": "take a person to the thing that needs them: from one card of what waits on them, give the screen to open, the arrangement that puts it beside what the caller names, the walkthrough that points at the thing's own control and the notice that links to both, or say in plain words that nothing is waiting there or it opens outside their places",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/take-me-there/"
+          ],
+          "words": 0.275,
+          "near": false,
+          "query": "Give people paid access by hand, import members, gifts and time-limited passes, and revoke one grant permanently"
+        },
+        {
+          "capability": "decide whether an AI agent's action may run, must be asked of the person first, or is refused, from the person's action policy rows, the grants they gave and the actions they declined",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/decide-agent-actions/"
+          ],
+          "words": 0.265,
+          "near": false,
+          "query": "Give people paid access by hand, import members, gifts and time-limited passes, and revoke one grant permanently"
+        },
+        {
+          "capability": "grant a tool to one context and record installs, pointing at the one definition instead of copying it",
+          "repository": "trillion",
+          "owner": [
+            "src/workshop-grants.mjs"
+          ],
+          "words": 0.263,
+          "near": false,
+          "query": "Give people paid access by hand, import members, gifts and time-limited passes, and revoke one grant permanently"
+        },
+        {
+          "capability": "reach a person's own records from a tool run: the records door client every records tool uses",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/records-door/"
+          ],
+          "words": 0.237,
+          "near": false,
+          "query": "Grant and revoke access refs through records door without changing payment history"
+        },
+        {
+          "capability": "grant a tool to one context and record installs, pointing at the one definition instead of copying it",
+          "repository": "trillion",
+          "owner": [
+            "src/workshop-grants.mjs"
+          ],
+          "words": 0.23,
+          "near": false,
+          "query": "Grant and revoke access refs through records door without changing payment history"
+        },
+        {
+          "capability": "tell an open screen only which records changed, so it reads again just the screens a write touched",
+          "repository": "trillion",
+          "owner": [
+            "src/live-keys.mjs"
+          ],
+          "words": 0.197,
+          "near": false,
+          "query": "Grant and revoke access refs through records door without changing payment history"
+        },
+        {
+          "capability": "space out when a record book settles ended usage grants, so one resource that keeps opening grants does not keep the book busy",
+          "repository": "trillion",
+          "owner": [
+            "src/alarm-pace.mjs"
+          ],
+          "words": 0.192,
+          "near": false,
+          "query": "Grant and revoke access refs through records door without changing payment history"
+        },
+        {
+          "capability": "keep an operation's records and move it through its states: run its next transition and read its actions and work",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/operation-records/"
+          ],
+          "words": 0.182,
+          "near": false,
+          "query": "Grant and revoke access refs through records door without changing payment history"
+        },
+        {
+          "capability": "let any AI that can run a shell see a person's AIs and their jobs, hand and take work and run Workshop tools through one command that makes one door call per command",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/use-trillion-from-a-shell/"
+          ],
+          "words": 0.177,
+          "near": false,
+          "query": "Grant and revoke access refs through records door without changing payment history"
+        },
+        {
+          "capability": "say on every record change which app and which sign-in road made it, so history reads You via Claude Code over MCP",
+          "repository": "trillion",
+          "owner": [
+            "src/write-via.mjs"
+          ],
+          "words": 0.151,
+          "near": false,
+          "query": "Grant and revoke access refs through records door without changing payment history"
+        },
+        {
+          "capability": "take payments with Stripe",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/take-payments/"
+          ],
+          "words": 0.149,
+          "near": false,
+          "query": "Grant and revoke access refs through records door without changing payment history"
+        },
+        {
+          "capability": "keep a quick view of what each person's plan lets them do right now, updated as their payments change",
+          "repository": "trillion",
+          "owner": [
+            "src/person-access-index.mjs"
+          ],
+          "words": 0.148,
+          "near": false,
+          "query": "Grant and revoke access refs through records door without changing payment history"
+        },
+        {
+          "capability": "let an account store that has been retired hand out its full export, hand over its access rules and erase itself, and nothing else",
+          "repository": "trillion",
+          "owner": [
+            "src/retired-exit.mjs"
+          ],
+          "words": 0.146,
+          "near": false,
+          "query": "Grant and revoke access refs through records door without changing payment history"
+        }
+      ],
+      "code_patterns": [
+        "access-grant|license_access|revokes_grant_ref|capability.access|grantAccess|grantRow|grant-paid-access"
+      ],
+      "repositories": [
+        {
+          "repository": "trillion",
+          "commit": "ed5e8d0389729321ca4263294b6a377235829e5e"
+        },
+        {
+          "repository": "trillion-rust",
+          "commit": "b80b5b9662c056268a3569c9ae1a5a7ab4e0e07f"
+        },
+        {
+          "repository": "trillion-workshop",
+          "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+        },
+        {
+          "repository": "trillion-site",
+          "commit": "14cb42dff1ab465388331616f82ca51f50761aab"
+        },
+        {
+          "repository": "a-private-launch-repository",
+          "commit": "b968a719d3efc64f6b75cafe72f2705ae297c23f"
+        },
+        {
+          "repository": "bitfield-packages",
+          "commit": "e89e776fcb3cd200f4327c599fd646e1778ef3a4"
+        }
+      ],
+      "projection": "All ten native capability rows per query are retained here, including near:false results, with their original capability, repository, owner, words and near fields. Only where is omitted from this public projection: its complete original private text remains in the verified native transcript identified below. No row is dropped and no replacement location is invented."
+    },
+    "raw_search_evidence": {
+      "owner": "original Codex native transcript",
+      "thread_id": "01a1b867-3ea6-7981-a8a7-a78ea4ebf04d",
+      "private_retention": "The original transcript was independently read from disk, with owner-only file access. All three complete capability stdout responses and all six code-query responses were reconstructed and checked before producing this public projection. No copied Library row is required for, or claimed as, this retention.",
+      "capability_results": [
+        {
+          "query": "Write immutable access-grant records and revocation tombstones for a person with conditional creation, repeat safety and optional expiry windows",
+          "call_id": "call_9b99edeaa348425e9c74ec5828daae6e",
+          "transcript_line": 266,
+          "raw_stdout_multihash": "1f:fdc45157093be87f0e23b5a060e37041e7ab20bfb66d32c68ab8c362862d3750",
+          "returned_rows": 10
+        },
+        {
+          "query": "Give people paid access by hand, import members, gifts and time-limited passes, and revoke one grant permanently",
+          "call_id": "call_9b99edeaa348425e9c74ec5828daae6e",
+          "transcript_line": 266,
+          "raw_stdout_multihash": "1f:a27d9955e61c38bc2155ab598c79ca27f19702f3463fe8d375bc8aa2cd319ccd",
+          "returned_rows": 10
+        },
+        {
+          "query": "Grant and revoke access refs through records door without changing payment history",
+          "call_id": "call_9b99edeaa348425e9c74ec5828daae6e",
+          "transcript_line": 266,
+          "raw_stdout_multihash": "1f:dac7904522942abef8fe7ad3953cd69683c3ed6037e40460899f383914eb0afb",
+          "returned_rows": 10
+        }
+      ],
+      "code_results": {
+        "call_id": "call_94c5ffbd07784335bd43746a76189097",
+        "transcript_line": 406,
+        "chunk_id": "1f648e",
+        "encoding": "deflate-raw+base64",
+        "raw_bytes": 7179,
+        "multihash": "1f:d1e346a897bd4ee40fc5bc5dd108c02e9675cbf0cef8e0bc5e58276ced71c803",
+        "repositories": [
+          {
+            "search_repository_index": 0,
+            "matches": 1
+          },
+          {
+            "search_repository_index": 1,
+            "matches": 0
+          },
+          {
+            "search_repository_index": 2,
+            "matches": 21
+          },
+          {
+            "search_repository_index": 3,
+            "matches": 0
+          },
+          {
+            "search_repository_index": 4,
+            "matches": 0
+          },
+          {
+            "search_repository_index": 5,
+            "matches": 66
+          }
+        ],
+        "repository_index_owner": "proof.search.repositories, in the same order as the complete retained raw code response"
+      }
+    },
+    "memory_lookup": {
+      "owner": "record:agent-memory",
+      "request_key": "paid-access-earlier-grant-writer-memory-20261107",
+      "outcome": "selected_owner_unavailable",
+      "scope": "The bounded memory lookup did not answer; no claim of memory absence or successful memory search is made."
+    }
+  },
+  "job": "Write immutable access-grant records and revocation tombstones for a person with conditional creation, repeat safety and optional expiry windows",
+  "job_scope": "Only the Workshop adapter that validates manual grant/revoke input and conditionally creates immutable access-grant records with stable subject/grant identities and permanent revoke tombstones. This does not claim that grant issuance, grant projection, checkout, record persistence, or paid-access management had no older owner.",
+  "authorship": {
+    "commit": "c9fbccd8f03da99611a2a9fa405f7649b310ec85",
+    "path": "tools/paid-access/read-data/access-grants.mjs",
+    "git_blob": "a91ca90e456001cd849a67c0805296caa30c8b59",
+    "multihash": "1f:3d9c97d77665de9cb3a9a4413eff8dc9ca896da64fb6f3b51e21695084d21d0d",
+    "scope": "Original Workshop write-side adapter for the existing reader shape. The current owner is restored in place with its present API; no new core, older-source byte-copy claim, or retrospective source-first history is introduced.",
+    "committed_at": "2026-11-06T15:11:56-07:00",
+    "bytes": 7420,
+    "tests_path": "tools/paid-access/test/grant-paid-access.test.mjs",
+    "tests_multihash": "1f:9ca7f29e0d164c49f784b1114fccc8c673797a0e9511ac1302885b926d968f7a",
+    "repository_role": "The current repository and existing target path; this is the original history of that owner."
+  },
+  "distinct_from": [
+    {
+      "repository": "trillion",
+      "path": "test/sales-contracts.test.mjs",
+      "why": "Synthetic contract-rule tests name GrantAccess terms; they neither implement nor issue immutable manual access-grant records."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/arrange-screens-in-panes/",
+      "why": "Viewer capability context scopes offered UI surfaces; it does not write grants."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/assemble-and-publish-an-app-project/",
+      "why": "Publishes a project placement and its capability access DATA; it does not create or revoke member grant records."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/book-time/",
+      "why": "Booking grants name a purchased bookable session and booking parties; they are not paid-access refs or the manual access-grant record writer."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/build-and-send-a-sales-contract/",
+      "why": "Contract fixtures and rules describe commercial terms, not immutable manual grant persistence."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/draft-and-send-a-sales-contract-to-a-customer-from/",
+      "why": "Archived contract-template code carries GrantAccess terms; it is not a manual grant writer."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/legal-document-builder/",
+      "why": "Builds a legal document from contract-rule DATA and tests its output; it does not execute access grants."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/paid-access/read-data/read-granted-access-refs.ts",
+      "why": "The existing pure grant reader projects license_access effects, windows and revocations into held refs. This writer supplies its established record shape and does not duplicate that projection."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/paid-access/read-data/who-holds-access.mjs",
+      "why": "The existing access reader combines payment-derived access and manual grant projections; it is reused to read results rather than replaced."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/paid-access/test/",
+      "why": "Synthetic reader, payment and grant-projection tests are consumers, not an earlier manual record writer."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/paid-access/README.md",
+      "why": "Describes the existing paid-access package and grant record shape; documentation is not an earlier write-side algorithm."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/paid-access/tool-rows.json",
+      "why": "The searched original rows describe existing access readers and paid-file delivery. The restored grant row calls this canonical writer."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/price-and-sell-by-contract/",
+      "why": "Interprets GrantAccess commercial-contract terms, checkout snapshots and usage. It does not conditionally create subject/grant access-grant records or permanent revoke tombstones."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/workflows/published/tools.json",
+      "why": "Published tool descriptors describe callers and their jobs; they do not contain the manual grant writer."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/write-public-share-files/test/",
+      "why": "Privacy tests use synthetic rule text; they do not implement paid-access grant persistence."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/records-door/",
+      "why": "The existing generic records transport and byte/row batcher are reused. They persist caller-supplied record types and do not own manual grant validation, stable grant identities or revoke policy."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "package-sets/",
+      "why": "Application DATA configures signed-event rules, access screens and payment bindings. It is not an independent immutable manual access-grant record writer; private application paths remain only in the retained raw search."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/access-scoped-content/",
+      "why": "Consumes access decisions to gate content; it does not issue manual grant records."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/account-contact-points/",
+      "why": "Keeps contact-point facts used by account onboarding; it does not manage immutable manual access-grant records."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/account-dashboard/",
+      "why": "Reads account, plan and grant effects for a dashboard; it is a consumer."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/activation-manager/",
+      "why": "Reads and displays activation state; it is not the manual grant record writer."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/checkout/",
+      "why": "An older grant/revoke issuer exists here: checkout authors capability.access signed events tied to checkout/provider events, then signs and admits them through the signed-event authority. The manual writer neither replaces that issuer nor repeats its payment/account pipeline; it validates manually supplied subject/access refs into the existing access-grant record shape through the generic records door."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/customer-follow-up/",
+      "why": "Follow-up automation and onboarding tests consume acquisition events; they do not implement this manual record API."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/hosted-public-app/",
+      "why": "Hosted app routes resolve funnels, commercial offers and access gates. Their access-grant references are routing/consumer behavior rather than immutable manual grant creation."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/live-namespace/",
+      "why": "Generic resource capability edges and authorization DATA describe transfer rights, not paid-access manual member grants."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/material-delivery/",
+      "why": "Private-object delivery checks current entitlement; its grant references are consumer fixtures."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/permission-lease/",
+      "why": "Generic capability obligations, leases and process scripts enforce execution rights, not the access-grant record schema or this manual writer."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/plan-lifecycle/",
+      "why": "Reads existing account-plan/license effects to show a plan; it does not write manual grants."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/product-access/",
+      "why": "The older grant projection, its account/session adapters and gate tests read license_access effects and terminal refs. That reader remains the preserved algorithm owner; the new authored adapter is only its record write side."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/progression-evaluator/",
+      "why": "Synthetic cohort tests treat an access-grant as an observed acquisition fact for identity stitching; they do not create entitlement records."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/revenue-ledger/",
+      "why": "Revenue integration tests consume grant/payment facts; they do not own manual immutable grants."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/sales-contract-builder/",
+      "why": "Editable GrantAccess terms build contracts and screens; they do not issue these manual records."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/screen-arrangement/",
+      "why": "Viewer capability context scopes offered UI surfaces; it does not write grants."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/signed-event-authority-client/",
+      "why": "The existing signed-event admission/projection pipeline maps capability.access facts into license_access effects. It is an older generic authority, not this records-door adapter; its signature/admission and payment issuance mechanisms are not reimplemented here."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/stripe-payment-provider/reference/",
+      "why": "Historical payment execution evidence describes earlier checkout grant effects; it is neither runtime code nor a manual records writer."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/visual-database/do-work/performance-owner-probes.test.ts",
+      "why": "A performance test supplies synthetic grant effects to the older product-access gate; it is a consumer test."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "tests/emergent-capability-graph/",
+      "why": "Source/consumer conformance tests inspect existing capability and access owners; they do not implement manual grant writes."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "tests/slss-program-data-conformance.test.ts",
+      "why": "Program DATA conformance tests describe acquisition/access wiring, not a reusable manual grant writer."
+    },
+    {
+      "repository": "trillion",
+      "path": "src/workshop-grants.mjs",
+      "why": "Context-scoped tool installation and execution grants reference tool definitions; they are a different resource and API from manually issued paid-access refs."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "src/",
+      "why": "The existing native record journal, models, conditional persistence and OAuth/standing-grant authority remain generic engine owners. This adapter calls generic record operations and introduces no second store or account/payment authority."
+    }
+  ]
+}

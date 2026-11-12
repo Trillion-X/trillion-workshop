@@ -265,6 +265,127 @@
       }
     },
     {
+      "id": "package::paid-access::tool::grant-paid-access-to-people",
+      "address": "package::paid-access::tool::grant-paid-access-to-people",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:grant-paid-access-to-people",
+        "label": "Grant paid access to people",
+        "status": "active",
+        "job": "Give people paid access by hand, all at once or one by one (members who moved over from another place, a gift, a pass with an end date), and end a grant I gave",
+        "description": "Writes one access-grant record for each grant: the person (subject, named the way your access rules name a buyer), the access ref they now hold, an optional grant_ref that names the grant (left out, it is \"grant:\" and the access ref), an optional window (valid_from_ms and expires_at_ms together, whole milliseconds since 1970, the end after the start) and an optional note. Each revoke (subject and grant_ref) writes the record that ends that grant. A record's id comes from the subject and the grant's reference, so running the same request again writes nothing and counts it as already. A grant whose window the access check would never hold (one end only, not whole numbers, the end not after the start), one kept with different terms under the same reference, and one that was ended already are refused with the reason and are not written. Answers written, already and refused (each with its index: grants count from 0, revokes carry on after the last grant). It reads and writes only your access-grant records; it moves no money and writes no payments. tool:see-who-holds-paid-access then shows the access held.",
+        "input_schema": {
+          "type": "object",
+          "required": ["grants"],
+          "additionalProperties": false,
+          "anyOf": [
+            { "properties": { "grants": { "minItems": 1 } } },
+            { "required": ["revoke"], "properties": { "revoke": { "minItems": 1 } } }
+          ],
+          "properties": {
+            "grants": {
+              "type": "array",
+              "minItems": 0,
+              "maxItems": 256,
+              "description": "The access to give, one item per person and access ref; leave empty when only revoking",
+              "items": {
+                "type": "object",
+                "required": ["subject", "access_ref"],
+                "additionalProperties": false,
+                "properties": {
+                  "subject": { "type": "string", "description": "The person, the way your access rules name a buyer (the starter rules: their email address)" },
+                  "access_ref": { "type": "string", "description": "The access given, like \"access:course-a\"" },
+                  "grant_ref": { "type": "string", "description": "A name for this grant, which a revoke later uses (\"grant:\" and the access ref when left out)" },
+                  "valid_from_ms": { "type": "integer", "minimum": 0, "description": "When the access starts, in milliseconds since 1970; give it with expires_at_ms or leave both out for access that lasts" },
+                  "expires_at_ms": { "type": "integer", "minimum": 0, "description": "When the access ends, in milliseconds since 1970, after valid_from_ms" },
+                  "note": { "type": "string", "description": "Why it was given, for your own records" }
+                }
+              }
+            },
+            "revoke": {
+              "type": "array",
+              "maxItems": 256,
+              "description": "Grants to end",
+              "items": {
+                "type": "object",
+                "required": ["subject", "grant_ref"],
+                "additionalProperties": false,
+                "properties": {
+                  "subject": { "type": "string", "description": "The person the grant was given to" },
+                  "grant_ref": { "type": "string", "description": "The grant's reference, as it was given or as \"grant:\" and the access ref" }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["written", "already", "refused"],
+          "properties": {
+            "written": { "type": "integer", "minimum": 0 },
+            "already": { "type": "integer", "minimum": 0 },
+            "refused": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["index", "reason"],
+                "properties": { "index": { "type": "integer", "minimum": 0 }, "reason": { "type": "string" } }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              { "package": "paid-access", "paths": ["do-work", "read-data"], "at": "/opt/paid-access" },
+              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+              { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+            ]
+          },
+          "workdir": "/opt/paid-access",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/paid-access/do-work/paid-access.mjs", "grantPaidAccessToPeople"],
+          "stdin": { "fill": { "from": "input" } },
+          "records": {
+            "fd": 3,
+            "rights": [{ "kind": "access-grant", "operations": ["records:read", "records:write"] }]
+          }
+        },
+        "needs": { "expected_seconds": 10, "network_egress": false },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:paid-access",
+        "result_selector": "$.result",
+        "provenance": { "source": "bitfield-packages packages/product-access (the access-grant shape read-granted-access-refs.ts reads), written by hand until this row" },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": { "grants": [{ "subject": "member@example.com", "access_ref": "access:sample-course" }] },
+            "output_selector": "$.written",
+            "contains": "1"
+          }
+        ]
+      }
+    },
+    {
       "id": "package::paid-access::tool::seal-a-paid-file",
       "address": "package::paid-access::tool::seal-a-paid-file",
       "path": ["current-item", "published-record"],
