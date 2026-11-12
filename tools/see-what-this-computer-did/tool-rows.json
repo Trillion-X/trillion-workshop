@@ -1,0 +1,79 @@
+{
+  "kind": "tool-rows",
+  "record_set": "see-what-this-computer-did-tool-rows",
+  "what_this_is": "The Workshop row for tools/see-what-this-computer-did: read this computer's own event rows, newest first.",
+  "records": [
+    {
+      "id": "package::see-what-this-computer-did::tool::see-what-this-computer-did",
+      "address": "package::see-what-this-computer-did::tool::see-what-this-computer-did",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:see-what-this-computer-did",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false
+        },
+        "id": "tool:see-what-this-computer-did",
+        "listed_on": "2026-11-12T00:00:00Z",
+        "label": "See what this computer did",
+        "job": "Read this computer's own event rows, newest first: what the engine and the app recorded about this computer, in order",
+        "invoke": {
+          "kind": "computer-tool",
+          "tool_id": "tool:see-what-this-computer-did"
+        },
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500
+            }
+          },
+          "required": []
+        },
+        "output_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "rows": {
+              "type": "array"
+            }
+          },
+          "required": [
+            "rows"
+          ]
+        },
+        "record_model": {
+          "_what": "The record kinds this tool keeps. computer-event is the row kind the app writes for each line this computer keeps (its list is list:computer-events, see trillion-apps macos/computer-reader.json event_rows). merge crdt: every row is written once by one computer and never changed, so the rows commute and need no writer term (old trillion's append-only event log).",
+          "kinds": [
+            {
+              "type": "computer-event",
+              "properties": {},
+              "merge": "crdt"
+            }
+          ],
+          "indexes": [
+            {
+              "type": "computer-event",
+              "name": "computer-event-by-computer",
+              "fields": [
+                "at"
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
