@@ -532,16 +532,34 @@ async function confirmStep(door, methods, record, at) {
 // step, each added verdict kept with when it came in. A verdict the step already has stands, and one that differs is refused.
 // The verdicts sent for a check that were not taken, each with its reason: empty when none was sent wrong.
 const whyNotTaken = dropped => (dropped.length ? ` Not taken: ${dropped.map(item => `${item.id} (${item.why})`).join('; ')}.` : '');
-// Verdicts are checked as a typed answer's are. Returns null when no verdict is new, so the caller replays or confirms.
-async function confirmWithVerdicts(door, methods, record, at, step, given, now) {
+// The verdicts sent for a step's checks, taken against the answer as it stands, beside the verdicts the step already keeps.
+async function takeGiven(door, methods, record, at, step, given) {
   const entry = record.guidance[at];
   const cat = await catalogueAt(door, methods, record, step);
   const cited = await citable(door, record, citedRefsIn(entry.answer));
   const toJudge = cat.checkAnswersToJudge(record, step, entry.answer);
   const { verdicts, dropped } = takeCallerVerdicts(toJudge, given, { answer: entry.answer, refs: [...cited.refs] });
+  return { entry, toJudge, verdicts, dropped, kept: new Map((entry.verdicts ?? []).map(item => [item.id, item])) };
+}
+// A verdict sent for a check the step already keeps is not taken: it is refused by name, so the kept verdict is never
+// left standing while a different verdict sent with it is dropped.
+function refuseNotTaken(dropped, kept) {
+  const ignored = dropped.filter(item => kept.has(item.id));
+  if (ignored.length) refuse('verdict_taken', { check: ignored[0].id, why: whyNotTaken(ignored) });
+}
+// A repeated answer replays only the verdicts it keeps: verdicts sent with it that differ are refused, not replayed.
+async function refuseChangedVerdicts(door, methods, record, at, step, given) {
+  const { verdicts, dropped, kept } = await takeGiven(door, methods, record, at, step, given);
+  const differ = verdicts.filter(item => !kept.has(item.id) || kept.get(item.id).meets !== item.meets || kept.get(item.id).graded_by !== item.graded_by);
+  const checks = [...new Set([...differ, ...dropped.filter(item => kept.has(item.id))].map(item => item.id))];
+  if (checks.length) refuse('verdict_taken', { check: checks[0], why: whyNotTaken(dropped) });
+}
+// Verdicts are checked as a typed answer's are. Returns null when no verdict is new, so the caller replays or confirms.
+async function confirmWithVerdicts(door, methods, record, at, step, given, now) {
+  const { entry, toJudge, verdicts, dropped, kept } = await takeGiven(door, methods, record, at, step, given);
   const problems = judgedProblems(verdicts);
   if (problems.length) throw new AnswerProblems(problems);
-  const kept = new Map((entry.verdicts ?? []).map(item => [item.id, item]));
+  refuseNotTaken(dropped, kept);
   const added = [];
   for (const verdict of verdicts) {
     const have = kept.get(verdict.id);
@@ -599,12 +617,19 @@ export async function answerADecisionQuestion(input, { door }) {
   const next = bare.nextStepOf(record);
   const revising = input.revise !== undefined;
   const flagged = Boolean(entry?.needs_recheck);
+  const step = bare.stepsFor(record).find(item => item.id === input.step_id);
   const replayed = async () => ({ ...(await guideReply(door, await catalogueAt(door, methods, record), record)), replayed: true });
+  const replaying = async () => {
+    if (input.verdicts !== undefined) {
+      if (!step) refuse('revise_inactive', { step: input.step_id });
+      await refuseChangedVerdicts(door, methods, record, at, step, input.verdicts);
+    }
+    return flagged ? confirmStep(door, methods, record, at) : replayed();
+  };
   if (input.confirm === true) {
     if (!entry) refuse('unanswered_step', { step: input.step_id });
     if (flagged && (!next || next.id !== input.step_id)) throw new Error(outOfTurn(record, next, input.step_id));
     if (input.verdicts !== undefined) {
-      const step = bare.stepsFor(record).find(item => item.id === input.step_id);
       if (!step || !entry.step_id) refuse('confirm_inactive', { step: input.step_id });
       const added = await confirmWithVerdicts(door, methods, record, at, step, input.verdicts, new Date().toISOString());
       if (added) return added;
@@ -613,20 +638,19 @@ export async function answerADecisionQuestion(input, { door }) {
   }
   if (revising && !entry) refuse('unanswered_step', { step: input.step_id });
   if (entry && !flagged && !revising) {
-    if (input.from !== undefined ? fromMatches(entry.from, input.from) : same(entry.answer, input.answer)) return replayed();
+    if (input.from !== undefined ? fromMatches(entry.from, input.from) : same(entry.answer, input.answer)) return replaying();
     refuse('different_answer', { step: input.step_id });
   }
   // A decided decision is reopened by a revision of one of its answers; any other new answer waits for a failed result.
   const reopening = Boolean(record.decision) && record.status !== 'correction_needed';
   if (reopening && !revising) refuse('already_decided');
   if ((!entry || flagged) && (!next || next.id !== input.step_id)) throw new Error(outOfTurn(record, next, input.step_id));
-  const step = bare.stepsFor(record).find(item => item.id === input.step_id);
   if (!step) refuse('revise_inactive', { step: input.step_id });
   const cat = await catalogueAt(door, methods, record, step);
   const now = new Date().toISOString();
   const copied = input.from !== undefined ? await copyStep(door, record, input.from, now) : null;
   const answer = copied ? copied.answer : input.answer;
-  if (entry && same(entry.answer, answer)) return flagged ? confirmStep(door, methods, record, at) : replayed();
+  if (entry && same(entry.answer, answer)) return replaying();
   if (flagged && !revising) refuse('different_answer', { step: input.step_id });
   if (copied) takeEvidence(record, copied.evidence);
   const refs = citedRefsIn(answer);

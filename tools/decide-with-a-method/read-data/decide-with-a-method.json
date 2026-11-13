@@ -724,7 +724,7 @@
     "confirm_shape": "confirm must be true when given.",
     "confirm_alone": "A confirmation is sent alone, or with verdicts: no answer, from or revise.",
     "confirm_inactive": "\"{step}\" has no answer that this decision's method asks now, so its verdicts cannot be added.",
-    "verdict_taken": "Check {check} already has a different verdict on this answer, and a verdict is never changed: send it with the same meets and graded_by, or leave it out.",
+    "verdict_taken": "Check {check} already has a different verdict on this answer, and a verdict is never changed: send it with the same meets and graded_by, or leave it out.{why}",
     "from_and_answer": "Send an answer or from, not both: from brings in another decision's answer as it stood.",
     "from_shape": "from is { decision_id, step_id, version? }: one of your other decisions, the step to bring in and, optionally, its version.",
     "from_self": "from names this decision: to change its own answer, revise it instead.",
