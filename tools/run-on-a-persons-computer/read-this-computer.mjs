@@ -206,7 +206,7 @@ export function startReading({ rows = rowsOf(), key = null, origin, account = ac
   if (inputs) rows = { ...rows, sources: inputs.sources };
   adoptProgress(adoptFrom, stateFolder);
   const seed = readJson(join(stateFolder, 'computer-sources.json'))?.computer_id ?? null;
-  const reading = readNewItems({ carriers: inputs ? inputs.carriers : rows.sources.filter(isRead).map(row => row.read), account, keep, stateFile: join(stateFolder, 'written-elsewhere.json'), workdir: join(stateFolder, 'written-elsewhere-previews'), hear, keepWords, see, keepSeen, longText: rows.long_text ?? null, ...(rows.turned_away ? { turnedAway: rows.turned_away } : {}), ...(rows.item_trouble ? { itemTrouble: rows.item_trouble } : {}), log, ...(readers ? { readers } : {}) });
+  const reading = readNewItems({ carriers: inputs ? inputs.carriers : rows.sources.filter(isRead).map(row => row.read), account, keep, stateFile: join(stateFolder, 'written-elsewhere.json'), workdir: join(stateFolder, 'written-elsewhere-previews'), hear, keepWords, see, keepSeen, longText: rows.long_text ?? null, ...(rows.turned_away ? { turnedAway: rows.turned_away } : {}), ...(rows.item_trouble ? { itemTrouble: rows.item_trouble } : {}), ...(rows.inputs?.warn_after_hours ? { warnAfterHours: rows.inputs.warn_after_hours } : {}), log, ...(readers ? { readers } : {}) });
   const finding = computerSources({ rows, account, stateFile: join(stateFolder, 'computer-sources.json'), workdir: join(stateFolder, 'computer-sources-work'), computerId: computerIdOf(join(shared, 'computer.json'), seed), program, carriers: () => reading.status(), connectionsUrl: origin ? `${origin.replace(/\/$/, '')}/connections` : null, log, ...(look ? { look } : {}) });
   let elsewhere = false;
   let busy = 0;

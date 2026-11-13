@@ -314,7 +314,7 @@ export function computerSources({rows, account, stateFile, workdir, computerId =
     }
     const found = await look({rows: rows.sources, home, domains: services, workdir, look_seconds: rows.look_seconds});
     const reading = carriers();
-    const working = new Set(reading.filter(carrier => carrier.status === 'working' && carrier.arrived).map(carrier => carrier.route));
+    const working = new Set(reading.filter(carrier => carrier.status === 'working' && carrier.arrived && !carrier.warning).map(carrier => carrier.route));
     const byId = new Map(rows.sources.map(row => [row.id, row]));
     const looked = found.sources.map(source => (source.state === 'found' && working.has(byId.get(source.id)?.read?.route) ? {...source, state: 'reading'} : source));
     const sources = looked.map(({carries, ...source}) => source);
@@ -322,7 +322,7 @@ export function computerSources({rows, account, stateFile, workdir, computerId =
     const computer = await name();
     await carry(looked.filter(source => source.carries), computer);
     // Reader evidence is metadata only. An item id, title, text or file never enters the discovery report.
-    const readers = reading.map(({route, status, last_read_at, latest_item_at, last_sent, failed}) => ({route, status: readerReason(status), last_read_at, latest_item_at,
+    const readers = reading.map(({route, status, warning, last_read_at, latest_item_at, last_sent, failed}) => ({route, status: readerReason(status), ...(warning ? {warning} : {}), last_read_at, latest_item_at,
       last_sent_at: last_sent?.at ?? null, ...(failed ? {failed: {error: readerReason(failed.error), at: failed.at}} : {})}));
     const report = {computer_id: state.computer_id, name: computer, sources, readers, gates: Object.fromEntries([...used].filter(id => rows.gates?.[id]).map(id => [id, {label: fill(rows.gates[id].label, {program}), steps: rows.gates[id].steps.map(step => fill(step, {program}))}])), browser_sites: found.browser_sites};
     last = {at: new Date().toISOString(), found: sources.length, needs_switch: sources.filter(source => source.state === 'needs_switch').length, reading: sources.filter(source => source.state === 'reading').length};

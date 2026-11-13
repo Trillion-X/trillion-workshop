@@ -31,6 +31,23 @@ export const startersOf = rows => rows.sources.map(({id, ...values}) => ({id, va
 /** A place as the reader knows it (`{id, ...fields}`) from its list row. */
 export const sourceOfRow = ({id, values}) => ({id, ...values});
 
+/**
+ * The places to read, from the rows: a row's `read` route names its progress and where its arrivals come from, so two rows
+ * with one route would share both: the first row reads it, the others are named in the log and left unread; a read
+ * block with no route is left unread.
+ */
+export function readable(sources, log = () => {}) {
+  const taken = new Map();
+  return sources.filter(source => {
+    if (!isRead(source)) return false;
+    const route = source.read.route;
+    if (typeof route !== 'string' || !route) { log(`Inputs: ${source.id} has a read block with no route, so it is not read`); return false; }
+    if (taken.has(route)) { log(`Inputs: ${source.id} shares the route "${route}" with ${taken.get(route)}, so it is not read`); return false; }
+    taken.set(route, source.id);
+    return true;
+  });
+}
+
 /** Whether the person has this place read: every row is read unless its `reading` says No. */
 export const isRead = source => Boolean(source.read) && source.reading !== 'No';
 
@@ -115,8 +132,22 @@ export function liveInputs({lists, rows, definition = inputsDefinition(), cacheF
   let readAt = null, made = false, ready = false;
   const apply = next => {
     sources.splice(0, sources.length, ...next);
-    carriers.splice(0, carriers.length, ...next.filter(isRead).map(source => source.read));
+    carriers.splice(0, carriers.length, ...readable(next, log).map(source => source.read));
   };
+  // The list exists with its starting rows once: the list first, then each starting row not there yet, then the mark
+  // that it is seeded. A first run cut off between the steps goes on from where it stopped, and a row the person
+  // removed after the mark is never put back.
+  async function seeded() {
+    const id = definition.id;
+    let list = await lists.find(id);
+    if (!list) list = await lists.ensure({...definition});
+    if (list.seeded) return;
+    const {rows: held} = await lists.read(id);
+    const have = new Set(held.map(row => row.id));
+    const missing = startersOf(rows).filter(row => !have.has(row.id));
+    if (missing.length) await lists.putRows(id, {rows: missing});
+    await lists.save({id, seeded: new Date(now()).toISOString()});
+  }
   apply((cacheFile && readJson(cacheFile)?.sources) || rows.sources);
   return {
     sources, carriers,
@@ -125,7 +156,7 @@ export function liveInputs({lists, rows, definition = inputsDefinition(), cacheF
       if (!force && readAt !== null && now() - readAt < everySeconds * 1000) return false;
       readAt = now();
       try {
-        if (!made) { await lists.ensure({...definition, starters: startersOf(rows)}); made = true; }
+        if (!made) { await seeded(); made = true; }
         const {rows: held} = await lists.read(definition.id);
         const next = held.map(sourceOfRow);
         apply(next);

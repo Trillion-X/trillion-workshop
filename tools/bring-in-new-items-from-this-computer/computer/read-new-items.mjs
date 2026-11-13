@@ -400,7 +400,7 @@ export const makeCopy = (picture, edge, workdir, {run = programRun} = {}) => new
  * computer (observe-visual.mjs: Apple Vision words and, when a local model answers, a caption); keepSeen(identity,
  * observation) keeps what was seen as the kept file's `visual-observation` result.
  */
-export function readNewItems({carriers, account, keep, stateFile, workdir = path.join(path.dirname(stateFile), 'written-elsewhere-previews'), readers = CHILD_READERS, preview = makePreview, copy = makeCopy, hear = null, keepWords = null, see = null, keepSeen = null, spent = () => Date.now(), longText = null, turnedAway = {ask_again_minutes: 60}, itemTrouble = {retry_seconds: 60, longest_seconds: 1800}, now = () => new Date(), openAccessPane = () => openAddress(accessPaneAddress()), log = () => {}}) {
+export function readNewItems({carriers, account, keep, stateFile, workdir = path.join(path.dirname(stateFile), 'written-elsewhere-previews'), readers = CHILD_READERS, preview = makePreview, copy = makeCopy, hear = null, keepWords = null, see = null, keepSeen = null, spent = () => Date.now(), longText = null, turnedAway = {ask_again_minutes: 60}, itemTrouble = {retry_seconds: 60, longest_seconds: 1800}, now = () => new Date(), warnAfterHours = 24, openAccessPane = () => openAddress(accessPaneAddress()), log = () => {}}) {
   let state = {};
   try { state = JSON.parse(readFileSync(stateFile, 'utf8')); } catch {}
   const save = () => { writeFileSync(`${stateFile}.next`, JSON.stringify(state, null, 1)); renameSync(`${stateFile}.next`, stateFile); };
@@ -830,7 +830,11 @@ export function readNewItems({carriers, account, keep, stateFile, workdir = path
     },
     status: () => carriers.map(carrier => {
       const held = state[carrier.route];
-      return {route: carrier.route, status: held?.status ?? 'starting', arrived: Boolean(held?.first_arrival_at || held?.last_sent), waiting: held?.waiting ?? 0,
+      // A place not read, or failing to be read, for longer than its row's warn_after_hours (else the reader's) says so:
+      // from its last read, else from the first time it was looked at. A place nothing new arrived in is not silent.
+      const silent = (now().getTime() - Date.parse(held?.last_read_at ?? held?.first_since ?? '')) / 3_600_000;
+      const warning = Number.isFinite(silent) && silent > (carrier.warn_after_hours ?? warnAfterHours) ? `has not been read for ${Math.floor(silent)} hours` : null;
+      return {route: carrier.route, status: held?.status ?? 'starting', ...(warning ? {warning} : {}), arrived: Boolean(held?.first_arrival_at || held?.last_sent), waiting: held?.waiting ?? 0,
         last_sent: held?.last_sent ?? null, last_read_at: held?.last_read_at ?? null,
         latest_item_at: held?.latest_item_at ?? null, seen_count: held?.seen_count ?? 0,
         failed: held?.failed ?? null, account_waits_until: quiet() ? state.account_quiet_until : null};

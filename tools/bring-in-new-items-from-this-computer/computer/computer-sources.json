@@ -102,7 +102,7 @@
     { "id": "music", "root": "~/Music", "keep": { "folder": "/Mac originals/Music", "state": "~/.trillion/computer-sources/folder-imports/music", "hourly_write_bytes": 67108864, "hourly_files": 5, "look_again_seconds": 300, "skip": [
       { "path": "**/*.musiclibrary/**", "why": "Music library database, not original media" }] } }
   ],
-  "inputs": {"list": "inputs", "every_seconds": 60, "_what": "The places below are only the rows the account list `inputs` starts with (inputs.mjs), copied in once when the list is made. The reader reads the list through the person's door, at most once in every_seconds, and keeps the last rows it saw when the account cannot be reached; a place is added, paused (reading No) or removed there, never here."},
+  "inputs": {"list": "inputs", "every_seconds": 60, "warn_after_hours": 24, "_what": "The places below are only the rows the account list `inputs` starts with (inputs.mjs), copied in once when the list is made. The reader reads the list through the person's door, at most once in every_seconds, and keeps the last rows it saw when the account cannot be reached; a place is added, paused (reading No) or removed there, never here. A place not read, or failing to be read, for warn_after_hours (24; a row's own warn_after_hours replaces it) reports a warning in its status, which Connections shows."},
   "sources": [
     {"id":"filmcraft","label":"Filmcraft","category":"Editing","carries":"filmcraft","look":{"paths":["~/.local/bin/filmcraft-cli","/usr/local/bin/filmcraft-cli","/opt/homebrew/bin/filmcraft-cli"]}},
     {"id":"mflux","label":"Local image runtime","category":"Pictures","look":{"paths":["~/.local/bin/uv","/opt/homebrew/bin/uv","/usr/local/bin/uv"]}},

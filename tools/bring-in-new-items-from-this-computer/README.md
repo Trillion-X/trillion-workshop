@@ -29,7 +29,7 @@ The one Connections list, services and these places together, is `tool:list-ever
 the person's records door: it makes the list once with `computer-sources.json`'s `sources` as its starting rows (a row the
 person later removes or changes is never put back), reads the rows back as the places the reader looks at and reads (at most
 once in `inputs.every_seconds`), and keeps the last rows it saw (`inputs-cache.json` in the computer's progress folder) so a
-Mac that cannot reach the account goes on reading what it read. A row's `reading` set to No leaves the place listed (Connections
+Mac that cannot reach the account goes on reading what it read. The list is made first, then each starting row not there yet, then the list is marked `seeded`, so a first run cut off in between goes on from where it stopped and a row removed after the mark is never put back. Two rows with one `read.route` are not both read (the first is; the log names the other), and a place not read, or failing to be read, for `inputs.warn_after_hours` (24, or the row's own `warn_after_hours`) carries a `warning` in its status, which the report to Connections includes and which takes the place out of `reading`. A row's `reading` set to No leaves the place listed (Connections
 shows it) and unread. A service row names its connection by handle (`connection`) and never holds a secret.
 
 A connected service is read by the `tool` reader, in the reader's own process: the row names a Workshop tool (`tool`), its

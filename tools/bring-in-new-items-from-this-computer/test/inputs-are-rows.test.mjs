@@ -12,7 +12,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {readNewItems} from '../computer/read-new-items.mjs';
-import {inputsDefinition, liveInputs, readersWith, serviceReader, startersOf, toolRunner} from '../computer/inputs.mjs';
+import {inputsDefinition, liveInputs, readable, readersWith, serviceReader, startersOf, toolRunner} from '../computer/inputs.mjs';
 import {listsOverDoor} from '../../records-door/read-data/lists-door.mjs';
 import {memoryDoor} from '../../watch-my-sources/test/memory-door.mjs';
 
@@ -157,4 +157,90 @@ test('a service reader says what is wrong with a row that cannot be read', async
   assert.deepEqual(await serviceReader(async () => ({}))({route: 'X', tool: 'tool:x', items: 'notes'}, new Date()), [], 'an answer with no list holds no new things');
   assert.equal(startersOf(rows).length, rows.sources.length);
   assert.equal(inputsDefinition().id, 'inputs');
+});
+
+test('a first run cut off after the list was made goes on from there: the missing starting rows are put in once, then the list is marked seeded', async () => {
+  const door = memoryDoor();
+  const real = door.write;
+  let writes = 0;
+  door.write = async (...args) => { writes += 1; if (writes === 2) throw new Error('the connection dropped'); return real(...args); };
+  const first = liveInputs({lists: listsOverDoor(door), rows});
+  assert.equal(await first.refresh(), false, 'the cut-off run reads nothing from the list');
+  assert.equal([...door.kept.values()].filter(record => record.type === 'record:inputs').length, 0, 'the list was made without its rows');
+
+  const again = liveInputs({lists: listsOverDoor(door), rows});
+  assert.equal(await again.refresh(), true);
+  const lists = listsOverDoor(door);
+  assert.equal((await lists.read('inputs')).rows.length, rows.sources.length, 'every starting row is there, once');
+  assert.ok((await lists.find('inputs')).seeded, 'the list is marked seeded');
+  const marked = door.writes.length;
+  await liveInputs({lists: listsOverDoor(door), rows}).refresh();
+  assert.equal(door.writes.length, marked, 'a seeded list is not written again');
+});
+
+test('two readers starting together end with one list and each starting row once', async () => {
+  const door = memoryDoor();
+  const a = liveInputs({lists: listsOverDoor(door), rows, everySeconds: 0}), b = liveInputs({lists: listsOverDoor(door), rows, everySeconds: 0});
+  await Promise.all([a.refresh(), b.refresh()]);
+  await a.refresh({force: true});
+  await b.refresh({force: true});
+  const held = (await listsOverDoor(door).read('inputs')).rows;
+  assert.equal(held.length, rows.sources.length);
+  assert.equal(new Set(held.map(row => row.id)).size, held.length);
+  assert.equal(a.carriers.length, b.carriers.length);
+  assert.ok(a.carriers.length > 0);
+});
+
+test('two rows with one route are not both read, and a read block with no route is left unread', () => {
+  const lines = [];
+  const places = [
+    {id: 'one', read: {route: 'Same'}}, {id: 'two', read: {route: 'Same'}}, {id: 'none', read: {reader: 'sqlite'}},
+    {id: 'paused', reading: 'No', read: {route: 'Paused'}}, {id: 'look-only', look: {paths: []}}, {id: 'fine', read: {route: 'Fine'}},
+  ];
+  assert.deepEqual(readable(places, line => lines.push(line)).map(place => place.id), ['one', 'fine']);
+  assert.match(lines.join('\n'), /two shares the route "Same" with one/);
+  assert.match(lines.join('\n'), /none has a read block with no route/);
+});
+
+test('a read cut off by the account sends the rest next look and never what was sent again, and a failing service names why while the other places read', async () => {
+  const folder = dir();
+  const noon = Date.parse('2026-11-13T12:00:00Z');
+  let clock = noon, failSecond = true;
+  const things = [{id: 'a', words: 'first', at: noon / 1000 + 600}, {id: 'b', words: 'second', at: noon / 1000 + 660}];
+  const carrier = {route: 'Cut service', reader: 'tool', tool: 'tool:cut-list', items: 'things', time: 'unix-seconds', fields: {source_id: 'id', at: 'at', text: 'words'}, settle_seconds: 0};
+  const broken = {route: 'Broken service', reader: 'tool', tool: 'tool:broken-list', items: 'things', fields: {source_id: 'id', text: 'words'}, settle_seconds: 0};
+  const stand = standInAccount();
+  const account = async (route, request) => (failSecond && request.body.source_id === 'b' ? {status: 500, body: {error: 'the account dropped'}} : stand.account(route, request));
+  const run = async tool => { if (tool === 'tool:broken-list') throw new Error('service_connection:broken is not connected'); return {things}; };
+  const look = () => readNewItems({carriers: [carrier, broken], account, keep: stand.keep, stateFile: path.join(folder, 'state.json'), readers: readersWith({tool: serviceReader(run)}), now: () => new Date(clock)});
+  await look().tick();
+  clock += 3_600_000;
+  await look().tick();
+  assert.equal(stand.kept.get('Cut service:a')?.arrivals, 1);
+  assert.equal(stand.kept.has('Cut service:b'), false, 'the item the account dropped is not marked sent');
+  failSecond = false;
+  clock += 120_000;
+  await look().tick();
+  await look().tick();
+  assert.equal(stand.kept.get('Cut service:a').arrivals, 1, 'what was sent is never sent again');
+  assert.equal(stand.kept.get('Cut service:b').arrivals, 1);
+  const status = look().status();
+  assert.match(status.find(place => place.route === 'Broken service').status, /is not connected/, 'a failing service says why');
+});
+
+test('a place not read for longer than its warning time says so in its status, and a place being read does not', async () => {
+  const folder = dir();
+  let clock = Date.parse('2026-11-13T12:00:00Z'), reading = false;
+  const carrier = {route: 'Quiet', reader: 'tool', tool: 'tool:quiet', items: 'things', fields: {source_id: 'id', text: 'words'}, settle_seconds: 0};
+  const run = async () => { if (!reading) throw new Error('could not be reached'); return {things: []}; };
+  const stand = standInAccount();
+  const look = () => readNewItems({carriers: [carrier], account: stand.account, keep: stand.keep, stateFile: path.join(folder, 'state.json'), readers: readersWith({tool: serviceReader(run)}), warnAfterHours: 24, now: () => new Date(clock)});
+  await look().tick();
+  clock += 20 * 3_600_000;
+  assert.equal(look().status()[0].warning, undefined, 'twenty hours is inside the warning time');
+  clock += 6 * 3_600_000;
+  assert.match(look().status()[0].warning, /has not been read for 26 hours/);
+  reading = true;
+  await look().tick();
+  assert.equal(look().status()[0].warning, undefined, 'a place that reads again is no longer warned about');
 });
