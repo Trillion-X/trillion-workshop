@@ -29,6 +29,14 @@
   "instagram": {
    "trade": ["tool:trade-an-instagram-sign-in-code-for-its-short-token", "tool:trade-a-short-instagram-token-for-a-long-one"],
    "verify": { "tool": "tool:check-the-instagram-connection", "input": { "account_id": "{connection_id}" } }
+  },
+  "facebook-messenger": {
+   "trade": ["tool:trade-a-facebook-sign-in-code-for-its-short-token", "tool:trade-a-short-facebook-token-for-a-long-one"],
+   "verify": { "tool": "tool:list-the-facebook-pages-a-sign-in-reaches", "input": { "connection": { "connection_id": "{connection_id}" } } }
+  },
+  "threads": {
+   "trade": ["tool:trade-a-threads-sign-in-code-for-its-short-token", "tool:trade-a-short-threads-token-for-a-long-one"],
+   "verify": { "tool": "tool:check-the-threads-connection", "input": { "account_id": "{connection_id}" } }
   }
  },
  "words": {

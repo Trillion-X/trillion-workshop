@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:1d2e7c6fb3cf0d83dc308473db0a6766e900585b7afd03edf9d3213a7abda310"
+  "blake3": "1f:13592b8dfc09fd233fd600b2e77c147d3f1cac1ca1dc9441631294d31724921d"
  },
  "fields": [
   {
@@ -2241,6 +2241,24 @@
     "title": "Check the Instagram connection",
     "job": "Check that the person's Instagram connection still reaches its account, before a post is set to go there",
     "description": "Asks Instagram which account the person's instagram connection signs in as, with the value the person's vault holds for it (placed only as the request leaves, never shown). Returns the account's user_id and username. A refusal (an expired or revoked sign-in) means the person connects Instagram again. It posts nothing and changes nothing.",
+    "status": "active",
+    "maker": "maker:social-posts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "folder": "social-posts",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
+   "id": "tool:check-the-threads-connection",
+   "values": {
+    "title": "Check the Threads connection",
+    "job": "Check that the person's Threads connection still reaches its account, before a post is set to go there",
+    "description": "Asks Threads which account the person's threads connection signs in as, with the value the person's vault holds for it (placed only as the request leaves, never shown). Returns the account's id and username. A refusal (an expired or revoked sign-in) means the person connects Threads again. It posts nothing and changes nothing.",
     "status": "active",
     "maker": "maker:social-posts",
     "licence_class": "licence:maker-own",
@@ -6164,6 +6182,25 @@
      "placement:your-computer"
     ],
     "folder": "conversations"
+   }
+  },
+  {
+   "id": "tool:list-the-facebook-pages-a-sign-in-reaches",
+   "values": {
+    "title": "List the Facebook Pages a sign-in reaches",
+    "job": "Read which Facebook Pages the connection's sign-in manages, keeping each Page's own token sealed in the vault",
+    "description": "The facebook-messenger descriptor's acquire.choose.list: GET graph.facebook.com/v23.0/me/accounts (at most two Pages, enough to tell one from several) with the connection's user token, placed from the vault only as the request leaves. The first Page's access_token is kept in the vault as the connection's page_access_token field, and a second one's as other_page_access_token, before the reply is read, so no Page token is in the answer. The answer is each Page's id and name. Run by tool:connect-an-account-by-signing-in-to-the-service at the sign-in callback, which connects only when exactly one Page is reached.",
+    "status": "active",
+    "maker": "maker:connect-a-service-and-seal-its-key",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "listed_on": "2026-11-12T00:00:00Z",
+    "folder": "connect-a-service-and-seal-its-key",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -13330,6 +13367,22 @@
    }
   },
   {
+   "id": "tool:trade-a-facebook-sign-in-code-for-its-short-token",
+   "values": {
+    "title": "Trade a Facebook sign-in code for its short-lived token",
+    "job": "Trade the code Facebook's sign-in page handed back for the connection's short-lived user token, kept sealed in the vault",
+    "description": "One token request to Facebook (the facebook-messenger descriptor's acquire.token_url, client_auth form): the code and the callback address go in a form body with the Facebook login's app id and secret, placed from the vault only as the request leaves. The reply's access_token (a short-lived user token) is kept in the vault as the new connection's field short_lived_access_token before the reply is read; tool:trade-a-short-facebook-token-for-a-long-one then trades it for the 60-day user token (the descriptor's acquire.then). Run by tool:connect-an-account-by-signing-in-to-the-service at the sign-in callback.",
+    "status": "active",
+    "maker": "maker:connect-a-service-and-seal-its-key",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "listed_on": "2026-11-12T00:00:00Z",
+    "folder": "connect-a-service-and-seal-its-key"
+   }
+  },
+  {
    "id": "tool:trade-a-gmail-sign-in-code-for-its-tokens",
    "values": {
     "title": "Trade a Gmail sign-in code for its tokens",
@@ -13346,11 +13399,59 @@
    }
   },
   {
+   "id": "tool:trade-a-short-facebook-token-for-a-long-one",
+   "values": {
+    "title": "Trade a short-lived Facebook token for a long-lived one",
+    "job": "Trade the connection's short-lived Facebook user token for its 60-day user token, kept sealed in the vault",
+    "description": "The facebook-messenger descriptor's acquire.then step: GET graph.facebook.com/v23.0/oauth/access_token with grant_type fb_exchange_token, the Facebook login's app id and secret and the connection's short-lived token, all placed from the vault only as the request leaves. The reply's access_token is kept in the vault as the connection's user_access_token field before the reply is read; tool:list-the-facebook-pages-a-sign-in-reaches then reads the Pages it reaches with it. Run by tool:connect-an-account-by-signing-in-to-the-service at the sign-in callback, right after tool:trade-a-facebook-sign-in-code-for-its-short-token.",
+    "status": "active",
+    "maker": "maker:connect-a-service-and-seal-its-key",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "listed_on": "2026-11-12T00:00:00Z",
+    "folder": "connect-a-service-and-seal-its-key"
+   }
+  },
+  {
    "id": "tool:trade-a-short-instagram-token-for-a-long-one",
    "values": {
     "title": "Trade a short-lived Instagram token for a long-lived one",
     "job": "Trade the connection's short-lived Instagram token for its 60-day token, kept sealed in the vault",
     "description": "The instagram descriptor's acquire.then step: GET graph.instagram.com/access_token with grant_type ig_exchange_token, the Instagram login's app secret and the connection's short-lived token, both placed from the vault only as the request leaves. The reply's access_token is kept in the vault as the connection's access_token field before the reply is read. Run by tool:connect-an-account-by-signing-in-to-the-service at the sign-in callback, right after tool:trade-an-instagram-sign-in-code-for-its-short-token.",
+    "status": "active",
+    "maker": "maker:connect-a-service-and-seal-its-key",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "listed_on": "2026-11-12T00:00:00Z",
+    "folder": "connect-a-service-and-seal-its-key"
+   }
+  },
+  {
+   "id": "tool:trade-a-short-threads-token-for-a-long-one",
+   "values": {
+    "title": "Trade a short-lived Threads token for a long-lived one",
+    "job": "Trade the connection's short-lived Threads token for its 60-day token, kept sealed in the vault",
+    "description": "The threads descriptor's acquire.then step: GET graph.threads.net/access_token with grant_type th_exchange_token, the Threads login's app secret and the connection's short-lived token, both placed from the vault only as the request leaves. The reply's access_token is kept in the vault as the connection's access_token field before the reply is read. Run by tool:connect-an-account-by-signing-in-to-the-service at the sign-in callback, right after tool:trade-a-threads-sign-in-code-for-its-short-token.",
+    "status": "active",
+    "maker": "maker:connect-a-service-and-seal-its-key",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "listed_on": "2026-11-12T00:00:00Z",
+    "folder": "connect-a-service-and-seal-its-key"
+   }
+  },
+  {
+   "id": "tool:trade-a-threads-sign-in-code-for-its-short-token",
+   "values": {
+    "title": "Trade a Threads sign-in code for its short-lived token",
+    "job": "Trade the code Threads' sign-in page handed back for the connection's short-lived token, kept sealed in the vault",
+    "description": "One token request to Threads (the threads descriptor's acquire.token_url, client_auth form): the code and the callback address go in a form body with the Threads login's app id and secret, placed from the vault only as the request leaves. The reply's access_token (Threads' short-lived token) is kept in the vault as the new connection's field short_lived_access_token before the reply is read; tool:trade-a-short-threads-token-for-a-long-one then trades it for the 60-day token (the descriptor's acquire.then). Run by tool:connect-an-account-by-signing-in-to-the-service at the sign-in callback.",
     "status": "active",
     "maker": "maker:connect-a-service-and-seal-its-key",
     "licence_class": "licence:maker-own",

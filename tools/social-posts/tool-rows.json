@@ -1915,6 +1915,114 @@
       }
     },
     {
+      "id": "package::social-posts::tool::check-the-threads-connection",
+      "address": "package::social-posts::tool::check-the-threads-connection",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:public-web-address"
+        ],
+        "maker": "maker:social-posts",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": true
+        },
+        "read_only": true,
+        "id": "tool:check-the-threads-connection",
+        "label": "Check the Threads connection",
+        "job": "Check that the person's Threads connection still reaches its account, before a post is set to go there",
+        "description": "Asks Threads which account the person's threads connection signs in as, with the value the person's vault holds for it (placed only as the request leaves, never shown). Returns the account's id and username. A refusal (an expired or revoked sign-in) means the person connects Threads again. It posts nothing and changes nothing.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "account_id"
+          ],
+          "properties": {
+            "account_id": {
+              "type": "string",
+              "description": "One of the person's accounts of this kind, service_connection:threads or service_connection:threads:<account>, from tool:list-post-destinations"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "refresh": {
+            "token_url": "https://graph.threads.net/refresh_access_token",
+            "asked": {
+              "method": "GET",
+              "grant_type": "th_refresh_token",
+              "token_param": "access_token"
+            },
+            "client_auth": "none",
+            "margin_ms": 864000000,
+            "when_expiry_unknown": true,
+            "access_field": "access_token",
+            "token_paths": [
+              [
+                "access_token"
+              ]
+            ],
+            "expires_path": [
+              "expires_in"
+            ],
+            "refresh": {
+              "field": "access_token",
+              "token_paths": []
+            }
+          },
+          "kind": "http",
+          "url": "https://graph.threads.net/v1.0/me",
+          "method": "GET",
+          "timeout_seconds": 20,
+          "query": {
+            "fields": {
+              "const": "id,username"
+            }
+          },
+          "credential_injections": [
+            {
+              "hosts": [
+                "graph.threads.net"
+              ],
+              "field_id": "access_token",
+              "placement": {
+                "kind": "query",
+                "name": "access_token"
+              }
+            }
+          ],
+          "connection": {
+            "vendor": "threads",
+            "from_input": "account_id"
+          }
+        },
+        "provenance": {
+          "provider": "Threads",
+          "api": "https://graph.threads.net/v1.0/me"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "account_id": "service_connection:threads"
+            },
+            "output_selector": "$",
+            "contains": "id"
+          }
+        ],
+        "result_selector": "$"
+      }
+    },
+    {
       "id": "package::social-posts::tool::check-the-facebook-page-connection",
       "address": "package::social-posts::tool::check-the-facebook-page-connection",
       "path": [

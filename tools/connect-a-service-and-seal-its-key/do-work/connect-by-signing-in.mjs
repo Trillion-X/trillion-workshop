@@ -191,18 +191,28 @@ async function tradeAndCheck(door, descriptor, saved, code) {
     if (index === 0) grantedScopes = scopesReportedBy(acquire.granted_scopes, answer.result);
     traded = answer.result;
   }
-  if (!firstAt(traded, [[acquire.fills_field ?? 'access_token']])) return { why: words.no_token };
+  // The last trade's reply names the token where the descriptor says (token_paths), else where it fills its field.
+  if (!firstAt(traded, acquire.token_paths ?? [[acquire.fills_field ?? 'access_token']])) return { why: words.no_token };
   const checked = await door.run(service.verify.tool, filled(service.verify.input, saved.connection_id), { key: 'verify' });
   if (checked?.error !== undefined || !checked?.result || typeof checked.result !== 'object') return { why: `${words.not_checked} ${failed(checked)}` };
   const body = checked.result;
-  // A sign-in that may reach several accounts (acquire.choose) connects only when it reaches exactly one.
+  // A sign-in that may reach several accounts (acquire.choose) connects only when it reaches exactly one, whose label
+  // and plain values the descriptor's choose names (a secret field of it is kept by the checking row, never read here).
+  let chosen = null;
   if (acquire.choose) {
     const reached = (acquire.choose.items_path ?? []).reduce((at, part) => (at === undefined || at === null ? undefined : at[part]), body);
     if (!Array.isArray(reached) || reached.length === 0) return { why: words.no_account };
     if (reached.length > 1) return { why: words.many_accounts };
+    chosen = reached[0];
   }
-  const label = firstAt(body, (verifyRequest.account_label_from ?? []).filter(item => item.from === 'body').map(item => item.path));
-  const plain = Object.fromEntries((verifyRequest.fills ?? []).map(fill => [fill.field, firstAt(body, [fill.path])]).filter(([, value]) => value));
+  const secrets = new Set((descriptor.credentialFields ?? []).filter(field => field.secret).map(field => field.id));
+  const chosenFills = (acquire.choose?.fills ?? []).filter(fill => !secrets.has(fill.field));
+  const label = firstAt(body, (verifyRequest.account_label_from ?? []).filter(item => item.from === 'body').map(item => item.path))
+    ?? (chosen && acquire.choose.label_path ? firstAt(chosen, [acquire.choose.label_path]) : null);
+  const plain = Object.fromEntries([
+    ...chosenFills.map(fill => [fill.field, firstAt(chosen, [fill.path])]),
+    ...(verifyRequest.fills ?? []).map(fill => [fill.field, firstAt(body, [fill.path])]),
+  ].filter(([, value]) => value));
   if (saved.account && !label) return { why: said(words.unnamed_account, { expected: saved.account }) };
   if (saved.account && label.toLocaleLowerCase('en-US') !== saved.account.toLocaleLowerCase('en-US')) {
     return { why: said(words.other_account, { account: label, expected: saved.account }) };

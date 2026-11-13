@@ -565,6 +565,527 @@
         "status": "active",
         "licence_class": "licence:maker-own",
         "placements": [
+          "placement:public-web-address"
+        ],
+        "maker": "maker:connect-a-service-and-seal-its-key",
+        "listed_on": "2026-11-12T00:00:00Z",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": true
+        },
+        "read_only": false,
+        "id": "tool:trade-a-facebook-sign-in-code-for-its-short-token",
+        "label": "Trade a Facebook sign-in code for its short-lived token",
+        "job": "Trade the code Facebook's sign-in page handed back for the connection's short-lived user token, kept sealed in the vault",
+        "description": "One token request to Facebook (the facebook-messenger descriptor's acquire.token_url, client_auth form): the code and the callback address go in a form body with the Facebook login's app id and secret, placed from the vault only as the request leaves. The reply's access_token (a short-lived user token) is kept in the vault as the new connection's field short_lived_access_token before the reply is read; tool:trade-a-short-facebook-token-for-a-long-one then trades it for the 60-day user token (the descriptor's acquire.then). Run by tool:connect-an-account-by-signing-in-to-the-service at the sign-in callback.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "connection",
+            "code",
+            "redirect_uri"
+          ],
+          "properties": {
+            "connection": {
+              "type": "object",
+              "required": [
+                "connection_id"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "connection_id": {
+                  "type": "string",
+                  "description": "The new connection the sign-in fills: service_connection:<vendor>:<account>, made by tool:connect-an-account-by-signing-in-to-the-service when the sign-in started"
+                }
+              },
+              "description": "The connection whose held fields the reply fills, by its handle only"
+            },
+            "code": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The code the service handed back to the sign-in callback"
+            },
+            "redirect_uri": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The callback address the sign-in was started with"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The service's token reply, each kept token replaced by the held word"
+        },
+        "invoke": {
+          "kind": "http",
+          "url": "https://graph.facebook.com/v23.0/oauth/access_token",
+          "method": "POST",
+          "body_encoding": "form",
+          "timeout_seconds": 30,
+          "headers": {
+            "accept": "application/json"
+          },
+          "body": {
+            "code": "{code}",
+            "redirect_uri": "{redirect_uri}",
+            "client_id": "{{client_id}}",
+            "client_secret": "{{client_secret}}"
+          },
+          "credential_injections": [
+            {
+              "secret_name": "facebook-login-client-id",
+              "hosts": [
+                "graph.facebook.com"
+              ],
+              "placement": {
+                "kind": "placeholder",
+                "name": "client_id"
+              }
+            },
+            {
+              "secret_name": "facebook-login-client-secret",
+              "hosts": [
+                "graph.facebook.com"
+              ],
+              "placement": {
+                "kind": "placeholder",
+                "name": "client_secret"
+              }
+            }
+          ],
+          "connection": {
+            "vendor": "facebook-messenger",
+            "from_input": "connection"
+          },
+          "reply_holds_values": [
+            {
+              "from": "access_token",
+              "keep_as_field": "short_lived_access_token"
+            }
+          ]
+        },
+        "result_selector": "$",
+        "provenance": {
+          "source": "trillion src/connect.mjs exchangeCode and tokensFrom (tag old-trillion-before-worker-retire)",
+          "descriptor": "tools/connect-a-service-and-seal-its-key/records.json service-connection-descriptor facebook-messenger acquire"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:public-web-address"
+        ],
+        "maker": "maker:connect-a-service-and-seal-its-key",
+        "listed_on": "2026-11-12T00:00:00Z",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": true
+        },
+        "read_only": false,
+        "id": "tool:trade-a-short-facebook-token-for-a-long-one",
+        "label": "Trade a short-lived Facebook token for a long-lived one",
+        "job": "Trade the connection's short-lived Facebook user token for its 60-day user token, kept sealed in the vault",
+        "description": "The facebook-messenger descriptor's acquire.then step: GET graph.facebook.com/v23.0/oauth/access_token with grant_type fb_exchange_token, the Facebook login's app id and secret and the connection's short-lived token, all placed from the vault only as the request leaves. The reply's access_token is kept in the vault as the connection's user_access_token field before the reply is read; tool:list-the-facebook-pages-a-sign-in-reaches then reads the Pages it reaches with it. Run by tool:connect-an-account-by-signing-in-to-the-service at the sign-in callback, right after tool:trade-a-facebook-sign-in-code-for-its-short-token.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "connection"
+          ],
+          "properties": {
+            "connection": {
+              "type": "object",
+              "required": [
+                "connection_id"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "connection_id": {
+                  "type": "string",
+                  "description": "The new connection the sign-in fills: service_connection:<vendor>:<account>, made by tool:connect-an-account-by-signing-in-to-the-service when the sign-in started"
+                }
+              },
+              "description": "The connection whose held fields the reply fills, by its handle only"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The service's token reply, each kept token replaced by the held word"
+        },
+        "invoke": {
+          "kind": "http",
+          "url": "https://graph.facebook.com/v23.0/oauth/access_token?grant_type=fb_exchange_token&client_id={{client_id}}&client_secret={{client_secret}}&fb_exchange_token={{short_lived_access_token}}",
+          "method": "GET",
+          "timeout_seconds": 30,
+          "headers": {
+            "accept": "application/json"
+          },
+          "credential_injections": [
+            {
+              "secret_name": "facebook-login-client-id",
+              "hosts": [
+                "graph.facebook.com"
+              ],
+              "placement": {
+                "kind": "placeholder",
+                "name": "client_id"
+              }
+            },
+            {
+              "secret_name": "facebook-login-client-secret",
+              "hosts": [
+                "graph.facebook.com"
+              ],
+              "placement": {
+                "kind": "placeholder",
+                "name": "client_secret"
+              }
+            },
+            {
+              "field_id": "short_lived_access_token",
+              "hosts": [
+                "graph.facebook.com"
+              ],
+              "placement": {
+                "kind": "placeholder",
+                "name": "short_lived_access_token"
+              }
+            }
+          ],
+          "connection": {
+            "vendor": "facebook-messenger",
+            "from_input": "connection"
+          },
+          "reply_holds_values": [
+            {
+              "from": "access_token",
+              "keep_as_field": "user_access_token"
+            }
+          ]
+        },
+        "result_selector": "$",
+        "provenance": {
+          "source": "trillion src/connect.mjs followingExchanges (tag old-trillion-before-worker-retire)",
+          "descriptor": "tools/connect-a-service-and-seal-its-key/records.json service-connection-descriptor facebook-messenger acquire.then[0]"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:public-web-address"
+        ],
+        "maker": "maker:connect-a-service-and-seal-its-key",
+        "listed_on": "2026-11-12T00:00:00Z",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": true
+        },
+        "read_only": true,
+        "id": "tool:list-the-facebook-pages-a-sign-in-reaches",
+        "label": "List the Facebook Pages a sign-in reaches",
+        "job": "Read which Facebook Pages the connection's sign-in manages, keeping each Page's own token sealed in the vault",
+        "description": "The facebook-messenger descriptor's acquire.choose.list: GET graph.facebook.com/v23.0/me/accounts (at most two Pages, enough to tell one from several) with the connection's user token, placed from the vault only as the request leaves. The first Page's access_token is kept in the vault as the connection's page_access_token field, and a second one's as other_page_access_token, before the reply is read, so no Page token is in the answer. The answer is each Page's id and name. Run by tool:connect-an-account-by-signing-in-to-the-service at the sign-in callback, which connects only when exactly one Page is reached.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "connection"
+          ],
+          "properties": {
+            "connection": {
+              "type": "object",
+              "required": [
+                "connection_id"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "connection_id": {
+                  "type": "string",
+                  "description": "The new connection the sign-in fills: service_connection:<vendor>:<account>, made by tool:connect-an-account-by-signing-in-to-the-service when the sign-in started"
+                }
+              },
+              "description": "The connection whose held fields the reply fills, by its handle only"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The Pages the sign-in reaches: { data: [{ id, name, access_token }] }, each token replaced by the held word"
+        },
+        "invoke": {
+          "kind": "http",
+          "url": "https://graph.facebook.com/v23.0/me/accounts",
+          "method": "GET",
+          "timeout_seconds": 30,
+          "headers": {
+            "accept": "application/json"
+          },
+          "query": {
+            "fields": {
+              "const": "id,name,access_token"
+            },
+            "limit": {
+              "const": 2
+            }
+          },
+          "credential_injections": [
+            {
+              "field_id": "user_access_token",
+              "hosts": [
+                "graph.facebook.com"
+              ],
+              "placement": {
+                "kind": "query",
+                "name": "access_token"
+              }
+            }
+          ],
+          "connection": {
+            "vendor": "facebook-messenger",
+            "from_input": "connection"
+          },
+          "reply_holds_values": [
+            {
+              "from": "data.0.access_token",
+              "keep_as_field": "page_access_token"
+            },
+            {
+              "from": "data.1.access_token",
+              "keep_as_field": "other_page_access_token"
+            }
+          ]
+        },
+        "result_selector": "$",
+        "provenance": {
+          "source": "trillion src/connect.mjs chooseFrom (tag old-trillion-before-worker-retire)",
+          "descriptor": "tools/connect-a-service-and-seal-its-key/records.json service-connection-descriptor facebook-messenger acquire.choose"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:public-web-address"
+        ],
+        "maker": "maker:connect-a-service-and-seal-its-key",
+        "listed_on": "2026-11-12T00:00:00Z",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": true
+        },
+        "read_only": false,
+        "id": "tool:trade-a-threads-sign-in-code-for-its-short-token",
+        "label": "Trade a Threads sign-in code for its short-lived token",
+        "job": "Trade the code Threads' sign-in page handed back for the connection's short-lived token, kept sealed in the vault",
+        "description": "One token request to Threads (the threads descriptor's acquire.token_url, client_auth form): the code and the callback address go in a form body with the Threads login's app id and secret, placed from the vault only as the request leaves. The reply's access_token (Threads' short-lived token) is kept in the vault as the new connection's field short_lived_access_token before the reply is read; tool:trade-a-short-threads-token-for-a-long-one then trades it for the 60-day token (the descriptor's acquire.then). Run by tool:connect-an-account-by-signing-in-to-the-service at the sign-in callback.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "connection",
+            "code",
+            "redirect_uri"
+          ],
+          "properties": {
+            "connection": {
+              "type": "object",
+              "required": [
+                "connection_id"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "connection_id": {
+                  "type": "string",
+                  "description": "The new connection the sign-in fills: service_connection:<vendor>:<account>, made by tool:connect-an-account-by-signing-in-to-the-service when the sign-in started"
+                }
+              },
+              "description": "The connection whose held fields the reply fills, by its handle only"
+            },
+            "code": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The code the service handed back to the sign-in callback"
+            },
+            "redirect_uri": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The callback address the sign-in was started with"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The service's token reply, each kept token replaced by the held word"
+        },
+        "invoke": {
+          "kind": "http",
+          "url": "https://graph.threads.net/oauth/access_token",
+          "method": "POST",
+          "body_encoding": "form",
+          "timeout_seconds": 30,
+          "headers": {
+            "accept": "application/json"
+          },
+          "body": {
+            "grant_type": "authorization_code",
+            "code": "{code}",
+            "redirect_uri": "{redirect_uri}",
+            "client_id": "{{client_id}}",
+            "client_secret": "{{client_secret}}"
+          },
+          "credential_injections": [
+            {
+              "secret_name": "threads-login-client-id",
+              "hosts": [
+                "graph.threads.net"
+              ],
+              "placement": {
+                "kind": "placeholder",
+                "name": "client_id"
+              }
+            },
+            {
+              "secret_name": "threads-login-client-secret",
+              "hosts": [
+                "graph.threads.net"
+              ],
+              "placement": {
+                "kind": "placeholder",
+                "name": "client_secret"
+              }
+            }
+          ],
+          "connection": {
+            "vendor": "threads",
+            "from_input": "connection"
+          },
+          "reply_holds_values": [
+            {
+              "from": "access_token",
+              "keep_as_field": "short_lived_access_token"
+            }
+          ]
+        },
+        "result_selector": "$",
+        "provenance": {
+          "source": "trillion src/connect.mjs exchangeCode and tokensFrom (tag old-trillion-before-worker-retire)",
+          "descriptor": "tools/connect-a-service-and-seal-its-key/records.json service-connection-descriptor threads acquire"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:public-web-address"
+        ],
+        "maker": "maker:connect-a-service-and-seal-its-key",
+        "listed_on": "2026-11-12T00:00:00Z",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": true
+        },
+        "read_only": false,
+        "id": "tool:trade-a-short-threads-token-for-a-long-one",
+        "label": "Trade a short-lived Threads token for a long-lived one",
+        "job": "Trade the connection's short-lived Threads token for its 60-day token, kept sealed in the vault",
+        "description": "The threads descriptor's acquire.then step: GET graph.threads.net/access_token with grant_type th_exchange_token, the Threads login's app secret and the connection's short-lived token, both placed from the vault only as the request leaves. The reply's access_token is kept in the vault as the connection's access_token field before the reply is read. Run by tool:connect-an-account-by-signing-in-to-the-service at the sign-in callback, right after tool:trade-a-threads-sign-in-code-for-its-short-token.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "connection"
+          ],
+          "properties": {
+            "connection": {
+              "type": "object",
+              "required": [
+                "connection_id"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "connection_id": {
+                  "type": "string",
+                  "description": "The new connection the sign-in fills: service_connection:<vendor>:<account>, made by tool:connect-an-account-by-signing-in-to-the-service when the sign-in started"
+                }
+              },
+              "description": "The connection whose held fields the reply fills, by its handle only"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The service's token reply, each kept token replaced by the held word"
+        },
+        "invoke": {
+          "kind": "http",
+          "url": "https://graph.threads.net/access_token?grant_type=th_exchange_token&client_secret={{client_secret}}&access_token={{short_lived_access_token}}",
+          "method": "GET",
+          "timeout_seconds": 30,
+          "headers": {
+            "accept": "application/json"
+          },
+          "credential_injections": [
+            {
+              "secret_name": "threads-login-client-secret",
+              "hosts": [
+                "graph.threads.net"
+              ],
+              "placement": {
+                "kind": "placeholder",
+                "name": "client_secret"
+              }
+            },
+            {
+              "field_id": "short_lived_access_token",
+              "hosts": [
+                "graph.threads.net"
+              ],
+              "placement": {
+                "kind": "placeholder",
+                "name": "short_lived_access_token"
+              }
+            }
+          ],
+          "connection": {
+            "vendor": "threads",
+            "from_input": "connection"
+          },
+          "reply_holds_values": [
+            {
+              "from": "access_token",
+              "keep_as_field": "access_token"
+            }
+          ]
+        },
+        "result_selector": "$",
+        "provenance": {
+          "source": "trillion src/connect.mjs followingExchanges (tag old-trillion-before-worker-retire)",
+          "descriptor": "tools/connect-a-service-and-seal-its-key/records.json service-connection-descriptor threads acquire.then[0]"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
           "placement:small-container"
         ],
         "maker": "maker:connect-a-service-and-seal-its-key",
@@ -733,6 +1254,12 @@
               "tool:trade-an-instagram-sign-in-code-for-its-short-token",
               "tool:trade-a-short-instagram-token-for-a-long-one",
               "tool:check-the-instagram-connection",
+              "tool:trade-a-facebook-sign-in-code-for-its-short-token",
+              "tool:trade-a-short-facebook-token-for-a-long-one",
+              "tool:list-the-facebook-pages-a-sign-in-reaches",
+              "tool:trade-a-threads-sign-in-code-for-its-short-token",
+              "tool:trade-a-short-threads-token-for-a-long-one",
+              "tool:check-the-threads-connection",
               "tool:trade-an-x-sign-in-code-for-its-tokens",
               "tool:check-the-x-connection"
             ]
