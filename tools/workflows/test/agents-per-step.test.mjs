@@ -3,7 +3,7 @@
 // findings name a distinct job that ran. Every recipe here is made up; no number below is known to the code.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { agentProblems, agentsOf, laneIds, laneJobId } from '../read-data/step-agents.mjs';
+import { agentProblems, agentsOf, laneIds, laneJobId, runsLaneJobs } from '../read-data/step-agents.mjs';
 import { startAStepsAgents } from '../read-data/start-a-steps-agents.mjs';
 import { checkResults } from '../read-data/recipe-check-results.mjs';
 import { recipeFromRows } from '../read-data/recipe-rows.mjs';
@@ -190,4 +190,89 @@ test('tool:start-a-steps-agents, run as its row, writes one waiting job per lane
   assert.ok(lanes.every(record => record.value.status === 'waiting' && record.value.parent === run));
   const again = await answerOf(starter, { run, step: 'dig' }, { task: { request_key: 'fan-2' }, records: ran.kept });
   assert.equal(again.result.status, 'already-there');
+});
+
+// A step's lanes may come from an earlier step's answer (`lanes_from`), so how many agents run it is decided when the
+// run reaches it, and a step that lists its lanes runs them as jobs even when there is one. Every recipe is made up.
+import { startARecipeStep } from '../read-data/start-a-recipe-step.mjs';
+import { submitARecipeStep, answerId } from '../read-data/submit-a-recipe-step.mjs';
+
+const splitStep = { id: 'split', title: 'Split', do: 'Split the topic into parts.', submit: { type: 'object', required: ['parts'], properties: { parts: { type: 'array' } } }, checks: [] };
+const fanned = (extra = {}) => stepOf({ id: 'dig', lanes_from: ['steps', 'split', 'parts', '*', 'id'], checks: [laneCheck, { kind: 'covers', path: ['this', 'lanes', '*', 'id'], of: ['steps', 'split', 'parts', '*', 'id'], says: 'Every part has its lane' }], ...extra });
+const partsOf = ids => ({ parts: ids.map(id => ({ id })) });
+const keepAnswer = (door, run, step, answer) => door.held.set(answerId(run, step), { id: answerId(run, step), type: 'ai-job', value: { status: 'done', answer } });
+
+test('lanes_from reads the lane ids from the answer kept for an earlier step, so the count is that answer\'s', () => {
+  const step = fanned();
+  assert.deepEqual(laneIds(step, { split: partsOf(['a', 'b', 'c']) }), ['a', 'b', 'c']);
+  assert.equal(laneIds(step, { split: partsOf(['a', 'b', 'c', 'd', 'e', 'f', 'g']) }).length, 7);
+  assert.deepEqual(laneIds(step, { split: partsOf(['solo']) }), ['solo']);
+  assert.throws(() => laneIds(step, {}), /no answer kept yet/);
+  assert.throws(() => laneIds(step, { split: partsOf([]) }), /one or more different lane ids/);
+  assert.throws(() => laneIds(step, { split: partsOf(['a', 'a']) }), /different lane ids/);
+  assert.throws(() => laneIds(step, { split: partsOf(['Not Legal']) }), /lane ids/);
+});
+
+test('a step that lists lanes, or takes them from an answer, runs them as jobs even for one lane; a step with neither does not', () => {
+  assert.equal(runsLaneJobs({ id: 'a' }), false);
+  assert.equal(runsLaneJobs({ id: 'a', agents: 1 }), false);
+  assert.equal(runsLaneJobs({ id: 'a', lanes: ['only'] }), true);
+  assert.equal(runsLaneJobs({ id: 'a', agents: 2 }), true);
+  assert.equal(runsLaneJobs(fanned()), true);
+});
+
+test('the validator takes lanes_from only as a path to an earlier step, with no agents or lanes of its own, and a lane-jobs check', () => {
+  assert.deepEqual(recipeProblems(recipeOf([splitStep, fanned()])), []);
+  assert.deepEqual(recipeProblems(recipeOf([splitStep, stepOf({ id: 'one', lanes: ['only'] })])), []);
+  assert.match(recipeProblems(recipeOf([splitStep, fanned({ lanes_from: ['split', 'parts'] })])).join('\n'), /lanes_from must be a path/);
+  assert.match(recipeProblems(recipeOf([splitStep, fanned({ lanes_from: ['steps', 'later', 'parts', 'id'] }), { ...splitStep, id: 'later' }])).join('\n'), /must name an earlier step/);
+  assert.match(recipeProblems(recipeOf([splitStep, fanned({ agents: 3 })])).join('\n'), /no lanes or agents of its own/);
+  assert.match(recipeProblems(recipeOf([splitStep, fanned({ lanes: ['a'] })])).join('\n'), /no lanes or agents of its own/);
+  assert.match(recipeProblems(recipeOf([splitStep, fanned({ checks: [] })])).join('\n'), /needs a lane-jobs check/);
+  assert.match(recipeProblems(recipeOf([splitStep, stepOf({ id: 'one', lanes: ['only'], checks: [] })])).join('\n'), /needs a lane-jobs check/);
+});
+
+test('step rows carry lanes_from into the recipe', () => {
+  const row = { value: { recipe: 'workflow:made-up-dig', title: 'Made-up dig', job: 'Dig.' } };
+  const step = { value: { step: 'dig', title: 'Dig', position: 2, do: 'Dig.', submit: JSON.stringify(submit), checks: JSON.stringify([laneCheck]), lanes_from: '["steps","split","parts","*","id"]' } };
+  const split = { value: { step: 'split', title: 'Split', position: 1, do: 'Split.', submit: JSON.stringify(splitStep.submit) } };
+  assert.deepEqual(recipeFromRows(row, [step, split]).steps[1].lanes_from, ['steps', 'split', 'parts', '*', 'id']);
+});
+
+test('beginning a step with lanes_from starts one job per part, the count being the earlier answer\'s, and refuses before that answer exists', async () => {
+  for (const ids of [['a', 'b'], ['a', 'b', 'c', 'd', 'e']]) {
+    const { door, run } = await runWith([splitStep, fanned()]);
+    await assert.rejects(startARecipeStep({ input: { run, step: 'dig' }, task: { request_key: 'early' } }, { door }), /no answer kept yet/);
+    assert.equal(door.writes.length, 0);
+    keepAnswer(door, run, 'split', partsOf(ids));
+    const began = await startARecipeStep({ input: { run, step: 'dig' }, task: { request_key: 'go' } }, { door });
+    assert.equal(began.status, 'written');
+    assert.deepEqual(began.lane_jobs.map(({ lane, job }) => ({ lane, job })), ids.map(lane => ({ lane, job: laneJobId(run, 'dig', lane) })));
+    assert.ok(began.lane_jobs.every(({ job }) => door.held.get(job).value.status === 'waiting'));
+    const again = await startARecipeStep({ input: { run, step: 'dig' }, task: { request_key: 'again' } }, { door });
+    assert.equal(again.status, 'already-there');
+  }
+});
+
+test('a step listing one lane starts that one job, so a separate agent can be required; a step listing none starts nothing', async () => {
+  const { door, run } = await runWith([stepOf({ id: 'write', lanes: ['synthesis'] }), stepOf({ id: 'plain', checks: [] })]);
+  const began = await startARecipeStep({ input: { run, step: 'write' }, task: { request_key: 'w' } }, { door });
+  assert.equal(began.status, 'written');
+  assert.deepEqual(began.lane_jobs.map(({ lane, job }) => ({ lane, job })), [{ lane: 'synthesis', job: laneJobId(run, 'write', 'synthesis') }]);
+  assert.equal(door.held.get(laneJobId(run, 'write', 'synthesis')).value.of, 1);
+  assert.deepEqual((await startARecipeStep({ input: { run, step: 'plain' }, task: { request_key: 'p' } }, { door })).lane_jobs, []);
+});
+
+test('submitting a lanes_from step is judged against the earlier answer: every part needs its own job, finished by its own taker', async () => {
+  const { door, run } = await runWith([splitStep, fanned()]);
+  keepAnswer(door, run, 'split', partsOf(['a', 'b', 'c']));
+  await startARecipeStep({ input: { run, step: 'dig' }, task: { request_key: 'go' } }, { door });
+  const lanes = ['a', 'b', 'c'].map(id => ({ id, job: laneJobId(run, 'dig', id) }));
+  const finish = (lane, by) => Object.assign(door.held.get(laneJobId(run, 'dig', lane)).value, { status: 'done', finished_by: by });
+  finish('a', 'ai:one'); finish('b', 'ai:one'); finish('c', 'ai:three');
+  await assert.rejects(submitARecipeStep({ input: { run, step: 'dig', answer: { lanes } }, task: { request_key: 's1' } }, { door }), /fails/);
+  finish('b', 'ai:two');
+  await assert.rejects(submitARecipeStep({ input: { run, step: 'dig', answer: { lanes: lanes.slice(0, 2) } }, task: { request_key: 's2' } }, { door }), /fails/);
+  const kept = await submitARecipeStep({ input: { run, step: 'dig', answer: { lanes } }, task: { request_key: 's3' } }, { door });
+  assert.equal(kept.status, 'kept');
 });

@@ -15,7 +15,7 @@ const STEP_ANATOMY_LISTS = ['came_from', 'part_of'];
 
 const JSON_FIELDS = {
   recipe: ['input_schema', 'source', 'wakes', 'definition'],
-  step: ['checks', 'run_tool', 'actor_policy', 'lanes'],
+  step: ['checks', 'run_tool', 'actor_policy', 'lanes', 'lanes_from'],
 };
 
 const valuesOf = row => row?.values ?? row?.value ?? {};

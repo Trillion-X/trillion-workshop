@@ -16,12 +16,12 @@
 // The kept answer is the ai-job row `<run>#answer:<step>`, status done. The first answer kept for a step stays: a
 // submit that comes again finds it and changes nothing.
 
-import { agentsOf, laneIds, laneJobId } from './step-agents.mjs';
+import { answerId, laneIds, laneJobId, runsLaneJobs } from './step-agents.mjs';
 import { checkResults } from './recipe-check-results.mjs';
 
 const JOB_KIND = 'ai-job';
 const ALLOWED_INPUT = new Set(['run', 'step', 'answer']);
-export const answerId = (run, step) => `${run}#answer:${step}`;
+export { answerId };
 
 export async function submitARecipeStep({ input = {}, task = {} } = {}, { door }) {
   for (const key of Object.keys(input)) if (!ALLOWED_INPUT.has(key)) throw new Error(`input.${key} is not taken: the checks look jobs up in the records themselves, never in what the caller gives.`);
@@ -47,8 +47,8 @@ export async function submitARecipeStep({ input = {}, task = {} } = {}, { door }
 
   // The lane jobs as the records hold them: the taker that finished each, nothing for one that did not.
   const takers = new Map();
-  if (agentsOf(step) > 1 || (step.checks ?? []).some(check => check.kind === 'lane-jobs')) {
-    for (const lane of laneIds(step)) {
+  if (runsLaneJobs(step) || (step.checks ?? []).some(check => check.kind === 'lane-jobs')) {
+    for (const lane of laneIds(step, earlier)) {
       const job = laneJobId(run, stepId, lane);
       const row = await door.read(JOB_KIND, job);
       if (row?.status === 'done' && typeof row.finished_by === 'string' && row.finished_by) takers.set(job, row.finished_by);

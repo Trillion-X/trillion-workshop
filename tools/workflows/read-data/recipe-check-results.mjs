@@ -51,12 +51,12 @@ export const CHECK_EVALUATORS = {
       if (lanes.has(lane)) failing.add(lane); else lanes.set(lane, job);
       if (jobs.has(job)) failing.add(lane); else jobs.add(job);
     }
-    for (const lane of laneIds(step)) {
+    for (const lane of laneIds(step, c.steps)) {
       const job = lanes.get(lane);
       const own = c.run === undefined ? typeof job === 'string' && job.endsWith(`:${step.id}:${lane}`) : job === laneJobId(c.run, step.id, lane);
       if (!lanes.has(lane) || !own) failing.add(lane);
     }
-    for (const lane of lanes.keys()) if (!laneIds(step).includes(lane)) failing.add(lane);
+    for (const lane of lanes.keys()) if (!laneIds(step, c.steps).includes(lane)) failing.add(lane);
     if (failing.size) return [...failing];
     const ran = catalogs['ran-job'];
     if (typeof ran !== 'function') return { reason: 'no ran-job catalog was given to look the lanes\' jobs up in' };

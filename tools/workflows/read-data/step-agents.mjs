@@ -5,7 +5,10 @@
 // Nothing here knows a number or a recipe; the starter, the validator and the check all read the step through these.
 //
 //   agentsOf(step) -> whole number >= 1       (throws when `agents` is anything else)
-//   laneIds(step) -> [lane id]                one per agent, each different
+//   runsLaneJobs(step) -> boolean             true when the step's agents run as their own jobs: `agents` above 1, a `lanes`
+//                                             list (even of one lane, so a lone separate agent can be required), or `lanes_from`
+//   laneIds(step, answers) -> [lane id]       one per agent, each different; a step with `lanes_from` reads them from the answers
+//                                             kept for earlier steps (`answers.<step id>`), so the count comes from an earlier answer
 //   laneJobId(run, step, lane) -> job id      the id of the ai-job that runs that lane of that step in that run
 //   laneAiId(run, lane) -> AI id            the AI id the lane's job is taken and finished under, its own, never the session's
 //   laneCommands(run, step, lane) -> { as, take, finish }   the exact commands that take and finish that lane's job under that id
@@ -17,9 +20,39 @@ export function agentsOf(step) {
   return step.agents;
 }
 
-export function laneIds(step) {
+export const runsLaneJobs = step => step?.lanes_from !== undefined || Array.isArray(step?.lanes) || agentsOf(step) > 1;
+
+const LANE_ID = /^[a-z0-9][a-z0-9_-]*$/;
+
+// The values a `lanes_from` path ends on: ['steps', <earlier step id>, ...keys], `*` walking every item of a list.
+function lanesAt(step, answers) {
+  const [, from, ...keys] = step.lanes_from;
+  if (answers?.[from] === undefined) throw new Error(`Step ${step.id}: its lanes come from the answer of step "${from}", which has no answer kept yet.`);
+  let at = [answers[from]];
+  for (const key of keys) at = key === '*' ? at.flatMap(value => (Array.isArray(value) ? value : [])) : at.map(value => (value != null && typeof value === 'object' ? value[key] : undefined));
+  return at.flatMap(value => (Array.isArray(value) ? value : [value])).filter(value => value !== undefined);
+}
+
+export function laneIds(step, answers) {
+  if (step.lanes_from !== undefined) {
+    const lanes = lanesAt(step, answers);
+    if (lanes.length < 1 || !lanes.every(lane => typeof lane === 'string' && LANE_ID.test(lane)) || new Set(lanes).size !== lanes.length)
+      throw new Error(`Step ${step.id}: the answer it takes its lanes from must give one or more different lane ids (lowercase letters, numbers, dashes or underscores), got ${JSON.stringify(lanes)}.`);
+    return lanes;
+  }
   const agents = agentsOf(step);
   return Array.isArray(step.lanes) ? [...step.lanes] : Array.from({ length: agents }, (_, at) => `${step.id}-${at + 1}`);
+}
+
+// The answers kept so far for the run's steps before `stepId`, by step id: what `lanes_from` and the checks read.
+export const answerId = (run, step) => `${run}#answer:${step}`;
+export async function keptAnswers(door, run, steps, stepId) {
+  const answers = {};
+  for (const before of steps.slice(0, steps.findIndex(item => item.id === stepId))) {
+    const kept = await door.read('ai-job', answerId(run, before.id));
+    if (kept) answers[before.id] = kept.answer;
+  }
+  return answers;
 }
 
 export const laneJobId = (run, step, lane) => `${run}:${step}:${lane}`;
@@ -35,6 +68,13 @@ export function laneCommands(run, step, lane) {
 }
 
 export function agentProblems(step, name) {
+  if (step.lanes_from !== undefined) {
+    const path = step.lanes_from;
+    const wrong = [];
+    if (!(Array.isArray(path) && path.length >= 3 && path[0] === 'steps' && path.every(key => typeof key === 'string' && key))) wrong.push(`${name}.lanes_from must be a path ['steps', <earlier step id>, ...keys] that ends on the lane ids.`);
+    if (step.lanes !== undefined || step.agents !== undefined) wrong.push(`${name}.lanes_from takes the lanes and their number from an earlier answer, so ${name} has no lanes or agents of its own.`);
+    return wrong;
+  }
   if (step.agents !== undefined && !(Number.isInteger(step.agents) && step.agents >= 1)) return [`${name}.agents must be a whole number from 1 up.`];
   if (step.lanes === undefined) return [];
   const agents = agentsOf(step);

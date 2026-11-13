@@ -3,7 +3,7 @@
 
 import { readFileSync } from 'node:fs';
 import { wakeProblems, WAKE_VOCABULARY } from './wake-problems.mjs';
-import { agentProblems, agentsOf } from './step-agents.mjs';
+import { agentProblems, runsLaneJobs } from './step-agents.mjs';
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const nonempty = value => typeof value === 'string' && value.trim().length > 0;
@@ -164,7 +164,8 @@ export function recipeProblems(recipe, vocabulary = CHECK_VOCABULARY) {
     const agentWrong = agentProblems(step, name);
     problems.push(...agentWrong);
     // A step with several agents is only done when its lanes' jobs ran: its checks must say so, or the run's own AI could fill every lane.
-    if (!agentWrong.length && agentsOf(step) > 1 && !(step.checks ?? []).some(check => check?.kind === 'lane-jobs')) problems.push(`${name} has ${agentsOf(step)} agents and needs a lane-jobs check, so each lane comes from its own job.`);
+    if (!agentWrong.length && runsLaneJobs(step) && !(step.checks ?? []).some(check => check?.kind === 'lane-jobs')) problems.push(`${name} runs its agents as jobs and needs a lane-jobs check, so each lane comes from its own job.`);
+    if (step.lanes_from !== undefined && !agentWrong.length && !submits.has(step.lanes_from[1])) problems.push(`${name}.lanes_from must name an earlier step, and "${step.lanes_from[1]}" is not one.`);
     submits.set(step.id, step.submit);
     problems.push(...actorPolicyProblems(step.actor_policy, { name, step_id: step.id, asks: actorAsks, prior: id => id !== step.id && seen.has(id) }));
   });

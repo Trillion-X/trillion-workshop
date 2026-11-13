@@ -2,7 +2,8 @@
 //
 // Starts the agents of one step of a recipe run: one waiting ai-job per lane of the step, and nothing else. The run is
 // the ai-job tool:start-a-recipe-run wrote; its step rows say how many agents the step has (`agents`) and may name the
-// lanes (`lanes`). A step with one agent is done by the run's own AI and starts nothing.
+// lanes (`lanes`), or take them from an earlier step's answer (`lanes_from`, so the count is that answer's). A step with one agent
+// and no lanes list is done by the run's own AI and starts nothing; a step that lists its lanes runs them as jobs even when there is one.
 //
 //   startAStepsAgents({ input: { run, step }, task: { request_key } }, { door, most_writes })
 //     -> { jobs: [<job id>], status: 'written' | 'already-there' | 'one-agent' }
@@ -12,7 +13,7 @@
 // first lane last: its job being there means every lane job is, so a start that comes again finds it and changes none,
 // even one an AI already finished. A batch that fails midway is sent again with its same request key.
 
-import { agentsOf, laneCommands, laneIds, laneJobId } from './step-agents.mjs';
+import { keptAnswers, laneCommands, laneIds, laneJobId, runsLaneJobs } from './step-agents.mjs';
 import { writeBatches } from '../../records-door/read-data/write-batches.mjs';
 
 const JOB_KIND = 'ai-job';
@@ -26,8 +27,8 @@ export async function startAStepsAgents({ input = {}, task = {} } = {}, { door, 
   if (!parent) throw new Error(`There is no run ${run}.`);
   const step = (parent.job ?? []).find(item => item.id === stepId);
   if (!step) throw new Error(`Run ${run} has no step "${stepId}".`);
-  if (agentsOf(step) === 1) return { jobs: [], status: 'one-agent' };
-  const lanes = laneIds(step);
+  if (!runsLaneJobs(step)) return { jobs: [], status: 'one-agent' };
+  const lanes = laneIds(step, step.lanes_from === undefined ? {} : await keptAnswers(door, run, parent.job, stepId));
   const jobs = lanes.map(lane => laneJobId(run, stepId, lane));
   if (await door.read(JOB_KIND, jobs[0])) return { jobs, status: 'already-there' };
   const records = lanes.map((lane, at) => ({
