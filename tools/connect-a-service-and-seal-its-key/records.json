@@ -7146,11 +7146,7 @@
       "pages_messaging",
       "pages_manage_posts",
       "pages_read_user_content",
-      "publish_video",
-      "pages_manage_ads",
-      "leads_retrieval",
-      "ads_management",
-      "business_management"
+      "pages_manage_engagement"
      ],
      "scope_separator": ",",
      "auth_params": {

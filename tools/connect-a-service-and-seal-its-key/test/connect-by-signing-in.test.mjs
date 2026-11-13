@@ -357,3 +357,13 @@ test('the Facebook Page list holds no token, and the keep row keeps one named Pa
   assert.deepEqual(keepRow.invoke.reply_holds_values, [{ from: 'access_token', keep_as_field: 'page_access_token' }]);
   assert.ok(row.invoke.records.runs.includes(service.choice.tool));
 });
+
+test('the Facebook Page sign-in asks for posting, comment and message scopes, and no ads, lead or business scope unless a record of this service declares it needs it', () => {
+  const { scopes } = descriptorOf('facebook-messenger').acquire;
+  const needed = new Set(descriptorFile.things
+    .filter(thing => JSON.stringify(thing.payload).includes('facebook-messenger'))
+    .flatMap(thing => thing.payload.needs_scopes ?? []));
+  const beyond = scopes.filter(scope => /ads|business|leads/.test(scope) && !needed.has(scope));
+  assert.deepEqual(beyond, [], 'ads, lead and business scopes are asked only where a record declares needs_scopes for them');
+  for (const scope of ['pages_show_list', 'pages_read_engagement', 'pages_manage_posts', 'pages_read_user_content', 'pages_manage_engagement', 'pages_messaging']) assert.ok(scopes.includes(scope), `${scope} is asked`);
+});
