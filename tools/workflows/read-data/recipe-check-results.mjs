@@ -12,6 +12,8 @@
 // A kind with no evaluator here is reported the same way, so a kind added only as a vocabulary row is never taken as
 // having run.
 
+import { laneIds, laneJobId } from './step-agents.mjs';
+
 const same = value => JSON.stringify(value);
 
 // The values a path ends on, from the roots in `context`.
@@ -37,6 +39,29 @@ export const CHECK_EVALUATORS = {
   'excludes-words': (check, c) => { const text = textAt(check.path, c).toLowerCase(); return check.words.filter(word => text.includes(word.toLowerCase())); },
   'distinct-at-least': (check, c) => { const values = valuesAt(check.path, c); return new Set(values.map(same)).size >= check.count ? [] : values; },
   'differs-from': (check, c) => { const of = new Set(valuesAt(check.of, c).map(same)); return valuesAt(check.path, c).filter(value => of.has(same(value))); },
+  // One lane per agent of the step, each handed back with the id of its own job, and each such job one that ran: the
+  // lane ids are the step's own (laneIds), a job's id is fixed by the run, step and lane (laneJobId) so no job stands
+  // for two lanes, and `ran-job` is the catalog the caller looks a finished job up in. The failing values are lane ids.
+  'lane-jobs': (check, c, { catalogs = {}, step } = {}) => {
+    if (!step) return { reason: 'the check needs the step it belongs to, to know its lanes' };
+    const failing = new Set();
+    const lanes = new Map(), jobs = new Set();
+    for (const item of valuesAt(check.path, c)) {
+      const lane = item?.[check.lane], job = item?.[check.job];
+      if (lanes.has(lane)) failing.add(lane); else lanes.set(lane, job);
+      if (jobs.has(job)) failing.add(lane); else jobs.add(job);
+    }
+    for (const lane of laneIds(step)) {
+      const job = lanes.get(lane);
+      const own = c.run === undefined ? typeof job === 'string' && job.endsWith(`:${step.id}:${lane}`) : job === laneJobId(c.run, step.id, lane);
+      if (!lanes.has(lane) || !own) failing.add(lane);
+    }
+    for (const lane of lanes.keys()) if (!laneIds(step).includes(lane)) failing.add(lane);
+    if (failing.size) return [...failing];
+    const ran = catalogs['ran-job'];
+    if (typeof ran !== 'function') return { reason: 'no ran-job catalog was given to look the lanes\' jobs up in' };
+    return [...lanes].filter(([, job]) => !ran(job)).map(([lane]) => lane);
+  },
   exists: (check, c, { catalogs = {} } = {}) => {
     const known = catalogs[check.catalog];
     if (typeof known !== 'function') return { reason: `no ${check.catalog} catalog was given to look ids up in` };
@@ -48,7 +73,7 @@ export function checkResults(step, context, options = {}) {
   return (step.checks ?? []).map(check => {
     const evaluate = CHECK_EVALUATORS[check.kind];
     if (!evaluate) return { kind: check.kind, says: check.says, evaluated: false, reason: `no evaluator for kind ${check.kind}` };
-    const failing = evaluate(check, context, options);
+    const failing = evaluate(check, context, { ...options, step });
     if (!Array.isArray(failing)) return { kind: check.kind, says: check.says, evaluated: false, reason: failing.reason };
     return { kind: check.kind, says: check.says, passed: failing.length === 0, failing };
   });

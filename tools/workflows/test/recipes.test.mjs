@@ -77,5 +77,5 @@ test('the shipped vocabulary refuses a missing field, a bad count and an unknown
   const bad = checks => recipeProblems(recipe([{ ...step('first'), checks }]));
   assert.deepEqual(bad([{ kind: 'covers', says: 'x', path: ['input', 'a'] }]), ['steps[0].checks[0] needs of or values.']);
   assert.deepEqual(bad([{ kind: 'distinct-at-least', says: 'x', path: ['input', 'a'], count: 0 }]), ['steps[0].checks[0].count must be a whole number above 0.']);
-  assert.deepEqual(bad([{ kind: 'exists', says: 'x', path: ['input', 'a'], catalog: 'nope' }]), ['steps[0].checks[0].catalog must be one of: workflow, tool, list-row, record.']);
+  assert.deepEqual(bad([{ kind: 'exists', says: 'x', path: ['input', 'a'], catalog: 'nope' }]), ['steps[0].checks[0].catalog must be one of: workflow, tool, list-row, record, ran-job.']);
 });

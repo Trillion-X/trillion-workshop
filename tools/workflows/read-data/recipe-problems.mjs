@@ -3,6 +3,7 @@
 
 import { readFileSync } from 'node:fs';
 import { wakeProblems, WAKE_VOCABULARY } from './wake-problems.mjs';
+import { agentProblems, agentsOf } from './step-agents.mjs';
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const nonempty = value => typeof value === 'string' && value.trim().length > 0;
@@ -75,6 +76,7 @@ const SHAPES = {
   list: value => Array.isArray(value),
   words: value => Array.isArray(value) && value.length > 0 && value.every(nonempty),
   count: value => Number.isInteger(value) && value > 0,
+  key: value => nonempty(value),
   catalog: (value, vocabulary) => vocabulary.catalogs.some(row => row.catalog === value),
 };
 
@@ -159,6 +161,10 @@ export function recipeProblems(recipe, vocabulary = CHECK_VOCABULARY) {
     if (step.run_tool !== undefined && !(object(step.run_tool) && /^tool:/.test(step.run_tool.tool_id ?? '') && (step.run_tool.input === undefined || object(step.run_tool.input)))) problems.push(`${name}.run_tool must be { tool_id: "tool:...", input: { field: value, or { "from": path } } }.`);
     else if (step.run_tool !== undefined) problems.push(...pinProblems(step.run_tool.pinned, `${name}.run_tool.pinned`));
     problems.push(...checkProblems(step.checks, name, step.id, seen, vocabulary, { this: step.submit, input: recipe.input_schema, steps: submits }));
+    const agentWrong = agentProblems(step, name);
+    problems.push(...agentWrong);
+    // A step with several agents is only done when its lanes' jobs ran: its checks must say so, or the run's own AI could fill every lane.
+    if (!agentWrong.length && agentsOf(step) > 1 && !(step.checks ?? []).some(check => check?.kind === 'lane-jobs')) problems.push(`${name} has ${agentsOf(step)} agents and needs a lane-jobs check, so each lane comes from its own job.`);
     submits.set(step.id, step.submit);
     problems.push(...actorPolicyProblems(step.actor_policy, { name, step_id: step.id, asks: actorAsks, prior: id => id !== step.id && seen.has(id) }));
   });
