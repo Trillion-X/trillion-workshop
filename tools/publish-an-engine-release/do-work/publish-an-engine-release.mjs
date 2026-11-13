@@ -216,7 +216,9 @@ export async function layProductClient({ request, source, work, env, token, log 
     symlinkSync(source, engine);
     for (const left of [building, `${building}.work`]) rmSync(left, { recursive: true, force: true });
     const [program, ...args] = buildArguments(pin, { checkout: realpathSync(checkout), commit: pin.commit, out: building });
-    await runProgram(program, args, { cwd: checkout, env, timeout: P.build_timeout_ms, log });
+    // Under the builder's own `build_under` command, which says how the build shares the builder with the engine builds.
+    const [runner, ...runnerArguments] = P.build_under;
+    await runProgram(runner, [...runnerArguments, program, ...args], { cwd: checkout, env, timeout: P.build_timeout_ms, log });
     renameSync(building, built);
   }
   const files = filesUnder(built, readdirSync(built)).map(file => ({ ...file, name: `${settings.product_folder}/${pin.into}/${file.name}` }));

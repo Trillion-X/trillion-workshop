@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { getPriority, tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { untarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
@@ -34,6 +34,7 @@ function clientRepository({ failing = false } = {}) {
   git(work, 'init', '-q', '-b', 'main');
   writeFileSync(join(work, 'scripts', 'build.mjs'), `
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 const args = process.argv.slice(2), at = name => args[args.indexOf(name) + 1];
 fs.appendFileSync(process.env.FAKE_CLIENT_COUNTER, 'built\\n');
@@ -42,6 +43,7 @@ const out = at('--out');
 fs.mkdirSync(path.join(out, 'built'), { recursive: true });
 fs.writeFileSync(path.join(out, 'frontend-selection.json'), at('--commit'));
 fs.writeFileSync(path.join(out, 'built', 'index.js'), 'client');
+fs.writeFileSync(path.join(out, 'niceness.txt'), String(os.getPriority()));
 fs.writeFileSync(path.join(out, 'engine-beside.txt'), String(fs.existsSync(path.join(at('--checkout'), '..', 'made-up-engine', 'Cargo.toml'))));
 `);
   git(work, 'add', '.');
@@ -111,6 +113,8 @@ test('every target of a release carries the client its commit pins under product
     const files = filesOf(request, commits[0], entry.target);
     assert.equal(files['product/local-workspace/frontend-selection.json'], client.commit, `${entry.target} carries the pinned client`);
     assert.equal(files['product/local-workspace/built/index.js'], 'client');
+    // `nice` adds the pin's priority to the test's own and stops at the system's largest (19 or 20); a test already there has no room to lower.
+    assert.ok(Number(files['product/local-workspace/niceness.txt']) > getPriority() || getPriority() >= 19, 'the client build ran at a lower priority than the program that started it');
     assert.equal(files['product/local-workspace/engine-beside.txt'], 'true', 'the engine checkout sat beside the client checkout');
     assert.ok(files['trillion-local'] !== undefined);
   }
