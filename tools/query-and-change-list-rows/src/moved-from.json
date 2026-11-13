@@ -33,8 +33,9 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/query-and-change-list-rows/src/list-rollups.mjs",
       "source_identity": "1f:b654595f615869b1eaf000c19f0f74f32370b34b4b3a50bdbe7fd988eb4dbb40",
-      "identity": "1f:f7381768bc8b05ef6294d417016e3267ef0356bb2448d3e99c30f199d54d1961",
-      "reused": true
+      "reused": true,
+      "identity_at_move": "1f:f7381768bc8b05ef6294d417016e3267ef0356bb2448d3e99c30f199d54d1961",
+      "byte_copy_commit": "92f9e47bb34f5334f59b2cf18d3c265ac790f1d5"
     },
     {
       "from": "src/list-row-operations.mjs",

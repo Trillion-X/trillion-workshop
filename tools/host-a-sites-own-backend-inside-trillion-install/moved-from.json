@@ -39,8 +39,9 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/host-a-sites-own-backend-inside-trillion-install/from-old-trillion/test/site-worker-installation.test.mjs.held",
       "source_identity": "1f:0c091dcfbc46e608cbcb1e24169271c3c4f42c4402c78c363be3fd4876372559",
-      "identity": "1f:0c091dcfbc46e608cbcb1e24169271c3c4f42c4402c78c363be3fd4876372559",
-      "held": true
+      "identity": "1f:d7d804f2f8cc794f1b89e4fc15100bcdc700f305bc34461b0cf5121fd3412063",
+      "held": true,
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "test/site-worker-source.test.mjs",

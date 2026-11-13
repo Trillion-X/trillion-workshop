@@ -9,7 +9,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/sales/src/sales.json",
       "source_identity": "1f:0ee57148977d7bb16aefded89b240c18201804f4e81cea429e4dcaae909298b0",
-      "identity": "1f:0ee57148977d7bb16aefded89b240c18201804f4e81cea429e4dcaae909298b0"
+      "identity": "1f:16404d1c5f21c91dbc9dc4c1059c84ad575221e45a4194ce16b5f872aa27cb08",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     }
   ]
 }

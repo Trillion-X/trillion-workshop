@@ -1,29 +1,30 @@
 {
- "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
- "source": "Trillion-X/trillion",
- "package": "trillion-workshop",
- "calls": [],
- "files": [
-  {
-   "from": "src/read-link.mjs",
-   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-   "to": "tools/read-a-public-web-link-whole-its-card/src/read-link.mjs",
-   "source_identity": "1f:b3f0fb44b2b1e9c0b729a02d59152ad00432b84f99fa603a9afd2b788ff08a17",
-   "identity": "1f:1b44edf9fae0456db35bd5c27b5d1d20944479b82450934a6dade4777cd27b9d"
-  },
-  {
-   "from": "test/read-link.test.mjs",
-   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-   "to": "tools/read-a-public-web-link-whole-its-card/test/read-link.test.mjs",
-   "source_identity": "1f:6e34464d822896ad52c43afbb0ef6b3d303d416d551912ec35845ac797b7bc0c",
-   "identity": "1f:3f761b80d37c4e2cf0a9827e2db4129ef14d4c4123c9589b9733b71b2deb1f7a"
-  },
-  {
-   "from": "records/workshop-browse-tool-records.json",
-   "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-   "to": "tools/read-a-public-web-link-whole-its-card/from-old-trillion/records/workshop-browse-tool-records.json",
-   "source_identity": "1f:e720f343fd446e595822884f4d3db69084fac032accb540e96df54da683b5a9e",
-   "identity": "1f:e720f343fd446e595822884f4d3db69084fac032accb540e96df54da683b5a9e"
-  }
- ]
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/read-link.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/read-a-public-web-link-whole-its-card/src/read-link.mjs",
+      "source_identity": "1f:b3f0fb44b2b1e9c0b729a02d59152ad00432b84f99fa603a9afd2b788ff08a17",
+      "identity": "1f:1b44edf9fae0456db35bd5c27b5d1d20944479b82450934a6dade4777cd27b9d"
+    },
+    {
+      "from": "test/read-link.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/read-a-public-web-link-whole-its-card/test/read-link.test.mjs",
+      "source_identity": "1f:6e34464d822896ad52c43afbb0ef6b3d303d416d551912ec35845ac797b7bc0c",
+      "identity": "1f:6d1c5c58d03593bca3020b1cabf736e73a787ed9e5a4fefb98ad2c2645883e9e",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
+    },
+    {
+      "from": "records/workshop-browse-tool-records.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/read-a-public-web-link-whole-its-card/from-old-trillion/records/workshop-browse-tool-records.json",
+      "source_identity": "1f:e720f343fd446e595822884f4d3db69084fac032accb540e96df54da683b5a9e",
+      "identity": "1f:e720f343fd446e595822884f4d3db69084fac032accb540e96df54da683b5a9e"
+    }
+  ]
 }

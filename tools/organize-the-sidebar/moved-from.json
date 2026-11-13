@@ -4701,7 +4701,8 @@
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
       "to": "tools/organize-the-sidebar/parts/group/do-work/text-entities.test.ts",
       "source_identity": "1f:f3b351e5d959ac3c21ea4f3c3216628be48f357b88b9f0f8d375d844b1d4249f",
-      "identity": "1f:2fd6078d03023514a9e64c64264107a0d3bc0867d985c6a62c336ac32e281cfe"
+      "identity": "1f:2d92ef97b34e461f6398668b6c5c0832e4f768e95299cd649ad552c26abbc9ed",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "parts/group/do-work/text-similarity.test.ts",
@@ -4946,7 +4947,8 @@
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
       "to": "tools/organize-the-sidebar/parts/group/show/item-link.test.ts",
       "source_identity": "1f:d591bb3a0737a62a612758c4369e0acd32b5a74360255cf1ac76f9cb8cb0ad90",
-      "identity": "1f:c6bd2d64fa61112e216faff815af5b855fc2a6bd45f9b28f78a70e0111aa5e07"
+      "identity": "1f:2867f85742cd29b54f579173e824fb483f7ea09b5c8a0b56dfd6f9635c31dbfc",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "parts/group/show/note-autofit.test.ts",

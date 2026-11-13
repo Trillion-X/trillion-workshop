@@ -16,8 +16,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/group-my-ais-by-the-app-they-connected-claude/test/own-ais-apps.test.mjs",
       "source_identity": "1f:8b4f3fef0554ec3b62c49ee3dd492cca984b35fb9c6a8e0d8cc93e62be7c99c7",
-      "identity": "1f:557f85693dc6619ed1ac309a41a19a5eea88fffe07fb7f8619c181c14670d8d8",
-      "adapted": "the four grouping tests are the old ones; the Your AIs screen card test is left out: no repository draws old src/screen-reads.mjs aiSetupFacts."
+      "identity": "1f:7cf0a8c6d3eab71a798621c344a4cd976a485c33def459c3ec8e44f4a99332fa",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     }
   ]
 }

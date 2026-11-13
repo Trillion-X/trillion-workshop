@@ -30,7 +30,8 @@
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
       "to": "tools/money-out/test/money-out-mail.test.mjs",
       "source_identity": "1f:5b02391af9b783d7b616635c0df86dae3e8ff60549a0d24793c469a5c02c1d6f",
-      "identity": "1f:5b02391af9b783d7b616635c0df86dae3e8ff60549a0d24793c469a5c02c1d6f"
+      "identity": "1f:768c7e702b5c7420c70f9c298e4f92229f87ada90047a65d05fe8371c0e004e8",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     }
   ]
 }

@@ -9,14 +9,16 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/gather-audience-questions/src/audience-question-admission.mjs",
       "source_identity": "1f:c208576d4773aae6e876059af4748b89b0669f8024c1cf2e514670c1945a92fa",
-      "identity": "1f:59cbf2348e6b011e453b926bfa7941633389b5d67f452332a29749723b8e25e8"
+      "identity_at_move": "1f:59cbf2348e6b011e453b926bfa7941633389b5d67f452332a29749723b8e25e8",
+      "byte_copy_commit": "0e552993dbf3a4b3ef22f26f09d32fcb810302fb"
     },
     {
       "from": "src/audience-question-sources.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/gather-audience-questions/src/audience-question-sources.mjs",
       "source_identity": "1f:57f82dc1935b7d93fa7ac8e21da94888fa65ee972236ba1c5049d3daf85da064",
-      "identity": "1f:257b5dc4fff520b35cb6eb2449cb7d2f2f2345b49ea9cf5d379f7c59d1c20a8d"
+      "identity_at_move": "1f:257b5dc4fff520b35cb6eb2449cb7d2f2f2345b49ea9cf5d379f7c59d1c20a8d",
+      "byte_copy_commit": "0e552993dbf3a4b3ef22f26f09d32fcb810302fb"
     },
     {
       "from": "test/audience-source-redirect.test.mjs",

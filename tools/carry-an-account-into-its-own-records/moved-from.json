@@ -9,7 +9,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/carry-an-account-into-its-own-records/src/carry-forward.mjs",
       "source_identity": "1f:f90de1f7d75d3c1daeaac1a66d026d8c64cbfa37fa3ae49b4552bb3e173e8b62",
-      "identity": "1f:41b8b613168fcf31eae597c0b9a33c78d8fa6b384b0befbc2391d3ecc3c1d177"
+      "identity_at_move": "1f:41b8b613168fcf31eae597c0b9a33c78d8fa6b384b0befbc2391d3ecc3c1d177",
+      "byte_copy_commit": "b800e47fed8c62f3f75ae31684acb66743f03f80"
     },
     {
       "from": "test/carry-forward.test.mjs",

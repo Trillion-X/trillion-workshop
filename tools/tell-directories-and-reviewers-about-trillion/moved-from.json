@@ -9,14 +9,16 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/tell-directories-and-reviewers-about-trillion/src/directory-listing.json",
       "source_identity": "1f:d704d0721e9da69ad504d1a03a814583bfa75391315843659a52c3515b5b2e0d",
-      "identity": "1f:d704d0721e9da69ad504d1a03a814583bfa75391315843659a52c3515b5b2e0d"
+      "identity": "1f:ad2c83f3b6caf5703928daf3482e123c671d999a56e0fe13031396a97c8dcebc",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "src/how-to-start-for-reviewers.json",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/tell-directories-and-reviewers-about-trillion/src/how-to-start-for-reviewers.json",
       "source_identity": "1f:d4c3364a87f5fa54e044fa839e9e03f4b6d74f52ba91b941a28e0e53b0246f2b",
-      "identity": "1f:d4c3364a87f5fa54e044fa839e9e03f4b6d74f52ba91b941a28e0e53b0246f2b"
+      "identity": "1f:b59509ec1b1bee3053bcd2d53dbd8e6623ad0d6d4e6f38f6e71b1ef383415050",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     }
   ]
 }

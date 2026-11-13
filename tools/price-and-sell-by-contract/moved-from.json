@@ -109,7 +109,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/price-and-sell-by-contract/src/usage-meters.json",
       "source_identity": "1f:a91222642323643e4406d205d4628385b90b878b24752c72add48d5b7a6d5736",
-      "identity": "1f:a91222642323643e4406d205d4628385b90b878b24752c72add48d5b7a6d5736"
+      "identity": "1f:2b836e3a79d02290c23754c953c4c17507c5ad490f0e73437caf1c3a931477de",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "src/usage-meters.mjs",

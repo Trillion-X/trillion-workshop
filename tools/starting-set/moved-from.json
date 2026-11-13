@@ -10,7 +10,8 @@
       "deleted_by": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7",
       "to": "tools/starting-set/records.json",
       "source_identity": "1f:efbe43271b6b47938bf7d753ca9609953af72b82af9be07fb55e57d3ea170e01",
-      "identity": "1f:efbe43271b6b47938bf7d753ca9609953af72b82af9be07fb55e57d3ea170e01"
+      "identity": "1f:d67a473a0296d7234c446645d4e446181c3db51e867e578a87b69aa498035b38",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "records/starting-set-groups.json",

@@ -25,8 +25,9 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/draft-approve-and-publish-my-social-posts-now/from-old-trillion/test/social-posts.test.mjs.held",
       "source_identity": "1f:abbf547e5b8a6d148a45ed60e524461b7f2b579bac4f1549a0b0ffddbda47d99",
-      "identity": "1f:362a7f2285dc1b61b407a0d46fe0279240fe7f9493daea667f88d4bcfb06531c",
-      "held": true
+      "identity": "1f:9ab2f63d1d2e0c54d26399c015c7324c81c3c436c86ea7a67d0d323c6e1938fd",
+      "held": true,
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "test/social-posts-for-tests.mjs",

@@ -25,8 +25,9 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/find-anything-from-one-box-jump-to-a-screen/from-old-trillion/test/search-catch-up-headroom.test.mjs.held",
       "source_identity": "1f:5778be12f0bfc222cfd6695e9722b93205299d4f4af4303f65c1faf3d2f39e59",
-      "identity": "1f:dc766708fde6a87753c072ef82a5debbd62327f01c2c24ee892d62179342de09",
-      "held": true
+      "identity": "1f:415fa0970977ea908a3cf376e964de2fde86a91d32a911db64a93f4de1cbd0da",
+      "held": true,
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "test/search-catch-up-reset-slice.test.mjs",

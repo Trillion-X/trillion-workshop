@@ -5,32 +5,13 @@
   "calls": [],
   "files": [
     {
-      "from": "src/tell-the-person.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/tell-one-person-something-through-every-way-they/from-old-trillion/src/tell-the-person.mjs.held",
-      "source_identity": "1f:20850d5a2a00697c6eb0507e908211149615ce1092f59d13ba00ba0b61e47f1c",
-      "identity": "1f:b0361b8f4acdd3c92f06de595c152148d2deba0ad7ebc68c7316c3e6b93da32f",
-      "held": false,
-      "wired": "tools/tell-one-person-something-through-every-way-they/read-data/tell-the-person.mjs",
-      "wired_by": "ports/tell-the-person.json (SOURCE_FIRST_PORT: byte copy at 3cffafe5, then adapted)"
-    },
-    {
-      "from": "test/tell-the-person.test.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/tell-one-person-something-through-every-way-they/from-old-trillion/test/tell-the-person.test.mjs.held",
-      "source_identity": "1f:e8803ef628bd5231fbbcca784d79bc258f4c1e453816527cc32c5be2f1fd317b",
-      "identity": "1f:bb4e82a773d5065d1df9d976e2958e3a1662c089fa117456211fbcba9f50f63f",
-      "held": false,
-      "wired": "tools/tell-one-person-something-through-every-way-they/test/tell-the-person.test.mjs",
-      "wired_by": "ports/tell-the-person.json (SOURCE_FIRST_PORT: byte copy at 3cffafe5, then adapted)"
-    },
-    {
       "from": "records/tell-the-person.json",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/tell-one-person-something-through-every-way-they/read-data/tell-the-person.json",
       "source_identity": "1f:c46a6bef4761bc898ab567ccdd9b74970fd1b19d17002791b522031f69e37fe7",
-      "identity": "1f:c46a6bef4761bc898ab567ccdd9b74970fd1b19d17002791b522031f69e37fe7",
-      "reused": true
+      "identity": "1f:ec3f6b75965dabec95d219dbdad1f10e4515e189ebed0b5349018a142151c5c7",
+      "reused": true,
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "src/tell-the-person.mjs",
@@ -81,7 +62,8 @@
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
       "to": "tools/tell-one-person-something-through-every-way-they/from-old-trillion/records/tell-the-person.json",
       "source_identity": "1f:96cd1ac0f4be6ef5a57d6b2e4a8325759a2960b4e07f4b4d1e4362ab4079921c",
-      "identity": "1f:96cd1ac0f4be6ef5a57d6b2e4a8325759a2960b4e07f4b4d1e4362ab4079921c"
+      "identity": "1f:d17634689d4e09a987d55a4e674e191805186d6e7ad07d06753213868078bb96",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "src/tell-quiet-hours.json",

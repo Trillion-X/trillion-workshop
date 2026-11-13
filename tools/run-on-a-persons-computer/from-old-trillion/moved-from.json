@@ -70,7 +70,8 @@
       "deleted_by": "5b55ce22b2",
       "to": "tools/run-on-a-persons-computer/from-old-trillion/test/confined-run.test.mjs",
       "source_identity": "1f:7e52d9b06edfd74f19924be443a0f6bdb531b0e468f5b14221c673dbe8aac8be",
-      "identity": "1f:7e52d9b06edfd74f19924be443a0f6bdb531b0e468f5b14221c673dbe8aac8be"
+      "identity": "1f:fad27d6123f509075ffe2a3b913bdf08554e7d9f535050febd7083afb3ef75e6",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     }
   ]
 }

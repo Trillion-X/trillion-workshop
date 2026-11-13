@@ -17,9 +17,10 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/bring-in-new-items-from-this-computer/computer/computer-sources.json",
       "source_identity": "1f:a7cc4565f0950178f6367137d6f2fd228aa2896fdd36194be66d254b40c482cf",
-      "identity": "1f:03eee85dc88e46ad4833131974ed3c3fc052f99d4d6e35171acd36c16abae169",
       "reused": true,
-      "adapted": "the same bytes under another name: receipt trillion-workshop:tools/bring-in-new-items-from-this-computer/moved-from.json"
+      "adapted": "the same bytes under another name: receipt trillion-workshop:tools/bring-in-new-items-from-this-computer/moved-from.json",
+      "identity_at_move": "1f:03eee85dc88e46ad4833131974ed3c3fc052f99d4d6e35171acd36c16abae169",
+      "byte_copy_commit": "7a1e101c12158135a5ae3f1edcd7152ebfb112f0"
     },
     {
       "from": "computer/computer-sources.mjs",

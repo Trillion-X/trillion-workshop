@@ -37,7 +37,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/community-logic-match/test/community-logic/match/matchmaker-gauntlet.test.mjs",
       "source_identity": "1f:733b9a3a6ac7c0be7e16fbca422685f2b698acc0c4648f61b547786c93308a77",
-      "identity": "1f:b7ccf922bd39576eb8895d2e2ba59a08390d7d30fee333ddd09717ebde8143b0"
+      "identity": "1f:a2e7b86d9af3c4df6e8c1dc460e335afb20a2509de6a00b22ae7ebc461eccdfd",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "test/community-logic/match/select-pairs.test.mjs",

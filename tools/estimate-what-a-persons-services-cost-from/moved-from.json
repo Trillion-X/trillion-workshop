@@ -9,8 +9,9 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/estimate-what-a-persons-services-cost-from/from-old-trillion/src/spend-meter.mjs.held",
       "source_identity": "1f:e5ef0b2596d788b7192c17e5176677225d773f4fc574be3c78df1bae29fa051c",
-      "identity": "1f:18c5bf3865e382acb7bba514cb437874b67f14e40888566b80474dba53c498a6",
-      "held": true
+      "identity": "1f:18130d5af304884be7677f8f1fd808243333d9ef4702fd151a98fd99c28e206e",
+      "held": true,
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "test/spend-meter.test.mjs",

@@ -25,7 +25,8 @@
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
       "to": "tools/headless-browser/test/headless-browser-admission.test.mjs",
       "source_identity": "1f:c1fcc18564cb69f81c1d0fc68931aea0512c1e02c2459b4ba8099434ee2a77b3",
-      "identity": "1f:77a73968cfab948f82c2659034dcc52b06c074078e350f9495cae64e027baf9a"
+      "identity": "1f:ad582e93ac3b0f609559eb24a9c835215f504f9f9b156a63df84d255c9b3a933",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     }
   ]
 }

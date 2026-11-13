@@ -17,8 +17,9 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/invite-people-to-a-space-by-link-email-address/from-old-trillion/test/space-invitation.test.mjs.held",
       "source_identity": "1f:0f5f9d49f0b8ddd9f661984def14bd0677bbbc4fb7ff875a476948d5cc8c0c14",
-      "identity": "1f:8bff530b4d619aca5dd58ee549bada707764314fd767802b0f7b494606d7f11d",
-      "held": true
+      "identity": "1f:80cb389def566dfeb6359441e4e4ea0556ae59b81a7c5d6e537223d99beb91cf",
+      "held": true,
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     }
   ]
 }

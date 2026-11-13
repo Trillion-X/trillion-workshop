@@ -37,7 +37,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/run-my-own-customer-databases/test/database-supply.test.mjs",
       "source_identity": "1f:3f8412acebc6af0960adb5e6ec18ce91fcb4f311d9e84e9ad8df970506b01094",
-      "identity": "1f:3f8412acebc6af0960adb5e6ec18ce91fcb4f311d9e84e9ad8df970506b01094"
+      "identity": "1f:9116689e6f9bcb6adf13ff3232a3c0f2101456ebd592c6b0866376e33ba11597",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     }
   ]
 }

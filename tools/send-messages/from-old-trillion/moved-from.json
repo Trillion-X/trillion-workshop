@@ -10,7 +10,8 @@
       "deleted_by": "27b458af2635254d67845c9a1c9f995cce2edd58",
       "to": "tools/send-messages/from-old-trillion/records/workshop-email-tool-records.json",
       "source_identity": "1f:933bf0251c2777e6033ad9e010657d22bcf4b87ddca8356f7d57ace6d6d3beaf",
-      "identity": "1f:933bf0251c2777e6033ad9e010657d22bcf4b87ddca8356f7d57ace6d6d3beaf"
+      "identity": "1f:abd08338c90cb0d262bb76945204d3466d3c3380e26497f9f8f68514fc003796",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     }
   ]
 }

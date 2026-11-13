@@ -17,8 +17,9 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/close-a-list-row-when-i-say/from-old-trillion/test/said-done.test.mjs.held",
       "source_identity": "1f:28c4565b113ed4280a5d1cbd9ca4ef248692e143bb5a8059048852e8e43576f1",
-      "identity": "1f:03de2145617c0e9594607b249dd730aa3a0f5016b7e6674183eed04a48d43172",
-      "held": true
+      "identity": "1f:711c20ab37d1a727ae5fbdbfcbb7b1e7ded72bc3f4d3fdffb77118d08ccc27d4",
+      "held": true,
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "src/said-done.json",

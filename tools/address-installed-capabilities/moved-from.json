@@ -23,7 +23,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/address-installed-capabilities/src/addressed-capability-tools.mjs",
       "source_identity": "1f:24c422df8d0892a4f1c858cb604c98d307791ce9997e31993354c3312b4d1b8e",
-      "identity": "1f:5c1785a26cdefab513c0e9da74cbe005a5b87afeb7644d0d68fb8dd03e096bee"
+      "identity_at_move": "1f:5c1785a26cdefab513c0e9da74cbe005a5b87afeb7644d0d68fb8dd03e096bee",
+      "byte_copy_commit": "92f9e47bb34f5334f59b2cf18d3c265ac790f1d5"
     },
     {
       "from": "src/addressed-operation.mjs",
@@ -86,7 +87,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/address-installed-capabilities/test/addressed-capability-tools.test.mjs",
       "source_identity": "1f:f8a45f5ab07f99f81350e28d3331afe4ecf0631521531bfae4f96200af40dfa8",
-      "identity": "1f:f8a45f5ab07f99f81350e28d3331afe4ecf0631521531bfae4f96200af40dfa8"
+      "identity_at_move": "1f:f8a45f5ab07f99f81350e28d3331afe4ecf0631521531bfae4f96200af40dfa8",
+      "byte_copy_commit": "92f9e47bb34f5334f59b2cf18d3c265ac790f1d5"
     },
     {
       "from": "test/creation-resource-mount.test.mjs",

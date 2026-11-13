@@ -4,9 +4,37 @@
   "package": "trillion-workshop",
   "calls": [],
   "files": [
-    { "from": "tools/connect-a-service-and-seal-its-key/read-data/public-door-rows.mjs", "commit": "6cfb983da1a5cfe4da414e304e86b4a6584c609a", "to": "tools/move-the-public-door/read-data/public-door-rows.mjs" },
-    { "from": "tools/move-the-public-door/move-public-door.mjs", "commit": "6cfb983da1a5cfe4da414e304e86b4a6584c609a", "to": "tools/move-the-public-door/do-work/move-public-door.mjs" },
-    { "from": "tools/move-the-public-door/portable-dns-cutover.mjs", "commit": "6cfb983da1a5cfe4da414e304e86b4a6584c609a", "to": "tools/move-the-public-door/do-work/portable-dns-cutover.mjs" },
-    { "from": "tools/move-the-public-door/portable-host-lease.mjs", "commit": "6cfb983da1a5cfe4da414e304e86b4a6584c609a", "to": "tools/move-the-public-door/do-work/portable-host-lease.mjs" }
+    {
+      "from": "tools/connect-a-service-and-seal-its-key/read-data/public-door-rows.mjs",
+      "commit": "6cfb983da1a5cfe4da414e304e86b4a6584c609a",
+      "to": "tools/move-the-public-door/read-data/public-door-rows.mjs",
+      "source_identity": "1f:108a42d858a6aa051a2b59e23834b507a7dbb3e211bbd4e4a55f6a39bf971982",
+      "identity": "1f:3918b23a031e5de1b232a31b62406b96bbfd1afcc3de8e4ee527e9f057bc9d40",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
+    },
+    {
+      "from": "tools/move-the-public-door/move-public-door.mjs",
+      "commit": "6cfb983da1a5cfe4da414e304e86b4a6584c609a",
+      "to": "tools/move-the-public-door/do-work/move-public-door.mjs",
+      "source_identity": "1f:9ce08bb19fc916800bfb512c2d2d06a9d31c9611f1be4eda4482f6e18c14cd8e",
+      "identity": "1f:7e405ae696947d660a672a4f7a1fca2544a83de16b1f37e89b04be54ed99c3c3",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
+    },
+    {
+      "from": "tools/move-the-public-door/portable-dns-cutover.mjs",
+      "commit": "6cfb983da1a5cfe4da414e304e86b4a6584c609a",
+      "to": "tools/move-the-public-door/do-work/portable-dns-cutover.mjs",
+      "source_identity": "1f:9ac4fdf8dd3d886a2178e34eb31540d0de1d7bbc2f830d902ee284c659adf31d",
+      "identity": "1f:21fd052a17916e30cf8fedc9c1e23736d6b28fe769b562f2c1178a83ded473ae",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
+    },
+    {
+      "from": "tools/move-the-public-door/portable-host-lease.mjs",
+      "commit": "6cfb983da1a5cfe4da414e304e86b4a6584c609a",
+      "to": "tools/move-the-public-door/do-work/portable-host-lease.mjs",
+      "source_identity": "1f:b5c074113c6e1b7563542e8a1c7f75be3e848720be54141e72a89cd8578dcccd",
+      "identity": "1f:feb7b2c38033ce704d9f9dd715d3991ea60e2cca41b80222a30180b86273ac4e",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
+    }
   ]
 }

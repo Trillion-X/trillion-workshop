@@ -9,7 +9,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/run-a-workflow-definition-on-the-workflow-engine-in-one-call/package.json",
       "source_identity": "1f:89e9c8c7979ec363d16226350fc0ce191a57527523771f9412d184307cac7f63",
-      "identity": "1f:89e9c8c7979ec363d16226350fc0ce191a57527523771f9412d184307cac7f63"
+      "identity": "1f:8a3efa60bb11939cce9b725d4c43f0451bb076a9c581ce26bb04048522c3a6fc",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "src/workflow-definition-runner.mjs",

@@ -25,7 +25,8 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/formulas/test/list-value-history.test.mjs",
       "source_identity": "1f:7a8e1b711c6ccc1998a526cafb6978f48dea14904ae0e77416699ac6b75f66f3",
-      "identity": "1f:de2e5a49dbff6e74b2be2741aedf058bb566b7a8313428d3983fd3a32aa39604"
+      "identity_at_move": "1f:de2e5a49dbff6e74b2be2741aedf058bb566b7a8313428d3983fd3a32aa39604",
+      "byte_copy_commit": "a5ea9425f7bc40750b98fb81dbd964fa06d23e3c"
     }
   ]
 }

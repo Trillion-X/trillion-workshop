@@ -40,7 +40,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/conversations/read-data/acquire-and-import-ai-chat-history.json",
       "source_identity": "1f:7577074515037c4c90a4d93067ae33ac12f3c5a21776ff1612ff254188e75d4f",
-      "identity": "1f:7577074515037c4c90a4d93067ae33ac12f3c5a21776ff1612ff254188e75d4f"
+      "identity": "1f:0f0de99eb27614e5de86acf1c79b9718601686b3fc72460ca5c776440bd3d60f",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "src/ai-conversations-list.json",

@@ -17,8 +17,9 @@
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
       "to": "tools/keep-my-records-on-this-device/do-work/device-copy-worker.mjs",
       "source_identity": "1f:63e26247ff5b09bbf8a42c5a995f2756d2b15e07aa655ee891a1b64d8d68e8dd",
-      "identity": "1f:63e26247ff5b09bbf8a42c5a995f2756d2b15e07aa655ee891a1b64d8d68e8dd",
-      "found_by": "same bytes"
+      "found_by": "same bytes",
+      "identity_at_move": "1f:63e26247ff5b09bbf8a42c5a995f2756d2b15e07aa655ee891a1b64d8d68e8dd",
+      "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d"
     },
     {
       "from": "parts/device-copy/do-work/device-copy.mjs",
@@ -26,8 +27,9 @@
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
       "to": "tools/keep-my-records-on-this-device/do-work/device-copy.mjs",
       "source_identity": "1f:e05bf1503bd3af3d15b4f93a82f5c9acede7e8d19a35b557241b31b4eb42a00a",
-      "identity": "1f:e05bf1503bd3af3d15b4f93a82f5c9acede7e8d19a35b557241b31b4eb42a00a",
-      "found_by": "same bytes"
+      "found_by": "same bytes",
+      "identity_at_move": "1f:e05bf1503bd3af3d15b4f93a82f5c9acede7e8d19a35b557241b31b4eb42a00a",
+      "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d"
     },
     {
       "from": "parts/device-copy/do-work/wasm-sqlite-host.mjs",

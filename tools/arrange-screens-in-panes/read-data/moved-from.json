@@ -9,7 +9,8 @@
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
       "to": "tools/arrange-screens-in-panes/read-data/target-reply-envelope.ts",
       "source_identity": "1f:f6a7de29c6d3c3656b6d2015415bdda2a0a5c2c5789951b885a1dc7b8bc1742a",
-      "identity": "1f:f6a7de29c6d3c3656b6d2015415bdda2a0a5c2c5789951b885a1dc7b8bc1742a"
+      "identity": "1f:3ec0a74c54687134c00348b7b8a9a7b30ee37c7d8c5776a7a1505af112762427",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     }
   ]
 }

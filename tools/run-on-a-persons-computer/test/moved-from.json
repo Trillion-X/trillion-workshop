@@ -62,7 +62,8 @@
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
       "to": "tools/run-on-a-persons-computer/test/host-log.test.mjs",
       "source_identity": "1f:d22dc078e95367c8e43cddd7ead94ca6a1e56641863ec617769bc2451a44f33a",
-      "identity": "1f:887ad19c943dc5f3a32d5d776ae5e4136cf99a5d24a9474b3ba253268a517b10"
+      "identity": "1f:218e4b5233857770a48a2e091947f8cb04116a4676419a93c96d4dad35e666d8",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "test/isolated-run.test.mjs",
@@ -197,7 +198,8 @@
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
       "to": "tools/run-on-a-persons-computer/test/see-a-recording.test.mjs",
       "source_identity": "1f:fe56a5186eb80f2069f4215a286bdeca3d3871724eb351ed8a0175e2a6d0b5f0",
-      "identity": "1f:d05ddeba6556b567a534d540eae795b269ad33de29543fa6a01586953a7d701d"
+      "identity_at_move": "1f:d05ddeba6556b567a534d540eae795b269ad33de29543fa6a01586953a7d701d",
+      "byte_copy_commit": "dafc9d1f3e8576f3495487cd24bfb3d754e47463"
     },
     {
       "from": "test/send-opened-files.test.mjs",

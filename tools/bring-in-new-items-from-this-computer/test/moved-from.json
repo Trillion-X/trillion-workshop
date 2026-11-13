@@ -9,14 +9,16 @@
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
       "to": "tools/bring-in-new-items-from-this-computer/test/carry-connections-modules.test.mjs",
       "source_identity": "1f:e761a99a85bc3e967f35d85f2879eb7fbb3aa9d082d171fbc4307c15e0cf6135",
-      "identity": "1f:6ba06da44bb8fa12b46eab1d09b9194751d8c456f663c19af22ec4eaad3d9ebc"
+      "identity": "1f:d7c6c20bce7e522861b758954c2b90dcbf126b2bec334427cde5cd5bc4a2aa0d",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "test/whatsapp-incoming.test.mjs",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
       "to": "tools/bring-in-new-items-from-this-computer/test/whatsapp-incoming.test.mjs",
       "source_identity": "1f:d9c53d1eff4932d7111bd17878a03773c6271e61d44ddd815cafae42098a53f4",
-      "identity": "1f:b849dbc816d01427b82f75bc74c039105d49fd378e4e6b3895d6774e47d54ffa"
+      "identity": "1f:dbc89fb5e21a3d2da327b39733698dea8dbbedcb2a9c9c95dc692134935db7c0",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     }
   ]
 }

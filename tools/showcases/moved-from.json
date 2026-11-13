@@ -9,7 +9,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/showcases/src/showcases.json",
       "source_identity": "1f:f9fd5c397536170ebd31d923ce9a8846c16e6acd07ecc812d77f7403d47acd3b",
-      "identity": "1f:f9fd5c397536170ebd31d923ce9a8846c16e6acd07ecc812d77f7403d47acd3b"
+      "identity": "1f:a0d19d4ec29e3b0ef40f66de38b66c5275cf1c11bab23fd9e75092c047ce8acc",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     }
   ]
 }

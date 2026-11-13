@@ -18,18 +18,20 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/use-trillion-from-a-shell/do-work/trillion.json",
       "source_identity": "1f:caec97cc92934a8c3cbf099a1943145c7ee4d1f30bba35cdab2164ff249e9937",
-      "identity": "1f:f3835b5e01546021cc43086fe2c125c9ded89d44e1a8284604635da00e77b458",
       "reused": true,
-      "adapted": "an earlier lane adapted it here (the one same-name file); not the same bytes once import paths are set aside"
+      "adapted": "an earlier lane adapted it here (the one same-name file); not the same bytes once import paths are set aside",
+      "identity_at_move": "1f:f3835b5e01546021cc43086fe2c125c9ded89d44e1a8284604635da00e77b458",
+      "byte_copy_commit": "21fda45b258ae02f303c690f1cbe82a9c84d3fd5"
     },
     {
       "from": "harness/trillion.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/use-trillion-from-a-shell/do-work/trillion.mjs",
       "source_identity": "1f:2e3067daba9a442f4d6fb538667559c7ef1ce2605673e2cfaffdc24cf8fa64bd",
-      "identity": "1f:771392b805217461e7a06ba82084c0ce1dd4bd2dddf4d8e511e1269a9f69633a",
       "reused": true,
-      "adapted": "an earlier lane adapted it here (backlog row (home-exists)); not the same bytes once import paths are set aside"
+      "adapted": "an earlier lane adapted it here (backlog row (home-exists)); not the same bytes once import paths are set aside",
+      "identity_at_move": "1f:771392b805217461e7a06ba82084c0ce1dd4bd2dddf4d8e511e1269a9f69633a",
+      "byte_copy_commit": "21fda45b258ae02f303c690f1cbe82a9c84d3fd5"
     },
     {
       "from": "test/ag-ui-agent.test.mjs",

@@ -24,22 +24,25 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/move-a-dated-plan/src/date-shift.mjs",
       "source_identity": "1f:1358ec23524535c3be82ed52a0835521380b80d89cfa11e6247a005e86e480fe",
-      "identity": "1f:50b94ba9b52d2c5f8d18446405b1cb9babd8291f50c71179a8cf86a9f1545057"
+      "identity_at_move": "1f:50b94ba9b52d2c5f8d18446405b1cb9babd8291f50c71179a8cf86a9f1545057",
+      "byte_copy_commit": "92f9e47bb34f5334f59b2cf18d3c265ac790f1d5"
     },
     {
       "from": "src/date-shift.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/move-a-dated-plan/src/date-shift.mjs",
       "source_identity": "1f:1358ec23524535c3be82ed52a0835521380b80d89cfa11e6247a005e86e480fe",
-      "identity": "1f:50b94ba9b52d2c5f8d18446405b1cb9babd8291f50c71179a8cf86a9f1545057",
-      "reused": true
+      "reused": true,
+      "identity_at_move": "1f:50b94ba9b52d2c5f8d18446405b1cb9babd8291f50c71179a8cf86a9f1545057",
+      "byte_copy_commit": "92f9e47bb34f5334f59b2cf18d3c265ac790f1d5"
     },
     {
       "from": "test/date-shift.test.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/move-a-dated-plan/test/date-shift.test.mjs",
       "source_identity": "1f:b8c84b8749b69d41697a6f30b43bcfc71ee2ce769854d074b8487e940859c459",
-      "identity": "1f:553e3d748ec3ad28b553fd86170c543195667cd3bc0ecf8e6493b21ee7c1d22c"
+      "identity_at_move": "1f:553e3d748ec3ad28b553fd86170c543195667cd3bc0ecf8e6493b21ee7c1d22c",
+      "byte_copy_commit": "a5ea9425f7bc40750b98fb81dbd964fa06d23e3c"
     }
   ]
 }

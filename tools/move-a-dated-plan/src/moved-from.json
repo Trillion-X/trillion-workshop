@@ -9,8 +9,9 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/move-a-dated-plan/src/date-shift.mjs",
       "source_identity": "1f:1358ec23524535c3be82ed52a0835521380b80d89cfa11e6247a005e86e480fe",
-      "identity": "1f:50b94ba9b52d2c5f8d18446405b1cb9babd8291f50c71179a8cf86a9f1545057",
-      "reused": true
+      "reused": true,
+      "identity_at_move": "1f:50b94ba9b52d2c5f8d18446405b1cb9babd8291f50c71179a8cf86a9f1545057",
+      "byte_copy_commit": "92f9e47bb34f5334f59b2cf18d3c265ac790f1d5"
     }
   ]
 }

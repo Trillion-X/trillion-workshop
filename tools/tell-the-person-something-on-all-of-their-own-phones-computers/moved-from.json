@@ -23,7 +23,8 @@
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
       "to": "tools/tell-the-person-something-on-all-of-their-own-phones-computers/test/apns.test.mjs",
       "source_identity": "1f:70044f3997ab52c667d5941f18f641e18c8f3de9e21a18dafa35df4c7f2001f8",
-      "identity": "1f:70044f3997ab52c667d5941f18f641e18c8f3de9e21a18dafa35df4c7f2001f8"
+      "identity": "1f:b5814832fc2a7d875232ecb7473f053f522eec80b99e36f60abd8b1ed0850a6e",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     }
   ]
 }

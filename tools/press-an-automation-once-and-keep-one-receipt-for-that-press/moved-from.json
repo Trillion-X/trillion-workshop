@@ -16,7 +16,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/press-an-automation-once-and-keep-one-receipt-for-that-press/src/native-automation-run-receipts.mjs",
       "source_identity": "1f:161c68a5c06e7faced26a28df2a8334d0acf2d16ae9946bdf971d6dd4042f425",
-      "identity": "1f:e51e6422cd10487596772169b445b496c8dc13332bee86725eb97050188bdaea"
+      "identity_at_move": "1f:e51e6422cd10487596772169b445b496c8dc13332bee86725eb97050188bdaea",
+      "byte_copy_commit": "23353620b2c81af31f2dc8ba047b65a18ee743a0"
     }
   ]
 }

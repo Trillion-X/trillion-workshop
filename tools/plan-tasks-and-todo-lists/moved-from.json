@@ -24,23 +24,26 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/plan-tasks-and-todo-lists/calendar-tasks.json",
       "source_identity": "1f:342fdb114bb10102ae8380f72545949d5de88a7d05daa215a1bfad2e9a85329d",
-      "identity": "1f:342fdb114bb10102ae8380f72545949d5de88a7d05daa215a1bfad2e9a85329d"
+      "identity_at_move": "1f:342fdb114bb10102ae8380f72545949d5de88a7d05daa215a1bfad2e9a85329d",
+      "byte_copy_commit": "dae31dbedd21024afb311c043445c94bef47186e"
     },
     {
       "from": "src/calendar-tasks.json",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/plan-tasks-and-todo-lists/calendar-tasks.json",
       "source_identity": "1f:342fdb114bb10102ae8380f72545949d5de88a7d05daa215a1bfad2e9a85329d",
-      "identity": "1f:342fdb114bb10102ae8380f72545949d5de88a7d05daa215a1bfad2e9a85329d",
-      "reused": true
+      "reused": true,
+      "identity_at_move": "1f:342fdb114bb10102ae8380f72545949d5de88a7d05daa215a1bfad2e9a85329d",
+      "byte_copy_commit": "dae31dbedd21024afb311c043445c94bef47186e"
     },
     {
       "from": "src/calendar-tasks.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/plan-tasks-and-todo-lists/calendar-tasks.mjs",
       "source_identity": "1f:784ae000f625afaf9c51b9cba7d79662dda008703410c3fe43f1cda5836fffc9",
-      "identity": "1f:ef8bb13339e0f6b794756cf9e65a31b1558e40c0e1ac0e417bac79a18717a1df",
-      "reused": true
+      "reused": true,
+      "identity_at_move": "1f:ef8bb13339e0f6b794756cf9e65a31b1558e40c0e1ac0e417bac79a18717a1df",
+      "byte_copy_commit": "c985e676c90a88e56c20ee5ff081975a44231b78"
     },
     {
       "from": "parts/ui/show/schedule-calendar/schedule-placement.mjs",
@@ -68,21 +71,24 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/plan-tasks-and-todo-lists/test/calendar-task-messages.test.mjs",
       "source_identity": "1f:e312cfd45dc4b945fa3024fdbea0bc56b73274b1c34b719c64f140e5b44b1725",
-      "identity": "1f:8b16b82dedb23e1fd059018d43e34716e4f43213ab847361b124a8bcd145b5c1"
+      "identity_at_move": "1f:8b16b82dedb23e1fd059018d43e34716e4f43213ab847361b124a8bcd145b5c1",
+      "byte_copy_commit": "a5ea9425f7bc40750b98fb81dbd964fa06d23e3c"
     },
     {
       "from": "test/calendar-tasks-amie.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/plan-tasks-and-todo-lists/test/calendar-tasks-amie.test.mjs",
       "source_identity": "1f:d932891f4530fff38aabb8806055b8dbfadbfb4f4ccb5959c8edfea21976611f",
-      "identity": "1f:758976097fc1e05b612266916911050a7518111a91dccdb9e501481858d1b5da"
+      "identity_at_move": "1f:758976097fc1e05b612266916911050a7518111a91dccdb9e501481858d1b5da",
+      "byte_copy_commit": "c985e676c90a88e56c20ee5ff081975a44231b78"
     },
     {
       "from": "test/calendar-tasks.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/plan-tasks-and-todo-lists/test/calendar-tasks.test.mjs",
       "source_identity": "1f:552f233a50bd821472883be37b538063802625fc71eeda7be4bd5af29451e273",
-      "identity": "1f:b9213f30c3d235b4f3371e0dc587e91e353bf14d958afc58909fc53921cd0127"
+      "identity_at_move": "1f:b9213f30c3d235b4f3371e0dc587e91e353bf14d958afc58909fc53921cd0127",
+      "byte_copy_commit": "c985e676c90a88e56c20ee5ff081975a44231b78"
     },
     {
       "from": "test/schedule-calendar-planner.test.mjs",

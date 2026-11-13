@@ -10,8 +10,9 @@
       "to": "tools/walk-a-new-person-through-first-setup/do-work/setup-installs.mjs",
       "source_identity": "1f:031e17e6786ea7b757e5c824d63db7a3e980d03ff5afc0add964227bfcbbf22a",
       "held": false,
-      "adapted": true,
-      "identity_as_held": "1f:d2a7946ca17266435f456c86ef627aac0094fd7f625142a8df46ee49ba4999b1"
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has.",
+      "identity_as_held": "1f:d2a7946ca17266435f456c86ef627aac0094fd7f625142a8df46ee49ba4999b1",
+      "identity": "1f:66935bd3efdbabe7c1df7271d2ab86539ff21120dc331503bb15f0d36501591f"
     },
     {
       "from": "src/setup-plan.mjs",
@@ -19,8 +20,9 @@
       "to": "tools/walk-a-new-person-through-first-setup/do-work/setup-plan.mjs",
       "source_identity": "1f:8060483a09b822549fd7517667929731e2735a7224a4bc9f33f847f7331d2ca0",
       "held": false,
-      "adapted": true,
-      "identity_as_held": "1f:32123b394289738717881b0c5fb84bcaec5a0023096b9830f924f7300c550aa0"
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has.",
+      "identity_as_held": "1f:32123b394289738717881b0c5fb84bcaec5a0023096b9830f924f7300c550aa0",
+      "identity": "1f:a3d2f086c75e935a7dc29859d9f734ac0038f5cb10bafd128ab31a19d5ab5b86"
     },
     {
       "from": "src/setup-runtime.mjs",
@@ -51,7 +53,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/walk-a-new-person-through-first-setup/read-data/setup-policy.json",
       "held": false,
-      "adapted": false
+      "identity": "1f:64172569701f44bce97e0b02cd2a914ce935d03ae8af13f134a7881ea6306dec",
+      "source_identity": "1f:64172569701f44bce97e0b02cd2a914ce935d03ae8af13f134a7881ea6306dec"
     }
   ]
 }

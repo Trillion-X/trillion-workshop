@@ -358,8 +358,9 @@
       "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
       "to": "tools/media-composition/do-work/extract-poster.mjs",
       "source_identity": "1f:d37a746ba21b81c2c3b53f46a23d7b1fed4e7d9f65fccc2fb5813f28b5ce1a74",
-      "identity": "1f:d37a746ba21b81c2c3b53f46a23d7b1fed4e7d9f65fccc2fb5813f28b5ce1a74",
-      "found_by": "same bytes"
+      "found_by": "same bytes",
+      "identity_at_move": "1f:d37a746ba21b81c2c3b53f46a23d7b1fed4e7d9f65fccc2fb5813f28b5ce1a74",
+      "byte_copy_commit": "adcf6a5237f07b0ea896d105f9cde2dac24c4e93"
     },
     {
       "from": "parts/media-composition/do-work/find-action-moments.mjs",
@@ -394,8 +395,9 @@
       "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
       "to": "tools/media-composition/do-work/make-pictures-and-sounds.mjs",
       "source_identity": "1f:a3440943ab62168661c6098f76094e5d93f713bc2c500ddba055f30961bf2fcf",
-      "identity": "1f:a3440943ab62168661c6098f76094e5d93f713bc2c500ddba055f30961bf2fcf",
-      "found_by": "same bytes"
+      "found_by": "same bytes",
+      "identity_at_move": "1f:a3440943ab62168661c6098f76094e5d93f713bc2c500ddba055f30961bf2fcf",
+      "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d"
     },
     {
       "from": "parts/media-composition/do-work/name-a-voice.py",
@@ -475,8 +477,9 @@
       "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
       "to": "tools/media-composition/do-work/segment-person-matte.py",
       "source_identity": "1f:3bbfcc624074e0dba955ff9607236422fd54b14debda574fcfc1b497b59c5dd9",
-      "identity": "1f:3bbfcc624074e0dba955ff9607236422fd54b14debda574fcfc1b497b59c5dd9",
-      "found_by": "same bytes"
+      "found_by": "same bytes",
+      "identity_at_move": "1f:3bbfcc624074e0dba955ff9607236422fd54b14debda574fcfc1b497b59c5dd9",
+      "byte_copy_commit": "adcf6a5237f07b0ea896d105f9cde2dac24c4e93"
     },
     {
       "from": "parts/media-composition/do-work/split-layout.mjs",
@@ -493,8 +496,9 @@
       "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
       "to": "tools/media-composition/do-work/stage-reuse.mjs",
       "source_identity": "1f:99e7b81991ce359bc9ac5fb7908a99f818df29144aa4015857e3e551f03b900c",
-      "identity": "1f:99e7b81991ce359bc9ac5fb7908a99f818df29144aa4015857e3e551f03b900c",
-      "found_by": "same bytes"
+      "found_by": "same bytes",
+      "identity_at_move": "1f:99e7b81991ce359bc9ac5fb7908a99f818df29144aa4015857e3e551f03b900c",
+      "byte_copy_commit": "adcf6a5237f07b0ea896d105f9cde2dac24c4e93"
     },
     {
       "from": "parts/media-composition/do-work/track-moving-subject.mjs",
@@ -748,7 +752,8 @@
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
       "to": "tools/media-composition/from-old-trillion/records/workshop-media-generation-tool-records.json",
       "source_identity": "1f:da9e692cec206a9c4d1d2c3a4596e57f4898e951be6a8549bfff5e1c01c907a8",
-      "identity": "1f:da9e692cec206a9c4d1d2c3a4596e57f4898e951be6a8549bfff5e1c01c907a8"
+      "identity_at_move": "1f:da9e692cec206a9c4d1d2c3a4596e57f4898e951be6a8549bfff5e1c01c907a8",
+      "byte_copy_commit": "237f175e372c2be3dc6806067004dfde32d5691a"
     },
     {
       "from": "test/relink-editor-projects.test.mjs",

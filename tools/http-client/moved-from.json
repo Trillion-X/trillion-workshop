@@ -49,7 +49,8 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/http-client/do-work/same-origin.mjs",
       "source_identity": "1f:ee4d15760488b8d5aabf8273b1b8bfae01fbdf08a292fbc43ede4a7b43092669",
-      "identity": "1f:ee4d15760488b8d5aabf8273b1b8bfae01fbdf08a292fbc43ede4a7b43092669"
+      "identity": "1f:10c2426223881b0782ba1c023c316b92070d6ae07522a68c556b138589bfc518",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "parts/http-client/part.json",

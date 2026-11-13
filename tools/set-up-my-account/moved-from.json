@@ -56,7 +56,8 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/set-up-my-account/test/setup-policy-formula.test.mjs",
       "source_identity": "1f:7fb0ee92d1adf52de164ad9dbc931315399c6fd4d6d1a018f83cf5ad321ed648",
-      "identity": "1f:2442f9cf178ae6a0f064e67055665101bbecf249c077f528d475c9c7922f4eae"
+      "identity_at_move": "1f:2442f9cf178ae6a0f064e67055665101bbecf249c077f528d475c9c7922f4eae",
+      "byte_copy_commit": "99c827615a2f35400d5b8e02a963fbadcb2d5fa6"
     },
     {
       "from": "test/show-rules-expiry.test.mjs",

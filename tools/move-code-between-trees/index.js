@@ -2,6 +2,8 @@
 // tools/move-code-between-trees/index.js
 //
 // `node tools/move-code-between-trees check [--source <old tree checkout>] [--source-after <folder>] [--no-run]`
+// `node tools/move-code-between-trees settle [--history <ref>]` rewrites each receipt entry that does not say what its file is so it
+// does (read-data/settle-receipts.mjs); run `check` after it.
 // from the root of a Workshop checkout. With no source, every receipt (moved-from.json, at any depth) is judged from
 // this checkout alone (read-data/check-receipts.mjs): its shape, full commits, and the bytes here. With --source, the
 // receipts named for that tree are also proved against it (read-data/check-move.mjs). Prints one JSON answer and exits
@@ -9,15 +11,20 @@
 // input: do-work/move-code.mjs.
 import { resolve } from 'node:path';
 import { checkReceipts } from './read-data/check-receipts.mjs';
+import { settleReceipts } from './read-data/settle-receipts.mjs';
 import { checkMove } from './read-data/check-move.mjs';
 import { openTreeAt } from './read-data/code-tree.mjs';
 
 const [step, ...rest] = process.argv.slice(2);
 const option = name => { const at = rest.indexOf(name); return at >= 0 ? rest[at + 1] : null; };
 try {
-  if (step !== 'check') {
-    process.stdout.write(`${JSON.stringify({ error: { code: 'step_unknown', message: 'Run `check` here; plan and apply take a JSON request on standard input to do-work/move-code.mjs.' } })}\n`);
+  if (step !== 'check' && step !== 'settle') {
+    process.stdout.write(`${JSON.stringify({ error: { code: 'step_unknown', message: 'Run `check` or `settle` here; plan and apply take a JSON request on standard input to do-work/move-code.mjs.' } })}\n`);
     process.exit(2);
+  }
+  if (step === 'settle') {
+    process.stdout.write(`${JSON.stringify(settleReceipts({ folder: resolve(option('--destination') ?? process.cwd()), history: option('--history') ?? 'HEAD' }), null, 2)}\n`);
+    process.exit(0);
   }
   const folder = resolve(option('--destination') ?? process.cwd());
   const whole = checkReceipts({ folder });

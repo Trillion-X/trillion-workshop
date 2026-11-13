@@ -10,7 +10,8 @@
       "deleted_by": "8f4c58b762",
       "to": "tools/workflows/from-old-trillion/methods/quintillion-mode.md",
       "source_identity": "1f:4379253502db2f752fb38ea3154ab44ba77cf0cec2d8be285e8e5b2b6ad6cd2d",
-      "identity": "1f:4379253502db2f752fb38ea3154ab44ba77cf0cec2d8be285e8e5b2b6ad6cd2d"
+      "identity": "1f:d35fc51915540db6581f10e4518179451bf3fa508084279640e846bd86a17ab3",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "records/quintillion-mode-records.json",
@@ -18,7 +19,8 @@
       "deleted_by": "8f4c58b762",
       "to": "tools/workflows/from-old-trillion/records/quintillion-mode-records.json",
       "source_identity": "1f:37878c473d8a74ca2beb33e551a828279829dbe203d063f3a656adb035cb2b22",
-      "identity": "1f:37878c473d8a74ca2beb33e551a828279829dbe203d063f3a656adb035cb2b22"
+      "identity": "1f:481ed6127ae285981815b1a5272c846fb6da0b79fd9d41a4a1305bf7fed47b95",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "test/quintillion-modes.test.mjs",

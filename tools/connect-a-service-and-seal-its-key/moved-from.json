@@ -88,7 +88,8 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/connect-a-service-and-seal-its-key/part.json",
       "source_identity": "1f:d99b5568fef374f5dea6921cbe8bebb768ad80426e9213913370d93ff7dc338b",
-      "identity": "1f:291cc508349e205ccf7a3a41a413661dd4056ab140834791a548e8bab8df7a35"
+      "identity_at_move": "1f:291cc508349e205ccf7a3a41a413661dd4056ab140834791a548e8bab8df7a35",
+      "byte_copy_commit": "84f6b594de352da9b7f4b2079fac42e4c599f9b1"
     },
     {
       "from": "parts/service-connections/read-data/calendar-connection-options.ts",
@@ -110,13 +111,6 @@
       "to": "tools/connect-a-service-and-seal-its-key/read-data/owner-record-work-contract.ts",
       "source_identity": "1f:76f9bbd6c67a63ec74598c216d4b0f776b9daf221a8de84c1545bb0b607f18b3",
       "identity": "1f:76f9bbd6c67a63ec74598c216d4b0f776b9daf221a8de84c1545bb0b607f18b3"
-    },
-    {
-      "from": "parts/service-connections/read-data/public-door-rows.mjs",
-      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "to": "tools/connect-a-service-and-seal-its-key/read-data/public-door-rows.mjs",
-      "source_identity": "1f:108a42d858a6aa051a2b59e23834b507a7dbb3e211bbd4e4a55f6a39bf971982",
-      "identity": "1f:108a42d858a6aa051a2b59e23834b507a7dbb3e211bbd4e4a55f6a39bf971982"
     },
     {
       "from": "parts/service-connections/read-data/read-service-connection-options.ts",
@@ -145,8 +139,8 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/connect-a-service-and-seal-its-key/records.json",
       "source_identity": "1f:6c1737ec4b2f0b7fdedc980ffb3adffd993575277525bf23f79de85f517c86ae",
-      "identity_at_move": "1f:6c1737ec4b2f0b7fdedc980ffb3adffd993575277525bf23f79de85f517c86ae",
-      "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d"
+      "identity": "1f:fa9969e0efb139fa3c9b4c412d76409df292d1194748f44f4c08e996fbe6ac9a",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "src/required-secrets.mjs",

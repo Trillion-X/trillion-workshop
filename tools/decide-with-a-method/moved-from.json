@@ -9,7 +9,8 @@
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
       "to": "tools/decide-with-a-method/from-old-trillion/workshop/architecture-patterns/README.md",
       "source_identity": "1f:6917fed00fb4c8049e9efb2aca7c6bb75de2036b601e0e8fee223f9d26d43733",
-      "identity": "1f:6917fed00fb4c8049e9efb2aca7c6bb75de2036b601e0e8fee223f9d26d43733"
+      "identity": "1f:df58442016ae069096903e153a9ddf95f1397d9aba434001da4ab9ad3a8c0346",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "workshop/architecture-patterns/descriptor.json",
@@ -69,8 +70,9 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/decide-with-a-method/test/decision-content-reads.test.mjs",
       "source_identity": "1f:2d7c3350c93fecf700fac1dacf3c4ce8a426682b7ffa7c838d3e7f877bc05c0a",
-      "identity": "1f:a7d1e1d966fec9aa9f67b65a2ccb107d18498fb72e52169cfda2afd6e15906e0",
-      "adapted": "The store's contentOf became readDecision over the door, SQL counts became records crossed; a whole root reads as it is; story, privacy-term and PersonStore retry checks were left out, no running owner."
+      "adapted": "The store's contentOf became readDecision over the door, SQL counts became records crossed; a whole root reads as it is; story, privacy-term and PersonStore retry checks were left out, no running owner.",
+      "identity_at_move": "1f:a7d1e1d966fec9aa9f67b65a2ccb107d18498fb72e52169cfda2afd6e15906e0",
+      "byte_copy_commit": "deb08a081e3f169d7f2a1bb1de04b45c5921cb52"
     },
     {
       "from": "test/decision-own-reads.test.mjs",
@@ -108,16 +110,18 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/decide-with-a-method/test/decision-workflow-phases.test.mjs",
       "source_identity": "1f:8a9ed7181caadf65b95b73f7be380f6fb5018b9d66fd2bc364d0f304d7092dd3",
-      "identity": "1f:cc60ef3a11383ccb8e345e4e89d5b2894d0a125802bb6c0948089237049ad105",
-      "adapted": "The engine's planning step became the door tools over a made-up method with two workflows plus track-decision-obligations' decision-workflows.mjs; run_ids are refused as the owner does; outcome checks and observers were left out, no running owner."
+      "adapted": "The engine's planning step became the door tools over a made-up method with two workflows plus track-decision-obligations' decision-workflows.mjs; run_ids are refused as the owner does; outcome checks and observers were left out, no running owner.",
+      "identity_at_move": "1f:cc60ef3a11383ccb8e345e4e89d5b2894d0a125802bb6c0948089237049ad105",
+      "byte_copy_commit": "91b57ff998e26d74d89c44728ec574fc3973cc64"
     },
     {
       "from": "test/guide-answer-flat.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/decide-with-a-method/test/guide-answer-flat.test.mjs",
       "source_identity": "1f:8fbc9775e0dd4dd7523b3d621fee28053ca8b4f0d67941ff556850b9dd97618b",
-      "identity": "1f:6ec18f77e9d8012a8e2c0cf0b8fa8a14ea363640c0b52e6087d075622aa277e7",
-      "adapted": "A PersonStore grown to N and 4N SQLite rows became N and 4N records of each kind in the in-memory door; the cost is records crossed at the door, with a ceiling from similar.look_back."
+      "adapted": "A PersonStore grown to N and 4N SQLite rows became N and 4N records of each kind in the in-memory door; the cost is records crossed at the door, with a ceiling from similar.look_back.",
+      "identity_at_move": "1f:6ec18f77e9d8012a8e2c0cf0b8fa8a14ea363640c0b52e6087d075622aa277e7",
+      "byte_copy_commit": "deb08a081e3f169d7f2a1bb1de04b45c5921cb52"
     },
     {
       "from": "test/guide-cited-pursuits-bounded.test.mjs",
@@ -132,16 +136,18 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/decide-with-a-method/test/guided.test.mjs",
       "source_identity": "1f:8090d03fb273d4167cc560d2c7f8a5a5c9deac309f0da5097476b1056d8a1942",
-      "identity": "1f:a9b4ee292c9b055ce6cc199ffe083089a04920f7a501cb684abfe7f1a1594b1a",
-      "adapted": "DecisionEngine guide/decideGuided over the universal method became the door tools over fixtures.mjs's made-up method, each step filled to its schema and judged by the caller's verdicts; replies compared without the replayed and ready_for_decision marks."
+      "adapted": "DecisionEngine guide/decideGuided over the universal method became the door tools over fixtures.mjs's made-up method, each step filled to its schema and judged by the caller's verdicts; replies compared without the replayed and ready_for_decision marks.",
+      "identity_at_move": "1f:a9b4ee292c9b055ce6cc199ffe083089a04920f7a501cb684abfe7f1a1594b1a",
+      "byte_copy_commit": "deb08a081e3f169d7f2a1bb1de04b45c5921cb52"
     },
     {
       "from": "test/judge-reads-the-case.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/decide-with-a-method/test/judge-reads-the-case.test.mjs",
       "source_identity": "1f:d6940b90100d31d5c86b58b5377189325a6f49a6df6c1e89921622983a362532",
-      "identity": "1f:69c4f252b75e7b4f9a6d1b075c3124f89a46031aae436109263f1f92f000851e",
-      "adapted": "The service's own check judge became the calling AI's verdicts: the question's words for the judge and a retracted fact not taken are checked; the refusal's words are takeCallerVerdicts'; the refused-call log tests were left out, no running owner."
+      "adapted": "The service's own check judge became the calling AI's verdicts: the question's words for the judge and a retracted fact not taken are checked; the refusal's words are takeCallerVerdicts'; the refused-call log tests were left out, no running owner.",
+      "identity_at_move": "1f:69c4f252b75e7b4f9a6d1b075c3124f89a46031aae436109263f1f92f000851e",
+      "byte_copy_commit": "deb08a081e3f169d7f2a1bb1de04b45c5921cb52"
     },
     {
       "from": "test/judging-holds-no-other-decision.test.mjs",
@@ -164,8 +170,9 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/decide-with-a-method/test/pursuits.test.mjs",
       "source_identity": "1f:14fbddb410f561bf61b33bbf8dd50f2cc1d67c628c2503544319de85c84c9190",
-      "identity": "1f:b78fa0a3efec0c5c231afb4b2d6dda27ac72d038766329df9791085bb9422df0",
-      "adapted": "DecisionEngine.recordPursuits/pursuits became do-work/answer-the-pursuits-page.mjs pursuitsOf, summaries tool:see-my-decisions; record-log value history and pursuit paging were left out, no running owner."
+      "adapted": "DecisionEngine.recordPursuits/pursuits became do-work/answer-the-pursuits-page.mjs pursuitsOf, summaries tool:see-my-decisions; record-log value history and pursuit paging were left out, no running owner.",
+      "identity_at_move": "1f:b78fa0a3efec0c5c231afb4b2d6dda27ac72d038766329df9791085bb9422df0",
+      "byte_copy_commit": "deb08a081e3f169d7f2a1bb1de04b45c5921cb52"
     },
     {
       "from": "web/src/workspace/decisions-screen.tsx",

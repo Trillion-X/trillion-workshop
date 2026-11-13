@@ -319,7 +319,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/shared-code/src/mail-settings.json",
       "source_identity": "1f:e869ce34f3a7e308d3fdf17e53ca60b0958b439a7b050ffbcfdf15f0be8019ab",
-      "identity": "1f:e869ce34f3a7e308d3fdf17e53ca60b0958b439a7b050ffbcfdf15f0be8019ab"
+      "identity": "1f:6732ccf886afa646fd235b9da3213a39adb35c761326778a88e538834f12be2b",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "src/metered-use.json",
@@ -347,7 +348,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/shared-code/src/native-local-command-receipts.mjs",
       "source_identity": "1f:2339cd3ffa8f3662a0b478051607076a3536ad56d8c0c3312bb7e290efea5aad",
-      "identity": "1f:fa76bcaca9fb3165ae6b4eb92e035c743314da1b504897a01b3d4cad67956992"
+      "identity_at_move": "1f:fa76bcaca9fb3165ae6b4eb92e035c743314da1b504897a01b3d4cad67956992",
+      "byte_copy_commit": "23353620b2c81af31f2dc8ba047b65a18ee743a0"
     },
     {
       "from": "src/network-identity.json",
@@ -617,15 +619,17 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/shared-code/src/seen-marks.mjs",
       "source_identity": "1f:47565d0d109dbe86cfbe79d0aaa81cbc992c3874b84fa7ae782770f819c46f54",
-      "identity": "1f:d7bebcbdc0913b1728b985d784ed430c54d905171fabfc1dffa1fa99068584e8"
+      "identity_at_move": "1f:d7bebcbdc0913b1728b985d784ed430c54d905171fabfc1dffa1fa99068584e8",
+      "byte_copy_commit": "92baa2dcf144d6e7a03765381ec768d2465e13a9"
     },
     {
       "from": "src/seen-marks.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/shared-code/src/seen-marks.mjs",
       "source_identity": "1f:47565d0d109dbe86cfbe79d0aaa81cbc992c3874b84fa7ae782770f819c46f54",
-      "identity": "1f:d7bebcbdc0913b1728b985d784ed430c54d905171fabfc1dffa1fa99068584e8",
-      "reused": true
+      "reused": true,
+      "identity_at_move": "1f:d7bebcbdc0913b1728b985d784ed430c54d905171fabfc1dffa1fa99068584e8",
+      "byte_copy_commit": "92baa2dcf144d6e7a03765381ec768d2465e13a9"
     },
     {
       "from": "src/server-instruction-paragraphs.mjs",
@@ -654,7 +658,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/shared-code/src/spend-meter.json",
       "source_identity": "1f:87fbad0e172c40b4480f269c1880aa2f2591f38425d00fe1a659cf0c8af4f323",
-      "identity": "1f:87fbad0e172c40b4480f269c1880aa2f2591f38425d00fe1a659cf0c8af4f323"
+      "identity": "1f:27f55d48b3bdf5286a35f8df5db010b9734b9916b8a4fca3de0551a7b37512d5",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "src/task-proposals.json",
@@ -735,7 +740,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/shared-code/src/who-does-it.json",
       "source_identity": "1f:af8fef1c103ea96786a070dea0430f4514c1fe8004eeec8caa3a4c7e6981923e",
-      "identity": "1f:af8fef1c103ea96786a070dea0430f4514c1fe8004eeec8caa3a4c7e6981923e"
+      "identity": "1f:bf82baeb9148117dd8e1e088739b889f0ceec8c38f217650867078837589891a",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "src/work-holds.json",
@@ -916,22 +922,24 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/shared-code/test/carried-connections.test.mjs",
       "source_identity": "1f:686ab15ec24c17e75be2364add9cd211deea86e49d4eb3e61b431b621da01eb7",
-      "identity": "1f:c637ed50a5b30454b93deb7d8eb2542373ccae98a69b0ac6b4822bf86d4598f9",
-      "adapted": "the computer helper and service descriptors are read from their homes (run-on-a-persons-computer, connect-a-service-and-seal-its-key/records.json); the Connections screen test is left out: no running code exports old src/account-screens.mjs connectionsFacts."
+      "identity": "1f:b3db8654a121f5e3e33a378f6269a498a08a9661b96119aabf0efc447ac9e3b8",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "test/carried-lifecycle-races.test.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/shared-code/test/carried-lifecycle-races.test.mjs",
       "source_identity": "1f:1a4961b04ab9c3fbee920f07e83eb8211031eaad9800d99e241f20213fc628fa",
-      "identity": "1f:2759bd3083186c2db0a1fa428d78d8cb690d7a916945829c13981c08cf6bdbce"
+      "identity": "1f:2add00537dcd8943a4a7b8e0a7276524363121a957a6199b7605ccaba303a63d",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "test/carried-lifecycle.test.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/shared-code/test/carried-lifecycle.test.mjs",
       "source_identity": "1f:7e83aaf587a90e7b1697923aedd1a80fa78d3a1de71b660a230fd08880968023",
-      "identity": "1f:06993dc841728587e3b8c167a74e808d2789cbed611c8e79fd02ed945fdf11cd"
+      "identity": "1f:17970ca239f67d269c0f482af28df0ddbfe40acb5d5162bf3dd37d611476f9d8",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "test/decision-identity-compiled.test.mjs",
@@ -1008,8 +1016,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/shared-code/test/own-ais.test.mjs",
       "source_identity": "1f:a9836ffc9ead706f77c8bd48646f8b3e20deed935457e4b42e7e96f5adbf85a8",
-      "identity": "1f:eb25a578c15c9b9fca8827bb0425640b3fb5f7cda2cdcd9f91d9ecb8e897007e",
-      "adapted": "makeAis is read from tools/see-and-limit-what-each-ai-can-reach; the four tests of old src/own-ais-routing.mjs and one limitSync check are left out: no repository keeps that routing."
+      "identity": "1f:807ab1fc832d5b60abf64d0993c6d21795ba23aa438988ed4d528a194d722941",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "test/reconcile-due-only.test.mjs",

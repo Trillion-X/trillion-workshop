@@ -16,7 +16,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/read-one-workspace-record-by-its-label-and-save-a-change/src/native-workspace-records.mjs",
       "source_identity": "1f:f27d6031ec481e2284f9108ae9ced00c0b6d0126661e142c2c76a3834a37e41f",
-      "identity": "1f:4276e0cbf4d12cf85be4ac53d8dd0338c70fedbbc18a5c453b3d50868df50e79"
+      "identity_at_move": "1f:4276e0cbf4d12cf85be4ac53d8dd0338c70fedbbc18a5c453b3d50868df50e79",
+      "byte_copy_commit": "23353620b2c81af31f2dc8ba047b65a18ee743a0"
     },
     {
       "from": "src/workspace/document-operations.json",

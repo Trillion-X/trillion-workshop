@@ -39,8 +39,9 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/record-log/do-work/record-requests.mjs",
       "source_identity": "1f:7b08287f5966c53d3a3b4820b643a5c41df394abaa0e4628d7754815d1dd1e6c",
-      "identity": "1f:7b08287f5966c53d3a3b4820b643a5c41df394abaa0e4628d7754815d1dd1e6c",
-      "reused": true
+      "reused": true,
+      "identity_at_move": "1f:7b08287f5966c53d3a3b4820b643a5c41df394abaa0e4628d7754815d1dd1e6c",
+      "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d"
     },
     {
       "from": "parts/record-log/do-work/record-stamps.mjs",
@@ -55,16 +56,18 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/record-log/do-work/record-sync.mjs",
       "source_identity": "1f:2b875896886fd702c60840aa24cae8672f35204226abdf4daefa415b09749feb",
-      "identity": "1f:2b875896886fd702c60840aa24cae8672f35204226abdf4daefa415b09749feb",
-      "reused": true
+      "reused": true,
+      "identity_at_move": "1f:2b875896886fd702c60840aa24cae8672f35204226abdf4daefa415b09749feb",
+      "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d"
     },
     {
       "from": "parts/record-log/do-work/record-time.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/record-log/do-work/record-time.mjs",
       "source_identity": "1f:cddd5e3107a42044b60787e8f3019a967e85017fa1911c29267814b06e0c0551",
-      "identity": "1f:2179dac3a3a1cf83bc37bc3ba577b1f980d220015f0af6d6ea9d709c377c78fb",
-      "reused": true
+      "reused": true,
+      "identity_at_move": "1f:2179dac3a3a1cf83bc37bc3ba577b1f980d220015f0af6d6ea9d709c377c78fb",
+      "byte_copy_commit": "459ae01cade41c3937e1fa182e416bf571ef5550"
     },
     {
       "from": "src/store-size.json",
@@ -143,7 +146,8 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/record-log/test/record-table-integration.test.mjs",
       "source_identity": "1f:025731aabae9f4eea5d573f80fb335031ae43070d4fef76808929868c79779c0",
-      "identity": "1f:aa0d7b13333f3b2fe7166f5f86c75d2564b320409959bdc5c9b31113c5c75f7e"
+      "identity_at_move": "1f:aa0d7b13333f3b2fe7166f5f86c75d2564b320409959bdc5c9b31113c5c75f7e",
+      "byte_copy_commit": "a5ea9425f7bc40750b98fb81dbd964fa06d23e3c"
     }
   ]
 }

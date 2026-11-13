@@ -9,7 +9,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/send-a-push-message-to-a-browser-that-asked-to-be-told/test/web-push.test.mjs",
       "source_identity": "1f:b7254d78c0140b112697aece1e92937a1540d5d50e3e4f4a16b3ff856e7d0e3c",
-      "identity": "1f:fa1c4f1729583250e510cf02ba1962101677dff70159d8e5f66c44c794e34aec"
+      "identity": "1f:61816e7d2b596ac1391aeed0144e823043b4a447e6c29b7a62ddcb352801cca8",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     }
   ]
 }

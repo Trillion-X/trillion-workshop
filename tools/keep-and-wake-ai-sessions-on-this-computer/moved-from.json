@@ -31,7 +31,8 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/booking-slots-and-invitations/test/availability-link-eeaf-store.test.mjs",
       "source_identity": "1f:9bd5dd8d24efd0e393c0601617747bd2d7472da25861657e55b40603a888b530",
-      "identity": "1f:766b37696d2176fb45b5ac9b4f36630df9aef5d0f82823b01894dd324cc69446"
+      "identity_at_move": "1f:766b37696d2176fb45b5ac9b4f36630df9aef5d0f82823b01894dd324cc69446",
+      "byte_copy_commit": "dd977484b2e0ea8acdd20550774c5456a2e5f10f"
     },
     {
       "from": "harness/README.md",
@@ -602,15 +603,17 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/record-log-store.mjs",
       "source_identity": "1f:544d97defcec5db7ed61cd57dfb1a09fb8a067886fab6e3ef52d543122593aab",
-      "identity": "1f:48e17a67e7071a6eb8a0ff71356605e952732eaf46850526423676e2c920f469"
+      "identity_at_move": "1f:48e17a67e7071a6eb8a0ff71356605e952732eaf46850526423676e2c920f469",
+      "byte_copy_commit": "5ad602b14e57ae3ec5781b60e8cdeb3fe5d026a1"
     },
     {
       "from": "parts/record-log/do-work/record-log-store.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/record-log-store.mjs",
       "source_identity": "1f:544d97defcec5db7ed61cd57dfb1a09fb8a067886fab6e3ef52d543122593aab",
-      "identity": "1f:48e17a67e7071a6eb8a0ff71356605e952732eaf46850526423676e2c920f469",
-      "reused": true
+      "reused": true,
+      "identity_at_move": "1f:48e17a67e7071a6eb8a0ff71356605e952732eaf46850526423676e2c920f469",
+      "byte_copy_commit": "5ad602b14e57ae3ec5781b60e8cdeb3fe5d026a1"
     },
     {
       "from": "parts/record-log/do-work/record-tables.mjs",
@@ -661,7 +664,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/parts/ui/show/isolated-module-surface/module-surface-requests.mjs",
       "source_identity": "1f:b7c0e8aa5d24cefc5951dc19d40fdd391c6842d447603e87cea725a2dcb95c7a",
-      "identity": "1f:b7c0e8aa5d24cefc5951dc19d40fdd391c6842d447603e87cea725a2dcb95c7a"
+      "identity_at_move": "1f:b7c0e8aa5d24cefc5951dc19d40fdd391c6842d447603e87cea725a2dcb95c7a",
+      "byte_copy_commit": "5ad602b14e57ae3ec5781b60e8cdeb3fe5d026a1"
     },
     {
       "from": "parts/ui/show/isolated-module-surface/sandboxed-screen-routes.json",
@@ -813,22 +817,25 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/decision-store.mjs",
       "source_identity": "1f:9fa77b2f232b46a4b2c957237815dc548547ce479fa275ea0396ba6e5c21b2bd",
-      "identity": "1f:227da794d38137771b1e4d1bedfdc96251e404fc13906bd67a73754893ee972b"
+      "identity_at_move": "1f:227da794d38137771b1e4d1bedfdc96251e404fc13906bd67a73754893ee972b",
+      "byte_copy_commit": "5ad602b14e57ae3ec5781b60e8cdeb3fe5d026a1"
     },
     {
       "from": "src/decision-store.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/decision-store.mjs",
       "source_identity": "1f:9fa77b2f232b46a4b2c957237815dc548547ce479fa275ea0396ba6e5c21b2bd",
-      "identity": "1f:227da794d38137771b1e4d1bedfdc96251e404fc13906bd67a73754893ee972b",
-      "reused": true
+      "reused": true,
+      "identity_at_move": "1f:227da794d38137771b1e4d1bedfdc96251e404fc13906bd67a73754893ee972b",
+      "byte_copy_commit": "5ad602b14e57ae3ec5781b60e8cdeb3fe5d026a1"
     },
     {
       "from": "src/escape-chain.json",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/escape-chain.json",
       "source_identity": "1f:e3d52cfff663d685dee3b131c5d97409fc32d4c29654413edb3ed2c8aa53bec2",
-      "identity": "1f:1a89076ca6690790a75a4e8213906c9f0d5b3a063894838f0ebbf249d86863b1"
+      "identity": "1f:c31df3040376fd83aeece8450e435f29c9d6a4c0142f50058d306b96aef4233f",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "src/event-route-listeners.mjs",
@@ -914,15 +921,17 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/lists.json",
       "source_identity": "1f:ab0369f0c55ae828184b9c4ef1614421b3a55c36718821879010b09ac8180cfc",
-      "identity": "1f:ab0369f0c55ae828184b9c4ef1614421b3a55c36718821879010b09ac8180cfc"
+      "identity_at_move": "1f:ab0369f0c55ae828184b9c4ef1614421b3a55c36718821879010b09ac8180cfc",
+      "byte_copy_commit": "5ad602b14e57ae3ec5781b60e8cdeb3fe5d026a1"
     },
     {
       "from": "src/lists.json",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/lists.json",
       "source_identity": "1f:ab0369f0c55ae828184b9c4ef1614421b3a55c36718821879010b09ac8180cfc",
-      "identity": "1f:ab0369f0c55ae828184b9c4ef1614421b3a55c36718821879010b09ac8180cfc",
-      "reused": true
+      "reused": true,
+      "identity_at_move": "1f:ab0369f0c55ae828184b9c4ef1614421b3a55c36718821879010b09ac8180cfc",
+      "byte_copy_commit": "5ad602b14e57ae3ec5781b60e8cdeb3fe5d026a1"
     },
     {
       "from": "src/live-protocol.json",
@@ -1691,7 +1700,8 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/calendar-task-recurrence.test.mjs",
       "source_identity": "1f:fdfb46cd2c4bfd4665da2aa723f08c50142f1dbd17829b04c892266c373aadcf",
-      "identity": "1f:32281ee0f8c6f0ed8b6f361df933aea1659f01bfa0930f0cafd415edc77bf64d"
+      "identity_at_move": "1f:32281ee0f8c6f0ed8b6f361df933aea1659f01bfa0930f0cafd415edc77bf64d",
+      "byte_copy_commit": "a5ea9425f7bc40750b98fb81dbd964fa06d23e3c"
     },
     {
       "from": "test/checklist-kept-once.test.mjs",
@@ -1726,10 +1736,11 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/configurations-record-engine.test.mjs",
       "source_identity": "1f:64aea23e93c3a68971c1676ac49ba93a607a88ad9f7a70504f128ef43649696c",
-      "identity": "1f:f492ba7b57325d93e89d612533205f9aecbe8f4de374402a9a762f97a268a0e0",
       "calls": [
         "made-up-owner-name"
-      ]
+      ],
+      "identity_at_move": "1f:f492ba7b57325d93e89d612533205f9aecbe8f4de374402a9a762f97a268a0e0",
+      "byte_copy_commit": "a5ea9425f7bc40750b98fb81dbd964fa06d23e3c"
     },
     {
       "from": "test/cut-off.test.mjs",
@@ -1743,14 +1754,16 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/decide-before-building.test.mjs",
       "source_identity": "1f:61e1b5aaa81fae4a69f7764215546446fab20716dea3909a0c4a720311e80f07",
-      "identity": "1f:61e1b5aaa81fae4a69f7764215546446fab20716dea3909a0c4a720311e80f07"
+      "identity": "1f:d167595ca57552a7caceb3ce760756a2c5095fba0457b41d3726230b6717a9fb",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "test/decisions-since-held-line.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/decisions-since-held-line.test.mjs",
       "source_identity": "1f:9c61a48e29fbe5d04696e6548202ad85673fa7378893445282592b9c6e905655",
-      "identity": "1f:9c61a48e29fbe5d04696e6548202ad85673fa7378893445282592b9c6e905655"
+      "identity": "1f:e04062d4c95db61f7b1c2e5d881e65456cc8f10867739e2922f4eef6839146d8",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "test/delivery-card-reads-bounded.test.mjs",
@@ -1785,7 +1798,8 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/dynamic-list-indexes.test.mjs",
       "source_identity": "1f:92fe3938758ce26a114786f1ac71d362d4019988314ddf5e58d9964fc8246018",
-      "identity": "1f:bc78e2d354539faada5931fea6ccf4baf4f6b071ad822388473d3428cb48b26a"
+      "identity_at_move": "1f:bc78e2d354539faada5931fea6ccf4baf4f6b071ad822388473d3428cb48b26a",
+      "byte_copy_commit": "a5ea9425f7bc40750b98fb81dbd964fa06d23e3c"
     },
     {
       "from": "test/eeaf-deletes-search-by-index.test.mjs",
@@ -1963,9 +1977,9 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/google-account-thread-contract.test.mjs",
       "source_identity": "1f:feda5e4b1dd7c75d74a8f9db95a137b35fc9914236ce41884012dc5c0fc4cb79",
-      "identity_at_move": "1f:6a8fe1fea091003486329afeb24ee92397b9295dff3700fe97464de9bee83e63",
-      "byte_copy_commit": "bef19358f2b10a16a2be03730aaa4f1ba87d67d1",
-      "changed": true
+      "changed": true,
+      "identity": "1f:a70bb359c192fa95e3f55c1545a66ebc3fe22ca11e0fe730f5d48f9f6688ef14",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "test/google-calendar-scopes.test.mjs",
@@ -2283,53 +2297,52 @@
       "identity": "1f:8ae235c513c30012e7f4d6b8e8664f152301897153d11da53046d0677a35ed1f"
     },
     {
-      "from": "test/list-pages-browser.test.mjs",
-      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/list-pages-browser.test.mjs",
-      "source_identity": "1f:197a408276a318369eb0b1ef7c4cda4f5181be3ec027219adcf0173bd606ecc0",
-      "identity": "1f:8921d4812dc2bd0a12af87f58a50775b2af1618ce0b2806787ed113384c73d68"
-    },
-    {
       "from": "test/list-paired-links.test.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/list-paired-links.test.mjs",
       "source_identity": "1f:a7361c87fa61048b63a6b2fffd4ddee995f7fd3be3f2ff127d23e08ad33be1e5",
-      "identity": "1f:4431351fc7b8349499ece5b1fb141683fed992549f2548440bbdc85387e5d989"
+      "identity_at_move": "1f:4431351fc7b8349499ece5b1fb141683fed992549f2548440bbdc85387e5d989",
+      "byte_copy_commit": "a5ea9425f7bc40750b98fb81dbd964fa06d23e3c"
     },
     {
       "from": "test/list-proposals.test.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/list-proposals.test.mjs",
       "source_identity": "1f:b0dc69fce89d7b0d6b2fb8a0cb7f2e1881fd09518a8dffb24e8c15f231e4111c",
-      "identity": "1f:c32b527e9bad0dbb129926dd8a3c788c97e6517f7617a509510d3a28c5370c89"
+      "identity": "1f:1a51583122c23da84d1501f63a396441edbb62afe6f633bc57ff4b6b661b2764",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "test/list-rollups-and-copies.test.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/list-rollups-and-copies.test.mjs",
       "source_identity": "1f:439844340cdd310d2f58bbd11c868e22a24af9ccb9353e4e5f28d08c22ccb356",
-      "identity": "1f:2a3040844f23776c57d0a462a488842cc4d3ba26ebbacb4ef030bda4e21ee0ff"
+      "identity": "1f:66bcbe3f83b732f956e13ef01e2f0cfb3a6ed2bfbf6360f8457c928f525b21f2",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "test/list-source-change-feed.test.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/list-source-change-feed.test.mjs",
       "source_identity": "1f:75e8ee4d8e1ee775d9d9d33f2d2ac13a88285c1b33145a5a01a3d0c4e47e9eed",
-      "identity": "1f:ca93a8f87ea95cfba7a6e27b3d8958fc0116a022c58151377ca7950b168a5e75"
+      "identity_at_move": "1f:ca93a8f87ea95cfba7a6e27b3d8958fc0116a022c58151377ca7950b168a5e75",
+      "byte_copy_commit": "a5ea9425f7bc40750b98fb81dbd964fa06d23e3c"
     },
     {
       "from": "test/list-view-records.test.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/list-view-records.test.mjs",
       "source_identity": "1f:1672ebfa1ed6e5778c862fc709a61504c5bd81d97b3a222b02a626588eecb433",
-      "identity": "1f:045c638ea2f340911009d5d30e3c1e176ae5fb3ee138b78c04c7e4ae8f6c9ecb"
+      "identity_at_move": "1f:045c638ea2f340911009d5d30e3c1e176ae5fb3ee138b78c04c7e4ae8f6c9ecb",
+      "byte_copy_commit": "a5ea9425f7bc40750b98fb81dbd964fa06d23e3c"
     },
     {
       "from": "test/lists-linked-removal-pages.test.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/lists-linked-removal-pages.test.mjs",
       "source_identity": "1f:6783fdd97c648dc255ec835c42087d6662c2d70f947d587d0ba3f748cb169270",
-      "identity": "1f:bedb7727d2ecd86fa596bf8eacb6e33430dc86b39dd42856a764c7b3d0aca40c"
+      "identity_at_move": "1f:bedb7727d2ecd86fa596bf8eacb6e33430dc86b39dd42856a764c7b3d0aca40c",
+      "byte_copy_commit": "a5ea9425f7bc40750b98fb81dbd964fa06d23e3c"
     },
     {
       "from": "test/live-resume.test.mjs",
@@ -2357,7 +2370,8 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/make-pictures-and-sounds.test.mjs",
       "source_identity": "1f:62568d81bceb982faee9e3f1f94e44a8f552d9bd93337df98bf3152af4323031",
-      "identity": "1f:91d7dfbd72ba8c2ca2ccf0e50ffc7f2f81b53656814d69cd82b11c98d91fd2b1"
+      "identity_at_move": "1f:91d7dfbd72ba8c2ca2ccf0e50ffc7f2f81b53656814d69cd82b11c98d91fd2b1",
+      "byte_copy_commit": "99c827615a2f35400d5b8e02a963fbadcb2d5fa6"
     },
     {
       "from": "test/mcp-registration-loopback.test.mjs",
@@ -2365,13 +2379,6 @@
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/mcp-registration-loopback.test.mjs",
       "source_identity": "1f:ef01fddee69754c22f2917a464ecfcbe2251d00ee6667ef1b3eb3d81eabbc220",
       "identity": "1f:ef01fddee69754c22f2917a464ecfcbe2251d00ee6667ef1b3eb3d81eabbc220"
-    },
-    {
-      "from": "test/media-edit-screen.test.mjs",
-      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/media-edit-screen.test.mjs",
-      "source_identity": "1f:6d407e0f5e671bda4e5ee84be1f48e50381922810daac04524056e0d1bfa3a64",
-      "identity": "1f:0acf5fc42897ffa383c55a2f22b4618065d45eddb76994386c69123abd6d2e9d"
     },
     {
       "from": "test/messages-batch-order.test.mjs",
@@ -2455,7 +2462,8 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/network-relationship-attributes.test.mjs",
       "source_identity": "1f:4caefa681ddeeb412227796aea90fdcf483d9569c00a94b15f231ef1c13f318e",
-      "identity": "1f:d750e9a9835afa4546037c6b0b67ebe5ddc0a6272007888841244e19cd47c213"
+      "identity_at_move": "1f:d750e9a9835afa4546037c6b0b67ebe5ddc0a6272007888841244e19cd47c213",
+      "byte_copy_commit": "a5ea9425f7bc40750b98fb81dbd964fa06d23e3c"
     },
     {
       "from": "test/new-account-record-tables-workerd.test.mjs",
@@ -2507,13 +2515,6 @@
       "identity": "1f:2d4a98d24ecd463bc758f9dd858d2056a15af3a682d9e8896402044b19f2397b"
     },
     {
-      "from": "test/public-app-indexed-collaboration-browser.test.mjs",
-      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/public-app-indexed-collaboration-browser.test.mjs",
-      "source_identity": "1f:b7b40a871d076711b843fee5082fb110ac67f2b1ec36eebaa8ec71b5ef0b8373",
-      "identity": "1f:1ace855bddf5c5986b9953b4b10b1a35a931450a94a7578cd5b708bc0be7514b"
-    },
-    {
       "from": "test/public-app-run-permission.test.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/public-app-run-permission.test.mjs",
@@ -2532,7 +2533,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/read-this-computer.test.mjs",
       "source_identity": "1f:14c2f96ce2eefaa11cb0caf2061bab8a22b9585e6f95d26a9634fdc18bdb0e48",
-      "identity": "1f:2e183629e5a35b335f25e4fc57c42282fcb9ba3a431da0867adc65478a6783c3"
+      "identity_at_move": "1f:2e183629e5a35b335f25e4fc57c42282fcb9ba3a431da0867adc65478a6783c3",
+      "byte_copy_commit": "84f6b594de352da9b7f4b2079fac42e4c599f9b1"
     },
     {
       "from": "test/record-committed-result-inventory.test.mjs",
@@ -2581,7 +2583,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/record-every-message-one-drain.test.mjs",
       "source_identity": "1f:b067be8b7b3df196105cc4ff4f60983ebd6c213100a646dd41b1a7f815593642",
-      "identity": "1f:b067be8b7b3df196105cc4ff4f60983ebd6c213100a646dd41b1a7f815593642"
+      "identity_at_move": "1f:b067be8b7b3df196105cc4ff4f60983ebd6c213100a646dd41b1a7f815593642",
+      "byte_copy_commit": "5ad602b14e57ae3ec5781b60e8cdeb3fe5d026a1"
     },
     {
       "from": "test/record-every-message-sweep-fairness.test.mjs",
@@ -2797,7 +2800,8 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/renamed-tools.test.mjs",
       "source_identity": "1f:27890f5f7df518e7e2c88876b4bf9f681a9df745e0589add78a5a0ed2b8001e2",
-      "identity": "1f:22ff9de6cb8a5d53f5292b44dcca608ef3cc114562ffe38d42af296db318ec6b"
+      "identity_at_move": "1f:22ff9de6cb8a5d53f5292b44dcca608ef3cc114562ffe38d42af296db318ec6b",
+      "byte_copy_commit": "99c827615a2f35400d5b8e02a963fbadcb2d5fa6"
     },
     {
       "from": "test/repo-explorer-output-claim.test.mjs",
@@ -2825,7 +2829,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/resolve-program.test.mjs",
       "source_identity": "1f:dc60b62443981cd8081dc646a2215309b0b5b50e1dbc59238a5a80f7f955ac4a",
-      "identity": "1f:dc60b62443981cd8081dc646a2215309b0b5b50e1dbc59238a5a80f7f955ac4a"
+      "identity": "1f:161d96c08f067989254ed735fc43088013e35ffff11818d27bb0910a6f44c11e",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "test/responses.test.mjs",
@@ -2947,7 +2952,8 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/starting-lists.test.mjs",
       "source_identity": "1f:139b94d3c4111716dbf50881a0a6b202369dce62be8506a277b5037926f65aa0",
-      "identity": "1f:3aeb97107adafde998db47043f8db5bed99eca4c20e18a64ebc73a9a0331254b"
+      "identity_at_move": "1f:3aeb97107adafde998db47043f8db5bed99eca4c20e18a64ebc73a9a0331254b",
+      "byte_copy_commit": "a5ea9425f7bc40750b98fb81dbd964fa06d23e3c"
     },
     {
       "from": "test/table-admission-first-pending.test.mjs",
@@ -2989,7 +2995,8 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/waiting-list-open-index.test.mjs",
       "source_identity": "1f:44d7dff45b484d2905861760bb5b980b0457ad77fe52e13720448383bd1069b2",
-      "identity": "1f:5aec078c964aac645be4fa5bbc4c45b7e505972b063a00569c6890c1aa225596"
+      "identity_at_move": "1f:5aec078c964aac645be4fa5bbc4c45b7e505972b063a00569c6890c1aa225596",
+      "byte_copy_commit": "a5ea9425f7bc40750b98fb81dbd964fa06d23e3c"
     },
     {
       "from": "test/wake-sessions.test.mjs",

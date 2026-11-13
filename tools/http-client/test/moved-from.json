@@ -9,7 +9,8 @@
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
       "to": "tools/http-client/test/http-client-executor.test.mjs",
       "source_identity": "1f:2147cbf958ed4f01c1a59e5789c95d5784c17deeb65f720e6b7b9c47ac3aedbc",
-      "identity": "1f:ab72836d681314a072b8632a1116982808b8a1e58161ab6c1dc541a659ac24be"
+      "identity": "1f:38310e4f4705a326c955db6980b614600589d5436c664d3f119eb6ac567efc23",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "test/node-public-fetch.test.mjs",

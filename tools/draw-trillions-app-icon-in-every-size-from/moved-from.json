@@ -16,7 +16,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/draw-trillions-app-icon-in-every-size-from/scripts/make-opening-cover.mjs",
       "source_identity": "1f:c6c3c567a952cc49240a52c81550632d6dc2c2b7faf2ef33698a73bd45aad309",
-      "identity": "1f:e5c905e565b42972d55aa8be64f695465fe474f81c876fbcbccf9b52f67df286"
+      "identity_at_move": "1f:e5c905e565b42972d55aa8be64f695465fe474f81c876fbcbccf9b52f67df286",
+      "byte_copy_commit": "2e073198c5b780b4ef0e0a1bf7bd569ce68b0cee"
     },
     {
       "from": "scripts/make-stories-share-image.mjs",

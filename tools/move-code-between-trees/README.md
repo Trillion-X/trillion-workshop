@@ -64,7 +64,7 @@ checkout tracks, at any depth, from the checkout alone (`read-data/check-receipt
 its byte copy, `identity_at_move` are its bytes at `byte_copy_commit` (a full commit of this checkout, read from git),
 with `port_contract` naming the contract in its tool's `ports/` when there is one. Every other commit a receipt records
 (a `values` row's) is full too; a short `deleted_by` is a note, since no proof reads it. It prints one JSON answer and
-exits 0 when every receipt is whole, 1 when not. `--source <checkout>` (and `--source-after <folder>`, `--no-run`) also
+exits 0 when every receipt is whole, 1 when not. `node tools/move-code-between-trees settle [--history <ref>]` rewrites each entry that does not say what its file is: for a file changed after its copy it names the commit that holds the bytes the receipt named (`identity_at_move` and `byte_copy_commit`), or, when no commit of the checkout ever held them, the bytes the file has now with `adapted` saying so; an entry whose file is gone is dropped (`read-data/settle-receipts.mjs`); run `check` after it. `--source <checkout>` (and `--source-after <folder>`, `--no-run`) also
 runs the proof above against that tree, where a file changed after its copy is proved by its bytes at
 `byte_copy_commit`.
 
@@ -80,6 +80,7 @@ runs the proof above against that tree, where a file changed after its copy is p
 | `read-data/apply-move.mjs` | Carrying out a plan; receipts; owner rows. |
 | `read-data/check-move.mjs` | The proof from receipts, against the source tree. |
 | `read-data/check-receipts.mjs` | Every receipt whole, judged from the destination checkout alone. |
+| `read-data/settle-receipts.mjs` | Each receipt entry that does not say what its file is made to say it. |
 | `index.js` | `node tools/move-code-between-trees check`: the receipts judged, and proved against `--source` when given. |
 | `move-rows/` | One row per pair of trees. |
 | `test/move-code.test.mjs` | Two made-up trees in throwaway git repositories: placement, holds, swaps, apply, a lane that moves some groups, check, a changed byte caught, and receipts judged with no source: a map of names, short commits, a change after the copy said and unsaid; a kept file imported from its home in a package; a data file with calls proved once they are swapped, and another change caught. |

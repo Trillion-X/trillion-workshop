@@ -9,7 +9,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-a-task-plan-as-one-editable-record/src/plan-records.mjs",
       "source_identity": "1f:a155a39a628e0d5f76d29bb87ef2f4aa701d7280c50f2e03ed22f61702e3c2c3",
-      "identity": "1f:c92e063bfa0d021bf95a79c8a12c70b7db7e96fcb47e1ed3a0c9028d5712c38e"
+      "identity_at_move": "1f:c92e063bfa0d021bf95a79c8a12c70b7db7e96fcb47e1ed3a0c9028d5712c38e",
+      "byte_copy_commit": "23353620b2c81af31f2dc8ba047b65a18ee743a0"
     },
     {
       "from": "test/plan-records.test.mjs",

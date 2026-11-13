@@ -44,7 +44,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/set-up-my-devices-and-cameras/test/device-distribution.test.mjs",
       "source_identity": "1f:343ba47808f66606411626999207e33edd36c91f5e2871f6c31bb7331c1cd922",
-      "identity": "1f:be792135c5693a10458877b6a096e1cb13adb472458c279a9452828a72e171e5"
+      "identity": "1f:3fa5dda98617e5449c9add6788ece2b818e3132b8035ff8a781f6c891c62959d",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "test/device-facts-tools.test.mjs",

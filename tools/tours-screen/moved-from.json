@@ -83,7 +83,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/tours-screen/read-data/tours.json",
       "source_identity": "1f:3226be40db3075bf6195fb66977e20c4c8a4997a32c70b94c8a591bfc06c593a",
-      "identity": "1f:3226be40db3075bf6195fb66977e20c4c8a4997a32c70b94c8a591bfc06c593a"
+      "identity": "1f:fbada019009fe7c77d7599fe2aa48d054dced58a9c43936cc94586882afb5ac8",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
       "from": "parts/guided-overlay/read-data/walkthrough-eeaf.ts",

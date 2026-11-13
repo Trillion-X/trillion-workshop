@@ -561,3 +561,41 @@ test('a data file with calls (a made-up name in place of a real one) is its sour
     assert.ok(caught.folders[0].problems.some(problem => /differs from src\/notes\.json beyond its swapped calls/.test(problem)), JSON.stringify(caught.folders[0].problems));
   } finally { rmSync(source, { recursive: true, force: true }); rmSync(destination, { recursive: true, force: true }); }
 });
+
+test('settle makes a receipt say what its file is now: the commit that held the named bytes, the bytes it has with adapted saying so, or no entry for a file that is gone', async () => {
+  const { settleReceipts } = await import('../read-data/settle-receipts.mjs');
+  const { checkReceipts } = await import('../read-data/check-receipts.mjs');
+  const commit = 'a'.repeat(40);
+  const idOf = value => makeHashCodeHexFromBytes(new TextEncoder().encode(value));
+  const row = (to, text, extra = {}) => ({ from: 'src/beans.mjs', commit, to, source_identity: idOf(text), identity: idOf(text), ...extra });
+  const first = 'export const beans = 3;\n';
+  const folder = repository({
+    'tools/edited/beans.mjs': first,
+    'tools/edited/moved-from.json': json({ files: [row('tools/edited/beans.mjs', first)] }),
+    'tools/never/beans.mjs': first,
+    'tools/whole/beans.mjs': first,
+    'tools/whole/moved-from.json': json({ files: [row('tools/whole/beans.mjs', first)] }),
+    'tools/gone/moved-from.json': json({ files: [row('tools/gone/beans.mjs', first)] }),
+  });
+  const copied = git(folder, 'rev-parse', 'HEAD').trim();
+  writeFileSync(join(folder, 'tools/edited/beans.mjs'), 'export const beans = 4;\n');
+  writeFileSync(join(folder, 'tools/never/beans.mjs'), 'export const beans = 5;\n');
+  writeFileSync(join(folder, 'tools/never/moved-from.json'), json({ files: [row('tools/never/beans.mjs', 'export const beans = 6;\n')] }));
+  git(folder, 'add', '-A');
+  git(folder, 'commit', '-q', '-m', 'changed after the copy');
+  assert.equal(checkReceipts({ folder }).results.filter(item => !item.ok).length, 3);
+  const answer = settleReceipts({ folder });
+  assert.deepEqual(answer.settled.map(item => [item.to, item.how]), [['tools/edited/beans.mjs', 'byte_copy_commit'], ['tools/gone/beans.mjs', 'dropped'], ['tools/never/beans.mjs', 'adapted']]);
+  const edited = JSON.parse(readFileSync(join(folder, 'tools/edited/moved-from.json'), 'utf8')).files[0];
+  assert.deepEqual([edited.identity, edited.identity_at_move, edited.byte_copy_commit], [undefined, idOf(first), copied]);
+  const never = JSON.parse(readFileSync(join(folder, 'tools/never/moved-from.json'), 'utf8')).files[0];
+  assert.equal(never.identity, idOf('export const beans = 5;\n'));
+  assert.match(never.adapted, /not the bytes of its source/);
+  assert.deepEqual(JSON.parse(readFileSync(join(folder, 'tools/gone/moved-from.json'), 'utf8')).files, []);
+  assert.equal(JSON.parse(readFileSync(join(folder, 'tools/whole/moved-from.json'), 'utf8')).files[0].identity, idOf(first), 'a receipt that tells the truth is left alone');
+  git(folder, 'add', '-A');
+  git(folder, 'commit', '-q', '-m', 'settled');
+  assert.equal(checkReceipts({ folder }).ok, true);
+  assert.deepEqual(settleReceipts({ folder }).settled, [], 'settling twice changes nothing');
+  rmSync(folder, { recursive: true, force: true });
+});

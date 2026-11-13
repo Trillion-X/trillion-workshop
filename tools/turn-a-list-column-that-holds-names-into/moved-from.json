@@ -9,22 +9,25 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/turn-a-list-column-that-holds-names-into/src/naming-fields.mjs",
       "source_identity": "1f:d7a2f2065b3d407f857013567dd876ed0a466405a3bab8f086738e416b2fb9c9",
-      "identity": "1f:f9d61d67621634490ace14f598948126540d6cad5dc0ebdd5203e5b06b1b1a95"
+      "identity_at_move": "1f:f9d61d67621634490ace14f598948126540d6cad5dc0ebdd5203e5b06b1b1a95",
+      "byte_copy_commit": "92baa2dcf144d6e7a03765381ec768d2465e13a9"
     },
     {
       "from": "src/naming-fields.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/turn-a-list-column-that-holds-names-into/src/naming-fields.mjs",
       "source_identity": "1f:d7a2f2065b3d407f857013567dd876ed0a466405a3bab8f086738e416b2fb9c9",
-      "identity": "1f:f9d61d67621634490ace14f598948126540d6cad5dc0ebdd5203e5b06b1b1a95",
-      "reused": true
+      "reused": true,
+      "identity_at_move": "1f:f9d61d67621634490ace14f598948126540d6cad5dc0ebdd5203e5b06b1b1a95",
+      "byte_copy_commit": "92baa2dcf144d6e7a03765381ec768d2465e13a9"
     },
     {
       "from": "test/naming-fields.test.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/turn-a-list-column-that-holds-names-into/test/naming-fields.test.mjs",
       "source_identity": "1f:9695d661e8e0cfb336ee592920221f1c9199d359f4a22c38931e87a8dcc3edf4",
-      "identity": "1f:1350a479de8c5095e84f1e9d4223b026e2f7c0b8fe6c96b531c49d1f7edba187"
+      "identity_at_move": "1f:1350a479de8c5095e84f1e9d4223b026e2f7c0b8fe6c96b531c49d1f7edba187",
+      "byte_copy_commit": "a5ea9425f7bc40750b98fb81dbd964fa06d23e3c"
     }
   ]
 }

@@ -41,13 +41,6 @@
       "identity": "1f:fc40899eafb92113c47d02a5acacdf2ed0b87def99be0c0a5dcb0cb2de6efcf8"
     },
     {
-      "from": "test/screen-look-design-tokens.test.mjs",
-      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "to": "tools/choose-and-publish-screen-looks/test/screen-look-design-tokens.test.mjs",
-      "source_identity": "1f:1f000c739d854b1baf91e5b867c1971b7e7dc9ea2893de6f653af2174a585ac7",
-      "identity": "1f:05fbf3e1dc1da764bfa519c06a9fa872c1ed13a7915d42d202d6628856fa5587"
-    },
-    {
       "from": "test/screen-look-token-kinds.test.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/choose-and-publish-screen-looks/test/screen-look-token-kinds.test.mjs",

@@ -17,7 +17,7 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/turn-a-finished-decision-into-an-anonymous-public/from-old-trillion/test/stories.test.mjs.held",
       "source_identity": "1f:a37471b758add98c6837e824139b59b31fcc4e7178ddc5355c0c1c3fbf200672",
-      "identity": "1f:757f78801655b10388b6ec49c804168fdd70688fcc130e5fe985ab1c33936a36",
+      "identity": "1f:a06d980bcb0210a4d90673d4bee03c6e5bd88ecc2c04c482ac76a2621ac6ef87",
       "held": true,
       "redactions": [
         {
@@ -48,7 +48,8 @@
           "replaced": "a made-up Stripe live key the test plants (2 places)",
           "with": "the same text split as 'sk_' + 'live_...' so push protection does not take it for a key; the string the test builds is unchanged"
         }
-      ]
+      ],
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     }
   ]
 }
