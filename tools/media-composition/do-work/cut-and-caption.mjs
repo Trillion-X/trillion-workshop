@@ -9,7 +9,9 @@
  * ffmpeg filter and no caption look.
  *
  * NON-NEGOTIABLE INVARIANTS:
- * 1. The video is any address ffmpeg can open (a web address or a file path); nothing here reads a machine path.
+ * 1. The video is any address ffmpeg can open (a web address or a file path), or a clip's identity in the person's
+ *    files (1f: then 64 hex), which is read through a link to its bytes (open-a-clip-link.mjs) and never copied in;
+ *    nothing here reads a machine path.
  * 2. Caption times are relative to the cut: a word spoken at 12.4 s in a cut starting at 10 s shows at 2.4 s.
  * 3. A transcript is read by shape, never by who made it: `{ words }`, `{ segments: [{ words }] }` or a bare
  *    word list, each word `{ text | word, start, end }`. No transcript means no captions, never a guess.
@@ -25,6 +27,7 @@
 import { execFileSync } from 'node:child_process';
 import { captionLinesForCut, wordsOf } from '../read-data/caption-lines.ts';
 import { captionAss, resolveCaptionStyle } from '../read-data/caption-styles.mjs';
+import { withClipAddress } from './open-a-clip-link.mjs';
 import { renderEdl } from './render-an-edit.mjs';
 
 /** The caption style the command names: a style id from read-data/caption-styles.json, a style row of one's own as
@@ -62,7 +65,6 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const args = new Map();
   for (let at = 2; at < process.argv.length; at += 2) args.set(process.argv[at].replace(/^--/, ''), process.argv[at + 1]);
   try {
-    const video = args.get('video');
     const output = args.get('output');
     if (!output) throw new Error('An --output file is needed.');
     let transcript = null;
@@ -70,15 +72,19 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       try { transcript = JSON.parse(args.get('transcript')); } catch { throw new Error('The transcript is not JSON.'); }
     }
     const style = styleFromArgument(args.get('style'));
-    const { width, height, duration } = probeVideo(video);
-    // Without --from and --to the whole video is kept, so the same script captions a finished clip.
-    const from = args.has('from') && args.get('from') !== '' ? Number(args.get('from')) : 0;
-    const to = args.has('to') && args.get('to') !== '' ? Math.min(Number(args.get('to')), duration) : duration;
-    const transcriptFrom = Number(args.get('transcript-from') ?? 0);
-    if (!Number.isFinite(transcriptFrom)) throw new Error('--transcript-from must be a number of seconds.');
-    const lines = transcript ? captionLinesForCut(wordsOf(transcript), from, to, style.grouping, transcriptFrom) : [];
-    const edl = cutCaptionEdl({ video, from, to, lines, style, width, height });
-    process.stdout.write(`${JSON.stringify({ expected_duration_seconds: Math.round((to - from) * 1000) / 1000, ...renderEdl(edl, output), captions: lines.length })}\n`);
+    // A clip named by its identity in the person's files is read through a link to its bytes for the length of the cut.
+    const rendered = await withClipAddress(args.get('video'), async video => {
+      const { width, height, duration } = probeVideo(video);
+      // Without --from and --to the whole video is kept, so the same script captions a finished clip.
+      const from = args.has('from') && args.get('from') !== '' ? Number(args.get('from')) : 0;
+      const to = args.has('to') && args.get('to') !== '' ? Math.min(Number(args.get('to')), duration) : duration;
+      const transcriptFrom = Number(args.get('transcript-from') ?? 0);
+      if (!Number.isFinite(transcriptFrom)) throw new Error('--transcript-from must be a number of seconds.');
+      const lines = transcript ? captionLinesForCut(wordsOf(transcript), from, to, style.grouping, transcriptFrom) : [];
+      const edl = cutCaptionEdl({ video, from, to, lines, style, width, height });
+      return { expected_duration_seconds: Math.round((to - from) * 1000) / 1000, ...renderEdl(edl, output), captions: lines.length };
+    });
+    process.stdout.write(`${JSON.stringify(rendered)}\n`);
   } catch (error) {
     process.stderr.write(`${error.message}\n`);
     process.exit(1);

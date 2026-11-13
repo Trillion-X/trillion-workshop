@@ -1741,6 +1741,13 @@
          "utils.js"
         ],
         "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/records-door"
        }
       ]
      },
@@ -1836,7 +1843,18 @@
         }
        ]
       }
-     ]
+     ],
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "files": "/",
+        "operations": [
+         "read_file"
+        ]
+       }
+      ]
+     }
     },
     "needs": {
      "expected_seconds": 240,
@@ -2219,6 +2237,13 @@
          "utils.js"
         ],
         "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/records-door"
        }
       ]
      },
@@ -2325,7 +2350,18 @@
         }
        ]
       }
-     ]
+     ],
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "files": "/",
+        "operations": [
+         "read_file"
+        ]
+       }
+      ]
+     }
     },
     "needs": {
      "expected_seconds": 240,
