@@ -43,6 +43,7 @@ import { admitStripeWebhook } from './compare-and-map-stripe-webhook.mjs';
 import { heldKey, makeStripeSender } from './stripe-send.mjs';
 import { assertTestKey, rehearseAPaymentSchedule } from './rehearse-a-payment-schedule.mjs';
 import { rehearseABillingPage } from './rehearse-a-billing-page.mjs';
+import { readStripeObjects } from './read-stripe-objects.mjs';
 export { manageUsagePricing, priceResourceUsage, keepResourceUsageObservation, settleSharedResourceCost, correctResourceUsageSettlement, readResourceUsageSettlement } from './resource-usage.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -101,6 +102,14 @@ async function adjustmentsOf(input, context) {
 
 function sender(context) {
   return context.send ?? makeStripeSender({ key: heldKey(STRIPE_KEY_DESCRIPTOR, context.readKey) });
+}
+
+// The sender of a test-mode tool: the person's held test key, and anything that is not a test key is refused before a
+// request is built.
+function testSender(context) {
+  const key = context.key ?? heldKey(STRIPE_KEY_DESCRIPTOR, context.readKey);
+  assertTestKey(key);
+  return context.send ?? makeStripeSender({ key });
 }
 
 /** What the buyer would pay for the offer and price they chose: the amount due today, what repeats, and when. */
@@ -245,9 +254,7 @@ export async function paySomeoneAShare(input, context) {
  * The key is the person's held test key; anything that is not a test key is refused before a request is built.
  */
 export async function rehearseASchedule(input, context) {
-  const key = context.key ?? heldKey(STRIPE_KEY_DESCRIPTOR, context.readKey);
-  assertTestKey(key);
-  return rehearseAPaymentSchedule(input, context.send ?? makeStripeSender({ key }));
+  return rehearseAPaymentSchedule(input, testSender(context));
 }
 
 /**
@@ -255,10 +262,13 @@ export async function rehearseASchedule(input, context) {
  * subscription at Stripe. The key is the person's held test key; anything that is not a test key is refused first.
  */
 export async function rehearseABillingPageInTestMode(input, context) {
-  const key = context.key ?? heldKey(STRIPE_KEY_DESCRIPTOR, context.readKey);
-  assertTestKey(key);
-  return rehearseABillingPage(input, context.send ?? makeStripeSender({ key }));
+  return rehearseABillingPage(input, testSender(context));
 }
+
+/** The promotion codes of the account (one by its code, or those active or not), with the coupon each gives. Reads only. */
+export const readStripePromotionCodes = async (input, context) => readStripeObjects('read:promotion-codes', input, { send: sender(context) });
+/** The same read against the person's Stripe test account; a key that is not a test key is refused first. */
+export const readStripePromotionCodesInTestMode = async (input, context) => readStripeObjects('read:promotion-codes', input, { send: testSender(context) });
 
 export { observeLiveUsage } from './live-usage.mjs';
 export { reportResourceUsage, readResourceUsageReport, reconcileResourceUsageReport, cancelPreparedResourceUsageReport } from './resource-usage-reporting.mjs';

@@ -23,6 +23,7 @@ A person who sells with their own Stripe account can have their AI price a sale 
 | `read-data/verify-paid-amount.ts` | Money gate: the paid amount must be a price the offer declares. |
 | `read-data/offer-eligibility.ts` | Upsell and already-owns rules over what the buyer holds. |
 | `read-data/stripe-operation-map.json` | One row per Stripe operation (method, whole address, subject). Adding an operation is one row. |
+| `read-data/stripe-read-shapes.json` | One row per list read of Stripe (see `do-work/read-stripe-objects.mjs`). |
 | `read-data/stripe-webhook-event-map.json`, `stripe-payee-event-map.json` | Stripe event type to payment event, as data. |
 | `do-work/stripe-request-mapper.mjs`, `stripe-form-encode.mjs`, `build-stripe-http-request.mjs` | Operation row to a ready-to-send request, form-encoded; `call` builds and sends one. |
 | `do-work/stripe-send.mjs` | The only place the key is read and used. |
@@ -36,6 +37,7 @@ A person who sells with their own Stripe account can have their AI price a sale 
 | `do-work/rehearse-a-payment-schedule.mjs` | Test-mode rehearsal of a schedule. |
 | `do-work/rehearse-a-billing-page.mjs` | `tool:rehearse-a-billing-page-in-stripe-test-mode`: in Stripe test mode, makes a customer, product, price and subscription, finds or makes the account's billing portal configuration, and opens the subscription's billing page with `billing-portal.mjs`; returns the page's address and never opens it. |
 | `do-work/billing-portal.mjs` | The billing page of one purchase (`tool:open-the-billing-page-for-one-purchase-and-show-the-card`): a portal session for the customer that bills the subscription, and the card that pays it. |
+| `do-work/read-stripe-objects.mjs`, `read-data/stripe-read-shapes.json` | A read of Stripe that answers a list (`tool:read-stripe-promotion-codes` for the real account, `tool:read-stripe-promotion-codes-in-test-mode` for the test account, which refuses any key that is not a test key). Each read is one row of the shapes file: the GET operation, which inputs become which query words and what each may be, what to expand, and the shape of each thing returned (paths into Stripe's answer; a field Stripe did not send answers null). The reader names no provider address, id shape or field, wraps the sender so only GET leaves, and never answers the key. Promotion codes answer id, code, active, times redeemed, most redemptions, expiry (Stripe's seconds), restrictions (first order only, minimum amount, its currency) and the coupon given (amount or percent off, currency, duration, months, valid, its own counts). Adding a read is one row. |
 | `do-work/stripe-response-redactor.mjs` | Strips key-shaped words from anything Stripe says. |
 | `do-work/take-payments.mjs` | The function each row runs. |
 | `read-data/resource-usage.mjs` | Exact rational supplier-cost allocation, effective-dated resource/plan/client markup, purchased snapshots, subcent cash clearing and nested leaf-only pricing. Public to consumers through `part.json`. |

@@ -9609,6 +9609,659 @@
         ],
         "kind": "ai-tool-descriptor"
       }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-stripe-promotion-codes",
+        "label": "Read the promotion codes in Stripe",
+        "job": "Read the promotion codes and the coupons they give in your Stripe account, to see whether a code is active, how often it was used and what it takes off",
+        "description": "Reads the promotion codes of your own Stripe account. Give code (one promotion code as the buyer types it), active (true or false) and limit (1 to 100), all optional. Answers each promotion code with its id, code, whether it is active, how many times it was redeemed and the most allowed, when it expires (Stripe's own time in seconds), its restrictions (first order only, minimum amount and its currency) and the coupon it gives (id, amount off or percent off, currency, duration and months, whether it is still valid, its own redemption counts), and whether Stripe has more beyond the list. A field Stripe did not send answers null. Only reads: nothing is created, changed or used up, and the key is never answered. Uses your Stripe key from your held values.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "active": {
+              "type": "boolean"
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          "additionalProperties": false
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "promotion_codes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "code": {
+                    "type": "string"
+                  },
+                  "active": {
+                    "type": "boolean"
+                  },
+                  "times_redeemed": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "max_redemptions": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "expires_at": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "restrictions": {
+                    "type": "object",
+                    "properties": {
+                      "first_time_transaction": {
+                        "type": [
+                          "boolean",
+                          "null"
+                        ]
+                      },
+                      "minimum_amount": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ]
+                      },
+                      "currency": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    }
+                  },
+                  "coupon": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "name": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "currency": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "duration": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "amount_off": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ]
+                      },
+                      "duration_in_months": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ]
+                      },
+                      "times_redeemed": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ]
+                      },
+                      "max_redemptions": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ]
+                      },
+                      "redeem_by": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ]
+                      },
+                      "percent_off": {
+                        "type": [
+                          "number",
+                          "null"
+                        ]
+                      },
+                      "valid": {
+                        "type": [
+                          "boolean",
+                          "null"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "has_more": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "promotion_codes",
+            "has_more"
+          ]
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "readStripePromotionCodes"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "stripe-api-key",
+              "fd": 4
+            }
+          ]
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "trillion-workshop tools/take-payments read-stripe-objects.mjs, read row read:promotion-codes of read-data/stripe-read-shapes.json (operation:find-promotion-codes)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "code": "SAMPLEFRIEND25"
+            },
+            "shape_read_at": "2026-11-12",
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.stripe.com/v1/promotion_codes?code=SAMPLEFRIEND25&expand%5B0%5D=data.promotion.coupon"
+                },
+                "status": 200,
+                "body": {
+                  "object": "list",
+                  "has_more": false,
+                  "data": [
+                    {
+                      "id": "promo_sample0001",
+                      "object": "promotion_code",
+                      "code": "SAMPLEFRIEND25",
+                      "active": true,
+                      "times_redeemed": 3,
+                      "max_redemptions": 100,
+                      "expires_at": 1893456000,
+                      "restrictions": {
+                        "first_time_transaction": true,
+                        "minimum_amount": 500,
+                        "minimum_amount_currency": "usd"
+                      },
+                      "promotion": {
+                        "type": "coupon",
+                        "coupon": {
+                          "id": "coupon_sample0001",
+                          "object": "coupon",
+                          "name": "Sample friend discount",
+                          "amount_off": null,
+                          "percent_off": 25,
+                          "currency": null,
+                          "duration": "repeating",
+                          "duration_in_months": 3,
+                          "valid": true,
+                          "times_redeemed": 3,
+                          "max_redemptions": null,
+                          "redeem_by": null
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-stripe-promotion-codes-in-test-mode",
+        "label": "Read the promotion codes in Stripe test mode",
+        "job": "Read the promotion codes and coupons in your Stripe test account, to see a read work before it is run on the real account",
+        "description": "Reads the promotion codes of your Stripe test account. Only a Stripe test key is accepted (it must start with a test prefix, checked before anything is built); it comes from your held values under a test-key name. Give code (one promotion code as the buyer types it), active (true or false) and limit (1 to 100), all optional. Answers each promotion code with its id, code, whether it is active, how many times it was redeemed and the most allowed, when it expires (Stripe's own time in seconds), its restrictions (first order only, minimum amount and its currency) and the coupon it gives (id, amount off or percent off, currency, duration and months, whether it is still valid, its own redemption counts), and whether Stripe has more beyond the list. A field Stripe did not send answers null. Only reads: nothing is created, changed or used up, and the key is never answered.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "active": {
+              "type": "boolean"
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          "additionalProperties": false
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "promotion_codes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "code": {
+                    "type": "string"
+                  },
+                  "active": {
+                    "type": "boolean"
+                  },
+                  "times_redeemed": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "max_redemptions": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "expires_at": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "restrictions": {
+                    "type": "object",
+                    "properties": {
+                      "first_time_transaction": {
+                        "type": [
+                          "boolean",
+                          "null"
+                        ]
+                      },
+                      "minimum_amount": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ]
+                      },
+                      "currency": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    }
+                  },
+                  "coupon": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "name": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "currency": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "duration": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "amount_off": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ]
+                      },
+                      "duration_in_months": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ]
+                      },
+                      "times_redeemed": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ]
+                      },
+                      "max_redemptions": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ]
+                      },
+                      "redeem_by": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ]
+                      },
+                      "percent_off": {
+                        "type": [
+                          "number",
+                          "null"
+                        ]
+                      },
+                      "valid": {
+                        "type": [
+                          "boolean",
+                          "null"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "has_more": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "promotion_codes",
+            "has_more"
+          ]
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "readStripePromotionCodesInTestMode"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "stripe-test-api-key",
+              "fd": 4
+            }
+          ]
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "trillion-workshop tools/take-payments read-stripe-objects.mjs, read row read:promotion-codes of read-data/stripe-read-shapes.json (operation:find-promotion-codes)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "code": "SAMPLEFRIEND25"
+            },
+            "held": {
+              "stripe-test-api-key": "sk_test_made_up_sample_key"
+            },
+            "shape_read_at": "2026-11-12",
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.stripe.com/v1/promotion_codes?code=SAMPLEFRIEND25&expand%5B0%5D=data.promotion.coupon"
+                },
+                "status": 200,
+                "body": {
+                  "object": "list",
+                  "has_more": false,
+                  "data": [
+                    {
+                      "id": "promo_sample0001",
+                      "object": "promotion_code",
+                      "code": "SAMPLEFRIEND25",
+                      "active": true,
+                      "times_redeemed": 3,
+                      "max_redemptions": 100,
+                      "expires_at": 1893456000,
+                      "restrictions": {
+                        "first_time_transaction": true,
+                        "minimum_amount": 500,
+                        "minimum_amount_currency": "usd"
+                      },
+                      "promotion": {
+                        "type": "coupon",
+                        "coupon": {
+                          "id": "coupon_sample0001",
+                          "object": "coupon",
+                          "name": "Sample friend discount",
+                          "amount_off": null,
+                          "percent_off": 25,
+                          "currency": null,
+                          "duration": "repeating",
+                          "duration_in_months": 3,
+                          "valid": true,
+                          "times_redeemed": 3,
+                          "max_redemptions": null,
+                          "redeem_by": null
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

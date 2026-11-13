@@ -1,0 +1,47 @@
+{
+  "description": "The reads of Stripe a person can ask for as a list of things, one row each. A row names the operation (a GET row of stripe-operation-map.json), which inputs become which query words and what each may be, what to ask Stripe to expand, where the list sits in Stripe's answer, and the shape of each thing returned: a field is a path into what Stripe said (the first of several paths that has a value wins), a row with `from` and `shape` is a nested thing, and a field Stripe did not send answers null. Adding a read is adding a row here; read-stripe-objects.mjs names none of them.",
+  "reads": [
+    {
+      "read_id": "read:promotion-codes",
+      "operation_id": "operation:find-promotion-codes",
+      "inputs": {
+        "code": { "query": "code", "type": "string" },
+        "active": { "query": "active", "type": "boolean" },
+        "limit": { "query": "limit", "type": "integer", "minimum": 1, "maximum": 100 }
+      },
+      "expand": ["data.promotion.coupon"],
+      "list_key": "data",
+      "more_key": "has_more",
+      "result_key": "promotion_codes",
+      "shape": {
+        "id": "id",
+        "code": "code",
+        "active": "active",
+        "times_redeemed": "times_redeemed",
+        "max_redemptions": "max_redemptions",
+        "expires_at": "expires_at",
+        "restrictions": {
+          "first_time_transaction": "restrictions.first_time_transaction",
+          "minimum_amount": "restrictions.minimum_amount",
+          "currency": "restrictions.minimum_amount_currency"
+        },
+        "coupon": {
+          "from": ["promotion.coupon", "coupon"],
+          "shape": {
+            "id": "id",
+            "name": "name",
+            "amount_off": "amount_off",
+            "percent_off": "percent_off",
+            "currency": "currency",
+            "duration": "duration",
+            "duration_in_months": "duration_in_months",
+            "valid": "valid",
+            "times_redeemed": "times_redeemed",
+            "max_redemptions": "max_redemptions",
+            "redeem_by": "redeem_by"
+          }
+        }
+      }
+    }
+  ]
+}
