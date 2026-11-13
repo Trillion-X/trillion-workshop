@@ -1,5 +1,5 @@
 {
- "about": "What a finding's citations are resolved against, as DATA. A `cites-resolve` check names one resolver here; the resolver's `kind` is one of three ways of looking something up (file-line, commit, row), its `pattern` finds the citations in a text, and `roots` names the repositories by the name a citation starts with. Adding a repository or a row pattern is adding a row here, with no code edit. A root whose folder is not on the computer running the check makes the check unevaluated, never passed.",
+ "about": "What a finding's citations are resolved against, as DATA. A `cites-resolve` check names one resolver here; the resolver's `kind` is one of three ways of looking something up (file-line, commit, row), its `pattern` finds the citations in a text, and `roots` names the repositories by the name a citation starts with. A root lists its `sources` in the order they are tried: `{folder, ref}` is a checkout on the computer running the check (read with git at the ref), `{files}` is a folder of the person's own files holding a copy of the source (read through the files door, so a run in a container with a files right reads it too). The copy folder holds `.source-copy.json` ({ref, copied_at}), the files at their paths, and `.commit-dates.json` ({ <commit hash>: <ISO date> }). A root with no source available here makes the check unevaluated, never passed. A `row` resolver lists the row `types` it may read; the tool row declares a read right for exactly those types. Adding a repository, a copy folder or a row type is adding a row here.",
  "resolvers": [
   {
    "resolver": "code-line",
@@ -8,16 +8,37 @@
    "meaning": "<root>/<path>:<line>; the line of the file at the root's ref must hold the quoted text when the check names a quote field.",
    "roots": {
     "trillion-rust": {
-     "folder": "~/dev/trillion-rust",
-     "ref": "origin/main"
+     "sources": [
+      {
+       "folder": "~/dev/trillion-rust",
+       "ref": "origin/main"
+      },
+      {
+       "files": "/source-copies/trillion-rust"
+      }
+     ]
     },
     "trillion-workshop": {
-     "folder": "~/dev/trillion-workshop",
-     "ref": "origin/main"
+     "sources": [
+      {
+       "folder": "~/dev/trillion-workshop",
+       "ref": "origin/main"
+      },
+      {
+       "files": "/source-copies/trillion-workshop"
+      }
+     ]
     },
     "ai-command-center": {
-     "folder": "~/dev/ai-command-center",
-     "ref": "HEAD"
+     "sources": [
+      {
+       "folder": "~/dev/ai-command-center",
+       "ref": "HEAD"
+      },
+      {
+       "files": "/source-copies/ai-command-center"
+      }
+     ]
     }
    }
   },
@@ -28,28 +49,55 @@
    "meaning": "A commit hash; it must exist in one of the roots and be dated after the date the check's `after` field holds.",
    "roots": {
     "trillion-rust": {
-     "folder": "~/dev/trillion-rust",
-     "ref": "origin/main"
+     "sources": [
+      {
+       "folder": "~/dev/trillion-rust",
+       "ref": "origin/main"
+      },
+      {
+       "files": "/source-copies/trillion-rust"
+      }
+     ]
     },
     "trillion-workshop": {
-     "folder": "~/dev/trillion-workshop",
-     "ref": "origin/main"
+     "sources": [
+      {
+       "folder": "~/dev/trillion-workshop",
+       "ref": "origin/main"
+      },
+      {
+       "files": "/source-copies/trillion-workshop"
+      }
+     ]
     },
     "ai-command-center": {
-     "folder": "~/dev/ai-command-center",
-     "ref": "HEAD"
+     "sources": [
+      {
+       "folder": "~/dev/ai-command-center",
+       "ref": "HEAD"
+      },
+      {
+       "files": "/source-copies/ai-command-center"
+      }
+     ]
     }
    }
   },
   {
    "resolver": "rows",
    "kind": "row",
-   "pattern": "\\b(?:record|ai-job|list|workflow):[A-Za-z0-9:_#.-]*[A-Za-z0-9_]",
+   "pattern": "\\b(?:ai-job|record:calendar-task|record:workflow-step|record:workflow-recipe):[A-Za-z0-9:_#.-]*[A-Za-z0-9_]",
    "type_of_id": [
     "^(record:[^:]+):",
     "^([^:]+):"
    ],
-   "meaning": "A row id in the person's own records; the row must exist."
+   "meaning": "A row id in the person's own records; the row must exist.",
+   "types": [
+    "ai-job",
+    "record:calendar-task",
+    "record:workflow-step",
+    "record:workflow-recipe"
+   ]
   }
  ]
 }

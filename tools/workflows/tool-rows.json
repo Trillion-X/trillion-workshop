@@ -829,6 +829,31 @@
                   "records:read",
                   "records:write"
                 ]
+              },
+              {
+                "kind": "record:calendar-task",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "record:workflow-step",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "record:workflow-recipe",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "files": "/source-copies/",
+                "operations": [
+                  "find_file",
+                  "read_file"
+                ]
               }
             ]
           }

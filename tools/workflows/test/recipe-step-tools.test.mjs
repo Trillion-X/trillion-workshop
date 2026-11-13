@@ -126,7 +126,9 @@ test('a check this tool cannot judge is listed as unchecked, never as passed', a
 const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
 test('the shipped rows declare only ai-job read and write, take only run, step and answer, and run as their rows do', async () => {
   const begin = rowOf(rows, 'tool:start-a-recipe-step'), hand = rowOf(rows, 'tool:submit-a-recipe-step');
-  for (const row of [begin, hand]) assert.deepEqual(row.invoke.records.rights, [{ kind: 'ai-job', operations: ['records:read', 'records:write'] }]);
+  assert.deepEqual(begin.invoke.records.rights, [{ kind: 'ai-job', operations: ['records:read', 'records:write'] }]);
+  // the submit also reads what a finding cites: other row types read only, and the copies of source in the person's files (cited-evidence.test.mjs holds it to the resolver DATA)
+  assert.deepEqual(hand.invoke.records.rights.filter(right => right.kind).filter(right => right.operations.includes('records:write')), [{ kind: 'ai-job', operations: ['records:read', 'records:write'] }]);
   assert.equal(hand.input_schema.additionalProperties, false);
   assert.deepEqual(Object.keys(hand.input_schema.properties).sort(), ['answer', 'run', 'step']);
   const step = stepOf({ agents: 6 });
