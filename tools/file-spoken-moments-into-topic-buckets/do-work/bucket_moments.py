@@ -79,6 +79,7 @@ def ask_complete(args, defaults, text):
 
 def command_cut_ideas(args):
     defaults = load_defaults(args)
+    args.model = args.model or defaults["cut_model"]
     done = set()
     if os.path.exists(args.out):
         with open(args.out, encoding="utf-8") as handle:
@@ -239,7 +240,7 @@ def build_parser():
     sub = parser.add_subparsers(dest="command", required=True)
 
     def model_options(p, model):
-        p.add_argument("--model", default=model, help="the Ollama model (default %(default)s)")
+        p.add_argument("--model", default=model, help="the Ollama model (default %(default)s; cut-ideas: cut_model in the defaults file)")
         p.add_argument("--ollama-url", default="http://localhost:11434", help="where Ollama listens (default %(default)s)")
         p.add_argument("--defaults", help="a JSON file with system_prompt, seed_buckets and note_vocabulary instead of read-data/bucketing-defaults.json")
         p.add_argument("--vocabulary", help="the vocabulary file (read, and written back as it grows)")
@@ -270,7 +271,7 @@ def build_parser():
     ci.add_argument("--min-words", type=int, default=0, help="an idea with fewer words than this is joined to its neighbour (default 0: none)")
     ci.add_argument("--gap", type=float, default=m.GAP_SECONDS, help="the silence cut used for a window the model cannot answer (default %(default)s)")
     ci.add_argument("--max-words", type=int, default=m.MAX_WORDS, help="words after which the silence cut ends a moment (default %(default)s)")
-    model_options(ci, "gemma3n:e4b")
+    model_options(ci, None)
     ci.set_defaults(run=command_cut_ideas)
     r = sub.add_parser("report", help="moments per bucket and per relevance band")
     r.add_argument("--transcripts", required=True)

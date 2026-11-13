@@ -164,3 +164,10 @@ test('cut-ideas keeps only complete thoughts: an idea the model calls a fragment
   assert.deepEqual(lines(out).map(x => [x.start, x.end, x.segments, x.complete]), [[0, 6, [0, 1], true]]);
   assert.equal(lastLine(run1.stdout).left_out, 2);
 });
+
+test('cut-ideas without --model asks the model named by cut_model in the defaults file', () => {
+  const out = join(work, 'frag-model.jsonl'), before = asked().length;
+  assert.equal(tool('cut-ideas', '--transcripts', join(work, 'frag'), '--out', out).status, 0);
+  const defaults = JSON.parse(readFileSync(join(folder, 'read-data', 'bucketing-defaults.json'), 'utf8'));
+  assert.ok(asked().slice(before).every(x => x.model === defaults.cut_model));
+});
