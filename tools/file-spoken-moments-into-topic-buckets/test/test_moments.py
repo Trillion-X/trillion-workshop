@@ -63,6 +63,11 @@ class ReplyTest(unittest.TestCase):
         m.apply_reply(self.vocabulary(), batch, {"moments": ["0: money", None, 3]})
         self.assertTrue(batch[0]["untagged"])
 
+    def test_an_answer_whose_id_is_not_a_plain_value_is_skipped(self):
+        batch = [{"id": 0}]
+        m.apply_reply(self.vocabulary(), batch, {"moments": [{"id": [0, 1], "buckets": ["x"], "relevance": 0.9}, {"id": {"a": 1}}]})
+        self.assertTrue(batch[0]["untagged"])
+
     def test_an_answer_for_an_id_not_asked_is_ignored(self):
         batch = [{"id": 0}]
         m.apply_reply(self.vocabulary(), batch, {"moments": [{"id": 9, "buckets": ["x"], "relevance": 0.9}]})
@@ -102,6 +107,45 @@ class RowsVocabularyTest(unittest.TestCase):
         twice = {"records": [{"id": "record:a:x", "value": {}}, {"id": "record:b:x", "value": {}}]}
         with self.assertRaisesRegex(ValueError, "x"):
             m.vocabulary_from_rows([twice], [], [])
+
+
+class IdeaTest(unittest.TestCase):
+    SEGMENTS = [{"text": t, "start": s, "end": e} for s, e, t in
+                [(0, 2, "alpha one"), (2, 4, "alpha two"), (4.5, 6, "beta one"), (6, 8, "beta two"), (8, 9, "beta three"), (30, 32, "gamma")]]
+
+    def test_windows_hold_at_most_size_segments_in_order(self):
+        self.assertEqual([[s["idx"] for s in w] for w in m.windows_of(self.SEGMENTS, 4)], [[0, 1, 2, 3], [4, 5]])
+
+    def test_each_start_the_model_names_begins_an_idea_that_keeps_its_segments_times_and_words(self):
+        ideas = m.ideas_from_starts(self.SEGMENTS, [0, 2, 5])
+        self.assertEqual([(i["start"], i["end"], i["segments"], i["text"]) for i in ideas],
+                         [(0, 4, [0, 1], "alpha one alpha two"), (4.5, 9, [2, 3, 4], "beta one beta two beta three"), (30, 32, [5], "gamma")])
+
+    def test_starts_that_are_not_valid_positions_are_dropped_and_the_first_segment_always_starts_one(self):
+        ideas = m.ideas_from_starts(self.SEGMENTS, [3, 3, "x", 99, -1, None])
+        self.assertEqual([i["segments"] for i in ideas], [[0, 1, 2], [3, 4, 5]])
+
+    def test_no_segments_no_ideas(self):
+        self.assertEqual(m.ideas_from_starts([], [0]), [])
+
+
+class MergeShortTest(unittest.TestCase):
+    def idea(self, start, end, text, segs):
+        return {"start": start, "end": end, "text": text, "segments": segs, "cut": "model"}
+
+    def test_an_idea_under_the_least_words_joins_the_one_before_it_keeping_every_time_and_word(self):
+        ideas = [self.idea(0, 10, "a b c d e f", [0, 1]), self.idea(10, 12, "g h", [2]), self.idea(20, 30, "i j k l m n", [3])]
+        merged = m.merge_short(ideas, 4)
+        self.assertEqual([(i["start"], i["end"], i["text"], i["segments"]) for i in merged], [(0, 12, "a b c d e f g h", [0, 1, 2]), (20, 30, "i j k l m n", [3])])
+
+    def test_a_short_first_idea_joins_the_one_after_it(self):
+        merged = m.merge_short([self.idea(0, 2, "a", [0]), self.idea(2, 9, "b c d e f", [1, 2])], 3)
+        self.assertEqual([(i["start"], i["end"], i["text"]) for i in merged], [(0, 9, "a b c d e f")])
+
+    def test_ideas_long_enough_and_a_lone_short_one_stay(self):
+        one = [self.idea(0, 2, "a", [0])]
+        self.assertEqual(m.merge_short(one, 3), one)
+        self.assertEqual(m.merge_short([], 3), [])
 
 
 class CountTest(unittest.TestCase):

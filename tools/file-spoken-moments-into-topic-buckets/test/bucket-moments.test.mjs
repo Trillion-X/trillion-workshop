@@ -5,7 +5,7 @@
 import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -114,6 +114,34 @@ test('a moment the model cannot answer (a 500) is asked alone, left untagged wit
   const out = tool('tag-moments', '--moments', moments, '--tagged', tagged, '--batch', '3');
   assert.equal(out.status, 0, out.stderr);
   assert.deepEqual(lines(tagged).map(x => [x.id, x.buckets, x.relevance]), [['l0', ['money_talk'], 0.8], ['l1', [], null], ['l2', ['gardening_tips', 'plants', 'soil'], 0.7]]);
+});
+
+test('cut-ideas writes one moment per idea the model marks, each with its start and end seconds, and a rerun adds nothing', () => {
+  const out = join(work, 'ideas.jsonl');
+  const first = tool('cut-ideas', '--transcripts', join(work, 'ideas'), '--out', out, '--window', '4');
+  assert.equal(first.status, 0, first.stderr);
+  assert.deepEqual(lines(out).map(x => [x.id, x.start, x.end, x.segments]), [['talk#0', 0, 6, [0, 1]], ['talk#1', 8, 14, [2, 3]], ['talk#2', 40, 45, [4, 5]]]);
+  assert.equal(lines(out)[1].text, 'New idea: gardens. They need patience.');
+  assert.equal(lines(out)[0].cut, 'model');
+  const before = asked().length;
+  assert.equal(lastLine(tool('cut-ideas', '--transcripts', join(work, 'ideas'), '--out', out).stdout).already_cut, 1);
+  assert.equal(asked().length, before);
+  assert.equal(lines(out).length, 3);
+});
+
+test('cut-ideas --min-words joins an idea shorter than that to its neighbour', () => {
+  const out = join(work, 'ideas-min.jsonl');
+  assert.equal(tool('cut-ideas', '--transcripts', join(work, 'ideas'), '--out', out, '--min-words', '6').status, 0);
+  assert.deepEqual(lines(out).map(x => [x.start, x.end, x.segments]), [[0, 45, [0, 1, 2, 3, 4, 5]]]);
+});
+
+test('cut-ideas falls back to the silence cut for a window the model refuses, and says so on the moments', () => {
+  const folder = join(work, 'ideas-bad'), out = join(work, 'ideas-bad.jsonl');
+  mkdirSync(folder, { recursive: true });
+  writeFileSync(join(folder, 'bad.words.json'), JSON.stringify({ timing: 'word', segments: [{ text: 'loopforever', start: 0, end: 2 }, { text: 'more', start: 2, end: 3 }, { text: 'later', start: 20, end: 22 }] }));
+  const run1 = tool('cut-ideas', '--transcripts', folder, '--out', out);
+  assert.equal(run1.status, 0, run1.stderr);
+  assert.deepEqual(lines(out).map(x => [x.start, x.end, x.cut]), [[0, 3, 'silence'], [20, 22, 'silence']]);
 });
 
 test('--limit without --dry-out is refused, saying why', () => {

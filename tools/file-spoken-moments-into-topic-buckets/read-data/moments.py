@@ -42,6 +42,44 @@ def moments_of(doc, gap=GAP_SECONDS, max_words=MAX_WORDS):
     return out
 
 
+def windows_of(segments, size):
+    """The segments, each given its index as idx, in runs of at most `size`: the stretches a model is asked to cut into ideas."""
+    indexed = [dict(segment, idx=i) for i, segment in enumerate(segments)]
+    return [indexed[i:i + size] for i in range(0, len(indexed), size)]
+
+
+def ideas_from_starts(segments, starts):
+    """Ideas from the positions where the model says one begins: each keeps its segments, their first start and last end, and their words.
+
+    A start that is not a position among the segments is dropped, and the first segment always begins an idea.
+    """
+    valid = {s for s in starts if isinstance(s, int) and not isinstance(s, bool) and 0 <= s < len(segments)} | ({0} if segments else set())
+    ordered, out = sorted(valid), []
+    for k, first in enumerate(ordered):
+        last = (ordered[k + 1] if k + 1 < len(ordered) else len(segments)) - 1
+        run = segments[first:last + 1]
+        out.append({"start": run[0]["start"], "end": run[-1]["end"], "text": " ".join(s["text"] for s in run), "segments": list(range(first, last + 1))})
+    return out
+
+
+def merge_short(ideas, least_words):
+    """Ideas with fewer than `least_words` words joined to the idea before them (the first, to the one after), so none is a fragment."""
+    out = []
+    for idea in ideas:
+        idea = dict(idea)
+        if out and len(out[-1]["text"].split()) < least_words:
+            out[-1] = join_ideas(out[-1], idea)
+        elif out and len(idea["text"].split()) < least_words:
+            out[-1] = join_ideas(out[-1], idea)
+        else:
+            out.append(idea)
+    return out
+
+
+def join_ideas(first, second):
+    return {**first, "end": second["end"], "text": first["text"] + " " + second["text"], "segments": first["segments"] + second["segments"]}
+
+
 def vocabulary_from_rows(answers, describe, label_fields):
     """A closed vocabulary from the rows of the person's own lists (each answer is a records:list answer {"records": [{"id", "value"}]}).
 
@@ -78,7 +116,7 @@ def apply_reply(vocabulary, batch, reply):
             vocabulary["buckets"][key] = {"description": str(description), "origin": "model"}
     by_id = {m["id"]: m for m in batch}
     for answer in reply.get("moments", []):
-        moment = by_id.get(answer.get("id")) if isinstance(answer, dict) else None
+        moment = by_id.get(answer.get("id")) if isinstance(answer, dict) and isinstance(answer.get("id"), (int, str)) else None
         if not moment:
             continue
         relevance = max(0.0, min(1.0, float(answer.get("relevance", 0))))

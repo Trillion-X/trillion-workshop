@@ -4,7 +4,7 @@
   fake_ollama.py REQUEST_LOG     prints its port on the first line, then serves until stopped.
 
 Rules: a moment with "money" is money talk (0.8); one with "gardens" is gardening tips (0.7); one with "um uh" is filler (0.05).
-A request holding a moment with "loopforever" is refused with a 500, as the model does when it repeats itself.
+A request to cut ideas (Segments:) answers {"starts": [...]}: the segments whose text begins "new idea". A request holding a moment or segment with "loopforever" is refused with a 500, as the model does when it repeats itself.
 A moment with "forgotten" is left out of the answer when more than one moment is asked about, so the tool must ask again alone.
 """
 import json
@@ -22,6 +22,23 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
         user = body["messages"][1]["content"]
+        if "Segments:\n" in user:
+            segs = re.findall(r"^\[(\d+)\] (.*)$", user.split("Segments:\n", 1)[1], re.M)
+            with open(LOG, "a") as handle:
+                handle.write(json.dumps({"model": body["model"], "segments": [int(i) for i, _ in segs]}) + "\n")
+            if any("loopforever" in t.lower() for _, t in segs):
+                self.send_response(500)
+                self.end_headers()
+                self.wfile.write(b'{"error":"prediction aborted, token repeat limit reached"}')
+                return
+            starts = [int(i) for i, t in segs if t.lower().startswith("new idea")]
+            reply = json.dumps({"message": {"role": "assistant", "content": json.dumps({"starts": starts})}}).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(reply)))
+            self.end_headers()
+            self.wfile.write(reply)
+            return
         asked = re.findall(r"^\[(\d+)\] (.*)$", user.split("Moments:\n", 1)[1], re.M)
         with open(LOG, "a") as handle:
             handle.write(json.dumps({"model": body["model"], "asked": [int(i) for i, _ in asked], "vocabulary": "- money_talk:" in user}) + "\n")

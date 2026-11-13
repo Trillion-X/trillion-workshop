@@ -13,6 +13,10 @@ with open(os.path.join(work, "transcripts", "take.words.json"), "w") as handle:
     json.dump(doc, handle)
 with open(os.path.join(work, "transcripts", "words-only.words.json"), "w") as handle:
     json.dump({"source": "x.wav", "timing": "word", "words": []}, handle)
+ideas = [(0, 3, "New idea: saving."), (3, 6, "Every week."), (8, 11, "New idea: gardens."), (11, 14, "They need patience."), (40, 43, "New idea: sleep."), (43, 45, "Eight hours.")]
+os.makedirs(os.path.join(work, "ideas"), exist_ok=True)
+with open(os.path.join(work, "ideas", "talk.words.json"), "w") as handle:
+    json.dump({"source": "talk.wav", "timing": "word", "duration": 50.0, "words": [], "segments": [{"text": t, "start": s, "end": e} for s, e, t in ideas]}, handle)
 with open(os.path.join(work, "moments.jsonl"), "w") as handle:
     for i, text in enumerate(["Money is a tool.", "Gardens need patience.", "um uh okay"]):
         handle.write(json.dumps({"id": f"m{i}", "text": text, "where": f"file-{i}"}) + "\n")

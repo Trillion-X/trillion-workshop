@@ -3,6 +3,7 @@
 
   bucket_moments.py tag          --transcripts FOLDER [--vocabulary FILE] [--clips NAME ...] [--limit N] [--dry-out FILE] [--model M]
   bucket_moments.py tag-moments  --moments FILE.jsonl --tagged FILE.jsonl [--vocabulary FILE | --vocabulary-rows FILE... --describe F,F --label F,F] [--limit N] [--model M]
+  bucket_moments.py cut-ideas    --transcripts FOLDER --out FILE.jsonl [--window N] [--clips NAME ...] [--model M]
   bucket_moments.py report       --transcripts FOLDER [--vocabulary FILE]
 
 tag cuts each <name>.words.json into moments and writes them back into the file with their buckets and a relevance from 0 to 1.
@@ -55,6 +56,47 @@ def ask(args, defaults, vocabulary, batch):
     request = urllib.request.Request(args.ollama_url.rstrip("/") + "/api/chat", json.dumps(body).encode(), {"Content-Type": "application/json"})
     with urllib.request.urlopen(request, timeout=900) as answer:
         return json.loads(json.load(answer)["message"]["content"])
+
+
+def ask_starts(args, defaults, window):
+    """One chat with the local model: a window of numbered segments in, the numbers where an idea begins out."""
+    user = "Segments:\n" + "\n".join(f'[{x["idx"]}] {x["text"]}' for x in window)
+    body = {"model": args.model, "stream": False, "format": "json", "options": {"temperature": 0},
+            "messages": [{"role": "system", "content": defaults["idea_prompt"]}, {"role": "user", "content": user}]}
+    request = urllib.request.Request(args.ollama_url.rstrip("/") + "/api/chat", json.dumps(body).encode(), {"Content-Type": "application/json"})
+    with urllib.request.urlopen(request, timeout=900) as answer:
+        return json.loads(json.load(answer)["message"]["content"]).get("starts", [])
+
+
+def command_cut_ideas(args):
+    defaults = load_defaults(args)
+    done = set()
+    if os.path.exists(args.out):
+        with open(args.out, encoding="utf-8") as handle:
+            done = {json.loads(line)["clip"] for line in handle}
+    cut = 0
+    with open(args.out, "a", encoding="utf-8") as out:
+        for path in transcript_paths(args.transcripts):
+            name = os.path.basename(path)[:-len(WORDS_SUFFIX)]
+            doc = read_json(path)
+            if name in done or not doc.get("segments") or (args.clips and name not in args.clips):
+                continue
+            found = []
+            for window in m.windows_of(doc["segments"], args.window):
+                base = window[0]["idx"]
+                try:
+                    starts = [s - base for s in ask_starts(args, defaults, window) if isinstance(s, int) and not isinstance(s, bool)]
+                    ideas, how = m.ideas_from_starts(window, starts), "model"
+                except (urllib.error.HTTPError, ValueError, AttributeError):
+                    ideas, how = m.moments_of({"segments": window}, args.gap, args.max_words), "silence"
+                for idea in ideas:
+                    found.append({**idea, "segments": [base + i for i in idea["segments"]], "cut": how})
+            found = m.merge_short(found, args.min_words)
+            for i, idea in enumerate(found):
+                out.write(json.dumps({"id": f"{name}#{i}", "clip": name, **idea}, ensure_ascii=False) + "\n")
+            out.flush()
+            cut += len(found)
+    return {"ideas_cut": cut, "already_cut": len(done), "out": args.out}
 
 
 def tag_batch(args, defaults, vocabulary, batch):
@@ -191,6 +233,16 @@ def build_parser():
     tm.add_argument("--tagged", required=True, help="the file the tagged moments are appended to")
     model_options(tm, "gemma3:4b")
     tm.set_defaults(run=command_tag_moments)
+    ci = sub.add_parser("cut-ideas", help="cut timed transcripts into whole ideas, one moment per idea, each with its start and end seconds, resumable")
+    ci.add_argument("--transcripts", required=True, help="the folder of <name>.words.json transcripts")
+    ci.add_argument("--out", required=True, help="the moments file (JSON lines) the ideas are appended to")
+    ci.add_argument("--clips", nargs="*", help="only these transcript names")
+    ci.add_argument("--window", type=int, default=20, help="segments asked about at once; an idea does not run across windows (default %(default)s)")
+    ci.add_argument("--min-words", type=int, default=0, help="an idea with fewer words than this is joined to its neighbour (default 0: none)")
+    ci.add_argument("--gap", type=float, default=m.GAP_SECONDS, help="the silence cut used for a window the model cannot answer (default %(default)s)")
+    ci.add_argument("--max-words", type=int, default=m.MAX_WORDS, help="words after which the silence cut ends a moment (default %(default)s)")
+    model_options(ci, "gemma3n:e4b")
+    ci.set_defaults(run=command_cut_ideas)
     r = sub.add_parser("report", help="moments per bucket and per relevance band")
     r.add_argument("--transcripts", required=True)
     r.add_argument("--vocabulary")
