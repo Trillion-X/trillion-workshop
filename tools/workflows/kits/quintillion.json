@@ -1,0 +1,226 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:quintillion for <customer>: request <the outcome they want>, scope <what is in and out>, constraints <limits>, authorized actions <what you may do>.\" It grounds the work in that customer's real outcome, composes the workflows and tools that move it, advances the observed bottleneck, measures the benefit against the baseline and continues or stops with a clear reason.",
+  "lists": [
+    {
+      "list": "list:customer-outcomes",
+      "label": "Customer outcomes",
+      "row_type": "record:customer-outcome",
+      "holds": "One real customer per row: the outcome they want, the baseline measured before, what a run measured after, the evidence and the next bottleneck.",
+      "fields": [
+        {
+          "id": "customer",
+          "kind": "text",
+          "label": "Customer",
+          "alike": [
+            "client",
+            "account",
+            "company",
+            "name"
+          ]
+        },
+        {
+          "id": "outcome",
+          "kind": "long-text",
+          "label": "Outcome wanted",
+          "alike": [
+            "goal",
+            "objective",
+            "desired outcome"
+          ]
+        },
+        {
+          "id": "baseline",
+          "kind": "text",
+          "label": "Baseline",
+          "alike": [
+            "before",
+            "starting point"
+          ]
+        },
+        {
+          "id": "measured",
+          "kind": "text",
+          "label": "Measured after",
+          "alike": [
+            "result",
+            "after",
+            "current"
+          ]
+        },
+        {
+          "id": "evidence",
+          "kind": "long-text",
+          "label": "Evidence",
+          "alike": [
+            "proof",
+            "run readback",
+            "link"
+          ]
+        },
+        {
+          "id": "bottleneck",
+          "kind": "long-text",
+          "label": "Next bottleneck",
+          "alike": [
+            "next step",
+            "blocker"
+          ]
+        },
+        {
+          "id": "status",
+          "kind": "choice",
+          "label": "Status",
+          "alike": [
+            "stage",
+            "state"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "bakery-preorders",
+          "values": {
+            "customer": "A neighbourhood bakery",
+            "outcome": "Take 30 weekend pre-orders a week online.",
+            "baseline": "4 pre-orders a week, all by phone",
+            "measured": "11 pre-orders in the first week of the order page",
+            "evidence": "The order page's run readback and the 11 order rows",
+            "bottleneck": "Half the visitors leave at the pickup-time question.",
+            "status": "Continuing"
+          }
+        },
+        {
+          "id": "tutor-bookings",
+          "values": {
+            "customer": "A maths tutor",
+            "outcome": "Fill 10 weekly slots without back-and-forth messages.",
+            "baseline": "6 slots, booked by 40 messages",
+            "measured": "9 slots, 3 messages",
+            "evidence": "The booking list rows and the message count read from the inbox",
+            "bottleneck": "Parents do not know which level to pick.",
+            "status": "Continuing"
+          }
+        }
+      ],
+      "alike": [
+        "a client results tracker",
+        "a CRM with deal outcomes",
+        "a case study spreadsheet",
+        "an OKR sheet"
+      ]
+    }
+  ],
+  "workflows": [
+    "workflow:grow-the-one-tree",
+    "workflow:infinity",
+    "workflow:trillion-x-mode",
+    "workflow:turn-something-shared-into-what-you-can-use"
+  ],
+  "tools": [
+    "tool:start-a-recipe-run",
+    "tool:pour-example-rows-into-my-list"
+  ],
+  "instructions": [
+    "1. Pour the example rows into the client tracker you already keep (see pour), or make list:customer-outcomes from them, and add one row for the real customer with the baseline measured today.",
+    "2. Say \"Run workflow:quintillion\" with request, scope, constraints and authorized_actions filled in; nothing outside authorized_actions is done.",
+    "3. Read step customer's evidence: it names the customer row and the outcome; fix the row if it is wrong before the run goes on.",
+    "4. Each stage advances only on a real workflow run readback; read the evidence of compose and act, and the gaps it keeps open.",
+    "5. After learn, update the row's measured, evidence and bottleneck from what the run read back; continue says whether another pass is worth it and why."
+  ],
+  "worked_examples": [
+    {
+      "title": "Start a pass for one real customer",
+      "ask": "Run Quintillion for the bakery: get them to 30 weekend pre-orders a week.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:quintillion",
+              "request": "Take 30 weekend pre-orders a week online for the bakery.",
+              "scope": "The bakery's order page and its pre-order list; not its prices or menu.",
+              "constraints": [
+                "No spend over 50 a month",
+                "No message to a customer without the owner's approval"
+              ],
+              "authorized_actions": [
+                "edit the order page draft",
+                "write rows to list:customer-outcomes"
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:quintillion",
+      "step": "customer",
+      "given": "list:customer-outcomes holds bakery-preorders with baseline 4 pre-orders a week.",
+      "hands_back": "summary: \"Outcome: 30 weekend pre-orders a week; baseline 4, by phone\"; evidence names record:customer-outcome:bakery-preorders; requirements list the scope and both constraints."
+    },
+    {
+      "title": "The benefit is measured against the baseline",
+      "ask": "Did it work?",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@own-records",
+          "method": "records:read",
+          "input": {
+            "id": "record:customer-outcome:bakery-preorders"
+          }
+        }
+      },
+      "workflow": "workflow:quintillion",
+      "step": "learn",
+      "given": "The act step's run read back 11 pre-order rows for the week.",
+      "hands_back": "summary: \"11 against a baseline of 4\"; the next bottleneck routed is the pickup-time question, and the row's measured and bottleneck fields are written."
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and one kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "example": {
+      "kit_list": "list:customer-outcomes",
+      "into": {
+        "list": "list:clients",
+        "row_type": "record:client",
+        "fields": [
+          {
+            "id": "client",
+            "label": "Client"
+          },
+          {
+            "id": "goal",
+            "label": "Goal"
+          },
+          {
+            "id": "before",
+            "label": "Before"
+          },
+          {
+            "id": "result",
+            "label": "Result"
+          },
+          {
+            "id": "proof",
+            "label": "Proof"
+          },
+          {
+            "id": "next_step",
+            "label": "Next step"
+          },
+          {
+            "id": "stage",
+            "label": "Stage"
+          }
+        ]
+      },
+      "field_map": {}
+    }
+  }
+}

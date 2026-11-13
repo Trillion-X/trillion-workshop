@@ -1,0 +1,335 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:turn-what-you-said-into-content on this: <paste a message, voice note transcript or talk you gave>.\" It decides whether the words are worth sharing, pulls out the principles in them, writes each as a story and every format that fits, keeps the drafts as rows of your content list, and feeds each principle back into your workflows.",
+  "lists": [
+    {
+      "list": "list:principles",
+      "label": "Principles",
+      "row_type": "record:principle",
+      "holds": "One principle per row, with every name and number taken out, the person's own words that carry it and a different field where it still holds.",
+      "fields": [
+        {
+          "id": "principle",
+          "kind": "long-text",
+          "label": "Principle",
+          "alike": [
+            "idea",
+            "lesson",
+            "insight",
+            "takeaway"
+          ]
+        },
+        {
+          "id": "their_words",
+          "kind": "long-text",
+          "label": "Their words",
+          "alike": [
+            "quote",
+            "source quote"
+          ]
+        },
+        {
+          "id": "holds_in",
+          "kind": "text",
+          "label": "Also holds in",
+          "alike": [
+            "other field"
+          ]
+        },
+        {
+          "id": "came_from",
+          "kind": "text",
+          "label": "Came from",
+          "alike": [
+            "source",
+            "where"
+          ]
+        },
+        {
+          "id": "fed_back_into",
+          "kind": "tags",
+          "label": "Fed back into",
+          "alike": [
+            "used in"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "show-the-rows",
+          "values": {
+            "principle": "People start when they are handed something already filled in, not when they are told how to fill it in.",
+            "their_words": "give them the rows, don't tell them instructions",
+            "holds_in": "Teaching cooking: hand over a prepped mise en place, not a recipe card.",
+            "came_from": "chat message, 2026-11-12",
+            "fed_back_into": [
+              "workflow:answer-comments-and-messages"
+            ]
+          }
+        },
+        {
+          "id": "name-the-gap",
+          "values": {
+            "principle": "A missing step said out loud is worth more than a finished-looking result that hides it.",
+            "their_words": "say what's missing, don't pretend it's done",
+            "holds_in": "Home inspections: the report lists what could not be reached.",
+            "came_from": "voice note, 2026-11-10",
+            "fed_back_into": []
+          }
+        }
+      ],
+      "alike": [
+        "a notes app folder of ideas",
+        "a swipe file",
+        "a Notion database of insights",
+        "a commonplace book"
+      ]
+    },
+    {
+      "list": "list:content-drafts",
+      "label": "Content drafts",
+      "row_type": "record:content-draft",
+      "holds": "One drafted piece per row: its format, the goal it serves, its source, its status and the file that holds the draft.",
+      "fields": [
+        {
+          "id": "piece",
+          "kind": "text",
+          "label": "Piece",
+          "alike": [
+            "title",
+            "name",
+            "headline"
+          ]
+        },
+        {
+          "id": "format",
+          "kind": "choice",
+          "label": "Format",
+          "alike": [
+            "type",
+            "content type",
+            "channel"
+          ]
+        },
+        {
+          "id": "pursuit",
+          "kind": "text",
+          "label": "Pursuit",
+          "alike": [
+            "niche",
+            "audience",
+            "brand"
+          ]
+        },
+        {
+          "id": "source",
+          "kind": "text",
+          "label": "Source",
+          "alike": [
+            "came from",
+            "origin"
+          ]
+        },
+        {
+          "id": "moment",
+          "kind": "text",
+          "label": "Moment",
+          "alike": [
+            "timestamp"
+          ]
+        },
+        {
+          "id": "status",
+          "kind": "choice",
+          "label": "Status",
+          "alike": [
+            "stage",
+            "state"
+          ]
+        },
+        {
+          "id": "file",
+          "kind": "text",
+          "label": "File",
+          "alike": [
+            "path",
+            "link",
+            "draft"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "rows-not-instructions-thread",
+          "values": {
+            "piece": "Stop writing instructions. Hand people the rows.",
+            "format": "thread",
+            "pursuit": "Founders",
+            "source": "chat message, 2026-11-12",
+            "status": "Draft",
+            "file": "/Content/rows-not-instructions-thread.md"
+          }
+        },
+        {
+          "id": "rows-not-instructions-talk",
+          "values": {
+            "piece": "The filled-in first page",
+            "format": "talk",
+            "pursuit": "Teachers",
+            "source": "chat message, 2026-11-12",
+            "status": "Draft",
+            "file": "/Content/rows-not-instructions-talk.md"
+          }
+        },
+        {
+          "id": "name-the-gap-short",
+          "values": {
+            "piece": "Say what is missing",
+            "format": "short video",
+            "pursuit": "Founders",
+            "source": "voice note, 2026-11-10",
+            "moment": "00:42",
+            "status": "Approved",
+            "file": "/Content/name-the-gap-short.md"
+          }
+        }
+      ],
+      "alike": [
+        "a content calendar",
+        "a Notion content database",
+        "an Airtable editorial board",
+        "a Trello board of post ideas"
+      ]
+    }
+  ],
+  "workflows": [
+    "workflow:method-tell-a-story",
+    "workflow:turn-notes-into-finished-content"
+  ],
+  "tools": [
+    "tool:start-a-recipe-run",
+    "tool:pour-example-rows-into-my-list"
+  ],
+  "instructions": [
+    "1. Pour the example rows into the content calendar you already keep (see pour), or make list:content-drafts and list:principles from them.",
+    "2. Paste what you said, word for word, and say where it came from: \"Run workflow:turn-what-you-said-into-content on this, from my voice note of today: ...\".",
+    "3. Answer may_post only if these may be posted; otherwise every piece stays a Draft.",
+    "4. Read the principles it found (list:principles) and the drafts it kept (list:content-drafts, files under /Content/); set each draft you like to Approved.",
+    "5. Read its loop step: each principle names the workflow or check it was added to and the real work it was tried on."
+  ],
+  "worked_examples": [
+    {
+      "title": "A chat message becomes a run",
+      "ask": "Turn what I just said about handing people rows into content.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:turn-what-you-said-into-content",
+              "words": "Every tool must ship with its lists and example rows. Give them the rows, don't tell them instructions.",
+              "came_from": "chat message, 2026-11-12 20:17 CST",
+              "may_post": false
+            }
+          }
+        }
+      },
+      "workflow": "workflow:turn-what-you-said-into-content",
+      "step": "worth",
+      "given": "The words above, with nothing private in them.",
+      "hands_back": "is_content true, because: \"a method that holds for any product: hand people filled-in rows, not instructions\"; left_private empty."
+    },
+    {
+      "title": "The principle is pulled out with the person's own words",
+      "ask": "What is the principle in that?",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:turn-what-you-said-into-content",
+              "words": "Every tool must ship with its lists and example rows. Give them the rows, don't tell them instructions."
+            }
+          }
+        }
+      },
+      "workflow": "workflow:turn-what-you-said-into-content",
+      "step": "principles",
+      "given": "Step worth said is_content true.",
+      "hands_back": "principles: [{ id: show-the-rows, principle: \"People start when they are handed something already filled in, not when they are told how to fill it in.\", their_words: \"Give them the rows, don't tell them instructions\", holds_in: \"Teaching cooking\" }]; the mentioned-in check passes because their_words are in the input."
+    },
+    {
+      "title": "Each principle is told as a story through the story method",
+      "ask": "Write it as a story.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:method-tell-a-story",
+              "request": "People start when they are handed something already filled in. Their words: give them the rows. Formats: thread, talk."
+            }
+          }
+        }
+      },
+      "workflow": "workflow:method-tell-a-story",
+      "step": "story-change",
+      "given": "The principle show-the-rows.",
+      "hands_back": "A run_id and the core change: \"from reading instructions and stalling to running the first row in a minute\", handed back to step story of this workflow."
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and one kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "example": {
+      "kit_list": "list:content-drafts",
+      "into": {
+        "list": "list:content-calendar",
+        "row_type": "record:content-calendar-item",
+        "fields": [
+          {
+            "id": "title",
+            "label": "Title"
+          },
+          {
+            "id": "type",
+            "label": "Type"
+          },
+          {
+            "id": "audience",
+            "label": "Audience"
+          },
+          {
+            "id": "origin",
+            "label": "Origin"
+          },
+          {
+            "id": "timestamp",
+            "label": "Timestamp"
+          },
+          {
+            "id": "stage",
+            "label": "Stage"
+          },
+          {
+            "id": "link",
+            "label": "Link"
+          }
+        ]
+      },
+      "field_map": {}
+    }
+  }
+}

@@ -1,0 +1,410 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:turn-one-long-recording-into-many-pieces for recordings of at least 30 minutes, with channels short video and newsletter.\" It finds recordings you have not used, writes their words with times, files each spoken moment under a topic, picks at least ten clips that stand alone and drafts the posts for you to approve.",
+  "lists": [
+    {
+      "list": "list:recordings",
+      "label": "Recordings",
+      "row_type": "record:recording",
+      "holds": "One row per recording a camera or recorder made: where its file is, how long it is, and the clips already made from it.",
+      "fields": [
+        {
+          "id": "path",
+          "kind": "text",
+          "label": "File path",
+          "alike": [
+            "file",
+            "filename",
+            "location"
+          ]
+        },
+        {
+          "id": "minutes",
+          "kind": "number",
+          "label": "Length in minutes",
+          "alike": [
+            "length",
+            "duration",
+            "minutes long"
+          ]
+        },
+        {
+          "id": "used_in",
+          "kind": "tags",
+          "label": "Used in",
+          "alike": [
+            "clips made",
+            "used",
+            "published as"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "morning-talk",
+          "values": {
+            "path": "/footage/day-1/morning-talk.mov",
+            "minutes": 42,
+            "used_in": []
+          }
+        },
+        {
+          "id": "workshop-recording",
+          "values": {
+            "path": "/footage/day-2/workshop-recording.mp4",
+            "minutes": 95,
+            "used_in": [
+              "clip-3",
+              "clip-7"
+            ]
+          }
+        }
+      ],
+      "alike": [
+        "a spreadsheet of camera files",
+        "a media library's asset list",
+        "a folder listing with lengths"
+      ]
+    },
+    {
+      "list": "list:topic-buckets",
+      "label": "Topic buckets",
+      "row_type": "record:topic-bucket",
+      "holds": "One row per topic the person talks about: the bucket a spoken moment is filed under.",
+      "fields": [
+        {
+          "id": "name",
+          "kind": "text",
+          "label": "Bucket",
+          "alike": [
+            "topic",
+            "theme",
+            "tag",
+            "category"
+          ]
+        },
+        {
+          "id": "about",
+          "kind": "long-text",
+          "label": "What belongs in it",
+          "alike": [
+            "description",
+            "notes",
+            "scope"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "beginners",
+          "values": {
+            "name": "Mistakes beginners make",
+            "about": "Spoken moments where a common early mistake is named and what to do instead."
+          }
+        },
+        {
+          "id": "stories",
+          "values": {
+            "name": "A story that taught me something",
+            "about": "A short story from the person's own experience that ends in one lesson."
+          }
+        }
+      ],
+      "alike": [
+        "a tag list in a notes app",
+        "categories in a content calendar",
+        "playlists of ideas"
+      ]
+    },
+    {
+      "list": "list:recording-moments",
+      "label": "Recording moments",
+      "row_type": "record:recording-moment",
+      "holds": "One row per spoken moment cut from a recording, with the seconds it starts and ends and the exact words.",
+      "fields": [
+        {
+          "id": "moment",
+          "kind": "long-text",
+          "label": "Words",
+          "alike": [
+            "quote",
+            "transcript",
+            "text",
+            "line"
+          ]
+        },
+        {
+          "id": "recording",
+          "kind": "text",
+          "label": "Recording",
+          "alike": [
+            "file",
+            "source",
+            "video"
+          ]
+        },
+        {
+          "id": "start",
+          "kind": "number",
+          "label": "Start second",
+          "alike": [
+            "from",
+            "in point",
+            "begins"
+          ]
+        },
+        {
+          "id": "end",
+          "kind": "number",
+          "label": "End second",
+          "alike": [
+            "to",
+            "out point",
+            "ends"
+          ]
+        },
+        {
+          "id": "bucket",
+          "kind": "text",
+          "label": "Bucket",
+          "alike": [
+            "topic",
+            "theme",
+            "tag"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "morning-talk-312",
+          "values": {
+            "moment": "The first mistake is practising the thing you already do well.",
+            "recording": "/footage/day-1/morning-talk.mov",
+            "start": 312,
+            "end": 327,
+            "bucket": "Mistakes beginners make"
+          }
+        },
+        {
+          "id": "morning-talk-870",
+          "values": {
+            "moment": "I lost the whole first month because I never wrote down what I changed.",
+            "recording": "/footage/day-1/morning-talk.mov",
+            "start": 870,
+            "end": 889,
+            "bucket": "A story that taught me something"
+          }
+        }
+      ],
+      "alike": [
+        "a marker list in a video editor",
+        "a highlights spreadsheet",
+        "timestamped notes"
+      ]
+    },
+    {
+      "list": "list:clip-candidates",
+      "label": "Clip candidates",
+      "row_type": "record:clip-candidate",
+      "holds": "One row per clip picked from the moments: its seconds, title, first line, channel and whether a guest speaks.",
+      "fields": [
+        {
+          "id": "title",
+          "kind": "text",
+          "label": "Title",
+          "alike": [
+            "name",
+            "headline"
+          ]
+        },
+        {
+          "id": "first_line",
+          "kind": "text",
+          "label": "First line",
+          "alike": [
+            "hook",
+            "opening line"
+          ]
+        },
+        {
+          "id": "recording",
+          "kind": "text",
+          "label": "Recording",
+          "alike": [
+            "file",
+            "source"
+          ]
+        },
+        {
+          "id": "start",
+          "kind": "number",
+          "label": "Start second",
+          "alike": [
+            "from",
+            "in point"
+          ]
+        },
+        {
+          "id": "end",
+          "kind": "number",
+          "label": "End second",
+          "alike": [
+            "to",
+            "out point"
+          ]
+        },
+        {
+          "id": "channel",
+          "kind": "text",
+          "label": "Channel",
+          "alike": [
+            "platform",
+            "where it goes"
+          ]
+        },
+        {
+          "id": "guest_speaks",
+          "kind": "checkbox",
+          "label": "A guest speaks",
+          "alike": [
+            "guest",
+            "needs clearance"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "clip-1",
+          "values": {
+            "title": "Stop practising what you already do well",
+            "first_line": "The first mistake is practising the thing you already do well.",
+            "recording": "/footage/day-1/morning-talk.mov",
+            "start": 312,
+            "end": 327,
+            "channel": "short video",
+            "guest_speaks": false
+          }
+        },
+        {
+          "id": "clip-2",
+          "values": {
+            "title": "The month I lost by not writing it down",
+            "first_line": "I lost the whole first month because I never wrote down what I changed.",
+            "recording": "/footage/day-1/morning-talk.mov",
+            "start": 870,
+            "end": 889,
+            "channel": "short video",
+            "guest_speaks": false
+          }
+        }
+      ],
+      "alike": [
+        "a content calendar",
+        "a shot list",
+        "an editor's clip bin"
+      ]
+    }
+  ],
+  "workflows": [
+    "workflow:turn-one-long-recording-into-many-pieces",
+    "workflow:make-short-videos-from-footage"
+  ],
+  "tools": [
+    "tool:list-connected-drives",
+    "tool:see-what-is-on-a-drive",
+    "tool:list-a-drive-folder",
+    "tool:transcribe-audio-and-repair-whisper-loops",
+    "tool:file-spoken-moments-into-topic-buckets",
+    "tool:check-against-a-persons-rules-and-verdicts",
+    "tool:tell-the-person"
+  ],
+  "instructions": [
+    "1. Copy the files from your camera card or recorder to a folder on a connected drive: the card stays as it is, and the workflow only reads the copy. Ask your AI to connect the drive first if tool:list-connected-drives shows none.",
+    "2. Pour the two example recordings into the list of recordings you already keep (see pour), or make list:recordings from them, so the first run has rows to compare with.",
+    "3. Pour or make list:topic-buckets from the two example buckets, then rename each bucket in your own words. The buckets are yours: the tool adds new ones as it hears them.",
+    "4. Say \"Run workflow:turn-one-long-recording-into-many-pieces\" with the shortest length that counts as a long piece, in minutes.",
+    "5. Read each clip it shows you (recording, seconds, title, first line) and answer yes or no to each; nothing is posted until you say yes.",
+    "6. When a clip has a guest speaking, clear it with that guest before anything goes out.",
+    "7. Run workflow:make-short-videos-from-footage on an approved clip to cut, caption, make it vertical and render it."
+  ],
+  "worked_examples": [
+    {
+      "title": "One long recording becomes clips filed under topics",
+      "ask": "Turn my longest recording from yesterday into clips.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:turn-one-long-recording-into-many-pieces",
+              "long_at_least_minutes": 30,
+              "recording_suffixes": [
+                ".mov",
+                ".mp4"
+              ],
+              "channels": [
+                "short video",
+                "newsletter"
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:turn-one-long-recording-into-many-pieces",
+      "step": "find-new",
+      "given": "One recording of 42 minutes on a connected drive at /footage/day-1/morning-talk.mov, not in any recording row's used_in.",
+      "hands_back": "One recording kept (42 minutes, at least the 30 asked for), none dropped as used; the next step is transcribe."
+    },
+    {
+      "title": "Spoken moments are filed under the person's own topics",
+      "ask": "File what I said under my topics.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:file-spoken-moments-into-topic-buckets",
+            "input": {
+              "input": "./transcripts"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:turn-one-long-recording-into-many-pieces",
+      "step": "buckets",
+      "given": "A folder of morning-talk.words.json with each word's start and end second.",
+      "hands_back": "Moments with their recording path, start and end second, words and bucket, for example 312 to 327 seconds filed under Mistakes beginners make."
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and one kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "example": {
+      "kit_list": "list:topic-buckets",
+      "into": {
+        "list": "list:my-topics",
+        "row_type": "record:topic",
+        "fields": [
+          {
+            "id": "label",
+            "label": "Topic"
+          },
+          {
+            "id": "description",
+            "label": "Description"
+          }
+        ]
+      },
+      "field_map": {
+        "name": "label",
+        "about": "description"
+      }
+    }
+  }
+}

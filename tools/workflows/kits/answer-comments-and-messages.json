@@ -1,0 +1,463 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:answer-comments-and-messages for my Instagram messages from today.\" It reads your business facts and reply templates, fills a reply for every new message it can, checks each against your word checks, and hands you the replies to send with the messages no template covered.",
+  "lists": [
+    {
+      "list": "list:reply-templates",
+      "label": "Reply templates",
+      "row_type": "record:reply-template",
+      "holds": "One canned reply per row and the words in a message that pick it.",
+      "fields": [
+        {
+          "id": "match_words",
+          "kind": "tags",
+          "label": "Words that pick it",
+          "alike": [
+            "keywords",
+            "triggers",
+            "shortcut"
+          ]
+        },
+        {
+          "id": "text",
+          "kind": "long-text",
+          "label": "Reply",
+          "alike": [
+            "message",
+            "body",
+            "response",
+            "answer"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "price",
+          "values": {
+            "match_words": [
+              "price",
+              "cost",
+              "how much"
+            ],
+            "text": "Hi {from}, it is 49 a month and the first week is free. Want the link?"
+          }
+        },
+        {
+          "id": "hours",
+          "values": {
+            "match_words": [
+              "open",
+              "hours",
+              "when"
+            ],
+            "text": "Hi {from}, we answer Monday to Friday, 9 to 5. Ask away and we reply the same day."
+          }
+        },
+        {
+          "id": "thanks",
+          "values": {
+            "match_words": [
+              "thanks",
+              "thank you",
+              "love"
+            ],
+            "text": "Thank you {from}, that means a lot. Tell us what you would like to see next."
+          }
+        }
+      ],
+      "alike": [
+        "saved replies in a help desk",
+        "a canned-responses spreadsheet",
+        "Instagram quick replies",
+        "text shortcuts on a phone"
+      ]
+    },
+    {
+      "list": "list:word-checks",
+      "label": "Word checks",
+      "row_type": "record:word-check",
+      "holds": "One rule for every line a person reads; a reply that breaks an On rule is rewritten before it is handed over.",
+      "fields": [
+        {
+          "id": "id",
+          "kind": "text",
+          "label": "Rule"
+        },
+        {
+          "id": "says",
+          "kind": "long-text",
+          "label": "Says",
+          "alike": [
+            "rule",
+            "guideline",
+            "description"
+          ]
+        },
+        {
+          "id": "words",
+          "kind": "tags",
+          "label": "Words",
+          "alike": [
+            "banned words",
+            "phrases"
+          ]
+        },
+        {
+          "id": "kinds",
+          "kind": "tags",
+          "label": "Kinds",
+          "alike": [
+            "applies to"
+          ]
+        },
+        {
+          "id": "because",
+          "kind": "tags",
+          "label": "Because",
+          "alike": [
+            "why",
+            "reason"
+          ]
+        },
+        {
+          "id": "on",
+          "kind": "choice",
+          "label": "On",
+          "alike": [
+            "active",
+            "enabled"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "no-hype",
+          "values": {
+            "id": "no-hype",
+            "says": "No hype words in a reply.",
+            "words": [
+              "amazing",
+              "game-changer",
+              "revolutionary"
+            ],
+            "kinds": [
+              "copy"
+            ],
+            "because": [
+              "replies read as a person, not an ad"
+            ],
+            "on": "On"
+          }
+        },
+        {
+          "id": "no-promise",
+          "values": {
+            "id": "no-promise",
+            "says": "Never promise a result or a date the business has not set.",
+            "words": [
+              "guaranteed",
+              "100%"
+            ],
+            "kinds": [
+              "copy"
+            ],
+            "because": [
+              "a promise in a DM is a promise"
+            ],
+            "on": "On"
+          }
+        }
+      ],
+      "alike": [
+        "a brand voice guide",
+        "a style guide spreadsheet",
+        "a banned-words list"
+      ]
+    },
+    {
+      "list": "list:business-setup-checklist",
+      "label": "Business setup checklist",
+      "row_type": "record:setup-stage",
+      "holds": "One row per stage of setting the business up; this workflow writes the replies row.",
+      "fields": [
+        {
+          "id": "stage",
+          "kind": "text",
+          "label": "Stage"
+        },
+        {
+          "id": "label",
+          "kind": "text",
+          "label": "Stage name",
+          "alike": [
+            "name",
+            "task"
+          ]
+        },
+        {
+          "id": "status",
+          "kind": "choice",
+          "label": "Status",
+          "alike": [
+            "state"
+          ]
+        },
+        {
+          "id": "steps_status",
+          "kind": "long-text",
+          "label": "Steps",
+          "alike": [
+            "notes"
+          ]
+        },
+        {
+          "id": "gaps",
+          "kind": "tags",
+          "label": "Gaps",
+          "alike": [
+            "blockers"
+          ]
+        },
+        {
+          "id": "updated_at",
+          "kind": "date",
+          "label": "Updated",
+          "alike": [
+            "last updated",
+            "date"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "replies",
+          "values": {
+            "stage": "replies",
+            "label": "Comments and messages",
+            "status": "Gap",
+            "steps_status": "{\"read-facts\":\"Done\",\"pull-messages\":\"Done\",\"read-reply-templates\":\"Done\",\"pick-a-template\":\"Done\",\"fill-the-replies\":\"Done\",\"check-the-replies\":\"Done\",\"hand-the-replies-to-the-person\":\"Gap\"}",
+            "gaps": [
+              "record:setup-gap:hand-the-replies-to-the-person-1"
+            ],
+            "updated_at": "2026-11-13"
+          }
+        },
+        {
+          "id": "social-posting",
+          "values": {
+            "stage": "social-posting",
+            "label": "Posting on social channels",
+            "status": "Not done",
+            "steps_status": "",
+            "gaps": [],
+            "updated_at": "2026-11-13"
+          }
+        }
+      ],
+      "alike": [
+        "a launch checklist",
+        "a project board's to-do column",
+        "an onboarding checklist spreadsheet"
+      ]
+    },
+    {
+      "list": "list:business-setup-gaps",
+      "label": "Business setup gaps",
+      "row_type": "record:setup-gap",
+      "holds": "One row per thing a stage could not do itself: the step, what was left undecided, what the run did and the evidence.",
+      "fields": [
+        {
+          "id": "stage",
+          "kind": "text",
+          "label": "Stage"
+        },
+        {
+          "id": "step",
+          "kind": "text",
+          "label": "Step"
+        },
+        {
+          "id": "undecided",
+          "kind": "long-text",
+          "label": "Not decided",
+          "alike": [
+            "issue",
+            "problem",
+            "gap"
+          ]
+        },
+        {
+          "id": "chosen",
+          "kind": "long-text",
+          "label": "What this run did",
+          "alike": [
+            "workaround"
+          ]
+        },
+        {
+          "id": "evidence",
+          "kind": "long-text",
+          "label": "Evidence",
+          "alike": [
+            "proof",
+            "link"
+          ]
+        },
+        {
+          "id": "status",
+          "kind": "choice",
+          "label": "Status",
+          "alike": [
+            "state"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "hand-the-replies-to-the-person-1",
+          "values": {
+            "stage": "replies",
+            "step": "hand-the-replies-to-the-person",
+            "undecided": "No live tool sends an Instagram direct-message reply.",
+            "chosen": "Handed 3 checked replies to the person to send by hand.",
+            "evidence": "The live catalog has no send tool for Instagram direct messages.",
+            "status": "open"
+          }
+        },
+        {
+          "id": "pull-messages-1",
+          "values": {
+            "stage": "replies",
+            "step": "pull-messages",
+            "undecided": "Instagram sign-in expired.",
+            "chosen": "Submitted status needs_login and pulled nothing.",
+            "evidence": "tool:pull-my-instagram-messages answered needs_login.",
+            "status": "open"
+          }
+        }
+      ],
+      "alike": [
+        "an issues list",
+        "a blockers column on a board",
+        "a bug tracker"
+      ]
+    }
+  ],
+  "workflows": [
+    "workflow:set-up-a-business-on-trillion",
+    "workflow:post-on-social-channels-on-a-schedule",
+    "workflow:set-up-your-checks"
+  ],
+  "tools": [
+    "tool:pull-my-instagram-messages",
+    "tool:expand-a-reply-template",
+    "tool:check-copy",
+    "tool:start-a-recipe-run",
+    "tool:pour-example-rows-into-my-list"
+  ],
+  "instructions": [
+    "1. Make sure record:business-setup:facts exists (workflow:set-up-a-business-on-trillion step write-the-business-facts writes it); channels must contain instagram.",
+    "2. Pour the three example reply templates into the saved-replies list you already keep (see pour), or make list:reply-templates from them, then rewrite each reply in your own words.",
+    "3. Pour or make list:word-checks the same way, so every reply is checked before you see it (workflow:set-up-your-checks makes the full list).",
+    "4. Say \"Run workflow:answer-comments-and-messages\". The AI pulls the newest 50 messages, picks a template per message, fills and checks each reply.",
+    "5. Read the replies it hands back and send each one yourself; answer the messages it lists as not covered, and turn any you answer twice into a new template row.",
+    "6. Open list:business-setup-checklist: the replies row says Done or names its gaps in list:business-setup-gaps."
+  ],
+  "worked_examples": [
+    {
+      "title": "Start the run from a chat",
+      "ask": "Answer my new Instagram messages.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:answer-comments-and-messages"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:answer-comments-and-messages",
+      "step": "read-facts",
+      "given": "record:business-setup:facts holds business_name Corner Studio and channels [instagram].",
+      "hands_back": "A job ai-job:workflow:answer-comments-and-messages:<request key> written for the AI; its first step reads the facts row and keeps business_name Corner Studio."
+    },
+    {
+      "title": "A price question gets the price reply",
+      "ask": "Someone asked how much it is, answer them.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:expand-a-reply-template",
+            "input": {
+              "template": "Hi {from}, it is 49 a month and the first week is free. Want the link?",
+              "caller_request": "hey how much is it?",
+              "data": {
+                "from": "Sam"
+              }
+            }
+          }
+        }
+      },
+      "workflow": "workflow:answer-comments-and-messages",
+      "step": "fill-the-replies",
+      "given": "Message m-1 from Sam: \"hey how much is it?\"; step pick-a-template picked the template price (match words: how much).",
+      "hands_back": "Reply for m-1: \"Hi Sam, it is 49 a month and the first week is free. Want the link?\""
+    },
+    {
+      "title": "The reply is checked before it is handed over",
+      "ask": "Check these replies against my rules.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-copy",
+            "input": {
+              "texts": [
+                "Hi Sam, it is 49 a month and the first week is free. Want the link?"
+              ],
+              "kind": "copy"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:answer-comments-and-messages",
+      "step": "check-the-replies",
+      "given": "The word checks no-hype and no-promise are On.",
+      "hands_back": "failing is empty, so the reply goes to step hand-the-replies-to-the-person unchanged."
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and one kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "example": {
+      "kit_list": "list:reply-templates",
+      "into": {
+        "list": "list:saved-replies",
+        "row_type": "record:saved-reply",
+        "fields": [
+          {
+            "id": "keywords",
+            "label": "Keywords"
+          },
+          {
+            "id": "body",
+            "label": "Body"
+          }
+        ]
+      },
+      "field_map": {}
+    }
+  }
+}

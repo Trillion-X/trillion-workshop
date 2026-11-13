@@ -1,0 +1,98 @@
+{
+  "start_here": "Say to your AI: \"Pour the example reply templates from workflow:answer-comments-and-messages into my saved-replies list.\" It reads your list's fields, matches them to the kit's and hands you the one write that adds the examples.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it reads a kit's list and the person's list it is given, and answers a write for theirs.",
+  "workflows": [],
+  "tools": [
+    "tool:pour-example-rows-into-my-list"
+  ],
+  "instructions": [
+    "1. Pick the kit list to pour: an item's kit.lists entry (tools/workflows/recipes/workflows.json for a workflow, a tool row's kit for a tool).",
+    "2. Read your own list that does the same job with run_resource_operation @own-records records:read { id: \"list:<yours>\" }: its fields and row type go in into; the ids of its rows go in already_there.",
+    "3. Run this tool. When it says poured, send its write with run_resource_operation; when it says the match is under 80%, map the fields it names in field_map or make the kit's own list instead."
+  ],
+  "worked_examples": [
+    {
+      "title": "Two reply templates poured into a saved-replies list",
+      "ask": "Put the example reply templates into my saved replies list.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:pour-example-rows-into-my-list",
+            "input": {
+              "kit_list": {
+                "list": "list:reply-templates",
+                "fields": [
+                  {
+                    "id": "match_words",
+                    "kind": "tags",
+                    "label": "Words that pick it",
+                    "alike": [
+                      "keywords",
+                      "triggers"
+                    ]
+                  },
+                  {
+                    "id": "text",
+                    "kind": "long-text",
+                    "label": "Reply",
+                    "alike": [
+                      "body",
+                      "message"
+                    ]
+                  }
+                ],
+                "example_rows": [
+                  {
+                    "id": "price",
+                    "values": {
+                      "match_words": [
+                        "price",
+                        "how much"
+                      ],
+                      "text": "Hi {from}, it is 49 a month."
+                    }
+                  },
+                  {
+                    "id": "hours",
+                    "values": {
+                      "match_words": [
+                        "open",
+                        "hours"
+                      ],
+                      "text": "Hi {from}, we are open 9 to 5."
+                    }
+                  }
+                ]
+              },
+              "into": {
+                "list": "list:saved-replies",
+                "row_type": "record:saved-reply",
+                "fields": [
+                  {
+                    "id": "keywords",
+                    "label": "Keywords"
+                  },
+                  {
+                    "id": "body",
+                    "label": "Body"
+                  },
+                  {
+                    "id": "owner",
+                    "label": "Owner"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "given": "A saved-replies list with the fields keywords, body and owner.",
+      "hands_back": "poured true, coverage 1 (match_words to keywords and text to body, each by a name it goes by), and a records:write at @own-records adding record:saved-reply:kit-price and record:saved-reply:kit-hours."
+    }
+  ]
+}

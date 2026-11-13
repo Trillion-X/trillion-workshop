@@ -1,0 +1,297 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:make-short-videos-from-footage on the clip I approved from yesterday's recording.\" It cuts the clip, adds captions, makes it vertical, renders it, picks a cover and checks the words against your rules.",
+  "lists": [
+    {
+      "list": "list:b-roll-rules",
+      "label": "B-roll rules",
+      "row_type": "record:b-roll-rule",
+      "holds": "One row per rule for what cutaway footage may be laid over a talking clip.",
+      "fields": [
+        {
+          "id": "rule",
+          "kind": "long-text",
+          "label": "Rule",
+          "alike": [
+            "when",
+            "note",
+            "guideline"
+          ]
+        },
+        {
+          "id": "source",
+          "kind": "text",
+          "label": "Where the footage lives",
+          "alike": [
+            "folder",
+            "library",
+            "location"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "hands",
+          "values": {
+            "rule": "Use a close shot of the hands when the person names a tool.",
+            "source": "/footage/b-roll/hands"
+          }
+        },
+        {
+          "id": "place",
+          "values": {
+            "rule": "Use a wide shot of the place when the person starts a story.",
+            "source": "/footage/b-roll/places"
+          }
+        }
+      ],
+      "alike": [
+        "a shot list",
+        "a b-roll folder index"
+      ]
+    },
+    {
+      "list": "list:word-checks",
+      "label": "Word checks",
+      "row_type": "record:word-check",
+      "holds": "One row per rule the person's words must pass before they go out, on or off.",
+      "fields": [
+        {
+          "id": "rule",
+          "kind": "long-text",
+          "label": "Rule",
+          "alike": [
+            "check",
+            "style rule",
+            "guideline"
+          ]
+        },
+        {
+          "id": "on",
+          "kind": "checkbox",
+          "label": "On",
+          "alike": [
+            "active",
+            "enabled"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "no-hype",
+          "values": {
+            "rule": "No word that promises a result nobody can promise.",
+            "on": true
+          }
+        },
+        {
+          "id": "plain",
+          "values": {
+            "rule": "Sentences of 20 words or fewer.",
+            "on": true
+          }
+        }
+      ],
+      "alike": [
+        "an editor's style guide",
+        "a brand voice checklist"
+      ]
+    },
+    {
+      "list": "list:business-setup-checklist",
+      "label": "Setup checklist",
+      "row_type": "record:setup-stage",
+      "holds": "One row per stage of setting up, with whether it is done.",
+      "fields": [
+        {
+          "id": "stage",
+          "kind": "text",
+          "label": "Stage",
+          "alike": [
+            "step",
+            "task"
+          ]
+        },
+        {
+          "id": "status",
+          "kind": "choice",
+          "label": "Status",
+          "alike": [
+            "state",
+            "done"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "short-videos",
+          "values": {
+            "stage": "short-videos",
+            "status": "Not done"
+          }
+        },
+        {
+          "id": "posting",
+          "values": {
+            "stage": "posting",
+            "status": "Not done"
+          }
+        }
+      ],
+      "alike": [
+        "a launch checklist"
+      ]
+    },
+    {
+      "list": "list:business-setup-gaps",
+      "label": "Setup gaps",
+      "row_type": "record:setup-gap",
+      "holds": "One row per thing a stage could not finish and why.",
+      "fields": [
+        {
+          "id": "stage",
+          "kind": "text",
+          "label": "Stage",
+          "alike": [
+            "step",
+            "task"
+          ]
+        },
+        {
+          "id": "gap",
+          "kind": "long-text",
+          "label": "What is missing",
+          "alike": [
+            "blocker",
+            "problem",
+            "note"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "no-b-roll",
+          "values": {
+            "stage": "short-videos",
+            "gap": "No b-roll rules yet, so no cutaway was picked."
+          }
+        },
+        {
+          "id": "no-facts",
+          "values": {
+            "stage": "short-videos",
+            "gap": "The business facts row is missing."
+          }
+        }
+      ],
+      "alike": [
+        "a blocker log"
+      ]
+    }
+  ],
+  "workflows": [
+    "workflow:make-short-videos-from-footage",
+    "workflow:post-on-social-channels-on-a-schedule",
+    "workflow:set-up-a-business-on-trillion",
+    "workflow:set-up-your-checks",
+    "workflow:turn-one-long-recording-into-many-pieces"
+  ],
+  "tools": [
+    "tool:list-my-recordings-and-media",
+    "tool:find-silence",
+    "tool:suggest-media-cuts",
+    "tool:cut-and-caption",
+    "tool:reframe-video",
+    "tool:render-an-edit",
+    "tool:pick-cover-frame",
+    "tool:check-against-a-persons-rules-and-verdicts"
+  ],
+  "instructions": [
+    "1. Run workflow:set-up-a-business-on-trillion through its facts step first, so record:business-setup:facts exists; this workflow stops and says so when it does not.",
+    "2. Pour the two example b-roll rules and the two example word checks into the lists you already keep (see pour), or make list:b-roll-rules and list:word-checks from them, then edit them to your own rules.",
+    "3. Pick the recording the clip comes from; the workflow lists your recordings and keeps each one's identity, and never downloads the file.",
+    "4. Say \"Run workflow:make-short-videos-from-footage\". It finds the pauses, proposes cuts, and you choose one clip of 15 to 60 seconds.",
+    "5. Read the captions it shows; the words are checked against list:word-checks, and any line that fails is shown to you with the rule it broke.",
+    "6. The finished clip is written as one record:short-clip row for the posting workflow to draft from; nothing is posted by this workflow."
+  ],
+  "worked_examples": [
+    {
+      "title": "A 30-second clip becomes a vertical short",
+      "ask": "Make a short from the part where I name the first mistake.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:make-short-videos-from-footage"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:make-short-videos-from-footage",
+      "step": "cut-and-caption",
+      "given": "A recording identity, from 312 to 342 seconds, and the timed words of that part.",
+      "hands_back": "An edit with the clip's cut points and subtitle captions; its identity goes to reframe-vertical next."
+    },
+    {
+      "title": "The finished short is handed to the posting stage",
+      "ask": "Hand the finished clip to posting.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@own-records",
+          "method": "records:write",
+          "input": {
+            "records": [
+              {
+                "id": "record:short-clip:clip-1",
+                "type": "record:short-clip",
+                "value": {
+                  "rendered_identity": "1f:<64 hex of the render>",
+                  "cover_identity": "1f:<64 hex of the cover>",
+                  "caption": "Stop practising what you already do well",
+                  "from": 312,
+                  "to": 342
+                }
+              }
+            ]
+          }
+        }
+      },
+      "workflow": "workflow:make-short-videos-from-footage",
+      "step": "hand-the-clip-to-the-post-stage",
+      "given": "A rendered identity and a cover identity from the two steps before.",
+      "hands_back": "The record record:short-clip:clip-1, read back with the same values."
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and one kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "example": {
+      "kit_list": "list:word-checks",
+      "into": {
+        "list": "list:style-rules",
+        "row_type": "record:style-rule",
+        "fields": [
+          {
+            "id": "check",
+            "label": "Check"
+          },
+          {
+            "id": "enabled",
+            "label": "Enabled"
+          }
+        ]
+      },
+      "field_map": {
+        "rule": "check",
+        "on": "enabled"
+      }
+    }
+  }
+}
