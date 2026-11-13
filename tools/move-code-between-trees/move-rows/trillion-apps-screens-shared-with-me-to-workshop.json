@@ -1,0 +1,82 @@
+{
+  "id": "move:trillion-apps-screens-shared-with-me-to-workshop",
+  "about": "The Shared with me screen of Trillion's web client (trillion-apps web/src/workspace), moved byte for byte into the Workshop tool that owns sharing: the engine and the web app keep only generic primitives, and features, screens and tools move one to one into Workshop tools. A group is owner_only: it moves the screen file and the helpers only that screen uses, and every file of the web shell they import stays where it is, imported as written; the client build answers those imports with the shell's files (web/scripts/workshop-shell-imports.mjs, from the tool's moved-from.json), and the page opens the screen as a screen module (web/scripts/screen-modules.mjs) named by its Workshop row.",
+  "source": {
+    "name": "Trillion-X/trillion-apps",
+    "test_folders": []
+  },
+  "destination": {
+    "name": "Trillion-X/trillion-workshop",
+    "package": "trillion-workshop",
+    "shared_folder": "tools/shared-code"
+  },
+  "keep": [],
+  "host_provides": [
+    "framer-motion",
+    "hls.js",
+    "react",
+    "react-dom",
+    "trillion-walkthroughs"
+  ],
+  "provider_calls": [
+    {
+      "id": "durable-object",
+      "find": "\\bextends\\s+DurableObject\\b|\\bDurableObjectState\\b|\\bDurableObjectNamespace\\b"
+    },
+    {
+      "id": "kv",
+      "find": "\\bKVNamespace\\b|(?<![.\\w$])env\\.[A-Z][A-Z0-9_]*_KV\\b"
+    }
+  ],
+  "calls": [
+    {
+      "id": "maker-name-in-comment",
+      "find": "\\bJ[a-z]{5}(?=,? 20\\d\\d-\\d\\d-\\d\\d)",
+      "replace": "The maker",
+      "means": "A real person's name in a source comment, by its place (before a date), swapped for a made-up one: a public tree holds made-up data only."
+    },
+    {
+      "id": "owner-name-in-comment",
+      "find": "\\bB[a-z]{4}(?=,? 20\\d\\d-\\d\\d-\\d\\d:|: \")",
+      "replace": "The owner",
+      "means": "A real person's name in a source comment, by its place (before a date or a quote), swapped for a made-up one: a public tree holds made-up data only."
+    },
+    {
+      "id": "content-identity-import",
+      "find": "import \\{ blake3 \\} from '@noble/hashes/blake3\\.js';",
+      "replace": "import { makeHashCodeHexFromBytes } from '../../../../content-identity/read-data/identity.mjs';",
+      "means": "A direct BLAKE3 import swapped for the declared content-identity owner, which one-owner-per-registered-name makes the only place that names the hash."
+    },
+    {
+      "id": "content-identity-hex-import",
+      "find": "import \\{ bytesToHex \\} from '@noble/hashes/utils\\.js';\\n",
+      "replace": "",
+      "means": "The hex helper only the direct BLAKE3 call used; the owner hands the hex back."
+    },
+    {
+      "id": "content-identity-call",
+      "find": "bytesToHex\\(blake3\\(new TextEncoder\\(\\)\\.encode\\(key\\)\\)\\)",
+      "replace": "makeHashCodeHexFromBytes(new TextEncoder().encode(key)).slice(3)",
+      "means": "The owner's identity is `1f:` and the same 64 hex digits; dropping the three-character prefix gives the exact hex the grant row already holds."
+    },
+    {
+      "id": "funnel-without-the-hosts-scope",
+      "find": "(  host\\.className = 'trillion-funnels';\\n)(  element\\.replaceChildren\\(host\\);\\n  const root = createRoot\\(host\\);\\n  root\\.render\\(<OneFunnel)",
+      "replace": "$1  // The loading state the tool host draws here gives the element the shared control scope; a funnel is drawn without it, as it was before it moved.\n  element.classList.remove('coss-ui');\n$2",
+      "means": "One funnel's mount takes back the control scope the tool host's loading state left on its element, so the cards keep the borders they had when the page mounted the screen itself."
+    }
+  ],
+  "read_as_rows": [],
+  "groups": [
+    {
+      "id": "shared-with-me-screen",
+      "owner": [
+        "web/src/workspace/shared-with-me-screen.tsx"
+      ],
+      "to": "tools/open-the-sharing-sheet-for-a-record-preview-the-copy",
+      "owner_only": true,
+      "joins_tool": "tools/open-the-sharing-sheet-for-a-record-preview-the-copy owns what a person shares and the sharing routes the web page passes on (work-sharing.mjs); this brings the Shared with me screen, the other side of the same sharing: what other people shared with this person, newest first (tool:shared-with-me)",
+      "capability": "see what other people shared with me"
+    }
+  ]
+}

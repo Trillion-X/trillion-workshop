@@ -5,6 +5,13 @@
   "calls": [],
   "files": [
     {
+      "from": "records/workshop-sharing-tool-records.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/open-the-sharing-sheet-for-a-record-preview-the-copy/from-old-trillion/records/workshop-sharing-tool-records.json",
+      "source_identity": "1f:b9c0b933b004dcda0276ad9ef83b7f6ed47869115398e5ff6e837195991dcf1d",
+      "identity": "1f:b9c0b933b004dcda0276ad9ef83b7f6ed47869115398e5ff6e837195991dcf1d"
+    },
+    {
       "from": "src/work-sharing.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/open-the-sharing-sheet-for-a-record-preview-the-copy/src/work-sharing.mjs",
@@ -19,11 +26,24 @@
       "identity": "1f:bc9e45014f1e390d810c43a9420630e4df7e5283ef45de0b74b07e08f93a400d"
     },
     {
-      "from": "records/workshop-sharing-tool-records.json",
-      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/open-the-sharing-sheet-for-a-record-preview-the-copy/from-old-trillion/records/workshop-sharing-tool-records.json",
-      "source_identity": "1f:b9c0b933b004dcda0276ad9ef83b7f6ed47869115398e5ff6e837195991dcf1d",
-      "identity": "1f:b9c0b933b004dcda0276ad9ef83b7f6ed47869115398e5ff6e837195991dcf1d"
+      "from": "web/src/workspace/shared-with-me-screen.tsx",
+      "commit": "363265cf73fce1e223167d16c9d336e252e48d95",
+      "to": "tools/open-the-sharing-sheet-for-a-record-preview-the-copy/web/src/workspace/shared-with-me-screen.tsx",
+      "source_identity": "1f:d4273fd25e2fe727597c8cc3ac134014cb79ad491b093e895adf40fde8a0f373",
+      "identity": "1f:d4273fd25e2fe727597c8cc3ac134014cb79ad491b093e895adf40fde8a0f373",
+      "stays": [
+        "web/parts/screen-arrangement/show/mount-floating-panel.tsx",
+        "web/parts/ui/show/coss/shared-content.tsx",
+        "web/parts/ui/show/record-views/record-views.tsx",
+        "web/parts/ui/show/relative-time/relative-time.ts",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/parts/ui/show/sharing-sheet/SharingSheet.tsx",
+        "web/src/record-sharing.json",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/record-filter.ts",
+        "web/src/workspace/store-changes.ts"
+      ]
     }
   ]
 }

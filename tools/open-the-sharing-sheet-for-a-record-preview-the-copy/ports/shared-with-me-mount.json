@@ -1,0 +1,56 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-SHARING-SHARED-WITH-ME-SCREEN-MOUNT",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "The owner's ruling of 2026-11-03 1:02 AM CST, carried by lane screens-shared-with-me; record:person-ruling:every-screen-moves-to-its-workshop-tool-now-2026-11-13",
+  "message_multihash": "1f:ac5cd598516e4b0d37df690253bf0180ef0f4fe61292c82076e8ce32a49ac8cb",
+  "quote": "the engine and the web app keep only generic primitives, and features, screens and tools move one to one into Workshop tools"
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "show the Shared with me screen: what other people shared with this person one by one, newest first, and open one of them",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/open-the-sharing-sheet-for-a-record-preview-the-copy/show/shared-with-me-mount.tsx"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/open-the-sharing-sheet-for-a-record-preview-the-copy/web/src/workspace/",
+   "why": "the Shared with me screen itself, moved byte for byte from the web client; this file only names its mount function as the module entry its screen row asks for, and holds no screen code"
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "show the Shared with me screen: what other people shared with this person one by one, newest first, and open one of them",
+    "Shared with me screen module entry",
+    "screen module mount"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "mountSharedWithMeScreen",
+    "mount"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "aa697285ff5731e02ed25326494f7d49f033842a"
+    },
+    {
+     "repository": "trillion-apps",
+     "commit": "363265cf73fce1e223167d16c9d336e252e48d95"
+    }
+   ]
+  },
+  "test_refs": [
+   "web/test/screen-modules.test.mjs in trillion-apps (every screen module a row names is a file of its tool folder)"
+  ]
+ }
+}
