@@ -26,7 +26,7 @@ import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/ident
 import { packageFilesByRow } from '../../../test-helpers/tool-row-imports.mjs';
 import { tarGz, untarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
 import { gitSshCommand, overSsh } from './git-ssh.mjs';
-import { addRelease, checkCommit, checkEntry, checkTarget, ENGINE_KIND, feedStatusOf, mayPublish, newSigningKey, publicKeyHex, readFeed, roads, settings, signEntry, signerOf } from './release-feed.mjs';
+import { addRelease, checkCommit, checkEntry, checkTarget, ENGINE_KIND, feedStatusOf, mayPublish, newestFor, newSigningKey, publicKeyHex, readFeed, roads, settings, signEntry, signerOf } from './release-feed.mjs';
 
 const refuse = (message, exit = 1) => Object.assign(new Error(message), { exit });
 const BLOCK = 512;
@@ -57,6 +57,47 @@ export function runProgram(program, args, { cwd, env = process.env, token, timeo
     });
     if (token !== undefined) { child.stdio[3].on('error', () => {}); child.stdio[3].end(token); }
   });
+}
+
+/** The branch's tip on the repository (its token on descriptor 3, as fetch reads it), or null when the branch is gone. */
+export async function remoteTip({ repository, branch, token }) {
+  const line = await runProgram('git', ['-c', 'credential.helper=', '-c', `credential.helper=${CREDENTIAL_HELPER}`, '-c', 'core.askPass=true',
+    'ls-remote', '--heads', repository, `refs/heads/${branch}`], { token: token ?? '', env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } });
+  const [sha] = line.trim().split(/\s+/);
+  return sha ? checkCommit(sha) : null;
+}
+
+/**
+ * Why a cross-built target of `commit` is left to the branch's newer commit, or null when it is built now. Every target
+ * is built for every commit, but a target no computer is waiting on (the Mac and the host come first) is left out of a
+ * commit the branch has already passed, so a push never waits out the build of the commit before it. The newer commit builds
+ * it, unless the feed's newest release of the target is already `cross_trail_seconds` older than this commit: a target
+ * never trails further than that.
+ */
+export async function crossTargetLeftToNewer({ repository, branch, token, commit, sequence, feed, target }) {
+  const tip = await remoteTip({ repository, branch, token }).catch(() => null);
+  if (!tip || tip === commit) return null;
+  const newest = newestFor(feed, target);
+  if (!newest || sequence - newest.sequence > settings.cross_trail_seconds) return null;
+  return `${target} is left to ${tip}, the branch's newer commit (the feed's newest ${target} release is ${newest.commit}, ${sequence - newest.sequence} s behind)`;
+}
+
+/**
+ * The run in progress, kept in `<state folder>/<running_file>` while a publish child builds, so the tool's own updater never
+ * restarts the receiver under a build (a restart kills the child's whole control group and the commit starts over: eight
+ * minutes lost each time on 2026-11-13). `runInProgress` answers `{ commit, pid }` for a live run, else null: a marker whose
+ * process is gone is stale and counts for nothing.
+ */
+export function markRun(stateFolder, info) {
+  mkdirSync(stateFolder, { recursive: true });
+  writeAtomically(join(stateFolder, settings.running_file), `${JSON.stringify(info)}\n`);
+}
+export function unmarkRun(stateFolder) { rmSync(join(stateFolder, settings.running_file), { force: true }); }
+export function runInProgress(stateFolder) {
+  let marker;
+  try { marker = JSON.parse(readFileSync(join(stateFolder, settings.running_file), 'utf8')); } catch { return null; }
+  try { process.kill(marker.pid, 0); } catch (error) { if (error.code !== 'EPERM') return null; }
+  return marker;
 }
 
 const git = (folder, args, options = {}) => runProgram('git', ['-C', folder, ...args], options);
@@ -348,7 +389,10 @@ export async function publish(request, { token = '', commit: asked, credentials 
     const builds = [
       hostBuild,
       ...darwinTargets.map(one => () => publishDarwin({ request, darwin, source, work, client, targetDir: targetDirOf(work, one), env, log, feedFolder, feedNow, privateKey, publicKey, fields: { commit, sequence, target: one, urgent } })),
-      ...zigRows.map(row => () => publishZigbuild({ request, source, client, targetDir: targetDirOf(work, row.triple), env, log, feedFolder, privateKey, publicKey, buildEnv: row.build_env, fields: { commit, sequence, target: checkTarget(row.triple), urgent } })),
+      ...zigRows.map(row => async () => {
+        const skipped = await crossTargetLeftToNewer({ repository, branch, token, commit, sequence, feed: feedNow(), target: row.triple });
+        return skipped ? { target: row.triple, skipped } : publishZigbuild({ request, source, client, targetDir: targetDirOf(work, row.triple), env, log, feedFolder, privateKey, publicKey, buildEnv: row.build_env, fields: { commit, sequence, target: checkTarget(row.triple), urgent } });
+      }),
     ];
     const targets = [target, ...darwinTargets, ...zigRows.map(row => row.triple)];
     const [host, ...rest] = await settledInTurns(builds, settings.parallel_builds);
@@ -356,7 +400,7 @@ export async function publish(request, { token = '', commit: asked, credentials 
     const also = rest.map((one, index) => (one.status === 'fulfilled' ? one.value : { target: targets[index + 1], error: one.reason.message }));
     // The feed-status file describes the engine's roads only; a Workshop publish leaves it as the engine's last publish wrote it.
     if (withRoads(kind)) {
-      const failures = Object.fromEntries(also.filter(one => one.error).map(one => [one.target, one.error]));
+      const failures = Object.fromEntries(also.filter(one => one.error || one.skipped).map(one => [one.target, one.error ?? one.skipped]));
       const status = feedStatusOf(feedNow(), commit, targets, failures);
       writeAtomically(join(feedFolder, settings.feed_status_file), `${JSON.stringify(status, null, 1)}\n`);
     }

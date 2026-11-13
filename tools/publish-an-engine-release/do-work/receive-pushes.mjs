@@ -25,7 +25,7 @@ import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync 
 import { join, resolve as resolvePath } from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { CREDENTIAL_HELPER, hostTarget, kindOf, privateInput, readRequest, runProgram, writeAtomically } from './publish-an-engine-release.mjs';
+import { hostTarget, kindOf, markRun, privateInput, readRequest, remoteTip, unmarkRun, writeAtomically } from './publish-an-engine-release.mjs';
 import { checkCommit, checkTarget, ENGINE_KIND, newestFor, readFeed, roads, settings, signerOf } from './release-feed.mjs';
 import { readEntryHeader } from './contribute-an-engine-release.mjs';
 
@@ -48,14 +48,6 @@ export function readDelivery(event, body, branch) {
   if (push.deleted) return { ignored: 'the branch was deleted' };
   if (typeof push.after !== 'string' || !/^[0-9a-f]{40}([0-9a-f]{24})?$/.test(push.after)) return { refused: 'the push names no commit' };
   return { commit: push.after };
-}
-
-/** The branch's tip on the repository (its token on descriptor 3, as fetch reads it), or null when the branch is gone. */
-export async function remoteTip({ repository, branch, token }) {
-  const line = await runProgram('git', ['-c', 'credential.helper=', '-c', `credential.helper=${CREDENTIAL_HELPER}`, '-c', 'core.askPass=true',
-    'ls-remote', '--heads', repository, `refs/heads/${branch}`], { token: token ?? '', env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } });
-  const [sha] = line.trim().split(/\s+/);
-  return sha ? checkCommit(sha) : null;
 }
 
 /** Whether some target's newest feed release is not `tip`: the feed is behind the branch for that target. */
@@ -115,7 +107,9 @@ export function runPublish({ configFile, token, stateFolder, node = process.exec
     child.stderr.on('data', bytes => { err = (err + bytes).slice(-8192); });
     child.stdio[3].on('error', () => {});
     child.stdio[3].end(token);
+    try { markRun(stateFolder, { commit, pid: child.pid, started_at: started }); } catch (error) { log(`could not mark the run: ${error.message}`); }
     child.on('close', code => {
+      unmarkRun(stateFolder);
       let answer = null;
       try { answer = JSON.parse(out.trim().split('\n').at(-1)); } catch { /* nothing printed */ }
       // A run that published one target and failed another (exit 4: a Mac target, publish-an-engine-release.mjs
@@ -123,7 +117,7 @@ export function runPublish({ configFile, token, stateFolder, node = process.exec
       const failed = (answer?.also ?? []).filter(one => one.error).map(one => `${one.target}: ${one.error}`).join(' | ');
       const run = { commit, started_at: started, finished_at: new Date().toISOString(), exit: code, ...(answer?.commit ? { release: answer } : {}), ...(code === 0 ? {} : { error: answer?.error ?? (failed || (err.trim().split('\n').at(-1) ?? null)) }) };
       try { mkdirSync(stateFolder, { recursive: true }); writeAtomically(join(stateFolder, 'last-run.json'), `${JSON.stringify(run, null, 1)}\n`); } catch (error) { log(`could not write last-run.json: ${error.message}`); }
-      log(code === 0 ? `published ${commit} (sequence ${answer?.sequence}, ${[answer?.target, ...(answer?.also ?? []).map(one => one.target)].join(', ')}${answer?.already_published ? ', already in the feed' : ''})` : `publish ${commit} failed: ${run.error}`);
+      log(code === 0 ? `published ${commit} (sequence ${answer?.sequence}, ${[answer?.target, ...(answer?.also ?? []).filter(one => !one.skipped).map(one => one.target)].join(', ')}${answer?.already_published ? ', already in the feed' : ''}${(answer?.also ?? []).filter(one => one.skipped).map(one => `; ${one.skipped}`).join('')})` : `publish ${commit} failed: ${run.error}`);
       resolve(run);
     });
   });

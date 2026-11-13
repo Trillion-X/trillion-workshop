@@ -9,7 +9,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { gunzipSync } from 'node:zlib';
 import { addRelease, newSigningKey, publicKeyHex, readFeed, settings, signEntry, verifyEntry } from '../do-work/release-feed.mjs';
-import { accept, makeKey, withFeedLock } from '../do-work/publish-an-engine-release.mjs';
+import { accept, crossTargetLeftToNewer, makeKey, withFeedLock } from '../do-work/publish-an-engine-release.mjs';
 import { contribute, entryHeader, packAndSign, readEntryHeader } from '../do-work/contribute-an-engine-release.mjs';
 import { makeReceiver, makeTargetQueues, readOffer } from '../do-work/receive-pushes.mjs';
 import { builderConfig, checkRequest } from '../do-work/install-a-builder.mjs';
@@ -196,4 +196,18 @@ test('install takes the other builders\' keys into the config, and refuses one t
   assert.equal(config.receiver.entry_path, settings.entry_path);
   assert.deepEqual(builderConfig(checkRequest(request)).accept_entries_from, []);
   assert.throws(() => checkRequest({ ...request, accept_entries_from: ['ABC'] }), /64 lowercase hex/);
+});
+
+test('a cross-built target of a commit the branch has passed is left to the newer commit, unless it would trail more than cross_trail_seconds', async () => {
+  const { remote, commits } = engine(3);
+  const target = 'aarch64-unknown-linux-gnu';
+  const feedAt = (commit, sequence) => ({ releases: [{ commit, sequence, target }] });
+  const ask = (commit, sequence, feed, repository = remote) => crossTargetLeftToNewer({ repository, branch: 'main', token: '', commit, sequence, feed, target });
+  const old = BASE_TIME + 1, passed = BASE_TIME + 2;
+  const left = await ask(commits[1], passed, feedAt(commits[0], old));
+  assert.match(left, new RegExp(`${target} is left to ${commits[2]}`));
+  assert.equal(await ask(commits[2], BASE_TIME + 3, feedAt(commits[0], old)), null, 'the tip itself is built');
+  assert.equal(await ask(commits[1], old + settings.cross_trail_seconds + 1, feedAt(commits[0], old)), null, 'a target never trails past cross_trail_seconds');
+  assert.equal(await ask(commits[1], passed, { releases: [] }), null, 'a target with no release yet is built');
+  assert.equal(await ask(commits[1], passed, feedAt(commits[0], old), join(remote, 'gone')), null, 'an unreachable branch tip builds it');
 });

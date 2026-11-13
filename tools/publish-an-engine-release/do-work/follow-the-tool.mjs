@@ -12,6 +12,7 @@ import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, r
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { SHIPPED } from './install-a-builder.mjs';
+import { runInProgress } from './publish-an-engine-release.mjs';
 
 const refuse = (message, exit = 1) => Object.assign(new Error(message), { exit });
 const GIT_ENV = { ...process.env, GIT_TERMINAL_PROMPT: '0' };
@@ -58,6 +59,9 @@ export async function followTheTool({ source, branch, tool, status: statusFile, 
   const tip = tipOf({ source, branch });
   const status = readStatus(statusFile);
   if (status.commit === tip && existsSync(tool)) return { changed: false, commit: tip };
+  // A restart kills a build in progress (its commit starts over): the update waits for the next pass instead.
+  const running = existsSync(tool) ? runInProgress(dirname(statusFile)) : null;
+  if (running) { log(`tool: ${tip} waits for the build of ${running.commit} to finish`); return { changed: false, commit: status.commit, waiting: tip, building: running.commit }; }
   const staged = `${tool}.new`, work = mkdtempSync(join(dirname(tool), '.follow-the-tool-'));
   try {
     stage({ source, commit: tip, staged, installed: existsSync(tool) ? tool : null, work });

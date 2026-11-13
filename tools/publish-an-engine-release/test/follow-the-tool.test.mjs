@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import test from 'node:test';
 import { followTheTool, readStatus, tipOf } from '../do-work/follow-the-tool.mjs';
+import { markRun, unmarkRun } from '../do-work/publish-an-engine-release.mjs';
 import { SHIPPED } from '../do-work/install-a-builder.mjs';
 
 const DIRECTORIES = ['tools/publish-an-engine-release/do-work', 'tools/publish-an-engine-release/read-data', 'tools/content-identity/read-data'];
@@ -81,4 +82,28 @@ test('a branch that is gone, or a commit that cannot be staged, leaves the insta
   assert.match(versionOf(tool), /version = 'one'/, 'the installed tool is unchanged');
   assert.equal(readStatus(status).commit, first.commit);
   assert.notEqual(lost, first.commit);
+});
+
+test('a newer tip waits while a build is running (a restart would kill it) and installs once it is over', async () => {
+  const first = repository('one'), second = repository('two'), { tool, status } = setup();
+  await followTheTool({ source: first.source, branch: 'main', tool, status, restart: () => {} });
+  const state = dirname(status), restarts = [], said = [];
+  markRun(state, { commit: 'c'.repeat(40), pid: process.pid, started_at: 'now' });
+  const waiting = await followTheTool({ source: second.source, branch: 'main', tool, status, restart: () => restarts.push(1), log: line => said.push(line) });
+  assert.deepEqual([waiting.changed, waiting.commit, waiting.building], [false, first.commit, 'c'.repeat(40)]);
+  assert.match(versionOf(tool), /version = 'one'/);
+  assert.equal(restarts.length, 0);
+  assert.match(said.join('\n'), /waits for the build of c{40}/);
+  unmarkRun(state);
+  const done = await followTheTool({ source: second.source, branch: 'main', tool, status, restart: () => restarts.push(1) });
+  assert.equal(done.changed, true);
+  assert.equal(restarts.length, 1);
+});
+
+test('a run marker whose process is gone is stale and does not hold the update', async () => {
+  const first = repository('one'), second = repository('two'), { tool, status } = setup();
+  await followTheTool({ source: first.source, branch: 'main', tool, status, restart: () => {} });
+  markRun(dirname(status), { commit: 'c'.repeat(40), pid: 2 ** 22 + 12345, started_at: 'then' });
+  const answer = await followTheTool({ source: second.source, branch: 'main', tool, status, restart: () => {} });
+  assert.equal(answer.changed, true);
 });

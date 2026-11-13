@@ -11,7 +11,7 @@ import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/ident
 import { untarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
 import { addRelease, checkFeedTarget, feedStatusOf, newSigningKey, publicKeyHex, readFeed, roads, settings, signEntry, signedText, verifyEntry } from '../do-work/release-feed.mjs';
 import { packageFilesByRow } from '../../../test-helpers/tool-row-imports.mjs';
-import { archiveRelease, CREDENTIAL_HELPER, filesUnder, makeKey, packRelease, privateInput, publish, refuseUnreadableByOldReaders, runProgram } from '../do-work/publish-an-engine-release.mjs';
+import { runInProgress, archiveRelease, CREDENTIAL_HELPER, filesUnder, makeKey, packRelease, privateInput, publish, refuseUnreadableByOldReaders, runProgram } from '../do-work/publish-an-engine-release.mjs';
 import { tarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
 import { attemptsOf, behindFeed, catchUp, countAttempt, makeQueue, makeReceiver, readDelivery, runPublish, signatureHolds } from '../do-work/receive-pushes.mjs';
 import { builderConfig, installBuilder, receiverUnit, SHIPPED, shippedTarball } from '../do-work/install-a-builder.mjs';
@@ -547,6 +547,7 @@ test('the receiver runs publish for a pushed commit and keeps how it went in las
   writeFileSync(configFile, JSON.stringify(request));
   const run = await runPublish({ configFile, token: canary, stateFolder, log: line => said.push(line) })(commits[1]);
   assert.equal(run.exit, 0, run.error);
+  assert.equal(runInProgress(stateFolder), null, 'the run marker is gone once the run is over');
   assert.deepEqual([run.release.commit, run.release.sequence], [commits[1], BASE_TIME + 2]);
   const kept = readFileSync(join(stateFolder, 'last-run.json'), 'utf8');
   assert.deepEqual(JSON.parse(kept).release.signature, run.release.signature);
