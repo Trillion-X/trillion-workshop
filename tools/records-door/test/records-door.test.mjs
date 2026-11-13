@@ -563,3 +563,24 @@ test('a refusal that is not busy is final: it is not marked retryable', async ()
     return true;
   });
 });
+
+test('a record the store answers as its stored body is read and listed as its value, and a value that only looks like one is left', async () => {
+  const body = value => ({ kind: 'note', sequence: '01a1', stored: JSON.stringify(value), meta: '{"s":{}}', protected: false });
+  const lookalike = { kind: 'note', sequence: '1', stored: { not: 'text' }, meta: null, protected: false };
+  const door = await startFakeDoor({ rights: [{ kind: 'note', operations: ALL }], records: [
+    { id: 'note:1', type: 'note', value: body({ words: 'one', counts: { evidence: 2 } }) },
+    { id: 'note:2', type: 'note', value: lookalike },
+    { id: 'note:3', type: 'note', value: { words: 'three' } },
+  ] });
+  try {
+    const client = openRecordsDoor({ descriptor: door.descriptor });
+    assert.deepEqual(await client.read('note', 'note:1'), { words: 'one', counts: { evidence: 2 } });
+    assert.deepEqual(await client.read('note', 'note:2'), lookalike);
+    assert.deepEqual(await client.read('note', 'note:3'), { words: 'three' });
+    const listed = new Map();
+    for await (const record of client.list({ type: 'note' })) listed.set(record.id, record.value);
+    assert.deepEqual(listed.get('note:1'), { words: 'one', counts: { evidence: 2 } });
+    assert.deepEqual(listed.get('note:2'), lookalike);
+    assert.deepEqual((await client.readRecord('note', 'note:1')).value, { words: 'one', counts: { evidence: 2 } });
+  } finally { await door.close(); }
+});

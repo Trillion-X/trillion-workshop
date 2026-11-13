@@ -178,13 +178,25 @@ export async function writeLargeFile({ origin, capability, fetchImpl }, name, so
   return sendFile({ client, source, name, mediaType, chunking: await loadChunking() });
 }
 
+// The record store can answer a record as its stored body, { kind, sequence, stored, meta, protected }, with the value kept as JSON
+// text in `stored`, where a caller expects the value itself (a decision root read this way looks unanswered, with no lists).
+// Every read and list row passes through here, so a tool sees the value however the store answered; only a body with exactly
+// those five fields and a `stored` text that parses is unwrapped, and anything else is returned as it came.
+const STORED_BODY = ['kind', 'meta', 'protected', 'sequence', 'stored'];
+export function recordValue(value) {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return value;
+  const names = Object.keys(value).sort();
+  if (names.length !== STORED_BODY.length || names.some((name, at) => name !== STORED_BODY[at]) || typeof value.stored !== 'string') return value;
+  try { return JSON.parse(value.stored); } catch { return value; }
+}
+
 // Shared record operations for a bearer door or an operator's authenticated MCP client.
 const WORKSHOP_TOOLS = '@workshop-tools';
 
 export function recordsDoorFromCall(call, { filesResource, resource, toolsResource = WORKSHOP_TOOLS, wait = pause } = {}) {
   async function readRecord(type, id) {
     const record = await call('records:read', { id, type }, undefined, resource, true);
-    return record.value === null || record.value === undefined ? null : { type: record.type, value: record.value };
+    return record.value === null || record.value === undefined ? null : { type: record.type, value: recordValue(record.value) };
   }
 
   // The selected workspace has its own source and admission owner, reached through the same run bearer at this door.
@@ -223,7 +235,7 @@ export function recordsDoorFromCall(call, { filesResource, resource, toolsResour
       const query = Object.fromEntries(Object.entries({ type, order, prefix, above, below, reverse, fields, where, limit }).filter(([, value]) => value !== undefined));
       for (let after; ;) {
         const page = await call('records:list', after === undefined ? query : { ...query, after }, undefined, resource, true);
-        yield* page.records;
+        for (const record of page.records) yield { ...record, value: recordValue(record.value) };
         if (page.next === null || page.next === undefined) return;
         after = page.next;
       }
