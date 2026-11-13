@@ -300,6 +300,8 @@ export function joinLaid(id, root, get, lists = LIST_NAMES, { method = false } =
   const own = rootFieldsIn(id, root, get) ?? root;
   const record = { ...own, input: { ...own.input } };
   const counts = object(own.counts) ? own.counts : null;
+  // A root that names its refs record cannot place its items until that record is read: this pass asks for the refs only.
+  if (typeof root.refs === 'string' && refsOf(id, root, get) === undefined) return { record, loaded };
   if (counts?.[FOLDED]) {
     const items = itemsIn(get, id, FOLDED, counts[FOLDED], refsOf(id, root, get)?.items?.[FOLDED]);
     loaded[FOLDED] = items.map(canonical);
@@ -331,6 +333,7 @@ const keptWhole = root => Array.isArray(root.guidance) && !Array.isArray(root.an
 export function joinDecision(id, root, get, steps = []) {
   if (keptWhole(root)) return { ...root, id, whole: true };
   const { record, loaded } = joinLaid(id, root, get, LIST_NAMES, { method: true });
+  if (typeof root.refs === 'string' && refsOf(id, root, get) === undefined) return { ...record, id, guidance: [] };
   let stubs = Array.isArray(record.answered_steps) ? record.answered_steps : [];
   if (object(root.counts)) {
     const refs = refsOf(id, root, get) ?? { step_refs: [], items: {} };
