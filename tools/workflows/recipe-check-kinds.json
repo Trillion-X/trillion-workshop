@@ -89,6 +89,19 @@
       ]
     },
     {
+      "kind": "cites-resolve",
+      "refuse_unchecked": true,
+      "meaning": "Every citation found in `field` of each item at path resolves, by the resolver rows of citation-resolvers.json: a code line holds the quoted text at the repository's ref, a commit exists and is dated after the item's `after` date, a row exists. An item with fewer than `at_least` citations fails. The failing values are `<item id>.<field>: <citation> (<why>)`. A resolver whose repository is not on the computer running the check leaves the check unevaluated, never passed.",
+      "fields": [
+        { "field": "path", "shape": "path", "required": true, "refusal": "is required." },
+        { "field": "field", "shape": "key", "required": true, "refusal": "must name the field of each item that holds the citations." },
+        { "field": "resolver", "shape": "key", "required": true, "refusal": "must name a resolver row of citation-resolvers.json." },
+        { "field": "quote", "shape": "key", "refusal": "must name the field holding the text a cited code line has to contain." },
+        { "field": "after", "shape": "key", "refusal": "must name the field holding the date a cited commit has to be after." },
+        { "field": "at_least", "shape": "count", "refusal": "must be a whole number above 0." }
+      ]
+    },
+    {
       "kind": "field-in",
       "meaning": "In every item at path, the field named by `field` holds one of the listed values, such as an evidence kind that is a current measurement or a code read. The failing values are `<item id>.<field>`.",
       "fields": [

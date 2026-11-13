@@ -1,0 +1,55 @@
+{
+ "about": "What a finding's citations are resolved against, as DATA. A `cites-resolve` check names one resolver here; the resolver's `kind` is one of three ways of looking something up (file-line, commit, row), its `pattern` finds the citations in a text, and `roots` names the repositories by the name a citation starts with. Adding a repository or a row pattern is adding a row here, with no code edit. A root whose folder is not on the computer running the check makes the check unevaluated, never passed.",
+ "resolvers": [
+  {
+   "resolver": "code-line",
+   "kind": "file-line",
+   "pattern": "([A-Za-z0-9_.-]+)/([A-Za-z0-9_./-]+):([0-9]+)",
+   "meaning": "<root>/<path>:<line>; the line of the file at the root's ref must hold the quoted text when the check names a quote field.",
+   "roots": {
+    "trillion-rust": {
+     "folder": "~/dev/trillion-rust",
+     "ref": "origin/main"
+    },
+    "trillion-workshop": {
+     "folder": "~/dev/trillion-workshop",
+     "ref": "origin/main"
+    },
+    "ai-command-center": {
+     "folder": "~/dev/ai-command-center",
+     "ref": "HEAD"
+    }
+   }
+  },
+  {
+   "resolver": "commits",
+   "kind": "commit",
+   "pattern": "\\b(?=[0-9a-f]*[0-9])[0-9a-f]{7,40}\\b",
+   "meaning": "A commit hash; it must exist in one of the roots and be dated after the date the check's `after` field holds.",
+   "roots": {
+    "trillion-rust": {
+     "folder": "~/dev/trillion-rust",
+     "ref": "origin/main"
+    },
+    "trillion-workshop": {
+     "folder": "~/dev/trillion-workshop",
+     "ref": "origin/main"
+    },
+    "ai-command-center": {
+     "folder": "~/dev/ai-command-center",
+     "ref": "HEAD"
+    }
+   }
+  },
+  {
+   "resolver": "rows",
+   "kind": "row",
+   "pattern": "\\b(?:record|ai-job|list|workflow):[A-Za-z0-9:_#.-]*[A-Za-z0-9_]",
+   "type_of_id": [
+    "^(record:[^:]+):",
+    "^([^:]+):"
+   ],
+   "meaning": "A row id in the person's own records; the row must exist."
+  }
+ ]
+}

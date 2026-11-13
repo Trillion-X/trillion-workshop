@@ -54,12 +54,12 @@ export const CHECK_EVALUATORS = {
       if (lanes.has(lane)) failing.add(lane); else lanes.set(lane, job);
       if (jobs.has(job)) failing.add(lane); else jobs.add(job);
     }
-    for (const lane of laneIds(step, c.steps)) {
+    for (const lane of laneIds(step)) {
       const job = lanes.get(lane);
       const own = c.run === undefined ? typeof job === 'string' && job.endsWith(`:${step.id}:${lane}`) : job === laneJobId(c.run, step.id, lane);
       if (!lanes.has(lane) || !own) failing.add(lane);
     }
-    for (const lane of lanes.keys()) if (!laneIds(step, c.steps).includes(lane)) failing.add(lane);
+    for (const lane of lanes.keys()) if (!laneIds(step).includes(lane)) failing.add(lane);
     if (failing.size) return [...failing];
     const ran = catalogs['ran-job'];
     if (typeof ran !== 'function') return { reason: 'no ran-job catalog was given to look the lanes\' jobs up in' };
@@ -73,6 +73,23 @@ export const CHECK_EVALUATORS = {
   'fields-present': (check, c) => valuesAt(check.path, c).flatMap((item, at) => check.fields
     .filter(field => !filled(item?.[field])).map(field => `${item?.id ?? at}.${field}`)),
   'field-in': (check, c) => valuesAt(check.path, c).flatMap((item, at) => (check.values.map(same).includes(same(item?.[check.field])) ? [] : [`${item?.id ?? at}.${check.field}`])),
+  // What each item cites, resolved beforehand by citation-resolvers.mjs (a lookup is async; a check is judged at once):
+  // `resolved(check, item)` answers [{ cite, ok, why }]. An unresolved item or a citation that cannot be looked up here
+  // (ok: null) leaves the check unevaluated, never passed.
+  'cites-resolve': (check, c, { resolved } = {}) => {
+    if (typeof resolved !== 'function') return { reason: 'the citations were not looked up' };
+    const failing = [];
+    for (const [at, item] of valuesAt(check.path, c).entries()) {
+      const found = resolved(check, item);
+      if (!found) return { reason: 'the citations were not looked up' };
+      const blind = found.find(one => one.ok === null);
+      if (blind) return { reason: `${blind.cite}: ${blind.why}` };
+      const id = item?.id ?? at;
+      if (found.length < (check.at_least ?? 0)) failing.push(`${id}.${check.field}: cites ${found.length}, needs ${check.at_least}`);
+      for (const one of found) if (!one.ok) failing.push(`${id}.${check.field}: ${one.cite} (${one.why})`);
+    }
+    return failing;
+  },
   exists: (check, c, { catalogs = {} } = {}) => {
     const known = catalogs[check.catalog];
     if (typeof known !== 'function') return { reason: `no ${check.catalog} catalog was given to look ids up in` };

@@ -767,6 +767,9 @@
                 "paths": [
                   "read-data/submit-a-recipe-step.mjs",
                   "read-data/recipe-check-results.mjs",
+                  "read-data/citation-resolvers.mjs",
+                  "citation-resolvers.json",
+                  "recipe-check-kinds.json",
                   "read-data/step-agents.mjs"
                 ],
                 "at": "/opt/workflows"

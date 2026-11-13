@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:17b01f3ed1d2a4b89d1ef2cb01ab76724b8e5f863db38acc3b32efd0c2265463"
+  "blake3": "1f:73099c56b9138cb4107346130a193220a3841a13df3fd82a55db87b30d3903b1"
  },
  "fields": [
   {
@@ -8275,24 +8275,6 @@
     ],
     "listed_on": "2026-10-20T00:00:00Z",
     "folder": "send-to-a-place"
-   }
-  },
-  {
-   "id": "tool:pour-example-rows-into-my-list",
-   "values": {
-    "title": "Pour a kit's example rows into a list I already keep",
-    "job": "Put the example rows that come with a workflow or tool into a list I already keep for the same job, matching its fields to mine",
-    "description": "Reads one kit list (its fields, each with the names it goes by, and its example rows) and the person's own list (its id, row type and fields). Matches each kit field to one of theirs by the map they give, the same id, the same label or a name it goes by. Under the least share of matched fields (0.8 unless they ask for more) it pours nothing and names the fields with no home. Otherwise it answers the one records:write at @own-records that adds the example rows, with ids <row type>:kit-<example id> so pouring twice changes nothing, leaving out rows already there and any choice value their field does not offer. It writes nothing itself.",
-    "status": "active",
-    "maker": "maker:trillion",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "pour-example-rows-into-my-list",
-    "flags": [
-     "read-only"
-    ]
    }
   },
   {

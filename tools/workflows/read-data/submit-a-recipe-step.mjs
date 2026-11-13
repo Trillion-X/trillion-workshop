@@ -16,14 +16,17 @@
 // The kept answer is the ai-job row `<run>#answer:<step>`, status done. The first answer kept for a step stays: a
 // submit that comes again finds it and changes nothing.
 
-import { answerId, laneIds, laneJobId, runsLaneJobs } from './step-agents.mjs';
-import { checkResults } from './recipe-check-results.mjs';
+import { agentsOf, laneIds, laneJobId } from './step-agents.mjs';
+import { checkResults, valuesAt } from './recipe-check-results.mjs';
+import { readFileSync } from 'node:fs';
+import { resolveItem } from './citation-resolvers.mjs';
 
 const JOB_KIND = 'ai-job';
+const CHECK_VOCABULARY = JSON.parse(readFileSync(new URL('../recipe-check-kinds.json', import.meta.url), 'utf8'));
 const ALLOWED_INPUT = new Set(['run', 'step', 'answer']);
-export { answerId };
+export const answerId = (run, step) => `${run}#answer:${step}`;
 
-export async function submitARecipeStep({ input = {}, task = {} } = {}, { door }) {
+export async function submitARecipeStep({ input = {}, task = {} } = {}, { door, resolvers }) {
   for (const key of Object.keys(input)) if (!ALLOWED_INPUT.has(key)) throw new Error(`input.${key} is not taken: the checks look jobs up in the records themselves, never in what the caller gives.`);
   const { run, step: stepId, answer } = input;
   if (typeof run !== 'string' || !run || typeof stepId !== 'string' || !stepId) throw new Error('input.run and input.step must name the run and its step.');
@@ -47,16 +50,28 @@ export async function submitARecipeStep({ input = {}, task = {} } = {}, { door }
 
   // The lane jobs as the records hold them: the taker that finished each, nothing for one that did not.
   const takers = new Map();
-  if (runsLaneJobs(step) || (step.checks ?? []).some(check => check.kind === 'lane-jobs')) {
-    for (const lane of laneIds(step, earlier)) {
+  if (agentsOf(step) > 1 || (step.checks ?? []).some(check => check.kind === 'lane-jobs')) {
+    for (const lane of laneIds(step)) {
       const job = laneJobId(run, stepId, lane);
       const row = await door.read(JOB_KIND, job);
       if (row?.status === 'done' && typeof row.finished_by === 'string' && row.finished_by) takers.set(job, row.finished_by);
     }
   }
   const catalogs = { 'ran-job': job => takers.get(job) ?? null };
-  const results = checkResults(step, { this: answer, input: parent.input ?? {}, steps: earlier, run }, { catalogs });
+  const context = { this: answer, input: parent.input ?? {}, steps: earlier, run };
+  // What the answer cites is looked up first (a lookup is async), then the checks are judged on what was found.
+  const looked = new Map();
+  for (const check of (step.checks ?? []).filter(item => item.kind === 'cites-resolve')) {
+    for (const item of valuesAt(check.path, context)) looked.set(`${steps.indexOf(step)}:${(step.checks).indexOf(check)}:${JSON.stringify(item)}`, await resolveItem(check, item, { resolvers, door }));
+  }
+  const resolved = (check, item) => looked.get(`${steps.indexOf(step)}:${step.checks.indexOf(check)}:${JSON.stringify(item)}`);
+  const results = checkResults(step, context, { catalogs, resolved });
   const failed = results.filter(result => result.passed === false);
+  // A kind whose row says `refuse_unchecked` is a gate: when it cannot be judged here (a repository is not on this
+  // computer) the answer is refused, never kept as unchecked.
+  const gates = new Set(CHECK_VOCABULARY.kinds.filter(row => row.refuse_unchecked).map(row => row.kind));
+  const blind = results.filter(result => result.evaluated === false && gates.has(result.kind));
+  if (blind.length) throw new Error(`The answer to step "${stepId}" cannot be judged here: ${blind.map(result => `${result.says} (${result.reason})`).join('; ')}`);
   if (failed.length) throw new Error(`The answer to step "${stepId}" fails: ${failed.map(result => `${result.says} (failing: ${JSON.stringify(result.failing)})`).join('; ')}`);
   const value = { kind: JOB_KIND, status: 'done', row: parent.row, label: `${parent.label}: answer of ${step.title ?? step.id}`, parent: run, step: stepId, answer, finished_by: 'workflow:submit-a-recipe-step' };
   await door.write([{ id, type: JOB_KIND, value }], { key: `${run}:${stepId}:answer` });
