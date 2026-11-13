@@ -3,6 +3,7 @@
 
 import { readFileSync } from 'node:fs';
 import { wakeProblems, WAKE_VOCABULARY } from './wake-problems.mjs';
+import { kitProblems } from './kit-problems.mjs';
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const nonempty = value => typeof value === 'string' && value.trim().length > 0;
@@ -143,6 +144,9 @@ export function recipeProblems(recipe, vocabulary = CHECK_VOCABULARY) {
   if (recipe.input_schema !== undefined && !(object(recipe.input_schema) && recipe.input_schema.type === 'object')) problems.push('input_schema must be a JSON Schema with "type": "object".');
   const stepIds = (Array.isArray(recipe.definition?.steps) ? recipe.definition.steps : Array.isArray(recipe.steps) ? recipe.steps : []).map(step => step?.id);
   problems.push(...wakeProblems(recipe[WAKE_VOCABULARY.field], { stepIds, inputFields: Object.keys(recipe.input_schema?.properties ?? {}) }));
+  // The kit (L082, kit-template.json): a recipe that carries one carries all of it. A recipe with none is refused by
+  // test/every-item-has-its-kit.test.mjs and the commit and push hooks, unless it shipped before kits.
+  if (recipe.kit !== undefined) problems.push(...kitProblems(recipe.kit, { recipe }));
   if (recipe.definition !== undefined) return [...problems, ...definitionProblems(recipe.definition, vocabulary)];
   if (!Array.isArray(recipe.steps) || recipe.steps.length === 0) return [...problems, 'steps (or definition) must list at least one step.'];
   const seen = new Set();

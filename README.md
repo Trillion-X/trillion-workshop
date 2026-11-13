@@ -21,7 +21,9 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 | `test-helpers/vitest-shim.mjs` | The part of vitest's API the `.test.ts` files use, on `node:test`. |
 | `test-helpers/tool-rows.mjs` | Reads every folder's rows; both root tests use it. |
 | `test-helpers/lockfile-licences.mjs` | Judges a lock's licences against the licence classes. |
-| `package.json` | `npm test` runs every test here. |
+| `test/every-item-has-its-kit.test.mjs`, `test-helpers/every-item-kit.mjs`, `test/items-without-a-kit.json` | Every Workshop item ships with its kit (L082, `tools/workflows/kit-template.json`): each workflow recipe carries `kit`, each tool row `payload.kit`, and each passes `kitProblems`. An item with no kit is refused unless `items-without-a-kit.json` names it from before kits; that list may only shrink. |
+| `.githooks/pre-commit`, `.githooks/pre-push` | Run the kit gate (`node test-helpers/every-item-kit.mjs`) on every commit and push. Turn them on once per checkout: `git config core.hooksPath .githooks`. |
+| `package.json` | `npm test` runs every test here; `npm run check-kits` runs the kit gate alone. |
 | `CONTRIBUTING.md` | How to add or change a tool. |
 | `LICENSE` | Apache License 2.0. |
 
@@ -140,6 +142,7 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 | `plan-my-time` | Places the person's tasks into their free time (ASAP, then hard deadlines, then what serves their pursuits, then due date; blockers, splitting, fixed times, day caps) and proposes declining meetings that serve no pursuit and keep better work from its deadline; changes no calendar (learned from an auto-scheduling calendar and a daily planner) | `tool:plan-my-time` |
 | `plan-trips` | Ranks what is still open on a trip (schedule, packing list, bookings) by the person's own urgency policy and measures how much of a checklist is done | `tool:rank-open-trip-things`, `tool:measure-a-checklist` |
 | `pointillist-film` | Square-grid pointillist film frames: from a film script, target pictures and a time, the packed colour, opacity and scale of every cell; a run of frames; a compact target-animation file | `tool:render-a-pointillist-frame`, `tool:render-pointillist-frames-over-time`, `tool:render-a-pointillist-target-animation` |
+| `pour-example-rows-into-my-list` | Pours the example rows an item's kit ships with into a list the person already keeps for the same job: matches the kit's fields to theirs, pours nothing under 80% and names the fields with no home, otherwise answers the one records:write that adds the rows | `tool:pour-example-rows-into-my-list` |
 | `poker` | Runs a game of Texas Hold'em at a table turn by turn (open, seat, deal, act, next hand), ranks poker hands against a board, and shows a table as one player may see it | `tool:run-a-poker-table`, `tool:rank-poker-hands`, `tool:view-a-poker-table-for-a-player` |
 | `practice-and-review` | Works out when something being learned is next due from how well it was just recalled, and lists what is due now, from the person's own spacing policy | `tool:schedule-next-review`, `tool:list-what-is-due` |
 | `predict-viewer-response-to-a-video` | A script the person's AI runs on their own computer: predicts, second by second, how an average viewer's brain responds to a video (spikes and flat stretches), for comparing cuts of one video; the model's weights are non-commercial only | `tool:predict-viewer-response-to-a-video` |

@@ -1,7 +1,7 @@
 // tools/workflows/read-data/recipe-rows.mjs
 //
 // A workflow recipe is a row in a person's list of workflows, and its steps are rows in their list of workflow steps.
-// A row holds no nested value, so what is nested (a recipe's input schema, source and wakes, a step's schema, checks,
+// A row holds no nested value, so what is nested (a recipe's input schema, source, wakes and kit, a step's schema, checks,
 // tool and actor policy) is kept as JSON text and read back here by parsing it. This module is that reading, and only
 // that: it makes the recipe `payload` the validator and the runner take from the rows of one recipe.
 //
@@ -14,7 +14,7 @@ const STEP_ANATOMY_TEXT = ['when', 'done_when', 'if_missing', 'why', 'good_answe
 const STEP_ANATOMY_LISTS = ['came_from', 'part_of'];
 
 const JSON_FIELDS = {
-  recipe: ['input_schema', 'source', 'wakes', 'definition'],
+  recipe: ['input_schema', 'source', 'wakes', 'definition', 'kit'],
   step: ['checks', 'run_tool', 'actor_policy'],
 };
 

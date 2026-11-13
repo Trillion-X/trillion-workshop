@@ -1,0 +1,6 @@
+#!/bin/sh
+# Every Workshop item ships with its kit (L082, tools/workflows/kit-template.json). A commit that adds a workflow or a
+# tool with no kit, or a kit missing a part, stops here. Turn the hooks on once per checkout:
+#   git config core.hooksPath .githooks
+cd "$(git rev-parse --show-toplevel)" || exit 1
+exec node test-helpers/every-item-kit.mjs

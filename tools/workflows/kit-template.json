@@ -1,0 +1,71 @@
+{
+  "what_this_is": "The kit every Workshop item ships with (L082): a workflow row carries it as `kit` (JSON text in the workflows list, an object in its recipe), a tool row as `payload.kit`. It extends the step anatomy every step already carries (when, do, done_when, if_missing, why, good_answer, came_from, part_of) from one step to the whole item, so a person starts running the item instead of being told how. read-data/kit-problems.mjs reads `rules` below; test/every-item-has-its-kit.test.mjs and .githooks/pre-commit and pre-push refuse an item with no kit, or with a kit that misses a part. test/items-without-a-kit.json names the items that shipped before kits; it may only shrink.",
+  "parts": [
+    { "part": "start_here", "holds": "One paragraph: the first thing the person says to their AI to run this item now, with real values, not a description of the item." },
+    { "part": "lists", "holds": "Every list the item reads or writes (every list:<id> its steps name), each with its row type, what it holds, its fields, at least two example rows filled in, and the names of lists people already keep that do 80-100% of the same job (alike)." },
+    { "part": "workflows", "holds": "Every workflow the item runs or reads, its own steps' workflow:<id> names included." },
+    { "part": "tools", "holds": "Every tool the item calls, its steps' tool:<id> names included; a tool's own kit names the tool itself." },
+    { "part": "instructions", "holds": "Numbered lines from nothing to a finished run: make or pour the lists, run it, read what it gave back, what to do next." },
+    { "part": "worked_examples", "holds": "Specific runs: what the person says, which MCP server and tool the AI calls with what input, which workflow and which step, and what comes back." },
+    { "part": "pour", "holds": "How the example rows go into a list the person already has that does 80-100% of the same job: the pour tool, the least share of fields that must match, and one filled-in example." }
+  ],
+  "rules": {
+    "least_example_rows": 2,
+    "least_instructions": 3,
+    "least_worked_examples": 1,
+    "least_coverage": 0.8,
+    "pour_tool": "tool:pour-example-rows-into-my-list",
+    "list_id": "^list:[a-z0-9][a-z0-9-]*$",
+    "row_type": "^record:[a-z0-9][a-z0-9-]*$",
+    "field_kinds": ["text", "long-text", "number", "date", "choice", "tags", "link", "checkbox", "url"],
+    "no_lists_because_least_words": 5
+  },
+  "example": {
+    "start_here": "Say to your AI: \"Run workflow:answer-comments-and-messages for my Instagram messages from today.\" It reads your reply templates, fills a reply for each new message and hands you the checked replies to send.",
+    "lists": [
+      {
+        "list": "list:reply-templates",
+        "label": "Reply templates",
+        "row_type": "record:reply-template",
+        "holds": "One canned reply per row and the words in a message that pick it.",
+        "fields": [
+          { "id": "match_words", "kind": "tags", "label": "Words that pick it", "alike": ["keywords", "triggers", "shortcut"] },
+          { "id": "text", "kind": "long-text", "label": "Reply", "alike": ["message", "body", "response", "answer"] }
+        ],
+        "example_rows": [
+          { "id": "price", "values": { "match_words": ["price", "cost", "how much"], "text": "Hi {from}, it is 49 a month and the first week is free: {link}" } },
+          { "id": "hours", "values": { "match_words": ["open", "hours", "when"], "text": "Hi {from}, we are open 9 to 5 Monday to Friday." } }
+        ],
+        "alike": ["saved replies in a help desk", "a canned-responses spreadsheet", "text shortcuts on a phone"]
+      }
+    ],
+    "workflows": ["workflow:answer-comments-and-messages"],
+    "tools": ["tool:pull-my-instagram-messages", "tool:expand-a-reply-template", "tool:check-copy"],
+    "instructions": [
+      "1. Pour the two example reply templates into your own saved-replies list (see pour), or make list:reply-templates from them.",
+      "2. Say \"Run workflow:answer-comments-and-messages\".",
+      "3. Read the replies it hands back and send each one; the messages no template covered are listed for you to answer."
+    ],
+    "worked_examples": [
+      {
+        "title": "A price question gets the price reply",
+        "ask": "Answer my new Instagram messages.",
+        "mcp": { "server": "trillion", "tool": "run_resource_operation", "input": { "address": "@workshop-tools", "method": "tools:run", "input": { "tool": "tool:start-a-recipe-run", "input": { "row": "workflow:answer-comments-and-messages" } } } },
+        "workflow": "workflow:answer-comments-and-messages",
+        "step": "pick-a-template",
+        "given": "A message from Sam: \"how much is it?\"",
+        "hands_back": "The template price is picked (match word: how much) and filled: \"Hi Sam, it is 49 a month and the first week is free: ...\""
+      }
+    ],
+    "pour": {
+      "tool": "tool:pour-example-rows-into-my-list",
+      "least_coverage": 0.8,
+      "how": "Name the list you already keep for the same job and its fields. The tool matches each kit field to one of yours (by the map you give, the same id, the same label, or a name in alike), refuses when fewer than least_coverage of the kit's fields match, and otherwise answers the records:write that adds the example rows to your list, leaving your own rows untouched.",
+      "example": {
+        "kit_list": "list:reply-templates",
+        "into": { "list": "list:saved-replies", "row_type": "record:saved-reply", "fields": [ { "id": "keywords", "label": "Keywords" }, { "id": "body", "label": "Body" } ] },
+        "field_map": {}
+      }
+    }
+  }
+}

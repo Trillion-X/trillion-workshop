@@ -22,7 +22,8 @@
     "README.md"
   ],
   "scripts": {
-    "test": "node --test --test-force-exit 'test/**/*.test.mjs' 'tools/**/*.test.mjs' 'tools/**/*.test.ts'"
+    "test": "node --test --test-force-exit 'test/**/*.test.mjs' 'tools/**/*.test.mjs' 'tools/**/*.test.ts'",
+    "check-kits": "node test-helpers/every-item-kit.mjs"
   },
   "dependencies": {
     "@electric-sql/pglite": "0.5.9",

@@ -3,12 +3,12 @@
  "source": {
   "view": "list-view:workflow-steps:public",
   "list": "workflow-steps",
-  "blake3": "6e1cf23d8905ede9288dec1328f839063d9a435cb196e8cf0610d1cf26a32ec0",
+  "blake3": "64e64d11b192a3161f50a2a5ee13aaf2fc847cac115bf236e56ad9ba36a51558",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
    "canonical_rows_readback": false,
-   "reason": "Named local workflow candidates remain pending account synchronization. All other rows are complete current public-view readbacks; restored modes keep their canonical account identities and private Cambrian is excluded.",
+   "reason": "Named local workflow candidates remain pending account synchronization. All other rows are complete current public-view readbacks; restored modes keep their canonical account identities and private Cambrian is excluded. The kits (L082) of answer-comments-and-messages, turn-what-you-said-into-content and quintillion were added here and wait for the account's workflows list to carry its kit field and these values.",
    "target_lists": [
     "workflows",
     "workflow-steps"
@@ -17,7 +17,10 @@
     "refresh-measurement-coverage",
     "reach-companies-with-a-long-open-job-post",
     "reach-local-businesses-by-zip-code",
-    "run-a-linkedin-content-system"
+    "run-a-linkedin-content-system",
+    "answer-comments-and-messages",
+    "turn-what-you-said-into-content",
+    "quintillion"
    ],
    "verified_public_mode_recipes": 10,
    "verified_public_mode_steps": 41,

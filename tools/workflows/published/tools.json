@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:e3ddfcf14eea79f0f1420c44369045addb174f42f1b3847568c6ed6b2442d873"
+  "blake3": "1f:b355733d23fec5851c6f33f95160e4722311dae22f7a799640e36fdd4e58487e"
  },
  "fields": [
   {
@@ -2224,6 +2224,25 @@
    }
   },
   {
+   "id": "tool:check-the-x-connection",
+   "values": {
+    "title": "Check the X connection",
+    "job": "Check that the person's X connection still reaches its account, and say which account it is",
+    "description": "Asks X which account the connection signs in as (GET /2/users/me, the x descriptor's verifyRequest), with the access token the person's vault holds for it, placed only as the request leaves and never shown. Returns X's answer: data.id and data.username. A refusal (an expired or revoked sign-in) means the person connects X again. It changes nothing.",
+    "status": "active",
+    "maker": "maker:connect-a-service-and-seal-its-key",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "listed_on": "2026-11-12T00:00:00Z",
+    "folder": "connect-a-service-and-seal-its-key",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:check-the-youtube-connection",
    "values": {
     "title": "Check the YouTube connection",
@@ -2597,6 +2616,22 @@
      "placement:your-computer"
     ],
     "folder": "compose-thumbnails-from-layout-templates"
+   }
+  },
+  {
+   "id": "tool:connect-an-account-by-signing-in-to-the-service",
+   "values": {
+    "title": "Connect an account by signing in to the service",
+    "job": "Connect an account (Gmail, YouTube, Instagram, any service whose sign-in is switched on) by signing in on the service's own page, starting it with the values the new connection should have",
+    "description": "The page routes GET /work/api/connect/start and GET /work/api/connect/callback, run for the page's account (or by an AI with { path, method, query }). Start: query service (a descriptor vendor of this folder's records.json whose sign-in is switched on), each starting value of the new row of list:service-connections (its choice and boolean fields: status, read_only, can_send_as, can_be_primary), and optionally account (the account meant: the service is asked to pre-choose it and the callback refuses any other), wait_seconds (how long the link waits to be opened) and return_to (a path on this site). It keeps the state as a service-connection-pending record named by the state's digest, with the PKCE verifier and the starting values, and answers { authorize_url, service, connection_id, expires_at }: the service's own sign-in address for the person to open (the engine lets no route tool answer a redirect). Callback: the service sends the person back with code and state; the pending record is removed first (a state is used once), then an unknown or expired state, a service error, a missing code or a descriptor that no longer matches answers why and saves nothing. Otherwise the code is traded for the tokens by this folder's http rows (kept sealed in the vault as the new connection's fields), the connection is checked with the service, and one records:write creates the service-connection row with its starting values. The answer is a plain page that says connected, or why not. No token, verifier or secret is in any answer.",
+    "status": "active",
+    "maker": "maker:connect-a-service-and-seal-its-key",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-12T00:00:00Z",
+    "folder": "connect-a-service-and-seal-its-key"
    }
   },
   {
@@ -4563,6 +4598,21 @@
    }
   },
   {
+   "id": "tool:give-referral-rewards",
+   "values": {
+    "title": "Give referral rewards",
+    "job": "Give the rewards my referral reward rules say a code earns: a discount code, or access, written once",
+    "description": "Works out the codes exactly as tool:work-out-referral-codes does, from the person's own referral reward rules, then writes what the rules give as the records the existing tools already read. A discount is a checkout-code-adjustment row, so take-payments takes it off a price like any other checkout code: for the friend it is the referral code itself (typed at checkout, for as long as the rule says), for the referrer it is a checkout code of its own named from the rule and the sale (given back in the answer). Access is an access-grant row, written the way tool:grant-paid-access-to-people writes it. Every reward has an id made from the rule and the code or sale, so running the same request again writes nothing and counts it as already; a reward already kept with different terms stays as it was and is refused with why. A share is not written: its whole-cent amount is in the answer for the person to pay however they pay people. This tool sends nothing and moves no money.",
+    "status": "active",
+    "maker": "maker:referral-codes-and-rewards",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "referral-codes-and-rewards"
+   }
+  },
+  {
    "id": "tool:google-account-clear_primary_signature",
    "values": {
     "title": "Clear primary email signature",
@@ -6506,13 +6556,13 @@
    "id": "tool:make-a-referral-code",
    "values": {
     "title": "Make a referral code",
-    "job": "Make a referral code that earns a share of the sales of one product or one seller, and give back the event to save",
-    "description": "Makes a short readable code (letters and digits, no I, L, O or U, so it survives being read aloud) or checks the one you chose, and gives back the event that makes it live once the person saves it. You say what the code points at: the sale attribute and the value it must have, from the attributes you allow. A code someone else already made stays theirs when the events are read. Nothing is kept by the tool.",
+    "job": "Make a referral code that earns what my referral reward rules give, and give back the event to save",
+    "description": "Makes a short readable code (letters and digits, no I, L, O or U, so it survives being read aloud) or checks the one you chose, and gives back the event that makes it live once the person saves it. You say what the code points at: the sale attribute and the value it must have. A code may point only at an attribute one of the person's active referral reward rules names, because a code no rule applies to earns nothing; with no active rule it says to add one first. A code someone else already made stays theirs when the events are read. Nothing is kept by the tool.",
     "status": "active",
     "maker": "maker:referral-codes-and-rewards",
     "licence_class": "licence:maker-own",
     "placements": [
-     "placement:deployed-container"
+     "placement:small-container"
     ],
     "folder": "referral-codes-and-rewards"
    }
@@ -8127,6 +8177,24 @@
     ],
     "listed_on": "2026-10-20T00:00:00Z",
     "folder": "send-to-a-place"
+   }
+  },
+  {
+   "id": "tool:pour-example-rows-into-my-list",
+   "values": {
+    "title": "Pour a kit's example rows into a list I already keep",
+    "job": "Put the example rows that come with a workflow or tool into a list I already keep for the same job, matching its fields to mine",
+    "description": "Reads one kit list (its fields, each with the names it goes by, and its example rows) and the person's own list (its id, row type and fields). Matches each kit field to one of theirs by the map they give, the same id, the same label or a name it goes by. Under the least share of matched fields (0.8 unless they ask for more) it pours nothing and names the fields with no home. Otherwise it answers the one records:write at @own-records that adds the example rows, with ids <row type>:kit-<example id> so pouring twice changes nothing, leaving out rows already there and any choice value their field does not offer. It writes nothing itself.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "pour-example-rows-into-my-list",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -10270,6 +10338,21 @@
     "flags": [
      "read-only"
     ]
+   }
+  },
+  {
+   "id": "tool:rehearse-a-billing-page-in-stripe-test-mode",
+   "values": {
+    "title": "Rehearse a billing page in Stripe test mode",
+    "job": "Make a test subscription in Stripe test mode and open its billing page, to see the billing page comes back before a real buyer needs it",
+    "description": "Give product_name, amount_cents and return_url (an https address the billing page returns to). Only a Stripe test key is accepted (it must start with a test prefix, checked before anything is built); it comes from your held values under a test-key name. Makes a test customer, product, price and subscription, then opens the billing page of that subscription the way the billing-page tool does, and gives back the subscription, the page's address and the card that pays it (none until a card is added). It never opens the address. Makes test objects only; no real money moves.",
+    "status": "active",
+    "maker": "maker:take-payments",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "take-payments"
    }
   },
   {
@@ -13080,6 +13163,86 @@
    }
   },
   {
+   "id": "tool:trade-a-gmail-sign-in-code-for-its-tokens",
+   "values": {
+    "title": "Trade a Gmail sign-in code for its tokens",
+    "job": "Trade the code Google's sign-in page handed back for the connection's access and refresh tokens, kept sealed in the vault",
+    "description": "One token request to Google (the google-account descriptor's acquire.token_url, client_auth form, PKCE): the code, the callback address and the PKCE verifier go in a form body with the Google sign-in app's id and secret, placed from the vault only as the request leaves. The reply's access_token, refresh_token and id_token are kept in the vault as the new connection's own fields (reply_holds_values) before the reply is read, so no token is ever in a run's answer or journal; a field already held is never replaced and then nothing is sent. Run by tool:connect-an-account-by-signing-in-to-the-service at the sign-in callback.",
+    "status": "active",
+    "maker": "maker:connect-a-service-and-seal-its-key",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "listed_on": "2026-11-12T00:00:00Z",
+    "folder": "connect-a-service-and-seal-its-key"
+   }
+  },
+  {
+   "id": "tool:trade-a-short-instagram-token-for-a-long-one",
+   "values": {
+    "title": "Trade a short-lived Instagram token for a long-lived one",
+    "job": "Trade the connection's short-lived Instagram token for its 60-day token, kept sealed in the vault",
+    "description": "The instagram descriptor's acquire.then step: GET graph.instagram.com/access_token with grant_type ig_exchange_token, the Instagram login's app secret and the connection's short-lived token, both placed from the vault only as the request leaves. The reply's access_token is kept in the vault as the connection's access_token field before the reply is read. Run by tool:connect-an-account-by-signing-in-to-the-service at the sign-in callback, right after tool:trade-an-instagram-sign-in-code-for-its-short-token.",
+    "status": "active",
+    "maker": "maker:connect-a-service-and-seal-its-key",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "listed_on": "2026-11-12T00:00:00Z",
+    "folder": "connect-a-service-and-seal-its-key"
+   }
+  },
+  {
+   "id": "tool:trade-a-youtube-sign-in-code-for-its-tokens",
+   "values": {
+    "title": "Trade a YouTube sign-in code for its tokens",
+    "job": "Trade the code YouTube's sign-in page handed back for the connection's access and refresh tokens, kept sealed in the vault",
+    "description": "One token request to Google (the youtube descriptor's acquire.token_url, client_auth form, PKCE): the code, the callback address and the PKCE verifier go in a form body with the Google sign-in app's id and secret, placed from the vault only as the request leaves. The reply's access_token, refresh_token and id_token are kept in the vault as the new connection's own fields (reply_holds_values) before the reply is read, so no token is ever in a run's answer or journal; a field already held is never replaced and then nothing is sent. Run by tool:connect-an-account-by-signing-in-to-the-service at the sign-in callback.",
+    "status": "active",
+    "maker": "maker:connect-a-service-and-seal-its-key",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "listed_on": "2026-11-12T00:00:00Z",
+    "folder": "connect-a-service-and-seal-its-key"
+   }
+  },
+  {
+   "id": "tool:trade-an-instagram-sign-in-code-for-its-short-token",
+   "values": {
+    "title": "Trade an Instagram sign-in code for its short-lived token",
+    "job": "Trade the code Instagram's sign-in page handed back for the connection's short-lived token, kept sealed in the vault",
+    "description": "One token request to Instagram (the instagram descriptor's acquire.token_url, client_auth form): the code and the callback address go in a form body with the Instagram login's app id and secret, placed from the vault only as the request leaves. The reply's access_token (Instagram's short-lived token) is kept in the vault as the new connection's field short_lived_access_token before the reply is read; tool:trade-a-short-instagram-token-for-a-long-one then trades it for the 60-day token (the descriptor's acquire.then). Run by tool:connect-an-account-by-signing-in-to-the-service at the sign-in callback.",
+    "status": "active",
+    "maker": "maker:connect-a-service-and-seal-its-key",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "listed_on": "2026-11-12T00:00:00Z",
+    "folder": "connect-a-service-and-seal-its-key"
+   }
+  },
+  {
+   "id": "tool:trade-an-x-sign-in-code-for-its-tokens",
+   "values": {
+    "title": "Trade an X sign-in code for its tokens",
+    "job": "Trade the code X's sign-in page handed back for the connection's access and refresh tokens, kept sealed in the vault",
+    "description": "One token request to X (the x descriptor's acquire.token_url, client_auth basic, PKCE): the code, the callback address, the PKCE verifier and the sign-in app's id go in a form body, and the app's Basic credentials (the held x-sign-in-client-secret-basic) in the Authorization header, each placed from the vault only as the request leaves. The reply's access_token and refresh_token are kept in the vault as the new connection's own fields (reply_holds_values) before the reply is read. Run by tool:connect-an-account-by-signing-in-to-the-service at the sign-in callback.",
+    "status": "active",
+    "maker": "maker:connect-a-service-and-seal-its-key",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "listed_on": "2026-11-12T00:00:00Z",
+    "folder": "connect-a-service-and-seal-its-key"
+   }
+  },
+  {
    "id": "tool:train-a-small-model-on-a-persons-rules",
    "values": {
     "title": "Teach a small decider model my rules by training a LoRA adapter (runs on your Mac or GPU)",
@@ -13739,13 +13902,13 @@
    "id": "tool:work-out-referral-codes",
    "values": {
     "title": "Work out referral codes",
-    "job": "See which referral codes are live, which sales a code a buyer typed earns, what share it earns, and how many referrals an account has accepted",
-    "description": "Reads the referral events a person saved (a code made, a code withdrawn, a signup that named a referrer) and works out the codes: who made each one, what it points at, and whether it is still live. The first account to make a code keeps it, in any order the events arrive; only the account that made a code can withdraw it. Give it the codes buyers typed and the sales, and it says for each pair which live code that is, whether the sale earns it (the sale attribute the code points at has the value the code names), and, when you give a share rule (the amount field and basis points), what the sale earns in whole cents. It reads and adds up only: it moves no money and sends nothing.",
+    "job": "See which referral codes are live, what a friend who types one gets, and what each sale earns under my referral reward rules",
+    "description": "Reads the referral events a person saved (a code made, a code withdrawn, a signup that named a referrer) and works out the codes: who made each one, what it points at, and whether it is still live. The first account to make a code keeps it, in any order the events arrive; only the account that made a code can withdraw it. The rules are the person's own rows in their referral reward rules list (one row per rule: who earns, the kind of reward, its terms, which codes and sales it applies to), read here; nothing about a price, a product or an amount is in the tool. Give it the codes buyers typed and it says for each which live code that is and what the rules give the friend who typed it; give it sales too and it says for each pair whether the sale earns the code and what every rule gives: a whole-cent share, a discount (a checkout code that take-payments takes off a price) or access (a grant). It reads and adds up only: it moves no money and writes nothing. tool:give-referral-rewards writes the discounts and access.",
     "status": "active",
     "maker": "maker:referral-codes-and-rewards",
     "licence_class": "licence:maker-own",
     "placements": [
-     "placement:deployed-container"
+     "placement:small-container"
     ],
     "folder": "referral-codes-and-rewards"
    }
