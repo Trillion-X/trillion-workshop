@@ -9,12 +9,13 @@
 //   1. No row, record type, prefix, field or file is named here: the spec names them all.
 //   2. The file is written only while it is still the one read (the documents source's change tool checks its
 //      identity), so a write made meanwhile is never overwritten; the next run makes it again from the rows.
-//   3. A copy bigger than the spec's `most_bytes` is refused and nothing is written: an app that loads the file at
-//      start has a budget, and the rows are what must shrink.
+//   3. The copy is always the rows' newest text. `most_bytes` is a size to warn at, never a refusal: a file holds any
+//      number of bytes, and refusing left the old copy in place while every AI kept reading stale instructions
+//      (2026-11-12). A copy over it is written and answers a `warning` saying by how much.
 //   4. Rows are read in bounded pages through the door's records list, each prefix to its end.
 //
-//   writeJoinedCopy({ root, name, type, prefixes, text_at, order_at, header?, most_bytes, dry_run? }, door)
-//     → { name, rows, bytes, written, identity }
+//   writeJoinedCopy({ root, name, type, prefixes, text_at, order_at, header?, most_bytes?, dry_run? }, door)
+//     → { name, rows, bytes, written, identity, warning? }
 //     door: { list({ type, prefix, limit, after? }) → { records, next }, run(tool, input) → { result } }
 //     The documents tools (tool:read-documents-as-list-rows, tool:change-a-document-row) read and write the file.
 import data from './list-view.json' with { type: 'json' };
@@ -34,7 +35,7 @@ function checked(spec) {
     throw say('bad_input', 'prefixes names the id starts of the rows the copy is made of.');
   }
   if (typeof textAt !== 'string' || !textAt || typeof orderAt !== 'string' || !orderAt) throw say('bad_input', 'text_at and order_at name where a row keeps its text and order.');
-  if (!Number.isSafeInteger(mostBytes) || mostBytes < 1) throw say('bad_input', 'most_bytes is the most bytes the copy may hold.');
+  if (mostBytes != null && (!Number.isSafeInteger(mostBytes) || mostBytes < 1)) throw say('bad_input', 'most_bytes, when given, is the size in bytes to warn at.');
   return spec;
 }
 
@@ -71,12 +72,15 @@ export async function writeJoinedCopy(spec, door) {
   const { rows, text } = joinedText(unique, spec);
   const bytes = Buffer.byteLength(text);
   if (!rows) throw say('no_rows', `No row of ${type} starts with ${prefixes.join(' or ')}: the copy is not written from nothing.`);
-  if (bytes > mostBytes) throw say('copy_too_big', `${name} would hold ${bytes} bytes, more than its ${mostBytes}: shorten the rows.`);
+  const warning = mostBytes != null && bytes > mostBytes
+    ? { code: 'copy_over_size', words: `${name} holds ${bytes} bytes, ${bytes - mostBytes} over the ${mostBytes} to warn at; it is written anyway.` }
+    : null;
+  const warned = warning ? { warning } : {};
   const read = (await door.run(READ, { root, folder: '/', paths: [name], content: false, limit: 1 }))?.result?.rows ?? [];
   const current = read.find(row => row.id === name);
   const identity = current ? current.identity ?? current.values?.['file.identity'] ?? null : null;
   const wanted = makeHashCodeHexFromBytes(new TextEncoder().encode(text));
-  if (identity === wanted || dryRun) return { name, rows, bytes, written: false, identity: dryRun ? identity : wanted };
+  if (identity === wanted || dryRun) return { name, rows, bytes, written: false, identity: dryRun ? identity : wanted, ...warned };
   await door.run(CHANGE, { root, folder: '/', rows: [{ id: name, text, if_identity: identity }] });
-  return { name, rows, bytes, written: true, identity: wanted };
+  return { name, rows, bytes, written: true, identity: wanted, ...warned };
 }

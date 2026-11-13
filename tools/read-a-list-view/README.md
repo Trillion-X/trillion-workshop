@@ -101,8 +101,8 @@ node tools/read-a-list-view/do-work/read-list-view.mjs --config FILE --write-joi
 
 - The file is `header`, then the text of every row whose id starts with one of `prefixes`, in `order_at` order (then id), a blank line between. A row with no text is left out.
 - It is written through `tool:change-a-document-row` only while it is still the file read, and a second run with nothing changed writes nothing.
-- A copy bigger than `most_bytes`, or one with no rows, is refused and the file is left as it was: the app's start budget holds, and it is the rows that must shrink.
-- The answer is `{ name, rows, bytes, written, identity }`; `--dry-run yes` writes nothing. The person refuses hand edits to such a file with a guard of their own, so the rows stay the original.
+- `most_bytes` (optional) is a size to warn at, never a refusal: a copy over it is still written, and the answer carries `warning: { code: 'copy_over_size', words }`. A file holds any number of bytes; refusing kept the old copy while every AI read stale instructions (2026-11-12). A copy with no rows is refused and the file is left as it was.
+- The answer is `{ name, rows, bytes, written, identity, warning? }`; `--dry-run yes` writes nothing. The person refuses hand edits to such a file with a guard of their own, so the rows stay the original.
 
 ## Bounds
 

@@ -57,13 +57,19 @@ test('the file is the header and every row of the prefixes in order, and a secon
   } finally { await b.done(); }
 });
 
-test('a copy over its budget, or with no rows, is refused and the file is left as it was', async () => {
+test('a copy over its size is still written with a warning; one with no rows is refused and the file is left as it was', async () => {
   const b = await bakery({ 'setting:rule:house-long': rule(1, 'x'.repeat(500)) });
   try {
     await writeFile(join(b.root, 'HOUSE.md'), 'kept\n');
-    await assert.rejects(writeJoinedCopy(b.spec, b.door), /more than its 400/);
     await assert.rejects(writeJoinedCopy({ ...b.spec, prefixes: ['setting:rule:none-'] }, b.door), /not written from nothing/);
     assert.equal(await b.file(), 'kept\n');
+    const over = await writeJoinedCopy(b.spec, b.door);
+    assert.equal(over.written, true);
+    assert.equal(over.warning.code, 'copy_over_size');
+    assert.match(over.warning.words, /over the 400 to warn at/);
+    assert.match(await b.file(), /x{500}/);
+    const unsized = await writeJoinedCopy({ ...b.spec, most_bytes: undefined }, b.door);
+    assert.deepEqual([unsized.written, unsized.warning], [false, undefined]);
   } finally { await b.done(); }
 });
 
@@ -75,5 +81,6 @@ test('a dry run writes nothing, and a bad spec is refused', async () => {
     await assert.rejects(b.file());
     await assert.rejects(writeJoinedCopy({ ...b.spec, name: '../out.md' }, b.door), /name is the copy/);
     await assert.rejects(writeJoinedCopy({ ...b.spec, most_bytes: 0 }, b.door), /most_bytes/);
+    assert.equal((await writeJoinedCopy({ ...b.spec, dry_run: true }, b.door)).warning, undefined);
   } finally { await b.done(); }
 });
