@@ -25,7 +25,7 @@
  "distinct_from": [
   {
    "capability": "export a document tree to Word, PDF or other file formats",
-   "why": "tools/export-documents-to-files/do-work/render-structured-file-export.py writes a tree of text blocks by projection rules; it reads no settings row, runs no checks and has no template, contents or writing gate."
+   "why": "tools/export-documents-to-files/do-work/export-to-file.mjs writes any document (headings, words, lists, tables, graphs, events, pictures) in any row of read-data/export-formats.json; it reads no settings row, runs no checks and has no retained template, contents or writing gate."
   },
   {
    "repository": "source-repo-a",

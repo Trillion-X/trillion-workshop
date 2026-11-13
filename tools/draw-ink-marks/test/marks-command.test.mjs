@@ -1,4 +1,4 @@
-// tools/draw-ink-marks: the four commands, run the way the tool container runs them, over made-up marks.
+// tools/draw-ink-marks: the three commands, run the way the tool container runs them, over made-up marks.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
@@ -43,18 +43,9 @@ test('erase answers the mark to hide, as the effect to append, or nothing', asyn
   assert.deepEqual(far.answer.result, { ref: null, effects: null });
 });
 
-test('svg draws the visible marks of a space and says where the ink lies', async () => {
-  const { answer } = await run('svg', { operations, styles, target: wall });
-  assert.ok(answer.result.svg.includes('d="M 0 0 L 10 0"') && answer.result.svg.includes('stroke="#111"') && answer.result.svg.includes('Z'));
-  assert.deepEqual(answer.result.bounds, { minX: 0, minY: 0, maxX: 30, maxY: 10 });
-});
-
 test('requests that cannot be read are refused with what to fix', async () => {
-  const noColour = await run('svg', { operations: [operations[0]], target: wall });
-  assert.equal(noColour.status, 1);
-  assert.match(noColour.answer.error, /default_stroke/);
   assert.match((await run('erase', { operations, target: wall, point: [1], radius: 2 })).answer.error, /point must be/);
   assert.match((await run('erase', { operations, target: wall, point: [1, 1], radius: -1 })).answer.error, /radius/);
-  assert.match((await run('draw', {})).answer.error, /use see, stroke, erase or svg/);
+  assert.match((await run('draw', {})).answer.error, /use see, stroke or erase/);
   assert.match((await run('see', { operations: 'no' })).answer.error, /operations must be/);
 });

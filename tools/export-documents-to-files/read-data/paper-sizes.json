@@ -1,0 +1,40 @@
+{
+ "what_this_is": "Paper sizes in PostScript points (72 to the inch), portrait. A request names one by `paper`; otherwise the region of its `locale` (en-US: US) picks the paper whose `regions` lists it, any other region the paper marked `elsewhere`, and a request with neither takes `default`. The orientation is its own request field. A person adds a size by adding a row.",
+ "default": "letter",
+ "papers": {
+  "letter": {
+   "width": 612,
+   "height": 792,
+   "regions": [
+    "US",
+    "CA",
+    "MX",
+    "CL",
+    "CO",
+    "CR",
+    "DO",
+    "GT",
+    "PA",
+    "PH",
+    "PR",
+    "VE"
+   ]
+  },
+  "legal": {
+   "width": 612,
+   "height": 1008,
+   "regions": []
+  },
+  "a4": {
+   "width": 595,
+   "height": 842,
+   "elsewhere": true,
+   "regions": []
+  },
+  "a3": {
+   "width": 842,
+   "height": 1191,
+   "regions": []
+  }
+ }
+}

@@ -1,0 +1,468 @@
+{
+ "what_this_is": "The file formats an export can be written in, one row each. `renderer` names the generic program that writes it (template, pdf, docx, xlsx, svg, document-json) and `options` are what that program reads (do-work/render-template.mjs lists the template options; read-data/page-layouts.json holds the page layouts). `draws` names the block kinds the format writes (it has a way to write each; do-work/format-takes.mjs says whether a format takes a document); a graph or events block a format does not draw is written as tables, a picture it does not draw is refused. `finished_by: page` means the last step needs a browser page (PNG: the SVG this tool writes, drawn to a canvas). A person adds a format by adding a row; no code names a format.",
+ "formats": [
+  {
+   "id": "markdown",
+   "label": "Markdown",
+   "extension": "md",
+   "mime": "text/markdown",
+   "renderer": "template",
+   "draws": [
+    "heading",
+    "paragraph",
+    "list",
+    "table"
+   ],
+   "options": {
+    "escape": "none",
+    "joiner": "\n\n",
+    "document": "{body}\n",
+    "title": "# {text}",
+    "heading": "{marks} {text}",
+    "paragraph": "{text}",
+    "list": {
+     "item": "{indent}- {text}",
+     "ordered_item": "{indent}{n}. {text}",
+     "indent": "    "
+    },
+    "table": {
+     "title": "**{text}**\n",
+     "header_row": "| {cells} |",
+     "header_rule": "| {rules} |",
+     "row": "| {cells} |",
+     "cell_separator": " | ",
+     "rule_cell": "---",
+     "cell_escape": "markdown-cell"
+    }
+   }
+  },
+  {
+   "id": "txt",
+   "label": "Plain text",
+   "extension": "txt",
+   "mime": "text/plain",
+   "renderer": "template",
+   "draws": [
+    "heading",
+    "paragraph",
+    "list",
+    "table"
+   ],
+   "options": {
+    "escape": "none",
+    "joiner": "\n\n",
+    "document": "{body}\n",
+    "title": "{text}",
+    "heading": "{text}",
+    "paragraph": "{text}",
+    "list": {
+     "item": "{indent}- {text}",
+     "ordered_item": "{indent}{n}. {text}",
+     "indent": "    "
+    },
+    "table": {
+     "title": "{text}",
+     "header_row": "{cells}",
+     "row": "{cells}",
+     "cell_separator": "\t",
+     "cell_escape": "tsv"
+    }
+   }
+  },
+  {
+   "id": "csv",
+   "label": "CSV",
+   "extension": "csv",
+   "mime": "text/csv",
+   "renderer": "template",
+   "draws": [
+    "heading",
+    "paragraph",
+    "list",
+    "table"
+   ],
+   "options": {
+    "escape": "csv",
+    "joiner": "\r\n\r\n",
+    "document": "{body}\r\n",
+    "heading": "{text}",
+    "paragraph": "{text}",
+    "list": {
+     "item": "{text}",
+     "ordered_item": "{text}",
+     "indent": "",
+     "joiner": "\r\n"
+    },
+    "table": {
+     "header_row": "{cells}",
+     "row": "{cells}",
+     "cell_separator": ",",
+     "joiner": "\r\n"
+    },
+    "cells": "numbers"
+   }
+  },
+  {
+   "id": "tsv",
+   "label": "Tab-separated text",
+   "extension": "tsv",
+   "mime": "text/tab-separated-values",
+   "renderer": "template",
+   "draws": [
+    "heading",
+    "paragraph",
+    "list",
+    "table"
+   ],
+   "options": {
+    "escape": "tsv",
+    "joiner": "\n\n",
+    "document": "{body}\n",
+    "heading": "{text}",
+    "paragraph": "{text}",
+    "list": {
+     "item": "{text}",
+     "ordered_item": "{text}",
+     "indent": "",
+     "joiner": "\n"
+    },
+    "table": {
+     "header_row": "{cells}",
+     "row": "{cells}",
+     "cell_separator": "\t",
+     "joiner": "\n"
+    },
+    "cells": "numbers"
+   }
+  },
+  {
+   "id": "html",
+   "label": "Web page",
+   "extension": "html",
+   "mime": "text/html",
+   "renderer": "template",
+   "draws": [
+    "heading",
+    "paragraph",
+    "list",
+    "table",
+    "picture"
+   ],
+   "options": {
+    "escape": "xml",
+    "joiner": "\n",
+    "document": "<!DOCTYPE html>\n<html lang=\"en\"><head><meta charset=\"utf-8\"><title>{title}</title><style>body{font-family:-apple-system,Helvetica,Arial,sans-serif;max-width:52rem;margin:2rem auto;padding:0 1rem;line-height:1.5;color:#111}table{border-collapse:collapse;width:100%;margin:.5rem 0 1.25rem}th,td{border:1px solid #bbb;padding:.3rem .5rem;text-align:left;vertical-align:top;white-space:pre-wrap}th{background:#ededed}.title{margin-bottom:1rem}svg{max-width:100%;height:auto}</style></head><body>\n{body}\n</body></html>\n",
+    "title": "<h1 class=\"title\">{text}</h1>",
+    "heading": "<h{level}>{text}</h{level}>",
+    "paragraph": "<p style=\"white-space:pre-wrap\">{text}</p>",
+    "list": {
+     "before": "<ul>",
+     "item": "<li style=\"margin-left:calc({depth} * 1.5em)\">{text}</li>",
+     "after": "</ul>",
+     "ordered_before": "<ol>",
+     "ordered_item": "<li style=\"margin-left:calc({depth} * 1.5em)\">{text}</li>",
+     "ordered_after": "</ol>"
+    },
+    "table": {
+     "title": "<h3>{text}</h3>",
+     "header_row": "<table><thead><tr><th>{cells}</th></tr></thead><tbody>",
+     "row": "<tr><td>{cells}</td></tr>",
+     "cell_separator": "</td><td>",
+     "joiner": "\n",
+     "after": "</tbody></table>",
+     "header_separator": "</th><th>"
+    },
+    "picture": {
+     "template": "<figure>{svg}</figure>"
+    }
+   }
+  },
+  {
+   "id": "slides",
+   "label": "Slides (printable page per section)",
+   "extension": "html",
+   "mime": "text/html",
+   "renderer": "template",
+   "draws": [
+    "heading",
+    "paragraph",
+    "list",
+    "table",
+    "picture"
+   ],
+   "options": {
+    "escape": "xml",
+    "joiner": "\n",
+    "document": "<!DOCTYPE html>\n<html lang=\"en\"><head><meta charset=\"utf-8\"><title>{title}</title><style>@page{size:landscape;margin:1.5cm}body{font-family:-apple-system,Helvetica,Arial,sans-serif;color:#111;line-height:1.45}h1{break-before:page;font-size:2rem}h1:first-of-type,.title+h1{break-before:auto}table{border-collapse:collapse;width:100%}th,td{border:1px solid #bbb;padding:.3rem .5rem;text-align:left;white-space:pre-wrap}th{background:#ededed}svg{max-width:100%;max-height:80vh}</style></head><body>\n{body}\n</body></html>\n",
+    "title": "<h1 class=\"title\" style=\"break-before:auto\">{text}</h1>",
+    "heading": "<h{level}>{text}</h{level}>",
+    "paragraph": "<p style=\"white-space:pre-wrap\">{text}</p>",
+    "list": {
+     "before": "<ul>",
+     "item": "<li style=\"margin-left:calc({depth} * 1.5em)\">{text}</li>",
+     "after": "</ul>",
+     "ordered_before": "<ol>",
+     "ordered_item": "<li style=\"margin-left:calc({depth} * 1.5em)\">{text}</li>",
+     "ordered_after": "</ol>"
+    },
+    "table": {
+     "title": "<h3>{text}</h3>",
+     "header_row": "<table><thead><tr><th>{cells}</th></tr></thead><tbody>",
+     "row": "<tr><td>{cells}</td></tr>",
+     "cell_separator": "</td><td>",
+     "joiner": "\n",
+     "after": "</tbody></table>",
+     "header_separator": "</th><th>"
+    },
+    "picture": {
+     "template": "<figure>{svg}</figure>"
+    }
+   }
+  },
+  {
+   "id": "json",
+   "label": "JSON",
+   "extension": "json",
+   "mime": "application/json",
+   "renderer": "document-json",
+   "draws": [
+    "heading",
+    "paragraph",
+    "list",
+    "table",
+    "graph",
+    "events",
+    "picture"
+   ],
+   "options": {
+    "cells": "numbers"
+   }
+  },
+  {
+   "id": "svg",
+   "label": "SVG picture",
+   "extension": "svg",
+   "mime": "image/svg+xml",
+   "renderer": "svg",
+   "draws": [
+    "picture",
+    "heading",
+    "paragraph",
+    "list",
+    "table"
+   ],
+   "options": {
+    "layout": "standard"
+   }
+  },
+  {
+   "id": "png",
+   "label": "PNG picture",
+   "extension": "png",
+   "mime": "image/png",
+   "renderer": "svg",
+   "draws": [
+    "picture",
+    "heading",
+    "paragraph",
+    "list",
+    "table"
+   ],
+   "options": {
+    "layout": "standard"
+   },
+   "finished_by": "page",
+   "finish": "raster-png"
+  },
+  {
+   "id": "pdf",
+   "label": "PDF",
+   "extension": "pdf",
+   "mime": "application/pdf",
+   "renderer": "pdf",
+   "draws": [
+    "heading",
+    "paragraph",
+    "list",
+    "table"
+   ],
+   "options": {
+    "layout": "standard"
+   }
+  },
+  {
+   "id": "docx",
+   "label": "Word",
+   "extension": "docx",
+   "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+   "renderer": "docx",
+   "draws": [
+    "heading",
+    "paragraph",
+    "list",
+    "table"
+   ],
+   "options": {
+    "font": "Calibri",
+    "body_size": 11,
+    "title_size": 22,
+    "heading_sizes": [
+     18,
+     15,
+     13,
+     12,
+     11,
+     11
+    ],
+    "heading_before": 240,
+    "layout": "standard"
+   }
+  },
+  {
+   "id": "xlsx",
+   "label": "Excel",
+   "extension": "xlsx",
+   "mime": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+   "renderer": "xlsx",
+   "draws": [
+    "heading",
+    "paragraph",
+    "list",
+    "table"
+   ],
+   "options": {
+    "text_sheet": "Document",
+    "cells": "numbers"
+   }
+  },
+  {
+   "id": "ics",
+   "label": "Calendar",
+   "extension": "ics",
+   "mime": "text/calendar",
+   "renderer": "template",
+   "draws": [
+    "events"
+   ],
+   "options": {
+    "escape": "ics",
+    "document": "{body}\r\n",
+    "events": {
+     "before": "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Trillion//Export//EN\r\nCALSCALE:GREGORIAN",
+     "after": "END:VCALENDAR",
+     "joiner": "\r\n",
+     "fold_octets": 75,
+     "event_timed": "BEGIN:VEVENT\r\nUID:{uid}\r\nDTSTAMP:{stamp_ics}\r\nDTSTART:{start_ics}\r\nSUMMARY:{title}\r\nDESCRIPTION:{description}\r\nEND:VEVENT",
+     "event_timed_ended": "BEGIN:VEVENT\r\nUID:{uid}\r\nDTSTAMP:{stamp_ics}\r\nDTSTART:{start_ics}\r\nDTEND:{end_ics}\r\nSUMMARY:{title}\r\nDESCRIPTION:{description}\r\nEND:VEVENT",
+     "event_all_day": "BEGIN:VEVENT\r\nUID:{uid}\r\nDTSTAMP:{stamp_ics}\r\nDTSTART;VALUE=DATE:{start_ics}\r\nSUMMARY:{title}\r\nDESCRIPTION:{description}\r\nEND:VEVENT",
+     "event_all_day_ended": "BEGIN:VEVENT\r\nUID:{uid}\r\nDTSTAMP:{stamp_ics}\r\nDTSTART;VALUE=DATE:{start_ics}\r\nDTEND;VALUE=DATE:{end_ics}\r\nSUMMARY:{title}\r\nDESCRIPTION:{description}\r\nEND:VEVENT"
+    }
+   }
+  },
+  {
+   "id": "mermaid",
+   "label": "Mermaid diagram",
+   "extension": "mmd",
+   "mime": "text/plain",
+   "renderer": "template",
+   "draws": [
+    "graph"
+   ],
+   "options": {
+    "escape": "mermaid",
+    "document": "{body}\n",
+    "graph": {
+     "before": "flowchart TD",
+     "node": "    {key}[\"{label}\"]",
+     "edge": "    {from_key} -->|\"{label}\"| {to_key}",
+     "edge_unlabeled": "    {from_key} --> {to_key}"
+    }
+   }
+  },
+  {
+   "id": "dot",
+   "label": "Graphviz DOT",
+   "extension": "dot",
+   "mime": "text/vnd.graphviz",
+   "renderer": "template",
+   "draws": [
+    "graph"
+   ],
+   "options": {
+    "escape": "dot",
+    "document": "{body}\n",
+    "graph": {
+     "before": "digraph G {",
+     "node": "  {key} [label=\"{label}\"];",
+     "edge": "  {from_key} -> {to_key} [label=\"{label}\"];",
+     "edge_unlabeled": "  {from_key} -> {to_key};",
+     "after": "}"
+    }
+   }
+  },
+  {
+   "id": "graphml",
+   "label": "GraphML",
+   "extension": "graphml",
+   "mime": "application/graphml+xml",
+   "renderer": "template",
+   "draws": [
+    "graph"
+   ],
+   "options": {
+    "escape": "xml",
+    "document": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<graphml xmlns=\"http://graphml.graphdrawing.org/xmlns\"><key id=\"label\" for=\"all\" attr.name=\"label\" attr.type=\"string\"/>\n{body}\n</graphml>\n",
+    "graph": {
+     "before": "<graph id=\"G\" edgedefault=\"directed\">",
+     "node": "<node id=\"{key}\"><data key=\"label\">{label}</data></node>",
+     "edge": "<edge source=\"{from_key}\" target=\"{to_key}\"><data key=\"label\">{label}</data></edge>",
+     "after": "</graph>"
+    }
+   }
+  },
+  {
+   "id": "opml",
+   "label": "OPML outline",
+   "extension": "opml",
+   "mime": "text/x-opml",
+   "renderer": "template",
+   "draws": [
+    "heading",
+    "paragraph",
+    "list",
+    "table"
+   ],
+   "options": {
+    "escape": "xml",
+    "document": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<opml version=\"2.0\"><head><title>{title}</title></head><body>{body}</body></opml>\n",
+    "outline": {
+     "root": "{children}",
+     "node": "<outline text=\"{text}\">{children}</outline>",
+     "leaf": "<outline text=\"{text}\"/>"
+    }
+   }
+  },
+  {
+   "id": "freemind",
+   "label": "FreeMind mind map",
+   "extension": "mm",
+   "mime": "application/x-freemind",
+   "renderer": "template",
+   "draws": [
+    "heading",
+    "paragraph",
+    "list",
+    "table"
+   ],
+   "options": {
+    "escape": "xml",
+    "document": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<map version=\"1.0.1\">{body}</map>\n",
+    "outline": {
+     "root": "<node TEXT=\"{text}\">{children}</node>",
+     "node": "<node TEXT=\"{text}\">{children}</node>",
+     "leaf": "<node TEXT=\"{text}\"/>"
+    }
+   }
+  }
+ ]
+}

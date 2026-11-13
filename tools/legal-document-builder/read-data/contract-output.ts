@@ -36,14 +36,13 @@ export type ContractApprovalRequest = {
   acceptanceRequirements: string[];
 };
 
-export type FileRequest = {
-  kind: 'structured-file-output.request';
+/** What the one export tool takes: the document, and the format ids the approval asked for. */
+export type ExportRequest = {
   requestId: string;
-  title: string;
   fileStem: string;
   createdAt: string;
   formats: string[];
-  sections: { heading: string; rows: string[][] }[];
+  document: { title: string; blocks: { kind: 'table'; title: string; columns: string[]; rows: string[][] }[] };
   source: Record<string, unknown>;
 };
 
@@ -117,17 +116,16 @@ export function contractTermsRows(contract: Record<string, unknown>, locale = 'e
   return rows;
 }
 
-export function fileRequestFromApproval(request: ContractApprovalRequest, locale = 'en-US'): FileRequest {
+export function exportRequestFromApproval(request: ContractApprovalRequest, locale = 'en-US'): ExportRequest {
   const title = text(request.contract.name, 'Sales contract');
   const formats = [...new Set(request.outputTargets.map((target) => target.format_id))];
+  const [columns, ...rows] = contractTermsRows(request.contract, locale);
   return {
-    kind: 'structured-file-output.request',
     requestId: `${request.requestId}:files`,
-    title,
     fileStem: safeFileStem(title, 'sales-contract'),
     createdAt: request.createdAt,
     formats,
-    sections: [{ heading: 'Contract terms', rows: contractTermsRows(request.contract, locale) }],
+    document: { title, blocks: [{ kind: 'table', title: 'Contract terms', columns, rows }] },
     source: { approval_request_id: request.requestId, contract_id: text(request.contract.id, request.requestId) },
   };
 }

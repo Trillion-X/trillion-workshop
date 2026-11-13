@@ -3,7 +3,7 @@
 // Pure assembly of legal/policy documents from a clause library + one business's
 // policy facts. No I/O, no display, no consent capture: display belongs to
 // written-policy-page (or any sales-page route record), consent capture belongs
-// to checkout, export belongs to structured-file-output.
+// to checkout, export belongs to tool:export-a-document-to-a-file.
 //
 // Invariants:
 // - Document identity is the injected content identity of the assembled text (the

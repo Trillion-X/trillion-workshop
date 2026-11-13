@@ -194,69 +194,6 @@
      }
     ]
    }
-  },
-  {
-   "id": "package::draw-ink-marks::tool::export-ink-marks-as-svg",
-   "address": "package::draw-ink-marks::tool::export-ink-marks-as-svg",
-   "path": ["current-item", "published-record"],
-   "payload": {
-    "kind": "ai-tool-descriptor",
-    "id": "tool:export-ink-marks-as-svg",
-    "label": "Export the ink marks on a space as an SVG picture",
-    "status": "active",
-    "job": "Draw the ink marks showing on a page or picture as an SVG fragment, with the bounds of all the ink, so the ink can be laid over an export of that page",
-    "description": "Give the mark operations, their styles and the space. Every showing mark becomes one stroke path in the space's own coordinates (M x y, L x y, Z when closed, round caps, the style's stroke, width and opacity, width 3 and opacity 1 when the style says nothing), so the fragment needs no transform to sit over the page it was drawn on. The bounds are the box around all the ink, or null when there is none. A style that names only a colour token has no colour a standalone picture can resolve, so give default_stroke; a mark with neither is refused rather than drawn in a colour nobody chose. Fills are not drawn.",
-    "input_schema": {
-     "type": "object",
-     "required": ["operations"],
-     "additionalProperties": false,
-     "properties": {
-      "operations": { "type": "array", "description": "The mark operation rows, including any drawn but not yet saved" },
-      "styles": { "type": "array", "description": "The mark style rows the operations name" },
-      "target": { "type": "object", "description": "The space to export; leave out to take every operation" },
-      "reader_key": { "type": "string", "description": "Which reader's view of the space" },
-      "default_stroke": { "type": "string", "description": "The colour for a mark whose style has no concrete colour" }
-     }
-    },
-    "output_schema": {
-     "type": "object",
-     "required": ["svg", "bounds"],
-     "properties": {
-      "svg": { "type": "string", "description": "Zero or more path elements" },
-      "bounds": {
-       "type": ["object", "null"],
-       "properties": { "minX": { "type": "number" }, "minY": { "type": "number" }, "maxX": { "type": "number" }, "maxY": { "type": "number" } }
-      }
-     }
-    },
-    "invoke": {
-     "kind": "container",
-     "files": { "package_files": { "package": "draw-ink-marks", "paths": ["do-work"], "at": "/opt/draw-ink-marks" } },
-     "workdir": "/opt/draw-ink-marks",
-     "internet": false,
-     "stdout": "json",
-     "argv": ["node", "do-work/marks.mjs", "svg"],
-     "stdin": { "fill": { "from": "input" } }
-    },
-    "result_selector": "$.result",
-    "needs": { "expected_seconds": 2, "network_egress": false, "memory_mb": 128 },
-    "licence_class": "licence:maker-own",
-    "placements": ["placement:small-container"],
-    "maker": "maker:draw-ink-marks",
-    "provenance": { "source": "ported from the addressed-marks package (marks-to-svg)" },
-    "verify": [
-     {
-      "kind": "sample-run",
-      "input": {
-       "operations": [{ "id": "one", "target": { "address": "poster" }, "body": { "coordinate_sets": [{ "points": [{ "values": [10, 10] }, { "values": [20, 30] }] }] } }],
-       "target": { "address": "poster" },
-       "default_stroke": "#222222"
-      },
-      "output_selector": "$.svg",
-      "contains": "d=\"M 10 10 L 20 30\""
-     }
-    ]
-   }
   }
  ]
 }

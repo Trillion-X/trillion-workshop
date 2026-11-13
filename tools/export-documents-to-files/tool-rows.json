@@ -6,51 +6,348 @@
   {
    "id": "package::export-documents-to-files::tool::export-a-document-to-a-file",
    "address": "package::export-documents-to-files::tool::export-a-document-to-a-file",
-   "path": ["current-item", "published-record"],
+   "path": [
+    "current-item",
+    "published-record"
+   ],
    "payload": {
     "kind": "ai-tool-descriptor",
     "id": "tool:export-a-document-to-a-file",
-    "label": "Save a document as a Word file, a PDF, Markdown or plain text (runs on your computer)",
+    "label": "Save anything as a file: a list, a table, a document, a board, words or a picture, as PDF, Word, Excel, CSV, Markdown, text, web page, SVG and more",
     "status": "active",
-    "job": "Turn a document written as a tree of text blocks into a Word (docx) file, a PDF, a Markdown file or a plain text file, with headings, paragraphs and tables kept in order",
-    "description": "Takes a job file and a rules file. The job holds the title, the tree (each node has props with its text, a heading level if it is one, and children; a node with children that all hold two or more short texts is read as a table row, two or more such rows as a table) and a descriptor: format_id, destination_dir (a full path) and file_stem (a plain name, no folder). The rules file is a JSON list of rows of kind structured-file-projection-rules; each names which props carry text, where a heading level is, and per format how the body is built (Markdown and text by templates, Word by heading, body and table styles, PDF by a TrueType font file name and heading sizes). A starter rules file is in read-data/starter-projection-rules.json. Word is written with the standard library only. PDF needs the reportlab library and the named font; an unreadable font or a character the font cannot draw stops the export with a message, never a substituted character. The file is read back and compared to what was meant before the result is printed. Add --project-only to see the sections the tree would give without writing a file.",
+    "job": "Turn one document made of headings, words, lists, tables, graphs, calendar events and pictures into a file in the format asked for, and give the file back",
+    "description": "Give the document and the id of a format. The document is { title?, blocks }. A block is one of: { kind: heading, level 1 to 6, text }; { kind: paragraph, text }; { kind: list, ordered?, items: words or { text, children } }; { kind: table, title?, columns: [names], rows: [[cells]], currencies?: [code or null per column] } (a cell is words, a number, true or false, or null; a column with a currency code such as USD is written as money, $1,234.56, in PDF, Word, Markdown, text and web page, and kept as a number in CSV and Excel, with a money format in Excel); { kind: graph, title?, nodes: [{ id, label? }], edges: [{ from, to, label? }] }; { kind: events, title?, events: [{ title, start, end?, description? }] } (start and end are ISO dates or times); { kind: picture, title?, svg } (one complete svg element); { kind: ink, operations, styles?, target?, default_stroke? } (the ink marks of a space, drawn as a picture). The format is one row of the formats list (tool:list-the-file-formats-an-export-can-make): pdf, docx (Word), xlsx (Excel), csv, tsv, markdown, txt, html, slides (a web page with one printed page per top heading), svg, png, json, ics (calendar), mermaid, dot, graphml, opml and freemind. A format that does not draw a kind of block writes it another way: a graph or events as tables. A kind it cannot write at all is refused by name, never dropped. A person's own format can be given whole as format_row (the same shape as a row of the list) instead of an id. file_stem names the file (a plain name with no folder; the document's title when left out). The answer has filename, mime, byte_length and base64 (the whole file), and text as well when the file is text. The page of PDF and SVG is the paper the request names, else the region of its locale, else US Letter, in portrait or landscape. A PDF is written in Helvetica; a character that font cannot draw stops the export with the character named, and nothing is replaced. png comes back as the svg, with finish set to raster-png: a page draws it to a canvas.",
     "input_schema": {
      "type": "object",
-     "required": ["job", "rules"],
+     "required": [
+      "document",
+      "format"
+     ],
      "additionalProperties": false,
      "properties": {
-      "job": { "type": "string", "description": "Path of the JSON job file: title, tree, descriptor" },
-      "rules": { "type": "string", "description": "Path of the JSON rules file (a list of structured-file-projection-rules rows)" }
+      "document": {
+       "type": "object",
+       "description": "The document: { title?, blocks }. The document is { title?, blocks }. A block is one of: { kind: heading, level 1 to 6, text }; { kind: paragraph, text }; { kind: list, ordered?, items: words or { text, children } }; { kind: table, title?, columns: [names], rows: [[cells]], currencies?: [code or null per column] } (a cell is words, a number, true or false, or null); { kind: graph, title?, nodes: [{ id, label? }], edges: [{ from, to, label? }] }; { kind: events, title?, events: [{ title, start, end?, description? }] } (start and end are ISO dates or times); { kind: picture, title?, svg } (one complete svg element); { kind: ink, operations, styles?, target?, default_stroke? } (the ink marks of a space, drawn as a picture)."
+      },
+      "format": {
+       "type": "string",
+       "description": "The id of a format, such as pdf, docx, xlsx, csv, markdown, txt, html, svg"
+      },
+      "format_row": {
+       "type": "object",
+       "description": "A whole format row of the person's own, used instead of format"
+      },
+      "file_stem": {
+       "type": "string",
+       "description": "The file's name without its ending: a plain name, no folder"
+      },
+      "now": {
+       "type": "string",
+       "description": "The time to stamp calendar events with, an ISO time; the time of the run when left out"
+      },
+      "paper": {
+       "type": "string",
+       "description": "The paper for a format that draws pages: letter, legal, a4 or a3 (read-data/paper-sizes.json). Left out, the paper of the locale's region, else US Letter"
+      },
+      "locale": {
+       "type": "string",
+       "description": "The person's locale, such as en-US: picks the paper and writes money and numbers the way that locale does. en-US when left out"
+      },
+      "orientation": {
+       "type": "string",
+       "enum": [
+        "portrait",
+        "landscape"
+       ],
+       "description": "The page's orientation; portrait when left out"
+      }
      }
     },
     "output_schema": {
      "type": "object",
-     "required": ["kind"],
+     "required": [
+      "format_id",
+      "filename",
+      "extension",
+      "mime",
+      "byte_length",
+      "base64"
+     ],
      "properties": {
-      "kind": { "type": "string", "enum": ["structured-file-export-result"] },
-      "path": { "type": "string" },
-      "byte_length": { "type": "number" },
-      "format_id": { "type": "string" }
+      "format_id": {
+       "type": "string"
+      },
+      "filename": {
+       "type": "string"
+      },
+      "extension": {
+       "type": "string"
+      },
+      "mime": {
+       "type": "string"
+      },
+      "byte_length": {
+       "type": "number"
+      },
+      "base64": {
+       "type": "string",
+       "description": "The whole file"
+      },
+      "text": {
+       "type": "string",
+       "description": "The file's text, for a text format"
+      },
+      "finish": {
+       "type": "string",
+       "description": "The last step a page must do (raster-png)"
+      }
      }
     },
     "invoke": {
-     "kind": "on-your-computer",
-     "get_it": ["clone the Workshop repository (package.json repository.url)", "for PDF only: python3 with the reportlab library"],
-     "run": "python3 tools/export-documents-to-files/do-work/render-structured-file-export.py --job-file {job} --rules-rows-file {rules}",
-     "needs": ["python"],
-     "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the job file from the document the person means and, unless they gave rules, start from read-data/starter-projection-rules.json. Run `run`; the last line is the JSON result with the path of the new file. A message with an error key says what to fix (a format the rules do not have, a destination that is not a full path, a font or a character the PDF cannot use). Tell the person where the file is. If you cannot run commands, give them these steps."
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "export-documents-to-files",
+        "paths": [
+         "do-work/export-to-file.mjs",
+         "do-work/document.mjs",
+         "do-work/format-takes.mjs",
+         "do-work/layout.mjs",
+         "do-work/render-docx.mjs",
+         "do-work/render-pdf.mjs",
+         "do-work/render-svg.mjs",
+         "do-work/render-template.mjs",
+         "do-work/render-xlsx.mjs",
+         "do-work/zip.mjs",
+         "read-data/export-formats.json",
+         "read-data/helvetica-widths.json",
+         "read-data/page-layouts.json",
+         "read-data/paper-sizes.json"
+        ],
+        "at": "/opt/export-documents-to-files"
+       },
+       {
+        "package": "draw-ink-marks",
+        "paths": [
+         "do-work/ink.mjs"
+        ],
+        "at": "/opt/draw-ink-marks"
+       }
+      ]
+     },
+     "workdir": "/opt/export-documents-to-files",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/export-to-file.mjs",
+      "export"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
     },
-    "result_selector": "$",
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false,
+     "memory_mb": 256
+    },
     "licence_class": "licence:maker-own",
-    "placements": ["placement:your-computer"],
+    "placements": [
+     "placement:small-container"
+    ],
     "maker": "maker:export-documents-to-files",
-    "provenance": { "source": "ported from bitfield-packages packages/structured-file-output (render-structured-file-export); the content hash is no longer printed, hash the file with tools/content-identity" }
+    "provenance": {
+     "source": "Written for the Workshop to replace the Python structured-file writer and the app's own exporters (board, report, note, ink); the formats are rows in read-data/export-formats.json"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "document": {
+        "title": "Money",
+        "blocks": [
+         {
+          "kind": "table",
+          "columns": [
+           "Name",
+           "Amount"
+          ],
+          "rows": [
+           [
+            "Acme, Inc.",
+            1200.5
+           ],
+           [
+            "Birch",
+            300
+           ]
+          ]
+         }
+        ]
+       },
+       "format": "csv"
+      },
+      "output_selector": "$.text",
+      "contains": "\"Acme, Inc.\",1200.5"
+     },
+     {
+      "kind": "sample-run",
+      "input": {
+       "document": {
+        "title": "Money",
+        "blocks": [
+         {
+          "kind": "heading",
+          "level": 2,
+          "text": "Owed"
+         },
+         {
+          "kind": "table",
+          "columns": [
+           "Name",
+           "Amount"
+          ],
+          "rows": [
+           [
+            "Acme",
+            5
+           ]
+          ]
+         }
+        ]
+       },
+       "format": "markdown",
+       "file_stem": "money"
+      },
+      "output_selector": "$.filename",
+      "contains": "money.md"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::export-documents-to-files::tool::list-the-file-formats-an-export-can-make",
+   "address": "package::export-documents-to-files::tool::list-the-file-formats-an-export-can-make",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:list-the-file-formats-an-export-can-make",
+    "label": "List the file formats an export can be written in",
+    "status": "active",
+    "job": "Show every format a document can be exported to, with its file ending, its media type and the block kinds it writes itself",
+    "description": "Takes nothing. Answers formats: one row each with id, label, extension, mime and draws (the block kinds the format writes itself; the others are written as tables or refused), and finished_by when a page must do the last step (png). The ids are what tool:export-a-document-to-a-file takes as format.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {}
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "formats"
+     ],
+     "properties": {
+      "formats": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "label",
+         "extension",
+         "mime",
+         "draws"
+        ]
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "export-documents-to-files",
+        "paths": [
+         "do-work/export-to-file.mjs",
+         "do-work/document.mjs",
+         "do-work/format-takes.mjs",
+         "do-work/layout.mjs",
+         "do-work/render-docx.mjs",
+         "do-work/render-pdf.mjs",
+         "do-work/render-svg.mjs",
+         "do-work/render-template.mjs",
+         "do-work/render-xlsx.mjs",
+         "do-work/zip.mjs",
+         "read-data/export-formats.json",
+         "read-data/helvetica-widths.json",
+         "read-data/page-layouts.json",
+         "read-data/paper-sizes.json"
+        ],
+        "at": "/opt/export-documents-to-files"
+       },
+       {
+        "package": "draw-ink-marks",
+        "paths": [
+         "do-work/ink.mjs"
+        ],
+        "at": "/opt/draw-ink-marks"
+       }
+      ]
+     },
+     "workdir": "/opt/export-documents-to-files",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/export-to-file.mjs",
+      "formats"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 2,
+     "network_egress": false,
+     "memory_mb": 128
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:export-documents-to-files",
+    "provenance": {
+     "source": "Written for the Workshop: the formats list of tool:export-a-document-to-a-file"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {},
+      "output_selector": "$.formats[*].id",
+      "contains": "docx"
+     }
+    ]
    }
   },
   {
    "id": "package::export-documents-to-files::tool::write-a-web-page-from-a-record",
    "address": "package::export-documents-to-files::tool::write-a-web-page-from-a-record",
-   "path": ["current-item", "published-record"],
+   "path": [
+    "current-item",
+    "published-record"
+   ],
    "payload": {
     "kind": "ai-tool-descriptor",
     "id": "tool:write-a-web-page-from-a-record",
@@ -60,34 +357,73 @@
     "description": "Takes an envelope file: publication_descriptor, source_record, optional materialized_values and correlation_id. The descriptor says which record fields become the title, description, language and page sections (heading, paragraph, prose, list, quote, code, image, group; any other operation still shows its text), where the page will live (scheme, domain and path pieces, each a literal or a value read from the record), the colours and font (tokens), extra sharing tags, and a list of structured-data nodes whose values are read from the record, with empty values dropped. Words from the record are escaped; a prose section is written as given, so its owner must have made it safe. The new page is written to the output path. The answer gives the address, tags, byte count and a proof naming the descriptor, record and revision it came from.",
     "input_schema": {
      "type": "object",
-     "required": ["envelope", "output"],
+     "required": [
+      "envelope",
+      "output"
+     ],
      "additionalProperties": false,
      "properties": {
-      "envelope": { "type": "string", "description": "Path of the JSON envelope file" },
-      "output": { "type": "string", "description": "Path of the HTML file to write" }
+      "envelope": {
+       "type": "string",
+       "description": "Path of the JSON envelope file"
+      },
+      "output": {
+       "type": "string",
+       "description": "Path of the HTML file to write"
+      }
      }
     },
     "output_schema": {
      "type": "object",
-     "required": ["artifact", "proof", "written"],
+     "required": [
+      "artifact",
+      "proof",
+      "written"
+     ],
      "properties": {
-      "artifact": { "type": "object", "required": ["kind", "mime_type", "canonical_url", "metadata", "byte_length"] },
-      "proof": { "type": "object", "required": ["descriptor_ref", "source_ref", "source_revision_ref"] },
-      "written": { "type": "string" }
+      "artifact": {
+       "type": "object",
+       "required": [
+        "kind",
+        "mime_type",
+        "canonical_url",
+        "metadata",
+        "byte_length"
+       ]
+      },
+      "proof": {
+       "type": "object",
+       "required": [
+        "descriptor_ref",
+        "source_ref",
+        "source_revision_ref"
+       ]
+      },
+      "written": {
+       "type": "string"
+      }
      }
     },
     "invoke": {
      "kind": "on-your-computer",
-     "get_it": ["clone the Workshop repository (package.json repository.url)"],
+     "get_it": [
+      "clone the Workshop repository (package.json repository.url)"
+     ],
      "run": "node tools/export-documents-to-files/do-work/render-public-page-cli.mjs {envelope} {output}",
-     "needs": ["node"],
+     "needs": [
+      "node"
+     ],
      "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the envelope from the record the person means and the way they want it published, run `run`, and read the last JSON line. This only writes the file; putting it on a site is a separate step the person must ask for. Tell them the address it was written for and where the file is. If you cannot run commands, give them these steps."
     },
     "result_selector": "$",
     "licence_class": "licence:maker-own",
-    "placements": ["placement:your-computer"],
+    "placements": [
+     "placement:your-computer"
+    ],
     "maker": "maker:export-documents-to-files",
-    "provenance": { "source": "ported from bitfield-packages packages/public-document-renderer (render-public-document, RecordPublicationProjection); the default typeface is now the system one" }
+    "provenance": {
+     "source": "ported from bitfield-packages packages/public-document-renderer (render-public-document, RecordPublicationProjection); the default typeface is now the system one"
+    }
    }
   },
   {

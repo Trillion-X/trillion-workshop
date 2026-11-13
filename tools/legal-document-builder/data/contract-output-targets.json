@@ -1,6 +1,6 @@
 {
   "kind": "contract-output-targets",
-  "what_this_is": "The file forms a contract can be made in. A person adds or changes a form here; the code names none. format_id is the id the file maker (tool:export-documents-to-files, structured-file-output.request formats) knows the form by.",
+  "what_this_is": "The file forms a contract can be made in. A person adds or changes a form here; the code names none. format_id is the id of a row in tools/export-documents-to-files/read-data/export-formats.json, the file maker (tool:export-a-document-to-a-file) knows the form by.",
   "targets": [
     { "id": "output-target:pdf", "label": "PDF", "short_label": "PDF", "description": "A PDF copy of the accepted contract.", "action_label": "Make PDF", "output_kind": "document-file", "file_extension": "pdf", "format_id": "pdf" },
     { "id": "output-target:csv", "label": "CSV", "short_label": "CSV", "description": "The contract terms as rows.", "action_label": "Make CSV", "output_kind": "tabular-file", "file_extension": "csv", "format_id": "csv" },

@@ -1,9 +1,9 @@
-// tools/export-documents-to-files: the Python programs' own tests, then the two commands the rows run,
-// over trees and records this test makes up itself (a made-up bakery).
+// tools/export-documents-to-files: the web-page writer (tool:write-a-web-page-from-a-record), over records this test
+// makes up itself. The file exporter's own tests are in export-to-file.test.mjs.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, writeFileSync, existsSync, readdirSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -11,82 +11,7 @@ import { renderRecordPublicationProjection } from '../do-work/render-public-page
 import { renderRecordPublicationProjection as renderPureProjection } from '../do-work/public-page-projection.mjs';
 
 const folder = fileURLToPath(new URL('..', import.meta.url));
-const python = (...argv) => spawnSync('python3', argv, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
-const noPython = python('--version').status === 0 ? false : 'needs python3';
-const renderer = `${folder}do-work/render-structured-file-export.py`;
 const pageTool = `${folder}do-work/render-public-page-cli.mjs`;
-const starterRules = `${folder}read-data/starter-projection-rules.json`;
-
-const node = (text, children = [], headingLevel) => ({ props: { ...(text === undefined ? {} : { text }), ...(headingLevel ? { heading_level: headingLevel } : {}) }, children });
-const bakeryTree = node('Bakery price list', [
-  node('Breads', [
-    node('Baked fresh before seven.'),
-    node(undefined, [node(undefined, [node('Loaf'), node('Price')]), node(undefined, [node('Rye'), node('4.50')])]),
-  ], 1),
-]);
-
-function exportFile(directory, formatId, stem) {
-  const job = { title: 'Bakery price list', descriptor: { format_id: formatId, destination_dir: directory, file_stem: stem }, tree: bakeryTree };
-  const jobFile = join(directory, `${stem}-job.json`);
-  writeFileSync(jobFile, JSON.stringify(job));
-  return python(renderer, '--job-file', jobFile, '--rules-rows-file', starterRules);
-}
-
-for (const file of readdirSync(`${folder}test`).filter((name) => /^test-.*\.py$/.test(name))) {
-  test(`${file} passes or says what it needs`, { skip: noPython }, () => {
-    const run = python(`${folder}test/${file}`);
-    assert.equal(run.status, 0, run.stderr.split('\n').slice(-40).join('\n'));
-  });
-}
-
-test('a tree becomes a markdown file with its table and the result names the file', { skip: noPython }, () => {
-  const directory = mkdtempSync(join(tmpdir(), 'edf-'));
-  const run = exportFile(directory, 'markdown', 'prices');
-  assert.equal(run.status, 0, run.stderr);
-  const result = JSON.parse(run.stdout.trim().split('\n').at(-1));
-  assert.equal(result.path, join(directory, 'prices.md'));
-  assert.equal(result.format_id, 'markdown');
-  assert.equal('payload_hash' in result, false);
-  const text = readFileSync(result.path, 'utf8');
-  assert.match(text, /^# Bakery price list/);
-  assert.match(text, /## Breads/);
-  assert.match(text, /\| Loaf \| Price \|\n\| --- \| --- \|\n\| Rye \| 4.50 \|/);
-  assert.equal(result.byte_length, Buffer.byteLength(text));
-});
-
-test('a Word file is made from the same tree with no library installed', { skip: noPython }, () => {
-  const directory = mkdtempSync(join(tmpdir(), 'edf-'));
-  const run = exportFile(directory, 'docx', 'prices');
-  assert.equal(run.status, 0, run.stderr);
-  const result = JSON.parse(run.stdout.trim().split('\n').at(-1));
-  const listing = execFileSync('unzip', ['-l', result.path], { encoding: 'utf8' });
-  assert.match(listing, /word\/document\.xml/);
-  const xml = execFileSync('unzip', ['-p', result.path, 'word/document.xml'], { encoding: 'utf8' });
-  assert.match(xml, /Bakery price list/);
-  assert.match(xml, /<w:tbl>/);
-});
-
-test('no result file is left in the folder the command ran from', { skip: noPython }, () => {
-  const directory = mkdtempSync(join(tmpdir(), 'edf-'));
-  const before = existsSync('result.json');
-  assert.equal(exportFile(directory, 'txt', 'prices').status, 0);
-  assert.equal(existsSync('result.json'), before);
-});
-
-test('a file name that reaches into another folder is refused and nothing is written', { skip: noPython }, () => {
-  const directory = mkdtempSync(join(tmpdir(), 'edf-'));
-  const run = exportFile(directory, 'txt', '../escape');
-  assert.notEqual(run.status, 0);
-  assert.match(run.stdout, /plain file name/);
-  assert.equal(existsSync(join(directory, '..', 'escape.txt')), false);
-});
-
-test('a format the rules do not define is refused by name', { skip: noPython }, () => {
-  const directory = mkdtempSync(join(tmpdir(), 'edf-'));
-  const run = exportFile(directory, 'rtf', 'prices');
-  assert.notEqual(run.status, 0);
-  assert.match(run.stdout, /format rtf is not in the projection rules/);
-});
 
 function envelope(overrides = {}) {
   return {

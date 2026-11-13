@@ -68,14 +68,14 @@ test('write-legal-documents prints one JSON line for its argument and refuses an
   assert.throws(() => writeLegalDocuments(null), /must be an object/);
 });
 
-test('make-a-sales-contract answers with what to accept, the terms rows, the file request and the forms asked for', () => {
+test('make-a-sales-contract answers with what to accept, the terms rows, the export request and the forms asked for', () => {
   const answer = makeSalesContract({ contract, formats: ['pdf', 'md'], created_at: '2030-03-04T05:06:07.000Z' });
   assert.deepEqual(answer.acceptance_requirements, ['I understand the contract terms.', 'I understand the payment obligation.']);
   assert.deepEqual(answer.output_forms.map(form => form.extension), ['md', 'pdf']);
-  assert.deepEqual(answer.file_request.formats, ['markdown', 'pdf']);
-  assert.equal(answer.file_request.requestId, 'approval_contract-9:files');
-  assert.equal(answer.file_request.fileStem, 'swim-coaching-agreement');
-  assert.deepEqual(answer.terms_rows, answer.file_request.sections[0].rows);
+  assert.deepEqual(answer.export_request.formats, ['markdown', 'pdf']);
+  assert.equal(answer.export_request.requestId, 'approval_contract-9:files');
+  assert.equal(answer.export_request.fileStem, 'swim-coaching-agreement');
+  assert.deepEqual([answer.export_request.document.blocks[0].columns, ...answer.export_request.document.blocks[0].rows], answer.terms_rows);
   assert.ok(answer.terms_rows.some(row => row[0] === 'Total' && row[1] === 'USD 480.00'));
   assert.equal('approval_link' in answer, false);
 });

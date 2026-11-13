@@ -1,0 +1,93 @@
+{
+  "what_this_is": "How a page is laid out for the formats that draw pages (pdf, svg): margins, spacing, text, list and table style. The page's width and height come from the request (paper-sizes.json). Sizes are PostScript points, 72 to the inch. A person adds or changes a layout here; the code names none.",
+  "layouts": {
+    "standard": {
+      "page": {
+        "margin": 56,
+        "page_gap": 24
+      },
+      "page_numbers": {
+        "size": 9,
+        "from_bottom": 28
+      },
+      "title": {
+        "size": 20,
+        "lead": 28,
+        "after": 14,
+        "bold": true
+      },
+      "heading": {
+        "1": {
+          "size": 16,
+          "lead": 22,
+          "before": 10,
+          "after": 6,
+          "bold": true
+        },
+        "2": {
+          "size": 14,
+          "lead": 20,
+          "before": 8,
+          "after": 5,
+          "bold": true
+        },
+        "3": {
+          "size": 12,
+          "lead": 18,
+          "before": 6,
+          "after": 4,
+          "bold": true
+        },
+        "4": {
+          "size": 11,
+          "lead": 16,
+          "before": 4,
+          "after": 3,
+          "bold": true
+        },
+        "5": {
+          "size": 11,
+          "lead": 16,
+          "before": 4,
+          "after": 3,
+          "bold": true
+        },
+        "6": {
+          "size": 11,
+          "lead": 16,
+          "before": 4,
+          "after": 3,
+          "bold": true
+        }
+      },
+      "body": {
+        "size": 11,
+        "lead": 16,
+        "after": 8
+      },
+      "list": {
+        "indent": 18,
+        "bullets": [
+          "•",
+          "–"
+        ],
+        "after": 8
+      },
+      "table": {
+        "size": 9,
+        "lead": 12,
+        "pad": 4,
+        "after": 12,
+        "title_size": 11,
+        "title_lead": 16,
+        "rule_gray": 0.75,
+        "header_gray": 0.93,
+        "smallest_size": 6,
+        "word_share": 0.3
+      },
+      "picture": {
+        "after": 12
+      }
+    }
+  }
+}

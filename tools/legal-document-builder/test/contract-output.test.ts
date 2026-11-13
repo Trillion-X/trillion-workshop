@@ -7,7 +7,7 @@ import {
   contractTermsRows,
   decodeApprovalRequestMaterial,
   encodeApprovalRequestMaterial,
-  fileRequestFromApproval,
+  exportRequestFromApproval,
   readApprovalRequestFromLocation,
   readContractOutputTargets,
   safeFileStem,
@@ -87,17 +87,18 @@ describe('the file request and the approval link', () => {
     outputTargets: targets.filter((target) => ['pdf', 'md'].includes(target.file_extension)), requestId: 'approval_one', now,
   });
 
-  it('builds the request a file maker takes: the terms as one section and the forms as format ids', () => {
-    const file = fileRequestFromApproval(request);
-    expect(file.kind).toBe('structured-file-output.request');
+  it('builds the request the export tool takes: the terms as one table and the forms as format ids', () => {
+    const file = exportRequestFromApproval(request);
     expect(file.requestId).toBe('approval_one:files');
-    expect(file.title).toBe('Studio Membership Agreement');
+    expect(file.document.title).toBe('Studio Membership Agreement');
     expect(file.fileStem).toBe('studio-membership-agreement');
     expect(file.createdAt).toBe('2030-03-04T05:06:07.000Z');
     expect(file.formats).toEqual(['markdown', 'pdf']);
-    expect(file.sections.length).toBe(1);
-    expect(file.sections[0].heading).toBe('Contract terms');
-    expect(file.sections[0].rows).toEqual(contractTermsRows(contract));
+    expect(file.document.blocks.length).toBe(1);
+    const [table] = file.document.blocks;
+    expect(table.kind).toBe('table');
+    expect(table.title).toBe('Contract terms');
+    expect([table.columns, ...table.rows]).toEqual(contractTermsRows(contract));
     expect(file.source).toEqual({ approval_request_id: 'approval_one', contract_id: 'contract-1' });
   });
 

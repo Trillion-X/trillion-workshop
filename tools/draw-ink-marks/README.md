@@ -1,6 +1,6 @@
 # tools/draw-ink-marks/
 
-Ink marks on any addressed space (a page, a picture, a timeline, a board): the Workshop tools `tool:see-the-ink-marks-on-a-space`, `tool:turn-a-drawn-stroke-into-a-mark-shape`, `tool:find-the-ink-mark-to-erase` and `tool:export-ink-marks-as-svg`, run in the tool container. Ported from the addressed-marks package: its ink physics (reading operations, folding them into showing marks, stroke shapes, erase hit-testing, SVG export), as plain data in and data out.
+Ink marks on any addressed space (a page, a picture, a timeline, a board): the Workshop tools `tool:see-the-ink-marks-on-a-space`, `tool:turn-a-drawn-stroke-into-a-mark-shape` and `tool:find-the-ink-mark-to-erase`, run in the tool container. Ported from the addressed-marks package: its ink physics (reading operations, folding them into showing marks, stroke shapes, erase hit-testing, and the marks as SVG for the file exporter), as plain data in and data out. Exporting marks as a picture file is a block of the one export tool (`tool:export-a-document-to-a-file`, block kind `ink`), which reads `marksToSvg` from here.
 
 Marks are append-only. A mark is never edited: a later operation hides, restyles, reorders, copies or merges an earlier mark by naming its ref, and what shows is the fold of all operations in the order they were made. Erasing is therefore a new operation, which keeps every earlier state recoverable.
 
@@ -9,11 +9,11 @@ Marks are append-only. A mark is never edited: a later operation hides, restyles
 | File | Purpose |
 |------|---------|
 | `do-work/ink.mjs` | The mechanism, pure: `readMarkOperationRecords`, `readMarkStyles`, `readMarkTools`, `markTargetKey`, `materializeMarkRecords`, `mapPointsForTool`, `nearestMarkPathRef`, `marksToSvg`. |
-| `do-work/marks.mjs` | The command of all four tools: the verb (`see`, `stroke`, `erase`, `svg`) is the first argument, one JSON request is on standard input, `{ result }` or `{ error }` is the last line. |
-| `tool-rows.json` | The four tool rows. |
+| `do-work/marks.mjs` | The command of all three tools: the verb (`see`, `stroke`, `erase`) is the first argument, one JSON request is on standard input, `{ result }` or `{ error }` is the last line. |
+| `tool-rows.json` | The three tool rows. |
 | `part.json` | The pure module other tools may import. |
 | `test/ink.test.mjs` | The package's export tests, plus folding, reference effects, stroke shapes and erasing, over made-up pictures. |
-| `test/marks-command.test.mjs` | The four commands run as the container runs them. |
+| `test/marks-command.test.mjs` | The three commands run as the container runs them. |
 
 ## Key Types / Functions
 

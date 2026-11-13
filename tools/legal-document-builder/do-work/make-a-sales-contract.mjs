@@ -3,13 +3,13 @@
 // The command of tool:make-a-sales-contract. One JSON request on standard input:
 //   { contract: { id?, name?, status?, currency?, total_amount?, intended_actor_id?, resource_id?, rules: [...] },
 //     formats?: ["pdf", "csv", ...], actor_id?, base_url?, request_id?, created_at?, locale? }
-// and one JSON line out: { result: { acceptance_requirements, terms_rows, file_request, output_forms, approval_link? } },
+// and one JSON line out: { result: { acceptance_requirements, terms_rows, export_request, output_forms, approval_link? } },
 // or { error } and a non-zero exit. `formats` are file extensions from data/contract-output-targets.json (default: all);
-// `file_request` is the structured-file-output request that tool:export-documents-to-files turns into the files;
+// `export_request` is what tool:export-a-document-to-a-file takes (its `document`, and the `formats` as the format ids to ask for);
 // `approval_link` is made only when `base_url` is given. The work is read-data/contract-output.ts.
 import { text as readStdin } from 'node:stream/consumers';
 import {
-  acceptanceRequirementsForContract, buildApprovalRequest, contractTermsRows, fileRequestFromApproval, readContractOutputTargets, safeFileStem,
+  acceptanceRequirementsForContract, buildApprovalRequest, contractTermsRows, exportRequestFromApproval, readContractOutputTargets, safeFileStem,
 } from '../read-data/contract-output.ts';
 
 const isObject = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -37,7 +37,7 @@ export function makeSalesContract(input) {
   return {
     acceptance_requirements: acceptanceRequirementsForContract(input.contract),
     terms_rows: contractTermsRows(input.contract, locale),
-    file_request: fileRequestFromApproval(request, locale),
+    export_request: exportRequestFromApproval(request, locale),
     output_forms: outputTargets.map(target => ({ id: target.id, label: target.label, extension: target.file_extension, format_id: target.format_id })),
     ...(typeof input.base_url === 'string' && input.base_url ? { approval_link: request.approvalUrl } : {}),
   };

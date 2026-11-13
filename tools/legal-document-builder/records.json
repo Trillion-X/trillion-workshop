@@ -214,10 +214,10 @@
    "payload": {
     "kind": "ai-tool-descriptor",
     "id": "tool:make-a-sales-contract",
-    "label": "Make a sales contract's terms, file request and approval link",
+    "label": "Make a sales contract's terms, export request and approval link",
     "status": "active",
     "job": "Make the terms of an accepted sales contract ready to give out: what the buyer must accept, the terms as rows, the request that turns them into a PDF, Word, spreadsheet, Markdown or text file, and a link the buyer opens to accept",
-    "description": "Give a contract (its name, currency, total in cents, customer, offer and a list of rules such as Commitment and GrantAccess) and which file forms you want (pdf, csv, xlsx, md, txt; all by default). Returns acceptance_requirements (always the terms; the payment obligation when a rule is a Commitment; the installment authorization when it has a payment schedule), terms_rows (the contract's facts and one row per rule, money in the locale you name, en-US by default), file_request (a structured-file-output.request that tool:export-documents-to-files turns into the files) and output_forms. With a base_url it also returns approval_link: a link that carries the whole request, so the buyer can open it on any computer and see the same contract. The forms a contract can be made in are the rows of data/contract-output-targets.json. Nothing here knows what is being sold, who the parties are or what anything costs.",
+    "description": "Give a contract (its name, currency, total in cents, customer, offer and a list of rules such as Commitment and GrantAccess) and which file forms you want (pdf, csv, xlsx, md, txt; all by default). Returns acceptance_requirements (always the terms; the payment obligation when a rule is a Commitment; the installment authorization when it has a payment schedule), terms_rows (the contract's facts and one row per rule, money in the locale you name, en-US by default), export_request (the document, the file stem and the format ids that tool:export-a-document-to-a-file turns into the files) and output_forms. With a base_url it also returns approval_link: a link that carries the whole request, so the buyer can open it on any computer and see the same contract. The forms a contract can be made in are the rows of data/contract-output-targets.json. Nothing here knows what is being sold, who the parties are or what anything costs.",
     "input_schema": {
      "type": "object",
      "required": [
@@ -295,7 +295,7 @@
      "required": [
       "acceptance_requirements",
       "terms_rows",
-      "file_request",
+      "export_request",
       "output_forms"
      ],
      "properties": {
@@ -311,7 +311,7 @@
         "type": "array"
        }
       },
-      "file_request": {
+      "export_request": {
        "type": "object"
       },
       "output_forms": {

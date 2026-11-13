@@ -1,15 +1,14 @@
 // tools/draw-ink-marks/do-work/marks.mjs
 //
-// The command of the four ink tools. The verb is the first argument and one JSON request is on standard input:
+// The command of the three ink tools. The verb is the first argument and one JSON request is on standard input:
 //   see     { operations, styles?, target?, reader_key? }              -> { marks, hidden_refs, empty_operations }
 //   stroke  { tool, points }                                           -> { points, closed, erases }
 //   erase   { operations, styles?, target, point, radius, reader_key? } -> { ref, effects }
-//   svg     { operations, styles?, target?, reader_key?, default_stroke? } -> { svg, bounds }
 // and one JSON line out: { result }, or { error } with a non-zero exit when the request cannot be read. Operations,
 // styles and tool rows are the person's own records, passed in whole (bare, as { payload } or as { value_json }).
 import { text as readStdin } from 'node:stream/consumers';
 import {
-  mapPointsForTool, marksToSvg, materializeMarkRecords, nearestMarkPathRef,
+  mapPointsForTool, materializeMarkRecords, nearestMarkPathRef,
   readMarkTarget, readMarkTools, toolEmitsClosedSet, toolErases,
 } from './ink.mjs';
 
@@ -68,13 +67,10 @@ const verbs = {
     const ref = nearestMarkPathRef(materialOf(input), toPoint(input.point, 'point'), input.radius);
     return { ref, effects: ref === null ? null : { hide_refs: [ref] } };
   },
-  svg(input) {
-    return marksToSvg(materialOf(input), { defaultStroke: input.default_stroke });
-  },
 };
 
 export const runVerb = (verb, input) => {
-  if (!Object.hasOwn(verbs, verb)) throw new Error(`unknown ink command ${verb}: use see, stroke, erase or svg.`);
+  if (!Object.hasOwn(verbs, verb)) throw new Error(`unknown ink command ${verb}: use see, stroke or erase.`);
   return verbs[verb](input ?? {});
 };
 
