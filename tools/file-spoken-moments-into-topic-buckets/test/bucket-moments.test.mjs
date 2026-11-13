@@ -141,17 +141,26 @@ test('cut-ideas --min-words joins an idea shorter than that to its neighbour', (
   assert.deepEqual(lines(out).map(x => [x.start, x.end, x.segments]), [[0, 45, [0, 1, 2, 3, 4, 5]]]);
 });
 
-test('cut-ideas falls back to the silence cut for a window the model refuses, and says so on the moments', () => {
+test('cut-ideas writes nothing for a window the model refuses: a silence cut is not a complete thought, and the count says what was left out', () => {
   const folder = join(work, 'ideas-bad'), out = join(work, 'ideas-bad.jsonl');
   mkdirSync(folder, { recursive: true });
   writeFileSync(join(folder, 'bad.words.json'), JSON.stringify({ timing: 'word', segments: [{ text: 'loopforever', start: 0, end: 2 }, { text: 'more', start: 2, end: 3 }, { text: 'later', start: 20, end: 22 }] }));
   const run1 = tool('cut-ideas', '--transcripts', folder, '--out', out);
   assert.equal(run1.status, 0, run1.stderr);
-  assert.deepEqual(lines(out).map(x => [x.start, x.end, x.cut]), [[0, 3, 'silence'], [20, 22, 'silence']]);
+  assert.equal(existsSync(out) ? readFileSync(out, 'utf8') : '', '');
+  assert.equal(lastLine(run1.stdout).left_out, 2);
 });
 
 test('--limit without --dry-out is refused, saying why', () => {
   const out = tool('tag', '--transcripts', transcripts, '--limit', '2');
   assert.notEqual(out.status, 0);
   assert.match(out.stderr, /use it with --dry-out/);
+});
+
+test('cut-ideas keeps only complete thoughts: an idea the model calls a fragment is left out, and one that ends mid-sentence is cut back to its last full sentence', () => {
+  const out = join(work, 'frag.jsonl');
+  const run1 = tool('cut-ideas', '--transcripts', join(work, 'frag'), '--out', out);
+  assert.equal(run1.status, 0, run1.stderr);
+  assert.deepEqual(lines(out).map(x => [x.start, x.end, x.segments, x.complete]), [[0, 6, [0, 1], true]]);
+  assert.equal(lastLine(run1.stdout).left_out, 2);
 });

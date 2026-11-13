@@ -22,6 +22,16 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
         user = body["messages"][1]["content"]
+        if user.startswith("Clip:\n"):
+            reply = json.dumps({"message": {"role": "assistant", "content": json.dumps({"complete": "fragment" not in user.lower()})}}).encode()
+            with open(LOG, "a") as handle:
+                handle.write(json.dumps({"model": body["model"], "clip": user[6:]}) + "\n")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(reply)))
+            self.end_headers()
+            self.wfile.write(reply)
+            return
         if "Segments:\n" in user:
             segs = re.findall(r"^\[(\d+)\] (.*)$", user.split("Segments:\n", 1)[1], re.M)
             with open(LOG, "a") as handle:

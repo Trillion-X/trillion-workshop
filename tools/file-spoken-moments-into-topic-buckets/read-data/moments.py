@@ -84,6 +84,17 @@ def ideas_from_starts(segments, starts):
     return out
 
 
+def lock_to_sentences(idea, segments):
+    """The idea cut back to its last segment that ends a sentence (the clean button), so a clip never stops mid-sentence; None when none does."""
+    keep = list(idea["segments"])
+    while keep and not ends_sentence(segments[keep[-1]]["text"]):
+        keep.pop()
+    if not keep:
+        return None
+    run = [segments[i] for i in keep]
+    return {**idea, "start": run[0]["start"], "end": run[-1]["end"], "text": " ".join(s["text"] for s in run), "segments": keep}
+
+
 def merge_short(ideas, least_words):
     """Ideas with fewer than `least_words` words joined to the idea before them (the first, to the one after), so none is a fragment."""
     out = []

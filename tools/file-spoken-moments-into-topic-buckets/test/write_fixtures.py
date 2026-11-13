@@ -20,3 +20,9 @@ with open(os.path.join(work, "ideas", "talk.words.json"), "w") as handle:
 with open(os.path.join(work, "moments.jsonl"), "w") as handle:
     for i, text in enumerate(["Money is a tool.", "Gardens need patience.", "um uh okay"]):
         handle.write(json.dumps({"id": f"m{i}", "text": text, "where": f"file-{i}"}) + "\n")
+
+# Ideas the completeness check refuses: the second idea is a fragment.
+frag = [(0, 3, "New idea: saving."), (3, 6, "Every week."), (8, 11, "New idea: a fragment of talk."), (11, 14, "Left trailing."), (40, 43, "New idea: sleep"), (43, 45, "Eight hours")]
+os.makedirs(os.path.join(work, "frag"), exist_ok=True)
+with open(os.path.join(work, "frag", "talk.words.json"), "w") as handle:
+    json.dump({"source": "talk.wav", "timing": "word", "duration": 50.0, "words": [], "segments": [{"text": t, "start": s, "end": e} for s, e, t in frag]}, handle)

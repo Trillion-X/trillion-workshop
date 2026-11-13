@@ -29,6 +29,24 @@ class CutTest(unittest.TestCase):
         self.assertEqual(m.moments_of(doc()), [])
 
 
+class CompleteThoughtTest(unittest.TestCase):
+    segs = doc((0, 2, "So the point is"), (2, 4, "you hit through the ball."), (4, 6, "And then"), (6, 8, "I never said it."), (8, 9, "and so"))["segments"]
+
+    def idea(self, first, last):
+        run = self.segs[first:last + 1]
+        return {"start": run[0]["start"], "end": run[-1]["end"], "text": " ".join(s["text"] for s in run), "segments": list(range(first, last + 1))}
+
+    def test_an_idea_that_ends_mid_sentence_is_cut_back_to_its_last_full_sentence(self):
+        locked = m.lock_to_sentences(self.idea(0, 4), self.segs)
+        self.assertEqual((locked["segments"], locked["end"], locked["text"]), ([0, 1, 2, 3], 8, "So the point is you hit through the ball. And then I never said it."))
+
+    def test_an_idea_with_no_full_sentence_is_dropped(self):
+        self.assertIsNone(m.lock_to_sentences(self.idea(0, 0), self.segs))
+
+    def test_an_idea_that_already_ends_a_sentence_is_unchanged(self):
+        self.assertEqual(m.lock_to_sentences(self.idea(0, 1), self.segs)["segments"], [0, 1])
+
+
 class ReplyTest(unittest.TestCase):
     def vocabulary(self):
         return m.new_vocabulary(DEFAULTS)

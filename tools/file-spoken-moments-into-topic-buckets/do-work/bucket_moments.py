@@ -68,13 +68,22 @@ def ask_starts(args, defaults, window):
         return json.loads(json.load(answer)["message"]["content"]).get("starts", [])
 
 
+def ask_complete(args, defaults, text):
+    """One chat with the local model: whether one clip is a complete, self-contained thought."""
+    body = {"model": args.model, "stream": False, "format": "json", "options": {"temperature": 0},
+            "messages": [{"role": "system", "content": defaults["complete_prompt"]}, {"role": "user", "content": "Clip:\n" + text}]}
+    request = urllib.request.Request(args.ollama_url.rstrip("/") + "/api/chat", json.dumps(body).encode(), {"Content-Type": "application/json"})
+    with urllib.request.urlopen(request, timeout=900) as answer:
+        return json.loads(json.load(answer)["message"]["content"]).get("complete") is True
+
+
 def command_cut_ideas(args):
     defaults = load_defaults(args)
     done = set()
     if os.path.exists(args.out):
         with open(args.out, encoding="utf-8") as handle:
             done = {json.loads(line)["clip"] for line in handle}
-    cut = 0
+    cut = left_out = 0
     with open(args.out, "a", encoding="utf-8") as out:
         for path in transcript_paths(args.transcripts):
             name = os.path.basename(path)[:-len(WORDS_SUFFIX)]
@@ -101,11 +110,22 @@ def command_cut_ideas(args):
                     found.append({**idea, "segments": [at + i for i in idea["segments"]], "cut": how})
                 at = next_at
             found = m.merge_short(found, args.min_words)
-            for i, idea in enumerate(found):
+            kept = []
+            for idea in found:
+                locked = m.lock_to_sentences(idea, segments)
+                try:
+                    complete = locked is not None and ask_complete(args, defaults, locked["text"])
+                except (urllib.error.HTTPError, ValueError, AttributeError):
+                    complete = False
+                if complete:
+                    kept.append({**locked, "complete": True})
+                else:
+                    left_out += 1
+            for i, idea in enumerate(kept):
                 out.write(json.dumps({"id": f"{name}#{i}", "clip": name, **idea}, ensure_ascii=False) + "\n")
             out.flush()
-            cut += len(found)
-    return {"ideas_cut": cut, "already_cut": len(done), "out": args.out}
+            cut += len(kept)
+    return {"ideas_cut": cut, "left_out": left_out, "already_cut": len(done), "out": args.out}
 
 
 def tag_batch(args, defaults, vocabulary, batch):
