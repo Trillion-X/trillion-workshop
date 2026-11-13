@@ -2355,7 +2355,7 @@
               {
                 "request": {
                   "method": "GET",
-                  "url": "https://api.stripe.com/v1/subscriptions/sub_sample0001?expand[0]=default_payment_method"
+                  "url": "https://api.stripe.com/v1/subscriptions/sub_sample0001?expand%5B0%5D=default_payment_method"
                 },
                 "status": 200,
                 "body": {
@@ -4140,6 +4140,277 @@
                       "start_date": 1796342400
                     }
                   ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:rehearse-a-billing-page-in-stripe-test-mode",
+        "label": "Rehearse a billing page in Stripe test mode",
+        "job": "Make a test subscription in Stripe test mode and open its billing page, to see the billing page comes back before a real buyer needs it",
+        "description": "Give product_name, amount_cents and return_url (an https address the billing page returns to). Only a Stripe test key is accepted (it must start with a test prefix, checked before anything is built); it comes from your held values under a test-key name. Makes a test customer, product, price and subscription, then opens the billing page of that subscription the way the billing-page tool does, and gives back the subscription, the page's address and the card that pays it (none until a card is added). It never opens the address. Makes test objects only; no real money moves.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "product_name": {
+              "type": "string"
+            },
+            "amount_cents": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "return_url": {
+              "type": "string",
+              "format": "uri"
+            },
+            "currency": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "product_name",
+            "amount_cents",
+            "return_url"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "subscription_id": {
+              "type": "string"
+            },
+            "redirect": {
+              "type": "string"
+            },
+            "card": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "customer_id": {
+              "type": "string"
+            },
+            "schedule_id": {
+              "type": "string"
+            },
+            "portal_configuration": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "subscription_id",
+            "redirect",
+            "card"
+          ]
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "rehearseABillingPageInTestMode"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "stripe-test-api-key",
+              "fd": 4
+            }
+          ]
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": true
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "trillion-workshop tools/take-payments rehearse-a-payment-schedule and billing-portal"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "product_name": "Sample membership",
+              "amount_cents": 1000,
+              "return_url": "https://app.example.com/billing"
+            },
+            "held": {
+              "stripe-test-api-key": "sk_test_made_up_sample_key"
+            },
+            "shape_read_at": "2026-11-12",
+            "replies": [
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://api.stripe.com/v1/customers"
+                },
+                "status": 200,
+                "body": {
+                  "id": "cus_sample0004",
+                  "object": "customer",
+                  "livemode": false
+                }
+              },
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://api.stripe.com/v1/products"
+                },
+                "status": 200,
+                "body": {
+                  "id": "prod_sample0004",
+                  "object": "product",
+                  "livemode": false
+                }
+              },
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://api.stripe.com/v1/prices"
+                },
+                "status": 200,
+                "body": {
+                  "id": "price_sample0004",
+                  "object": "price",
+                  "livemode": false
+                }
+              },
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://api.stripe.com/v1/subscription_schedules"
+                },
+                "status": 200,
+                "body": {
+                  "id": "sub_sched_sample0004",
+                  "object": "subscription_schedule",
+                  "status": "active",
+                  "livemode": false,
+                  "subscription": "sub_sample0004"
+                }
+              },
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.stripe.com/v1/billing_portal/configurations?active=true"
+                },
+                "status": 200,
+                "body": {
+                  "data": [
+                    {
+                      "id": "bpc_sample0004",
+                      "is_default": true,
+                      "active": true
+                    }
+                  ]
+                }
+              },
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.stripe.com/v1/subscriptions/sub_sample0004?expand%5B0%5D=default_payment_method"
+                },
+                "status": 200,
+                "body": {
+                  "id": "sub_sample0004",
+                  "object": "subscription",
+                  "customer": "cus_sample0004",
+                  "default_payment_method": null
+                }
+              },
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://api.stripe.com/v1/billing_portal/sessions"
+                },
+                "status": 200,
+                "body": {
+                  "id": "bps_sample0004",
+                  "object": "billing_portal.session",
+                  "url": "https://billing.stripe.com/p/session/test_sample0004"
                 }
               }
             ]

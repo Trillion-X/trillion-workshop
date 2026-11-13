@@ -34,6 +34,8 @@ A person who sells with their own Stripe account can have their AI price a sale 
 | `do-work/connect-payees.mjs` | Payee account, onboarding link, destination checkout, share transfer subjects, and payee readiness. |
 | `do-work/parse-stripe-signature.mjs`, `compare-and-map-stripe-webhook.mjs`, `map-stripe-webhook-event.mjs` | The webhook check. |
 | `do-work/rehearse-a-payment-schedule.mjs` | Test-mode rehearsal of a schedule. |
+| `do-work/rehearse-a-billing-page.mjs` | `tool:rehearse-a-billing-page-in-stripe-test-mode`: in Stripe test mode, makes a customer, product, price and subscription, finds or makes the account's billing portal configuration, and opens the subscription's billing page with `billing-portal.mjs`; returns the page's address and never opens it. |
+| `do-work/billing-portal.mjs` | The billing page of one purchase (`tool:open-the-billing-page-for-one-purchase-and-show-the-card`): a portal session for the customer that bills the subscription, and the card that pays it. |
 | `do-work/stripe-response-redactor.mjs` | Strips key-shaped words from anything Stripe says. |
 | `do-work/take-payments.mjs` | The function each row runs. |
 | `read-data/resource-usage.mjs` | Exact rational supplier-cost allocation, effective-dated resource/plan/client markup, purchased snapshots, subcent cash clearing and nested leaf-only pricing. Public to consumers through `part.json`. |

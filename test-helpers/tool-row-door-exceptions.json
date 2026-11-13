@@ -37,6 +37,7 @@
     "tool:see-what-is-left-to-set-up": "Entry see-what-is-left-to-set-up.mjs:53 passes `context` (or a homonym) through, reads no records kind: checked by hand on origin/main.",
     "tool:set-up-someone-i-pay-in-stripe": "Entry take-payments.mjs:193 passes `context` (or a homonym) through, reads no records kind: checked by hand on origin/main.",
     "tool:tag-a-stripe-subscription": "Entry take-payments.mjs:128 passes `context` (or a homonym) through, reads no records kind: checked by hand on origin/main.",
-    "tool:walk-through-an-app-like-its-users": "Entry walk-through-an-app.mjs:20 passes `context` (or a homonym) through, reads no records kind: checked by hand on origin/main."
+    "tool:walk-through-an-app-like-its-users": "Entry walk-through-an-app.mjs:20 passes `context` (or a homonym) through, reads no records kind: checked by hand on origin/main.",
+    "tool:rehearse-a-billing-page-in-stripe-test-mode": "Entry rehearseABillingPageInTestMode take-payments.mjs:257 passes `context` (or a homonym) through, reads no records kind: checked by hand."
   }
 }

@@ -13,7 +13,7 @@ export class BillingPageError extends Error {}
 
 const text = value => (typeof value === 'string' ? value.trim() : '');
 
-function httpsAddress(value) {
+export function httpsAddress(value) {
   try {
     const url = new URL(text(value));
     if (url.protocol === 'https:') return url.href;
@@ -21,14 +21,19 @@ function httpsAddress(value) {
   throw new BillingPageError('return_url must be an https address the billing page returns to.');
 }
 
-// The configuration the portal opens with: the one the caller names, else the account's default, else the first active
-// one. None at all is a refusal, never an invented configuration.
+// The configuration the account has for the portal: its default, else the first active one, else none.
+export async function findPortalConfiguration(send) {
+  const { data = [] } = await call(send, 'operation:find-portal-configurations', { active: 'true' });
+  return (data.find(configuration => configuration.is_default) ?? data.find(configuration => configuration.active))?.id ?? null;
+}
+
+// The configuration the portal opens with: the one the caller names, else the account's. None at all is a refusal,
+// never an invented configuration.
 async function portalConfiguration(send, named) {
   if (named) return named;
-  const { data = [] } = await call(send, 'operation:find-portal-configurations', { active: 'true' });
-  const chosen = data.find(configuration => configuration.is_default) ?? data.find(configuration => configuration.active);
-  if (!chosen?.id) throw new BillingPageError('This Stripe account has no billing portal configuration yet: set one up in Stripe, then try again.');
-  return chosen.id;
+  const found = await findPortalConfiguration(send);
+  if (!found) throw new BillingPageError('This Stripe account has no billing portal configuration yet: set one up in Stripe, then try again.');
+  return found;
 }
 
 // The card that pays the subscription: its own default payment method, expanded by the read. Only the parts a payer

@@ -1,0 +1,34 @@
+{
+  "_what": "The list a business keeps its referral rewards and shares in: one row per rule, the columns defined here as data. Make it as a record of type `list` (id `list:referral-reward-rules`) from `list`, then add a row for each rule. The referral tools read the rows of type `record:referral-reward-rule`; nothing in the tools names a business, a product, a price or a reward amount.",
+  "list": {
+    "id": "list:referral-reward-rules",
+    "value": {
+      "label": "Referral rewards and shares",
+      "about": "What a referral code earns, for whom: a share of a sale, a discount, or access. One row per rule; the referral tools read these rows.",
+      "row_type": "referral-reward-rule",
+      "title_field": "label",
+      "fields": [
+        { "id": "label", "kind": "text", "label": "What this rule gives" },
+        { "id": "state", "kind": "choice", "label": "State", "choices": ["active", "inactive"] },
+        { "id": "earner", "kind": "choice", "label": "Who earns it", "choices": ["referrer", "friend"] },
+        { "id": "reward", "kind": "choice", "label": "Kind of reward", "choices": ["share", "discount", "access"] },
+        { "id": "code_points_at", "kind": "text", "label": "Codes that point at this sale attribute" },
+        { "id": "code_points_at_value", "kind": "text", "label": "and at this value (blank for any)" },
+        { "id": "offer_ids", "kind": "tags", "label": "Only sales of these offers (blank for any)" },
+        { "id": "arm_group", "kind": "text", "label": "Test group (rows in one group are arms; each referrer lands on one)" },
+        { "id": "weight", "kind": "number", "label": "Weight within its test group" },
+        { "id": "amount_field", "kind": "text", "label": "Share: the sale field holding the amount" },
+        { "id": "basis_points", "kind": "number", "label": "Share: basis points of it (1000 is 10 percent)" },
+        { "id": "percent", "kind": "number", "label": "Discount: percent off" },
+        { "id": "amount_cents", "kind": "number", "label": "Discount: amount off, in cents" },
+        { "id": "currency", "kind": "text", "label": "Discount: currency of the amount" },
+        { "id": "duration", "kind": "choice", "label": "Discount: how long it applies", "choices": ["once", "repeating", "forever"] },
+        { "id": "duration_in_months", "kind": "number", "label": "Discount: months, when repeating" },
+        { "id": "max_redemptions", "kind": "number", "label": "Discount: most times it can be used" },
+        { "id": "access_ref", "kind": "text", "label": "Access: the access given" },
+        { "id": "access_days", "kind": "number", "label": "Access: days it lasts (blank for lasting)" },
+        { "id": "friend_field", "kind": "text", "label": "Access for the friend: the sale field naming them" }
+      ]
+    }
+  }
+}

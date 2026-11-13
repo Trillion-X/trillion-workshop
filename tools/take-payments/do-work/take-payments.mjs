@@ -42,6 +42,7 @@ import { call } from './build-stripe-http-request.mjs';
 import { admitStripeWebhook } from './compare-and-map-stripe-webhook.mjs';
 import { heldKey, makeStripeSender } from './stripe-send.mjs';
 import { assertTestKey, rehearseAPaymentSchedule } from './rehearse-a-payment-schedule.mjs';
+import { rehearseABillingPage } from './rehearse-a-billing-page.mjs';
 export { manageUsagePricing, priceResourceUsage, keepResourceUsageObservation, settleSharedResourceCost, correctResourceUsageSettlement, readResourceUsageSettlement } from './resource-usage.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -247,6 +248,16 @@ export async function rehearseASchedule(input, context) {
   const key = context.key ?? heldKey(STRIPE_KEY_DESCRIPTOR, context.readKey);
   assertTestKey(key);
   return rehearseAPaymentSchedule(input, context.send ?? makeStripeSender({ key }));
+}
+
+/**
+ * Make a subscription in Stripe TEST MODE and open its billing page, to see that the billing page comes back for a real
+ * subscription at Stripe. The key is the person's held test key; anything that is not a test key is refused first.
+ */
+export async function rehearseABillingPageInTestMode(input, context) {
+  const key = context.key ?? heldKey(STRIPE_KEY_DESCRIPTOR, context.readKey);
+  assertTestKey(key);
+  return rehearseABillingPage(input, context.send ?? makeStripeSender({ key }));
 }
 
 export { observeLiveUsage } from './live-usage.mjs';
