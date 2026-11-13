@@ -48,6 +48,28 @@ def windows_of(segments, size):
     return [indexed[i:i + size] for i in range(0, len(indexed), size)]
 
 
+def ends_sentence(text):
+    """Whether a segment's text ends on a sentence mark (. ? !), allowing closing quotes or brackets after it."""
+    return re.search(r"[.?!][\"')\]]*\s*$", text.strip()) is not None
+
+
+def snap_starts(segments, starts):
+    """Starts moved so each idea begins where a sentence begins: one inside a sentence moves forward to the next segment that starts one.
+
+    The first segment always starts an idea. A start with no sentence start after it is dropped.
+    """
+    ok = lambda i: i == 0 or ends_sentence(segments[i - 1]["text"])
+    snapped = set()
+    for s in starts:
+        if not isinstance(s, int) or isinstance(s, bool) or not 0 <= s < len(segments):
+            continue
+        while s < len(segments) and not ok(s):
+            s += 1
+        if s < len(segments):
+            snapped.add(s)
+    return sorted(snapped | ({0} if segments else set()))
+
+
 def ideas_from_starts(segments, starts):
     """Ideas from the positions where the model says one begins: each keeps its segments, their first start and last end, and their words.
 

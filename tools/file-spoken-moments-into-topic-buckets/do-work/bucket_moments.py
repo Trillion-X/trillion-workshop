@@ -81,16 +81,25 @@ def command_cut_ideas(args):
             doc = read_json(path)
             if name in done or not doc.get("segments") or (args.clips and name not in args.clips):
                 continue
-            found = []
-            for window in m.windows_of(doc["segments"], args.window):
-                base = window[0]["idx"]
+            found, segments, at = [], doc["segments"], 0
+            while at < len(segments):
+                window = m.windows_of(segments[at:at + args.window], args.window)[0]
+                for w in window:
+                    w["idx"] += at
+                last = at + len(window) >= len(segments)
                 try:
-                    starts = [s - base for s in ask_starts(args, defaults, window) if isinstance(s, int) and not isinstance(s, bool)]
-                    ideas, how = m.ideas_from_starts(window, starts), "model"
+                    starts = [s - at for s in ask_starts(args, defaults, window) if isinstance(s, int) and not isinstance(s, bool)]
+                    ideas, how = m.ideas_from_starts(window, m.snap_starts(window, starts)), "model"
                 except (urllib.error.HTTPError, ValueError, AttributeError):
                     ideas, how = m.moments_of({"segments": window}, args.gap, args.max_words), "silence"
+                # An idea that runs to the window's edge may continue in the next segment: carry on from where it began.
+                if not last and len(ideas) > 1 and how == "model":
+                    ideas, next_at = ideas[:-1], at + ideas[-1]["segments"][0]
+                else:
+                    next_at = at + len(window)
                 for idea in ideas:
-                    found.append({**idea, "segments": [base + i for i in idea["segments"]], "cut": how})
+                    found.append({**idea, "segments": [at + i for i in idea["segments"]], "cut": how})
+                at = next_at
             found = m.merge_short(found, args.min_words)
             for i, idea in enumerate(found):
                 out.write(json.dumps({"id": f"{name}#{i}", "clip": name, **idea}, ensure_ascii=False) + "\n")

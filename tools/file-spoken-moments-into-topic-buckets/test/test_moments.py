@@ -129,6 +129,23 @@ class IdeaTest(unittest.TestCase):
         self.assertEqual(m.ideas_from_starts([], [0]), [])
 
 
+class SentenceBoundaryTest(unittest.TestCase):
+    def segs(self, *texts):
+        return [{"text": t, "start": i, "end": i + 1} for i, t in enumerate(texts)]
+
+    def test_a_segment_ends_a_sentence_on_its_closing_mark_even_inside_quotes_or_brackets(self):
+        self.assertEqual([m.ends_sentence(t) for t in ["Done.", "Why?  ", 'He said "go!"', "(really.)", "and then", "", "3.5 more"]], [True, True, True, True, False, False, False])
+
+    def test_a_start_inside_a_sentence_moves_to_the_next_segment_that_begins_one(self):
+        segs = self.segs("I think that", "the point is this.", "Next thought here.", "and it goes on", "to the end.")
+        self.assertEqual(m.snap_starts(segs, [0, 1, 4]), [0, 2])
+
+    def test_a_start_that_cannot_move_forward_to_a_sentence_start_is_dropped_and_the_first_segment_always_starts(self):
+        segs = self.segs("one", "two", "three.")
+        self.assertEqual(m.snap_starts(segs, [1]), [0])
+        self.assertEqual(m.snap_starts([], [0]), [])
+
+
 class MergeShortTest(unittest.TestCase):
     def idea(self, start, end, text, segs):
         return {"start": start, "end": end, "text": text, "segments": segs, "cut": "model"}

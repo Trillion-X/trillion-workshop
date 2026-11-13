@@ -129,6 +129,12 @@ test('cut-ideas writes one moment per idea the model marks, each with its start 
   assert.equal(lines(out).length, 3);
 });
 
+test('cut-ideas never splits an idea at a window edge: the window carries on from the idea that touched it', () => {
+  const out = join(work, 'ideas-edge.jsonl');
+  assert.equal(tool('cut-ideas', '--transcripts', join(work, 'ideas'), '--out', out, '--window', '3').status, 0);
+  assert.deepEqual(lines(out).map(x => [x.start, x.end, x.segments]), [[0, 6, [0, 1]], [8, 14, [2, 3]], [40, 45, [4, 5]]]);
+});
+
 test('cut-ideas --min-words joins an idea shorter than that to its neighbour', () => {
   const out = join(work, 'ideas-min.jsonl');
   assert.equal(tool('cut-ideas', '--transcripts', join(work, 'ideas'), '--out', out, '--min-words', '6').status, 0);
