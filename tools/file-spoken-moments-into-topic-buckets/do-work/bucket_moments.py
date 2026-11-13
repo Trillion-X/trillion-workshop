@@ -2,19 +2,20 @@
 """File the moments of spoken transcripts into topic buckets, with a local Ollama model and no spend.
 
   bucket_moments.py tag          --transcripts FOLDER [--vocabulary FILE] [--clips NAME ...] [--limit N] [--dry-out FILE] [--model M]
-  bucket_moments.py tag-moments  --moments FILE.jsonl --tagged FILE.jsonl [--vocabulary FILE] [--limit N] [--model M]
+  bucket_moments.py tag-moments  --moments FILE.jsonl --tagged FILE.jsonl [--vocabulary FILE | --vocabulary-rows FILE... --describe F,F --label F,F] [--limit N] [--model M]
   bucket_moments.py report       --transcripts FOLDER [--vocabulary FILE]
 
 tag cuts each <name>.words.json into moments and writes them back into the file with their buckets and a relevance from 0 to 1.
 tag-moments tags a file of moments ({"id", "text", ...} per line) and appends each to the tagged file as its batch finishes,
 so a rerun skips what is done. The vocabulary (default <transcripts>/buckets.json or <tagged>.buckets.json) is DATA that
-grows as the model proposes buckets. Every command prints its account, then one last line {"result": {...}}.
+grows as the model proposes buckets, unless --vocabulary-rows gives the person's own list rows: then each row is a bucket (keyed by the end of its id) and the model may only choose among them. Every command prints its account, then one last line {"result": {...}}.
 Needs Ollama running on this computer (https://ollama.com) with the model pulled.
 """
 import argparse
 import json
 import os
 import sys
+import urllib.error
 import urllib.request
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "read-data"))
@@ -38,13 +39,16 @@ def load_defaults(args):
     return read_json(args.defaults or DEFAULTS_FILE)
 
 
-def load_vocabulary(path, defaults):
+def load_vocabulary(path, defaults, args=None):
+    """The vocabulary: the person's list rows when --vocabulary-rows names them (closed, rebuilt each run), else the file, else the defaults."""
+    if args is not None and args.vocabulary_rows:
+        return m.vocabulary_from_rows([read_json(p) for p in args.vocabulary_rows], args.describe.split(","), args.label.split(","))
     return read_json(path) if os.path.exists(path) else m.new_vocabulary(defaults)
 
 
 def ask(args, defaults, vocabulary, batch):
     """One chat with the local model: the vocabulary and the moments in, its JSON reply out."""
-    listing = "\n".join(f"- {k}: {v['description']}" for k, v in vocabulary["buckets"].items())
+    listing = "\n".join(f"- {v.get('name', k)}: {v['description']}" for k, v in vocabulary["buckets"].items())
     user = "Vocabulary:\n" + listing + "\n\nMoments:\n" + "\n".join(f'[{x["id"]}] {x["text"]}' for x in batch)
     body = {"model": args.model, "stream": False, "format": "json", "options": {"temperature": 0},
             "messages": [{"role": "system", "content": defaults["system_prompt"]}, {"role": "user", "content": user}]}
@@ -55,11 +59,19 @@ def ask(args, defaults, vocabulary, batch):
 
 def tag_batch(args, defaults, vocabulary, batch):
     """Tag a batch, then ask again for each moment the reply left out, alone."""
-    m.apply_reply(vocabulary, batch, ask(args, defaults, vocabulary, batch))
+    try:
+        m.apply_reply(vocabulary, batch, ask(args, defaults, vocabulary, batch))
+    except urllib.error.HTTPError:
+        # The model refused the batch (it repeats itself on some words): each moment is asked alone below.
+        for moment in batch:
+            moment.update(buckets=[], relevance=None, untagged=True)
     for moment in [x for x in batch if x.get("untagged")]:
         moment.pop("untagged")
         moment.pop("relevance")
-        m.apply_reply(vocabulary, [moment], ask(args, defaults, vocabulary, [moment]))
+        try:
+            m.apply_reply(vocabulary, [moment], ask(args, defaults, vocabulary, [moment]))
+        except urllib.error.HTTPError:
+            moment.update(buckets=[], relevance=None, untagged=True)
 
 
 def transcript_paths(folder):
@@ -71,7 +83,7 @@ def command_tag(args):
         sys.exit("--limit stops partway through a transcript, which would leave moments with no buckets in it; use it with --dry-out, which writes the moments to a separate file.")
     defaults = load_defaults(args)
     vocab_path = args.vocabulary or os.path.join(args.transcripts, "buckets.json")
-    vocabulary = load_vocabulary(vocab_path, defaults)
+    vocabulary = load_vocabulary(vocab_path, defaults, args)
     seen, filed = 0, []
     for path in transcript_paths(args.transcripts):
         name = os.path.basename(path)[:-len(WORDS_SUFFIX)]
@@ -124,7 +136,7 @@ def command_tag_moments(args):
         todo = [x for x in map(json.loads, handle) if x["id"] not in done]
     if args.limit:
         todo = todo[:args.limit]
-    vocabulary = load_vocabulary(vocab_path, defaults)
+    vocabulary = load_vocabulary(vocab_path, defaults, args)
     with open(args.tagged, "a", encoding="utf-8") as out:
         for i in range(0, len(todo), args.batch):
             batch = todo[i:i + args.batch]
@@ -160,6 +172,9 @@ def build_parser():
         p.add_argument("--ollama-url", default="http://localhost:11434", help="where Ollama listens (default %(default)s)")
         p.add_argument("--defaults", help="a JSON file with system_prompt, seed_buckets and note_vocabulary instead of read-data/bucketing-defaults.json")
         p.add_argument("--vocabulary", help="the vocabulary file (read, and written back as it grows)")
+        p.add_argument("--vocabulary-rows", nargs="+", help="records:list answers saved as files (trillion op @own-records records:list ...): each row of them is one bucket and the model may choose only among them")
+        p.add_argument("--describe", default="", help="with --vocabulary-rows: comma-separated row fields whose text tells the model what the bucket holds")
+        p.add_argument("--label", default="title", help="with --vocabulary-rows: comma-separated row fields, the first a row has names its bucket to the model (default %(default)s)")
         p.add_argument("--batch", type=int, default=m.BATCH, help="moments asked about at once (default %(default)s)")
         p.add_argument("--limit", type=int, default=0, help="stop after about this many moments (0 = all)")
 

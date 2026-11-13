@@ -42,6 +42,24 @@ def moments_of(doc, gap=GAP_SECONDS, max_words=MAX_WORDS):
     return out
 
 
+def vocabulary_from_rows(answers, describe, label_fields):
+    """A closed vocabulary from the rows of the person's own lists (each answer is a records:list answer {"records": [{"id", "value"}]}).
+
+    A row is one bucket, keyed by the end of its id (the value a link to the row holds). Its words are its label (the first of
+    `label_fields` it has) and then those of its `describe` fields it has. The model may only choose among these buckets.
+    """
+    buckets = {}
+    for answer in answers:
+        for row in answer["records"]:
+            key, value = row["id"].rsplit(":", 1)[-1], row.get("value") or {}
+            if key in buckets:
+                raise ValueError(f"two rows end in the same key {key}, so a bucket could not name one of them")
+            label = next((str(value[f]) for f in label_fields if value.get(f)), key)
+            words = " ".join(str(value[f]) for f in describe if value.get(f))
+            buckets[key] = {"name": slug(label), "description": words, "origin": "row"}
+    return {"note": "Buckets read from the person's own list rows; the model may not add to them.", "closed": True, "buckets": buckets}
+
+
 def slug(text):
     return re.sub(r"[^a-z0-9]+", "_", str(text).lower()).strip("_")
 
@@ -51,17 +69,23 @@ def apply_reply(vocabulary, batch, reply):
 
     A moment the reply did not answer is marked untagged with relevance None, so the caller can ask again for it alone.
     """
-    for key, description in (reply.get("new_buckets") or {}).items():
+    closed = vocabulary.get("closed")
+    own = {slug(k): k for k in vocabulary["buckets"]}
+    own.update({slug(v["name"]): k for k, v in vocabulary["buckets"].items() if v.get("name")})
+    for key, description in ({} if closed else reply.get("new_buckets") or {}).items():
         key = slug(key)
         if key and key not in vocabulary["buckets"]:
             vocabulary["buckets"][key] = {"description": str(description), "origin": "model"}
     by_id = {m["id"]: m for m in batch}
     for answer in reply.get("moments", []):
-        moment = by_id.get(answer.get("id"))
+        moment = by_id.get(answer.get("id")) if isinstance(answer, dict) else None
         if not moment:
             continue
         relevance = max(0.0, min(1.0, float(answer.get("relevance", 0))))
-        tags = [slug(b) for b in answer.get("buckets", [])][:3] if relevance >= KEEP_RELEVANCE else []
+        said = [slug(b) for b in answer.get("buckets", [])]
+        if closed:
+            said = [own[b] for b in said if b in own]
+        tags = said[:3] if relevance >= KEEP_RELEVANCE else []
         for tag in tags:
             vocabulary["buckets"].setdefault(tag, {"description": "", "origin": "model"})
         moment["buckets"], moment["relevance"] = tags, round(relevance, 2)

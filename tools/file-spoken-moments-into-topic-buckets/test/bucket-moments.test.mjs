@@ -5,7 +5,7 @@
 import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -93,6 +93,27 @@ test('tag-moments tags a file of moments, keeps their other fields, and a rerun 
   assert.equal(lastLine(tool('tag-moments', '--moments', join(work, 'moments.jsonl'), '--tagged', tagged).stdout).already_tagged, 3);
   assert.equal(asked().length, before);
   assert.equal(lines(tagged).length, 3);
+});
+
+test('--vocabulary-rows files moments under the person\'s own rows only, and the model cannot add a bucket', () => {
+  const rows = join(work, 'themes.json');
+  writeFileSync(rows, JSON.stringify({ records: [{ id: 'record:themes:money-talk', value: { theme: 'Money talk', about: 'what a person does with money' } },
+    { id: 'record:themes:gardening-tips', value: { theme: 'Gardening', about: 'looking after a garden' } }] }));
+  const tagged = join(work, 'tagged-rows.jsonl');
+  const out = tool('tag-moments', '--moments', join(work, 'moments.jsonl'), '--tagged', tagged, '--vocabulary-rows', rows, '--describe', 'about', '--label', 'theme');
+  assert.equal(out.status, 0, out.stderr);
+  assert.deepEqual(lines(tagged).map(x => [x.id, x.buckets]), [['m0', ['money-talk']], ['m1', ['gardening-tips']], ['m2', []]]);
+  const kept = JSON.parse(readFileSync(`${tagged}.buckets.json`, 'utf8'));
+  assert.deepEqual(Object.keys(kept.buckets), ['money-talk', 'gardening-tips']);
+  assert.equal(kept.closed, true);
+});
+
+test('a moment the model cannot answer (a 500) is asked alone, left untagged with no buckets, and the others are still tagged', () => {
+  const moments = join(work, 'loop.jsonl'), tagged = join(work, 'loop-tagged.jsonl');
+  writeFileSync(moments, ['Money is a tool.', 'loopforever loopforever', 'Gardens need patience.'].map((text, i) => JSON.stringify({ id: `l${i}`, text })).join('\n') + '\n');
+  const out = tool('tag-moments', '--moments', moments, '--tagged', tagged, '--batch', '3');
+  assert.equal(out.status, 0, out.stderr);
+  assert.deepEqual(lines(tagged).map(x => [x.id, x.buckets, x.relevance]), [['l0', ['money_talk'], 0.8], ['l1', [], null], ['l2', ['gardening_tips', 'plants', 'soil'], 0.7]]);
 });
 
 test('--limit without --dry-out is refused, saying why', () => {

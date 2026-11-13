@@ -58,10 +58,50 @@ class ReplyTest(unittest.TestCase):
         m.apply_reply(self.vocabulary(), batch, {"moments": [{"id": 0, "buckets": [], "relevance": 0.5}]})
         self.assertEqual(batch[1], {"id": 1, "buckets": [], "relevance": None, "untagged": True})
 
+    def test_an_answer_that_is_not_an_object_is_skipped_and_the_moment_asked_again(self):
+        batch = [{"id": 0}]
+        m.apply_reply(self.vocabulary(), batch, {"moments": ["0: money", None, 3]})
+        self.assertTrue(batch[0]["untagged"])
+
     def test_an_answer_for_an_id_not_asked_is_ignored(self):
         batch = [{"id": 0}]
         m.apply_reply(self.vocabulary(), batch, {"moments": [{"id": 9, "buckets": ["x"], "relevance": 0.9}]})
         self.assertTrue(batch[0]["untagged"])
+
+
+class RowsVocabularyTest(unittest.TestCase):
+    ANSWER = {"records": [{"id": "record:themes:money-talk", "value": {"theme": "Money talk", "about": "what a person does with money"}},
+                          {"id": "record:themes:a39f-0001", "value": {"theme": "Gardening", "about": "", "scope": "soil and plants"}},
+                          {"id": "record:themes:bare", "value": {}}]}
+
+    def vocabulary(self):
+        return m.vocabulary_from_rows([self.ANSWER], ["about", "scope"], ["theme"])
+
+    def test_each_row_is_a_bucket_keyed_by_its_id_suffix_with_its_label_and_words(self):
+        v = self.vocabulary()
+        self.assertEqual(list(v["buckets"]), ["money-talk", "a39f-0001", "bare"])
+        self.assertEqual(v["buckets"]["money-talk"], {"name": "money_talk", "description": "what a person does with money", "origin": "row"})
+        self.assertEqual((v["buckets"]["a39f-0001"]["name"], v["buckets"]["a39f-0001"]["description"]), ("gardening", "soil and plants"))
+        self.assertEqual((v["buckets"]["bare"]["name"], v["buckets"]["bare"]["description"]), ("bare", ""))
+        self.assertTrue(v["closed"])
+
+    def test_a_closed_vocabulary_keeps_only_its_own_buckets_by_their_row_keys(self):
+        v, batch = self.vocabulary(), [{"id": 0}, {"id": 1}]
+        m.apply_reply(v, batch, {"moments": [{"id": 0, "buckets": ["Money Talk", "invented"], "relevance": 0.9},
+                                             {"id": 1, "buckets": ["a39f_0001", "plants"], "relevance": 0.8}],
+                                 "new_buckets": {"invented": "x"}})
+        self.assertEqual([b["buckets"] for b in batch], [["money-talk"], ["a39f-0001"]])
+        self.assertEqual(list(v["buckets"]), ["money-talk", "a39f-0001", "bare"])
+
+    def test_the_model_may_say_a_bucket_by_its_readable_name_and_it_is_kept_by_its_row_key(self):
+        v, batch = self.vocabulary(), [{"id": 0}]
+        m.apply_reply(v, batch, {"moments": [{"id": 0, "buckets": ["gardening", "Money Talk"], "relevance": 0.9}]})
+        self.assertEqual(batch[0]["buckets"], ["a39f-0001", "money-talk"])
+
+    def test_two_rows_with_one_key_are_refused_by_name(self):
+        twice = {"records": [{"id": "record:a:x", "value": {}}, {"id": "record:b:x", "value": {}}]}
+        with self.assertRaisesRegex(ValueError, "x"):
+            m.vocabulary_from_rows([twice], [], [])
 
 
 class CountTest(unittest.TestCase):

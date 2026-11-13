@@ -4,6 +4,7 @@
   fake_ollama.py REQUEST_LOG     prints its port on the first line, then serves until stopped.
 
 Rules: a moment with "money" is money talk (0.8); one with "gardens" is gardening tips (0.7); one with "um uh" is filler (0.05).
+A request holding a moment with "loopforever" is refused with a 500, as the model does when it repeats itself.
 A moment with "forgotten" is left out of the answer when more than one moment is asked about, so the tool must ask again alone.
 """
 import json
@@ -24,6 +25,11 @@ class Handler(BaseHTTPRequestHandler):
         asked = re.findall(r"^\[(\d+)\] (.*)$", user.split("Moments:\n", 1)[1], re.M)
         with open(LOG, "a") as handle:
             handle.write(json.dumps({"model": body["model"], "asked": [int(i) for i, _ in asked], "vocabulary": "- money_talk:" in user}) + "\n")
+        if any("loopforever" in t.lower() for _, t in asked):
+            self.send_response(500)
+            self.end_headers()
+            self.wfile.write(b'{"error":"prediction aborted, token repeat limit reached"}')
+            return
         answers, new = [], {}
         for ident, text in [(i, t.lower()) for i, t in asked]:
             if "forgotten" in text and len(asked) > 1:
