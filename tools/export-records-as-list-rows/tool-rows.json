@@ -290,6 +290,20 @@
                   "choices"
                 ]
               },
+              "pairs": {
+                "_what": "A link field that names, in `pairs_with`, the link field of the list it links to that holds the way back is one relationship seen from both sides (src/list-pairs.mjs). The engine applies it to every write of a row of the list, whichever road the write took: a row added to or taken from the link is added to or taken from the partner row's field in the same write, a removed row leaves the partner's link, and the partner field's own link_constraints.max_links refuses a write that would hold more. `links_to` is the slug of the list linked to, `declared_prefix` turns it into the id of that list's declaring record.",
+                "links_to": [
+                  "links_to"
+                ],
+                "pairs_with": [
+                  "pairs_with"
+                ],
+                "max_links": [
+                  "link_constraints",
+                  "max_links"
+                ],
+                "declared_prefix": "list:"
+              },
               "indexes": {
                 "path": [
                   "indexes"
