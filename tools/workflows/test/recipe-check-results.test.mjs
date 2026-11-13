@@ -12,18 +12,18 @@ const recipes = JSON.parse(readFileSync(new URL('../recipes/workflows.json', imp
 const identity = recipes.find(recipe => recipe.id === 'workflow:reach-local-businesses-by-zip-code').steps.find(step => step.id === 'identity');
 const tools = { tool: id => id === 'tool:list-email-sending-domains' };
 const output = domain => ({ tool: 'tool:list-email-sending-domains', sending_domain: domain, verified: true, separate_from_main: true });
-const input = { from: 'user-c0649ae5@example.com', main_domain: 'example.com' };
+const input = { from: 'sample sender on mail.sample.test', main_domain: 'sample.test' };
 const byKind = (results, kind) => results.find(result => result.kind === kind);
 
 test('the shipped differs-from check passes on a separate sending domain', () => {
-  const results = checkResults(identity, { this: output('send.example.com'), input, steps: {} }, { catalogs: tools });
+  const results = checkResults(identity, { this: output('mail.sample.test'), input, steps: {} }, { catalogs: tools });
   assert.deepEqual(byKind(results, 'differs-from'), { kind: 'differs-from', says: 'The sending identity is not on the main domain', passed: true, failing: [] });
   assert.ok(results.every(result => result.passed), JSON.stringify(results));
 });
 
 test('the shipped differs-from check fails when the step sends from the main domain', () => {
-  const results = checkResults(identity, { this: output('example.com'), input: { from: 'hello@example.com', main_domain: 'example.com' }, steps: {} }, { catalogs: tools });
-  assert.deepEqual(byKind(results, 'differs-from'), { kind: 'differs-from', says: 'The sending identity is not on the main domain', passed: false, failing: ['example.com'] });
+  const results = checkResults(identity, { this: output('sample.test'), input: { from: 'sample sender on sample.test', main_domain: 'sample.test' }, steps: {} }, { catalogs: tools });
+  assert.deepEqual(byKind(results, 'differs-from'), { kind: 'differs-from', says: 'The sending identity is not on the main domain', passed: false, failing: ['sample.test'] });
   assert.equal(byKind(results, 'mentioned-in').passed, true);
 });
 

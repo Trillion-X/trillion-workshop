@@ -113,7 +113,8 @@ test('local businesses: review signals, a separate identity, the person\'s addre
   assert.equal(source.prepare.find(row => row.fact === 'recent_review_share').days, 90);
   // Which addresses to write to is the person's input; the default keeps gmail.com and info@ addresses.
   const patterns = recipes.get(id).input_schema.properties.address_patterns.default.map(source => new RegExp(source));
-  assert.deepEqual(['info@example.com', 'user-29d2a398@example.com', 'owner@example.com', 'info@gmail', 'user-633bc76a@example.com'].map(address => patterns.some(pattern => pattern.test(address))), [true, true, false, false, false]);
+  const mailbox = (local, domain = 'mail.sample.test') => `${local}@${domain}`;
+  assert.deepEqual([mailbox('info'), mailbox('info', 'gmail.test'), mailbox('owner'), mailbox('info', 'gmail'), mailbox('someone')].map(address => patterns.some(pattern => pattern.test(address))), [true, true, false, false, false]);
   const addresses = stepOf(id, 'addresses');
   assert.ok(addresses.do.includes('input.address_patterns'));
   assert.ok(addresses.checks.some(check => check.kind === 'subset-of' && check.path.join('.') === 'this.kept.*.pattern' && check.of.join('.') === 'this.patterns'));
