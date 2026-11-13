@@ -4,7 +4,7 @@
 // body and never in an argument, a log line or the answer.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { keepHeldValue, readStdin, valueOf } from '../do-work/keep-a-held-value.mjs';
+import { keepHeldValue, readStdin, removeHeldValue, valueOf } from '../do-work/keep-a-held-value.mjs';
 import { trillionClient } from '../../use-trillion-from-a-shell/do-work/trillion.mjs';
 
 // A door that answers each JSON-RPC call with the structured content it is given, and keeps every request body it was sent.
@@ -50,4 +50,41 @@ test('stdin keeps every byte of the value except one trailing newline', async ()
   assert.equal(valueOf('ab\nc'), 'ab\nc');
   const stream = (await import('node:stream')).Readable.from([Buffer.from('se'), Buffer.from('cret\n')]);
   assert.equal(valueOf(await readStdin(stream)), 'secret');
+});
+
+test('a removal goes to held-values:remove with the name alone, and the answer says whether a value was held and what is known at the issuer', async () => {
+  const held = stubDoor({ name: 'synthetic-old-key', removed: true });
+  assert.deepEqual(await removeHeldValue({ name: 'synthetic-old-key', issuerStatus: 'revoked', client: held.client }),
+    { name: 'synthetic-old-key', removed: true, issuer_status: 'revoked' });
+  const call = held.bodies[0].params.arguments;
+  assert.equal(call.address, '@held-values');
+  assert.equal(call.method, 'held-values:remove');
+  assert.deepEqual(call.input, { name: 'synthetic-old-key' });
+  const absent = stubDoor({ name: 'synthetic-old-key', removed: false });
+  assert.deepEqual(await removeHeldValue({ name: 'synthetic-old-key', issuerStatus: 'unknown', client: absent.client }),
+    { name: 'synthetic-old-key', removed: false, issuer_status: 'unknown' });
+});
+
+test('a removal away from the writer says it was queued, and an answer that says neither is an error', async () => {
+  const queued = stubDoor({ name: 'synthetic-old-key', queued: true });
+  assert.deepEqual(await removeHeldValue({ name: 'synthetic-old-key', issuerStatus: 'unknown', client: queued.client }),
+    { name: 'synthetic-old-key', queued: true, issuer_status: 'unknown' });
+  const unclear = stubDoor({});
+  await assert.rejects(removeHeldValue({ name: 'synthetic-old-key', issuerStatus: 'unknown', client: unclear.client }), /did not answer the removal/);
+});
+
+test('a removal is refused before any call is sent when it has no name or says nothing about the issuer', async () => {
+  const { client, bodies } = stubDoor({ removed: true });
+  await assert.rejects(removeHeldValue({ name: '', issuerStatus: 'revoked', client }), /Name the held value/);
+  await assert.rejects(removeHeldValue({ name: 'synthetic-old-key', client }), /--issuer-status revoked or unknown/);
+  await assert.rejects(removeHeldValue({ name: 'synthetic-old-key', issuerStatus: 'maybe', client }), /--issuer-status revoked or unknown/);
+  assert.equal(bodies.length, 0);
+});
+
+test('a removal sends the same request key each time it is made, so a retry after a timeout is the same call', async () => {
+  const first = stubDoor({ name: 'synthetic-old-key', removed: true });
+  const second = stubDoor({ name: 'synthetic-old-key', removed: true });
+  await removeHeldValue({ name: 'synthetic-old-key', issuerStatus: 'revoked', client: first.client });
+  await removeHeldValue({ name: 'synthetic-old-key', issuerStatus: 'revoked', client: second.client });
+  assert.equal(first.bodies[0].params.arguments.request_key, second.bodies[0].params.arguments.request_key);
 });

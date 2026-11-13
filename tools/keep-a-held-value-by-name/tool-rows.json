@@ -1,7 +1,7 @@
 {
   "kind": "tool-rows",
   "record_set": "keep-a-held-value-by-name-tool-rows",
-  "what_this_is": "The Workshop row that keeps one held value under a name in the person's own vault, through the engine's held-values:put door operation. The value comes on stdin, never on the command line.",
+  "what_this_is": "The Workshop row that keeps one held value under a name in the person's own vault, or removes the value held under a name, through the engine's held-values:put and held-values:remove door operations. The value comes on stdin, never on the command line.",
   "records": [
     {
       "payload": {
@@ -14,8 +14,8 @@
           "placement:your-computer"
         ],
         "label": "Keep a held value by name in my vault",
-        "job": "Keep one secret value (a key, a token) under a name in my own Trillion vault, so my tools and AIs can use it by name without ever seeing it",
-        "description": "Stores the value on stdin under the given name in the person's own vault through the engine's held-values:put operation, with the person's own key as the credential. The name is one the vault accepts, and a service connection's own names are refused by the engine. The value never goes on a command line, into a log or into the answer: the answer is {name, accepted}. Accepted means written at the writer, or queued sealed for the writer when this computer is not the writer. Connections keep their values through service-connections; use this for any other secret.",
+        "job": "Keep one secret value (a key, a token) under a name in my own Trillion vault, or remove the value held under a name, so my tools and AIs can use it by name without ever seeing it",
+        "description": "Stores the value on stdin under the given name in the person's own vault through the engine's held-values:put operation, with the person's own key as the credential. The name is one the vault accepts, and a service connection's own names are refused by the engine. The value never goes on a command line, into a log or into the answer: the answer is {name, accepted}. Accepted means written at the writer, or queued sealed for the writer when this computer is not the writer. Connections keep their values through service-connections; use this for any other secret. With --remove NAME --issuer-status revoked|unknown it removes the value held under that name through held-values:remove instead, reads no stdin and answers {name, removed, issuer_status} (removed false when none was held) or {name, queued: true, issuer_status} when this computer is not the writer. Removing a held value does not revoke it at its issuer, so the caller says whether it was revoked there or is unknown.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -25,21 +25,20 @@
             "arguments": {
               "type": "array",
               "minItems": 1,
-              "maxItems": 1,
+              "maxItems": 4,
               "items": {
                 "type": "string",
                 "minLength": 1,
-                "description": "The held value's name, one word."
+                "description": "The held value's name, one word; or --remove, the name, --issuer-status, then revoked or unknown."
               },
-              "description": "Exactly one argument: the name."
+              "description": "The name; or --remove NAME --issuer-status revoked|unknown."
             }
           }
         },
         "output_schema": {
           "type": "object",
           "required": [
-            "name",
-            "accepted"
+            "name"
           ],
           "properties": {
             "name": {
@@ -47,6 +46,18 @@
             },
             "accepted": {
               "const": true
+            },
+            "removed": {
+              "type": "boolean"
+            },
+            "queued": {
+              "const": true
+            },
+            "issuer_status": {
+              "enum": [
+                "revoked",
+                "unknown"
+              ]
             }
           }
         },
@@ -56,7 +67,7 @@
             "clone the Workshop repository (package.json repository.url)"
           ],
           "run": "node tools/keep-a-held-value-by-name/do-work/keep-a-held-value.mjs {arguments}",
-          "stdin": "the value, exactly as it is to be kept (one trailing newline is removed)",
+          "stdin": "the value, exactly as it is to be kept (one trailing newline is removed); none with --remove",
           "needs": [
             "node 22 or later",
             "the person's own Trillion sign-in (trillion login, or the Mac app's key)"
