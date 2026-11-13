@@ -5,12 +5,15 @@
 // start the AI can leave out; a step with one agent starts nothing. The run is the ai-job tool:start-a-recipe-run wrote.
 //
 //   startARecipeStep({ input: { run, step }, task: { request_key } }, { door, most_writes })
-//     -> { step: { id, title, do, submit, checks, agents, lanes? }, lane_jobs: [{ lane, job }], status }
+//     -> { step: { id, title, do, submit, checks, agents, lanes? }, lane_jobs: [{ lane, job, as, take, finish }], status }
+//
+// Each lane carries the AI id it takes and finishes its job under (`as`) and the two commands that do it, so the lanes of
+// one session are told six different ids and the submit's distinct-taker check means six workers.
 //
 // `status` is the fan-out's: 'written', 'already-there' or 'one-agent'. The step's `lane-jobs` check, judged when the
 // answer is submitted (submit-a-recipe-step.mjs), is what refuses an answer for lanes that were never started.
 
-import { agentsOf, laneIds, laneJobId } from './step-agents.mjs';
+import { agentsOf, laneCommands, laneIds, laneJobId } from './step-agents.mjs';
 import { startAStepsAgents } from './start-a-steps-agents.mjs';
 
 const JOB_KIND = 'ai-job';
@@ -23,6 +26,6 @@ export async function startARecipeStep({ input = {}, task = {} } = {}, { door, m
   const step = (parent.job ?? []).find(item => item.id === stepId);
   if (!step) throw new Error(`Run ${run} has no step "${stepId}".`);
   const { status } = agentsOf(step) === 1 ? { status: 'one-agent' } : await startAStepsAgents({ input: { run, step: stepId }, task }, { door, most_writes });
-  const lane_jobs = status === 'one-agent' ? [] : laneIds(step).map(lane => ({ lane, job: laneJobId(run, stepId, lane) }));
+  const lane_jobs = status === 'one-agent' ? [] : laneIds(step).map(lane => ({ lane, job: laneJobId(run, stepId, lane), ...laneCommands(run, stepId, lane) }));
   return { step, lane_jobs, status };
 }

@@ -7,6 +7,8 @@
 //   agentsOf(step) -> whole number >= 1       (throws when `agents` is anything else)
 //   laneIds(step) -> [lane id]                one per agent, each different
 //   laneJobId(run, step, lane) -> job id      the id of the ai-job that runs that lane of that step in that run
+//   laneAiId(run, lane) -> AI id            the AI id the lane's job is taken and finished under, its own, never the session's
+//   laneCommands(run, step, lane) -> { as, take, finish }   the exact commands that take and finish that lane's job under that id
 //   agentProblems(step, name) -> [problem]    what is wrong with a step's agents and lanes, for the recipe validator
 
 export function agentsOf(step) {
@@ -21,6 +23,16 @@ export function laneIds(step) {
 }
 
 export const laneJobId = (run, step, lane) => `${run}:${step}:${lane}`;
+
+// Sub-agents and sessions started from one session otherwise act as that one AI, and the lane-jobs check, which wants a
+// different taker for every lane, could not tell six lanes from one worker. Each lane is told its own id; the id is made
+// only of the run and the lane, so a start that comes again hands the same one.
+export const laneAiId = (run, lane) => `ai:${`${String(run).replace(/^ai-job:/, '')}-${lane}`.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}`;
+
+export function laneCommands(run, step, lane) {
+  const as = laneAiId(run, lane), job = laneJobId(run, step, lane);
+  return { as, take: `trillion take ${job} --as ${as}`, finish: `trillion finish ${job} "<result>" --as ${as}` };
+}
 
 export function agentProblems(step, name) {
   if (step.agents !== undefined && !(Number.isInteger(step.agents) && step.agents >= 1)) return [`${name}.agents must be a whole number from 1 up.`];

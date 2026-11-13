@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import { laneIds, laneJobId } from '../read-data/step-agents.mjs';
+import { laneAiId, laneCommands, laneIds, laneJobId } from '../read-data/step-agents.mjs';
 import { startARecipeStep } from '../read-data/start-a-recipe-step.mjs';
 import { answerId, submitARecipeStep } from '../read-data/submit-a-recipe-step.mjs';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
@@ -36,7 +36,7 @@ test('beginning a step with several agents starts its lane jobs in the same call
     const began = await startARecipeStep({ input: { run, step: 'dig' }, task: { request_key: 'b1' } }, { door });
     assert.equal(began.status, 'written');
     assert.equal(began.step.id, 'dig');
-    assert.deepEqual(began.lane_jobs, laneIds(step).map(lane => ({ lane, job: laneJobId(run, 'dig', lane) })));
+    assert.deepEqual(began.lane_jobs.map(({ lane, job }) => ({ lane, job })), laneIds(step).map(lane => ({ lane, job: laneJobId(run, 'dig', lane) })));
     assert.ok(began.lane_jobs.every(({ job }) => door.held.get(job).value.status === 'waiting'), `${agents} agents`);
   }
 });
@@ -141,4 +141,32 @@ test('the shipped rows declare only ai-job read and write, take only run, step a
   const alone = await answerOf(hand, { run, step: 'dig', answer: answerFor(step) }, { task: { request_key: 'r3' }, records: began.kept.map(record => (record.id === run ? record : { ...record, value: { ...record.value, status: 'done', finished_by: 'ai:one' } })) });
   assert.notEqual(alone.status, 0);
   assert.match(alone.error ?? alone.stderr ?? '', /fails/);
+});
+
+test('each lane is handed its own AI id and the exact commands to take and finish its job under it', async () => {
+  const step = stepOf({ agents: 6 });
+  const door = memoryDoor([step]);
+  const began = await startARecipeStep({ input: { run, step: 'dig' }, task: { request_key: 'b1' } }, { door });
+  const ids = began.lane_jobs.map(item => item.as);
+  assert.equal(new Set(ids).size, 6, 'six lanes, six different ids');
+  for (const item of began.lane_jobs) {
+    assert.match(item.as, /^ai:[a-z0-9-]+$/);
+    assert.equal(item.take, `trillion take ${item.job} --as ${item.as}`);
+    assert.equal(item.finish, `trillion finish ${item.job} "<result>" --as ${item.as}`);
+    assert.equal(door.held.get(item.job).value.take_as, item.as, 'the lane job row carries it too');
+    assert.ok(door.held.get(item.job).value.lane_note.includes(item.take));
+  }
+  // the same start again hands the same ids, and another run's lane never shares one
+  assert.deepEqual((await startARecipeStep({ input: { run, step: 'dig' }, task: { request_key: 'b2' } }, { door })).lane_jobs.map(item => item.as), ids);
+  assert.notEqual(laneAiId('ai-job:workflow:made-up-dig:k2', 'dig-1'), laneAiId(run, 'dig-1'));
+  assert.equal(laneCommands(run, 'dig', 'dig-1').as, ids[0]);
+  assert.deepEqual((await startARecipeStep({ input: { run, step: 'nothing-here' }, task: { request_key: 'b3' } }, { door }).catch(() => 'refused')), 'refused');
+});
+
+test('lanes that take their jobs by the commands handed back are six workers to the submit check', async () => {
+  const step = stepOf({ agents: 6 });
+  const door = memoryDoor([step]);
+  const began = await startARecipeStep({ input: { run, step: 'dig' }, task: { request_key: 'b1' } }, { door });
+  for (const item of began.lane_jobs) door.held.set(item.job, { ...door.held.get(item.job), value: { ...door.held.get(item.job).value, status: 'done', finished_by: item.as } });
+  assert.equal((await submit(door, { run, step: 'dig', answer: answerFor(step) })).status, 'kept');
 });

@@ -12,7 +12,7 @@
 // first lane last: its job being there means every lane job is, so a start that comes again finds it and changes none,
 // even one an AI already finished. A batch that fails midway is sent again with its same request key.
 
-import { agentsOf, laneIds, laneJobId } from './step-agents.mjs';
+import { agentsOf, laneCommands, laneIds, laneJobId } from './step-agents.mjs';
 import { writeBatches } from '../../records-door/read-data/write-batches.mjs';
 
 const JOB_KIND = 'ai-job';
@@ -36,7 +36,8 @@ export async function startAStepsAgents({ input = {}, task = {} } = {}, { door, 
     value: {
       kind: JOB_KIND, status: 'waiting', row: parent.row, label: `${parent.label}: ${step.title ?? step.id}, lane ${lane}`,
       parent: run, step: stepId, lane, of: lanes.length, job: [step], input: parent.input ?? {}, cause: parent.cause ?? null,
-      lane_note: `You are lane ${lane} (${at + 1} of ${lanes.length}) of this step. Do only this lane's part, and hand back that lane's item of the step's answer with its id set to ${lane}.`,
+      take_as: laneCommands(run, stepId, lane).as,
+      lane_note: `You are lane ${lane} (${at + 1} of ${lanes.length}) of this step. Take and finish this job under your own id, ${laneCommands(run, stepId, lane).as} (${laneCommands(run, stepId, lane).take}), never your session's, so the step's check counts you as a separate worker. Do only this lane's part, and hand back that lane's item of the step's answer with its id set to ${lane}.`,
     },
   }));
   const batches = writeBatches([...records.slice(1), records[0]], { rows: most_writes, bytes: DOOR_BYTES });

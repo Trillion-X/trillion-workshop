@@ -477,25 +477,40 @@
               "type": "object",
               "description": "The step as the run holds it: id, title, do, submit, checks, agents, lanes"
             },
-            "lane_jobs": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "required": [
-                  "lane",
-                  "job"
-                ],
-                "properties": {
-                  "lane": {
-                    "type": "string"
-                  },
-                  "job": {
-                    "type": "string"
-                  }
-                }
+        "lane_jobs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "lane",
+              "job",
+              "as",
+              "take",
+              "finish"
+            ],
+            "properties": {
+              "lane": {
+                "type": "string"
               },
-              "description": "Each lane and the id of the ai-job that runs it; empty when the step has one agent"
-            },
+              "job": {
+                "type": "string"
+              },
+              "as": {
+                "type": "string",
+                "description": "The AI id this lane takes and finishes its job under"
+              },
+              "take": {
+                "type": "string",
+                "description": "The exact command that takes the lane's job as that id"
+              },
+              "finish": {
+                "type": "string",
+                "description": "The exact command that finishes it as that id"
+              }
+            }
+          },
+          "description": "Each lane, the id of the ai-job that runs it and the commands to take and finish it under its own AI id; empty when the step has one agent"
+        },
             "status": {
               "type": "string",
               "enum": [
