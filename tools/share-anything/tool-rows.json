@@ -1,0 +1,412 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:share-anything",
+        "label": "Share anything",
+        "status": "active",
+        "job": "Share anything of mine read-only, from one record or one piece of text to a whole list or any mix of records, with a person, an AI or anyone holding a link; show who has access; and stop it",
+        "description": "op share (the default job): give grant (sharing: plus the thing's label; read-data/share-label.mjs grantOf makes it, and the answer of any earlier call names it), thing (one of { type, id }, { list } for a list and all its rows, { text, title? } for a piece of text, or { items: [{ type, id? | prefix? }], title } for any mix) and who: with (a list of names of people or AIs, each given a key of its own) and/or link: true (one key anyone can hold). Optional until (a future ISO time the share ends) and origin (https:// address that opens a link: url is then origin/share/<key>). A share only lets people view (can: [\"view\"]). It keeps the share as one record of yours and answers each key once: the key itself is not kept anywhere, only a digest of it, so lose it and share again after stopping. A person or AI presents the key at your door (records:read and records:list inside what was shared) and a person opens the url in a browser. op stop: give grant, and principal to stop one person (principal \"link\" stops the link), or leave principal out to stop everyone. op access: give grant; answers who can open it now (people with when added, the link, until when, whether it is open, stopped or ended), never a key.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "grant"
+          ],
+          "properties": {
+            "op": {
+              "type": "string",
+              "enum": [
+                "share",
+                "stop",
+                "access"
+              ],
+              "default": "share"
+            },
+            "grant": {
+              "type": "string",
+              "minLength": 9,
+              "maxLength": 400,
+              "description": "Where the share is kept: sharing: plus the thing's label"
+            },
+            "thing": {
+              "type": "object",
+              "description": "What is shared: one of { type, id } (one record), { list } (a list and all its rows), { text, title? } (a piece of text) or { items: [{ type, id? | prefix? }], title } (any mix; an item with neither id nor prefix is every record of that type). The share's label is read-data/share-label.mjs labelOf.",
+              "additionalProperties": false,
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "list": {
+                  "type": "string",
+                  "description": "A list's id, with or without list:"
+                },
+                "text": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "items": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 64,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "type": "string"
+                      },
+                      "prefix": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "with": {
+              "type": "array",
+              "maxItems": 64,
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "principal"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "principal": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                ]
+              },
+              "description": "Who to share with: names of people or AIs"
+            },
+            "link": {
+              "type": "boolean",
+              "description": "Also make one link anyone holding it can open"
+            },
+            "can": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "view"
+                ]
+              }
+            },
+            "until": {
+              "type": "string",
+              "description": "When the share ends: a future ISO time"
+            },
+            "origin": {
+              "type": "string",
+              "description": "https:// address a link opens on"
+            },
+            "title": {
+              "type": "string",
+              "description": "What the share is called; the thing's own name when left out"
+            },
+            "principal": {
+              "type": "string",
+              "description": "stop: the one person or AI to stop (link for the link); everyone when left out"
+            },
+            "now": {
+              "type": "string",
+              "description": "The time to decide at (ISO); now when left out"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "op",
+            "label",
+            "grant"
+          ],
+          "properties": {
+            "op": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            },
+            "grant": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "reach": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "people": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "principal": {
+                    "type": "string"
+                  },
+                  "key": {
+                    "type": "string",
+                    "description": "share only: shown once"
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string"
+                  },
+                  "added_at": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            },
+            "link": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                },
+                "on": {
+                  "type": "boolean"
+                },
+                "added_at": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            },
+            "removed": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "state": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "enum": [
+                "open",
+                "stopped",
+                "ended",
+                null
+              ]
+            },
+            "shared": {
+              "type": "boolean"
+            },
+            "can": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "expires_at": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "revoked_at": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "share-anything",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/share-anything"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          },
+          "workdir": "/opt/share-anything",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/share-anything/do-work/share-anything.mjs",
+            "shareAnything"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "@own-records",
+                "id": {
+                  "fill": {
+                    "from": "input",
+                    "field": "grant"
+                  }
+                },
+                "operations": [
+                  "workspace:read",
+                  "workspace:write"
+                ]
+              },
+              {
+                "kind": "list",
+                "prefix": "list:",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "shared-text",
+                "prefix": "shared-text:",
+                "operations": [
+                  "records:write"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:share-anything",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "old trillion src/record-sharing.mjs (4ffa1dc4a2^): the end of a share (a future time or none), one share record per thing, stopping one link or everything, and each link its own code; the sealed-link tool and the board capsule it replaces; the share record's shape is trillion-rust src/account_rights/share-grant.json door_grant reach"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "op": "share",
+              "grant": "sharing:list:sample",
+              "thing": {
+                "list": "sample"
+              },
+              "with": [
+                "sample-person"
+              ],
+              "link": true
+            },
+            "output_selector": "$.label",
+            "contains": "list:sample",
+            "records": [
+              {
+                "id": "list:sample",
+                "type": "list",
+                "value": {
+                  "label": "Sample list",
+                  "row_type": "sample-row",
+                  "fields": [
+                    {
+                      "id": "title",
+                      "label": "Title"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

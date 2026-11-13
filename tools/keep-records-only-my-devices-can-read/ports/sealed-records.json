@@ -49,7 +49,7 @@
  "proof": {
   "minimum_meaningful_line_retention": 0.6,
   "test_refs": [
-   "tools/keep-records-only-my-devices-can-read/tool-rows.json sample run (tool:share-a-record-by-a-sealed-link)"
+   "tools/keep-my-records-on-this-device/tool-rows.json sample run (the device copy worker imports do-work/sealed-records.mjs)"
   ]
  }
 }

@@ -240,6 +240,17 @@ export function recordsDoorFromCall(call, { filesResource, resource, toolsResour
         expired: () => new RecordsDoorError('write_pending', WORDS.write_pending, 'unknown'),
       });
     },
+    // One or more of the person's workspace labels written whole (`workspace:write { writes: [{ address_label, payload }] }`),
+    // for a row that declares `{ kind: "@own-records", id: "<label>", operations: ["workspace:write"] }` per label. `key` makes it
+    // safe to send again: the same key answers the write it already made. A conflict keeps both versions (policy preserve).
+    async writeWorkspace(writes, { key = `workspace:write:${randomUUID()}` } = {}) {
+      if (!Array.isArray(writes) || writes.length < 1 || writes.length > 64
+        || writes.some(write => !write || typeof write.address_label !== 'string' || !write.address_label || write.address_label.length > 300 || !('payload' in write))
+        || new Set(writes.map(write => write.address_label)).size !== writes.length) {
+        throw new RecordsDoorError('original_input_refused', WORDS.original_input_refused, 'not_started');
+      }
+      return call('workspace:write', { writes, conflict_policy: 'preserve' }, key, resource);
+    },
     // One operation on the person's Namespace files (list_files, read_file, find_file ...), at the files resource the run
     // was handed when its row declares a `files` right; a run handed none is refused before anything is sent.
     async files(method, input) {

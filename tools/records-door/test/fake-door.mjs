@@ -73,6 +73,18 @@ export async function startFakeDoor({ throttleFirst = 0, retryAfter = null, file
         content_type: 'application/json', status: 200, text: JSON.stringify(result), request_key: 'workspace-key', ...workspaceEnvelope,
       } };
     },
+    // A whole workspace label written for a run whose rights name that exact label with `workspace:write`; a same key answers the
+    // receipt it already saved. Writes land in the records `workspace:read` answers.
+    'workspace:write': ({ writes, conflict_policy: policy, ...rest }, key) => {
+      if (Object.keys(rest).length || !['preserve', 'retry', undefined].includes(policy) || !Array.isArray(writes) || writes.length < 1 || writes.length > 64
+        || writes.some(write => !write || typeof write.address_label !== 'string' || !write.address_label || !('payload' in write))) return refuse('original_input_refused');
+      if (receipts.has(key)) return { structuredContent: receipts.get(key) };
+      if (!writes.every(write => may('@own-records', 'workspace:write', { id: write.address_label }))) return refuse(OUTSIDE);
+      for (const write of writes) workspaceRecords[write.address_label] = structuredClone(write.payload);
+      const receipt = { changed: writes.length, write_count: writes.length };
+      receipts.set(key, receipt);
+      return { structuredContent: receipt };
+    },
     // `limit` bounds the rows read; `where` keeps those whose named fields equal it (as JSON), `fields` narrows each value.
     'records:list': ({ type, prefix, order, limit = 50, after, fields, where, above, below, reverse = true }) => {
       if (!may(type, 'records:list', { prefix, order })) return refuse(OUTSIDE);

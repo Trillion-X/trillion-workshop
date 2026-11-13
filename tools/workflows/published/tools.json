@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:e3ddfcf14eea79f0f1420c44369045addb174f42f1b3847568c6ed6b2442d873"
+  "blake3": "1f:5436588378f6d3bbd459dc3910c6a2dcd7cdeba2c2c81177a85926df6aa5570b"
  },
  "fields": [
   {
@@ -12320,22 +12320,18 @@
    }
   },
   {
-   "id": "tool:share-a-record-by-a-sealed-link",
+   "id": "tool:share-anything",
    "values": {
-    "title": "Share a record by a sealed link",
-    "job": "Share one record by a sealed link whose key rides only in the part after the #, so the store keeps only ciphertext it cannot read, and open it again from that link",
-    "description": "op seal (the default): give id (the record id the copy is sealed under), record ({ type, value }) and address (the web address the link opens). The record is sealed with AES-GCM under a fresh 32-byte key of the link's own, the id bound as associated data; answers link (address with the key and the record id in its fragment, which a browser never sends to a server), sealed_copy ({ content_id, value }: the only thing to give the store, which cannot read it), content_id and opens (the copy opened again from the link in this run). op open: give id, link and copy (a sealed_copy); the copy is checked whole (one bounded sealed value matching its content_id) and opened with the key the link carries; answers record. Refuses, in plain words, another key, a changed or moved copy, a link with no key. It keeps and sends nothing; sealing with a device's own key, syncing ciphertext and sealed files are the device copy's and are not run here.",
+    "title": "Share anything",
+    "job": "Share anything of mine read-only, from one record or one piece of text to a whole list or any mix of records, with a person, an AI or anyone holding a link; show who has access; and stop it",
+    "description": "op share (the default job): give grant (sharing: plus the thing's label; read-data/share-label.mjs grantOf makes it, and the answer of any earlier call names it), thing (one of { type, id }, { list } for a list and all its rows, { text, title? } for a piece of text, or { items: [{ type, id? | prefix? }], title } for any mix) and who: with (a list of names of people or AIs, each given a key of its own) and/or link: true (one key anyone can hold). Optional until (a future ISO time the share ends) and origin (https:// address that opens a link: url is then origin/share/<key>). A share only lets people view (can: [\"view\"]). It keeps the share as one record of yours and answers each key once: the key itself is not kept anywhere, only a digest of it, so lose it and share again after stopping. A person or AI presents the key at your door (records:read and records:list inside what was shared) and a person opens the url in a browser. op stop: give grant, and principal to stop one person (principal \"link\" stops the link), or leave principal out to stop everyone. op access: give grant; answers who can open it now (people with when added, the link, until when, whether it is open, stopped or ended), never a key.",
     "status": "active",
-    "maker": "maker:keep-records-only-my-devices-can-read",
+    "maker": "maker:share-anything",
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:small-container"
     ],
-    "listed_on": "2026-11-04T00:00:00Z",
-    "folder": "keep-records-only-my-devices-can-read",
-    "flags": [
-     "read-only"
-    ]
+    "folder": "share-anything"
    }
   },
   {

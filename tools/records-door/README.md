@@ -36,6 +36,11 @@ A row asks for the door in its invoke, with one rights item per record kind:
     selections are refused under exact-label rights. `door.readWorkspace(labels)` verifies the HTTP envelope, parses
     the raw `{ records }` JSON text, and returns it unchanged. Missing labels remain absent keys; stored nulls,
     arrays and objects keep their original JSON values. Large answers use the shared byte-page reader and BLAKE3 check.
+  - `workspace:write { writes: [{ address_label, payload }], conflict_policy? }` writes whole workspace labels. The run row
+    must declare each label separately as `{ kind: "@own-records", id: "<label>", operations: ["workspace:write"] }` (an id
+    may be filled from the input), and every label written must be one of them. `door.writeWorkspace(writes, { key })` sends
+    it with policy `preserve` (a conflicting write keeps both versions) and answers the engine's receipt; the same key
+    answers the write it already made. Read the labels back with `door.readWorkspace` to know what is kept.
   - `records:list { type, order?, prefix?, above?, below?, reverse?, fields?, where?, limit? (1..999), after? }` gives
     `{ records, next }`. With no order it lists the greatest id first. Keep paging until `next` is null. `fields` (at
     most 64 top-level names) narrows each value to those fields; `[]` gives ids and types only. `where` (at most 64

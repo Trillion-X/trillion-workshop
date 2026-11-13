@@ -1,0 +1,65 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-SHARE-ANYTHING",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "sharing-build lane 2026-11-12: the one sharing primitive works again end to end, for people and for AIs",
+  "message_multihash": "1f:4612846f01215e3b824656071ecf78d67add9003adfd34197fed52157655f24c",
+  "quote": "Build the Workshop tool \"share anything\", porting the logic one to one from the extracted owner where it is correct."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "share anything of mine read-only with a person, an AI or anyone holding a link, from one record or one piece of text to a whole list or any mix of records, show who has access to it and stop it",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/share-anything/do-work/share-anything.mjs"
+  },
+  {
+   "path": "tools/share-anything/read-data/share-label.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/write-public-share-files/",
+   "why": "it writes static public files for the links the retired share reader answered; this tool keeps the share record the engine reads live and gives each reader a key of its own"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/decide-when-things-show/",
+   "why": "its share-a-kept-show-type tool shares one show-rule preset by the older record shape (one label); this one shares any records by a reach, and writes the share itself instead of handing back records to keep"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/keep-records-only-my-devices-can-read/",
+   "why": "the sealed-link tool it held is deleted in this change; the folder keeps the sealing library the device copy worker imports"
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "share anything of mine read-only with a person, an AI or anyone holding a link",
+    "share a list with someone and show who has access",
+    "stop sharing with a person"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "key_blake3",
+    "sharing:"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "a7d017de18380db5100cc23a8058a2f2bba07629"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/share-anything/test/share-anything.test.mjs"
+  ]
+ }
+}

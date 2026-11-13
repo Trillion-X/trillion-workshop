@@ -10,9 +10,7 @@ Records only the person's own devices can open: a device seals a record with a k
 | `do-work/sealed-records.mjs` | Derive or make a sealing key, seal and open a record, check that a value is a sealed value and nothing more; seal names deterministically; seal a record for a link; seal and open a file's bytes |
 | `do-work/sealed-records.json` | DATA: the BLAKE3 derive-key context of each derived key (`contexts`), the longest sealed name, the fragment parameter a link key rides in, the sealed file reference kind and id prefix, the largest sealed link copy |
 | `do-work/sealed-copy.mjs` | Sealed records on one device's copy (parts/device-copy): unlock the person's one sealing key from their passphrase, seal, open, open back for good, and search inside sealed records after opening |
-| `do-work/share-a-sealed-record.mjs` | `shareASealedRecord({ op, id, record, address, link, copy })`: seal one record for a link whose key rides after the #, or open it from that link (what `tool-rows.json` runs) |
 | `moved-from.json` | Where `do-work/sealed-records.mjs` came from (Trillion-X/trillion at 4ffa1dc4a2^) and the identity of its bytes |
-| `tool-rows.json` | The row `tool:share-a-record-by-a-sealed-link`, with a sample that seals a made-up note and opens it again from its link |
 
 ## Key Types / Functions
 
