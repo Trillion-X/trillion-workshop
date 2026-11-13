@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:86aee757e2d4737ffa444d76811f8236cec6b5df2948651183c0f0c658504cb6"
+  "blake3": "1f:73099c56b9138cb4107346130a193220a3841a13df3fd82a55db87b30d3903b1"
  },
  "fields": [
   {
@@ -12908,6 +12908,21 @@
    }
   },
   {
+   "id": "tool:start-a-recipe-step",
+   "values": {
+    "title": "Start one step of a recipe run and get its work, with its lane jobs when it has several agents",
+    "job": "Begin a step of my recipe run: get the step with what to do, and when it says it has several agents have each agent's own job started in my own records, in the same call",
+    "description": "Reads the run (the ai-job tool:start-a-recipe-run wrote) and its step. A step with one agent is handed back as it is. A step whose agents is above 1 has its lane jobs started by this same call (tool:start-a-steps-agents does the writing, in door-sized batches, none twice), so the run's AI has no separate start to leave out; the lane jobs are handed back with the step. Each lane's job is then done by its own AI. tool:submit-a-recipe-step refuses an answer for lanes whose jobs never ran.",
+    "status": "active",
+    "maker": "maker:workflows",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "workflows"
+   }
+  },
+  {
    "id": "tool:start-a-steps-agents",
    "values": {
     "title": "Start the agents of one step of a recipe run: one waiting job per lane",
@@ -13058,6 +13073,21 @@
     "flags": [
      "read-only"
     ]
+   }
+  },
+  {
+   "id": "tool:submit-a-recipe-step",
+   "values": {
+    "title": "Hand in the answer to one step of a recipe run, judged by the step's checks on what the records hold",
+    "job": "Hand in my answer to a step of my recipe run, and have it kept only when the step's checks pass, judged on what my own records say ran",
+    "description": "Reads the run, the step and the answers kept for the steps before it, and judges the step's checks. The ran-job catalog the lane-jobs check looks in is built here from each lane's own ai-job (<run>:<step>:<lane>): a lane's job ran when its status is done, and its taker is who finished it. The caller gives only run, step and answer; an input that carries a catalog or anything else is refused. A failing check refuses the answer and keeps nothing; a check that cannot be judged here is listed as unchecked, never as passed. A passing answer is kept as the ai-job <run>#answer:<step>; a submit that comes again finds it and changes nothing.",
+    "status": "active",
+    "maker": "maker:workflows",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "workflows"
    }
   },
   {

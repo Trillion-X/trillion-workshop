@@ -387,133 +387,585 @@
           "placement:small-container"
         ],
         "maker": "maker:workflows",
-        "record_model": {
-          "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
-          "kinds": [
-            {
-              "type": "shared",
-              "_read_by": "Every share surface writes one record shared:<request key> when the person leaves File in on You figure it out (trillion ios/Shared/ShareRecord.swift, extension/src/share-record.mjs); the Workshop recipe turn-something-shared-into-what-you-can-use wakes on this kind and files it. items are {kind: link, url} | {kind: selection, text} | {kind, name, file: <file identity>}.",
-              "properties": {
-                "title": "text",
-                "items": "objects",
-                "own_words": "text",
-                "from": "text",
-                "at": "text"
-              }
-            },
-            {
-              "type": "trigger-rule",
-              "guard_properties": {
-                "set_by": "text",
-                "backs": "objects",
-                "default": "boolean",
-                "dispatch": "object",
-                "enabled": "boolean",
-                "id": "text",
-                "is_active": "boolean",
-                "label": "text",
-                "match_condition": "object",
-                "set_at": "text",
-                "then": "object",
-                "when": "object"
-              }
-            },
-            {
-              "type": "trigger-dispatch-outcome",
-              "guard_properties": {
-                "address": "text",
-                "attempt": "number",
-                "attempt_ref": "text",
-                "correlation": "any",
-                "delivery_receipt": "any",
-                "dispatch": "object",
-                "envelope": "object",
-                "failure": "any",
-                "kind": "text",
-                "recorded_at": "text",
-                "rule_address": "text",
-                "rule_id": "text",
-                "started": "object",
-                "status": "text",
-                "target": "text"
-              }
-            },
-            {
-              "type": "workflow-dispatch-failure",
-              "guard_properties": {
-                "address": "text",
-                "change_kind": "text",
-                "envelope": "object",
-                "error": "text",
-                "kind": "text",
-                "phase": "text",
-                "recorded_at": "text",
-                "rule_address": "text",
-                "rule_id": "text",
-                "target": "text"
-              }
-            }
-          ],
-          "_what_moved": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it.",
-          "native_inspection": {
-            "limits": {
-              "value_bytes": 1500000,
-              "owner_reads": 4,
-              "nodes": 20000,
-              "facts": 2000,
-              "depth": 64,
-              "reference_chars": 500
-            },
-            "readers": [
-              {
-                "reader": "connection",
-                "type": "connection",
-                "pattern": "^(connection:[^/\\s]+)$",
-                "canonical": "$1"
-              },
-              {
-                "reader": "connection",
-                "type": "connection",
-                "pattern": "^(shared-connection:[^/\\s]+)$",
-                "canonical": "$1"
-              },
-              {
-                "reader": "setup-reference",
-                "type": "workflow-run",
-                "pattern": "^(?:workflow-run:)?(run:[A-Za-z0-9_-]+)$",
-                "canonical": "$1"
-              },
-              {
-                "reader": "setup-reference",
-                "type": "workflow-output",
-                "pattern": "^(workflow-output:run:[A-Za-z0-9_-]+:[a-z0-9][a-z0-9_-]*)$",
-                "canonical": "$1"
-              }
-            ]
-          },
-          "rules_and_runs": {
-            "_what": "The record kinds the engine's rules and workflow runs (trillion-rust src/rule_bindings/rules_and_runs.rs) read and write for this account, moved from trillion-rust src/rule_bindings/rules_and_runs/settings.json, there from old trillion src/automations.mjs and src/workflows.mjs: `rule` is the kind of a rule row (its id is the kind, a colon and the rule's id), `outcome` the kind the trigger rules' own writes are kept as when they name none, `run` a workflow run's row, `recipe` the row holding a workflow's definition, `send` the row a rule's send to a tool is kept as for the wake runner, and `own` every kind these rules and runs write, never handed to the rules as a change. With this tool not installed, no rule runs.",
-            "rule": "trigger-rule",
-            "outcome": "trigger-dispatch-outcome",
-            "run": "workflow-run",
-            "recipe": "workflow-recipe",
-            "send": "rule-tool-send",
-            "own": [
-              "trigger-rule",
-              "trigger-dispatch-outcome",
-              "workflow-dispatch-failure",
-              "workflow-run",
-              "workflow-recipe",
-              "rule-tool-send"
-            ]
-          }
-        },
         "verify": [
           {
             "kind": "sample-run",
             "input": {
-              "row": "workflow:bring-in-a-framework"
+              "run": "ai-job:workflow:sample-dig:k1",
+              "step": "dig"
+            },
+            "records": [
+              {
+                "id": "ai-job:workflow:sample-dig:k1",
+                "type": "ai-job",
+                "value": {
+                  "kind": "ai-job",
+                  "status": "taken",
+                  "row": "workflow:sample-dig",
+                  "label": "Sample dig",
+                  "job": [
+                    {
+                      "id": "dig",
+                      "title": "Dig",
+                      "do": "Dig in your lane.",
+                      "submit": {
+                        "type": "object",
+                        "required": [
+                          "lanes"
+                        ]
+                      },
+                      "agents": 2,
+                      "checks": [
+                        {
+                          "kind": "lane-jobs",
+                          "says": "Every lane comes from its own job that ran",
+                          "path": [
+                            "this",
+                            "lanes"
+                          ],
+                          "lane": "id",
+                          "job": "job"
+                        }
+                      ]
+                    }
+                  ],
+                  "input": {
+                    "topic": "sample"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:start-a-recipe-step",
+        "label": "Start one step of a recipe run and get its work, with its lane jobs when it has several agents",
+        "status": "active",
+        "job": "Begin a step of my recipe run: get the step with what to do, and when it says it has several agents have each agent's own job started in my own records, in the same call",
+        "description": "Reads the run (the ai-job tool:start-a-recipe-run wrote) and its step. A step with one agent is handed back as it is. A step whose agents is above 1 has its lane jobs started by this same call (tool:start-a-steps-agents does the writing, in door-sized batches, none twice), so the run's AI has no separate start to leave out; the lane jobs are handed back with the step. Each lane's job is then done by its own AI. tool:submit-a-recipe-step refuses an answer for lanes whose jobs never ran.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "run",
+            "step"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "run": {
+              "type": "string",
+              "description": "The id of the run's ai-job (ai-job:<recipe id>:<request key>)"
+            },
+            "step": {
+              "type": "string",
+              "description": "The id of the step to begin"
             }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "step",
+            "lane_jobs",
+            "status"
+          ],
+          "properties": {
+            "step": {
+              "type": "object",
+              "description": "The step as the run holds it: id, title, do, submit, checks, agents, lanes"
+            },
+            "lane_jobs": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "lane",
+                  "job"
+                ],
+                "properties": {
+                  "lane": {
+                    "type": "string"
+                  },
+                  "job": {
+                    "type": "string"
+                  }
+                }
+              },
+              "description": "Each lane and the id of the ai-job that runs it; empty when the step has one agent"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "written",
+                "already-there",
+                "one-agent"
+              ]
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/read-data/start-a-recipe-step.mjs",
+            "startARecipeStep"
+          ],
+          "stdin": {
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            },
+            "task": {
+              "fill": {
+                "from": "task"
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "workflows",
+                "paths": [
+                  "read-data/start-a-recipe-step.mjs",
+                  "read-data/start-a-steps-agents.mjs",
+                  "read-data/step-agents.mjs"
+                ],
+                "at": "/opt/workflows"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "most_writes": 256,
+            "rights": [
+              {
+                "kind": "ai-job",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 30,
+          "network_egress": false,
+          "memory_mb": 256
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:workflows",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "run": "ai-job:workflow:sample-dig:k1",
+              "step": "dig"
+            },
+            "records": [
+              {
+                "id": "ai-job:workflow:sample-dig:k1",
+                "type": "ai-job",
+                "value": {
+                  "kind": "ai-job",
+                  "status": "taken",
+                  "row": "workflow:sample-dig",
+                  "label": "Sample dig",
+                  "job": [
+                    {
+                      "id": "dig",
+                      "title": "Dig",
+                      "do": "Dig in your lane.",
+                      "submit": {
+                        "type": "object",
+                        "required": [
+                          "lanes"
+                        ]
+                      },
+                      "agents": 2,
+                      "checks": [
+                        {
+                          "kind": "lane-jobs",
+                          "says": "Every lane comes from its own job that ran",
+                          "path": [
+                            "this",
+                            "lanes"
+                          ],
+                          "lane": "id",
+                          "job": "job"
+                        }
+                      ]
+                    }
+                  ],
+                  "input": {
+                    "topic": "sample"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:submit-a-recipe-step",
+        "label": "Hand in the answer to one step of a recipe run, judged by the step's checks on what the records hold",
+        "status": "active",
+        "job": "Hand in my answer to a step of my recipe run, and have it kept only when the step's checks pass, judged on what my own records say ran",
+        "description": "Reads the run, the step and the answers kept for the steps before it, and judges the step's checks. The ran-job catalog the lane-jobs check looks in is built here from each lane's own ai-job (<run>:<step>:<lane>): a lane's job ran when its status is done, and its taker is who finished it. The caller gives only run, step and answer; an input that carries a catalog or anything else is refused. A failing check refuses the answer and keeps nothing; a check that cannot be judged here is listed as unchecked, never as passed. A passing answer is kept as the ai-job <run>#answer:<step>; a submit that comes again finds it and changes nothing.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "run",
+            "step",
+            "answer"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "run": {
+              "type": "string",
+              "description": "The id of the run's ai-job"
+            },
+            "step": {
+              "type": "string",
+              "description": "The id of the step answered"
+            },
+            "answer": {
+              "type": "object",
+              "description": "The step's answer, in the shape the step's submit says"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "status",
+            "answer_id",
+            "checks",
+            "unchecked"
+          ],
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "kept",
+                "already-there"
+              ]
+            },
+            "answer_id": {
+              "type": "string"
+            },
+            "checks": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The checks that passed"
+            },
+            "unchecked": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Checks that could not be judged here, with the reason"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/read-data/submit-a-recipe-step.mjs",
+            "submitARecipeStep"
+          ],
+          "stdin": {
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            },
+            "task": {
+              "fill": {
+                "from": "task"
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "workflows",
+                "paths": [
+                  "read-data/submit-a-recipe-step.mjs",
+                  "read-data/recipe-check-results.mjs",
+                  "read-data/step-agents.mjs"
+                ],
+                "at": "/opt/workflows"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "most_writes": 256,
+            "rights": [
+              {
+                "kind": "ai-job",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 30,
+          "network_egress": false,
+          "memory_mb": 256
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:workflows",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "run": "ai-job:workflow:sample-dig:k1",
+              "step": "dig",
+              "answer": {
+                "lanes": [
+                  {
+                    "id": "dig-1",
+                    "job": "ai-job:workflow:sample-dig:k1:dig:dig-1"
+                  },
+                  {
+                    "id": "dig-2",
+                    "job": "ai-job:workflow:sample-dig:k1:dig:dig-2"
+                  }
+                ]
+              }
+            },
+            "records": [
+              {
+                "id": "ai-job:workflow:sample-dig:k1",
+                "type": "ai-job",
+                "value": {
+                  "kind": "ai-job",
+                  "status": "taken",
+                  "row": "workflow:sample-dig",
+                  "label": "Sample dig",
+                  "job": [
+                    {
+                      "id": "dig",
+                      "title": "Dig",
+                      "do": "Dig in your lane.",
+                      "submit": {
+                        "type": "object",
+                        "required": [
+                          "lanes"
+                        ]
+                      },
+                      "agents": 2,
+                      "checks": [
+                        {
+                          "kind": "lane-jobs",
+                          "says": "Every lane comes from its own job that ran",
+                          "path": [
+                            "this",
+                            "lanes"
+                          ],
+                          "lane": "id",
+                          "job": "job"
+                        }
+                      ]
+                    }
+                  ],
+                  "input": {
+                    "topic": "sample"
+                  }
+                }
+              },
+              {
+                "id": "ai-job:workflow:sample-dig:k1:dig:dig-1",
+                "type": "ai-job",
+                "value": {
+                  "kind": "ai-job",
+                  "status": "done",
+                  "finished_by": "ai:sample-one",
+                  "row": "workflow:sample-dig",
+                  "parent": "ai-job:workflow:sample-dig:k1",
+                  "step": "dig",
+                  "lane": "dig-1",
+                  "of": 2,
+                  "job": [
+                    {
+                      "id": "dig",
+                      "title": "Dig",
+                      "do": "Dig in your lane.",
+                      "submit": {
+                        "type": "object",
+                        "required": [
+                          "lanes"
+                        ]
+                      },
+                      "agents": 2,
+                      "checks": [
+                        {
+                          "kind": "lane-jobs",
+                          "says": "Every lane comes from its own job that ran",
+                          "path": [
+                            "this",
+                            "lanes"
+                          ],
+                          "lane": "id",
+                          "job": "job"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "ai-job:workflow:sample-dig:k1:dig:dig-2",
+                "type": "ai-job",
+                "value": {
+                  "kind": "ai-job",
+                  "status": "done",
+                  "finished_by": "ai:sample-two",
+                  "row": "workflow:sample-dig",
+                  "parent": "ai-job:workflow:sample-dig:k1",
+                  "step": "dig",
+                  "lane": "dig-2",
+                  "of": 2,
+                  "job": [
+                    {
+                      "id": "dig",
+                      "title": "Dig",
+                      "do": "Dig in your lane.",
+                      "submit": {
+                        "type": "object",
+                        "required": [
+                          "lanes"
+                        ]
+                      },
+                      "agents": 2,
+                      "checks": [
+                        {
+                          "kind": "lane-jobs",
+                          "says": "Every lane comes from its own job that ran",
+                          "path": [
+                            "this",
+                            "lanes"
+                          ],
+                          "lane": "id",
+                          "job": "job"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
           }
         ]
       }
