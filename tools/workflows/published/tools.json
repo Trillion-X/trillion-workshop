@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:5436588378f6d3bbd459dc3910c6a2dcd7cdeba2c2c81177a85926df6aa5570b"
+  "blake3": "1f:33af9ffddf34039d264b816b36b514fd9be530c469c14eed23524ded53c7b9b9"
  },
  "fields": [
   {
@@ -697,6 +697,21 @@
    }
   },
   {
+   "id": "tool:approve-words-to-show",
+   "values": {
+    "title": "Approve words to show",
+    "job": "Approve, decline or withdraw one row of words exactly as it was reviewed, so only approved words are ever shown",
+    "description": "decision approve needs reviewed_words equal to the words now in the row, a received row, and a consent that allows showing: then the row is approved and pinned to the speaker, the words and the consent together. decline marks a received row declined. withdraw (the person took their consent back, or the owner took the words down) works on any row and stops it showing at once. The write is refused if the row changed since it was read. Returns row_id and status.",
+    "status": "active",
+    "maker": "maker:gather-words-from-people",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "gather-words-from-people"
+   }
+  },
+  {
    "id": "tool:arrange-videos",
    "values": {
     "title": "Arrange videos side by side",
@@ -771,6 +786,21 @@
      "placement:small-container"
     ],
     "folder": "keep-the-last-good-answer"
+   }
+  },
+  {
+   "id": "tool:ask-people-for-words",
+   "values": {
+    "title": "Ask people for their words",
+    "job": "Ask people, each after their own good word, to say in their own words how it went, keeping one asked row per person for a case",
+    "description": "Writes one asked row in the list for each person who may be asked, and returns each person's draft ({to, subject, body}) from the words the list's gathers.ask holds, with {name} filled in. Sends nothing: the draft goes out through a sending tool the person chose. A person is asked once for a case (the same person and case is skipped as already_asked), and only with `win`, a reference to the person's own positive word that made this the time to ask (otherwise skipped as no_win). The address is in the draft only, never in the kept row. Returns asked ({row_id, person, draft}) and skipped ({person, reason}).",
+    "status": "active",
+    "maker": "maker:gather-words-from-people",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "gather-words-from-people"
    }
   },
   {
@@ -2224,6 +2254,25 @@
    }
   },
   {
+   "id": "tool:check-the-x-connection",
+   "values": {
+    "title": "Check the X connection",
+    "job": "Check that the person's X connection still reaches its account, and say which account it is",
+    "description": "Asks X which account the connection signs in as (GET /2/users/me, the x descriptor's verifyRequest), with the access token the person's vault holds for it, placed only as the request leaves and never shown. Returns X's answer: data.id and data.username. A refusal (an expired or revoked sign-in) means the person connects X again. It changes nothing.",
+    "status": "active",
+    "maker": "maker:connect-a-service-and-seal-its-key",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "listed_on": "2026-11-12T00:00:00Z",
+    "folder": "connect-a-service-and-seal-its-key",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:check-the-youtube-connection",
    "values": {
     "title": "Check the YouTube connection",
@@ -2597,6 +2646,22 @@
      "placement:your-computer"
     ],
     "folder": "compose-thumbnails-from-layout-templates"
+   }
+  },
+  {
+   "id": "tool:connect-an-account-by-signing-in-to-the-service",
+   "values": {
+    "title": "Connect an account by signing in to the service",
+    "job": "Connect an account (Gmail, YouTube, Instagram, any service whose sign-in is switched on) by signing in on the service's own page, starting it with the values the new connection should have",
+    "description": "The page routes GET /work/api/connect/start and GET /work/api/connect/callback, run for the page's account (or by an AI with { path, method, query }). Start: query service (a descriptor vendor of this folder's records.json whose sign-in is switched on), each starting value of the new row of list:service-connections (its choice and boolean fields: status, read_only, can_send_as, can_be_primary), and optionally account (the account meant: the service is asked to pre-choose it and the callback refuses any other), wait_seconds (how long the link waits to be opened) and return_to (a path on this site). It keeps the state as a service-connection-pending record named by the state's digest, with the PKCE verifier and the starting values, and answers { authorize_url, service, connection_id, expires_at }: the service's own sign-in address for the person to open (the engine lets no route tool answer a redirect). Callback: the service sends the person back with code and state; the pending record is removed first (a state is used once), then an unknown or expired state, a service error, a missing code or a descriptor that no longer matches answers why and saves nothing. Otherwise the code is traded for the tokens by this folder's http rows (kept sealed in the vault as the new connection's fields), the connection is checked with the service, and one records:write creates the service-connection row with its starting values. The answer is a plain page that says connected, or why not. No token, verifier or secret is in any answer.",
+    "status": "active",
+    "maker": "maker:connect-a-service-and-seal-its-key",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-12T00:00:00Z",
+    "folder": "connect-a-service-and-seal-its-key"
    }
   },
   {
@@ -4563,6 +4628,21 @@
    }
   },
   {
+   "id": "tool:give-referral-rewards",
+   "values": {
+    "title": "Give referral rewards",
+    "job": "Give the rewards my referral reward rules say a code earns: a discount code, or access, written once",
+    "description": "Works out the codes exactly as tool:work-out-referral-codes does, from the person's own referral reward rules, then writes what the rules give as the records the existing tools already read. A discount is a checkout-code-adjustment row, so take-payments takes it off a price like any other checkout code: for the friend it is the referral code itself (typed at checkout, for as long as the rule says), for the referrer it is a checkout code of its own named from the rule and the sale (given back in the answer). Access is an access-grant row, written the way tool:grant-paid-access-to-people writes it. Every reward has an id made from the rule and the code or sale, so running the same request again writes nothing and counts it as already; a reward already kept with different terms stays as it was and is refused with why. A share is not written: its whole-cent amount is in the answer for the person to pay however they pay people. This tool sends nothing and moves no money.",
+    "status": "active",
+    "maker": "maker:referral-codes-and-rewards",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "referral-codes-and-rewards"
+   }
+  },
+  {
    "id": "tool:google-account-clear_primary_signature",
    "values": {
     "title": "Clear primary email signature",
@@ -5572,6 +5652,21 @@
    }
   },
   {
+   "id": "tool:keep-the-words-a-person-gave",
+   "values": {
+    "title": "Keep the words a person gave",
+    "job": "Keep the words a person gave in reply, with the consent they gave and the words that gave it, as a received row of the list",
+    "description": "Keeps words with one of the consents the list declares and consent_note, the person's own words that gave it (or where they are). With row_id it fills the row that asked them; without it, `who` is required and the words become their own row, the same words from the same person always the same row. Sets the row to received and takes away any approval, so changed words are reviewed again. A withdrawn row takes no more words. The same call again changes nothing. Returns row_id, status and changed.",
+    "status": "active",
+    "maker": "maker:gather-words-from-people",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "gather-words-from-people"
+   }
+  },
+  {
    "id": "tool:keep-trillion-in-your-instructions",
    "values": {
     "title": "Keep Trillion's standing instructions in my AI's own instruction file (runs on your computer)",
@@ -6506,13 +6601,13 @@
    "id": "tool:make-a-referral-code",
    "values": {
     "title": "Make a referral code",
-    "job": "Make a referral code that earns a share of the sales of one product or one seller, and give back the event to save",
-    "description": "Makes a short readable code (letters and digits, no I, L, O or U, so it survives being read aloud) or checks the one you chose, and gives back the event that makes it live once the person saves it. You say what the code points at: the sale attribute and the value it must have, from the attributes you allow. A code someone else already made stays theirs when the events are read. Nothing is kept by the tool.",
+    "job": "Make a referral code that earns what my referral reward rules give, and give back the event to save",
+    "description": "Makes a short readable code (letters and digits, no I, L, O or U, so it survives being read aloud) or checks the one you chose, and gives back the event that makes it live once the person saves it. You say what the code points at: the sale attribute and the value it must have. A code may point only at an attribute one of the person's active referral reward rules names, because a code no rule applies to earns nothing; with no active rule it says to add one first. A code someone else already made stays theirs when the events are read. Nothing is kept by the tool.",
     "status": "active",
     "maker": "maker:referral-codes-and-rewards",
     "licence_class": "licence:maker-own",
     "placements": [
-     "placement:deployed-container"
+     "placement:small-container"
     ],
     "folder": "referral-codes-and-rewards"
    }
@@ -9581,6 +9676,24 @@
    }
   },
   {
+   "id": "tool:read-objects-in-an-s3-store",
+   "values": {
+    "title": "Read objects in an S3-compatible store",
+    "job": "List the files in one bucket of the person's connected object store, or read one file, such as the pages of a site kept there",
+    "description": "Lists one page of the objects of the bucket the person's connected S3-compatible store holds (Cloudflare R2 is one), or reads one object by key and answers its bytes as base64. The store's key, its endpoint and its bucket reach this run on private pipes; each request is signed and goes to that endpoint only. It writes and deletes nothing. A refused key means the person connects the store again.",
+    "status": "active",
+    "maker": "maker:read-objects-in-an-s3-store",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "read-objects-in-an-s3-store",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:read-peoples-poses-from-a-video",
    "values": {
     "title": "Read where each person's joints are in a video, frame by frame (runs on your computer)",
@@ -9709,6 +9822,24 @@
    }
   },
   {
+   "id": "tool:read-rows-from-a-rest-service",
+   "values": {
+    "title": "Read rows from a REST database service",
+    "job": "Read the rows of one table in the person's connected database service, such as a Supabase project, with filters and an order",
+    "description": "Reads one page of rows from one table of a project of the person's connected PostgREST service (Supabase is one): the columns asked for, filters, an order and a limit. The service key reaches this run on a private pipe and goes only to a project under a domain the tool's hosts file names (supabase.co), at that project's REST path. It only reads. A refused key means the person connects the service again.",
+    "status": "active",
+    "maker": "maker:read-rows-from-a-rest-service",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "read-rows-from-a-rest-service",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:read-setup",
    "values": {
     "title": "Read my setup",
@@ -9739,6 +9870,36 @@
      "placement:small-container"
     ],
     "folder": "guard-ai-spending"
+   }
+  },
+  {
+   "id": "tool:read-stripe-promotion-codes",
+   "values": {
+    "title": "Read the promotion codes in Stripe",
+    "job": "Read the promotion codes and the coupons they give in your Stripe account, to see whether a code is active, how often it was used and what it takes off",
+    "description": "Reads the promotion codes of your own Stripe account. Give code (one promotion code as the buyer types it), active (true or false) and limit (1 to 100), all optional. Answers each promotion code with its id, code, whether it is active, how many times it was redeemed and the most allowed, when it expires (Stripe's own time in seconds), its restrictions (first order only, minimum amount and its currency) and the coupon it gives (id, amount off or percent off, currency, duration and months, whether it is still valid, its own redemption counts), and whether Stripe has more beyond the list. A field Stripe did not send answers null. Only reads: nothing is created, changed or used up, and the key is never answered. Uses your Stripe key from your held values.",
+    "status": "active",
+    "maker": "maker:take-payments",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "take-payments"
+   }
+  },
+  {
+   "id": "tool:read-stripe-promotion-codes-in-test-mode",
+   "values": {
+    "title": "Read the promotion codes in Stripe test mode",
+    "job": "Read the promotion codes and coupons in your Stripe test account, to see a read work before it is run on the real account",
+    "description": "Reads the promotion codes of your Stripe test account. Only a Stripe test key is accepted (it must start with a test prefix, checked before anything is built); it comes from your held values under a test-key name. Give code (one promotion code as the buyer types it), active (true or false) and limit (1 to 100), all optional. Answers each promotion code with its id, code, whether it is active, how many times it was redeemed and the most allowed, when it expires (Stripe's own time in seconds), its restrictions (first order only, minimum amount and its currency) and the coupon it gives (id, amount off or percent off, currency, duration and months, whether it is still valid, its own redemption counts), and whether Stripe has more beyond the list. A field Stripe did not send answers null. Only reads: nothing is created, changed or used up, and the key is never answered.",
+    "status": "active",
+    "maker": "maker:take-payments",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "take-payments"
    }
   },
   {
@@ -9905,6 +10066,39 @@
      "placement:public-web-address"
     ],
     "folder": "wikimedia-commons",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
+   "id": "tool:read-words-that-may-show",
+   "values": {
+    "title": "Read the words that may be shown",
+    "job": "Read the words of a list that may be shown on a page: approved, consented to be shown, and unchanged since approval, as items for a page's proof section",
+    "description": "Reads the list's rows and returns only those whose state is approved, whose consent allows showing and whose pin still matches the speaker, words and consent now in the row, as items {heading, body, row_id} that tool:write-a-sales-page takes as a proof section's items (heading = the name as the consent says: whole, first name only, or the list's own anonymous heading). Every other row is counted in held_back by its reason (not_approved, changed_since_approved, consent_does_not_allow_showing) and never returned. limit keeps the first items. Returns items, shown, may_show_total and held_back.",
+    "status": "active",
+    "maker": "maker:gather-words-from-people",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "gather-words-from-people"
+   }
+  },
+  {
+   "id": "tool:read-youtube-comments",
+   "values": {
+    "title": "Read the comments on a YouTube video",
+    "job": "Read the top-level comment threads of one YouTube video, with each comment's text, like count, publish time and the commenter's channel id",
+    "description": "Reads the top-level comment threads of one video (give its video_id), newest first, 100 to a page; give the nextPageToken the page before returned as page_token for the next page, until none comes back. Each thread carries the comment's text, like count, publish time, reply count and the commenter's channel id; YouTube is asked to leave out the commenter's display name and picture. A video with comments turned off comes back as a refusal from YouTube. To read many videos, run it once per video id: YouTube's comment threads are asked for one video at a time. It posts, rates and moderates nothing and changes nothing.",
+    "status": "active",
+    "maker": "maker:social-posts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "folder": "social-posts",
     "flags": [
      "read-only"
     ]
@@ -10270,6 +10464,21 @@
     "flags": [
      "read-only"
     ]
+   }
+  },
+  {
+   "id": "tool:rehearse-a-billing-page-in-stripe-test-mode",
+   "values": {
+    "title": "Rehearse a billing page in Stripe test mode",
+    "job": "Make a test subscription in Stripe test mode and open its billing page, to see the billing page comes back before a real buyer needs it",
+    "description": "Give product_name, amount_cents and return_url (an https address the billing page returns to). Only a Stripe test key is accepted (it must start with a test prefix, checked before anything is built); it comes from your held values under a test-key name. Makes a test customer, product, price and subscription, then opens the billing page of that subscription the way the billing-page tool does, and gives back the subscription, the page's address and the card that pays it (none until a card is added). It never opens the address. Makes test objects only; no real money moves.",
+    "status": "active",
+    "maker": "maker:take-payments",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "take-payments"
    }
   },
   {
@@ -13045,6 +13254,21 @@
    }
   },
   {
+   "id": "tool:total-a-list-or-view",
+   "values": {
+    "title": "Total a list or a view",
+    "job": "Add up a list, or one of its saved views, without reading its rows: how many rows, the sum, average, smallest or largest of a number field, over the whole list or for each value of one field",
+    "description": "Totals over one of my lists or one of its saved views, without sending the rows: measures: [{ op, field? }] where op is count (rows), filled or distinct (any field), or sum, average, median, min or max (a number field), each answered once for the whole list and, with group_by, once for each value of that field (at most 100 groups; a field holding several tags counts the row once per tag). With view_id only the rows that view keeps are totalled, read the way the page shows the view. The answer says how many rows it counted and complete: false when it stopped before the end, so a partial total is never taken for the whole. This run is granted this one list and its row kind only and reads nothing else. Old trillion's read_list_aggregates (POST /lists/<id>/aggregate).",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "total-a-list-or-view"
+   }
+  },
+  {
    "id": "tool:total-quote-lines",
    "values": {
     "title": "Total the lines of a quote or invoice",
@@ -13073,6 +13297,86 @@
      "placement:your-computer"
     ],
     "folder": "track-and-compare-movement"
+   }
+  },
+  {
+   "id": "tool:trade-a-gmail-sign-in-code-for-its-tokens",
+   "values": {
+    "title": "Trade a Gmail sign-in code for its tokens",
+    "job": "Trade the code Google's sign-in page handed back for the connection's access and refresh tokens, kept sealed in the vault",
+    "description": "One token request to Google (the google-account descriptor's acquire.token_url, client_auth form, PKCE): the code, the callback address and the PKCE verifier go in a form body with the Google sign-in app's id and secret, placed from the vault only as the request leaves. The reply's access_token, refresh_token and id_token are kept in the vault as the new connection's own fields (reply_holds_values) before the reply is read, so no token is ever in a run's answer or journal; a field already held is never replaced and then nothing is sent. Run by tool:connect-an-account-by-signing-in-to-the-service at the sign-in callback.",
+    "status": "active",
+    "maker": "maker:connect-a-service-and-seal-its-key",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "listed_on": "2026-11-12T00:00:00Z",
+    "folder": "connect-a-service-and-seal-its-key"
+   }
+  },
+  {
+   "id": "tool:trade-a-short-instagram-token-for-a-long-one",
+   "values": {
+    "title": "Trade a short-lived Instagram token for a long-lived one",
+    "job": "Trade the connection's short-lived Instagram token for its 60-day token, kept sealed in the vault",
+    "description": "The instagram descriptor's acquire.then step: GET graph.instagram.com/access_token with grant_type ig_exchange_token, the Instagram login's app secret and the connection's short-lived token, both placed from the vault only as the request leaves. The reply's access_token is kept in the vault as the connection's access_token field before the reply is read. Run by tool:connect-an-account-by-signing-in-to-the-service at the sign-in callback, right after tool:trade-an-instagram-sign-in-code-for-its-short-token.",
+    "status": "active",
+    "maker": "maker:connect-a-service-and-seal-its-key",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "listed_on": "2026-11-12T00:00:00Z",
+    "folder": "connect-a-service-and-seal-its-key"
+   }
+  },
+  {
+   "id": "tool:trade-a-youtube-sign-in-code-for-its-tokens",
+   "values": {
+    "title": "Trade a YouTube sign-in code for its tokens",
+    "job": "Trade the code YouTube's sign-in page handed back for the connection's access and refresh tokens, kept sealed in the vault",
+    "description": "One token request to Google (the youtube descriptor's acquire.token_url, client_auth form, PKCE): the code, the callback address and the PKCE verifier go in a form body with the Google sign-in app's id and secret, placed from the vault only as the request leaves. The reply's access_token, refresh_token and id_token are kept in the vault as the new connection's own fields (reply_holds_values) before the reply is read, so no token is ever in a run's answer or journal; a field already held is never replaced and then nothing is sent. Run by tool:connect-an-account-by-signing-in-to-the-service at the sign-in callback.",
+    "status": "active",
+    "maker": "maker:connect-a-service-and-seal-its-key",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "listed_on": "2026-11-12T00:00:00Z",
+    "folder": "connect-a-service-and-seal-its-key"
+   }
+  },
+  {
+   "id": "tool:trade-an-instagram-sign-in-code-for-its-short-token",
+   "values": {
+    "title": "Trade an Instagram sign-in code for its short-lived token",
+    "job": "Trade the code Instagram's sign-in page handed back for the connection's short-lived token, kept sealed in the vault",
+    "description": "One token request to Instagram (the instagram descriptor's acquire.token_url, client_auth form): the code and the callback address go in a form body with the Instagram login's app id and secret, placed from the vault only as the request leaves. The reply's access_token (Instagram's short-lived token) is kept in the vault as the new connection's field short_lived_access_token before the reply is read; tool:trade-a-short-instagram-token-for-a-long-one then trades it for the 60-day token (the descriptor's acquire.then). Run by tool:connect-an-account-by-signing-in-to-the-service at the sign-in callback.",
+    "status": "active",
+    "maker": "maker:connect-a-service-and-seal-its-key",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "listed_on": "2026-11-12T00:00:00Z",
+    "folder": "connect-a-service-and-seal-its-key"
+   }
+  },
+  {
+   "id": "tool:trade-an-x-sign-in-code-for-its-tokens",
+   "values": {
+    "title": "Trade an X sign-in code for its tokens",
+    "job": "Trade the code X's sign-in page handed back for the connection's access and refresh tokens, kept sealed in the vault",
+    "description": "One token request to X (the x descriptor's acquire.token_url, client_auth basic, PKCE): the code, the callback address, the PKCE verifier and the sign-in app's id go in a form body, and the app's Basic credentials (the held x-sign-in-client-secret-basic) in the Authorization header, each placed from the vault only as the request leaves. The reply's access_token and refresh_token are kept in the vault as the new connection's own fields (reply_holds_values) before the reply is read. Run by tool:connect-an-account-by-signing-in-to-the-service at the sign-in callback.",
+    "status": "active",
+    "maker": "maker:connect-a-service-and-seal-its-key",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "listed_on": "2026-11-12T00:00:00Z",
+    "folder": "connect-a-service-and-seal-its-key"
    }
   },
   {
@@ -13735,13 +14039,13 @@
    "id": "tool:work-out-referral-codes",
    "values": {
     "title": "Work out referral codes",
-    "job": "See which referral codes are live, which sales a code a buyer typed earns, what share it earns, and how many referrals an account has accepted",
-    "description": "Reads the referral events a person saved (a code made, a code withdrawn, a signup that named a referrer) and works out the codes: who made each one, what it points at, and whether it is still live. The first account to make a code keeps it, in any order the events arrive; only the account that made a code can withdraw it. Give it the codes buyers typed and the sales, and it says for each pair which live code that is, whether the sale earns it (the sale attribute the code points at has the value the code names), and, when you give a share rule (the amount field and basis points), what the sale earns in whole cents. It reads and adds up only: it moves no money and sends nothing.",
+    "job": "See which referral codes are live, what a friend who types one gets, and what each sale earns under my referral reward rules",
+    "description": "Reads the referral events a person saved (a code made, a code withdrawn, a signup that named a referrer) and works out the codes: who made each one, what it points at, and whether it is still live. The first account to make a code keeps it, in any order the events arrive; only the account that made a code can withdraw it. The rules are the person's own rows in their referral reward rules list (one row per rule: who earns, the kind of reward, its terms, which codes and sales it applies to), read here; nothing about a price, a product or an amount is in the tool. Give it the codes buyers typed and it says for each which live code that is and what the rules give the friend who typed it; give it sales too and it says for each pair whether the sale earns the code and what every rule gives: a whole-cent share, a discount (a checkout code that take-payments takes off a price) or access (a grant). It reads and adds up only: it moves no money and writes nothing. tool:give-referral-rewards writes the discounts and access.",
     "status": "active",
     "maker": "maker:referral-codes-and-rewards",
     "licence_class": "licence:maker-own",
     "placements": [
-     "placement:deployed-container"
+     "placement:small-container"
     ],
     "folder": "referral-codes-and-rewards"
    }
