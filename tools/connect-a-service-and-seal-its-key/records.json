@@ -7993,6 +7993,101 @@
    "remove": false
   },
   {
+    "type": "record",
+    "address": "package::service-connections::published-record::cloudflare-r2",
+    "path": [
+      "current-item",
+      "published-record"
+    ],
+    "payload": {
+      "kind": "service-connection-descriptor",
+      "vendor": "cloudflare-r2",
+      "name": "Cloudflare R2",
+      "instructions": "Read and list the objects in your Cloudflare R2 bucket (S3-compatible storage).",
+      "defaultScopes": [
+        "object:read"
+      ],
+      "credentialFields": [
+        {
+          "id": "endpoint",
+          "label": "S3 endpoint",
+          "required": true,
+          "secret": false,
+          "multiline": false,
+          "placeholder": "https://your-account-id.r2.cloudflarestorage.com",
+          "help": "The S3 API endpoint of your Cloudflare account for R2.",
+          "autocomplete": "url",
+          "guideUrl": "https://developers.cloudflare.com/r2/api/s3/tokens/",
+          "guideSteps": [
+            "Open the R2 S3 API tokens guide.",
+            "Copy the endpoint that the token page shows for your account.",
+            "Paste it here."
+          ]
+        },
+        {
+          "id": "bucket",
+          "label": "Bucket name",
+          "required": true,
+          "secret": false,
+          "multiline": false,
+          "placeholder": "my-bucket",
+          "help": "The name of the R2 bucket to read.",
+          "autocomplete": "off",
+          "guideUrl": "https://dash.cloudflare.com/",
+          "guideSteps": [
+            "Open the R2 section of the Cloudflare dashboard.",
+            "Copy the bucket name.",
+            "Paste it here."
+          ]
+        },
+        {
+          "id": "key_id",
+          "label": "Access key ID",
+          "required": true,
+          "secret": true,
+          "multiline": false,
+          "placeholder": "Paste the access key ID",
+          "help": "The access key ID of an R2 API token that can read the bucket.",
+          "autocomplete": "off",
+          "guideUrl": "https://developers.cloudflare.com/r2/api/s3/tokens/",
+          "guideSteps": [
+            "Create an R2 API token with read access to the bucket.",
+            "Copy its Access Key ID.",
+            "Paste it here."
+          ]
+        },
+        {
+          "id": "application_key",
+          "label": "Secret access key",
+          "required": true,
+          "secret": true,
+          "multiline": false,
+          "placeholder": "Paste the secret access key",
+          "help": "The secret access key that goes with the access key ID.",
+          "autocomplete": "off",
+          "guideUrl": "https://developers.cloudflare.com/r2/api/s3/tokens/",
+          "guideSteps": [
+            "Copy the Secret Access Key shown with the token.",
+            "Paste it here. Treat it like a storage owner key."
+          ]
+        }
+      ],
+      "helperLinks": [
+        {
+          "id": "tokens",
+          "label": "Open R2 API token guide",
+          "url": "https://developers.cloudflare.com/r2/api/s3/tokens/",
+          "description": "Create the token and copy its keys and endpoint."
+        }
+      ],
+      "domain": "cloudflare.com",
+      "category": "Storage"
+    },
+    "payload_text": null,
+    "payload_base64": null,
+    "remove": false
+  },
+  {
    "type": "record",
    "address": "package::service-connections::published-record::supabase",
    "path": [

@@ -1,0 +1,141 @@
+{
+  "kind": "tool-rows",
+  "record_set": "read-rows-from-a-rest-service-tool-rows",
+  "what_this_is": "The Workshop row for the tool in tools/read-rows-from-a-rest-service.",
+  "records": [
+    {
+      "id": "package::read-rows-from-a-rest-service::tool::read-rows-from-a-rest-service",
+      "address": "package::read-rows-from-a-rest-service::tool::read-rows-from-a-rest-service",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:read-rows-from-a-rest-service",
+        "needs": {
+          "expected_seconds": 30,
+          "network_egress": true
+        },
+        "read_only": true,
+        "id": "tool:read-rows-from-a-rest-service",
+        "label": "Read rows from a REST database service",
+        "job": "Read the rows of one table in the person's connected database service, such as a Supabase project, with filters and an order",
+        "description": "Reads one page of rows from one table of a project of the person's connected PostgREST service (Supabase is one): the columns asked for, filters, an order and a limit. The service key reaches this run on a private pipe and goes only to a project under a domain the tool's hosts file names (supabase.co), at that project's REST path. It only reads. A refused key means the person connects the service again.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "account_id",
+            "project_url",
+            "table"
+          ],
+          "properties": {
+            "account_id": {
+              "type": "string",
+              "description": "The PostgREST service connection, service_connection:supabase or service_connection:supabase:<account>"
+            },
+            "project_url": {
+              "type": "string",
+              "description": "The project's address, https://<project>.supabase.co, as the connection shows it"
+            },
+            "table": {
+              "type": "string",
+              "description": "One table of the project, plain letters, digits and underscores"
+            },
+            "select": {
+              "type": "string",
+              "description": "Columns to take, comma separated (default all)"
+            },
+            "filters": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "description": "Column to 'operator.value', for example {\"status\": \"eq.active\"}"
+            },
+            "order": {
+              "type": "string",
+              "description": "Column and direction, for example id.asc"
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000
+            },
+            "offset": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "rows",
+            "count",
+            "total"
+          ],
+          "properties": {
+            "rows": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "count": {
+              "type": "integer"
+            },
+            "total": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/read-rows-from-a-rest-service",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/read-rows-from-a-rest-service/do-work/read-rows.mjs"
+          ],
+          "files": {
+            "package_files": {
+              "package": "read-rows-from-a-rest-service",
+              "paths": [
+                "do-work",
+                "read-data"
+              ],
+              "at": "/opt/read-rows-from-a-rest-service"
+            }
+          },
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "connection": {
+            "vendor": "supabase",
+            "from_input": "account_id"
+          },
+          "credential_mounts": [
+            {
+              "field_id": "service_role_key",
+              "fd": 3
+            }
+          ]
+        },
+        "result_selector": "$"
+      }
+    }
+  ]
+}

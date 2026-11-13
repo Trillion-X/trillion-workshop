@@ -1,0 +1,151 @@
+{
+  "kind": "tool-rows",
+  "record_set": "read-objects-in-an-s3-store-tool-rows",
+  "what_this_is": "The Workshop row for the tool in tools/read-objects-in-an-s3-store.",
+  "records": [
+    {
+      "id": "package::read-objects-in-an-s3-store::tool::read-objects-in-an-s3-store",
+      "address": "package::read-objects-in-an-s3-store::tool::read-objects-in-an-s3-store",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:read-objects-in-an-s3-store",
+        "needs": {
+          "expected_seconds": 30,
+          "network_egress": true
+        },
+        "read_only": true,
+        "id": "tool:read-objects-in-an-s3-store",
+        "label": "Read objects in an S3-compatible store",
+        "job": "List the files in one bucket of the person's connected object store, or read one file, such as the pages of a site kept there",
+        "description": "Lists one page of the objects of the bucket the person's connected S3-compatible store holds (Cloudflare R2 is one), or reads one object by key and answers its bytes as base64. The store's key, its endpoint and its bucket reach this run on private pipes; each request is signed and goes to that endpoint only. It writes and deletes nothing. A refused key means the person connects the store again.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "account_id"
+          ],
+          "properties": {
+            "account_id": {
+              "type": "string",
+              "description": "The S3-compatible store connection, service_connection:cloudflare-r2 or service_connection:cloudflare-r2:<account>"
+            },
+            "action": {
+              "type": "string",
+              "enum": [
+                "list",
+                "get"
+              ],
+              "description": "list one page of objects (default), or get one object by key"
+            },
+            "prefix": {
+              "type": "string",
+              "description": "For list: only keys that start with this text"
+            },
+            "max_keys": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000,
+              "description": "For list: how many objects one page holds"
+            },
+            "continuation_token": {
+              "type": "string",
+              "description": "For list: next_token from the page before"
+            },
+            "key": {
+              "type": "string",
+              "description": "For get: the object key, as list returned it"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "objects": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "truncated": {
+              "type": "boolean"
+            },
+            "next_token": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "key": {
+              "type": "string"
+            },
+            "size": {
+              "type": "integer"
+            },
+            "content_type": {
+              "type": "string"
+            },
+            "base64": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/read-objects-in-an-s3-store",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/read-objects-in-an-s3-store/do-work/read-objects.mjs"
+          ],
+          "files": {
+            "package_files": {
+              "package": "read-objects-in-an-s3-store",
+              "paths": [
+                "do-work"
+              ],
+              "at": "/opt/read-objects-in-an-s3-store"
+            }
+          },
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "connection": {
+            "vendor": "cloudflare-r2",
+            "from_input": "account_id"
+          },
+          "credential_mounts": [
+            {
+              "field_id": "key_id",
+              "fd": 3
+            },
+            {
+              "field_id": "application_key",
+              "fd": 4
+            },
+            {
+              "field_id": "endpoint",
+              "fd": 5
+            },
+            {
+              "field_id": "bucket",
+              "fd": 6
+            }
+          ]
+        },
+        "result_selector": "$"
+      }
+    }
+  ]
+}

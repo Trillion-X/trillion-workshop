@@ -1,0 +1,6 @@
+{
+  "_what": "The domains a project URL may be under. The service key is sent only to a host inside one of these (a whole label match: the domain itself or a subdomain of it), so a person's project URL given in the request cannot send the key to another site. A service is one more row.",
+  "domains": [
+    "supabase.co"
+  ]
+}
