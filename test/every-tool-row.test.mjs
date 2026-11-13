@@ -147,13 +147,15 @@ test('every import a row\'s run loads is packed by that row: its relative import
 
 // The capability list (capabilities.json at the root) names each job's owner folder and its entry: the tool-rows.json
 // in that folder. An entry that names a code or data file, a folder with no row, or a retired place fails here, so the
-// list cannot drift from the tree it describes.
-test('every capability names a tool-rows.json that exists in its owner folder', () => {
+// list cannot drift from the tree it describes. A folder that is a part (a part.json and no tool-rows.json: screen code and
+// the files it needs) has no run to declare, so its part.json is its declaration: the entry may name that.
+test('every capability names a tool-rows.json that exists in its owner folder, or the part.json of a part with no row', () => {
   const { capabilities } = json(resolve(root, 'capabilities.json'));
   const broken = capabilities.flatMap(({ capability, owner, entry }) => {
-    const named = entry.startsWith('tools/') && entry.endsWith('/tool-rows.json') && existsSync(join(root, entry));
+    const [, folder, file] = entry.match(/^tools\/([^/]+)\/([^/]+)$/) ?? [];
+    const named = existsSync(join(root, entry)) && (file === 'tool-rows.json' || file === 'part.json' && !existsSync(join(root, 'tools', folder, 'tool-rows.json')));
     const covered = [owner].flat().some(glob => entry === glob || entry.startsWith(glob.replace(/\/$/, '') + '/'));
-    return named && covered ? [] : [`${capability}: ${entry} is not a tool row in ${[owner].flat().join(', ')}`];
+    return named && covered ? [] : [`${capability}: ${entry} is not a tool row (or the part.json of a part with no row) in ${[owner].flat().join(', ')}`];
   });
   assert.deepEqual(broken, [], `capabilities that name no tool row in their owner:\n${broken.join('\n')}`);
 });
