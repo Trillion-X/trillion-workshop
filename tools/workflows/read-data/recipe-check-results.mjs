@@ -15,6 +15,9 @@
 import { laneIds, laneJobId } from './step-agents.mjs';
 
 const same = value => JSON.stringify(value);
+// Something is there: not missing, null, blank text, or an empty list or object.
+const filled = value => value !== undefined && value !== null && !(typeof value === 'string' && !value.trim())
+  && !(Array.isArray(value) && !value.length) && !(typeof value === 'object' && !Array.isArray(value) && !Object.keys(value).length);
 
 // The values a path ends on, from the roots in `context`.
 export function valuesAt(path, context) {
@@ -66,6 +69,10 @@ export const CHECK_EVALUATORS = {
     for (const taker of takers.values()) if (taker) count.set(taker, (count.get(taker) ?? 0) + 1);
     return [...takers].filter(([, taker]) => !taker || count.get(taker) > 1).map(([lane]) => lane);
   },
+  // Items at a path that lack a field: each answer item is named by its own id (else its place in the list) and the field.
+  'fields-present': (check, c) => valuesAt(check.path, c).flatMap((item, at) => check.fields
+    .filter(field => !filled(item?.[field])).map(field => `${item?.id ?? at}.${field}`)),
+  'field-in': (check, c) => valuesAt(check.path, c).flatMap((item, at) => (check.values.map(same).includes(same(item?.[check.field])) ? [] : [`${item?.id ?? at}.${check.field}`])),
   exists: (check, c, { catalogs = {} } = {}) => {
     const known = catalogs[check.catalog];
     if (typeof known !== 'function') return { reason: `no ${check.catalog} catalog was given to look ids up in` };

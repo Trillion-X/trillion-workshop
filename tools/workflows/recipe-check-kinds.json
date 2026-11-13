@@ -79,6 +79,23 @@
         { "field": "lane", "shape": "key", "required": true, "refusal": "must name the field holding each lane's id." },
         { "field": "job", "shape": "key", "required": true, "refusal": "must name the field holding each lane's job id." }
       ]
+    },
+    {
+      "kind": "fields-present",
+      "meaning": "Every item at path (a finding, a system, a row) carries each listed field with something in it: not missing, not null, not blank text, not an empty list or object. The failing values are `<item id>.<field>` for each missing one, so the refusal names what to add.",
+      "fields": [
+        { "field": "path", "shape": "path", "required": true, "refusal": "is required." },
+        { "field": "fields", "shape": "words", "required": true, "refusal": "must list the field names each item has to carry." }
+      ]
+    },
+    {
+      "kind": "field-in",
+      "meaning": "In every item at path, the field named by `field` holds one of the listed values, such as an evidence kind that is a current measurement or a code read. The failing values are `<item id>.<field>`.",
+      "fields": [
+        { "field": "path", "shape": "path", "required": true, "refusal": "is required." },
+        { "field": "field", "shape": "key", "required": true, "refusal": "must name the field to read in each item." },
+        { "field": "values", "shape": "list", "required": true, "refusal": "must list the values the field may hold." }
+      ]
     }
   ]
 }
