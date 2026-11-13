@@ -6780,6 +6780,144 @@
         },
         "result_selector": "$"
       }
+    },
+    {
+      "id": "package::social-posts::tool::read-youtube-comments",
+      "address": "package::social-posts::tool::read-youtube-comments",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:public-web-address"
+        ],
+        "maker": "maker:social-posts",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": true
+        },
+        "read_only": true,
+        "id": "tool:read-youtube-comments",
+        "label": "Read the comments on a YouTube video",
+        "job": "Read the top-level comment threads of one YouTube video, with each comment's text, like count, publish time and the commenter's channel id",
+        "description": "Reads the top-level comment threads of one video (give its video_id), newest first, 100 to a page; give the nextPageToken the page before returned as page_token for the next page, until none comes back. Each thread carries the comment's text, like count, publish time, reply count and the commenter's channel id; YouTube is asked to leave out the commenter's display name and picture. A video with comments turned off comes back as a refusal from YouTube. To read many videos, run it once per video id: YouTube's comment threads are asked for one video at a time. It posts, rates and moderates nothing and changes nothing.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "account_id",
+            "video_id"
+          ],
+          "properties": {
+            "account_id": {
+              "type": "string",
+              "description": "One of the person's accounts of this kind, service_connection:youtube or service_connection:youtube:<account>"
+            },
+            "video_id": {
+              "type": "string",
+              "description": "The id of the video whose comments to read"
+            },
+            "page_token": {
+              "type": "string",
+              "description": "The nextPageToken the page before gave, for the next page"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "refresh": {
+            "token_url": "https://oauth2.googleapis.com/token",
+            "asked": {
+              "method": "POST",
+              "grant_type": "refresh_token",
+              "token_param": "refresh_token"
+            },
+            "client_auth": "form",
+            "client": {
+              "id": {
+                "name": "google-sign-in-client-id"
+              },
+              "secret": {
+                "name": "google-sign-in-client-secret"
+              }
+            },
+            "access_field": "access_token",
+            "token_paths": [
+              [
+                "access_token"
+              ]
+            ],
+            "expires_path": [
+              "expires_in"
+            ],
+            "refresh": {
+              "field": "refresh_token",
+              "token_paths": [
+                [
+                  "refresh_token"
+                ]
+              ]
+            },
+            "when_expiry_unknown": true
+          },
+          "kind": "http",
+          "url": "https://www.googleapis.com/youtube/v3/commentThreads",
+          "method": "GET",
+          "timeout_seconds": 30,
+          "query": {
+            "part": {
+              "const": "snippet"
+            },
+            "maxResults": {
+              "const": "100"
+            },
+            "pageToken": {
+              "from": "page_token",
+              "optional": true
+            },
+            "videoId": {
+              "from": "video_id"
+            },
+            "order": {
+              "const": "time"
+            },
+            "textFormat": {
+              "const": "plainText"
+            },
+            "fields": {
+              "const": "nextPageToken,items(id,snippet(totalReplyCount,topLevelComment(snippet(textDisplay,likeCount,publishedAt,authorChannelId))))"
+            }
+          },
+          "credential_injections": [
+            {
+              "hosts": [
+                "www.googleapis.com"
+              ],
+              "field_id": "access_token",
+              "placement": {
+                "kind": "header",
+                "name": "Authorization",
+                "prefix": "Bearer "
+              }
+            }
+          ],
+          "connection": {
+            "vendor": "youtube",
+            "from_input": "account_id"
+          }
+        },
+        "provenance": {
+          "provider": "YouTube",
+          "api": "https://www.googleapis.com/youtube/v3/commentThreads"
+        },
+        "result_selector": "$"
+      }
     }
   ]
 }

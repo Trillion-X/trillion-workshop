@@ -51,3 +51,26 @@ test('neither new row names a secret value or a host outside the place hosts', (
     }
   }
 });
+
+test('the comment reader asks for one video\'s top-level threads, read only, page by page', () => {
+  const read = row('tool:read-youtube-comments');
+  assert.ok(read, 'row exists');
+  assert.equal(read.read_only, true);
+  assert.equal(read.invoke.kind, 'http');
+  assert.equal(read.invoke.method, 'GET');
+  assert.equal(read.invoke.url, 'https://www.googleapis.com/youtube/v3/commentThreads');
+  assert.deepEqual(read.invoke.query.part, { const: 'snippet' });
+  assert.deepEqual(read.invoke.query.videoId, { from: 'video_id' });
+  assert.deepEqual(read.invoke.query.pageToken, { from: 'page_token', optional: true });
+  assert.doesNotMatch(read.invoke.query.fields.const, /authorDisplayName|authorProfileImageUrl/);
+  assert.match(read.invoke.query.fields.const, /authorChannelId/);
+  assert.deepEqual(read.invoke.query.maxResults, { const: '100' });
+  assert.deepEqual(read.invoke.connection, { vendor: 'youtube', from_input: 'account_id' });
+  assert.deepEqual(read.input_schema.required, ['account_id', 'video_id']);
+  assert.equal(read.invoke.credential_injections[0].field_id, 'access_token');
+  for (const inj of read.invoke.credential_injections) {
+    assert.deepEqual(inj.hosts, ['www.googleapis.com']);
+  }
+  assert.doesNotMatch(JSON.stringify(read), /ya29\.|refresh_token=|client_secret=|\bkey=/);
+  assert.match(read.description, /posts, rates and moderates nothing/i);
+});
