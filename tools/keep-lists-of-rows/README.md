@@ -91,3 +91,14 @@ A saved view's rules, sort, groups, columns and time range may name a path throu
 - **Snapshots.** `take_list_snapshot` keeps the ids a view held (`src/list-snapshots.mjs`); `read_list_snapshot` reads a range of them by id, now, and `read_list_aggregates` `snapshot_id` totals them, while the list goes on changing.
 
 Tests: `test/list-view-records.test.mjs`, `test/list-unique-keys.test.mjs`, `test/list-rollups-and-copies.test.mjs`, `test/list-core-native.test.mjs`.
+
+## Screens moved from the web client
+
+These files were moved byte for byte from the web client (`moved-from.json` names each file's source path, commit and identity). Their imports of the web shell's files stay as written; the client build answers them with the shell's files and opens each screen as a screen module named by its row (`screen.module`).
+
+| File | Purpose |
+|------|---------|
+| `web/src/workspace/lists-screen.tsx` | Lists and List (`tool:screen-lists`, `tool:screen-list`): every list the person keeps, and one list row by row in the shared record views. |
+| `web/src/workspace/row-clipboard.ts` | Rows on the clipboard: copy a list's rows to another list or editor and paste rows in (only the Lists screen uses it). |
+| `show/lists-mount.tsx` | The module entry the row names for `lists`: `mount` is `mountListsScreen`. |
+| `show/list-mount.tsx` | The module entry the row names for `list`: `mount` is `mountListScreen`. |

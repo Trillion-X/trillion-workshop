@@ -1,0 +1,36 @@
+{
+  "_what": "The words and limits of the settings pages that settings-pages.tsx draws itself (a rail item whose `panel` is the key here, src/workspace/settings-panels.json). `whats_new.rows_url` is where the build publishes what is new (scripts/build-workspace.mjs, src/whats-new-rows.mjs); `most_rows` is the most posts drawn; a post's `points` are its steps, drawn as a list. `menubar.address` opens the Mac app's menu bar panel, where the item's own settings live (src/workspace/panel-settings.tsx).",
+  "menubar": {
+    "title": "Menu bar",
+    "body": "Choose whether Trillion shows in your Mac's menu bar, how far ahead it counts down to a meeting, how long its title can be and what Quit does. These live in the menu bar panel itself, so they work even when this window is closed.",
+    "open": "Open the menu bar panel",
+    "address": "trillion://panel/settings?page=menubar&alone=1"
+  },
+  "whats_new": {
+    "title": "What's new",
+    "rows_url": "/workspace/whats-new.json",
+    "most_rows": 60,
+    "loading": "Loading what's new",
+    "failed": "What's new could not be loaded.",
+    "retry": "Try again",
+    "empty": "Nothing new has been posted yet.",
+    "take_tour": "Take the tour"
+  },
+  "look": {
+    "_what": "Settings > Look & feel: the parts the old Look screen description placed (guide-screens.tsx LENT_PARTS), drawn here from the person's own records and the shipped look and feel rows, so the page needs no /work/api/screens/look owner (retired with the Worker, held in trillion-workshop docs/worker-retirement-port-backlog.json).",
+    "sections": [
+      {
+        "part": "screen-look",
+        "heading": "Screen look"
+      },
+      {
+        "part": "pane-sizes",
+        "heading": "Pane sizes"
+      },
+      {
+        "part": "feel",
+        "heading": "Feel"
+      }
+    ]
+  }
+}

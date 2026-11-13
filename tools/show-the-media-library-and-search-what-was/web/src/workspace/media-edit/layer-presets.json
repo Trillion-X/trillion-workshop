@@ -1,0 +1,14 @@
+{
+  "_what": "The Layers panel's choices, as DATA read by layers-panel.tsx. Each `sounds` row is a way to add a sound under the video and each `pictures` row a way to add a picture over it: its label (also the new layer's own name), its icon, which file families it takes, and the starting values of the layer it adds (`x`,`y` are where a picture's centre sits and `size` its width, as shares of the frame; `seconds` is how long a picture shows when its file does not say; null shows it to the end of the video). `loudness_lufs` is the level 'Even out the loudness' sets. Adding a kind of layer is one row here; nothing in the code names one.",
+  "sounds": [
+    { "id": "music", "label": "Music", "icon": "Music", "families": ["audio"], "defaults": { "volume": 0.3, "fade_in": 2, "fade_out": 3, "duck": true } },
+    { "id": "voice-over", "label": "Voice-over", "icon": "Mic", "families": ["audio", "video"], "defaults": { "volume": 1, "fade_in": 0, "fade_out": 0, "duck": false } },
+    { "id": "sound-effect", "label": "Sound effect", "icon": "Zap", "families": ["audio"], "defaults": { "volume": 0.8, "fade_in": 0, "fade_out": 0, "duck": false } }
+  ],
+  "pictures": [
+    { "id": "picture-in-picture", "label": "Picture in picture", "icon": "PictureInPicture2", "families": ["video", "image"], "defaults": { "x": 0.8, "y": 0.78, "size": 0.3, "opacity": 1, "seconds": 5 } },
+    { "id": "logo", "label": "Logo", "icon": "Stamp", "families": ["image"], "defaults": { "x": 0.9, "y": 0.1, "size": 0.12, "opacity": 0.85, "seconds": null } },
+    { "id": "b-roll", "label": "B-roll", "icon": "Film", "families": ["video", "image"], "defaults": { "x": 0.5, "y": 0.5, "size": 1, "opacity": 1, "seconds": 4 } }
+  ],
+  "loudness_lufs": -14
+}

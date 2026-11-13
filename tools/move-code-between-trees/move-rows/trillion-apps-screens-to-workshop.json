@@ -1,39 +1,578 @@
 {
- "id": "move:trillion-apps-screens-to-workshop",
- "about": "The workspace screens that Trillion's web client (trillion-apps web/src/workspace) draws, moved byte for byte into the Workshop tool that owns the feature, each under its source path inside the tool. The ruling (the owner's ruling, 2026-11-03 1:02 AM CST): the engine and the web app keep only generic primitives, and features, screens and tools move one to one into Workshop tools. A group is owner_only: it moves the screen file and the helpers only that screen uses, and every file of the web shell they import stays where it is, imported as written; the client build answers those imports with the shell's files (web/scripts/workshop-shell-imports.mjs, from the tool's moved-from.json), and the page opens the screen as a screen module (web/scripts/screen-modules.mjs) named by its Workshop row.",
- "source": {
-  "name": "Trillion-X/trillion-apps",
-  "test_folders": []
- },
- "destination": {
-  "name": "Trillion-X/trillion-workshop",
-  "package": "trillion-workshop",
-  "shared_folder": "tools/shared-code"
- },
- "keep": [],
- "host_provides": ["react", "react-dom"],
- "provider_calls": [
-  {
-   "id": "durable-object",
-   "find": "\\bextends\\s+DurableObject\\b|\\bDurableObjectState\\b|\\bDurableObjectNamespace\\b"
+  "id": "move:trillion-apps-screens-to-workshop",
+  "about": "The workspace screens that Trillion's web client (trillion-apps web/src/workspace) draws, moved byte for byte into the Workshop tool that owns the feature, each under its source path inside the tool. The ruling (the owner's ruling, 2026-11-03 1:02 AM CST): the engine and the web app keep only generic primitives, and features, screens and tools move one to one into Workshop tools. A group is owner_only: it moves the screen file and the helpers only that screen uses, and every file of the web shell they import stays where it is, imported as written; the client build answers those imports with the shell's files (web/scripts/workshop-shell-imports.mjs, from the tool's moved-from.json), and the page opens the screen as a screen module (web/scripts/screen-modules.mjs) named by its Workshop row.",
+  "source": {
+    "name": "Trillion-X/trillion-apps",
+    "test_folders": []
   },
-  {
-   "id": "kv",
-   "find": "\\bKVNamespace\\b|(?<![.\\w$])env\\.[A-Z][A-Z0-9_]*_KV\\b"
-  }
- ],
- "calls": [],
- "read_as_rows": [],
- "groups": [
-  {
-   "id": "notification-settings-screen",
-   "owner": [
-    "web/src/workspace/notification-settings-screen.tsx"
-   ],
-   "to": "tools/notifications",
-   "owner_only": true,
-   "joins_tool": "tools/notifications reads and sends a person's notices; this brings the screen where a person chooses which notices reach them and how (tool:screen-notification-settings)",
-   "capability": "choose which notices reach me and how"
-  }
- ]
+  "destination": {
+    "name": "Trillion-X/trillion-workshop",
+    "package": "trillion-workshop",
+    "shared_folder": "tools/shared-code"
+  },
+  "keep": [],
+  "host_provides": [
+    "framer-motion",
+    "hls.js",
+    "react",
+    "react-dom",
+    "trillion-walkthroughs"
+  ],
+  "provider_calls": [
+    {
+      "id": "durable-object",
+      "find": "\\bextends\\s+DurableObject\\b|\\bDurableObjectState\\b|\\bDurableObjectNamespace\\b"
+    },
+    {
+      "id": "kv",
+      "find": "\\bKVNamespace\\b|(?<![.\\w$])env\\.[A-Z][A-Z0-9_]*_KV\\b"
+    }
+  ],
+  "calls": [
+    {
+      "id": "maker-name-in-comment",
+      "find": "\\bJ[a-z]{5}(?=,? 20\\d\\d-\\d\\d-\\d\\d)",
+      "replace": "The maker",
+      "means": "A real person's name in a source comment, by its place (before a date), swapped for a made-up one: a public tree holds made-up data only."
+    },
+    {
+      "id": "owner-name-in-comment",
+      "find": "\\bB[a-z]{4}(?=,? 20\\d\\d-\\d\\d-\\d\\d:|: \")",
+      "replace": "The owner",
+      "means": "A real person's name in a source comment, by its place (before a date or a quote), swapped for a made-up one: a public tree holds made-up data only."
+    },
+    {
+      "id": "content-identity-import",
+      "find": "import \\{ blake3 \\} from '@noble/hashes/blake3\\.js';",
+      "replace": "import { makeHashCodeHexFromBytes } from '../../../../content-identity/read-data/identity.mjs';",
+      "means": "A direct BLAKE3 import swapped for the declared content-identity owner, which one-owner-per-registered-name makes the only place that names the hash."
+    },
+    {
+      "id": "content-identity-hex-import",
+      "find": "import \\{ bytesToHex \\} from '@noble/hashes/utils\\.js';\\n",
+      "replace": "",
+      "means": "The hex helper only the direct BLAKE3 call used; the owner hands the hex back."
+    },
+    {
+      "id": "content-identity-call",
+      "find": "bytesToHex\\(blake3\\(new TextEncoder\\(\\)\\.encode\\(key\\)\\)\\)",
+      "replace": "makeHashCodeHexFromBytes(new TextEncoder().encode(key)).slice(3)",
+      "means": "The owner's identity is `1f:` and the same 64 hex digits; dropping the three-character prefix gives the exact hex the grant row already holds."
+    }
+  ],
+  "read_as_rows": [],
+  "groups": [
+    {
+      "id": "notification-settings-screen",
+      "owner": [
+        "web/src/workspace/notification-settings-screen.tsx"
+      ],
+      "to": "tools/notifications",
+      "owner_only": true,
+      "joins_tool": "tools/notifications reads and sends a person's notices; this brings the screen where a person chooses which notices reach them and how (tool:screen-notification-settings)",
+      "capability": "choose which notices reach me and how"
+    },
+    {
+      "id": "settings-screen",
+      "owner": [
+        "web/src/workspace/settings-screen.tsx",
+        "web/src/workspace/settings-pages.tsx",
+        "web/src/workspace/settings-pages.json",
+        "web/src/workspace/settings-posts.mjs",
+        "web/src/workspace/settings-panels.json"
+      ],
+      "to": "tools/settings",
+      "owner_only": true,
+      "joins_tool": "tools/settings keeps the settings a person has for each tool as rows of their own list; this brings the Settings screen where a person steps through those settings pages, with the pages it draws itself and the rail's DATA (tool:screen-settings)",
+      "capability": "open Settings and step through its pages"
+    },
+    {
+      "id": "tray-screen",
+      "owner": [
+        "web/src/workspace/tray-screen.tsx"
+      ],
+      "to": "tools/send-to-a-place",
+      "owner_only": true,
+      "joins_tool": "tools/send-to-a-place sends what a person picked to a place they name; this brings Your tray, where the picked things wait with the note and Send to chooser (tool:screen-tray)",
+      "capability": "see what I picked and send it with a note"
+    },
+    {
+      "id": "catch-up-screens",
+      "owner": [
+        "web/src/workspace/catch-up.tsx",
+        "web/src/workspace/catch-up.json"
+      ],
+      "to": "tools/keep-copies-in-step",
+      "owner_only": true,
+      "joins_tool": "tools/keep-copies-in-step reads whether every copy of a person's things is in step and settles two versions; this brings the page's catch-up sources and the screens that show them: Your devices, its preview, the status line and Two versions (tool:screen-catch-up, tool:screen-catch-up-preview, tool:screen-catch-up-status, tool:screen-two-versions)",
+      "capability": "see whether my devices are in step and keep one of two versions"
+    },
+    {
+      "id": "show-rules-admin-screen",
+      "owner": [
+        "web/src/workspace/show-rules-admin-screen.tsx"
+      ],
+      "to": "tools/decide-when-things-show",
+      "owner_only": true,
+      "joins_tool": "tools/decide-when-things-show keeps a person's show rules, presets and who they share one with; this brings the admin screen that shares a preset with people (tool:screen-show-rules-admin)",
+      "capability": "share a show-rules preset with people"
+    },
+    {
+      "id": "files-screen",
+      "owner": [
+        "web/src/workspace/files-screen.tsx"
+      ],
+      "to": "tools/browse-and-upload-my-files",
+      "owner_only": true,
+      "joins_tool": "tools/browse-and-upload-my-files sends a person's files and folders into their space; this brings the screen where they browse, search and upload them (tool:screen-files)",
+      "capability": "browse and upload my files and folders"
+    },
+    {
+      "id": "file-screen",
+      "owner": [
+        "web/src/workspace/file-screen.tsx",
+        "web/src/workspace/file-uses.ts",
+        "web/src/workspace/note-review-tools.tsx",
+        "web/src/workspace/note-review.mjs",
+        "web/src/workspace/note-transcript.tsx",
+        "web/src/workspace/editable-text-document.tsx"
+      ],
+      "to": "tools/show-any-file-as-itself",
+      "owner_only": true,
+      "joins_tool": "tools/show-any-file-as-itself shows a file in its own form; this brings the screen that opens one file with its notes, transcript and uses (tool:screen-file) and the helpers only that screen imports",
+      "capability": "open one of my files and see it as itself"
+    },
+    {
+      "id": "file-tidy-screen",
+      "owner": [
+        "web/src/workspace/file-tidy-screen.tsx"
+      ],
+      "to": "tools/organize-my-files",
+      "owner_only": true,
+      "joins_tool": "tools/organize-my-files proposes, applies and undoes new titles and folders for a person's files; this brings the screen where they review them (tool:list-file-tidy)",
+      "capability": "review the titles and folders my AI suggests for my files"
+    },
+    {
+      "id": "media-screen",
+      "owner": [
+        "web/src/workspace/media-screen.tsx",
+        "web/src/workspace/note-list.ts",
+        "web/src/workspace/recency-group.mjs"
+      ],
+      "to": "tools/show-the-media-library-and-search-what-was",
+      "owner_only": true,
+      "joins_tool": "tools/show-the-media-library-and-search-what-was answers the Media page; this brings the Media screen (tool:screen-media) and the note-list helpers only it imports",
+      "capability": "browse my recordings and media and search what was said in them"
+    },
+    {
+      "id": "media-edit-screen",
+      "owner": [
+        "web/src/workspace/media-edit-screen.tsx",
+        "web/src/workspace/media-edit/**"
+      ],
+      "to": "tools/show-the-media-library-and-search-what-was",
+      "owner_only": true,
+      "joins_tool": "tools/show-the-media-library-and-search-what-was answers the saved edits of the Media page (GET and POST /media/edit); this brings the screen that plays and reviews the clips chosen from Media (tool:screen-media-edit) with its panels",
+      "capability": "play and review the clips I chose from Media"
+    },
+    {
+      "id": "recent-screen",
+      "owner": [
+        "web/src/workspace/recent-screen.tsx"
+      ],
+      "to": "tools/show-every-file-i-used-newest-first",
+      "owner_only": true,
+      "joins_tool": "tools/show-every-file-i-used-newest-first keeps every file use; this brings the screen that lists them newest first by day (tool:recent-files)",
+      "capability": "see every file I used, newest first"
+    },
+    {
+      "id": "recently-deleted-screen",
+      "owner": [
+        "web/src/workspace/recently-deleted-screen.tsx",
+        "web/src/workspace/storage-release-panel.tsx"
+      ],
+      "to": "tools/recently-deleted-and-storage",
+      "owner_only": true,
+      "joins_tool": "tools/recently-deleted-and-storage keeps what a person deleted or archived and puts it back; this brings the screen that lists it with the days each has left (tool:recently-deleted) and its storage panel",
+      "capability": "see what I deleted or archived and put it back"
+    },
+    {
+      "id": "inspiration-screen",
+      "owner": [
+        "web/src/workspace/inspiration-screen.tsx"
+      ],
+      "to": "tools/browse-inspiration-clips",
+      "owner_only": true,
+      "joins_tool": "tools/browse-inspiration-clips sorts everything worth making from into named rows of cards; this brings the screen that draws them (tool:inspiration)",
+      "capability": "see everything worth making from, as rows of cards"
+    },
+    {
+      "id": "record-screen",
+      "owner": [
+        "web/src/workspace/record-screen.tsx",
+        "web/src/workspace/listen-here.tsx"
+      ],
+      "to": "tools/record-voice-and-meetings",
+      "owner_only": true,
+      "joins_tool": "tools/record-voice-and-meetings holds the recorder, the live words and the saved-recording code the Record screen is built on (record-in-the-browser, heard-words, send-while-recording); this brings the screen where a person records a voice memo or a video of themselves and sees their words as they speak, with the notice that says which device is listening (tool:screen-record)",
+      "capability": "record a voice memo or a video of myself and read my words as I say them"
+    },
+    {
+      "id": "record-audio-screen",
+      "owner": [
+        "web/src/workspace/record-audio-screen.tsx",
+        "web/src/workspace/adhoc-recording-event.ts"
+      ],
+      "to": "tools/record-voice-and-meetings",
+      "owner_only": true,
+      "joins_tool": "tools/record-voice-and-meetings holds the Record audio panel, the recordings library and the meeting start and notes settings; this brings the screen that mounts them with the person's recordings, saved configurations and calendar context, and the calendar event kept for an ad-hoc recording (tool:screen-record-audio)",
+      "capability": "record my voice and meetings and keep what I recorded"
+    },
+    {
+      "id": "record-video-screen",
+      "owner": [
+        "web/src/workspace/record-video-screen.tsx",
+        "web/src/workspace/record-page-screens.json"
+      ],
+      "to": "tools/record-video-with-teleprompter",
+      "owner_only": true,
+      "joins_tool": "tools/record-video-with-teleprompter holds the recording panel, its capture, silence stop and the recording session decoder; this brings the screen that mounts them with the person's takes, script and starter layouts and the page a recording opens on (tool:screen-record-video)",
+      "capability": "record a video of myself with a teleprompter and keep my takes"
+    },
+    {
+      "id": "always-recording-screen",
+      "owner": [
+        "web/src/workspace/always-recording-screen.tsx",
+        "web/src/workspace/always-recording.json",
+        "web/src/workspace/network-live-inputs.tsx",
+        "web/src/workspace/device-switch.tsx",
+        "web/src/workspace/device-switches.json"
+      ],
+      "to": "tools/record-cameras-and-microphones-all-day",
+      "owner_only": true,
+      "joins_tool": "tools/record-cameras-and-microphones-all-day holds the recorder that opens every camera and microphone and cuts each into clock-aligned pieces; this brings the screen where a person turns each input on, sees what is recording and the pieces still to send, with the network cameras and device switches beside them (tool:screen-always-recording)",
+      "capability": "record every camera and microphone on this device without end"
+    },
+    {
+      "id": "decisions-screen",
+      "owner": [
+        "web/src/workspace/decisions-screen.tsx"
+      ],
+      "to": "tools/decide-with-a-method",
+      "owner_only": true,
+      "joins_tool": "tools/decide-with-a-method keeps a person's decisions as their own records and already reads them for the Decisions screen (tool:see-my-decisions); this brings the screen that lists them and takes the person's answer (tool:screen-decisions)",
+      "capability": "see the decisions my AI made and answer the ones waiting for me"
+    },
+    {
+      "id": "waiting-screen",
+      "owner": [
+        "web/src/workspace/waiting-screen.tsx"
+      ],
+      "to": "tools/what-is-waiting-on-me",
+      "owner_only": true,
+      "joins_tool": "tools/what-is-waiting-on-me gathers everything that waits on one person into one answer; this brings the screen that walks through those things one at a time (tool:screen-waiting)",
+      "capability": "go through everything only I can do, one thing at a time"
+    },
+    {
+      "id": "activity-screens",
+      "owner": [
+        "web/src/workspace/activity-screen.tsx",
+        "web/src/workspace/activity-trace-screen.tsx"
+      ],
+      "to": "tools/see-what-my-ais-did",
+      "owner_only": true,
+      "joins_tool": "tools/see-what-my-ais-did keeps what every connected AI did so the person sees it on the AI activity screen; this brings the activity screen, the Errors tool's screen (entry activity) and the screen that traces how one thing happened (tool:screen-activity, tool:errors, tool:screen-activity-trace)",
+      "capability": "see what my AIs did and how each thing happened"
+    },
+    {
+      "id": "ai-work-screen",
+      "owner": [
+        "web/src/workspace/ai-work-screen.tsx"
+      ],
+      "to": "tools/see-what-is-being-worked-on",
+      "owner_only": true,
+      "joins_tool": "tools/see-what-is-being-worked-on shows everything being worked on by every AI and person; this brings the AI work screen that shows who handed what to which AI and what each AI is on now (tool:screen-ai-work)",
+      "capability": "see who handed what to which AI and what is being worked on"
+    },
+    {
+      "id": "message-task-canvas-screen",
+      "owner": [
+        "web/src/workspace/message-task-canvas-screen.tsx"
+      ],
+      "to": "tools/see-what-is-being-worked-on",
+      "owner_only": true,
+      "joins_tool": "tools/see-what-is-being-worked-on already holds the message task canvas join (message-task-canvas.mjs); this brings the screen that lists every message's tasks (tool:screen-message-task-canvas)",
+      "capability": "see the tasks my AIs broke each message into"
+    },
+    {
+      "id": "audience-questions-screen",
+      "owner": [
+        "web/src/workspace/audience-questions-screen.tsx"
+      ],
+      "to": "tools/gather-audience-questions",
+      "owner_only": true,
+      "joins_tool": "tools/gather-audience-questions holds the audience-question admission and sources; this brings the review desk screen for them (tool:screen-audience-questions)",
+      "capability": "check real audience questions and keep approved ones for drafts"
+    },
+    {
+      "id": "job-run-screen",
+      "owner": [
+        "web/src/workspace/job-run.tsx"
+      ],
+      "to": "tools/hand-work-to-ais",
+      "owner_only": true,
+      "joins_tool": "tools/hand-work-to-ais keeps the jobs a person's AIs hand each other as the person's own records; this brings the view where a person watches one job run, the work, the parts handed on and every step, and tells whoever has it more (tool:screen-job-run)",
+      "capability": "watch one job my AIs are doing, step by step"
+    },
+    {
+      "id": "messages-screen",
+      "owner": [
+        "web/src/workspace/messages-screen.tsx",
+        "web/src/workspace/conversation-presence.ts",
+        "web/src/workspace/chat-records.ts",
+        "web/src/workspace/conversation-presence.json",
+        "web/src/workspace/pending-lines.ts",
+        "web/src/workspace/pending-sends.json"
+      ],
+      "to": "tools/messages-screen",
+      "owner_only": true,
+      "joins_tool": "tools/messages-screen is the Messages screen's tool (its README: every conversation with AIs and in spaces, drawn with the shared chat part); this brings the screen itself where its conversation list already lives (tool:screen-messages)",
+      "capability": "read and answer my conversations with AIs and in spaces"
+    },
+    {
+      "id": "calendar-and-mail-screens",
+      "owner": [
+        "web/src/workspace/shared-calendar-screen.tsx",
+        "web/src/workspace/email-screen.tsx",
+        "web/src/workspace/calendar-batch-actions.mjs",
+        "web/src/workspace/planning-settings.tsx",
+        "web/src/workspace/todo-lists-settings.tsx",
+        "web/src/workspace/email-todo-settings.tsx",
+        "web/src/workspace/calendar-event-forms.tsx",
+        "web/src/workspace/task-tray.tsx",
+        "web/src/workspace/calendar-key-actions.ts",
+        "web/src/workspace/task-verbs.tsx",
+        "web/src/workspace/email-screen.json",
+        "web/src/workspace/mail-action-bar.tsx",
+        "web/src/workspace/mail-keys.ts",
+        "web/src/workspace/mail-task.ts",
+        "web/src/workspace/mail-commands.json",
+        "web/src/workspace/mail-actions.json",
+        "web/src/workspace/calendar-screen-core.ts",
+        "web/src/workspace/calendar-controls.tsx",
+        "web/src/workspace/planning-settings.json",
+        "web/src/workspace/todo-lists-settings.json",
+        "web/src/workspace/todo-lists-settings.mjs",
+        "web/src/workspace/calendar-event-forms.json",
+        "web/src/workspace/shared-calendar.json",
+        "web/src/workspace/calendar-key-actions.json"
+      ],
+      "to": "tools/calendar",
+      "owner_only": true,
+      "joins_tool": "tools/calendar keeps a person's calendar; the one Calendar screen (tool:screen-calendar and the grid, settings and tasks rows that share it) draws it, and its mail pane is the Mail screen's EmailSurface imported from email-screen.tsx (tool:screen-mail), so the two screens move together into the larger user's tool",
+      "capability": "see my calendar and read and write my mail beside it"
+    },
+    {
+      "id": "post-screens",
+      "owner": [
+        "web/src/workspace/calendar-screen.tsx",
+        "web/src/workspace/posts-screen.tsx",
+        "web/src/workspace/calendar.json",
+        "web/src/workspace/pending-changes.ts",
+        "web/src/workspace/new-post.tsx",
+        "web/src/workspace/post-looks.json",
+        "web/src/workspace/pending-layers.json"
+      ],
+      "to": "tools/social-posts",
+      "owner_only": true,
+      "joins_tool": "tools/social-posts keeps the person's posts and holds both rows whose screens these are: tool:read-post-calendar (the posting calendar) and tool:check-a-post (Posts); both screens share new-post.tsx, so they move together",
+      "capability": "write, check and schedule my posts"
+    },
+    {
+      "id": "sales-contract-builder-screen",
+      "owner": [
+        "web/src/workspace/sales-contract-builder-screen.tsx",
+        "web/src/workspace/sales-contract-builder-surface.tsx",
+        "web/src/workspace/seller-payment-connect.mjs",
+        "web/src/workspace/send-to-an-audience.tsx"
+      ],
+      "to": "tools/build-and-send-a-sales-contract",
+      "owner_only": true,
+      "joins_tool": "tools/build-and-send-a-sales-contract holds the sales contract builder's DATA and its README names the builder screen as the part still in the app; this brings the screen (tool:manage-sales-contracts)",
+      "capability": "build and send a sales contract"
+    },
+    {
+      "id": "lists-screen",
+      "owner": [
+        "web/src/workspace/lists-screen.tsx",
+        "web/src/workspace/row-clipboard.ts"
+      ],
+      "to": "tools/keep-lists-of-rows",
+      "owner_only": true,
+      "joins_tool": "tools/keep-lists-of-rows is the visual-database surface that draws every list in rows, columns and views; this brings the Lists screen (tool:screen-lists, tool:screen-list) that opens a list there, with the row clipboard only that screen uses",
+      "capability": "keep my lists of rows and open each one"
+    },
+    {
+      "id": "workflows-screen",
+      "owner": [
+        "web/src/workspace/workflows-screen.tsx",
+        "web/src/workspace/where-words.mjs",
+        "web/src/workspace/last-run-words.mjs"
+      ],
+      "to": "tools/show-my-automations-on-the-signed-in-page-what-sets",
+      "owner_only": true,
+      "joins_tool": "tools/show-my-automations-on-the-signed-in-page-what-sets shows each automation, what sets it off and what it does, and draws a workflow or one run as a board of steps; this brings the Automations screen (tool:screen-workflows, tool:screen-workflow) and the two word makers only it uses",
+      "capability": "show my automations and open one"
+    },
+    {
+      "id": "funnels-screen",
+      "owner": [
+        "web/src/workspace/funnels-screen.tsx"
+      ],
+      "to": "tools/funnels-and-offers",
+      "owner_only": true,
+      "joins_tool": "tools/funnels-and-offers reads a person's sales funnels from their own records; this brings the screen that draws them stage by stage (tool:screen-funnels, tool:screen-funnel)",
+      "capability": "see my funnels and each stage"
+    },
+    {
+      "id": "workshop-screen",
+      "owner": [
+        "web/src/workspace/workshop-screen.tsx"
+      ],
+      "to": "tools/describe-the-workshop",
+      "owner_only": true,
+      "joins_tool": "tools/describe-the-workshop describes one tool, who made it and the next call to make; this brings the Runs, Tool and Run screens of the person's page (tool:screen-workshop, tool:screen-workshop-tool, tool:screen-workshop-run)",
+      "capability": "see my tool runs and describe one tool"
+    },
+    {
+      "id": "controls-screen",
+      "owner": [
+        "web/src/workspace/controls-screen.tsx",
+        "web/src/workspace/controls-previews.tsx"
+      ],
+      "to": "tools/tweak-live-controls",
+      "owner_only": true,
+      "joins_tool": "tools/tweak-live-controls makes a tool's inputs into rows a person moves; this brings the Controls screen that shows them beside the tool's preview (tool:screen-controls) with the preview file only it uses",
+      "capability": "adjust a thing with live controls"
+    },
+    {
+      "id": "canvas-edit-screen",
+      "owner": [
+        "web/src/workspace/canvas-edit-screen.tsx",
+        "web/src/workspace/canvas-edit.json"
+      ],
+      "to": "tools/tours-screen",
+      "owner_only": true,
+      "joins_tool": "tools/tours-screen holds the guided tours, the first kind of thing Edit on canvas lays out as all its parts; this brings that screen (tool:screen-canvas-edit) with the kinds DATA only it reads",
+      "capability": "edit a tour or a screen as parts on a canvas"
+    },
+    {
+      "id": "formats-screen",
+      "owner": [
+        "web/src/workspace/formats-screen.tsx",
+        "web/src/workspace/open-record-video.ts"
+      ],
+      "to": "tools/shape-a-thought-into-my-content-formats",
+      "owner_only": true,
+      "joins_tool": "tools/shape-a-thought-into-my-content-formats shapes a thought into the content formats a person writes and speaks in; this brings the Formats screen (tool:screen-formats) with the recording opener only it uses",
+      "capability": "shape something I said into a format"
+    },
+    {
+      "id": "record-set-and-chart-screens",
+      "owner": [
+        "web/src/workspace/record-set-screen.tsx",
+        "web/src/workspace/chart-screen.tsx"
+      ],
+      "to": "tools/read-a-list-view",
+      "owner_only": true,
+      "joins_tool": "tools/read-a-list-view reads one page of what a person's list shows; this brings the two screens that draw any list whose answer describes itself as rows (tool:screen-sent, tool:screen-spend, tool:screen-visitors, tool:screen-price-tests) or as one chart (tool:screen-chart), one home for the files four tools' rows name",
+      "capability": "read any list or reading as rows or one chart"
+    },
+    {
+      "id": "saved-examples-screen",
+      "owner": [
+        "web/src/workspace/saved-examples-screen.tsx"
+      ],
+      "to": "tools/saved-examples",
+      "owner_only": true,
+      "joins_tool": "tools/saved-examples keeps the posts, videos and pages that worked; this brings the screen that draws them (tool:list-saved-examples)",
+      "capability": "see the examples I saved"
+    },
+    {
+      "id": "spaces-screen",
+      "owner": [
+        "web/src/workspace/spaces-screen.tsx",
+        "web/src/workspace/community-screen.tsx",
+        "web/src/workspace/space-actions.json",
+        "web/src/workspace/spaces-plan-gate.tsx"
+      ],
+      "to": "tools/show-the-persons-spaces-on-the-signed-in-page-answer",
+      "owner_only": true,
+      "joins_tool": "tools/show-the-persons-spaces-on-the-signed-in-page-answer reads the person's spaces for the signed-in page (src/work-spaces.mjs names spaces-screen.tsx as its Spaces screens); this brings the screens that draw them, the pursuits list and one pursuit (tool:screen-spaces, tool:screen-space), with the places a pursuit turns on (community-screen.tsx, imported only by the spaces screen) and the two files only they use",
+      "capability": "see my pursuits and everything one holds"
+    },
+    {
+      "id": "sharing-screen",
+      "owner": [
+        "web/src/workspace/sharing-screen.tsx"
+      ],
+      "to": "tools/choose-where-shares-from-the-phone-browser",
+      "owner_only": true,
+      "joins_tool": "tools/choose-where-shares-from-the-phone-browser is where a share from the phone or browser can go and what was shared before; this is the screen where the person chooses (tool:screen-sharing)",
+      "capability": "choose where shares from my phone and browser go"
+    },
+    {
+      "id": "network-screen",
+      "owner": [
+        "web/src/workspace/network-screen.tsx"
+      ],
+      "to": "tools/let-the-signed-in-page-reach-the-same-network",
+      "owner_only": true,
+      "joins_tool": "tools/let-the-signed-in-page-reach-the-same-network reads the network of people and AIs for the signed-in page (src/work-network.mjs); this brings the Network screen that draws it (tool:screen-network)",
+      "capability": "browse the people and AIs in the network"
+    },
+    {
+      "id": "marketplace-screen",
+      "owner": [
+        "web/src/workspace/marketplace-screen.tsx"
+      ],
+      "to": "tools/browse-and-publish-what-my-ai-can-use",
+      "owner_only": true,
+      "joins_tool": "tools/browse-and-publish-what-my-ai-can-use is the Marketplace shelf (its marketplace-kinds.json names marketplace-screen.tsx as the screen it feeds); this brings the screen (tool:screen-marketplace)",
+      "capability": "browse and publish what my AI can use"
+    },
+    {
+      "id": "public-apps-screen",
+      "owner": [
+        "web/src/workspace/public-apps-screen.tsx",
+        "web/src/workspace/public-app-assembly-panel.tsx",
+        "web/src/workspace/public-app-source-panel.tsx"
+      ],
+      "to": "tools/edit-a-site-visually",
+      "owner_only": true,
+      "joins_tool": "tools/edit-a-site-visually edits a site's pages and owns the editor model this screen already imports (public-app-editor-model.mjs); this brings the Sites screen (tool:screen-public-apps) with the two panels only it uses",
+      "capability": "edit my sites and read their visitor activity"
+    },
+    {
+      "id": "home-screen",
+      "owner": [
+        "web/src/workspace/home-screen.tsx",
+        "web/src/ai-side-work.json"
+      ],
+      "to": "tools/keep-goals-and-focus",
+      "owner_only": true,
+      "joins_tool": "tools/keep-goals-and-focus keeps a person's goals and the one needle mover and holds Home's own words (home-words.json); this brings Home itself, the screen where a person sees what waits for them, their numbers, their goals and what their AIs did, one part of Home per row (tool:screen-home and its parts, tool:screen-menu-bar)",
+      "capability": "see where things stand and keep my goals"
+    },
+    {
+      "id": "tours-screen",
+      "owner": [
+        "web/src/workspace/tours-screen.ts"
+      ],
+      "to": "tools/tours-screen",
+      "owner_only": true,
+      "joins_tool": "tools/tours-screen holds the guided-tour engine, the host and the tours' data; this brings the Tours screen that lists every tour and the Waiting tours list (tool:screen-tours, tool:screen-waiting-tours)",
+      "capability": "list the guided tours I have and have not taken"
+    }
+  ]
 }

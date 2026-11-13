@@ -56,6 +56,8 @@ What the tool runs with is, weakest first: its own defaults, the row's settings,
 |---|---|
 | `do-work/run-with-settings.mjs` | The command above. |
 | `test/run-with-settings.test.mjs`, `test/echo_settings.py` | Reading through the stand-in records door, the merge, refusals, and a made-up Python program run under the command. |
+| `show/settings-mount.tsx` | The module entry of `tool:screen-settings`: its `mount` is `mountSettingsScreen`. |
+| `web/src/workspace/settings-screen.tsx`, `web/src/workspace/settings-pages.tsx`, `web/src/workspace/settings-pages.json`, `web/src/workspace/settings-posts.mjs`, `web/src/workspace/settings-panels.json` | The Settings screen: the rail's groups and pages (`settings-panels.json`), the pages it draws itself (`settings-pages.tsx` with their words in `settings-pages.json` and the What's new posts in `settings-posts.mjs`) and the shell that steps between them. Moved byte for byte from the web client (`moved-from.json`); the files of the web shell they import stay there. |
 
 ## Moved from Trillion
 

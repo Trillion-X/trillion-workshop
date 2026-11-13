@@ -2,7 +2,20 @@
   "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
   "source": "Trillion-X/trillion",
   "package": "trillion-workshop",
-  "calls": [],
+  "calls": [
+    {
+      "id": "maker-name-in-comment",
+      "find": "\\bJ[a-z]{5}(?=,? 20\\d\\d-\\d\\d-\\d\\d)",
+      "replace": "The maker",
+      "means": "A real person's name in a source comment, by its place (before a date), swapped for a made-up one: a public tree holds made-up data only."
+    },
+    {
+      "id": "owner-name-in-comment",
+      "find": "\\bB[a-z]{4}(?=,? 20\\d\\d-\\d\\d-\\d\\d:|: \")",
+      "replace": "The owner",
+      "means": "A real person's name in a source comment, by its place (before a date or a quote), swapped for a made-up one: a public tree holds made-up data only."
+    }
+  ],
   "files": [
     {
       "from": "src/work-spaces.mjs",
@@ -17,6 +30,118 @@
       "to": "tools/show-the-persons-spaces-on-the-signed-in-page-answer/test/work-spaces.test.mjs",
       "source_identity": "1f:8f54e7912f6f2541d75c5d3f843aa9c30e5db78dd29f5fb1f12c5e28fcbe0287",
       "identity": "1f:8f54e7912f6f2541d75c5d3f843aa9c30e5db78dd29f5fb1f12c5e28fcbe0287"
+    },
+    {
+      "from": "web/src/workspace/community-screen.tsx",
+      "commit": "539157f90fa86a0cf3a38dd3a1e3751b4ca941bc",
+      "to": "tools/show-the-persons-spaces-on-the-signed-in-page-answer/web/src/workspace/community-screen.tsx",
+      "source_identity": "1f:9cf7a6ae4006b4588608e4b5fe5a281543e9dc27e219e4d4840fd1fe3e386335",
+      "identity": "1f:3ac6c92e6ac5cb816da13f408ddc6a59728e7f67cbfc748b28652156f18f79c1",
+      "stays": [
+        "web/parts/ui/show/coss/guide.tsx",
+        "web/parts/ui/show/coss/notifications.tsx",
+        "web/parts/ui/show/coss/thread.tsx",
+        "web/parts/ui/show/isolated-module-surface/IsolatedModuleSurface.tsx",
+        "web/parts/ui/show/isolated-module-surface/module-surface-requests.mjs",
+        "web/parts/ui/show/placeable-surface-intent/placeable-surface-intent.ts",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/src/workspace/addresses.mjs",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/community-places.ts",
+        "web/src/workspace/guide-screen.ts",
+        "web/src/workspace/open-screen.ts",
+        "web/src/workspace/resource-target.ts"
+      ],
+      "calls": [
+        "maker-name-in-comment",
+        "owner-name-in-comment"
+      ]
+    },
+    {
+      "from": "web/src/workspace/space-actions.json",
+      "commit": "539157f90fa86a0cf3a38dd3a1e3751b4ca941bc",
+      "to": "tools/show-the-persons-spaces-on-the-signed-in-page-answer/web/src/workspace/space-actions.json",
+      "source_identity": "1f:02483456a9fe49b39ffadc1cd7baea8a20d02ef21a79a43ba9179da435c4e274",
+      "identity": "1f:02483456a9fe49b39ffadc1cd7baea8a20d02ef21a79a43ba9179da435c4e274"
+    },
+    {
+      "from": "web/src/workspace/spaces-plan-gate.tsx",
+      "commit": "539157f90fa86a0cf3a38dd3a1e3751b4ca941bc",
+      "to": "tools/show-the-persons-spaces-on-the-signed-in-page-answer/web/src/workspace/spaces-plan-gate.tsx",
+      "source_identity": "1f:9b36ea271cbcac3c952f31a69f999316631d697a3df6e0a238fba1278c7af835",
+      "identity": "1f:86cea337ed71dc265ae9c7ea19e28da232fd26b6eb9649ca5bd93509ed59bd87",
+      "stays": [
+        "web/parts/ui/show/pricing-overlay/PricingOverlay.tsx",
+        "web/parts/ui/show/react-surface-mount/index.ts",
+        "web/src/plan-cards.mjs",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/pending-space-invite.mjs"
+      ]
+    },
+    {
+      "from": "web/src/workspace/spaces-screen.tsx",
+      "commit": "539157f90fa86a0cf3a38dd3a1e3751b4ca941bc",
+      "to": "tools/show-the-persons-spaces-on-the-signed-in-page-answer/web/src/workspace/spaces-screen.tsx",
+      "source_identity": "1f:a49dba9546c05a934e0a8702ba80bbcf8cc11b012bed0ab6d231098d54a8779a",
+      "identity": "1f:05b0d85ae36edff8bc9201cefb4a0b382c404081f23f5e0d9f9374c01a4c37c3",
+      "stays": [
+        "web/parts/guided-overlay/show/walkthrough-events.ts",
+        "web/parts/screen-arrangement/show/FloatingPanel.tsx",
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/action-menu/index.ts",
+        "web/parts/ui/show/collection-header/index.ts",
+        "web/parts/ui/show/color-dot/ColorDot.tsx",
+        "web/parts/ui/show/command-palette/index.ts",
+        "web/parts/ui/show/composer/index.ts",
+        "web/parts/ui/show/coss/guide.tsx",
+        "web/parts/ui/show/coss/notifications.tsx",
+        "web/parts/ui/show/coss/thread.tsx",
+        "web/parts/ui/show/listing-card/index.ts",
+        "web/parts/ui/show/load-later/later.ts",
+        "web/parts/ui/show/media-preview/index.ts",
+        "web/parts/ui/show/mention-field/index.ts",
+        "web/parts/ui/show/placeable-surface-intent/placeable-surface-intent.ts",
+        "web/parts/ui/show/react-surface-mount/index.ts",
+        "web/parts/ui/show/reactions/ReactionRow.tsx",
+        "web/parts/ui/show/record-chip/index.ts",
+        "web/parts/ui/show/record-views/every-list-views.ts",
+        "web/parts/ui/show/record-views/record-views.tsx",
+        "web/parts/ui/show/record-views/timeline-zoom-levels.json",
+        "web/parts/ui/show/relative-time/relative-time.ts",
+        "web/parts/ui/show/rule-builder/index.ts",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/parts/ui/show/show-rules/show-of.ts",
+        "web/src/reactions.json",
+        "web/src/shared-record-references.mjs",
+        "web/src/space-settings.json",
+        "web/src/workspace/addresses.mjs",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/community-places.ts",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/file-picture.ts",
+        "web/src/workspace/home-records.json",
+        "web/src/workspace/mentions.ts",
+        "web/src/workspace/opened-shared-record.tsx",
+        "web/src/workspace/pursuit-parts.ts",
+        "web/src/workspace/queue-job.ts",
+        "web/src/workspace/quiet-send-check.ts",
+        "web/src/workspace/quiet-writes.ts",
+        "web/src/workspace/record-filter.ts",
+        "web/src/workspace/records-door.ts",
+        "web/src/workspace/scope-focus.ts",
+        "web/src/workspace/screen-mounts.ts",
+        "web/src/workspace/screens.mjs",
+        "web/src/workspace/send-message.ts",
+        "web/src/workspace/share-kept-files.mjs",
+        "web/src/workspace/shared-record-preview.tsx",
+        "web/src/workspace/sharing-sheet.tsx",
+        "web/src/workspace/space-create-recipients.mjs",
+        "web/src/workspace/space-kinds.json",
+        "web/src/workspace/space-target-page.mjs",
+        "web/src/workspace/store-changes.ts",
+        "web/src/workspace/tool-screen.tsx"
+      ]
     }
   ]
 }

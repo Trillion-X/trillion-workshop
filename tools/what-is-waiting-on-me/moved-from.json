@@ -109,6 +109,36 @@
       "to": "tools/what-is-waiting-on-me/test/work-rounds.test.mjs",
       "source_identity": "1f:32434f62cc12c55829061105b885da9805782c7f32ccce885392abe75259a194",
       "identity": "1f:91e12322514de109db577655da4728011d343c4d2ee71c9e87bf36d841fc3bad"
+    },
+    {
+      "from": "web/src/workspace/waiting-screen.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/what-is-waiting-on-me/web/src/workspace/waiting-screen.tsx",
+      "source_identity": "1f:d1fd0b0cf07162266c49484752d1ec914cb5e514db879b8c50ac386a08abb9d9",
+      "identity": "1f:d1fd0b0cf07162266c49484752d1ec914cb5e514db879b8c50ac386a08abb9d9",
+      "stays": [
+        "web/parts/screen-arrangement/show/arrangement-lock.tsx",
+        "web/parts/ui/show/artifact-evidence/index.ts",
+        "web/parts/ui/show/copy-button/CopyButton.tsx",
+        "web/parts/ui/show/linked-identity/LinkedIdentity.tsx",
+        "web/parts/ui/show/live-check/index.ts",
+        "web/parts/ui/show/markdown-block/MarkdownWords.tsx",
+        "web/parts/ui/show/one-at-a-time-queue/index.ts",
+        "web/parts/ui/show/react-surface-mount/index.ts",
+        "web/parts/ui/show/relative-time/relative-time.ts",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/parts/ui/show/steps-checklist/index.ts",
+        "web/src/waiting-on-you.json",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/file-picture.ts",
+        "web/src/workspace/hold-ways-out.tsx",
+        "web/src/workspace/live-check-words.json",
+        "web/src/workspace/needs-you.tsx",
+        "web/src/workspace/open-screen.ts",
+        "web/src/workspace/screen-in-place.tsx",
+        "web/src/workspace/waiting-queue.ts"
+      ]
     }
   ]
 }

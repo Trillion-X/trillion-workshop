@@ -28,3 +28,12 @@ Saving an example as an AI tool (`tool:save-an-example`) moves with the public-f
 ## Dependencies
 
 **Depends on:** `tools/records-door`, `tools/read-a-public-web-link-whole-its-card` (and what it imports: `tools/browse-public-page`, `tools/refuse-requests-to-private-addresses`, `tools/http-client`).
+
+## Screens moved from the web client
+
+These files were moved byte for byte from the web client (`moved-from.json` names each file's source path, commit and identity). Their imports of the web shell's files stay as written; the client build answers them with the shell's files and opens each screen as a screen module named by its row (`screen.module`).
+
+| File | Purpose |
+|------|---------|
+| `web/src/workspace/saved-examples-screen.tsx` | Saved examples (`tool:list-saved-examples`): every post, video and page kept because it worked, as cards or a table, with a paste field to add one. |
+| `show/saved-examples-mount.tsx` | The module entry the row names for `saved-examples`: `mount` is `mountSavedExamplesScreen`. |

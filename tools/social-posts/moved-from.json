@@ -1,0 +1,95 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion-apps",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "web/src/workspace/calendar-screen.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/social-posts/web/src/workspace/calendar-screen.tsx",
+      "source_identity": "1f:9000f3dcbb91e34d0c1d112036684149e394df1f9a6344b89ff3bd97a16e12e4",
+      "identity": "1f:280b7cf1d7ab6a4cffcf971d5a218bcf45e3ddfdedba15c1eae8de9a4dd5d1f6",
+      "stays": [
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/coss/notifications.tsx",
+        "web/parts/ui/show/date-picker/DateTimePicker.tsx",
+        "web/parts/ui/show/record-views/record-views.tsx",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/record-filter.ts",
+        "web/src/workspace/store-changes.ts"
+      ]
+    },
+    {
+      "from": "web/src/workspace/calendar.json",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/social-posts/web/src/workspace/calendar.json",
+      "source_identity": "1f:0d2409d970a2d36f40790c94d47442bfd32103c87fdeef18dadb29d933824c2c",
+      "identity": "1f:0d2409d970a2d36f40790c94d47442bfd32103c87fdeef18dadb29d933824c2c"
+    },
+    {
+      "from": "web/src/workspace/new-post.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/social-posts/web/src/workspace/new-post.tsx",
+      "source_identity": "1f:f8f1ca4a3d3c1b12f1c268af5c87f8937505beab29a830d82c01b1d0a55a0bd7",
+      "identity": "1f:31477adf2b9303d4a79fd939a839b3d60c533e672356e8600cfdeb5d5c6242aa",
+      "stays": [
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/coss/notifications.tsx",
+        "web/parts/ui/show/date-picker/DateTimePicker.tsx",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/open-screen.ts"
+      ]
+    },
+    {
+      "from": "web/src/workspace/pending-changes.ts",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/social-posts/web/src/workspace/pending-changes.ts",
+      "source_identity": "1f:c45b256ee016ab34560c010821fc32a75d33cf44f05fdd93f97517129821921f",
+      "identity": "1f:c45b256ee016ab34560c010821fc32a75d33cf44f05fdd93f97517129821921f"
+    },
+    {
+      "from": "web/src/workspace/pending-layers.json",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/social-posts/web/src/workspace/pending-layers.json",
+      "source_identity": "1f:2de67dc92bdbc533cee1a0e06b89a2ec078029a56fca29f4b8abf8753f6c926f",
+      "identity": "1f:2de67dc92bdbc533cee1a0e06b89a2ec078029a56fca29f4b8abf8753f6c926f"
+    },
+    {
+      "from": "web/src/workspace/post-looks.json",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/social-posts/web/src/workspace/post-looks.json",
+      "source_identity": "1f:73b78286c18b692acf879e4c371a8b0d0bb0d024c31e71dd7a081dd19365f92a",
+      "identity": "1f:73b78286c18b692acf879e4c371a8b0d0bb0d024c31e71dd7a081dd19365f92a"
+    },
+    {
+      "from": "web/src/workspace/posts-screen.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/social-posts/web/src/workspace/posts-screen.tsx",
+      "source_identity": "1f:02ebfb155dae5312c5677a08ebab696eff8af6e5314ecd97fd4f3ca35260eab2",
+      "identity": "1f:78c97d6653eda6177e2fcfdb7120982033fafd9cf9a83c78b4d812a28b62fd2f",
+      "stays": [
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/coss/notifications.tsx",
+        "web/parts/ui/show/file-preview/FilePreview.tsx",
+        "web/parts/ui/show/markdown-block/MarkdownWords.tsx",
+        "web/parts/ui/show/react-surface-mount/index.ts",
+        "web/parts/ui/show/record-views/record-views.tsx",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/src/post-shape.mjs",
+        "web/src/social-posts.json",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/file-picture.ts",
+        "web/src/workspace/lazy-screen.ts",
+        "web/src/workspace/open-screen.ts",
+        "web/src/workspace/queue-job.ts",
+        "web/src/workspace/record-filter.ts",
+        "web/src/workspace/records-door.ts",
+        "web/src/workspace/say-about-this.tsx"
+      ]
+    }
+  ]
+}

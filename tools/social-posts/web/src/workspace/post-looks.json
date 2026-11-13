@@ -1,0 +1,74 @@
+{
+  "_what": "How the Posts screen (posts-screen.tsx) shows a person's posts. `reaches` words show who a post contacts first and where each was found (src/social-posts.mjs invariant 7). `statuses` are a post's states (src/social-posts.mjs) in the order the list sections run, each with its section name and badge tone; a status not listed shows under its own word. `destination_states` are the tones of each place's state. `actions` are what a person can press on a post: `id` is the verb the Worker takes (src/work-posts.mjs), `when` the statuses it is offered in, `done` the words shown when the answer says nothing. `write` is what the new-post panel says (src/workspace/new-post.tsx, on Posts and the posting calendar), `places` what it says about where a post goes (`connect_screen` is the screen its Connect opens), `empty` what Posts says with no post yet. `ask_ai` names the jobs the screen hands the person's AI (`job_id`, a src/queued-work.json row, which holds its words; `context`, what the press sends besides the post it is on): drafting a first post, and fixing a post that is not ready. `media_height` is the height of the box an opened post's video, picture or sound is drawn in (the shared file preview fits the file inside it).",
+  "media_height": "clamp(16rem, 60vh, 32rem)",
+  "statuses": [
+    { "id": "draft", "label": "Drafts", "tone": "muted" },
+    { "id": "approved", "label": "Approved", "tone": "info" },
+    { "id": "scheduled", "label": "Scheduled", "tone": "accent" },
+    { "id": "partial", "label": "Partly posted", "tone": "warning" },
+    { "id": "failed", "label": "Failed", "tone": "error" },
+    { "id": "posted", "label": "Posted", "tone": "success" }
+  ],
+  "destination_states": {
+    "not sent": "muted",
+    "on its way": "info",
+    "posted": "success",
+    "failed": "error",
+    "not known": "warning"
+  },
+  "actions": [
+    { "id": "approve", "label": "Approve", "icon": "Check", "when": ["draft"], "done": "Approved." },
+    { "id": "publish", "label": "Publish", "icon": "Send", "when": ["approved", "partial", "failed"], "done": "Sent." },
+    { "id": "undo", "label": "Take back", "icon": "Undo2", "when": ["scheduled"], "done": "Taken back." }
+  ],
+  "edit": { "open": "Edit words", "save": "Save words", "saving": "Saving", "cancel": "Cancel", "label": "Words", "saved": "Words saved. The post is a draft again; approve it when it reads right." },
+  "write": {
+    "open": "Write a post",
+    "heading": "New post",
+    "words": "Words",
+    "words_hint": "What the post says",
+    "when": "When it goes out (optional)",
+    "keep": "Keep as draft",
+    "keeping": "Keeping",
+    "close": "Close",
+    "kept": "Kept as a draft.",
+    "needs_words": "Write the words first.",
+    "with_file": "With {name}"
+  },
+  "places": {
+    "heading": "Where it goes",
+    "none_connected": "No place to post is connected yet, so your drafts are kept here until you connect one.",
+    "connect": "Connect a place",
+    "connect_screen": "trillion.connections",
+    "save": "Keep these places",
+    "saved": "Where it goes is kept."
+  },
+  "reaches": {
+    "heading": "A first message to",
+    "only_you": "Only you can approve a post that reaches someone. Read who it reaches and where each was found first.",
+    "found": "Found in {source}: {title}",
+    "open_profile": "Open profile",
+    "open_found": "Open",
+    "not_grounded": "Your computer found something in this message that is not in what you saved of them. Read it closely before you approve it."
+  },
+  "empty": {
+    "title": "No posts yet",
+    "description": "Write a post here, or ask your AI to draft one. It stays a draft until you pick where it goes and approve it."
+  },
+  "ask_ai": {
+    "draft": { "job_id": "draft-post", "context": { "screen": "Posts" } },
+    "fix": { "job_id": "fix-post" },
+    "voice": { "job_id": "post-in-my-voice" },
+    "rework": {
+      "job_id": "rework-post",
+      "ways": [
+        { "id": "shorten", "label": "Shorter", "how": "make it shorter" },
+        { "id": "lengthen", "label": "Longer", "how": "make it longer with more detail" },
+        { "id": "simplify", "label": "Simpler", "how": "use simpler, plainer words" },
+        { "id": "improve", "label": "Improve", "how": "improve the writing" },
+        { "id": "fix_grammar", "label": "Fix grammar", "how": "fix the grammar and spelling only" }
+      ]
+    },
+    "learn": { "job_id": "learn-my-voice", "context": { "screen": "Posts" } }
+  }
+}

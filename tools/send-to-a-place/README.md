@@ -11,6 +11,8 @@ Each row takes `things` (what is being sent, each `{ kind, label, address?, id? 
 | `tool-rows.json` | Three `http` rows the engine runs (no code of their own): `tool:send-to-a-webhook` posts `{ title, link, words, things }` to `address`, refuses an address that is not public, waits at most 10 seconds and follows no redirect; `tool:add-to-notion` makes a page titled `title` (else the first thing's name) holding the note and a link; `tool:post-to-slack` posts the note with the link as an attachment, and Slack's own `ok: false` is told as a refusal in Slack's words. Each answers `{ status, said, answer? }`. |
 | `test/send-to-a-place-rows.test.mjs` | The rows' promises: each is an `http` row a place finds by its name and a tray fills from `things`; the webhook holds no credential and does not follow a redirect, and its sample run fits its own input; the Notion and Slack rows take their token only from their own connection, only in the `Authorization` header; and no row names a person or a value of its own. |
 | `part.json` | No public files. |
+| `show/tray-mount.tsx` | The module entry of `tool:screen-tray`: its `mount` is `mountTrayScreen`. |
+| `web/src/workspace/tray-screen.tsx` | Your tray: the things a person picked, each a row to open or take out, and the message box under it that sends them with a note to one place or the routed default. Moved byte for byte from the web client (`moved-from.json`). |
 
 ## The connections
 

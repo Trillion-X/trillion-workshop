@@ -33,3 +33,12 @@ A person's AIs hand jobs to each other through the person's own records: work is
 ## The trillion command
 
 `trillion who` is `tool:see-my-ais`; `send` is `tool:hand-a-job-to-an-ai`; `work [ID]` is `tool:see-ai-work`; `take [ID] [--mine]` is `tool:take-an-ai-job`; `finish ID "RESULT" [--summary]`, `release ID [--because]`, `stuck ID "WORDS" | --clear` and `withdraw ID --reason` are `tool:change-an-ai-job` with action finish, release, stuck or unstuck, and withdraw. Each runs at the person's door as `tools:run` at `@workshop-tools`.
+
+## Screens
+
+Moved byte for byte from the web client (`moved-from.json` names each file's source path, commit and identity); the client build opens each from this folder as a screen module and shares the web shell's files it imports with the page.
+
+| File | Purpose |
+|------|---------|
+| `web/src/workspace/job-run.tsx` | The screen: One job as the person watches it run (also drawn under the message box by the web client, which imports this file) (`tool:screen-job-run`) |
+| `show/job-run-mount.tsx` | Its mount entry: the one `mount(element, props)` export the row's `screen.module.entry` names |

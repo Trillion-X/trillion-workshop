@@ -116,3 +116,12 @@ until they do what these files do now; or let this repository accept a rewrite o
 _Write-once layout (2026-11-12):_ a step and an answered-step summary are kept at the content identity of their value (`:c<identity>`), never overwritten. The root names no step itself: its `refs` names one `decision-refs:<id>:c<identity>` record that gives the identity each index holds. A write that is refused before its root lands leaves nothing the root names (test: 'a refused root write of a revision leaves nothing visible').
 
 _Commit (2026-11-12):_ a write adds its records first, all write-once, and only the root and its revision commit it; the revision is the only expectation, checked there. A write refused before its root no longer moves the revision, so a writer that read the case before it is not refused as changed (test: 'a write refused before its root does not move the revision'). Removals land with the root.
+
+## Screens
+
+Moved byte for byte from the web client (`moved-from.json` names each file's source path, commit and identity); the client build opens each from this folder as a screen module and shares the web shell's files it imports with the page.
+
+| File | Purpose |
+|------|---------|
+| `web/src/workspace/decisions-screen.tsx` | The screen: Decisions (`tool:screen-decisions`) |
+| `show/decisions-mount.tsx` | Its mount entry: the one `mount(element, props)` export the row's `screen.module.entry` names |

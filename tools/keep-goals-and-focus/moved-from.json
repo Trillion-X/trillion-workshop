@@ -10,6 +10,42 @@
       "to": "tools/keep-goals-and-focus/read-data/pursuit-hierarchy-view.mjs",
       "source_identity": "1f:ae7d712842c7f2138af42ba6984e5f71d5f856f7bc708ecf39e69695e461d95d",
       "identity": "1f:ae7d712842c7f2138af42ba6984e5f71d5f856f7bc708ecf39e69695e461d95d"
+    },
+    {
+      "from": "web/src/workspace/home-screen.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/keep-goals-and-focus/web/src/workspace/home-screen.tsx",
+      "source_identity": "1f:41e8f535ce06fcf7ba940e7e61b72f089adcba0e7000ed16d7cad0ca96831411",
+      "identity": "1f:447120c83ed992953dd946d8bebd439754c96603e2e7999d9c590a7457bfc7b5",
+      "stays": [
+        "web/parts/screen-look/show/work-state-looks.json",
+        "web/parts/ui/show/composer/index.ts",
+        "web/parts/ui/show/coss/notifications.tsx",
+        "web/parts/ui/show/dashboard/index.ts",
+        "web/parts/ui/show/happened/happened.ts",
+        "web/parts/ui/show/placeable-surface-intent/placeable-surface-intent.ts",
+        "web/parts/ui/show/record-views/hover-form.tsx",
+        "web/parts/ui/show/relative-time/relative-time.ts",
+        "web/parts/ui/show/request/kept-answers.ts",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/src/home-words.json",
+        "web/src/progress-trends.mjs",
+        "web/src/work-title.mjs",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/decision-answer.ts",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/home-records.json",
+        "web/src/workspace/instant-screen.tsx",
+        "web/src/workspace/job-runs-later.tsx",
+        "web/src/workspace/lazy-screen.ts",
+        "web/src/workspace/mentions.ts",
+        "web/src/workspace/queue-job.ts",
+        "web/src/workspace/records-door.ts",
+        "web/src/workspace/screens.mjs",
+        "web/src/workspace/send-choices.ts",
+        "web/src/workspace/send-message.ts",
+        "web/src/workspace/snippets.ts"
+      ]
     }
   ]
 }

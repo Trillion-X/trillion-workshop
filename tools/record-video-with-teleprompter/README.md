@@ -14,6 +14,9 @@ Recording a video of oneself with the camera: countdown, silence stop, a telepro
 | `things-to-store-and-run.json` | Package data: surface, actions, descriptors and the `recordings` input |
 | `tool-rows.json` | The row `tool:turn-a-presentation-plan-into-a-teleprompter-session`, with a sample run of a two-sentence plan with complete readiness and an unexpired grant, so the session may start by itself |
 | `README.md` | This file |
+| `show/record-video-screen-mount.tsx` | `tool:screen-record-video` as a screen module: its one export, `mount`, is the Record video screen below |
+| `web/src/workspace/record-video-screen.tsx` | The Record video screen: the recording panel with the person's takes, the script and the page a recording opens on; moved here byte for byte from the web client (`moved-from.json`) |
+| `web/src/workspace/record-page-screens.json` | The screens a recording's page opens on |
 
 ## The row
 

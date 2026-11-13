@@ -32,3 +32,13 @@ script followed as it is read. Ported from old trillion `src/content-formats.mjs
 **Depends on:** `tools/records-door`, `tools/media-composition` (caption styles),
 `tools/turn-any-recording-already-in-the-persons-files` (`recording.mjs`), `tools/record-voice-and-meetings`
 (`heard-words.mjs`), `tools/tweak-live-controls` (`failure.mjs`).
+
+## Screens moved from the web client
+
+These files were moved byte for byte from the web client (`moved-from.json` names each file's source path, commit and identity). Their imports of the web shell's files stay as written; the client build answers them with the shell's files and opens each screen as a screen module named by its row (`screen.module`).
+
+| File | Purpose |
+|------|---------|
+| `web/src/workspace/formats-screen.tsx` | Formats (`tool:screen-formats`): the content formats as cards, each with a thought shaped into it. |
+| `web/src/workspace/open-record-video.ts` | Opens the recorder on a script (only the Formats screen uses it). |
+| `show/formats-mount.tsx` | The module entry the row names for `formats`: `mount` is `mountFormatsScreen`. |

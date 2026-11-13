@@ -18,3 +18,14 @@ Describes one tool: its whole row, who made it, the sample rule of the place it 
 | `ports/*.json` | The port contracts of the two moved modules |
 | `tool-rows.json` | The row |
 | `test/describe.test.mjs` | The engine resolver's cases and trillion's sample-rule case, over made-up rows |
+
+## Screens moved from the web client
+
+These files were moved byte for byte from the web client (`moved-from.json` names each file's source path, commit and identity). Their imports of the web shell's files stay as written; the client build answers them with the shell's files and opens each screen as a screen module named by its row (`screen.module`).
+
+| File | Purpose |
+|------|---------|
+| `web/src/workspace/workshop-screen.tsx` | Runs, Tool and Run (`tool:screen-workshop`, `tool:screen-workshop-tool`, `tool:screen-workshop-run`): every run of a tool, one tool, and one run with what it returned. |
+| `show/workshop-mount.tsx` | The module entry the row names for `workshop`: `mount` is `mountWorkshopScreen`. |
+| `show/workshop-tool-mount.tsx` | The module entry the row names for `workshop-tool`: `mount` is `mountWorkshopToolScreen`. |
+| `show/workshop-run-mount.tsx` | The module entry the row names for `workshop-run`: `mount` is `mountWorkshopRunScreen`. |

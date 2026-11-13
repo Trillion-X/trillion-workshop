@@ -12,6 +12,13 @@
       "identity": "1f:15d99f1fcdc2e9dbfb4b6c7e7c0f114c13492f7950a067564901c57a080231f4"
     },
     {
+      "from": "test/inspiration.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/browse-inspiration-clips/from-old-trillion/test/inspiration.test.mjs",
+      "source_identity": "1f:efe3dd8bb7ad9cdbfd0b5d2f38720186c792938caf3625fd4e3984d8a2a2064e",
+      "identity": "1f:587cf1dda4b350b7efef14c3a98c2a3deeec6305580c35caa7454a571040bd42"
+    },
+    {
       "from": "src/inspiration.json",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/browse-inspiration-clips/inspiration.json",
@@ -28,11 +35,23 @@
       "found_by": "same bytes"
     },
     {
-      "from": "test/inspiration.test.mjs",
-      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/browse-inspiration-clips/from-old-trillion/test/inspiration.test.mjs",
-      "source_identity": "1f:efe3dd8bb7ad9cdbfd0b5d2f38720186c792938caf3625fd4e3984d8a2a2064e",
-      "identity": "1f:587cf1dda4b350b7efef14c3a98c2a3deeec6305580c35caa7454a571040bd42"
+      "from": "web/src/workspace/inspiration-screen.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/browse-inspiration-clips/web/src/workspace/inspiration-screen.tsx",
+      "source_identity": "1f:026cb8b97d345a1bb2fb402fbda9a521fb7be1e1bc14e54f16d04b3c067ed2d2",
+      "identity": "1f:763e1cd8cdcc52e792a7ecde81492c91a2309251b6a5b61e9a695261359df426",
+      "stays": [
+        "web/parts/ui/show/card-layouts/index.ts",
+        "web/parts/ui/show/coss/notifications.tsx",
+        "web/parts/ui/show/media-preview/index.ts",
+        "web/parts/ui/show/placeable-surface-intent/placeable-surface-intent.ts",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/file-picture.ts",
+        "web/src/workspace/records.ts",
+        "web/src/workspace/workshop-tool-api.ts"
+      ]
     }
   ]
 }

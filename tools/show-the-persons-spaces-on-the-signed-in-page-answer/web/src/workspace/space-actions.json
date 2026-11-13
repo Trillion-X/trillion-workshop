@@ -1,0 +1,2251 @@
+{
+  "schema": "trillion.space-actions",
+  "about": "Everything a person can do on the Pursuits screens (src/workspace/spaces-screen.tsx), as DATA the screen runs without knowing which action it is. A new action is one row here. Per action: `id`; `label` and `icon` (a named icon); `tone` (`destructive` tints it); `primary` draws it as the main button where it shows; `shows` lists where it is offered: `list-header` (the Pursuits list, with `list.archived` true while it shows the archived pursuits), `invitation` (each invitation), `space-card` (each pursuit in the list, in its ⋯ menu, with the pursuit's `link`), `header` (a pursuit's header buttons), `menu` (a pursuit's ⋯ menu), `attach` (the composer's attach menu), `composer` (what the message box sends), `item` (each thing in a pursuit), `reaction` (giving or taking back a reaction on a thing, with `asked` holding its `symbol` or own `glyph` and `on`), `member` (each person), `agent` (each agent), `join-link` (the pursuit an invite link opens), `open-to-you` (each pursuit the person is not in that anyone may join), `invite` (each invite link the person made), `rules` (the rules about who may do what in a pursuit). `when` lists conditions that must all hold for it to be offered: a value `read` from the context `is` the given value, or `is_not` it (null means absent). `box` is what it asks for first: `composer` (the message box takes it, with a `chip` above the box and a `placeholder`), `panel` (a small panel with `body` words and `fields`), or `pick` (the picker over `source`: `shareable` for the person's pursuits, decisions and files, `files` for their files). `choices` makes it a choice among a list of the pursuit settings (src/space-settings.json, at the path `from`): each row `{ id, label }` becomes one choice, drawn with a swatch of its id as a colour when `swatches` is true, the one equal to `current` is marked, and the chosen row is read as `chosen`. `confirm` is asked once before it runs. `road` is what it does: `post` sends `body` to /work/api/spaces (or to the page's own road named by `at`, such as /community) followed by `path` (with `pages` it repeats while the answer names a next `cursor`, sending it as `field`), `copy` puts `words` on the clipboard, `screen` changes what this screen shows (`verb`), `sharing` opens the one sharing sheet for the `picked` thing with this pursuit switched on. `queue` asks the person's own AIs for the job row `job` of src/queued-work.json names, with `context` read in; its label and done words come from that row. `reveal` shows one value from the answer once, with a copy button; `copy` puts its words on the clipboard once the road answers. `done` is said when it worked; `after` is what the screen does next (`open-space`, `left`). Words are lists of text and values: `{ \"read\": { \"from\": <context>, \"key\": [<path>] } }`, where the contexts are `pursuit` (with its `description`, `picture` and `colour`), `item`, `thing` (an item's title and who put it there, as shown), `member`, `agent`, `invitation`, `join` (the invite link's `code`), `invite`, `picked`, `asked` (what the box took), `chosen` (the row of `choices` picked), `answer` and `fresh` (a new unique `key`). `people` is the People place's own button. A condition may read what the person may do, as the store answers it from the pursuit's own rules: `space.may.<action>` for the pursuit itself and `item.may.<action>` for one thing (src/space-member-types.mjs), so nothing is offered that the store would refuse.",
+  "actions": [
+    {
+      "id": "start",
+      "label": "New project",
+      "icon": "Plus",
+      "primary": true,
+      "shows": [
+        "list-header"
+      ],
+      "when": [
+        {
+          "read": {
+            "from": "list",
+            "key": [
+              "archived"
+            ]
+          },
+          "is": null
+        }
+      ],
+      "box": {
+        "kind": "panel",
+        "body": [
+          "Add the people you want to work with. Each person gets an invitation and chooses whether to join. Team members need a Trillion plan or a seat you pay for. Customers and members can join without a Trillion plan. Your private pursuits stay yours."
+        ],
+        "fields": [
+        {
+          "name": "title",
+          "label": "What it is called",
+          "placeholder": "Kitchen renovation"
+        },
+        {
+          "name": "members_are",
+          "label": "Who you are inviting",
+          "kind": "choice",
+          "value": "team",
+          "options": [
+            { "value": "team", "label": "Team — paid plan or your seat" },
+            { "value": "customers", "label": "Customers or members — no plan" }
+          ]
+        },
+        {
+          "name": "invite_emails",
+          "label": "Invite people by email (optional)",
+          "kind": "text",
+          "optional": true,
+          "placeholder": "name@example.com, another@example.com"
+        }
+        ]
+      },
+      "road": {
+        "kind": "post",
+        "path": [
+          "start"
+        ],
+        "body": {
+          "title": {
+            "read": {
+              "from": "asked",
+              "key": [
+                "title"
+              ]
+            }
+          },
+          "members_are": {
+            "read": {
+              "from": "asked",
+              "key": [
+                "members_are"
+              ]
+            }
+          }
+        },
+        "members_from": {
+          "read": {
+            "from": "asked",
+            "key": [
+              "invite_emails"
+            ]
+          }
+        }
+      },
+      "done": [
+        {
+          "read": {
+            "from": "asked",
+            "key": [
+              "title"
+            ]
+          }
+        },
+        " is ready"
+      ],
+      "after": "open-space"
+    },
+    {
+      "id": "join",
+      "label": "Join",
+      "icon": "Check",
+      "primary": true,
+      "shows": [
+        "invitation"
+      ],
+      "road": {
+        "kind": "post",
+        "path": [
+          "invitations",
+          "answer"
+        ],
+        "body": {
+          "request_id": {
+            "read": {
+              "from": "invitation",
+              "key": [
+                "request_id"
+              ]
+            }
+          },
+          "accept": true
+        }
+      },
+      "done": [
+        "You joined ",
+        {
+          "read": {
+            "from": "invitation",
+            "key": [
+              "space",
+              "title"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "decline",
+      "label": "Decline",
+      "icon": "X",
+      "shows": [
+        "invitation"
+      ],
+      "confirm": [
+        "Decline this invitation? You can be invited again later."
+      ],
+      "road": {
+        "kind": "post",
+        "path": [
+          "invitations",
+          "answer"
+        ],
+        "body": {
+          "request_id": {
+            "read": {
+              "from": "invitation",
+              "key": [
+                "request_id"
+              ]
+            }
+          },
+          "accept": false
+        }
+      },
+      "done": [
+        "Invitation declined"
+      ]
+    },
+    {
+      "id": "open-space",
+      "label": "Open",
+      "icon": "SquareArrowOutUpRight",
+      "shows": [
+        "space-card"
+      ],
+      "road": {
+        "kind": "screen",
+        "verb": "open-space"
+      }
+    },
+    {
+      "id": "share-space",
+      "label": "Share",
+      "icon": "Share2",
+      "primary": true,
+      "shows": [
+        "header"
+      ],
+      "when": [
+        {
+          "read": {
+            "from": "space",
+            "key": [
+              "may",
+              "make_invite"
+            ]
+          },
+          "is": true
+        }
+      ],
+      "road": {
+        "kind": "sharing",
+        "words": [
+          "space:",
+          {
+            "read": {
+              "from": "space",
+              "key": [
+                "space_id"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "share",
+      "label": "Add from Trillion",
+      "icon": "Plus",
+      "shows": [
+        "header",
+        "attach"
+      ],
+      "when": [
+        {
+          "read": {
+            "from": "space",
+            "key": [
+              "may",
+              "add_items"
+            ]
+          },
+          "is": true
+        }
+      ],
+      "box": {
+        "kind": "pick",
+        "source": "shareable"
+      },
+      "road": {
+        "kind": "sharing"
+      }
+    },
+    {
+      "id": "import",
+      "label": "Bring in a chat export",
+      "icon": "FileInput",
+      "shows": [
+        "attach"
+      ],
+      "when": [
+        {
+          "read": {
+            "from": "space",
+            "key": [
+              "may",
+              "add_items"
+            ]
+          },
+          "is": true
+        }
+      ],
+      "box": {
+        "kind": "pick",
+        "source": "files"
+      },
+      "confirm": [
+        "Bring the chats in “",
+        {
+          "read": {
+            "from": "picked",
+            "key": [
+              "title"
+            ]
+          }
+        },
+        "” into ",
+        {
+          "read": {
+            "from": "space",
+            "key": [
+              "title"
+            ]
+          }
+        },
+        "? Everyone here can read them and open the files they carried."
+      ],
+      "road": {
+        "kind": "post",
+        "path": [
+          {
+            "read": {
+              "from": "space",
+              "key": [
+                "space_id"
+              ]
+            }
+          },
+          "import"
+        ],
+        "body": {
+          "file": {
+            "read": {
+              "from": "picked",
+              "key": [
+                "file"
+              ]
+            }
+          }
+        },
+        "pages": {
+          "cursor": [
+            "next_offset"
+          ],
+          "field": "offset"
+        }
+      },
+      "done": [
+        "The chats are in ",
+        {
+          "read": {
+            "from": "space",
+            "key": [
+              "title"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "write",
+      "label": "Send",
+      "icon": "ArrowUp",
+      "shows": [
+        "composer"
+      ],
+      "when": [
+        {
+          "read": {
+            "from": "space",
+            "key": [
+              "may",
+              "add_items"
+            ]
+          },
+          "is": true
+        }
+      ],
+      "box": {
+        "kind": "composer",
+        "placeholder": [
+          "Message"
+        ]
+      },
+      "road": {
+        "kind": "post",
+        "path": [
+          {
+            "read": {
+              "from": "space",
+              "key": [
+                "space_id"
+              ]
+            }
+          },
+          "items"
+        ],
+        "body": {
+          "items": [
+            {
+              "kind": "message",
+              "body": {
+                "text": {
+                  "read": {
+                    "from": "asked",
+                    "key": [
+                      "text"
+                    ]
+                  }
+                },
+                "mentions": {
+                  "read": {
+                    "from": "asked",
+                    "key": [
+                      "mentions"
+                    ]
+                  }
+                },
+                "send": {
+                  "read": {
+                    "from": "asked",
+                    "key": [
+                      "parent",
+                      "body",
+                      "reply_with"
+                    ]
+                  }
+                },
+                "reply_with": {
+                  "read": {
+                    "from": "asked",
+                    "key": [
+                      "parent",
+                      "body",
+                      "reply_with"
+                    ]
+                  }
+                }
+              },
+              "about": {
+                "read": {
+                  "from": "asked",
+                  "key": [
+                    "about"
+                  ]
+                }
+              },
+              "reply_to": {
+                "read": {
+                  "from": "asked",
+                  "key": [
+                    "reply_to"
+                  ]
+                }
+              },
+              "part": {
+                "read": {
+                  "from": "asked",
+                  "key": [
+                    "part"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "reply",
+      "label": "Reply",
+      "icon": "Reply",
+      "shows": [
+        "item"
+      ],
+      "when": [
+        {
+          "read": {
+            "from": "item",
+            "key": [
+              "withdrawn"
+            ]
+          },
+          "is": null
+        }
+      ],
+      "box": {
+        "kind": "composer",
+        "chip": [
+          "Replying to ",
+          {
+            "read": {
+              "from": "thing",
+              "key": [
+                "by"
+              ]
+            }
+          }
+        ],
+        "placeholder": [
+          "Reply"
+        ]
+      },
+      "road": {
+        "kind": "post",
+        "path": [
+          {
+            "read": {
+              "from": "space",
+              "key": [
+                "space_id"
+              ]
+            }
+          },
+          "items"
+        ],
+        "body": {
+          "items": [
+            {
+              "kind": "message",
+              "body": {
+                "text": {
+                  "read": {
+                    "from": "asked",
+                    "key": [
+                      "text"
+                    ]
+                  }
+                },
+                "mentions": {
+                  "read": {
+                    "from": "asked",
+                    "key": [
+                      "mentions"
+                    ]
+                  }
+                },
+                "send": {
+                  "read": {
+                    "from": "item",
+                    "key": [
+                      "body",
+                      "reply_with"
+                    ]
+                  }
+                },
+                "reply_with": {
+                  "read": {
+                    "from": "item",
+                    "key": [
+                      "body",
+                      "reply_with"
+                    ]
+                  }
+                }
+              },
+              "about": {
+                "read": {
+                  "from": "asked",
+                  "key": [
+                    "about"
+                  ]
+                }
+              },
+              "reply_to": {
+                "read": {
+                  "from": "item",
+                  "key": [
+                    "item_id"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "react",
+      "label": "React",
+      "icon": "SmilePlus",
+      "shows": [
+        "reaction"
+      ],
+      "when": [
+        {
+          "read": {
+            "from": "space",
+            "key": [
+              "may",
+              "add_items"
+            ]
+          },
+          "is": true
+        },
+        {
+          "read": {
+            "from": "item",
+            "key": [
+              "withdrawn"
+            ]
+          },
+          "is": null
+        }
+      ],
+      "road": {
+        "kind": "post",
+        "path": [
+          {
+            "read": {
+              "from": "space",
+              "key": [
+                "space_id"
+              ]
+            }
+          },
+          "items",
+          {
+            "read": {
+              "from": "item",
+              "key": [
+                "item_id"
+              ]
+            }
+          },
+          "react"
+        ],
+        "body": {
+          "symbol": {
+            "read": {
+              "from": "asked",
+              "key": [
+                "symbol"
+              ]
+            }
+          },
+          "glyph": {
+            "read": {
+              "from": "asked",
+              "key": [
+                "glyph"
+              ]
+            }
+          },
+          "on": {
+            "read": {
+              "from": "asked",
+              "key": [
+                "on"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "open",
+      "label": "Open",
+      "icon": "SquareArrowOutUpRight",
+      "shows": [
+        "item"
+      ],
+      "when": [
+        {
+          "read": {
+            "from": "item",
+            "key": [
+              "withdrawn"
+            ]
+          },
+          "is": null
+        }
+      ],
+      "road": {
+        "kind": "screen",
+        "verb": "open-item"
+      }
+    },
+    {
+      "id": "decide",
+      "label": "Ask your AI to decide this",
+      "icon": "Compass",
+      "shows": [
+        "item"
+      ],
+      "when": [
+        {
+          "read": {
+            "from": "item",
+            "key": [
+              "withdrawn"
+            ]
+          },
+          "is": null
+        }
+      ],
+      "road": {
+        "kind": "queue",
+        "job": "decide-space-item",
+        "context": {
+          "space_id": {
+            "read": {
+              "from": "space",
+              "key": [
+                "space_id"
+              ]
+            }
+          },
+          "item_id": {
+            "read": {
+              "from": "item",
+              "key": [
+                "item_id"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "withdraw",
+      "label": "Withdraw",
+      "icon": "Undo2",
+      "tone": "destructive",
+      "shows": [
+        "item"
+      ],
+      "when": [
+        {
+          "read": {
+            "from": "item",
+            "key": [
+              "may",
+              "withdraw_item"
+            ]
+          },
+          "is": true
+        },
+        {
+          "read": {
+            "from": "item",
+            "key": [
+              "withdrawn"
+            ]
+          },
+          "is": null
+        }
+      ],
+      "confirm": [
+        "Withdraw this? Its words are erased for everyone here, and a note that you withdrew it stays."
+      ],
+      "road": {
+        "kind": "post",
+        "path": [
+          {
+            "read": {
+              "from": "space",
+              "key": [
+                "space_id"
+              ]
+            }
+          },
+          "withdraw"
+        ],
+        "body": {
+          "item_id": {
+            "read": {
+              "from": "item",
+              "key": [
+                "item_id"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "hand-off-to",
+      "label": "Hand it a job",
+      "icon": "Send",
+      "shows": [
+        "agent"
+      ],
+      "when": [
+        {
+          "read": {
+            "from": "agent",
+            "key": [
+              "takes_work"
+            ]
+          },
+          "is": true
+        }
+      ],
+      "box": {
+        "kind": "panel",
+        "body": [
+          {
+            "read": {
+              "from": "agent",
+              "key": [
+                "name"
+              ]
+            }
+          },
+          " does it. Everyone in this pursuit sees the job and its result, so put only what belongs here."
+        ],
+        "fields": [
+          {
+            "name": "job",
+            "label": "The job",
+            "placeholder": "What it should do"
+          }
+        ]
+      },
+      "road": {
+        "kind": "post",
+        "path": [
+          {
+            "read": {
+              "from": "space",
+              "key": [
+                "space_id"
+              ]
+            }
+          },
+          "handoffs"
+        ],
+        "body": {
+          "job": {
+            "read": {
+              "from": "asked",
+              "key": [
+                "job"
+              ]
+            }
+          },
+          "request_key": {
+            "read": {
+              "from": "fresh",
+              "key": [
+                "key"
+              ]
+            }
+          },
+          "to_agent": {
+            "read": {
+              "from": "agent",
+              "key": [
+                "agent_id"
+              ]
+            }
+          }
+        }
+      },
+      "done": [
+        "Handed to ",
+        {
+          "read": {
+            "from": "agent",
+            "key": [
+              "name"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "introduce",
+      "label": "Ask my AI to introduce us",
+      "icon": "Sparkles",
+      "shows": [
+        "member"
+      ],
+      "when": [
+        {
+          "read": {
+            "from": "member",
+            "key": [
+              "you"
+            ]
+          },
+          "is_not": true
+        }
+      ],
+      "road": {
+        "kind": "queue",
+        "job": "introduce-person",
+        "context": {
+          "name": {
+            "read": {
+              "from": "member",
+              "key": [
+                "name"
+              ]
+            }
+          },
+          "space_id": {
+            "read": {
+              "from": "space",
+              "key": [
+                "space_id"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "name",
+      "label": "Your name here",
+      "icon": "UserPen",
+      "shows": [
+        "member"
+      ],
+      "when": [
+        {
+          "read": {
+            "from": "member",
+            "key": [
+              "you"
+            ]
+          },
+          "is": true
+        }
+      ],
+      "box": {
+        "kind": "panel",
+        "body": [
+          "The name the others in this pursuit see. They see only this name, never how to reach you."
+        ],
+        "fields": [
+          {
+            "name": "name",
+            "label": "Your name here",
+            "placeholder": "Your first name",
+            "free_text_because": "The person's own name as the others in this pursuit see it, chosen by them; it names themselves, not a row to pick."
+          }
+        ]
+      },
+      "road": {
+        "kind": "post",
+        "path": [
+          {
+            "read": {
+              "from": "space",
+              "key": [
+                "space_id"
+              ]
+            }
+          },
+          "name"
+        ],
+        "body": {
+          "name": {
+            "read": {
+              "from": "asked",
+              "key": [
+                "name"
+              ]
+            }
+          }
+        }
+      },
+      "done": [
+        "Name saved"
+      ]
+    },
+    {
+      "id": "copy-link",
+      "label": "Copy link",
+      "icon": "Link",
+      "shows": [
+        "space-card"
+      ],
+      "road": {
+        "kind": "copy",
+        "words": [
+          {
+            "read": {
+              "from": "space",
+              "key": [
+                "link"
+              ]
+            }
+          }
+        ]
+      },
+      "done": [
+        "Link copied"
+      ]
+    },
+    {
+      "id": "leave",
+      "label": "Leave",
+      "icon": "LogOut",
+      "tone": "destructive",
+      "shows": [
+        "menu",
+        "space-card"
+      ],
+      "confirm": [
+        "Leave ",
+        {
+          "read": {
+            "from": "space",
+            "key": [
+              "title"
+            ]
+          }
+        },
+        "? You stop seeing what is in it until someone invites you again."
+      ],
+      "road": {
+        "kind": "post",
+        "path": [
+          {
+            "read": {
+              "from": "space",
+              "key": [
+                "space_id"
+              ]
+            }
+          },
+          "leave"
+        ]
+      },
+      "done": [
+        "You left ",
+        {
+          "read": {
+            "from": "space",
+            "key": [
+              "title"
+            ]
+          }
+        }
+      ],
+      "after": "left"
+    },
+    {
+      "id": "archive",
+      "label": "Archive",
+      "icon": "Archive",
+      "shows": [
+        "menu",
+        "space-card"
+      ],
+      "when": [
+        {
+          "read": {
+            "from": "space",
+            "key": [
+              "archived_at"
+            ]
+          },
+          "is": null
+        }
+      ],
+      "road": {
+        "kind": "post",
+        "path": [
+          {
+            "read": {
+              "from": "space",
+              "key": [
+                "space_id"
+              ]
+            }
+          },
+          "archive"
+        ],
+        "body": {
+          "archived": true
+        }
+      },
+      "done": [
+        {
+          "read": {
+            "from": "space",
+            "key": [
+              "title"
+            ]
+          }
+        },
+        " is archived. It is under Archived in Pursuits."
+      ]
+    },
+    {
+      "id": "put-back",
+      "label": "Put back",
+      "icon": "ArchiveRestore",
+      "shows": [
+        "menu",
+        "space-card"
+      ],
+      "when": [
+        {
+          "read": {
+            "from": "space",
+            "key": [
+              "archived_at"
+            ]
+          },
+          "is_not": null
+        }
+      ],
+      "road": {
+        "kind": "post",
+        "path": [
+          {
+            "read": {
+              "from": "space",
+              "key": [
+                "space_id"
+              ]
+            }
+          },
+          "archive"
+        ],
+        "body": {
+          "archived": false
+        }
+      },
+      "done": [
+        {
+          "read": {
+            "from": "space",
+            "key": [
+              "title"
+            ]
+          }
+        },
+        " is back in your pursuits"
+      ]
+    },
+    {
+      "id": "show-archived",
+      "label": "Archived",
+      "icon": "Archive",
+      "shows": [
+        "list-header"
+      ],
+      "when": [
+        {
+          "read": {
+            "from": "list",
+            "key": [
+              "archived"
+            ]
+          },
+          "is": null
+        }
+      ],
+      "road": {
+        "kind": "screen",
+        "verb": "show-archived"
+      }
+    },
+    {
+      "id": "show-current",
+      "label": "Your pursuits",
+      "icon": "LayoutGrid",
+      "shows": [
+        "list-header"
+      ],
+      "when": [
+        {
+          "read": {
+            "from": "list",
+            "key": [
+              "archived"
+            ]
+          },
+          "is": true
+        }
+      ],
+      "road": {
+        "kind": "screen",
+        "verb": "show-current"
+      }
+    },
+    {
+      "id": "remove-member",
+      "label": "Take out of this pursuit",
+      "icon": "UserMinus",
+      "tone": "destructive",
+      "shows": [
+        "member"
+      ],
+      "when": [
+        {
+          "read": {
+            "from": "member",
+            "key": [
+              "you"
+            ]
+          },
+          "is_not": true
+        },
+        {
+          "read": {
+            "from": "space",
+            "key": [
+              "may",
+              "remove_member"
+            ]
+          },
+          "is": true
+        }
+      ],
+      "confirm": [
+        "Take ",
+        {
+          "read": {
+            "from": "member",
+            "key": [
+              "name"
+            ]
+          }
+        },
+        " out of ",
+        {
+          "read": {
+            "from": "space",
+            "key": [
+              "title"
+            ]
+          }
+        },
+        "? What they put here stays, and they can come back only with a new invite."
+      ],
+      "road": {
+        "kind": "post",
+        "path": [
+          {
+            "read": {
+              "from": "space",
+              "key": [
+                "space_id"
+              ]
+            }
+          },
+          "members",
+          "remove"
+        ],
+        "body": {
+          "member_id": {
+            "read": {
+              "from": "member",
+              "key": [
+                "member_id"
+              ]
+            }
+          }
+        }
+      },
+      "done": [
+        {
+          "read": {
+            "from": "member",
+            "key": [
+              "name"
+            ]
+          }
+        },
+        " is no longer in this pursuit"
+      ]
+    },
+    {
+      "id": "add-member-type",
+      "label": "Add a member type",
+      "icon": "BadgeCheck",
+      "primary": true,
+      "shows": ["rules"],
+      "when": [
+        { "read": { "from": "space", "key": ["may", "change_rules"] }, "is": true },
+        { "read": { "from": "space", "key": ["label"] }, "is_not": "community" }
+      ],
+      "box": {
+        "kind": "panel",
+        "body": ["A type can take permissions from any other types. Circular inheritance is refused."],
+        "fields": [
+          { "name": "label", "label": "Name", "placeholder": "For example, Editor" },
+          { "name": "inherits", "label": "Also has permissions of", "kind": "pick", "optional": true, "options_from": { "read": { "from": "space", "key": ["member_types"] } }, "add_label": "Add a type" }
+        ]
+      },
+      "road": {
+        "kind": "post",
+        "path": [{ "read": { "from": "space", "key": ["space_id"] } }, "member-types"],
+        "body": { "label": { "read": { "from": "asked", "key": ["label"] } }, "inherits": { "read": { "from": "asked", "key": ["inherits"] } } }
+      },
+      "done": ["Added ", { "read": { "from": "asked", "key": ["label"] } }]
+    },
+    {
+      "id": "set-joining-type",
+      "label": "Choose the starting type for new people",
+      "icon": "UserRoundCog",
+      "shows": ["rules"],
+      "when": [
+        { "read": { "from": "space", "key": ["may", "change_rules"] }, "is": true }
+      ],
+      "box": {
+        "kind": "panel",
+        "body": ["This sets the type new people start with. A particular invite can use another type when the rules let its maker assign one."],
+        "fields": [
+          { "name": "member_type", "label": "New people start as", "kind": "choice", "options_from": { "read": { "from": "space", "key": ["member_types"] } }, "value_from": { "read": { "from": "space", "key": ["joins_as"] } } }
+        ]
+      },
+      "road": {
+        "kind": "post",
+        "path": [{ "read": { "from": "space", "key": ["space_id"] } }, "members", "joining-type"],
+        "body": { "member_type": { "read": { "from": "asked", "key": ["member_type"] } } }
+      },
+      "done": ["Changed the starting type for new people"]
+    },
+    {
+      "id": "add-community-member-type",
+      "label": "Add a community role",
+      "icon": "BadgePlus",
+      "primary": true,
+      "shows": ["rules"],
+      "when": [
+        { "read": { "from": "space", "key": ["label"] }, "is": "community" },
+        { "read": { "from": "space", "key": ["may", "change_community"] }, "is": true }
+      ],
+      "box": {
+        "kind": "panel",
+        "body": ["A role can take permissions from other roles. Its permissions decide who can run community events, remove posts, give roles or send digests."],
+        "fields": [
+          { "name": "label", "label": "Role name", "placeholder": "For example, Event host" },
+          { "name": "inherits", "label": "Also has permissions of", "kind": "pick", "optional": true, "options_from": { "read": { "from": "space", "key": ["member_types"] } }, "add_label": "Add a role" },
+          { "name": "may", "label": "May also", "kind": "pick", "optional": true, "options": [{ "value": "put_on_events", "label": "Put on events" }, { "value": "remove_posts", "label": "Remove posts" }, { "value": "set_roles", "label": "Give people roles" }, { "value": "send_digests", "label": "Send email digests" }], "add_label": "Add permission" }
+        ]
+      },
+      "road": { "kind": "post", "path": [{ "read": { "from": "space", "key": ["space_id"] } }], "community_role": "add" },
+      "done": ["Added community role ", { "read": { "from": "asked", "key": ["label"] } }]
+    },
+    {
+      "id": "update-community-member-type",
+      "label": "Change this community role",
+      "icon": "Pencil",
+      "shows": ["member-type"],
+      "when": [
+        { "read": { "from": "space", "key": ["label"] }, "is": "community" },
+        { "read": { "from": "space", "key": ["may", "change_community"] }, "is": true },
+        { "read": { "from": "member_type", "key": ["source"] }, "is": "community" }
+      ],
+      "box": {
+        "kind": "panel",
+        "body": ["Changing a role keeps its assignments and rules connected to it."],
+        "fields": [
+          { "name": "label", "label": "Role name", "kind": "text", "value_from": { "read": { "from": "member_type", "key": ["label"] } } },
+          { "name": "inherits", "label": "Also has permissions of", "kind": "pick", "optional": true, "options_from": { "read": { "from": "space", "key": ["member_types"] } }, "exclude_value_from": { "read": { "from": "member_type", "key": ["id"] } }, "values_from": { "read": { "from": "member_type", "key": ["inherits"] } }, "add_label": "Add a role" },
+          { "name": "may", "label": "May also", "kind": "pick", "optional": true, "options": [{ "value": "put_on_events", "label": "Put on events" }, { "value": "remove_posts", "label": "Remove posts" }, { "value": "set_roles", "label": "Give people roles" }, { "value": "send_digests", "label": "Send email digests" }], "values_from": { "read": { "from": "member_type", "key": ["may"] } }, "add_label": "Add permission" }
+        ]
+      },
+      "road": { "kind": "post", "path": [{ "read": { "from": "space", "key": ["space_id"] } }], "community_role": "update" },
+      "done": ["Updated community role ", { "read": { "from": "asked", "key": ["label"] } }]
+    },
+    {
+      "id": "remove-community-member-type",
+      "label": "Remove this community role",
+      "icon": "Trash2",
+      "tone": "destructive",
+      "shows": ["member-type"],
+      "when": [
+        { "read": { "from": "space", "key": ["label"] }, "is": "community" },
+        { "read": { "from": "space", "key": ["may", "change_community"] }, "is": true },
+        { "read": { "from": "member_type", "key": ["source"] }, "is": "community" }
+      ],
+      "box": { "kind": "panel", "body": ["This removes the role only when no one has it, no open invite assigns it, no rule names it and no other role inherits it."] },
+      "road": { "kind": "post", "path": [{ "read": { "from": "space", "key": ["space_id"] } }], "community_role": "remove" },
+      "done": ["Removed community role ", { "read": { "from": "member_type", "key": ["label"] } }]
+    },
+    {
+      "id": "update-member-type",
+      "label": "Change this type",
+      "icon": "Pencil",
+      "shows": ["member-type"],
+      "when": [
+        { "read": { "from": "space", "key": ["may", "change_rules"] }, "is": true },
+        { "read": { "from": "member_type", "key": ["own"] }, "is": true },
+        { "read": { "from": "member_type", "key": ["source"] }, "is_not": "community" }
+      ],
+      "box": {
+        "kind": "panel",
+        "body": ["Changing a type keeps the rules and people assigned to it working."],
+        "fields": [
+          { "name": "label", "label": "Name", "kind": "text", "value_from": { "read": { "from": "member_type", "key": ["label"] } } },
+          { "name": "inherits", "label": "Also has permissions of", "kind": "pick", "optional": true, "options_from": { "read": { "from": "space", "key": ["member_types"] } }, "exclude_value_from": { "read": { "from": "member_type", "key": ["id"] } }, "values_from": { "read": { "from": "member_type", "key": ["inherits"] } }, "add_label": "Add a type" }
+        ]
+      },
+      "road": {
+        "kind": "post",
+        "method": "PUT",
+        "path": [{ "read": { "from": "space", "key": ["space_id"] } }, "member-types"],
+        "body": {
+          "member_type": { "read": { "from": "member_type", "key": ["id"] } },
+          "label": { "read": { "from": "asked", "key": ["label"] } },
+          "inherits": { "read": { "from": "asked", "key": ["inherits"] } }
+        }
+      },
+      "done": ["Updated ", { "read": { "from": "member_type", "key": ["label"] } }]
+    },
+    {
+      "id": "remove-member-type",
+      "label": "Remove this type",
+      "icon": "Trash2",
+      "tone": "destructive",
+      "shows": ["member-type"],
+      "when": [
+        { "read": { "from": "space", "key": ["may", "change_rules"] }, "is": true },
+        { "read": { "from": "member_type", "key": ["own"] }, "is": true },
+        { "read": { "from": "member_type", "key": ["source"] }, "is_not": "community" }
+      ],
+      "confirm": ["Remove ", { "read": { "from": "member_type", "key": ["label"] } }, "?"],
+      "road": {
+        "kind": "post",
+        "path": [{ "read": { "from": "space", "key": ["space_id"] } }, "member-types", "remove"],
+        "body": { "member_type": { "read": { "from": "member_type", "key": ["id"] } } }
+      },
+      "done": ["Removed ", { "read": { "from": "member_type", "key": ["label"] } }]
+    },
+    {
+      "id": "revoke-invite",
+      "label": "Stop this link",
+      "icon": "Link2Off",
+      "tone": "destructive",
+      "shows": [
+        "invite"
+      ],
+      "when": [
+        {
+          "read": {
+            "from": "invite",
+            "key": [
+              "state"
+            ]
+          },
+          "is": "open"
+        }
+      ],
+      "confirm": [
+        "Stop this invite link? Nobody can join with it after this."
+      ],
+      "road": {
+        "kind": "post",
+        "path": [
+          {
+            "read": {
+              "from": "space",
+              "key": [
+                "space_id"
+              ]
+            }
+          },
+          "invites",
+          "revoke"
+        ],
+        "body": {
+          "invite_id": {
+            "read": {
+              "from": "invite",
+              "key": [
+                "invite_id"
+              ]
+            }
+          }
+        }
+      },
+      "done": [
+        "That invite link no longer works"
+      ]
+    },
+    {
+      "id": "join-link",
+      "label": "Join",
+      "icon": "Check",
+      "primary": true,
+      "shows": [
+        "join-link"
+      ],
+      "road": {
+        "kind": "post",
+        "path": [
+          "join",
+          {
+            "read": {
+              "from": "join",
+              "key": [
+                "code"
+              ]
+            }
+          }
+        ],
+        "body": {}
+      },
+      "done": [
+        "You joined ",
+        {
+          "read": {
+            "from": "space",
+            "key": [
+              "title"
+            ]
+          }
+        }
+      ],
+      "after": "open-space"
+    },
+    {
+      "id": "join-open-space",
+      "label": "Join",
+      "icon": "Check",
+      "primary": true,
+      "shows": [
+        "open-to-you"
+      ],
+      "road": {
+        "kind": "post",
+        "at": "/community",
+        "path": [
+          {
+            "read": {
+              "from": "space",
+              "key": [
+                "space_id"
+              ]
+            }
+          },
+          "join"
+        ],
+        "body": {}
+      },
+      "done": [
+        "You joined ",
+        {
+          "read": {
+            "from": "space",
+            "key": [
+              "title"
+            ]
+          }
+        }
+      ],
+      "after": "open-space"
+    },
+    {
+      "id": "look-at-open-space",
+      "label": "Open",
+      "icon": "ArrowUpRight",
+      "shows": [
+        "open-to-you"
+      ],
+      "road": {
+        "kind": "screen",
+        "verb": "open-space"
+      }
+    },
+    {
+      "id": "describe",
+      "label": "Change what it is for",
+      "icon": "PenLine",
+      "shows": [
+        "menu"
+      ],
+      "when": [
+        {
+          "read": {
+            "from": "space",
+            "key": [
+              "may",
+              "describe_space"
+            ]
+          },
+          "is": true
+        }
+      ],
+      "box": {
+        "kind": "panel",
+        "body": [
+          "What is ",
+          {
+            "read": {
+              "from": "space",
+              "key": [
+                "title"
+              ]
+            }
+          },
+          " for?"
+        ],
+        "fields": [
+          {
+            "name": "description",
+            "label": "What it is for",
+            "placeholder": "Getting our snack brand onto 40 shelves"
+          }
+        ]
+      },
+      "road": {
+        "kind": "post",
+        "path": [
+          {
+            "read": {
+              "from": "space",
+              "key": [
+                "space_id"
+              ]
+            }
+          },
+          "about"
+        ],
+        "body": {
+          "description": {
+            "read": {
+              "from": "asked",
+              "key": [
+                "description"
+              ]
+            }
+          }
+        }
+      },
+      "done": [
+        "Saved"
+      ]
+    },
+    {
+      "id": "choose-picture",
+      "label": "Choose a picture",
+      "icon": "ImagePlus",
+      "shows": [
+        "menu"
+      ],
+      "when": [
+        {
+          "read": {
+            "from": "space",
+            "key": [
+              "may",
+              "describe_space"
+            ]
+          },
+          "is": true
+        }
+      ],
+      "box": {
+        "kind": "pick",
+        "source": "files"
+      },
+      "road": {
+        "kind": "post",
+        "path": [
+          {
+            "read": {
+              "from": "space",
+              "key": [
+                "space_id"
+              ]
+            }
+          },
+          "about"
+        ],
+        "body": {
+          "picture": {
+            "read": {
+              "from": "picked",
+              "key": [
+                "file"
+              ]
+            }
+          }
+        }
+      },
+      "done": [
+        {
+          "read": {
+            "from": "picked",
+            "key": [
+              "title"
+            ]
+          }
+        },
+        " is its picture now"
+      ]
+    },
+    {
+      "id": "remove-picture",
+      "label": "Remove the picture",
+      "icon": "ImageOff",
+      "shows": [
+        "menu"
+      ],
+      "when": [
+        {
+          "read": {
+            "from": "space",
+            "key": [
+              "picture"
+            ]
+          },
+          "is_not": null
+        },
+        {
+          "read": {
+            "from": "space",
+            "key": [
+              "may",
+              "describe_space"
+            ]
+          },
+          "is": true
+        }
+      ],
+      "road": {
+        "kind": "post",
+        "path": [
+          {
+            "read": {
+              "from": "space",
+              "key": [
+                "space_id"
+              ]
+            }
+          },
+          "about"
+        ],
+        "body": {
+          "picture": null
+        }
+      },
+      "done": [
+        "The picture is gone"
+      ]
+    },
+    {
+      "id": "choose-colour",
+      "label": "Colour",
+      "icon": "Palette",
+      "shows": [
+        "menu"
+      ],
+      "when": [
+        {
+          "read": {
+            "from": "space",
+            "key": [
+              "may",
+              "describe_space"
+            ]
+          },
+          "is": true
+        }
+      ],
+      "choices": {
+        "from": [
+          "colours"
+        ],
+        "swatches": true,
+        "current": {
+          "read": {
+            "from": "space",
+            "key": [
+              "colour"
+            ]
+          }
+        }
+      },
+      "road": {
+        "kind": "post",
+        "path": [
+          {
+            "read": {
+              "from": "space",
+              "key": [
+                "space_id"
+              ]
+            }
+          },
+          "about"
+        ],
+        "body": {
+          "colour": {
+            "read": {
+              "from": "chosen",
+              "key": [
+                "id"
+              ]
+            }
+          }
+        }
+      },
+      "done": [
+        {
+          "read": {
+            "from": "chosen",
+            "key": [
+              "label"
+            ]
+          }
+        },
+        " is its colour now"
+      ]
+    },
+    {
+      "id": "remove-colour",
+      "label": "Remove the colour",
+      "icon": "CircleOff",
+      "shows": [
+        "menu"
+      ],
+      "when": [
+        {
+          "read": {
+            "from": "space",
+            "key": [
+              "colour"
+            ]
+          },
+          "is_not": null
+        },
+        {
+          "read": {
+            "from": "space",
+            "key": [
+              "may",
+              "describe_space"
+            ]
+          },
+          "is": true
+        }
+      ],
+      "road": {
+        "kind": "post",
+        "path": [
+          {
+            "read": {
+              "from": "space",
+              "key": [
+                "space_id"
+              ]
+            }
+          },
+          "about"
+        ],
+        "body": {
+          "colour": null
+        }
+      },
+      "done": [
+        "The colour is gone"
+      ]
+    },
+    {
+      "id": "take",
+      "label": "Take it",
+      "icon": "UserCheck",
+      "shows": [
+        "item"
+      ],
+      "primary": true,
+      "when": [
+        {
+          "read": {
+            "from": "item",
+            "key": [
+              "withdrawn"
+            ]
+          },
+          "is": null
+        },
+        {
+          "read": {
+            "from": "space",
+            "key": [
+              "may",
+              "add_items"
+            ]
+          },
+          "is": true
+        },
+        {
+          "read": {
+            "from": "item",
+            "key": [
+              "facts",
+              "assignee"
+            ]
+          },
+          "is": null
+        }
+      ],
+      "road": {
+        "kind": "post",
+        "path": [
+          {
+            "read": {
+              "from": "space",
+              "key": [
+                "space_id"
+              ]
+            }
+          },
+          "facts"
+        ],
+        "body": {
+          "item_id": {
+            "read": {
+              "from": "item",
+              "key": [
+                "item_id"
+              ]
+            }
+          },
+          "facts": {
+            "assignee": {
+              "read": {
+                "from": "you",
+                "key": [
+                  "name"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "done": [
+        "Yours now"
+      ]
+    },
+    {
+      "id": "let-go",
+      "label": "Let it go",
+      "icon": "UserMinus",
+      "shows": [
+        "item"
+      ],
+      "when": [
+        {
+          "read": {
+            "from": "item",
+            "key": [
+              "withdrawn"
+            ]
+          },
+          "is": null
+        },
+        {
+          "read": {
+            "from": "space",
+            "key": [
+              "may",
+              "add_items"
+            ]
+          },
+          "is": true
+        },
+        {
+          "read": {
+            "from": "item",
+            "key": [
+              "facts",
+              "assignee"
+            ]
+          },
+          "is_not": null
+        }
+      ],
+      "road": {
+        "kind": "post",
+        "path": [
+          {
+            "read": {
+              "from": "space",
+              "key": [
+                "space_id"
+              ]
+            }
+          },
+          "facts"
+        ],
+        "body": {
+          "item_id": {
+            "read": {
+              "from": "item",
+              "key": [
+                "item_id"
+              ]
+            }
+          },
+          "facts": {
+            "assignee": null
+          }
+        }
+      },
+      "done": [
+        "Nobody has it now"
+      ]
+    },
+    {
+      "id": "mark-done",
+      "label": "Done",
+      "icon": "CircleCheck",
+      "shows": [
+        "item"
+      ],
+      "primary": true,
+      "when": [
+        {
+          "read": {
+            "from": "item",
+            "key": [
+              "withdrawn"
+            ]
+          },
+          "is": null
+        },
+        {
+          "read": {
+            "from": "space",
+            "key": [
+              "may",
+              "add_items"
+            ]
+          },
+          "is": true
+        },
+        {
+          "read": {
+            "from": "item",
+            "key": [
+              "facts",
+              "status"
+            ]
+          },
+          "is_not": "done"
+        }
+      ],
+      "road": {
+        "kind": "post",
+        "path": [
+          {
+            "read": {
+              "from": "space",
+              "key": [
+                "space_id"
+              ]
+            }
+          },
+          "facts"
+        ],
+        "body": {
+          "item_id": {
+            "read": {
+              "from": "item",
+              "key": [
+                "item_id"
+              ]
+            }
+          },
+          "facts": {
+            "status": "done"
+          }
+        }
+      },
+      "done": [
+        "Done"
+      ]
+    },
+    {
+      "id": "reopen",
+      "label": "Open again",
+      "icon": "RotateCcw",
+      "shows": [
+        "item"
+      ],
+      "when": [
+        {
+          "read": {
+            "from": "item",
+            "key": [
+              "withdrawn"
+            ]
+          },
+          "is": null
+        },
+        {
+          "read": {
+            "from": "space",
+            "key": [
+              "may",
+              "add_items"
+            ]
+          },
+          "is": true
+        },
+        {
+          "read": {
+            "from": "item",
+            "key": [
+              "facts",
+              "status"
+            ]
+          },
+          "is": "done"
+        }
+      ],
+      "road": {
+        "kind": "post",
+        "path": [
+          {
+            "read": {
+              "from": "space",
+              "key": [
+                "space_id"
+              ]
+            }
+          },
+          "facts"
+        ],
+        "body": {
+          "item_id": {
+            "read": {
+              "from": "item",
+              "key": [
+                "item_id"
+              ]
+            }
+          },
+          "facts": {
+            "status": "open"
+          }
+        }
+      },
+      "done": [
+        "Open again"
+      ]
+    },
+    {
+      "id": "hide",
+      "label": "Hide",
+      "icon": "EyeOff",
+      "shows": [
+        "item"
+      ],
+      "when": [
+        {
+          "read": {
+            "from": "item",
+            "key": [
+              "may",
+              "hide_item"
+            ]
+          },
+          "is": true
+        },
+        {
+          "read": {
+            "from": "item",
+            "key": [
+              "hidden"
+            ]
+          },
+          "is": null
+        },
+        {
+          "read": {
+            "from": "item",
+            "key": [
+              "withdrawn"
+            ]
+          },
+          "is": null
+        }
+      ],
+      "confirm": [
+        "Hide this? Only people who can hide or show things here still see its words; everyone else sees that it is hidden."
+      ],
+      "road": {
+        "kind": "post",
+        "path": [
+          {
+            "read": {
+              "from": "space",
+              "key": [
+                "space_id"
+              ]
+            }
+          },
+          "hide"
+        ],
+        "body": {
+          "item_id": {
+            "read": {
+              "from": "item",
+              "key": [
+                "item_id"
+              ]
+            }
+          },
+          "hidden": true
+        }
+      },
+      "done": [
+        "Hidden"
+      ]
+    },
+    {
+      "id": "show",
+      "label": "Show again",
+      "icon": "Eye",
+      "shows": [
+        "item"
+      ],
+      "when": [
+        {
+          "read": {
+            "from": "item",
+            "key": [
+              "may",
+              "hide_item"
+            ]
+          },
+          "is": true
+        },
+        {
+          "read": {
+            "from": "item",
+            "key": [
+              "hidden"
+            ]
+          },
+          "is_not": null
+        }
+      ],
+      "road": {
+        "kind": "post",
+        "path": [
+          {
+            "read": {
+              "from": "space",
+              "key": [
+                "space_id"
+              ]
+            }
+          },
+          "hide"
+        ],
+        "body": {
+          "item_id": {
+            "read": {
+              "from": "item",
+              "key": [
+                "item_id"
+              ]
+            }
+          },
+          "hidden": false
+        }
+      },
+      "done": [
+        "Shown again"
+      ]
+    },
+    {
+      "id": "who-can",
+      "label": "Who can do what",
+      "icon": "ShieldCheck",
+      "shows": [
+        "people"
+      ],
+      "road": {
+        "kind": "screen",
+        "verb": "open-rules"
+      }
+    }
+  ]
+}

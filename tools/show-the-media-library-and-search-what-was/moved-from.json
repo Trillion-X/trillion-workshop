@@ -5,22 +5,6 @@
   "calls": [],
   "files": [
     {
-      "from": "test/work-media-session.test.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/show-the-media-library-and-search-what-was/from-old-trillion/test/work-media-session.test.mjs.held",
-      "source_identity": "1f:6affd27c4e3c0fae53b60e90012c9ad773de03e11f0da255d76cdb0a47e62ddf",
-      "identity": "1f:35da7118a77970ff57678f3f81420a9f7bdbd9cae59bb7e497a0329dd4a124fa",
-      "held": true
-    },
-    {
-      "from": "test/work-media.test.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/show-the-media-library-and-search-what-was/from-old-trillion/test/work-media.test.mjs.held",
-      "source_identity": "1f:9914033119a093e2010359c4f3051b46719b9196320c06210df96ea2dd6c2623",
-      "identity": "1f:9914033119a093e2010359c4f3051b46719b9196320c06210df96ea2dd6c2623",
-      "held": true
-    },
-    {
       "from": "src/work-media.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "deleted_by": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7",
@@ -51,6 +35,280 @@
       "to": "tools/show-the-media-library-and-search-what-was/from-old-trillion/src/media-search.json",
       "source_identity": "1f:eb3bb08eacee717296847fce2cab6cd6dd7b697dcbc3e519b1a8dbdf7278f6ba",
       "identity": "1f:eb3bb08eacee717296847fce2cab6cd6dd7b697dcbc3e519b1a8dbdf7278f6ba"
+    },
+    {
+      "from": "test/work-media-session.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/show-the-media-library-and-search-what-was/from-old-trillion/test/work-media-session.test.mjs.held",
+      "source_identity": "1f:6affd27c4e3c0fae53b60e90012c9ad773de03e11f0da255d76cdb0a47e62ddf",
+      "identity": "1f:35da7118a77970ff57678f3f81420a9f7bdbd9cae59bb7e497a0329dd4a124fa",
+      "held": true
+    },
+    {
+      "from": "test/work-media.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/show-the-media-library-and-search-what-was/from-old-trillion/test/work-media.test.mjs.held",
+      "source_identity": "1f:9914033119a093e2010359c4f3051b46719b9196320c06210df96ea2dd6c2623",
+      "identity": "1f:9914033119a093e2010359c4f3051b46719b9196320c06210df96ea2dd6c2623",
+      "held": true
+    },
+    {
+      "from": "web/src/workspace/media-edit-screen.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/show-the-media-library-and-search-what-was/web/src/workspace/media-edit-screen.tsx",
+      "source_identity": "1f:2c538612ab8c54f2b2b41d0a52dc0ecc8e4ae5c0884eba5eadbd77aa10f6137a",
+      "identity": "1f:7df2394af80c3f54d2b3900794a1e2e541944cc65fdb0b0072c324fd7f7f13f1",
+      "stays": [
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/hover-preview/index.ts",
+        "web/parts/ui/show/media-preview/index.ts",
+        "web/parts/ui/show/placeable-surface-intent/placeable-surface-intent.ts",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/open-screen.ts",
+        "web/src/workspace/records.ts"
+      ]
+    },
+    {
+      "from": "web/src/workspace/media-edit/README.md",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/show-the-media-library-and-search-what-was/web/src/workspace/media-edit/README.md",
+      "source_identity": "1f:c8bb15a7a97a6717e06ee4ad453ccbd27f854511788ba60d4acbd803aa885fb6",
+      "identity": "1f:c8bb15a7a97a6717e06ee4ad453ccbd27f854511788ba60d4acbd803aa885fb6"
+    },
+    {
+      "from": "web/src/workspace/media-edit/captions-panel.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/show-the-media-library-and-search-what-was/web/src/workspace/media-edit/captions-panel.tsx",
+      "source_identity": "1f:84b81a2ad4ce2d5e698bfc09a6dc52b13e1c501dd4db30bc45b9d5ae43382dd3",
+      "identity": "1f:2ee40559d276b6d82cdbe34e203f5f5fc0f6a195f22714de05cd8d7c020c1514",
+      "stays": [
+        "web/parts/media-composition/read-data/caption-lines.ts",
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/selection/timed-text-editor.mjs",
+        "web/parts/ui/show/style-choices/index.ts",
+        "web/src/workspace/api.ts"
+      ]
+    },
+    {
+      "from": "web/src/workspace/media-edit/cut-list.ts",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/show-the-media-library-and-search-what-was/web/src/workspace/media-edit/cut-list.ts",
+      "source_identity": "1f:3e85cbd618797ee905b1b06cca812a68a92208b81a081eb6ae7816c8e596a47a",
+      "identity": "1f:3e85cbd618797ee905b1b06cca812a68a92208b81a081eb6ae7816c8e596a47a",
+      "stays": [
+        "web/parts/media-composition/read-data/range-complement.mjs"
+      ]
+    },
+    {
+      "from": "web/src/workspace/media-edit/cut-player.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/show-the-media-library-and-search-what-was/web/src/workspace/media-edit/cut-player.tsx",
+      "source_identity": "1f:6985398bdc6f2e7a26bfe522a1da7e9f32959fd17a43e88d0777d3156a3a8726",
+      "identity": "1f:6985398bdc6f2e7a26bfe522a1da7e9f32959fd17a43e88d0777d3156a3a8726",
+      "stays": [
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/selection/LiveCompositionPreview.tsx"
+      ]
+    },
+    {
+      "from": "web/src/workspace/media-edit/cut-timeline.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/show-the-media-library-and-search-what-was/web/src/workspace/media-edit/cut-timeline.tsx",
+      "source_identity": "1f:90042f0874df28982126d598ac564c30bd7d1a4280248018adae7be268755567",
+      "identity": "1f:90042f0874df28982126d598ac564c30bd7d1a4280248018adae7be268755567",
+      "stays": [
+        "web/parts/media-composition/show/components/EditTrackLanes.tsx",
+        "web/parts/ui/index.ts"
+      ]
+    },
+    {
+      "from": "web/src/workspace/media-edit/layer-presets.json",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/show-the-media-library-and-search-what-was/web/src/workspace/media-edit/layer-presets.json",
+      "source_identity": "1f:95830b577c6fb44566b23e10a61f417048a3a814b81788d9a91a1afcff48ba60",
+      "identity": "1f:95830b577c6fb44566b23e10a61f417048a3a814b81788d9a91a1afcff48ba60"
+    },
+    {
+      "from": "web/src/workspace/media-edit/layers-panel.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/show-the-media-library-and-search-what-was/web/src/workspace/media-edit/layers-panel.tsx",
+      "source_identity": "1f:b976b326afe7487240ea4f22648ee849b33cc0ebbc880a53ffd47120694e73d1",
+      "identity": "1f:aaeab7d0f6a5a27854d686dfe1656edecb66adf024b06d0c9a9d0dd258040e4f",
+      "stays": [
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/media-preview/index.ts",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/parts/ui/show/text/index.ts",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/search-results.ts"
+      ]
+    },
+    {
+      "from": "web/src/workspace/media-edit/look-panel.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/show-the-media-library-and-search-what-was/web/src/workspace/media-edit/look-panel.tsx",
+      "source_identity": "1f:b5efcb88de28ceb19ddc5e16cf5a302d21ab02b8fd7168c5e8ee1ae46c4d97dd",
+      "identity": "1f:b5efcb88de28ceb19ddc5e16cf5a302d21ab02b8fd7168c5e8ee1ae46c4d97dd",
+      "stays": [
+        "web/parts/media-composition/read-data/looks.mjs",
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/frame-window/index.ts"
+      ]
+    },
+    {
+      "from": "web/src/workspace/media-edit/make-panel.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/show-the-media-library-and-search-what-was/web/src/workspace/media-edit/make-panel.tsx",
+      "source_identity": "1f:ad0fc0ba38494b95c7c7d475ada4557d943435716f1900318016cb6cbcb86273",
+      "identity": "1f:ad0fc0ba38494b95c7c7d475ada4557d943435716f1900318016cb6cbcb86273",
+      "stays": [
+        "web/parts/media-composition/do-work/make-pictures-and-sounds.json",
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/file-preview/FilePreview.tsx",
+        "web/parts/ui/show/media-preview/index.ts",
+        "web/parts/ui/show/placeable-surface-intent/placeable-surface-intent.ts",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/parts/ui/show/text/index.ts",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/file-picture.ts",
+        "web/src/workspace/workshop-tool-api.ts"
+      ]
+    },
+    {
+      "from": "web/src/workspace/media-edit/panel-types.ts",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/show-the-media-library-and-search-what-was/web/src/workspace/media-edit/panel-types.ts",
+      "source_identity": "1f:f1866d0acd8343f6b6e0de7fe7b5f715d66df1d196dee111fab493dedb1c5130",
+      "identity": "1f:f1866d0acd8343f6b6e0de7fe7b5f715d66df1d196dee111fab493dedb1c5130"
+    },
+    {
+      "from": "web/src/workspace/media-edit/panels.ts",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/show-the-media-library-and-search-what-was/web/src/workspace/media-edit/panels.ts",
+      "source_identity": "1f:bed49c654dfdcd8031a59a70de0558fd3ce5483dde0dfdb80a863ff19eb600aa",
+      "identity": "1f:bed49c654dfdcd8031a59a70de0558fd3ce5483dde0dfdb80a863ff19eb600aa"
+    },
+    {
+      "from": "web/src/workspace/media-edit/send-to-editor-row.ts",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/show-the-media-library-and-search-what-was/web/src/workspace/media-edit/send-to-editor-row.ts",
+      "source_identity": "1f:9031b326c0272de47ddd2c4bd97cf194f03e4497209523029b26c510dad9c481",
+      "identity": "1f:9031b326c0272de47ddd2c4bd97cf194f03e4497209523029b26c510dad9c481",
+      "stays": [
+        "web/parts/ui/show/load-later/later.ts"
+      ]
+    },
+    {
+      "from": "web/src/workspace/media-edit/send-to-editor.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/show-the-media-library-and-search-what-was/web/src/workspace/media-edit/send-to-editor.tsx",
+      "source_identity": "1f:05af177cdba082a4c9398f1b9271dfd421af4b5f28c88a37eb2fb429afc246a4",
+      "identity": "1f:26e099896feb6e0acafc8b6c493f34ac722a30e34c6f526c13062d6a7e242cd4",
+      "stays": [
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/kibo/LazyDropzone.tsx",
+        "web/src/editor-handoff.json",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/open-screen.ts",
+        "web/src/workspace/store-changes.ts",
+        "web/src/workspace/upload.ts"
+      ]
+    },
+    {
+      "from": "web/src/workspace/media-edit/track-lanes.json",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/show-the-media-library-and-search-what-was/web/src/workspace/media-edit/track-lanes.json",
+      "source_identity": "1f:a9b51b29f813cd28de2826c5da5e13bffe7aec9ba5cd7ed10392cc50c2d77d68",
+      "identity": "1f:a9b51b29f813cd28de2826c5da5e13bffe7aec9ba5cd7ed10392cc50c2d77d68"
+    },
+    {
+      "from": "web/src/workspace/media-edit/transcribe-panel.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/show-the-media-library-and-search-what-was/web/src/workspace/media-edit/transcribe-panel.tsx",
+      "source_identity": "1f:227f27ccb4719af14aa01afc39eabd0fd1f3e3f229a2a9a762b3dec7ebd76137",
+      "identity": "1f:227f27ccb4719af14aa01afc39eabd0fd1f3e3f229a2a9a762b3dec7ebd76137",
+      "stays": [
+        "web/parts/transcript-reader/read-data/read-transcript-records.ts",
+        "web/parts/transcript-reader/show/TranscriptReaderSurface.tsx",
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/parts/ui/show/text/index.ts",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/media-transcribe.ts"
+      ]
+    },
+    {
+      "from": "web/src/workspace/media-edit/use-measured-lengths.ts",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/show-the-media-library-and-search-what-was/web/src/workspace/media-edit/use-measured-lengths.ts",
+      "source_identity": "1f:459bcc439a69a165f4e01bad8da96f4799e11c7991c9099c0d4dcb367248a082",
+      "identity": "1f:459bcc439a69a165f4e01bad8da96f4799e11c7991c9099c0d4dcb367248a082",
+      "stays": [
+        "web/parts/media-playback/read-data/measure-media-length.ts",
+        "web/src/workspace/api.ts"
+      ]
+    },
+    {
+      "from": "web/src/workspace/media-screen.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/show-the-media-library-and-search-what-was/web/src/workspace/media-screen.tsx",
+      "source_identity": "1f:9e29abd312d966e790a5647164b2e1dc43c40654f1d098074b8956f7e0359c60",
+      "identity": "1f:c4e0ab98449024ef065b2ebc28bac745d1eaa4af92ed31b11eef91226392388e",
+      "stays": [
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/coss/notifications.tsx",
+        "web/parts/ui/show/coss/shared-content.tsx",
+        "web/parts/ui/show/media-preview/index.ts",
+        "web/parts/ui/show/next-step-card/index.ts",
+        "web/parts/ui/show/one-owner-per-node.ts",
+        "web/parts/ui/show/placeable-surface-intent/placeable-surface-intent.ts",
+        "web/parts/ui/show/react-surface-mount/index.ts",
+        "web/parts/ui/show/record-views/record-views.tsx",
+        "web/parts/ui/show/record-views/timeline-zoom-levels.json",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/src/file-type.mjs",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/file-facts-store.ts",
+        "web/src/workspace/file-facts.mjs",
+        "web/src/workspace/file-picture.ts",
+        "web/src/workspace/global-composer.tsx",
+        "web/src/workspace/made-previews.ts",
+        "web/src/workspace/media-transcribe.ts",
+        "web/src/workspace/note-list-menu.json",
+        "web/src/workspace/open-screen.ts",
+        "web/src/workspace/record-filter.ts",
+        "web/src/workspace/search-results.ts",
+        "web/src/workspace/set-aside.ts",
+        "web/src/workspace/sharing-sheet.tsx",
+        "web/src/workspace/tray.ts"
+      ]
+    },
+    {
+      "from": "web/src/workspace/note-list.ts",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/show-the-media-library-and-search-what-was/web/src/workspace/note-list.ts",
+      "source_identity": "1f:2a1b1a9934b24ba9ea90f4afa624373f2e8001d4909b4c95c4fe3dbb4037691c",
+      "identity": "1f:5a898aac3e4a70d5590c54af48a77c624797f1ee3818bc25a34d5dcb3b26e9c1",
+      "stays": [
+        "web/parts/ui/show/coss/notifications.tsx",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/note-actions.ts",
+        "web/src/workspace/note-list-menu.json"
+      ]
+    },
+    {
+      "from": "web/src/workspace/recency-group.mjs",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/show-the-media-library-and-search-what-was/web/src/workspace/recency-group.mjs",
+      "source_identity": "1f:0c4dbee95f8cef08773db456a7f23730e1a954f79f26a69ebe709aa2326306ef",
+      "identity": "1f:0c4dbee95f8cef08773db456a7f23730e1a954f79f26a69ebe709aa2326306ef",
+      "stays": [
+        "web/src/workspace/note-list-menu.json"
+      ]
     }
   ]
 }

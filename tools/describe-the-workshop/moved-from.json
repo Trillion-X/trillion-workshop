@@ -1,0 +1,34 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion-apps",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "web/src/workspace/workshop-screen.tsx",
+      "commit": "6c5d561107b6fd7c7800d8c400513108e0a472be",
+      "to": "tools/describe-the-workshop/web/src/workspace/workshop-screen.tsx",
+      "source_identity": "1f:bccd88a348441a1ff8e7603a60fb605128083058f316061f351688530a63cce8",
+      "identity": "1f:bccd88a348441a1ff8e7603a60fb605128083058f316061f351688530a63cce8",
+      "stays": [
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/action-affordance/index.ts",
+        "web/parts/ui/show/coss/guide.tsx",
+        "web/parts/ui/show/coss/shared-content.tsx",
+        "web/parts/ui/show/coss/ui/button.tsx",
+        "web/parts/ui/show/listing-card/index.ts",
+        "web/parts/ui/show/placeable-surface-intent/placeable-surface-intent.ts",
+        "web/parts/ui/show/record-views/record-views.tsx",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/src/workshop-looks.json",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/guide-screen.ts",
+        "web/src/workspace/open-screen.ts",
+        "web/src/workspace/record-filter.ts",
+        "web/src/workspace/sharing-sheet.tsx",
+        "web/src/workspace/tool-inputs.ts"
+      ]
+    }
+  ]
+}

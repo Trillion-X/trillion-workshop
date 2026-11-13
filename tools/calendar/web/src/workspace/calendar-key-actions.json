@@ -1,0 +1,13 @@
+{
+  "_what": "The Calendar's keyboard and menu actions on one event that its sources make possible (src/workspace/calendar-key-actions.ts): each row is one context action (its label, its icon, what it does). `source_action` runs the source's own action that names this row as its `command` (src/calendar.json actions), `privacy` flips a private event back to the calendar's default and any other event to private, `color` offers the event colours the source declares (the keys 1 to 9 choose the first nine), `event_done` and `event_reopen` mark an event done or not (offered only while the calendar settings show done boxes on events), `join` opens the event's call. The keys that run them are rows of src/workspace/keymap.json (the calendar rows); the words here are the menu's. A row is shown only for an event whose source can do it.",
+  "actions": [
+    { "id": "calendar.rsvp_going", "label": "Going", "icon": "Check", "kind": "source_action" },
+    { "id": "calendar.rsvp_not_going", "label": "Not going", "icon": "X", "kind": "source_action" },
+    { "id": "calendar.privacy", "label": "Make private or not", "icon": "LockKeyhole", "kind": "privacy", "private": "private", "otherwise": "default", "private_said": "Private: others see this event as busy.", "public_said": "Back to the calendar's default privacy." },
+    { "id": "calendar.color", "label": "Color", "icon": "Palette", "kind": "color_menu" },
+    { "id": "calendar.color_choice", "label": "Change color", "icon": "Palette", "kind": "color_key", "none": "There is no color {number} for this event.", "said": "Color changed." },
+    { "id": "calendar.event_done", "label": "Mark done", "icon": "Check", "kind": "event_done" },
+    { "id": "calendar.event_reopen", "label": "Mark not done", "icon": "RotateCcw", "kind": "event_reopen" },
+    { "id": "calendar.join_call", "label": "Join call", "icon": "Video", "kind": "join" }
+  ]
+}

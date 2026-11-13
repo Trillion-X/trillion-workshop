@@ -5,11 +5,11 @@
   "calls": [],
   "files": [
     {
-      "from": "src/failure.mjs",
+      "from": "src/effect-outcomes.json",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/tweak-live-controls/failure.mjs",
-      "source_identity": "1f:b2d2caec290a2a4fad02a20a2f2d9992086dfe091ae7d0038e060b1d86e3479c",
-      "identity": "1f:b2d2caec290a2a4fad02a20a2f2d9992086dfe091ae7d0038e060b1d86e3479c"
+      "to": "tools/tweak-live-controls/effect-outcomes.json",
+      "source_identity": "1f:e74121f14a1b0e0442f4b3b7560d8641bd906920bd2afc8d97d6ef4ec5c43942",
+      "identity": "1f:e74121f14a1b0e0442f4b3b7560d8641bd906920bd2afc8d97d6ef4ec5c43942"
     },
     {
       "from": "src/failure-codes.json",
@@ -19,6 +19,13 @@
       "identity": "1f:f85668913856d2bcbfcdf6e9c881da9bd84d568dab6360c1139bf13ac90907b6"
     },
     {
+      "from": "src/failure.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/tweak-live-controls/failure.mjs",
+      "source_identity": "1f:b2d2caec290a2a4fad02a20a2f2d9992086dfe091ae7d0038e060b1d86e3479c",
+      "identity": "1f:b2d2caec290a2a4fad02a20a2f2d9992086dfe091ae7d0038e060b1d86e3479c"
+    },
+    {
       "from": "src/platform-failures.json",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/tweak-live-controls/platform-failures.json",
@@ -26,11 +33,47 @@
       "identity": "1f:ff05d10f2ec52e296ee5bb07efdbc630b106d7645b7a38ac3f84298ea102db68"
     },
     {
-      "from": "src/effect-outcomes.json",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/tweak-live-controls/effect-outcomes.json",
-      "source_identity": "1f:e74121f14a1b0e0442f4b3b7560d8641bd906920bd2afc8d97d6ef4ec5c43942",
-      "identity": "1f:e74121f14a1b0e0442f4b3b7560d8641bd906920bd2afc8d97d6ef4ec5c43942"
+      "from": "web/src/workspace/controls-previews.tsx",
+      "commit": "6c5d561107b6fd7c7800d8c400513108e0a472be",
+      "to": "tools/tweak-live-controls/web/src/workspace/controls-previews.tsx",
+      "source_identity": "1f:9d8036c09a51b2657cab03aa5086cf57bcfe9f5400475e9689cb41cb0b18321f",
+      "identity": "1f:11ead4abbba691f5d15fb3bb01238e69301b60558c9a3bbfdc9a4258f94c3e71",
+      "stays": [
+        "web/parts/media-composition/read-data/looks.mjs",
+        "web/parts/media-composition/read-data/preview-grade.mjs",
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/coss/thread.tsx",
+        "web/parts/ui/show/media-frame/MediaFrame.tsx",
+        "web/parts/ui/show/pixel-preview/index.ts",
+        "web/parts/ui/show/relative-time/relative-time.ts",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/file-picture.ts",
+        "web/src/workspace/lazy-screen.ts",
+        "web/src/workspace/screen-mounts.ts"
+      ]
+    },
+    {
+      "from": "web/src/workspace/controls-screen.tsx",
+      "commit": "6c5d561107b6fd7c7800d8c400513108e0a472be",
+      "to": "tools/tweak-live-controls/web/src/workspace/controls-screen.tsx",
+      "source_identity": "1f:6650fb9e7ef89ed032aa222f0d4d4e6aff149bd973c4decb5d10cfac98cc6e50",
+      "identity": "1f:5318a12bb1a24b3e25020ab3af1b49a8ac0f5d3559ecd82224828273989d55f6",
+      "stays": [
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/canvas-history/index.ts",
+        "web/parts/ui/show/choice-tiles/index.ts",
+        "web/parts/ui/show/react-surface-mount/index.ts",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/parts/ui/show/show-rules/show-of.ts",
+        "web/parts/ui/show/tuning-panel/index.ts",
+        "web/parts/ui/show/tuning-panel/settled-write.mjs",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/list-targets.ts",
+        "web/src/workspace/quiet-writes.ts",
+        "web/src/workspace/store-changes.ts"
+      ]
     }
   ]
 }

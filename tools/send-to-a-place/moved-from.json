@@ -1,0 +1,36 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion-apps",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "web/src/workspace/tray-screen.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/send-to-a-place/web/src/workspace/tray-screen.tsx",
+      "source_identity": "1f:239afecc2158b174bf2807e4ea4345bb69a4b645ffc7e86c88816d33cdc3dd6f",
+      "identity": "1f:239afecc2158b174bf2807e4ea4345bb69a4b645ffc7e86c88816d33cdc3dd6f",
+      "stays": [
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/action-menu/index.ts",
+        "web/parts/ui/show/composer/index.ts",
+        "web/parts/ui/show/coss/notifications.tsx",
+        "web/parts/ui/show/listing-card/index.ts",
+        "web/parts/ui/show/react-surface-mount/index.ts",
+        "web/parts/ui/show/relative-time/relative-time.ts",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/parts/ui/show/selection/index.ts",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/open-screen.ts",
+        "web/src/workspace/send-choices.ts",
+        "web/src/workspace/send-routed.ts",
+        "web/src/workspace/share-outbox.ts",
+        "web/src/workspace/sharing-sheet.tsx",
+        "web/src/workspace/tray.json",
+        "web/src/workspace/tray.ts",
+        "web/src/workspace/upload.ts"
+      ]
+    }
+  ]
+}

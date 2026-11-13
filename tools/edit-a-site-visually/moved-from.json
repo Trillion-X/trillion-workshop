@@ -59,6 +59,72 @@
       "to": "tools/edit-a-site-visually/test/visual-css-export-ownership.test.mjs",
       "source_identity": "1f:b4dd186d09385ca6b8d086f39774c54c182cb1bd5001acfd2d742aee9a050e89",
       "identity": "1f:b4dd186d09385ca6b8d086f39774c54c182cb1bd5001acfd2d742aee9a050e89"
+    },
+    {
+      "from": "web/src/workspace/public-app-assembly-panel.tsx",
+      "commit": "539157f90fa86a0cf3a38dd3a1e3751b4ca941bc",
+      "to": "tools/edit-a-site-visually/web/src/workspace/public-app-assembly-panel.tsx",
+      "source_identity": "1f:cec2969690156d3ac874caba30b2f62837c74830820fee821bc6ffce68ea0045",
+      "identity": "1f:bd9c93cd2ec28083e2566ecdfbd8db431dbea3090e48ae02ad67531336a2e577",
+      "stays": [
+        "web/parts/ui/index.ts",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/open-screen.ts",
+        "web/src/workspace/public-app-assembly-model.mjs"
+      ]
+    },
+    {
+      "from": "web/src/workspace/public-app-source-panel.tsx",
+      "commit": "539157f90fa86a0cf3a38dd3a1e3751b4ca941bc",
+      "to": "tools/edit-a-site-visually/web/src/workspace/public-app-source-panel.tsx",
+      "source_identity": "1f:bbf4a3ae6275e9db18c3dbdf48dd39c64580366d75b6ab5207732eadf6e43ab7",
+      "identity": "1f:249ccef71921445c4bdfc96e0552d8cd828dab00a88ccfffa4156dc348d4b1ef",
+      "stays": [
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/frames-canvas/FramesCanvas.tsx",
+        "web/parts/ui/show/public-app-editor/breakpoints.json",
+        "web/parts/ui/show/public-app-editor/selection-ref.ts",
+        "web/src/native-xcode-project.mjs",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/put-sizes-on-board.ts"
+      ]
+    },
+    {
+      "from": "web/src/workspace/public-apps-screen.tsx",
+      "commit": "539157f90fa86a0cf3a38dd3a1e3751b4ca941bc",
+      "to": "tools/edit-a-site-visually/web/src/workspace/public-apps-screen.tsx",
+      "source_identity": "1f:5726748fbec38135c15269a813b0614af31b8fa16b23f387386a4b04a83f4666",
+      "identity": "1f:72f4c6a43f141e7af6b12776931607e8eeeb6b92a212db04f22cff4804e9c148",
+      "stays": [
+        "web/parts/group/read-data/presence.ts",
+        "web/parts/group/show/presence-channel.ts",
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/error-boundary/index.ts",
+        "web/parts/ui/show/folder-picker/FolderPicker.tsx",
+        "web/parts/ui/show/placeable-surface-intent/placeable-surface-intent.ts",
+        "web/parts/ui/show/public-app-editor/LazyVisualHtmlEditor.tsx",
+        "web/parts/ui/show/public-app-editor/PublicCardOptions.tsx",
+        "web/parts/ui/show/public-app-editor/VisualHtmlEditor.tsx",
+        "web/parts/ui/show/public-app-editor/selection-ref.ts",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/parts/ui/show/show-rules/show-of.ts",
+        "web/parts/ui/show/version-history/index.ts",
+        "web/src/app-project-assembly.mjs",
+        "web/src/app-project-publish.mjs",
+        "web/src/app-project.mjs",
+        "web/src/public-app-copy-continuation.mjs",
+        "web/src/public-app-import.mjs",
+        "web/src/public-app-names.json",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/leave-blockers.ts",
+        "web/src/workspace/open-screen.ts",
+        "web/src/workspace/public-app-assembly-model.mjs",
+        "web/src/workspace/public-app-library-copy.mjs",
+        "web/src/workspace/put-sizes-on-board.ts",
+        "web/src/workspace/queue-job.ts",
+        "web/src/workspace/workshop-tool-api.ts"
+      ]
     }
   ]
 }

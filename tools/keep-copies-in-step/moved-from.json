@@ -1,0 +1,39 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion-apps",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "web/src/workspace/catch-up.json",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/keep-copies-in-step/web/src/workspace/catch-up.json",
+      "source_identity": "1f:d8c13d85ff7ee35c72df6d7709a3b903845def36d2210bf893f2d16ff6b924c2",
+      "identity": "1f:d8c13d85ff7ee35c72df6d7709a3b903845def36d2210bf893f2d16ff6b924c2"
+    },
+    {
+      "from": "web/src/workspace/catch-up.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/keep-copies-in-step/web/src/workspace/catch-up.tsx",
+      "source_identity": "1f:8c2d577afc5a4a2118962dcc463fb2afe458b1b069e6587835023b2f26ab7950",
+      "identity": "1f:8c2d577afc5a4a2118962dcc463fb2afe458b1b069e6587835023b2f26ab7950",
+      "stays": [
+        "web/parts/ui/show/action-menu/index.ts",
+        "web/parts/ui/show/catch-up/CatchUpPanel.tsx",
+        "web/parts/ui/show/catch-up/TwoVersions.tsx",
+        "web/parts/ui/show/catch-up/index.ts",
+        "web/parts/ui/show/container/index.ts",
+        "web/parts/ui/show/coss/notifications.tsx",
+        "web/parts/ui/show/load-later/later.ts",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/parts/ui/show/show-rules/show-of.ts",
+        "web/parts/ui/show/surface-badges/surface-badges.ts",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/device-copy.ts",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/quiet-writes.ts",
+        "web/src/workspace/store-changes.ts"
+      ]
+    }
+  ]
+}

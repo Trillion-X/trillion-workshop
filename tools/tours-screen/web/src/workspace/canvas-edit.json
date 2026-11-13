@@ -1,0 +1,86 @@
+{
+  "_what": "Edit on canvas (src/workspace/canvas-edit-screen.tsx): any thing laid out as its parts on the canvas, each part drawn as itself, and every edit kept as one show rule (src/workspace/show-rules.json, effect `change`) whose `when` is the scope the person chose. `kinds` say what opens here (the address is /edit/<kind>:<id>): the show-rules subject its parts are decided under, the word for one part, how wide one part is drawn, and `all`, the id that lays out every one of the kind at once (titled `all_title`). A kind that already has its own canvas names it in `mounts` instead (a screen entry, src/workspace/screen-mounts.ts, and its input, `{id}` standing for the id): a site opens in the one site editor, whose canvas shows every size of a page and whose edits are the site's own draft, published from there. `subjects` say, per subject, which parts of a drawn part can be picked (`pick`, a selector inside the drawn part; `name_from`, the attribute that names one of several, such as a button's role, filled into a path's `{name}`), the fields each picked part edits (`path` inside the part's own row, `widget` a tuning-panel control, `options_from` a list under `options`), and `scopes`, each the facts of the picked part a rule must match: none is every one of its kind; several picked parts (Shift or Cmd press) are matched together. A new editable kind, part, field or scope is a row here.",
+  "words": {
+    "title": "Edit on canvas",
+    "pick_hint": "Press any words or button to change it. Shift-press to pick several, or Shift-drag around them.",
+    "nothing_picked": "Nothing picked",
+    "applies_to": "Change it for",
+    "ask_label": "Or ask your AI",
+    "ask_placeholder": "Say what should change: shorter, friendlier, another order…",
+    "changes_here": "Changes here",
+    "undo": "Undo",
+    "kept": "Kept for {scope}",
+    "opening": "Opening it to edit",
+    "could_not_open": "This could not be opened to edit",
+    "not_found": "This could not be found",
+    "not_found_detail": "It may have been removed. Open it again from its list.",
+    "nothing_named": "Nothing was named to edit",
+    "close": "Close",
+    "picked_count": "{count} picked"
+  },
+  "kinds": {
+    "tour": { "label": "Tour", "subject": "tour-step", "part_label": "Step", "part_width": 336, "part_height": 230 },
+    "site": { "label": "Site", "mounts": { "entry": "public-apps", "input": { "installation_id": "{id}" } } },
+    "screen": { "label": "Screen", "subject": "screen", "part_label": "Screen", "part_width": 260, "part_height": 48, "all": "all", "all_title": "Every screen" }
+  },
+  "subjects": {
+    "tour-step": {
+      "parts": [
+        { "id": "title", "label": "Title", "pick": "[data-walkthrough-copy=\"title\"]", "fields": [{ "key": "words", "label": "Words", "path": ["content", "payload", "title"], "widget": "words" }] },
+        { "id": "body", "label": "Words", "pick": "[data-walkthrough-copy=\"body\"]", "fields": [{ "key": "words", "label": "Words", "path": ["content", "payload", "body"], "widget": "words" }] },
+        { "id": "button", "label": "Button", "pick": "[data-nav-role]", "name_from": "data-nav-role", "fields": [
+          { "key": "label", "label": "Words", "path": ["look", "buttons", "{name}", "label"], "widget": "words" },
+          { "key": "variant", "label": "Look", "path": ["look", "buttons", "{name}", "variant"], "widget": "button", "options_from": "button_looks" }
+        ] },
+        { "id": "card", "label": "Card", "pick": "[data-canvas-part-surface]", "fields": [{ "key": "paper", "label": "Paper", "path": ["look", "paper"], "widget": "choices", "options_from": "papers" }] }
+      ],
+      "scopes": [
+        { "id": "this", "label": "This step", "facts": ["tour", "step"] },
+        { "id": "tour", "label": "This tour", "facts": ["tour"] },
+        { "id": "all", "label": "All tours", "facts": [] }
+      ]
+    },
+    "screen": {
+      "parts": [
+        { "id": "screen", "label": "Screen", "pick": "[data-canvas-part-surface]", "fields": [
+          { "key": "name", "label": "Name", "path": ["label"], "widget": "words", "free_text_because": "It renames the screen being edited: the words are the name of that screen itself, not a pick of another thing." },
+          { "key": "icon", "label": "Icon", "path": ["icon"], "widget": "icon", "options_from": "icons" },
+          { "key": "colour", "label": "Colour", "path": ["sidebar_colour"], "widget": "hue", "options_from": "colours" }
+        ] }
+      ],
+      "scopes": [
+        { "id": "this", "label": "This screen", "facts": ["screen"] },
+        { "id": "all", "label": "All screens", "facts": [] }
+      ]
+    }
+  },
+  "options": {
+    "button_looks": [
+      { "value": "primary", "label": "Filled" },
+      { "value": "secondary", "label": "Soft" },
+      { "value": "outline", "label": "Outline" },
+      { "value": "ghost", "label": "Quiet" },
+      { "value": "accent", "label": "Accent" },
+      { "value": "success", "label": "Green" }
+    ],
+    "icons": [
+      { "value": "Home", "label": "House" }, { "value": "Star", "label": "Star" }, { "value": "Heart", "label": "Heart" },
+      { "value": "Sparkles", "label": "Sparkles" }, { "value": "Compass", "label": "Compass" }, { "value": "Folder", "label": "Folder" },
+      { "value": "Inbox", "label": "Inbox" }, { "value": "Calendar", "label": "Calendar" }, { "value": "Bookmark", "label": "Bookmark" },
+      { "value": "Flag", "label": "Flag" }, { "value": "Zap", "label": "Lightning" }, { "value": "Bell", "label": "Bell" },
+      { "value": "Target", "label": "Target" }, { "value": "Rocket", "label": "Rocket" }, { "value": "Lightbulb", "label": "Idea" }
+    ],
+    "colours": [
+      { "value": "", "label": "No colour" }, { "value": "grey", "label": "Grey" }, { "value": "blue", "label": "Blue" },
+      { "value": "turquoise", "label": "Teal" }, { "value": "green", "label": "Green" }, { "value": "yellow", "label": "Yellow" },
+      { "value": "orange", "label": "Orange" }, { "value": "red", "label": "Red" }, { "value": "pink", "label": "Pink" },
+      { "value": "purple", "label": "Purple" }
+    ],
+    "papers": [
+      { "value": "", "label": "Card" },
+      { "value": "sticky-note", "label": "Sticky note" },
+      { "value": "notepad", "label": "Notepad" },
+      { "value": "index-card", "label": "Index card" }
+    ]
+  }
+}

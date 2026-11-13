@@ -5,6 +5,20 @@
   "calls": [],
   "files": [
     {
+      "from": "records/saved-instruction-starters.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/choose-where-shares-from-the-phone-browser/from-old-trillion/records/saved-instruction-starters.json",
+      "source_identity": "1f:037566bc69d327a21b7ee422789f5ce39f1074c39a17976e4d39b4b48ea2e6ab",
+      "identity": "1f:037566bc69d327a21b7ee422789f5ce39f1074c39a17976e4d39b4b48ea2e6ab"
+    },
+    {
+      "from": "records/share-destination-starters.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/choose-where-shares-from-the-phone-browser/from-old-trillion/records/share-destination-starters.json",
+      "source_identity": "1f:77163e998e302f27918d59477c6daddce45763d45ff97e6fd06e36518e88be31",
+      "identity": "1f:77163e998e302f27918d59477c6daddce45763d45ff97e6fd06e36518e88be31"
+    },
+    {
       "from": "src/share-destinations.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/choose-where-shares-from-the-phone-browser/from-old-trillion/src/share-destinations.mjs.held",
@@ -37,18 +51,23 @@
       "held": true
     },
     {
-      "from": "records/saved-instruction-starters.json",
-      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/choose-where-shares-from-the-phone-browser/from-old-trillion/records/saved-instruction-starters.json",
-      "source_identity": "1f:037566bc69d327a21b7ee422789f5ce39f1074c39a17976e4d39b4b48ea2e6ab",
-      "identity": "1f:037566bc69d327a21b7ee422789f5ce39f1074c39a17976e4d39b4b48ea2e6ab"
-    },
-    {
-      "from": "records/share-destination-starters.json",
-      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/choose-where-shares-from-the-phone-browser/from-old-trillion/records/share-destination-starters.json",
-      "source_identity": "1f:77163e998e302f27918d59477c6daddce45763d45ff97e6fd06e36518e88be31",
-      "identity": "1f:77163e998e302f27918d59477c6daddce45763d45ff97e6fd06e36518e88be31"
+      "from": "web/src/workspace/sharing-screen.tsx",
+      "commit": "539157f90fa86a0cf3a38dd3a1e3751b4ca941bc",
+      "to": "tools/choose-where-shares-from-the-phone-browser/web/src/workspace/sharing-screen.tsx",
+      "source_identity": "1f:9a1380cd95ec6285568ef13bdbdfae0e96d60672437eddcc55df878eb9f0f849",
+      "identity": "1f:a0a48219203a814e210fe9dc177655a238a6f1dbe08c0b4471e4e7d85ddbc749",
+      "stays": [
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/coss/notifications.tsx",
+        "web/parts/ui/show/coss/project-tree.tsx",
+        "web/parts/ui/show/react-surface-mount/index.ts",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/send-actions-tree.ts",
+        "web/src/workspace/share-anything.ts",
+        "web/src/workspace/shared-before.tsx"
+      ]
     }
   ]
 }

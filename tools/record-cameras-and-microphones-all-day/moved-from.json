@@ -21,6 +21,67 @@
       "source_identity": "1f:87faf8b89451eaeb9698d7efe671d73534a1bfbe6f18c746dee4c0f3aa18ad28",
       "identity": "1f:87faf8b89451eaeb9698d7efe671d73534a1bfbe6f18c746dee4c0f3aa18ad28",
       "found_by": "same bytes"
+    },
+    {
+      "from": "web/src/workspace/always-recording-screen.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/record-cameras-and-microphones-all-day/web/src/workspace/always-recording-screen.tsx",
+      "source_identity": "1f:5e407175adbd208f7027a93b3ca2cad1f7090415162dbd50aff0bc8c02d5650e",
+      "identity": "1f:408a6029d4c5fe74b4ad90dc5325af554f4854b715a1dc8504905f170a3018c7",
+      "stays": [
+        "web/parts/record-audio/do-work/always-recording.ts",
+        "web/parts/record-audio/do-work/rolling-segments.mjs",
+        "web/parts/record-audio/show/record-in-the-browser.ts",
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/copy-button/CopyButton.tsx",
+        "web/parts/ui/show/media-frame/MediaFrame.tsx",
+        "web/parts/ui/show/page-storage/page-storage.ts",
+        "web/parts/ui/show/react-surface-mount/index.ts",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/parts/ui/show/show-rules/ShowRuleMenu.tsx",
+        "web/parts/ui/show/show-rules/show-of.ts",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/device-facts.ts",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/upload.ts"
+      ]
+    },
+    {
+      "from": "web/src/workspace/always-recording.json",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/record-cameras-and-microphones-all-day/web/src/workspace/always-recording.json",
+      "source_identity": "1f:b5f19a404e44d9a69860794e1352fe698120088e61a5ad55504a3272c79b1e20",
+      "identity": "1f:b5f19a404e44d9a69860794e1352fe698120088e61a5ad55504a3272c79b1e20"
+    },
+    {
+      "from": "web/src/workspace/device-switch.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/record-cameras-and-microphones-all-day/web/src/workspace/device-switch.tsx",
+      "source_identity": "1f:f14cb74e1a18bdc39567960239f2e7b69cbc6f7cc7cc434689a10100ab4f8f0d",
+      "identity": "1f:f14cb74e1a18bdc39567960239f2e7b69cbc6f7cc7cc434689a10100ab4f8f0d",
+      "stays": [
+        "web/parts/ui/index.ts",
+        "web/src/workspace/device-facts.ts"
+      ]
+    },
+    {
+      "from": "web/src/workspace/device-switches.json",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/record-cameras-and-microphones-all-day/web/src/workspace/device-switches.json",
+      "source_identity": "1f:5a1b14afa913a42ff3604e7cd4f58264fd78a7b620c1b830e1c0a821e053e873",
+      "identity": "1f:5a1b14afa913a42ff3604e7cd4f58264fd78a7b620c1b830e1c0a821e053e873"
+    },
+    {
+      "from": "web/src/workspace/network-live-inputs.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/record-cameras-and-microphones-all-day/web/src/workspace/network-live-inputs.tsx",
+      "source_identity": "1f:bd515d76a34b4f4adf815cf4e97b059c48324ebf67ee5ca888f341cbcf125377",
+      "identity": "1f:bd515d76a34b4f4adf815cf4e97b059c48324ebf67ee5ca888f341cbcf125377",
+      "stays": [
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/media-frame/MediaFrame.tsx",
+        "web/src/workspace/api.ts"
+      ]
     }
   ]
 }

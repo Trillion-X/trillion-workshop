@@ -41,6 +41,45 @@
       "source_identity": "1f:c2f80b49cdd2751932697450235483613bad37df1ac2f46c168802c6022e50ec",
       "identity": "1f:7e5719cb2bd995840b8109fb9e3d3b183b04646884536983958875589aca39eb",
       "adapted": "imports this tool's activity.mjs and rebuilds the old person-store-reads countingHost over local-store's sqliteHost; every assertion is the old one"
+    },
+    {
+      "from": "web/src/workspace/activity-screen.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/see-what-my-ais-did/web/src/workspace/activity-screen.tsx",
+      "source_identity": "1f:8908c554b9e646d38c5f5d79f2859d0554e8c069283c40e893f7e49c98325990",
+      "identity": "1f:8908c554b9e646d38c5f5d79f2859d0554e8c069283c40e893f7e49c98325990",
+      "stays": [
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/person-tag/PersonTag.tsx",
+        "web/parts/ui/show/record-views/record-views.tsx",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/src/workspace/activity-providers.json",
+        "web/src/workspace/activity-trace-view.mjs",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/automation-preview-source.tsx",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/open-screen.ts",
+        "web/src/workspace/record-filter.ts"
+      ]
+    },
+    {
+      "from": "web/src/workspace/activity-trace-screen.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/see-what-my-ais-did/web/src/workspace/activity-trace-screen.tsx",
+      "source_identity": "1f:a7ffa46f8153a783c4d583f96ea11a6eed966d00cc76dd6d05254a0c340cfd44",
+      "identity": "1f:a7ffa46f8153a783c4d583f96ea11a6eed966d00cc76dd6d05254a0c340cfd44",
+      "stays": [
+        "web/parts/ui/show/button/index.ts",
+        "web/parts/ui/show/record-views/record-views.tsx",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/src/workspace/activity-trace-view.mjs",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/open-screen.ts",
+        "web/src/workspace/record-filter.ts",
+        "web/src/workspace/record-model-inspection.tsx",
+        "web/src/workspace/record-model-view.mjs"
+      ]
     }
   ]
 }

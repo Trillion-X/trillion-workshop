@@ -30,6 +30,8 @@ Whether every copy of a person's things is in step, as their own store knows it:
 | `test/catch-up.test.mjs` | The original trillion tests, assertions unchanged |
 | `test/catch-up-routes.test.mjs` | The route tool against the records door stand-in: a report (200), the same report again (not written), refused reports (400), other paths (404), a report decided again after another device's write |
 | `test/copies.test.mjs` | Each row over made-up rows against the records door stand-in: the read, a report, keep one, keep both, a conflict, a resent report |
+| `show/catch-up-mount.tsx`, `show/catch-up-status-mount.tsx`, `show/two-versions-mount.tsx` | The module entries of `tool:screen-catch-up` and `tool:screen-catch-up-preview` (both `mountCatchUpScreen`), `tool:screen-catch-up-status` (`mountCatchUpStatusScreen`) and `tool:screen-two-versions` (`mountTwoVersionsScreen`). |
+| `web/src/workspace/catch-up.tsx`, `web/src/workspace/catch-up.json` | What the page knows about whether every copy is in step, handed to the shared catch-up part as its sources: this device, the person's other devices and the records kept as two versions, the sidebar row, the screens, the pane mark and the ⋯ menu's Two versions rows. The page's start-up code imports `keepCatchUp`, `thisDeviceId` and `versionsRows` from here. Moved byte for byte from the web client (`moved-from.json`). |
 
 ## The rows
 

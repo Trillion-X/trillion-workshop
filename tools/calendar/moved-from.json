@@ -1,0 +1,333 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion-apps",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "web/src/workspace/calendar-batch-actions.mjs",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/calendar/web/src/workspace/calendar-batch-actions.mjs",
+      "source_identity": "1f:15d282025312c0bc915680a2ea68f8d7a23581ec17febc7f510a24a0a0e71e99",
+      "identity": "1f:15d282025312c0bc915680a2ea68f8d7a23581ec17febc7f510a24a0a0e71e99"
+    },
+    {
+      "from": "web/src/workspace/calendar-controls.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/calendar/web/src/workspace/calendar-controls.tsx",
+      "source_identity": "1f:db52e0d62f36ca962633b995eabe248a35c8fc98cf34c7400782abcf1ddd7b7c",
+      "identity": "1f:db52e0d62f36ca962633b995eabe248a35c8fc98cf34c7400782abcf1ddd7b7c",
+      "stays": [
+        "web/parts/calendar-booker/show/AvailabilityLinks.tsx",
+        "web/parts/screen-arrangement/show/ArrangedContents.tsx",
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/load-later/later.ts",
+        "web/src/calendar-connections.mjs",
+        "web/src/calendar.json",
+        "web/src/space-settings.json",
+        "web/src/workspace/calendar-controls.json",
+        "web/src/workspace/open-screen.ts"
+      ]
+    },
+    {
+      "from": "web/src/workspace/calendar-event-forms.json",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/calendar/web/src/workspace/calendar-event-forms.json",
+      "source_identity": "1f:616f9d46d161b2130def0dc6090fa9fb6d1968f64403fc63df3bfad1cbe55d71",
+      "identity": "1f:616f9d46d161b2130def0dc6090fa9fb6d1968f64403fc63df3bfad1cbe55d71"
+    },
+    {
+      "from": "web/src/workspace/calendar-event-forms.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/calendar/web/src/workspace/calendar-event-forms.tsx",
+      "source_identity": "1f:7786c7c3ae83073ac446a0731a99a0b4967175f301faf81851259d0f89e8cf6c",
+      "identity": "1f:0eac017d5e5b6db233aa05ce06bf42da99c0f0dd53c260202735fa839465eede",
+      "stays": [
+        "web/parts/record-audio/read-data/capture-policy.ts",
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/coss/notifications.tsx",
+        "web/parts/ui/show/coss/ui/popover.tsx",
+        "web/parts/ui/show/coss/ui/select.tsx",
+        "web/parts/ui/show/date-picker/DatePicker.tsx",
+        "web/parts/ui/show/date-picker/DateTimePicker.tsx",
+        "web/parts/ui/show/icon/index.ts",
+        "web/parts/ui/show/schedule-calendar/index.ts",
+        "web/parts/ui/show/segmented-control/index.ts",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/colour-names.mjs",
+        "web/src/workspace/open-screen.ts",
+        "web/src/workspace/records.ts"
+      ]
+    },
+    {
+      "from": "web/src/workspace/calendar-key-actions.json",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/calendar/web/src/workspace/calendar-key-actions.json",
+      "source_identity": "1f:86439405646e3bde1c2f004fce1ac7972996004f50b5f1e922ed080239b7704b",
+      "identity": "1f:86439405646e3bde1c2f004fce1ac7972996004f50b5f1e922ed080239b7704b"
+    },
+    {
+      "from": "web/src/workspace/calendar-key-actions.ts",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/calendar/web/src/workspace/calendar-key-actions.ts",
+      "source_identity": "1f:681364b1017054e29f7d130a5e16eab87025381be61a87df69923eb57cb175b1",
+      "identity": "1f:55f9dd6f382a8e51b010c0ba9e9e7c4ed1c325d4bed88c93bd3ddfd0b876e5af",
+      "stays": [
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/node-actions/index.ts",
+        "web/src/workspace/keymap-runtime.ts",
+        "web/src/workspace/keymap.mjs"
+      ]
+    },
+    {
+      "from": "web/src/workspace/calendar-screen-core.ts",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/calendar/web/src/workspace/calendar-screen-core.ts",
+      "source_identity": "1f:6e2a58815b5dbcc1a0c3aa338a25d25b9ad358228a64f5237e26ce51ffdaeeda",
+      "identity": "1f:6ea3f4b607fecda05ec017c72967d4762506dfded76db49b736fb754c1fa7bde",
+      "stays": [
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/coss/notifications.tsx",
+        "web/parts/ui/show/task-recurrence/TaskRecurrence.tsx",
+        "web/src/calendar.json",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/open-screen.ts"
+      ]
+    },
+    {
+      "from": "web/src/workspace/email-screen.json",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/calendar/web/src/workspace/email-screen.json",
+      "source_identity": "1f:feb2d59b25a04f617f666522af8daa8ba69907d8aa365068fb672f6e7dd1ad93",
+      "identity": "1f:feb2d59b25a04f617f666522af8daa8ba69907d8aa365068fb672f6e7dd1ad93"
+    },
+    {
+      "from": "web/src/workspace/email-screen.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/calendar/web/src/workspace/email-screen.tsx",
+      "source_identity": "1f:5504a988167a66b152920931d56006f747401f5e5469b6ee1ef8c081ae999e61",
+      "identity": "1f:4bbcad3cce004eccfa382c74a4cc217d2bb559c560e88b756d8c336cdb304e82",
+      "stays": [
+        "web/parts/screen-arrangement/show/ArrangedContents.tsx",
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/command-table/command-table.ts",
+        "web/parts/ui/show/display-mark/index.ts",
+        "web/parts/ui/show/email-view/index.ts",
+        "web/parts/ui/show/react-surface-mount/index.ts",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/parts/ui/show/search-field/SearchField.tsx",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/gmail-email.ts",
+        "web/src/workspace/mail-accounts.ts",
+        "web/src/workspace/mail-settings.tsx",
+        "web/src/workspace/open-screen.ts",
+        "web/src/workspace/workshop-tool-api.ts"
+      ]
+    },
+    {
+      "from": "web/src/workspace/email-todo-settings.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/calendar/web/src/workspace/email-todo-settings.tsx",
+      "source_identity": "1f:228c4fe6c9109f0fdc6524b07429600c6304ae96e0c72e7a6d02d0a9efff3d68",
+      "identity": "1f:228c4fe6c9109f0fdc6524b07429600c6304ae96e0c72e7a6d02d0a9efff3d68",
+      "stays": [
+        "web/parts/ui/index.ts",
+        "web/src/workspace/api.ts"
+      ]
+    },
+    {
+      "from": "web/src/workspace/mail-action-bar.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/calendar/web/src/workspace/mail-action-bar.tsx",
+      "source_identity": "1f:ac269dbc65540e291c02dbd6a44c07c85f1accee6e6e6fd908205d31a5d74db6",
+      "identity": "1f:ac269dbc65540e291c02dbd6a44c07c85f1accee6e6e6fd908205d31a5d74db6",
+      "stays": [
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/command-table/command-table.ts",
+        "web/parts/ui/show/date-picker/DatePicker.tsx",
+        "web/parts/ui/show/date-picker/DateTimePicker.tsx",
+        "web/parts/ui/show/person-tag/index.ts",
+        "web/parts/ui/show/task-recurrence/TaskRecurrence.tsx",
+        "web/src/workspace/gmail-email.ts"
+      ]
+    },
+    {
+      "from": "web/src/workspace/mail-actions.json",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/calendar/web/src/workspace/mail-actions.json",
+      "source_identity": "1f:24aadcda0ddbadc2d199a599ffa1ce1c921473aae18ccdedb22c9bdce8c045ef",
+      "identity": "1f:24aadcda0ddbadc2d199a599ffa1ce1c921473aae18ccdedb22c9bdce8c045ef"
+    },
+    {
+      "from": "web/src/workspace/mail-commands.json",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/calendar/web/src/workspace/mail-commands.json",
+      "source_identity": "1f:1c09012a3dbbb83848c7eaec4212a79dcfc32af30a252d8dc05f3639a636e6c7",
+      "identity": "1f:1c09012a3dbbb83848c7eaec4212a79dcfc32af30a252d8dc05f3639a636e6c7"
+    },
+    {
+      "from": "web/src/workspace/mail-keys.ts",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/calendar/web/src/workspace/mail-keys.ts",
+      "source_identity": "1f:04f8bc9a2ff37d541d3dc6689969583a9e7f764b4776d1383085547c9c9db1d1",
+      "identity": "1f:04f8bc9a2ff37d541d3dc6689969583a9e7f764b4776d1383085547c9c9db1d1",
+      "stays": [
+        "web/src/workspace/keymap-runtime.ts",
+        "web/src/workspace/keymap.mjs"
+      ]
+    },
+    {
+      "from": "web/src/workspace/mail-task.ts",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/calendar/web/src/workspace/mail-task.ts",
+      "source_identity": "1f:9a6e827f2f193d52ca6e5536aaf98106191636ec4a706cb4af21347eaf3f1928",
+      "identity": "1f:9a6e827f2f193d52ca6e5536aaf98106191636ec4a706cb4af21347eaf3f1928",
+      "stays": [
+        "web/src/workspace/api.ts"
+      ]
+    },
+    {
+      "from": "web/src/workspace/planning-settings.json",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/calendar/web/src/workspace/planning-settings.json",
+      "source_identity": "1f:7fd672dfc20475c05bb863cec6e35a2d1730f8814ac8c6169bd9e7cdd3c74c5e",
+      "identity": "1f:7fd672dfc20475c05bb863cec6e35a2d1730f8814ac8c6169bd9e7cdd3c74c5e"
+    },
+    {
+      "from": "web/src/workspace/planning-settings.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/calendar/web/src/workspace/planning-settings.tsx",
+      "source_identity": "1f:ae219e908cd6e6c7070ecbb12abadd9d9a032325240e15615de7b3e3666c898f",
+      "identity": "1f:ec80c6265cf4d0bb9f956210b2c7503487d164134722b36f0f0f7ba62a3c0b60",
+      "stays": [
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/segmented-control/index.ts",
+        "web/src/workspace/api.ts"
+      ]
+    },
+    {
+      "from": "web/src/workspace/shared-calendar-screen.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/calendar/web/src/workspace/shared-calendar-screen.tsx",
+      "source_identity": "1f:93fba2981d2f168c6fdb8f1f2e47f8ff99d2efb0cea3f954348aca1c6f918adc",
+      "identity": "1f:53e8dbde9d415081811002e6b922a6d34e6eda663d09143aa2594496e3d1c00b",
+      "stays": [
+        "web/parts/calendar-booker/read-data/slot-sharing.json",
+        "web/parts/calendar-booker/show/AvailabilityLinks.tsx",
+        "web/parts/calendar-booker/show/SlotSharing.tsx",
+        "web/parts/calendar-booker/show/slot-ranges.mjs",
+        "web/parts/group/show/use-elapsed.ts",
+        "web/parts/group/show/use-surface-presence.ts",
+        "web/parts/screen-arrangement/show/ArrangedContents.tsx",
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/bulk-select-bar/index.ts",
+        "web/parts/ui/show/container-size/index.ts",
+        "web/parts/ui/show/coss/notifications.tsx",
+        "web/parts/ui/show/coss/shared-content.tsx",
+        "web/parts/ui/show/coss/ui/checkbox.tsx",
+        "web/parts/ui/show/coss/ui/popover.tsx",
+        "web/parts/ui/show/date-picker/DatePicker.tsx",
+        "web/parts/ui/show/date-picker/DateTimePicker.tsx",
+        "web/parts/ui/show/icon/index.ts",
+        "web/parts/ui/show/live-surface-people/index.ts",
+        "web/parts/ui/show/load-later/later.ts",
+        "web/parts/ui/show/node-actions/index.ts",
+        "web/parts/ui/show/one-owner-per-node.ts",
+        "web/parts/ui/show/record-views/record-views.tsx",
+        "web/parts/ui/show/schedule-calendar/index.ts",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/parts/ui/show/task-recurrence/TaskRecurrence.tsx",
+        "web/src/calendar-task-views.mjs",
+        "web/src/calendar-tasks.json",
+        "web/src/calendar.json",
+        "web/src/calendar.mjs",
+        "web/src/lists.json",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/calendar-task-tray.json",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/global-composer.tsx",
+        "web/src/workspace/keymap-runtime.ts",
+        "web/src/workspace/keymap.mjs",
+        "web/src/workspace/open-screen.ts",
+        "web/src/workspace/record-configurations.ts",
+        "web/src/workspace/record-filter.ts",
+        "web/src/workspace/records.ts",
+        "web/src/workspace/scope-focus.ts",
+        "web/src/workspace/sharing-sheet.tsx",
+        "web/src/workspace/store-changes.ts"
+      ]
+    },
+    {
+      "from": "web/src/workspace/shared-calendar.json",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/calendar/web/src/workspace/shared-calendar.json",
+      "source_identity": "1f:e999650ccbf37d647eeb7a40747162aa657b584bfb3f12cc23f3d66078d4dbb2",
+      "identity": "1f:e999650ccbf37d647eeb7a40747162aa657b584bfb3f12cc23f3d66078d4dbb2"
+    },
+    {
+      "from": "web/src/workspace/task-tray.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/calendar/web/src/workspace/task-tray.tsx",
+      "source_identity": "1f:206313bee0e021b80fe28d1f833fc877e7f18a26028264ddc20723371c9803a1",
+      "identity": "1f:206313bee0e021b80fe28d1f833fc877e7f18a26028264ddc20723371c9803a1",
+      "stays": [
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/bulk-select-bar/index.ts",
+        "web/parts/ui/show/coss/ui/popover.tsx",
+        "web/parts/ui/show/icon/index.ts",
+        "web/src/calendar-task-views.mjs",
+        "web/src/calendar-tasks.json",
+        "web/src/workspace/calendar-task-tray.json"
+      ]
+    },
+    {
+      "from": "web/src/workspace/task-verbs.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/calendar/web/src/workspace/task-verbs.tsx",
+      "source_identity": "1f:5c8878f3f025d66ed7e55f73cb6402c761ec87173650724b10adf7f9412cba9a",
+      "identity": "1f:b1b21dc79c3c4a29f6ba009f660c9a0bae52778cbc58abc67dd2b631e79b1179",
+      "stays": [
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/date-picker/DatePicker.tsx",
+        "web/parts/ui/show/date-picker/DateTimePicker.tsx",
+        "web/parts/ui/show/icon/index.ts",
+        "web/parts/ui/show/node-actions/index.ts",
+        "web/parts/ui/show/task-recurrence/TaskRecurrence.tsx",
+        "web/src/calendar-task-views.mjs",
+        "web/src/calendar-tasks.json",
+        "web/src/workspace/calendar-task-tray.json",
+        "web/src/workspace/keymap-runtime.ts",
+        "web/src/workspace/keymap.mjs"
+      ]
+    },
+    {
+      "from": "web/src/workspace/todo-lists-settings.json",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/calendar/web/src/workspace/todo-lists-settings.json",
+      "source_identity": "1f:f39b724d17c30bda101c2d95fc6a792edf35774007550999111bb259957b19eb",
+      "identity": "1f:f39b724d17c30bda101c2d95fc6a792edf35774007550999111bb259957b19eb"
+    },
+    {
+      "from": "web/src/workspace/todo-lists-settings.mjs",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/calendar/web/src/workspace/todo-lists-settings.mjs",
+      "source_identity": "1f:b3fe4425529638fb968cad1e7f77c989462ab88408d485f12b115cbf45ee973b",
+      "identity": "1f:b3fe4425529638fb968cad1e7f77c989462ab88408d485f12b115cbf45ee973b"
+    },
+    {
+      "from": "web/src/workspace/todo-lists-settings.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/calendar/web/src/workspace/todo-lists-settings.tsx",
+      "source_identity": "1f:b790acc57c77d0b4aa2a4087af7ef3af6d9c9dbf68565f0185c73ecb5411073c",
+      "identity": "1f:b790acc57c77d0b4aa2a4087af7ef3af6d9c9dbf68565f0185c73ecb5411073c",
+      "stays": [
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/icon/index.ts",
+        "web/src/calendar-tasks.json",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/calendar-task-tray.json"
+      ]
+    }
+  ]
+}

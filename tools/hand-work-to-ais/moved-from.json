@@ -86,14 +86,6 @@
       "adapted": "imports this tool's agent-records.mjs and keep-and-wake's record-log store, rebuilds countingHost, and names a made-up owner in a note; every assertion is the old one"
     },
     {
-      "from": "test/job-run-by-press.test.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/hand-work-to-ais/test/job-run-by-press.test.mjs",
-      "source_identity": "1f:556f0856e15bc4d541941abcd637547e35f4278a48d414aa3082db90a3087639",
-      "identity": "1f:64cbd3a76296d5d307eee5cedfda1472a051c6d56178f490d5d7b6df16e88f8b",
-      "adapted": "the retired PersonStore.jobRun's choice of jobs is one line over makeAgents.fromMessage and hand-off-jobs-between-agents' liveWork on a counting host; every assertion is the old one"
-    },
-    {
       "from": "test/hand-off-full-queue-bounded.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/hand-work-to-ais/test/hand-off-full-queue-bounded.test.mjs",
@@ -110,6 +102,14 @@
       "adapted": "makeAgents over this tool's agentRecordStore on a counting host, reopened before the measured calls, with the agents' reconciler and wake step as the store's alarm; every assertion is the old one"
     },
     {
+      "from": "test/job-run-by-press.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/hand-work-to-ais/test/job-run-by-press.test.mjs",
+      "source_identity": "1f:556f0856e15bc4d541941abcd637547e35f4278a48d414aa3082db90a3087639",
+      "identity": "1f:64cbd3a76296d5d307eee5cedfda1472a051c6d56178f490d5d7b6df16e88f8b",
+      "adapted": "the retired PersonStore.jobRun's choice of jobs is one line over makeAgents.fromMessage and hand-off-jobs-between-agents' liveWork on a counting host; every assertion is the old one"
+    },
+    {
       "from": "test/pending-for-reader-bounded.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/hand-work-to-ais/test/pending-for-reader-bounded.test.mjs",
@@ -124,6 +124,30 @@
       "source_identity": "1f:fba026188f773f36b4a4a29ef0906665310f6ddd9330c59f174826644dcdd02a",
       "identity": "1f:8b8ca17e117632ba179188b81fe98300877d02610d7b4eb632e68f379b55d7a8",
       "adapted": "agents.sourceActive over this tool's agentRecordStore on a small cost counter in place of the retired PersonStore's /inbound and costingHost; the owner grant and the access and scope projection assertions are left out, as no running code keeps those projections"
+    },
+    {
+      "from": "web/src/workspace/job-run.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/hand-work-to-ais/web/src/workspace/job-run.tsx",
+      "source_identity": "1f:b3e20ce16cf7ccaf04cb510bceb08edf0935e5b23c2d420c7eb235ca216bc5da",
+      "identity": "1f:b3e20ce16cf7ccaf04cb510bceb08edf0935e5b23c2d420c7eb235ca216bc5da",
+      "stays": [
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/composer/index.ts",
+        "web/parts/ui/show/listing-card/index.ts",
+        "web/parts/ui/show/react-surface-mount/index.ts",
+        "web/parts/ui/show/relative-time/relative-time.ts",
+        "web/parts/ui/show/run-view/index.ts",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/src/graph-board-source.mjs",
+        "web/src/work-title.mjs",
+        "web/src/workspace/activity-trace-view.mjs",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/board-of.tsx",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/job-run.json",
+        "web/src/workspace/store-changes.ts"
+      ]
     }
   ]
 }

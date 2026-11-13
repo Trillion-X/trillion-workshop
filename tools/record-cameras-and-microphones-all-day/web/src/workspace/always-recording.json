@@ -1,0 +1,11 @@
+{
+  "_what": "How Always recording records (DATA, read by src/workspace/always-recording-screen.tsx and parts/record-audio/do-work/always-recording.ts). Every camera and microphone this device sees is an input; the ones switched on record together without end once Start is pressed, each cut on the clock into pieces `segment_seconds` long (all inputs on every device cut at the same instants, so the pieces line up by time), kept on this device first and sent into the person's Files while they are recorded, under `folder`, one folder per day, each piece named by the moment it began and its input. A list of every piece of the session (`list_name`) is kept beside them. `sources` names the rows of parts/record-audio/read-data/capture-sources.json a camera and a microphone record through (their recording kinds and file endings). `video_quality` is the picture asked of every camera (the browser's own track constraints). A camera records its own sound when it has a microphone of its own (the same device group: a camera plugged in over USB, a phone used as a camera); `skip_inputs` are input labels never switched on by themselves (patterns, matched without case), since they repeat another input. An input that stops is opened again every `reopen_after_ms`. Pausing an input, or every input at some hours, is a show rule on the subject `show_subject` (src/workspace/show-rules.json), offered on each input's own menu.",
+  "folder": "/Recordings/Cameras",
+  "segment_seconds": 300,
+  "list_name": "Cameras",
+  "sources": { "camera": "camera-feed", "microphone": "microphone-feed" },
+  "video_quality": { "width": { "ideal": 1920 }, "height": { "ideal": 1080 }, "frameRate": { "ideal": 30 } },
+  "skip_inputs": ["^default", "^communications", "virtual", "aggregate", "zoomaudio", "blackhole", "teams"],
+  "reopen_after_ms": 5000,
+  "show_subject": "camera-input"
+}

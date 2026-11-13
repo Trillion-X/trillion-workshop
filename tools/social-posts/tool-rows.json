@@ -174,8 +174,11 @@
         ],
         "screen": {
           "group": "content-plan",
-          "kind": "app-entry",
-          "entry": "calendar",
+          "kind": "module",
+          "module": {
+            "package": "social-posts",
+            "entry": "web/src/workspace/calendar-screen-mount.tsx"
+          },
           "icon": "CalendarDays",
           "label": "Posting calendar",
           "about": "When each of your posts goes out.",

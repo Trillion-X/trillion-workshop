@@ -40,6 +40,13 @@
       "identity": "1f:03d76785a70910af1f901e019f0813a3404e6b9b6b40255ee0649332a6d7ae02"
     },
     {
+      "from": "records/workshop-recently-deleted-tool-records.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/recently-deleted-and-storage/from-old-trillion/records/workshop-recently-deleted-tool-records.json",
+      "source_identity": "1f:57077abb990a745996ef4d6b39cc2e36e53a26b4b59a6f815d9e806d23fd3a0d",
+      "identity": "1f:57077abb990a745996ef4d6b39cc2e36e53a26b4b59a6f815d9e806d23fd3a0d"
+    },
+    {
       "from": "src/namespace-name-counts.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/recently-deleted-and-storage/namespace-name-counts.mjs",
@@ -107,6 +114,14 @@
       "reused": true
     },
     {
+      "from": "test/namespace-arrival-retries.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/recently-deleted-and-storage/test/namespace-arrival-retries.test.mjs",
+      "source_identity": "1f:346adc280bb52ccbeecabb05fc01dddb892acbccc3c187a860f2c78e8563cfe7",
+      "identity": "1f:cb05baafa31b1fcdeb0c60e859198ed138737a7d9d7675ea29d533b3e750e4ca",
+      "adapted": "The arrival fence is checked on namespace-store.mjs keepWholeFiles/completeWholeFileArrivals with arrival work read as the pending rows the store hands back; the retired person store's organize-into-/Images naming, eeaf file-arrival record, results titles, byte-release refusal and scheduler arm count are left out (searched organizeFileArrival, settleSideFiles, namespaceKeepWholeFiles, file-arrival: in all three repos: only the store and trillion-apps src/side-files.mjs rules, no arrival flow)."
+    },
+    {
       "from": "test/namespace-child-folders.test.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/recently-deleted-and-storage/test/namespace-child-folders.test.mjs",
@@ -126,6 +141,30 @@
       "to": "tools/recently-deleted-and-storage/test/namespace-list-cursor.test.mjs",
       "source_identity": "1f:d1d8231b237343a8e6cc1499bea06bd82994ca7d94d3719cb7e66f679edd2272",
       "identity": "1f:9d4a1edbc77cce0400892ad38dadba068bf3cb8123ce5930bd417351ea5f92e5"
+    },
+    {
+      "from": "test/namespace-move-ownership.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/recently-deleted-and-storage/test/namespace-move-ownership.test.mjs",
+      "source_identity": "1f:d87c7568ac6f4463430a3e3737641ab8b728e28971dcac67e420d702c7a4b43f",
+      "identity": "1f:19b85e9487f15996a8fd23b569732abfe27188bf7707691083207b20cac998c3",
+      "adapted": "The reset test runs against this tool's namespace-store.mjs; the cross-account merge test is left out because src/namespace-account-merge.mjs has no running successor (searched namespaceAccountMerge, move_receipts, account merge in all three repos)."
+    },
+    {
+      "from": "test/namespace-name-batch.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/recently-deleted-and-storage/test/namespace-name-batch.test.mjs",
+      "source_identity": "1f:b7aa11ee95317b31baa498c5f7039fe8e18a5fe158c6f8258dac2bfd95821554",
+      "identity": "1f:9375209598804d3c9c29c748f6482e85bc28884f221533279771854969c5e4ce",
+      "adapted": "Imports and the Workerd probe's source path point at this tool's namespace-store.mjs; every assertion kept."
+    },
+    {
+      "from": "test/namespace-name-counts.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/recently-deleted-and-storage/test/namespace-name-counts.test.mjs",
+      "source_identity": "1f:df5661245906a29bbbec53b4b14657b343feff1cb3c4fcd6cc85082cfced1706",
+      "identity": "1f:3827353fe0ecb95ca6b4097d2c2a4e34f8d4f0cd32128a75583526dd80a56873",
+      "adapted": "Imports point at this tool's namespace-name-counts.mjs and keep-and-wake's sqliteHost; the Workerd probe bundles from this tool's folder; every assertion kept."
     },
     {
       "from": "test/namespace-names-promised.test.mjs",
@@ -157,50 +196,50 @@
       "reused": true
     },
     {
+      "from": "web/src/workspace/recently-deleted-screen.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/recently-deleted-and-storage/web/src/workspace/recently-deleted-screen.tsx",
+      "source_identity": "1f:96aaf2fc2258d39ff4adbb49a61d70bb5d213a0986a2f958e0842aa6d99cf145",
+      "identity": "1f:65bbfea5d6421be0415db7e164ee2d92a3b6285dbac69941e5856d0011e7530c",
+      "stays": [
+        "web/parts/ui/show/action-menu/index.ts",
+        "web/parts/ui/show/coss/notifications.tsx",
+        "web/parts/ui/show/media-preview/index.ts",
+        "web/parts/ui/show/notifications/notification-center.ts",
+        "web/parts/ui/show/react-surface-mount/index.ts",
+        "web/parts/ui/show/record-views/record-views.tsx",
+        "web/parts/ui/show/relative-time/relative-time.ts",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/file-picture.ts",
+        "web/src/workspace/open-screen.ts",
+        "web/src/workspace/record-filter.ts",
+        "web/src/workspace/set-aside.ts",
+        "web/src/workspace/store-changes.ts"
+      ]
+    },
+    {
+      "from": "web/src/workspace/storage-release-panel.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/recently-deleted-and-storage/web/src/workspace/storage-release-panel.tsx",
+      "source_identity": "1f:9a7649d493357fc7079b5c0a29b72e490c6c35c545c15a275124a140f8ed5dde",
+      "identity": "1f:671c667bddd560cfce4c21835e86830d693f103a4a904ee2cad77a88242291e9",
+      "stays": [
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/action-menu/index.ts",
+        "web/parts/ui/show/coss/notifications.tsx",
+        "web/parts/ui/show/notifications/notification-center.ts",
+        "web/parts/ui/show/rule-filter/index.ts",
+        "web/src/workspace/api.ts"
+      ]
+    },
+    {
       "from": "src/workspace/file-previews.json",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/recently-deleted-and-storage/workspace/file-previews.json",
       "source_identity": "1f:e79e249f5c0c6d7dbd8528f127058de3d1e0b934cf5d1fd9c591707fdadc8a16",
       "identity": "1f:e79e249f5c0c6d7dbd8528f127058de3d1e0b934cf5d1fd9c591707fdadc8a16"
-    },
-    {
-      "from": "records/workshop-recently-deleted-tool-records.json",
-      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/recently-deleted-and-storage/from-old-trillion/records/workshop-recently-deleted-tool-records.json",
-      "source_identity": "1f:57077abb990a745996ef4d6b39cc2e36e53a26b4b59a6f815d9e806d23fd3a0d",
-      "identity": "1f:57077abb990a745996ef4d6b39cc2e36e53a26b4b59a6f815d9e806d23fd3a0d"
-    },
-    {
-      "from": "test/namespace-name-counts.test.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/recently-deleted-and-storage/test/namespace-name-counts.test.mjs",
-      "source_identity": "1f:df5661245906a29bbbec53b4b14657b343feff1cb3c4fcd6cc85082cfced1706",
-      "identity": "1f:3827353fe0ecb95ca6b4097d2c2a4e34f8d4f0cd32128a75583526dd80a56873",
-      "adapted": "Imports point at this tool's namespace-name-counts.mjs and keep-and-wake's sqliteHost; the Workerd probe bundles from this tool's folder; every assertion kept."
-    },
-    {
-      "from": "test/namespace-name-batch.test.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/recently-deleted-and-storage/test/namespace-name-batch.test.mjs",
-      "source_identity": "1f:b7aa11ee95317b31baa498c5f7039fe8e18a5fe158c6f8258dac2bfd95821554",
-      "identity": "1f:9375209598804d3c9c29c748f6482e85bc28884f221533279771854969c5e4ce",
-      "adapted": "Imports and the Workerd probe's source path point at this tool's namespace-store.mjs; every assertion kept."
-    },
-    {
-      "from": "test/namespace-move-ownership.test.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/recently-deleted-and-storage/test/namespace-move-ownership.test.mjs",
-      "source_identity": "1f:d87c7568ac6f4463430a3e3737641ab8b728e28971dcac67e420d702c7a4b43f",
-      "identity": "1f:19b85e9487f15996a8fd23b569732abfe27188bf7707691083207b20cac998c3",
-      "adapted": "The reset test runs against this tool's namespace-store.mjs; the cross-account merge test is left out because src/namespace-account-merge.mjs has no running successor (searched namespaceAccountMerge, move_receipts, account merge in all three repos)."
-    },
-    {
-      "from": "test/namespace-arrival-retries.test.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/recently-deleted-and-storage/test/namespace-arrival-retries.test.mjs",
-      "source_identity": "1f:346adc280bb52ccbeecabb05fc01dddb892acbccc3c187a860f2c78e8563cfe7",
-      "identity": "1f:cb05baafa31b1fcdeb0c60e859198ed138737a7d9d7675ea29d533b3e750e4ca",
-      "adapted": "The arrival fence is checked on namespace-store.mjs keepWholeFiles/completeWholeFileArrivals with arrival work read as the pending rows the store hands back; the retired person store's organize-into-/Images naming, eeaf file-arrival record, results titles, byte-release refusal and scheduler arm count are left out (searched organizeFileArrival, settleSideFiles, namespaceKeepWholeFiles, file-arrival: in all three repos: only the store and trillion-apps src/side-files.mjs rules, no arrival flow)."
     }
   ]
 }

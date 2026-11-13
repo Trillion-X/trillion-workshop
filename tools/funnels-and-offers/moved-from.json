@@ -10,6 +10,26 @@
       "to": "tools/funnels-and-offers/from-old-trillion/records/workshop-money-tool-records.json",
       "source_identity": "1f:66d19f90e6071cec5491232c3dbf62093d8668b6f641aedbb061d81fd4fd77fa",
       "identity": "1f:66d19f90e6071cec5491232c3dbf62093d8668b6f641aedbb061d81fd4fd77fa"
+    },
+    {
+      "from": "web/src/workspace/funnels-screen.tsx",
+      "commit": "6c5d561107b6fd7c7800d8c400513108e0a472be",
+      "to": "tools/funnels-and-offers/web/src/workspace/funnels-screen.tsx",
+      "source_identity": "1f:6c6eb1a95832caaa20df28fef173415677742505472137080edebbb306996ad1",
+      "identity": "1f:526a9acc4104e558b5ef24d84abfb7c0ed0b992773b168d0a5dbd4f74d2e3865",
+      "stays": [
+        "web/parts/funnel-offer-graph/show/FunnelCanvas.tsx",
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/coss/notifications.tsx",
+        "web/parts/ui/show/placeable-surface-intent/placeable-surface-intent.ts",
+        "web/parts/ui/show/record-views/record-views.tsx",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/src/funnel-read.mjs",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/open-screen.ts",
+        "web/src/workspace/record-filter.ts"
+      ]
     }
   ]
 }

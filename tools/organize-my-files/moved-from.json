@@ -5,6 +5,13 @@
   "calls": [],
   "files": [
     {
+      "from": "records/workshop-file-tidy-tool-records.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/organize-my-files/from-old-trillion/records/workshop-file-tidy-tool-records.json",
+      "source_identity": "1f:e8c943dcfb95bd00edccdddd79a50931636f0702fdf4554b863fd9a111d75f3e",
+      "identity": "1f:e8c943dcfb95bd00edccdddd79a50931636f0702fdf4554b863fd9a111d75f3e"
+    },
+    {
       "from": "parts/ui/show/ai-app-bridge/ai-app-bridge.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/organize-my-files/parts/ui/show/ai-app-bridge/ai-app-bridge.mjs",
@@ -312,11 +319,21 @@
       "identity": "1f:1dca6acb82f1275482f61d433d6ce5a154c99d923234f999e63e7fbcfd8df1b1"
     },
     {
-      "from": "records/workshop-file-tidy-tool-records.json",
-      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/organize-my-files/from-old-trillion/records/workshop-file-tidy-tool-records.json",
-      "source_identity": "1f:e8c943dcfb95bd00edccdddd79a50931636f0702fdf4554b863fd9a111d75f3e",
-      "identity": "1f:e8c943dcfb95bd00edccdddd79a50931636f0702fdf4554b863fd9a111d75f3e"
+      "from": "web/src/workspace/file-tidy-screen.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/organize-my-files/web/src/workspace/file-tidy-screen.tsx",
+      "source_identity": "1f:6851e240c58ababddd43fbf3917930979f14849bb478cd914e7954601fb42fb1",
+      "identity": "1f:c7af488d80e360a9e5df2edc36dc970abc5936e57612981c5888af5dc807d7bd",
+      "stays": [
+        "web/parts/ui/show/coss/notifications.tsx",
+        "web/parts/ui/show/record-views/record-views.tsx",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/src/file-tidy.json",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/open-screen.ts",
+        "web/src/workspace/record-filter.ts"
+      ]
     }
   ]
 }

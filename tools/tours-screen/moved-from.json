@@ -5,13 +5,6 @@
   "calls": [],
   "files": [
     {
-      "from": "src/tours.json",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/tours-screen/read-data/tours.json",
-      "source_identity": "1f:3226be40db3075bf6195fb66977e20c4c8a4997a32c70b94c8a591bfc06c593a",
-      "identity": "1f:3226be40db3075bf6195fb66977e20c4c8a4997a32c70b94c8a591bfc06c593a"
-    },
-    {
       "from": "parts/guided-overlay/do-work/act-on-target.ts",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
@@ -27,6 +20,17 @@
       "to": "tools/tours-screen/do-work/dispatch-step-perform.ts",
       "source_identity": "1f:db79dc2fe75721b4a1ebc3d3124478a04de4ebb94026bd355ddbfe7960171447",
       "identity": "1f:db79dc2fe75721b4a1ebc3d3124478a04de4ebb94026bd355ddbfe7960171447",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/guided-overlay/do-work/walkthrough-progress.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/tours-screen/do-work/walkthrough-progress.ts",
+      "source_identity": "1f:96c1c358e2163c963f195ae5688572c8642ad21f506755c6bab3cc3c15a69655",
+      "identity_at_move": "1f:96c1c358e2163c963f195ae5688572c8642ad21f506755c6bab3cc3c15a69655",
+      "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
+      "changed": true,
       "found_by": "same bytes"
     },
     {
@@ -75,6 +79,69 @@
       "found_by": "same bytes"
     },
     {
+      "from": "src/tours.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/tours-screen/read-data/tours.json",
+      "source_identity": "1f:3226be40db3075bf6195fb66977e20c4c8a4997a32c70b94c8a591bfc06c593a",
+      "identity": "1f:3226be40db3075bf6195fb66977e20c4c8a4997a32c70b94c8a591bfc06c593a"
+    },
+    {
+      "from": "parts/guided-overlay/read-data/walkthrough-eeaf.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/tours-screen/read-data/walkthrough-eeaf.ts",
+      "source_identity": "1f:1fdefc0d83b1bdada326d033bab12eee69e665ac691d867aa92e65690af2fe82",
+      "identity_at_move": "1f:1fdefc0d83b1bdada326d033bab12eee69e665ac691d867aa92e65690af2fe82",
+      "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
+      "changed": true,
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/guided-overlay/show/NavButtons.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/tours-screen/show/NavButtons.tsx",
+      "source_identity": "1f:599a06e305b7666de4f9b2b837a146df17386b5741cb82b3c1eda4e4288fe695",
+      "identity": "1f:599a06e305b7666de4f9b2b837a146df17386b5741cb82b3c1eda4e4288fe695",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/guided-overlay/show/StepCardBody.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/tours-screen/show/StepCardBody.tsx",
+      "source_identity": "1f:47f3ae176cd254854c076bf858014f6c5670390fed64fb889126becc8d8a2737",
+      "identity": "1f:47f3ae176cd254854c076bf858014f6c5670390fed64fb889126becc8d8a2737",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/guided-overlay/show/TargetHighlight.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/tours-screen/show/TargetHighlight.tsx",
+      "source_identity": "1f:80b032cfc5802198c85d1dab62cb0e0ff68bd1d987c4718c48312025fecf5e07",
+      "identity": "1f:80b032cfc5802198c85d1dab62cb0e0ff68bd1d987c4718c48312025fecf5e07",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/guided-overlay/show/WalkthroughHost.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/tours-screen/show/WalkthroughHost.tsx",
+      "source_identity": "1f:a672b7cbc887c89488d16517367f94a9634adbc82d5ee75a2deabbaa72dba06e",
+      "identity": "1f:a672b7cbc887c89488d16517367f94a9634adbc82d5ee75a2deabbaa72dba06e",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/guided-overlay/show/WalkthroughSurface.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/tours-screen/show/WalkthroughSurface.tsx",
+      "source_identity": "1f:8119e53465103f407a5d9a6f583a365be01948a9e3d608b8089642b281c13dbd",
+      "identity": "1f:8119e53465103f407a5d9a6f583a365be01948a9e3d608b8089642b281c13dbd",
+      "found_by": "same bytes"
+    },
+    {
       "from": "parts/guided-overlay/show/changed-tour.ts",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
@@ -120,15 +187,6 @@
       "found_by": "same bytes"
     },
     {
-      "from": "parts/guided-overlay/show/NavButtons.tsx",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/tours-screen/show/NavButtons.tsx",
-      "source_identity": "1f:599a06e305b7666de4f9b2b837a146df17386b5741cb82b3c1eda4e4288fe695",
-      "identity": "1f:599a06e305b7666de4f9b2b837a146df17386b5741cb82b3c1eda4e4288fe695",
-      "found_by": "same bytes"
-    },
-    {
       "from": "parts/guided-overlay/show/package-onboarding.ts",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
@@ -156,30 +214,12 @@
       "found_by": "same bytes"
     },
     {
-      "from": "parts/guided-overlay/show/StepCardBody.tsx",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/tours-screen/show/StepCardBody.tsx",
-      "source_identity": "1f:47f3ae176cd254854c076bf858014f6c5670390fed64fb889126becc8d8a2737",
-      "identity": "1f:47f3ae176cd254854c076bf858014f6c5670390fed64fb889126becc8d8a2737",
-      "found_by": "same bytes"
-    },
-    {
       "from": "parts/guided-overlay/show/target-resolution.ts",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
       "to": "tools/tours-screen/show/target-resolution.ts",
       "source_identity": "1f:a64b5e00f99ba9d221db820e5d0e7d87d6003b1966e4960afa017475eb7c88d1",
       "identity": "1f:a64b5e00f99ba9d221db820e5d0e7d87d6003b1966e4960afa017475eb7c88d1",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "parts/guided-overlay/show/TargetHighlight.tsx",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/tours-screen/show/TargetHighlight.tsx",
-      "source_identity": "1f:80b032cfc5802198c85d1dab62cb0e0ff68bd1d987c4718c48312025fecf5e07",
-      "identity": "1f:80b032cfc5802198c85d1dab62cb0e0ff68bd1d987c4718c48312025fecf5e07",
       "found_by": "same bytes"
     },
     {
@@ -201,15 +241,6 @@
       "found_by": "same bytes"
     },
     {
-      "from": "parts/guided-overlay/show/WalkthroughHost.tsx",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/tours-screen/show/WalkthroughHost.tsx",
-      "source_identity": "1f:a672b7cbc887c89488d16517367f94a9634adbc82d5ee75a2deabbaa72dba06e",
-      "identity": "1f:a672b7cbc887c89488d16517367f94a9634adbc82d5ee75a2deabbaa72dba06e",
-      "found_by": "same bytes"
-    },
-    {
       "from": "parts/guided-overlay/show/walkthroughs.ts",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
@@ -219,35 +250,59 @@
       "found_by": "same bytes"
     },
     {
-      "from": "parts/guided-overlay/show/WalkthroughSurface.tsx",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/tours-screen/show/WalkthroughSurface.tsx",
-      "source_identity": "1f:8119e53465103f407a5d9a6f583a365be01948a9e3d608b8089642b281c13dbd",
-      "identity": "1f:8119e53465103f407a5d9a6f583a365be01948a9e3d608b8089642b281c13dbd",
-      "found_by": "same bytes"
+      "from": "web/src/workspace/canvas-edit-screen.tsx",
+      "commit": "1c02c528b9f7efd0fd7bfafb8fd6cc28a29505f4",
+      "to": "tools/tours-screen/web/src/workspace/canvas-edit-screen.tsx",
+      "source_identity": "1f:4c054d138b4487e237b60b033a85997cb22d4135ceacc120e6af58f7ee9d3d13",
+      "identity": "1f:6cfcf446c5d15003ba95ee5f06af174b94f2feb86a2ebaf9543846aa2af72c06",
+      "stays": [
+        "web/parts/guided-overlay/read-data/walkthrough-eeaf.ts",
+        "web/parts/guided-overlay/show/step-card.ts",
+        "web/parts/guided-overlay/show/walkthroughs.ts",
+        "web/parts/screen-look/show/canvas-edit.css",
+        "web/parts/sidebar/show/SidebarContent.tsx",
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/coss/notifications.tsx",
+        "web/parts/ui/show/frames-canvas/FramesCanvas.tsx",
+        "web/parts/ui/show/queue-job/QueueJobButton.tsx",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/parts/ui/show/show-rules/show-of.ts",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/queue-job.ts",
+        "web/src/workspace/records.ts",
+        "web/src/workspace/screen-mounts.ts",
+        "web/src/workspace/screens.mjs",
+        "web/src/workspace/show-rules.mjs"
+      ]
     },
     {
-      "from": "parts/guided-overlay/do-work/walkthrough-progress.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/tours-screen/do-work/walkthrough-progress.ts",
-      "source_identity": "1f:96c1c358e2163c963f195ae5688572c8642ad21f506755c6bab3cc3c15a69655",
-      "identity_at_move": "1f:96c1c358e2163c963f195ae5688572c8642ad21f506755c6bab3cc3c15a69655",
-      "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
-      "changed": true,
-      "found_by": "same bytes"
+      "from": "web/src/workspace/canvas-edit.json",
+      "commit": "1c02c528b9f7efd0fd7bfafb8fd6cc28a29505f4",
+      "to": "tools/tours-screen/web/src/workspace/canvas-edit.json",
+      "source_identity": "1f:65c382808d55534f0936d14ba1ea442bccda1eb7a8f221ef583dcb12523adb02",
+      "identity": "1f:65c382808d55534f0936d14ba1ea442bccda1eb7a8f221ef583dcb12523adb02"
     },
     {
-      "from": "parts/guided-overlay/read-data/walkthrough-eeaf.ts",
-      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
-      "to": "tools/tours-screen/read-data/walkthrough-eeaf.ts",
-      "source_identity": "1f:1fdefc0d83b1bdada326d033bab12eee69e665ac691d867aa92e65690af2fe82",
-      "identity_at_move": "1f:1fdefc0d83b1bdada326d033bab12eee69e665ac691d867aa92e65690af2fe82",
-      "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
-      "changed": true,
-      "found_by": "same bytes"
+      "from": "web/src/workspace/tours-screen.ts",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/tours-screen/web/src/workspace/tours-screen.ts",
+      "source_identity": "1f:2196473c35fc2676229696ba2ed02fea3744a6155951b5c0dd060a427003eea8",
+      "identity": "1f:04a15256d40c25d6372f73cefcd417471915c35ac26bca68d67f182b36e8c1a5",
+      "stays": [
+        "web/parts/group/read-data/kept-library.ts",
+        "web/parts/guided-overlay/do-work/walkthrough-progress.ts",
+        "web/parts/guided-overlay/show/walkthroughs.ts",
+        "web/parts/ui/show/coss/notifications.tsx",
+        "web/parts/ui/show/record-views/every-list-views.ts",
+        "web/parts/ui/show/record-views/record-views.tsx",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/parts/ui/show/show-rules/show-of.ts",
+        "web/src/workspace/addresses.mjs",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/open-screen.ts",
+        "web/src/workspace/record-filter.ts",
+        "web/src/workspace/records.ts"
+      ]
     }
   ]
 }

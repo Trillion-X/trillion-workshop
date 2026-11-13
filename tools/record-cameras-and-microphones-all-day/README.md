@@ -11,6 +11,11 @@ Recording every camera and microphone on a device without anyone pressing record
 | `plan-recording-pieces.mjs` | `planRecordingPieces({ started_at, until, segment_seconds, folder, inputs, device, list_name, time_zone })`: every input's pieces for a stretch, named and placed, and the session list (what `tool-rows.json` runs) |
 | `tool-rows.json` | The row `tool:plan-clock-aligned-recording-pieces`, with a sample run whose first piece starts at 16.23.10 and is cut at 16.25.00 |
 | `README.md` | This file |
+| `show/always-recording-screen-mount.tsx` | `tool:screen-always-recording` as a screen module: its one export, `mount`, is the Always recording screen below |
+| `web/src/workspace/always-recording-screen.tsx` | The Always recording screen: every camera and microphone on this device with its own switch, what each is recording, the pieces still to send and a menu of show rules; moved here byte for byte from the web client (`moved-from.json`) |
+| `web/src/workspace/always-recording.json` | How it records: where and how long each piece runs, the words of the screen and its `show_subject` |
+| `web/src/workspace/network-live-inputs.tsx` | The network cameras listed beside the device's own inputs, each played by the browser or by hls.js |
+| `web/src/workspace/device-switch.tsx`, `web/src/workspace/device-switches.json` | The switches for what the device does by itself (a photo kept when taken), their words and state |
 
 ## The row
 

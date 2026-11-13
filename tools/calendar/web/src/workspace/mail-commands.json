@@ -1,0 +1,32 @@
+{
+  "_what": "Every verb of the mail screen with its title, the words that find it and its place in the palette (parts/ui/show/command-table rows). A verb's KEY is not here: it is the row `mail-<verb>` of keymap.json (scope `mail`), so the card, the bar and the menus draw the key the person's Shortcuts settings give it, and re-recording it there changes the hint everywhere. Add a verb by adding a row here, its icon in mail-actions.json and, if it has a key, a `mail-<verb>` row in keymap.json.",
+  "glyphs": {},
+  "groups": [
+    {
+      "heading": "Mail",
+      "rows": [
+        { "id": "reply", "title": "Reply", "aliases": ["respond", "answer"], "palette": { "section": "Mail", "icon": "Reply"  } },
+        { "id": "reply_all", "title": "Reply all", "aliases": ["respond to everyone"], "palette": { "section": "Mail", "icon": "ReplyAll"  } },
+        { "id": "forward", "title": "Forward", "aliases": ["send on", "pass on"], "palette": { "section": "Mail", "icon": "Forward"  } },
+        { "id": "done", "title": "Done", "aliases": ["archive", "mark as done", "clear"], "palette": { "section": "Mail", "icon": "Check"  } },
+        { "id": "unread", "title": "Mark as unread", "aliases": ["mark unread", "unread"], "palette": { "section": "Mail", "icon": "EyeOff"  } },
+        { "id": "read", "title": "Mark as read", "aliases": ["mark read", "read"], "palette": { "section": "Mail", "icon": "Eye"  } },
+        { "id": "delete", "title": "Delete conversation", "aliases": ["trash", "bin", "delete message"], "palette": { "section": "Mail", "icon": "Trash2"  } }
+      ]
+    },
+    {
+      "heading": "Plan an email",
+      "rows": [
+        { "id": "priority", "title": "Priority", "aliases": ["set priority", "important"], "palette": { "section": "Mail", "icon": "Gem"  } },
+        { "id": "schedule", "title": "Schedule", "aliases": ["snooze", "do later", "set a time"], "palette": { "section": "Mail", "icon": "CalendarClock"  } },
+        { "id": "deadline", "title": "Deadline", "aliases": ["set deadline", "due date"], "palette": { "section": "Mail", "icon": "Flag"  } },
+        { "id": "duration", "title": "Set duration", "aliases": ["how long"]},
+        { "id": "repeat", "title": "Repeat", "aliases": ["recurring"]},
+        { "id": "move", "title": "Move to", "aliases": ["task list"]},
+        { "id": "copy_title", "title": "Copy title", "aliases": ["copy subject"]},
+        { "id": "duplicate", "title": "Duplicate", "aliases": ["copy task"]},
+        { "id": "attachments", "title": "Links and attachments", "aliases": ["files", "paperclip"]}
+      ]
+    }
+  ]
+}

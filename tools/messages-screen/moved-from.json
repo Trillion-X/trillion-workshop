@@ -2,8 +2,24 @@
   "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here; deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
   "source": "trillion",
   "package": "trillion-workshop",
-  "calls": [],
+  "calls": [
+    {
+      "id": "maker-name-in-comment",
+      "find": "\\bJ[a-z]{5}(?=,? 20\\d\\d-\\d\\d-\\d\\d)",
+      "replace": "The maker",
+      "means": "A real person's name in a source comment, by its place (before a date), swapped for a made-up one: a public tree holds made-up data only."
+    }
+  ],
   "files": [
+    {
+      "from": "parts/conversations/do-work/addressed-exchange-owner-actions.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/messages-screen/do-work/addressed-exchange-owner-actions.ts",
+      "source_identity": "1f:cea5f1bc7e6949f4055565cd567288b25131d3b4fb4cc95ca6e3550332e7d4dc",
+      "identity": "1f:cea5f1bc7e6949f4055565cd567288b25131d3b4fb4cc95ca6e3550332e7d4dc",
+      "found_by": "same bytes"
+    },
     {
       "from": "parts/chat/do-work/advance-capability-round.ts",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
@@ -191,6 +207,15 @@
       "to": "tools/messages-screen/do-work/write-addressed-exchange-through-conversations.ts",
       "source_identity": "1f:e7819ee3b80c9052e5e50c0733a16d01ba2b2795d4edd9de01f989f75f4ebe28",
       "identity": "1f:e7819ee3b80c9052e5e50c0733a16d01ba2b2795d4edd9de01f989f75f4ebe28",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/conversations/read-data/build-conversation-projections.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/messages-screen/read-data/build-conversation-projections.ts",
+      "source_identity": "1f:4657be0a81755f1f2ceb031c440846ef6c52a6daa57101ae56b3858ea26e0c48",
+      "identity": "1f:4657be0a81755f1f2ceb031c440846ef6c52a6daa57101ae56b3858ea26e0c48",
       "found_by": "same bytes"
     },
     {
@@ -446,6 +471,15 @@
       "found_by": "same bytes"
     },
     {
+      "from": "parts/conversations/read-data/record-projection.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/messages-screen/read-data/record-projection.ts",
+      "source_identity": "1f:54aeb9dcd4a0bc7d9d408f56dba132c236b824dd2e6429663018cb036dbd5573",
+      "identity": "1f:54aeb9dcd4a0bc7d9d408f56dba132c236b824dd2e6429663018cb036dbd5573",
+      "found_by": "same bytes"
+    },
+    {
       "from": "parts/chat/read-data/resolve-decoder-session-id.ts",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
@@ -473,6 +507,15 @@
       "found_by": "same bytes"
     },
     {
+      "from": "parts/conversations/read-data/use-conversation-projections.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/messages-screen/read-data/use-conversation-projections.ts",
+      "source_identity": "1f:a49c51d352e5d36055a42115d715e67eb3ee821eefa8cb3096b2251311340a2c",
+      "identity": "1f:a49c51d352e5d36055a42115d715e67eb3ee821eefa8cb3096b2251311340a2c",
+      "found_by": "same bytes"
+    },
+    {
       "from": "parts/chat/read-data/use-private-conversations.ts",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
@@ -497,51 +540,6 @@
       "to": "tools/messages-screen/show/AgentStatusStrip.tsx",
       "source_identity": "1f:0fab309b02275c9a4cf4a9a158492ec2a879a3d84b32e1b6425fc399da9a09b6",
       "identity": "1f:0fab309b02275c9a4cf4a9a158492ec2a879a3d84b32e1b6425fc399da9a09b6",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "parts/chat/show/build-agent-status-sessions.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/messages-screen/show/build-agent-status-sessions.ts",
-      "source_identity": "1f:35d9442b9d3dd48dfe2481affec7b4026704fbd67e3e2f5464ec2136d23d186c",
-      "identity": "1f:35d9442b9d3dd48dfe2481affec7b4026704fbd67e3e2f5464ec2136d23d186c",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "parts/chat/show/build-chat-conversation-list.ts",
-      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
-      "to": "tools/messages-screen/show/build-chat-conversation-list.ts",
-      "source_identity": "1f:e6c46457fac24c947515f34ba50e2d885c107ca272fdf2ccf3aee6fd9ba893d5",
-      "identity": "1f:e6c46457fac24c947515f34ba50e2d885c107ca272fdf2ccf3aee6fd9ba893d5",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "parts/chat/show/chat-config-ownership.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/messages-screen/show/chat-config-ownership.ts",
-      "source_identity": "1f:0e138cd0735118322527964a6f5d918bb233efd98a69311c7017bf868c146649",
-      "identity": "1f:0e138cd0735118322527964a6f5d918bb233efd98a69311c7017bf868c146649",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "parts/chat/show/chat-logic.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/messages-screen/show/chat-logic.ts",
-      "source_identity": "1f:23a6fd18618c25eb1ab73a580401b799290fa16b5ef83555bdd0ea10cad666fd",
-      "identity": "1f:23a6fd18618c25eb1ab73a580401b799290fa16b5ef83555bdd0ea10cad666fd",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "parts/chat/show/chat-send-readiness.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/messages-screen/show/chat-send-readiness.ts",
-      "source_identity": "1f:de3831ec92c444ae2f04e073e012b5fcf096be88a427e0bfbe0d4224bc5dfb82",
-      "identity": "1f:de3831ec92c444ae2f04e073e012b5fcf096be88a427e0bfbe0d4224bc5dfb82",
       "found_by": "same bytes"
     },
     {
@@ -662,60 +660,6 @@
       "found_by": "same bytes"
     },
     {
-      "from": "parts/chat/show/initial-source-keys.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/messages-screen/show/initial-source-keys.ts",
-      "source_identity": "1f:3bf79226655451cf02b39438f7d623c6f4bf0c65e8d81f35ac80169fab579e66",
-      "identity": "1f:3bf79226655451cf02b39438f7d623c6f4bf0c65e8d81f35ac80169fab579e66",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "parts/chat/show/input/chat-composer.tsx",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/messages-screen/show/input/chat-composer.tsx",
-      "source_identity": "1f:3b651f1cc8fae8d313d1305d4d98af3c14889743a805f7799676290faed93921",
-      "identity": "1f:3b651f1cc8fae8d313d1305d4d98af3c14889743a805f7799676290faed93921",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "parts/chat/show/input/index.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/messages-screen/show/input/index.ts",
-      "source_identity": "1f:7b736a2c7d06d3b0e694cf31d7fe13a13a0c68a7cef3008c788d0c0be70fb368",
-      "identity": "1f:7b736a2c7d06d3b0e694cf31d7fe13a13a0c68a7cef3008c788d0c0be70fb368",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "parts/chat/show/input/send-button.tsx",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/messages-screen/show/input/send-button.tsx",
-      "source_identity": "1f:f5b856a953b05ee81bdaaa986b6a559217e9b26fad3be5fe247c688c66c2680b",
-      "identity": "1f:f5b856a953b05ee81bdaaa986b6a559217e9b26fad3be5fe247c688c66c2680b",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "parts/chat/show/input/slash-command-menu.tsx",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/messages-screen/show/input/slash-command-menu.tsx",
-      "source_identity": "1f:5f87f6d511d4184a424c2df2878e1de693199788f4f4300f7810240e480b9376",
-      "identity": "1f:5f87f6d511d4184a424c2df2878e1de693199788f4f4300f7810240e480b9376",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "parts/chat/show/input/unified-agent-picker.tsx",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/messages-screen/show/input/unified-agent-picker.tsx",
-      "source_identity": "1f:6e839cad3dc709b550bec0881293a30538a11a5db17b115cfc936cb3f94aca4a",
-      "identity": "1f:6e839cad3dc709b550bec0881293a30538a11a5db17b115cfc936cb3f94aca4a",
-      "found_by": "same bytes"
-    },
-    {
       "from": "parts/chat/show/MarkdownContent.tsx",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
@@ -734,48 +678,12 @@
       "found_by": "same bytes"
     },
     {
-      "from": "parts/chat/show/mount-chat.tsx",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/messages-screen/show/mount-chat.tsx",
-      "source_identity": "1f:66a31b24226e80e038e75e57531f5b76fe1ed4f619989121bf8cb99ede196321",
-      "identity": "1f:66a31b24226e80e038e75e57531f5b76fe1ed4f619989121bf8cb99ede196321",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "parts/chat/show/participant-badge-color.ts",
-      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
-      "to": "tools/messages-screen/show/participant-badge-color.ts",
-      "source_identity": "1f:9448cc0d94994c9a6fe9389812da2af4479735f40f726fc4c423ee88dea9a80b",
-      "identity": "1f:9448cc0d94994c9a6fe9389812da2af4479735f40f726fc4c423ee88dea9a80b",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "parts/chat/show/participant-mark-spec.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/messages-screen/show/participant-mark-spec.ts",
-      "source_identity": "1f:cf7fb57f15efcb45a707c22c977bccf6a9e2760b7dd89d5ae820850b069a7185",
-      "identity": "1f:cf7fb57f15efcb45a707c22c977bccf6a9e2760b7dd89d5ae820850b069a7185",
-      "found_by": "same bytes"
-    },
-    {
       "from": "parts/chat/show/ParticipantBrowser.tsx",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
       "to": "tools/messages-screen/show/ParticipantBrowser.tsx",
       "source_identity": "1f:3cf5e1d8cd195599d8601b364a69e1ea5388baddb3ebed18cdea527fbb92d526",
       "identity": "1f:3cf5e1d8cd195599d8601b364a69e1ea5388baddb3ebed18cdea527fbb92d526",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "parts/chat/show/plan-parser.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/messages-screen/show/plan-parser.ts",
-      "source_identity": "1f:eda622c8ac37beec8f3017e0276165a36cee2bbd9b1599cb50b0f7b1e91453e3",
-      "identity": "1f:eda622c8ac37beec8f3017e0276165a36cee2bbd9b1599cb50b0f7b1e91453e3",
       "found_by": "same bytes"
     },
     {
@@ -812,42 +720,6 @@
       "to": "tools/messages-screen/show/PresetPopover.tsx",
       "source_identity": "1f:f20d6db1ed42925b06fb7576dae8544815cb3cffd6a35e2c08faf4993dea932b",
       "identity": "1f:f20d6db1ed42925b06fb7576dae8544815cb3cffd6a35e2c08faf4993dea932b",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "parts/chat/show/receipt-surface-intent.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/messages-screen/show/receipt-surface-intent.ts",
-      "source_identity": "1f:d0944c0eb5ed4e898a10c7970b22553292d5d2dbc06e42ddd9c1862d84d4faca",
-      "identity": "1f:d0944c0eb5ed4e898a10c7970b22553292d5d2dbc06e42ddd9c1862d84d4faca",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "parts/chat/show/resolve-source-session-ref.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/messages-screen/show/resolve-source-session-ref.ts",
-      "source_identity": "1f:cc3348aaa919912a535a47e1461dbcf583214d6fc7c36b5752cf5635397e2f8f",
-      "identity": "1f:cc3348aaa919912a535a47e1461dbcf583214d6fc7c36b5752cf5635397e2f8f",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "parts/chat/show/shiki-loader.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/messages-screen/show/shiki-loader.ts",
-      "source_identity": "1f:ce15ef067e266dab9051eea9186ce90a822e87762b1e96954f1418e085f56547",
-      "identity": "1f:ce15ef067e266dab9051eea9186ce90a822e87762b1e96954f1418e085f56547",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "parts/chat/show/tool-registry.ts",
-      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
-      "to": "tools/messages-screen/show/tool-registry.ts",
-      "source_identity": "1f:e091e14d5c59f6ca0fa56bfb0dc2678cd22e5f78e0552ee6a9b597b36c3b0092",
-      "identity": "1f:e091e14d5c59f6ca0fa56bfb0dc2678cd22e5f78e0552ee6a9b597b36c3b0092",
       "found_by": "same bytes"
     },
     {
@@ -905,6 +777,177 @@
       "found_by": "same bytes"
     },
     {
+      "from": "parts/chat/show/build-agent-status-sessions.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/messages-screen/show/build-agent-status-sessions.ts",
+      "source_identity": "1f:35d9442b9d3dd48dfe2481affec7b4026704fbd67e3e2f5464ec2136d23d186c",
+      "identity": "1f:35d9442b9d3dd48dfe2481affec7b4026704fbd67e3e2f5464ec2136d23d186c",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/chat/show/build-chat-conversation-list.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/messages-screen/show/build-chat-conversation-list.ts",
+      "source_identity": "1f:e6c46457fac24c947515f34ba50e2d885c107ca272fdf2ccf3aee6fd9ba893d5",
+      "identity": "1f:e6c46457fac24c947515f34ba50e2d885c107ca272fdf2ccf3aee6fd9ba893d5",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/chat/show/chat-config-ownership.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/messages-screen/show/chat-config-ownership.ts",
+      "source_identity": "1f:0e138cd0735118322527964a6f5d918bb233efd98a69311c7017bf868c146649",
+      "identity": "1f:0e138cd0735118322527964a6f5d918bb233efd98a69311c7017bf868c146649",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/chat/show/chat-logic.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/messages-screen/show/chat-logic.ts",
+      "source_identity": "1f:23a6fd18618c25eb1ab73a580401b799290fa16b5ef83555bdd0ea10cad666fd",
+      "identity": "1f:23a6fd18618c25eb1ab73a580401b799290fa16b5ef83555bdd0ea10cad666fd",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/chat/show/chat-send-readiness.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/messages-screen/show/chat-send-readiness.ts",
+      "source_identity": "1f:de3831ec92c444ae2f04e073e012b5fcf096be88a427e0bfbe0d4224bc5dfb82",
+      "identity": "1f:de3831ec92c444ae2f04e073e012b5fcf096be88a427e0bfbe0d4224bc5dfb82",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/chat/show/initial-source-keys.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/messages-screen/show/initial-source-keys.ts",
+      "source_identity": "1f:3bf79226655451cf02b39438f7d623c6f4bf0c65e8d81f35ac80169fab579e66",
+      "identity": "1f:3bf79226655451cf02b39438f7d623c6f4bf0c65e8d81f35ac80169fab579e66",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/chat/show/input/chat-composer.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/messages-screen/show/input/chat-composer.tsx",
+      "source_identity": "1f:3b651f1cc8fae8d313d1305d4d98af3c14889743a805f7799676290faed93921",
+      "identity": "1f:3b651f1cc8fae8d313d1305d4d98af3c14889743a805f7799676290faed93921",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/chat/show/input/index.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/messages-screen/show/input/index.ts",
+      "source_identity": "1f:7b736a2c7d06d3b0e694cf31d7fe13a13a0c68a7cef3008c788d0c0be70fb368",
+      "identity": "1f:7b736a2c7d06d3b0e694cf31d7fe13a13a0c68a7cef3008c788d0c0be70fb368",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/chat/show/input/send-button.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/messages-screen/show/input/send-button.tsx",
+      "source_identity": "1f:f5b856a953b05ee81bdaaa986b6a559217e9b26fad3be5fe247c688c66c2680b",
+      "identity": "1f:f5b856a953b05ee81bdaaa986b6a559217e9b26fad3be5fe247c688c66c2680b",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/chat/show/input/slash-command-menu.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/messages-screen/show/input/slash-command-menu.tsx",
+      "source_identity": "1f:5f87f6d511d4184a424c2df2878e1de693199788f4f4300f7810240e480b9376",
+      "identity": "1f:5f87f6d511d4184a424c2df2878e1de693199788f4f4300f7810240e480b9376",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/chat/show/input/unified-agent-picker.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/messages-screen/show/input/unified-agent-picker.tsx",
+      "source_identity": "1f:6e839cad3dc709b550bec0881293a30538a11a5db17b115cfc936cb3f94aca4a",
+      "identity": "1f:6e839cad3dc709b550bec0881293a30538a11a5db17b115cfc936cb3f94aca4a",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/chat/show/mount-chat.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/messages-screen/show/mount-chat.tsx",
+      "source_identity": "1f:66a31b24226e80e038e75e57531f5b76fe1ed4f619989121bf8cb99ede196321",
+      "identity": "1f:66a31b24226e80e038e75e57531f5b76fe1ed4f619989121bf8cb99ede196321",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/chat/show/participant-badge-color.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/messages-screen/show/participant-badge-color.ts",
+      "source_identity": "1f:9448cc0d94994c9a6fe9389812da2af4479735f40f726fc4c423ee88dea9a80b",
+      "identity": "1f:9448cc0d94994c9a6fe9389812da2af4479735f40f726fc4c423ee88dea9a80b",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/chat/show/participant-mark-spec.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/messages-screen/show/participant-mark-spec.ts",
+      "source_identity": "1f:cf7fb57f15efcb45a707c22c977bccf6a9e2760b7dd89d5ae820850b069a7185",
+      "identity": "1f:cf7fb57f15efcb45a707c22c977bccf6a9e2760b7dd89d5ae820850b069a7185",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/chat/show/plan-parser.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/messages-screen/show/plan-parser.ts",
+      "source_identity": "1f:eda622c8ac37beec8f3017e0276165a36cee2bbd9b1599cb50b0f7b1e91453e3",
+      "identity": "1f:eda622c8ac37beec8f3017e0276165a36cee2bbd9b1599cb50b0f7b1e91453e3",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/chat/show/receipt-surface-intent.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/messages-screen/show/receipt-surface-intent.ts",
+      "source_identity": "1f:d0944c0eb5ed4e898a10c7970b22553292d5d2dbc06e42ddd9c1862d84d4faca",
+      "identity": "1f:d0944c0eb5ed4e898a10c7970b22553292d5d2dbc06e42ddd9c1862d84d4faca",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/chat/show/resolve-source-session-ref.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/messages-screen/show/resolve-source-session-ref.ts",
+      "source_identity": "1f:cc3348aaa919912a535a47e1461dbcf583214d6fc7c36b5752cf5635397e2f8f",
+      "identity": "1f:cc3348aaa919912a535a47e1461dbcf583214d6fc7c36b5752cf5635397e2f8f",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/chat/show/shiki-loader.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/messages-screen/show/shiki-loader.ts",
+      "source_identity": "1f:ce15ef067e266dab9051eea9186ce90a822e87762b1e96954f1418e085f56547",
+      "identity": "1f:ce15ef067e266dab9051eea9186ce90a822e87762b1e96954f1418e085f56547",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/chat/show/tool-registry.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/messages-screen/show/tool-registry.ts",
+      "source_identity": "1f:e091e14d5c59f6ca0fa56bfb0dc2678cd22e5f78e0552ee6a9b597b36c3b0092",
+      "identity": "1f:e091e14d5c59f6ca0fa56bfb0dc2678cd22e5f78e0552ee6a9b597b36c3b0092",
+      "found_by": "same bytes"
+    },
+    {
       "from": "parts/chat/show/use-conversation-pages.ts",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
@@ -914,40 +957,81 @@
       "found_by": "same bytes"
     },
     {
-      "from": "parts/conversations/do-work/addressed-exchange-owner-actions.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/messages-screen/do-work/addressed-exchange-owner-actions.ts",
-      "source_identity": "1f:cea5f1bc7e6949f4055565cd567288b25131d3b4fb4cc95ca6e3550332e7d4dc",
-      "identity": "1f:cea5f1bc7e6949f4055565cd567288b25131d3b4fb4cc95ca6e3550332e7d4dc",
-      "found_by": "same bytes"
+      "from": "web/src/workspace/chat-records.ts",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/messages-screen/web/src/workspace/chat-records.ts",
+      "source_identity": "1f:68110ab5ca08fdc7c700a79a1a21f9f8b68ee7357727090e9c0ec13fb9f8666b",
+      "identity": "1f:68110ab5ca08fdc7c700a79a1a21f9f8b68ee7357727090e9c0ec13fb9f8666b",
+      "stays": [
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/src/live-protocol.mjs",
+        "web/src/workspace/activity-providers.json",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/conversation-navigation-rows.mjs",
+        "web/src/workspace/records.ts",
+        "web/src/workspace/share-outbox.ts",
+        "web/src/workspace/store-changes.ts"
+      ]
     },
     {
-      "from": "parts/conversations/read-data/build-conversation-projections.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/messages-screen/read-data/build-conversation-projections.ts",
-      "source_identity": "1f:4657be0a81755f1f2ceb031c440846ef6c52a6daa57101ae56b3858ea26e0c48",
-      "identity": "1f:4657be0a81755f1f2ceb031c440846ef6c52a6daa57101ae56b3858ea26e0c48",
-      "found_by": "same bytes"
+      "from": "web/src/workspace/conversation-presence.json",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/messages-screen/web/src/workspace/conversation-presence.json",
+      "source_identity": "1f:7f9f1d8c32d6bcc3b506b6979672f2e35eb7713d8c5457bcf7f5a5a2bd3268a6",
+      "identity": "1f:7f9f1d8c32d6bcc3b506b6979672f2e35eb7713d8c5457bcf7f5a5a2bd3268a6"
     },
     {
-      "from": "parts/conversations/read-data/record-projection.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/messages-screen/read-data/record-projection.ts",
-      "source_identity": "1f:54aeb9dcd4a0bc7d9d408f56dba132c236b824dd2e6429663018cb036dbd5573",
-      "identity": "1f:54aeb9dcd4a0bc7d9d408f56dba132c236b824dd2e6429663018cb036dbd5573",
-      "found_by": "same bytes"
+      "from": "web/src/workspace/conversation-presence.ts",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/messages-screen/web/src/workspace/conversation-presence.ts",
+      "source_identity": "1f:bac18bfda8bb98c98ff662347ccddef94dfc82425ff5a6adcd698da5adfe22f4",
+      "identity": "1f:bac18bfda8bb98c98ff662347ccddef94dfc82425ff5a6adcd698da5adfe22f4",
+      "stays": [
+        "web/parts/group/read-data/presence.ts",
+        "web/parts/group/show/presence-channel.ts"
+      ]
     },
     {
-      "from": "parts/conversations/read-data/use-conversation-projections.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/messages-screen/read-data/use-conversation-projections.ts",
-      "source_identity": "1f:a49c51d352e5d36055a42115d715e67eb3ee821eefa8cb3096b2251311340a2c",
-      "identity": "1f:a49c51d352e5d36055a42115d715e67eb3ee821eefa8cb3096b2251311340a2c",
-      "found_by": "same bytes"
+      "from": "web/src/workspace/messages-screen.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/messages-screen/web/src/workspace/messages-screen.tsx",
+      "source_identity": "1f:c02e1c4913fd87591922c2db0c6fc091a4c78b5402757e890e40ea156d086c2c",
+      "identity": "1f:83c6dfa0591eb3ff040827d476e7b920e6535231564bccf94e96a484d808a5cb",
+      "stays": [
+        "web/parts/chat/show/ChatView.tsx",
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/react-surface-mount/index.ts",
+        "web/parts/ui/show/record-views/record-views.tsx",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/src/live-scopes.json",
+        "web/src/record-model.json",
+        "web/src/workspace/conversation-navigation-rows.mjs",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/record-filter.ts",
+        "web/src/workspace/records.ts",
+        "web/src/workspace/store-changes.ts"
+      ],
+      "calls": [
+        "maker-name-in-comment"
+      ]
+    },
+    {
+      "from": "web/src/workspace/pending-lines.ts",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/messages-screen/web/src/workspace/pending-lines.ts",
+      "source_identity": "1f:55bd80368b5f68e522b4e172d4c6919b1b672137524b63b7c3f62b3809442ef6",
+      "identity": "1f:55bd80368b5f68e522b4e172d4c6919b1b672137524b63b7c3f62b3809442ef6",
+      "stays": [
+        "web/src/workspace/share-outbox.ts"
+      ]
+    },
+    {
+      "from": "web/src/workspace/pending-sends.json",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/messages-screen/web/src/workspace/pending-sends.json",
+      "source_identity": "1f:88a7578e7dd4917df281832cba484f667dd152b95384677d7bac44655372ca9e",
+      "identity": "1f:88a7578e7dd4917df281832cba484f667dd152b95384677d7bac44655372ca9e"
     }
   ]
 }

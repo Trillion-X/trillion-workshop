@@ -2,17 +2,27 @@
   "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here; deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
   "source": "trillion",
   "package": "trillion-workshop",
-  "calls": [],
-  "files": [
+  "calls": [
     {
-      "from": "src/show-rules-tools.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "deleted_by": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7",
-      "to": "tools/decide-when-things-show/read-data/show-rules-tools.mjs",
-      "source_identity": "1f:83896f213940b50907f58d30636c10d47d48101bf5e2a3a3327730cfc159bd00",
-      "identity": "1f:83896f213940b50907f58d30636c10d47d48101bf5e2a3a3327730cfc159bd00",
-      "found_by": "same bytes"
+      "id": "content-identity-import",
+      "find": "import \\{ blake3 \\} from '@noble/hashes/blake3\\.js';",
+      "replace": "import { makeHashCodeHexFromBytes } from '../../../../content-identity/read-data/identity.mjs';",
+      "means": "A direct BLAKE3 import swapped for the declared content-identity owner, which one-owner-per-registered-name makes the only place that names the hash."
     },
+    {
+      "id": "content-identity-hex-import",
+      "find": "import \\{ bytesToHex \\} from '@noble/hashes/utils\\.js';\\n",
+      "replace": "",
+      "means": "The hex helper only the direct BLAKE3 call used; the owner hands the hex back."
+    },
+    {
+      "id": "content-identity-call",
+      "find": "bytesToHex\\(blake3\\(new TextEncoder\\(\\)\\.encode\\(key\\)\\)\\)",
+      "replace": "makeHashCodeHexFromBytes(new TextEncoder().encode(key)).slice(3)",
+      "means": "The owner's identity is `1f:` and the same 64 hex digits; dropping the three-character prefix gives the exact hex the grant row already holds."
+    }
+  ],
+  "files": [
     {
       "from": "src/show-rules-store.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
@@ -23,6 +33,38 @@
       "byte_copy_commit": "0a245db37ae8c7514d9c5d698f9824daa423d684",
       "changed": true,
       "found_by": "same bytes"
+    },
+    {
+      "from": "src/show-rules-tools.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "deleted_by": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7",
+      "to": "tools/decide-when-things-show/read-data/show-rules-tools.mjs",
+      "source_identity": "1f:83896f213940b50907f58d30636c10d47d48101bf5e2a3a3327730cfc159bd00",
+      "identity": "1f:83896f213940b50907f58d30636c10d47d48101bf5e2a3a3327730cfc159bd00",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "web/src/workspace/show-rules-admin-screen.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/decide-when-things-show/web/src/workspace/show-rules-admin-screen.tsx",
+      "source_identity": "1f:9bb4212be906c7d7e9aa92226f9bd8e631fb5f12d441b40e69b74e54933fb6bd",
+      "identity": "1f:1e5c8bcd15f8aa476df49969796e4ba54d64acc16dc919a10327d3ff33d2bfd1",
+      "stays": [
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/coss/notifications.tsx",
+        "web/parts/ui/show/react-surface-mount/index.ts",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/parts/ui/show/sharing-sheet/SharingSheet.tsx",
+        "web/src/record-sharing.json",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/records.ts",
+        "web/src/workspace/show-rules.mjs"
+      ],
+      "calls": [
+        "content-identity-import",
+        "content-identity-hex-import",
+        "content-identity-call"
+      ]
     }
   ]
 }

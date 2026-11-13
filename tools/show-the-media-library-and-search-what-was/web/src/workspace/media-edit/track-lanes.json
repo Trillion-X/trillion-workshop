@@ -1,0 +1,9 @@
+{
+  "_what": "The editor's track lanes, as DATA read by cut-list.ts: each lane's name, what it carries (role) and its colour tone (a ClipBlock tone). `elementRows: shared` keeps many short timed items on one row until they overlap. Order here is order on screen, top to bottom among picture lanes.",
+  "lanes": {
+    "picture": { "role": "video", "label": "Picture", "tone": "source", "elementRows": "shared" },
+    "words": { "role": "text", "label": "Captions and text", "tone": "identity", "elementRows": "shared" },
+    "overlays": { "role": "video", "label": "Pictures over the video", "tone": "motion", "elementRows": "shared" },
+    "sounds": { "role": "audio", "label": "Sounds", "tone": "audio", "elementRows": "shared" }
+  }
+}

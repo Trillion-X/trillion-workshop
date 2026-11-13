@@ -1,0 +1,16 @@
+{
+  "_what": "The words of each thing the device this page runs in can do by itself and the person turns on or off here (src/workspace/device-switch.tsx). The Trillion iPhone app says which switches it has (window.__trillionSwitches, { id: device }), takes { id, command } on its trillionSwitch bridge and tells each switch's state ({ id, on, waiting, sent, sending, problem }) in the trillion-native-switch event (ios/App/DeviceSwitch.swift). Each row: `id` as the device names it, the `place` it shows on, its `title`, and `said`, the line under the title for each state, in this order, the first that holds: the device's own problem, `off`, `sending` (while it sends), `waiting` (some wait to be sent), `on`. {device}, {waiting} and {sent} are filled from the device and its state. A switch the device has but no row names is not shown.",
+  "switches": [
+    {
+      "id": "photos",
+      "place": "always-recording",
+      "title": "Send photos and videos from this {device}'s Photos",
+      "said": {
+        "off": "New photos and videos go to Files under Recordings > Cameras, on any connection, also with Trillion in the background. Items from the last 14 days come too, even when Photos keeps the originals only in iCloud.",
+        "sending": "Sending. {waiting} to go.",
+        "waiting": "{waiting} waiting. They go up by themselves when this {device} is back online.",
+        "on": "On. {sent} sent so far. New photos and videos, and those from the 14 days before you turned this on, go to Files under Recordings > Cameras."
+      }
+    }
+  ]
+}

@@ -1,0 +1,716 @@
+{
+  "_what": "The Calendar screen (src/workspace/shared-calendar-screen.tsx), as DATA: one calendar over every source src/calendar.json names, narrowed by the workspace's focus like every list. `calendar` is the one calendar view in the shared record views' bar (its id is the Calendar every list is offered, so the screen's own takes its place); `views` are the week, month and day its header offers (each a shared ScheduleCalendar view); `table` is the plain list of the same things. `place` names the focus dimension whose values are where a meeting can be put on (`param`, the pursuits), (the event forms, their words and the road that puts a meeting on for a space are calendar-event-forms.json). `members` is the road that says, while the focus is one pursuit, whose own calendar is connected there (`post`, `{space}` filled in) and where Connect your calendar goes (`connect`, the service's own sign-in, `{service}` filled in). `presence` is the view name the people looking at a focused pursuit's calendar share (src/board-room.mjs), so they see each other's cursors. `tray_side` sets which side the unplaced task pane occupies in the wide shared calendar. `hour_window`, `start_scroll_minute`, `snap_minutes` and `meeting_minutes` shape the hour lanes. `words` are every sentence the screen says; {title}, {when}, {count}, {place} and {source} are filled in.",
+  "tray_side": "start",
+  "choice_presentation": "menu",
+  "responsive_views": [
+    {
+      "id": "day",
+      "below_px": 410
+    },
+    {
+      "id": "three-days",
+      "below_px": 610
+    },
+    {
+      "id": "week"
+    }
+  ],
+  "selection_icon": "SquareMousePointer",
+  "selection_presentation": "highlight",
+  "cancelled_statuses": [
+    "cancelled",
+    "canceled"
+  ],
+  "task_surface": {
+    "screen": "trillion.calendar.tasks"
+  },
+  "calendar_surface": {
+    "screen": "trillion.calendar"
+  },
+  "mail_surface": {
+    "screen": "trillion.mail"
+  },
+  "event_subtitle_fields": [
+    "location",
+    "conference_url",
+    "space_title"
+  ],
+  "preference_defaults": {
+    "week_start": 0,
+    "work_start": "08:00",
+    "work_end": "18:00",
+    "weekends": true,
+    "workdays": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "default_event_duration_minutes": 60
+  },
+  "settings_only": {
+    "parameter": "settings_only",
+    "value": "true"
+  },
+  "views": [
+    {
+      "id": "week",
+      "label": "Week",
+      "icon": "Columns3",
+      "view": {
+        "grid": "hours",
+        "days": 7
+      }
+    },
+    {
+      "id": "month",
+      "label": "Month",
+      "icon": "CalendarDays",
+      "view": {
+        "grid": "month"
+      }
+    },
+    {
+      "id": "day",
+      "label": "Day",
+      "icon": "CalendarClock",
+      "view": {
+        "grid": "hours",
+        "days": 1
+      }
+    },
+    {
+      "id": "three-days",
+      "label": "3 days",
+      "icon": "Columns3",
+      "view": {
+        "grid": "hours",
+        "days": 3
+      }
+    }
+  ],
+  "calendar": {
+    "id": "calendar",
+    "label": "Calendar",
+    "icon": "CalendarDays"
+  },
+  "table": {
+    "id": "table",
+    "label": "List",
+    "icon": "Table"
+  },
+  "place": {
+    "param": "spaces"
+  },
+  "presence": "calendar",
+  "members": {
+    "post": "/community/{space}/free-times",
+    "connect": "/work/connect/{service}"
+  },
+  "hour_window": {
+    "start": 0,
+    "end": 1440
+  },
+  "start_scroll_minute": 480,
+  "hour_height_px": 42,
+  "snap_minutes": 15,
+  "meeting_minutes": 60,
+  "sections": [
+    { "id": "calendar", "label": "Calendar" },
+    { "id": "tasks", "label": "Tasks", "opens": "trillion.calendar.tasks" },
+    { "id": "mail", "label": "Mail", "opens": "trillion.mail" }
+  ],
+  "zoom": { "min_px": 24, "max_px": 160, "step_px": 6 },
+  "colleagues": {
+    "post": "/community/{space}/free-times",
+    "preference_key": "calendar-colleagues",
+    "tones": ["purple", "orange", "green", "accent", "grey"],
+    "most_days": 31,
+    "most_shown": 9
+  },
+  "events_done": { "preference_key": "calendar-events-done", "most": 500 },
+  "words": {
+    "previous_period": "Go to previous {period}",
+    "next_period": "Go to next {period}",
+    "period_day": "day",
+    "period_week": "week",
+    "period_month": "month",
+    "period_days": "days",
+    "go_to_today": "Go to today",
+    "meet": "Meet",
+    "meet_tip": "Start a video meeting now",
+    "week_label": "W{week}",
+    "breadcrumb": "Calendar position",
+    "choose_month": "Choose a month",
+    "choose_section": "Choose a section",
+    "all_day_more": "{count} more",
+    "shortcuts_title": "Keyboard shortcuts",
+    "zoom_drag": "Hold ⌘ and drag to zoom",
+    "screen": "Calendar",
+    "loading": "Loading your calendar",
+    "failed": "Your calendar could not load",
+    "previous": "Earlier",
+    "next": "Later",
+    "today": "Today",
+    "show": "Show",
+    "more": "{count} more",
+    "placing": "{title} moves to {when}. Let go to set this time.",
+    "moved": "{title} is now {when}.",
+    "nothing": "Your calendar brings events and tasks together. Add an event, plan a task or connect your calendar.",
+    "new": "New event",
+    "new_needs": "Give it a name, a start and who it is for.",
+    "no_place": "Join or start a pursuit first: a meeting is for the people in a pursuit.",
+    "close": "Close",
+    "field_title": "What",
+    "field_when": "When",
+    "field_source": "From",
+    "field_place": "Space",
+    "all_day": "All day",
+    "here": "{count} here",
+    "connect": "Connect Google Calendar",
+    "unread": "{source} could not be read just now.",
+    "you": "you",
+    "colleague_busy": "{name} · busy",
+    "colleague_not_connected": "Calendar not connected",
+    "colleague_not_shared": "Not sharing their calendar with this space",
+    "colleague_unread": "Their calendar could not be read just now",
+    "connect_yours": "Connect your calendar",
+    "write_failed": "The calendar change could not be saved.",
+    "write_pending": "Your calendar change is still running. Its result will appear in Runs.",
+    "record": "Record this meeting",
+    "record_title": "Record: {title}",
+    "record_start_unavailable": "Recording did not start because its setting could not be read.",
+    "new_task": "New task",
+    "quick_task_label": "Add a task",
+    "quick_task_placeholder": "New task",
+    "quick_task_add": "Add",
+    "quick_task_adding": "Adding",
+    "compose_mail": "Compose email",
+    "mail_view": "Mail",
+    "display_options": "Display",
+    "calendar_display": "Calendar display",
+    "task_title": "Task title",
+    "task_parent": "Parent task",
+    "task_no_parent": "No parent task",
+    "task_parent_unloaded": "Current parent · load more tasks to see its title",
+    "task_list": "Task list",
+    "task_list_unassigned": "No task list",
+    "task_list_unavailable": "Current task list · load more task lists to see its name",
+    "task_list_to_manage": "Manage task lists",
+    "task_list_new_choice": "New task list",
+    "task_list_name": "Task list name",
+    "task_list_create": "Create list",
+    "task_list_rename": "Rename",
+    "task_list_delete": "Delete list",
+    "task_list_created": "Task list created",
+    "task_list_renamed": "Task list renamed",
+    "task_list_deleted": "Task list deleted",
+    "task_subtasks": "Subtasks",
+    "task_add_subtask": "Add subtask",
+    "task_relationships_partial": "Load more tasks to see all available parents and subtasks.",
+    "task_duration": "Duration in minutes",
+    "task_minutes": "{minutes}m",
+    "task_more": "More task options",
+    "task_subtask_action": "Subtask",
+    "task_due": "Deadline (optional)",
+    "task_due_short": "Deadline",
+    "task_repeat": "Repeat",
+    "task_repeat_every": "Every",
+    "task_repeat_interval": "Repeat interval",
+    "task_repeat_on": "On",
+    "task_repeat_ends": "Ends",
+    "task_repeat_never": "Never",
+    "task_repeat_on_date": "On date",
+    "task_repeat_after": "After",
+    "task_repeat_occurrences": "Occurrences",
+    "task_create_next": "Create next task",
+    "task_repeat_frequencies": [
+      {
+        "value": "day",
+        "label": "day(s)"
+      },
+      {
+        "value": "week",
+        "label": "week(s)",
+        "weekdays": true
+      },
+      {
+        "value": "month",
+        "label": "month(s)"
+      },
+      {
+        "value": "year",
+        "label": "year(s)"
+      }
+    ],
+    "task_repeat_weekdays": [
+      {
+        "value": "mon",
+        "label": "Mon"
+      },
+      {
+        "value": "tue",
+        "label": "Tue"
+      },
+      {
+        "value": "wed",
+        "label": "Wed"
+      },
+      {
+        "value": "thu",
+        "label": "Thu"
+      },
+      {
+        "value": "fri",
+        "label": "Fri"
+      },
+      {
+        "value": "sat",
+        "label": "Sat"
+      },
+      {
+        "value": "sun",
+        "label": "Sun"
+      }
+    ],
+    "task_repeat_next_choices": [
+      {
+        "value": "when_done",
+        "label": "Directly, when the previous task is done"
+      },
+      {
+        "value": "on_day_when_done",
+        "label": "On the day, when the previous task is done"
+      },
+      {
+        "value": "on_day_even_if_open",
+        "label": "On the day, even if the previous task is open"
+      },
+      {
+        "value": "direct_even_if_open",
+        "label": "Directly, even if the previous task is open"
+      }
+    ],
+    "task_time": "Schedule for (optional)",
+    "task_hint": "Drag this task onto the calendar to schedule it.",
+    "task_add": "Add task",
+    "task_schedule": "Schedule task",
+    "task_complete": "Mark done",
+    "task_kept": "Task saved",
+    "task_duplicate": "Duplicate task",
+    "task_duplicated": "Task copied",
+    "task_reorder_named": "Reorder {title}",
+    "task_order_failed": "This task could not move. Try again.",
+    "task_moved_inbox": "Task moved to Inbox",
+    "task_done": "Task completed",
+    "task_complete_named": "Complete {title}",
+    "task_reopen_named": "Reopen {title}",
+    "tasks_heading": "Tasks",
+    "task_empty": "Tasks without a time appear here. Add a task to start planning.",
+    "task_deadline": "Due {date}",
+    "task_no_deadline": "No deadline",
+    "task_unplace": "{title} returns to your task inbox.",
+    "select_time_hint": "Double-click a blank time to create an event. Use arrow keys to choose a time and Enter to select it.",
+    "resize_handle": "Change duration of {title}, currently {minutes} minutes",
+    "task_edit": "Edit task",
+    "task_save": "Save task",
+    "settings": "Calendar settings",
+    "work_hours_invalid": "Working hours must end after they start.",
+    "work_schedule_invalid": "Give each preferred time a name and choose nonoverlapping hours for each day.",
+    "load_more_tasks": "Load more tasks",
+    "load_more_task_lists": "Load more task lists",
+    "task_origin": "Open original message",
+    "task_reopen": "Reopen task",
+    "task_reopened": "Task reopened",
+    "task_delete": "Delete task",
+    "task_deleted": "Task deleted",
+    "task_delete_question": "Delete this task from your list?",
+    "plan": "Suggest task times",
+    "plan_loading": "Checking free time",
+    "plan_title": "Suggested task times",
+    "plan_about": "Using your working hours and deadlines across the coming {days} days. Review these times before adding them.",
+    "plan_unread": "Could not check all events from {sources}. Try again after the calendar loads.",
+    "plan_incomplete_tasks": "Could not read your entire task list. Scheduling suggestions are paused.",
+    "plan_too_many": "This planner supports up to {count} unscheduled tasks at a time.",
+    "plan_changed": "Your calendar or tasks changed. Review the updated suggestions before adding them.",
+    "plan_applied": "Tasks added to your calendar",
+    "plan_apply": "Add these times",
+    "undo": "Undo",
+    "refit_moved": "{count} planned tasks were moved out of the way. They are waiting in your tasks until you plan again.",
+    "refit_disable": "Stop doing this",
+    "zone_drift": "You plan in {planning}, but this device shows {device}. Move your plans to {device}?",
+    "zone_move": "Move my plans",
+    "zone_keep": "Keep {planning}",
+    "plan_empty": "All your current tasks already have a time.",
+    "work_days_invalid": "Choose at least one working day.",
+    "calendar_selection_limit": "Choose up to 12 calendars.",
+    "calendar_copied": "Calendar details copied",
+    "calendar_copy_failed": "Calendar details could not be copied",
+    "calendar_selection_count": "{count} selected",
+    "task_open_pane": "Open in a pane",
+    "task_pane_closed": "No task is open.",
+    "task_open_calendar": "Open Calendar",
+    "calendar_selection_start": "Select events",
+    "calendar_selection_finish": "Finish selecting",
+    "calendar_selection_clear": "Clear",
+    "calendar_selection_more": "More actions",
+    "calendar_selection_actions": "Selected event actions",
+    "calendar_select_event": "Select {title}",
+    "calendar_deselect_event": "Deselect {title}",
+    "calendar_batch_copy": "Copy details",
+    "calendar_batch_duplicate": "Duplicate",
+    "calendar_batch_remove": "Remove",
+    "calendar_batch_remove_confirm": "Remove selected",
+    "calendar_batch_remove_cancel": "Keep",
+    "calendar_batch_remove_done": "Removed {count} events.",
+    "calendar_batch_remove_partial": "Removed {removed} events. {failed} could not be removed and remain selected. {error}",
+    "calendar_batch_remove_unavailable": "The event no longer has a confirmed removal action.",
+    "calendar_batch_duplicate_done": "Created {count} event copies.",
+    "choose_date": "Choose date",
+    "quick_task_failed": "The task could not be added. Try again."
+  },
+  "record": {
+    "screen": "trillion.record"
+  },
+  "tasks": {
+    "source": "personal-tasks",
+    "href": "/lists/calendar-tasks"
+  },
+  "tray_views": [
+    {
+      "id": "tasks",
+      "label": "Tasks"
+    },
+    {
+      "id": "mail",
+      "label": "Mail"
+    }
+  ],
+  "tray_label": "Calendar side panel",
+  "task_properties": {
+    "priorities": [
+      {
+        "value": "low",
+        "label": "Low"
+      },
+      {
+        "value": "medium",
+        "label": "Medium"
+      },
+      {
+        "value": "high",
+        "label": "High"
+      }
+    ],
+    "words": {
+      "description": "Notes",
+      "descriptionPlaceholder": "What needs to happen?",
+      "priority": "Priority",
+      "priorityPlaceholder": "No priority",
+      "noPriority": "No priority",
+      "labels": "Labels",
+      "findLabel": "Find or add a label",
+      "findLabelPlaceholder": "Label name",
+      "noLabels": "Type a label name to add one.",
+      "noMatchingLabels": "No matching labels",
+      "parent": "Parent task",
+      "subtasks": "Subtasks"
+    },
+    "composition": {
+      "kept_at": "screen-arrangement-of::trillion.calendar-task::controls",
+      "words": {
+        "arrange": "Arrange controls",
+        "done": "Done arranging",
+        "layout": "Task details"
+      },
+      "properties_kept_at": "screen-arrangement-of::trillion.calendar-task::properties",
+      "property_words": {
+        "arrange": "Arrange task fields",
+        "done": "Done arranging",
+        "layout": "Task fields"
+      },
+      "property_arrangement": {
+        "kind": "split",
+        "dir": "column",
+        "unit": "px",
+        "keep": true,
+        "sizes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "children": [
+          {
+            "kind": "pane",
+            "surfaces": [
+              "description"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "subtasks"
+            ]
+          },
+          {
+            "kind": "split",
+            "dir": "row",
+            "sizes": [
+              0,
+              0,
+              0
+            ],
+            "unit": "px",
+            "keep": true,
+            "stack": 320,
+            "children": [
+              {
+                "kind": "pane",
+                "surfaces": [
+                  "parent"
+                ]
+              },
+              {
+                "kind": "pane",
+                "surfaces": [
+                  "priority"
+                ]
+              },
+              {
+                "kind": "pane",
+                "surfaces": [
+                  "labels"
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "split",
+            "dir": "row",
+            "sizes": [
+              0,
+              0,
+              0
+            ],
+            "unit": "px",
+            "keep": true,
+            "stack": 320,
+            "children": [
+              {
+                "kind": "pane",
+                "surfaces": [
+                  "duration"
+                ]
+              },
+              {
+                "kind": "pane",
+                "surfaces": [
+                  "recurrence"
+                ]
+              },
+              {
+                "kind": "pane",
+                "surfaces": [
+                  "due"
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "list"
+            ]
+          },
+          {
+            "kind": "split",
+            "dir": "row",
+            "sizes": [
+              0,
+              0
+            ],
+            "unit": "px",
+            "keep": true,
+            "stack": 320,
+            "children": [
+              {
+                "kind": "pane",
+                "surfaces": [
+                  "schedule"
+                ]
+              },
+              {
+                "kind": "pane",
+                "surfaces": [
+                  "open-pane"
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "split",
+            "dir": "row",
+            "sizes": [
+              0,
+              0
+            ],
+            "unit": "px",
+            "keep": true,
+            "stack": 320,
+            "children": [
+              {
+                "kind": "pane",
+                "surfaces": [
+                  "timer"
+                ]
+              },
+              {
+                "kind": "pane",
+                "surfaces": [
+                  "more"
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "split",
+            "dir": "row",
+            "sizes": [
+              0,
+              0
+            ],
+            "unit": "px",
+            "keep": true,
+            "stack": 320,
+            "children": [
+              {
+                "kind": "pane",
+                "surfaces": [
+                  "duplicate"
+                ]
+              },
+              {
+                "kind": "pane",
+                "surfaces": [
+                  "delete"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "arrangement": {
+        "kind": "split",
+        "dir": "column",
+        "unit": "px",
+        "keep": true,
+        "sizes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "children": [
+          {
+            "kind": "pane",
+            "surfaces": [
+              "heading"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "title"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "properties"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "origin"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "actions"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "confirmation"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "context_actions": [
+    {
+      "id": "calendar.open",
+      "label": "Open",
+      "icon": "ArrowUpRight"
+    },
+    {
+      "id": "calendar.edit",
+      "label": "Edit",
+      "icon": "Pencil"
+    },
+    {
+      "id": "calendar.copy",
+      "label": "Copy details",
+      "icon": "Copy"
+    },
+    {
+      "id": "calendar.event_duplicate",
+      "label": "Duplicate event",
+      "icon": "Copy"
+    },
+    {
+      "id": "calendar.event_remove",
+      "label": "Remove event",
+      "icon": "Trash2",
+      "source_action_tone": "danger"
+    }
+  ],
+  "planning": {
+    "days": 21,
+    "max_tasks": 200,
+    "max_list_pages": 8,
+    "statuses": {
+      "late": "after its deadline"
+    },
+    "reasons": {
+      "missing_task_id": "Task could not be read",
+      "outside_preferred_times": "Outside this list's preferred times",
+      "invalid_duration": "Set a valid duration",
+      "invalid_due": "Set a valid deadline",
+      "due_passed": "Deadline has passed",
+      "duration_exceeds_workday": "Longer than your working day",
+      "no_workdays": "No working days in this period",
+      "invalid_start": "Set a valid earliest start",
+      "blocker_cycle": "Tasks that wait for each other",
+      "blocker_unknown": "Waits for a task that cannot be found",
+      "blocked_by_unscheduled": "Waits for a task that could not be scheduled",
+      "over_capacity": "Your day is full",
+      "no_free_slot_before_deadline": "No free time before its deadline",
+      "no_free_slot_before_horizon": "No free time within this period"
+    }
+  },
+  "task_minutes": 30,
+  "task_options_icon": "SlidersHorizontal"
+}

@@ -5,12 +5,39 @@
   "calls": [],
   "files": [
     {
-      "from": "parts/file-content-renderer/show/classify-file-content.ts",
+      "from": "parts/media-playback/read-data/measure-media-length.ts",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/show-any-file-as-itself/show/classify-file-content.ts",
-      "source_identity": "1f:e7c61ba19d19412f62d7dff518312244a088ad3cf8286b90c03deba498ef4bf0",
-      "identity": "1f:e7c61ba19d19412f62d7dff518312244a088ad3cf8286b90c03deba498ef4bf0",
+      "to": "tools/show-any-file-as-itself/read-data/measure-media-length.ts",
+      "source_identity": "1f:c7d1c5b838e48279bf94ce81c29a1d45e6e7a3e0cb37d3ec20974f8436fdc253",
+      "identity": "1f:c7d1c5b838e48279bf94ce81c29a1d45e6e7a3e0cb37d3ec20974f8436fdc253",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/media-playback/read-data/private-object-request.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/show-any-file-as-itself/read-data/private-object-request.ts",
+      "source_identity": "1f:757af39d94e214a77be82b5e15a78b6678814ba120e81ca501636432769bbe52",
+      "identity": "1f:757af39d94e214a77be82b5e15a78b6678814ba120e81ca501636432769bbe52",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/media-playback/read-data/read-media-playback.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/show-any-file-as-itself/read-data/read-media-playback.ts",
+      "source_identity": "1f:4f0eca9ba5c9e8e758b2c832cfa821cd90d0eb46666ce03b5c08b8d526986af9",
+      "identity": "1f:4f0eca9ba5c9e8e758b2c832cfa821cd90d0eb46666ce03b5c08b8d526986af9",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/media-playback/read-data/timed-text-index.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/show-any-file-as-itself/read-data/timed-text-index.ts",
+      "source_identity": "1f:2cbacbb6cae5e2794f77a82005ad23aafea71f97db4f71ccaeeb574593460f19",
+      "identity": "1f:2cbacbb6cae5e2794f77a82005ad23aafea71f97db4f71ccaeeb574593460f19",
       "found_by": "same bytes"
     },
     {
@@ -50,15 +77,6 @@
       "found_by": "same bytes"
     },
     {
-      "from": "parts/file-content-renderer/show/highlight-code-html.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/show-any-file-as-itself/show/highlight-code-html.ts",
-      "source_identity": "1f:5607d4844bc098ac62a13d466d39129c3d2d1f5065df260a2bbf31123b874b4a",
-      "identity": "1f:5607d4844bc098ac62a13d466d39129c3d2d1f5065df260a2bbf31123b874b4a",
-      "found_by": "same bytes"
-    },
-    {
       "from": "parts/file-content-renderer/show/ImageRenderer.tsx",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
@@ -74,69 +92,6 @@
       "to": "tools/show-any-file-as-itself/show/MarkdownRenderer.tsx",
       "source_identity": "1f:335d6c97081f30b0c0d7374e8b7e99ce86f5428dde851a935237aaf55cb46054",
       "identity": "1f:335d6c97081f30b0c0d7374e8b7e99ce86f5428dde851a935237aaf55cb46054",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "parts/file-content-renderer/show/RawRenderer.tsx",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/show-any-file-as-itself/show/RawRenderer.tsx",
-      "source_identity": "1f:5d7a8c52a9e45749d365731adcf9f514e8115da9747f13811f89e687c6a32ab8",
-      "identity": "1f:5d7a8c52a9e45749d365731adcf9f514e8115da9747f13811f89e687c6a32ab8",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "parts/file-content-renderer/show/render-markdown-html.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/show-any-file-as-itself/show/render-markdown-html.ts",
-      "source_identity": "1f:3d5b645e8d9b406e27ee068eb8c321a3be11af254e19d051e679caff9a48f3d5",
-      "identity": "1f:3d5b645e8d9b406e27ee068eb8c321a3be11af254e19d051e679caff9a48f3d5",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "parts/media-playback/read-data/measure-media-length.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/show-any-file-as-itself/read-data/measure-media-length.ts",
-      "source_identity": "1f:c7d1c5b838e48279bf94ce81c29a1d45e6e7a3e0cb37d3ec20974f8436fdc253",
-      "identity": "1f:c7d1c5b838e48279bf94ce81c29a1d45e6e7a3e0cb37d3ec20974f8436fdc253",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "parts/media-playback/read-data/private-object-request.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/show-any-file-as-itself/read-data/private-object-request.ts",
-      "source_identity": "1f:757af39d94e214a77be82b5e15a78b6678814ba120e81ca501636432769bbe52",
-      "identity": "1f:757af39d94e214a77be82b5e15a78b6678814ba120e81ca501636432769bbe52",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "parts/media-playback/read-data/read-media-playback.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/show-any-file-as-itself/read-data/read-media-playback.ts",
-      "source_identity": "1f:4f0eca9ba5c9e8e758b2c832cfa821cd90d0eb46666ce03b5c08b8d526986af9",
-      "identity": "1f:4f0eca9ba5c9e8e758b2c832cfa821cd90d0eb46666ce03b5c08b8d526986af9",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "parts/media-playback/read-data/timed-text-index.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/show-any-file-as-itself/read-data/timed-text-index.ts",
-      "source_identity": "1f:2cbacbb6cae5e2794f77a82005ad23aafea71f97db4f71ccaeeb574593460f19",
-      "identity": "1f:2cbacbb6cae5e2794f77a82005ad23aafea71f97db4f71ccaeeb574593460f19",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "parts/media-playback/show/lazy-playback-surface.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/show-any-file-as-itself/show/lazy-playback-surface.ts",
-      "source_identity": "1f:17c4776622ae0de948f0ce953aaff5f1781728ef84741ddd229e852481208446",
-      "identity": "1f:17c4776622ae0de948f0ce953aaff5f1781728ef84741ddd229e852481208446",
       "found_by": "same bytes"
     },
     {
@@ -167,6 +122,15 @@
       "found_by": "same bytes"
     },
     {
+      "from": "parts/file-content-renderer/show/RawRenderer.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/show-any-file-as-itself/show/RawRenderer.tsx",
+      "source_identity": "1f:5d7a8c52a9e45749d365731adcf9f514e8115da9747f13811f89e687c6a32ab8",
+      "identity": "1f:5d7a8c52a9e45749d365731adcf9f514e8115da9747f13811f89e687c6a32ab8",
+      "found_by": "same bytes"
+    },
+    {
       "from": "parts/media-playback/show/class-names.ts",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
@@ -176,6 +140,158 @@
       "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
       "changed": true,
       "found_by": "same bytes"
+    },
+    {
+      "from": "parts/file-content-renderer/show/classify-file-content.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/show-any-file-as-itself/show/classify-file-content.ts",
+      "source_identity": "1f:e7c61ba19d19412f62d7dff518312244a088ad3cf8286b90c03deba498ef4bf0",
+      "identity": "1f:e7c61ba19d19412f62d7dff518312244a088ad3cf8286b90c03deba498ef4bf0",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/file-content-renderer/show/highlight-code-html.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/show-any-file-as-itself/show/highlight-code-html.ts",
+      "source_identity": "1f:5607d4844bc098ac62a13d466d39129c3d2d1f5065df260a2bbf31123b874b4a",
+      "identity": "1f:5607d4844bc098ac62a13d466d39129c3d2d1f5065df260a2bbf31123b874b4a",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/media-playback/show/lazy-playback-surface.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/show-any-file-as-itself/show/lazy-playback-surface.ts",
+      "source_identity": "1f:17c4776622ae0de948f0ce953aaff5f1781728ef84741ddd229e852481208446",
+      "identity": "1f:17c4776622ae0de948f0ce953aaff5f1781728ef84741ddd229e852481208446",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/file-content-renderer/show/render-markdown-html.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/show-any-file-as-itself/show/render-markdown-html.ts",
+      "source_identity": "1f:3d5b645e8d9b406e27ee068eb8c321a3be11af254e19d051e679caff9a48f3d5",
+      "identity": "1f:3d5b645e8d9b406e27ee068eb8c321a3be11af254e19d051e679caff9a48f3d5",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "web/src/workspace/editable-text-document.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/show-any-file-as-itself/web/src/workspace/editable-text-document.tsx",
+      "source_identity": "1f:23ebcab8a06b241c02e726207fb9f3943467ec3e981ae5fd9089297452534d2d",
+      "identity": "1f:8e4421ff561b901980355c2990666d01f2da8d957c3a6ee5ab0d49729c801d30",
+      "stays": [
+        "web/parts/documents/index.ts",
+        "web/parts/ui/index.ts",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/document-operation-sync.mjs",
+        "web/src/workspace/document-operations-transport.ts",
+        "web/src/workspace/store-changes.ts",
+        "web/src/workspace/upload.ts"
+      ]
+    },
+    {
+      "from": "web/src/workspace/file-screen.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/show-any-file-as-itself/web/src/workspace/file-screen.tsx",
+      "source_identity": "1f:c878ab56684f7cb7ad36b1c5ed0ec1055dffd485e6730ad9b5d1eb1af2885fb3",
+      "identity": "1f:4c49cf65bf55bf1ed5788b5c90852aba89c60b93d1d9cfd1e59d7e729fae734b",
+      "stays": [
+        "web/parts/media-playback/read-data/kept-timed-text.ts",
+        "web/parts/record-audio/do-work/record-audio-requests.ts",
+        "web/parts/record-audio/read-data/processing-steps.ts",
+        "web/parts/record-audio/read-data/recording-widgets.json",
+        "web/parts/record-audio/show/MeetingAssociationPanel.tsx",
+        "web/parts/record-audio/show/MeetingNoteMetadata.tsx",
+        "web/parts/record-audio/show/ProcessingStepsPill.tsx",
+        "web/parts/screen-arrangement/show/ArrangedContents.tsx",
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/breadcrumb/mount-breadcrumb.tsx",
+        "web/parts/ui/show/coss/notifications.tsx",
+        "web/parts/ui/show/coss/shared-content.tsx",
+        "web/parts/ui/show/file-card/index.ts",
+        "web/parts/ui/show/file-preview/FilePreview.tsx",
+        "web/parts/ui/show/file-preview/mount-file-preview.tsx",
+        "web/parts/ui/show/meeting-review/MeetingReviewTabs.tsx",
+        "web/parts/ui/show/one-owner-per-node.ts",
+        "web/parts/ui/show/placeable-surface-intent/placeable-surface-intent.ts",
+        "web/parts/ui/show/placeable-surface-intent/placeable-surface-subject.ts",
+        "web/parts/ui/show/relative-time/relative-time.ts",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/global-composer.tsx",
+        "web/src/workspace/made-previews.ts",
+        "web/src/workspace/media-transcribe.ts",
+        "web/src/workspace/meeting-review.json",
+        "web/src/workspace/open-screen.ts",
+        "web/src/workspace/pdf-reader-served.ts",
+        "web/src/workspace/queue-job.ts",
+        "web/src/workspace/recordings.ts",
+        "web/src/workspace/records.ts",
+        "web/src/workspace/say-about-this.tsx",
+        "web/src/workspace/sharing-sheet.tsx",
+        "web/src/workspace/store-changes.ts",
+        "web/src/workspace/upload.ts"
+      ]
+    },
+    {
+      "from": "web/src/workspace/file-uses.ts",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/show-any-file-as-itself/web/src/workspace/file-uses.ts",
+      "source_identity": "1f:da945e4830bcd365fc21b71ef304285a572a16182aa49b0fa11c59c00e7d1563",
+      "identity": "1f:da945e4830bcd365fc21b71ef304285a572a16182aa49b0fa11c59c00e7d1563",
+      "stays": [
+        "web/parts/ui/show/page-storage/page-storage.ts",
+        "web/src/recent-files.json",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/played-time.ts"
+      ]
+    },
+    {
+      "from": "web/src/workspace/note-review-tools.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/show-any-file-as-itself/web/src/workspace/note-review-tools.tsx",
+      "source_identity": "1f:4b9c589520e22ed7e910f5554cd17fefcceae31ba9432ac077a20cb5539254f9",
+      "identity": "1f:436ef9f732a8c9bb09d30795ecb8eaf9682edc8862a94744bca0322d986ecda1",
+      "stays": [
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/coss/notifications.tsx",
+        "web/parts/ui/show/coss/ui/checkbox.tsx",
+        "web/src/calendar-tasks.json",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/meeting-review.json",
+        "web/src/workspace/note-actions.ts"
+      ]
+    },
+    {
+      "from": "web/src/workspace/note-review.mjs",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/show-any-file-as-itself/web/src/workspace/note-review.mjs",
+      "source_identity": "1f:a135e2b1d784ad288c52570628560ad182141921085aa0fb35262a765a80618b",
+      "identity": "1f:a135e2b1d784ad288c52570628560ad182141921085aa0fb35262a765a80618b"
+    },
+    {
+      "from": "web/src/workspace/note-transcript.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/show-any-file-as-itself/web/src/workspace/note-transcript.tsx",
+      "source_identity": "1f:f568c3d587f74ed7b21a2b2493a6e0ff405a44e092a8d615d1947683919ce63b",
+      "identity": "1f:2bdeb7230375837ce7c882e73bc3e07a12bdc4648732a101934caef26e502d8d",
+      "stays": [
+        "web/parts/transcript-reader/read-data/edit-transcript.ts",
+        "web/parts/transcript-reader/read-data/read-transcript-records.ts",
+        "web/parts/transcript-reader/show/TranscriptReaderSurface.tsx",
+        "web/parts/transcript-reader/show/transcript-tools.json",
+        "web/parts/ui/show/clipboard/answer-copy.mjs",
+        "web/parts/ui/show/coss/notifications.tsx",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/media-transcribe.ts",
+        "web/src/workspace/note-actions.ts",
+        "web/src/workspace/say-about-this.tsx"
+      ]
     }
   ]
 }

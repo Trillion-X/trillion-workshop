@@ -1,0 +1,64 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion-apps",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "web/src/workspace/settings-pages.json",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/settings/web/src/workspace/settings-pages.json",
+      "source_identity": "1f:287cb8093def4d45fa1cd81e00e3c02ca0d1728233bf09820e1b253900ff0366",
+      "identity": "1f:287cb8093def4d45fa1cd81e00e3c02ca0d1728233bf09820e1b253900ff0366"
+    },
+    {
+      "from": "web/src/workspace/settings-pages.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/settings/web/src/workspace/settings-pages.tsx",
+      "source_identity": "1f:52181c3c7f5af83d0c33c9e773fb0e861c45a252ded6e8f338b53eadfa9d3811",
+      "identity": "1f:52181c3c7f5af83d0c33c9e773fb0e861c45a252ded6e8f338b53eadfa9d3811",
+      "stays": [
+        "web/parts/screen-arrangement/show/PaneSizeSettings.tsx",
+        "web/parts/screen-look/show/ChooseScreenLook.tsx",
+        "web/parts/ui/index.ts",
+        "web/src/workspace/colour-names-page.tsx",
+        "web/src/workspace/feel-settings.tsx",
+        "web/src/workspace/guide-screens.tsx",
+        "web/src/workspace/host-channel.ts",
+        "web/src/workspace/keymap-settings.tsx",
+        "web/src/workspace/mail-settings.tsx",
+        "web/src/workspace/panel-settings.mjs",
+        "web/src/workspace/panel-setup.mjs",
+        "web/src/workspace/panel-shortcut.mjs"
+      ]
+    },
+    {
+      "from": "web/src/workspace/settings-panels.json",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/settings/web/src/workspace/settings-panels.json",
+      "source_identity": "1f:26a9b448286b8c071ed9225b7d63309d6d481174add57e9b5545535cf61058b4",
+      "identity": "1f:26a9b448286b8c071ed9225b7d63309d6d481174add57e9b5545535cf61058b4"
+    },
+    {
+      "from": "web/src/workspace/settings-posts.mjs",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/settings/web/src/workspace/settings-posts.mjs",
+      "source_identity": "1f:e952edc17819c606b0134b4b7b4961f447a4a501d572e46ce646f4a82a746839",
+      "identity": "1f:e952edc17819c606b0134b4b7b4961f447a4a501d572e46ce646f4a82a746839"
+    },
+    {
+      "from": "web/src/workspace/settings-screen.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/settings/web/src/workspace/settings-screen.tsx",
+      "source_identity": "1f:f31b6f23a1b49ef8aa31210fc824afea4711a9ec86452d01ce37592a6f1aafab",
+      "identity": "1f:f31b6f23a1b49ef8aa31210fc824afea4711a9ec86452d01ce37592a6f1aafab",
+      "stays": [
+        "web/parts/ui/show/placeable-surface-intent/open-choices.ts",
+        "web/parts/ui/show/react-surface-mount/index.ts",
+        "web/parts/ui/show/sectioned-panels/SectionedPanels.tsx",
+        "web/src/workspace/screen-in-place.tsx",
+        "web/src/workspace/settings-page-request.ts"
+      ]
+    }
+  ]
+}

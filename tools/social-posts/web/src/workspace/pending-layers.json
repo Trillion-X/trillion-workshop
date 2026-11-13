@@ -1,0 +1,5 @@
+{
+  "_what": "The layers a change can sit in while the store has not acknowledged it (src/workspace/pending-changes.ts), lowest first: a higher layer is drawn over a lower one. `snapshot` is what the store last said that a read in flight has not yet shown, `optimistic` is a change the page has sent and is waiting on, `local` is what the person is doing now and has not sent. `default` is the layer a change is laid in when it names none.",
+  "order": ["snapshot", "optimistic", "local"],
+  "default": "optimistic"
+}

@@ -19,3 +19,13 @@ Live controls over one tool: a tool's input schema and its `controls` DATA becom
 ## The row
 
 `tool:turn-a-tool-into-live-controls` runs `live-controls.mjs` in a small container with no internet, through `tools/records-door/do-work/run-an-export.mjs`. It reads only what it is given and writes nothing. Running the tool, saving the interface, the preview beside the controls and undo and redo stay with the app's controls screen and the account.
+
+## Screens moved from the web client
+
+These files were moved byte for byte from the web client (`moved-from.json` names each file's source path, commit and identity). Their imports of the web shell's files stay as written; the client build answers them with the shell's files and opens each screen as a screen module named by its row (`screen.module`).
+
+| File | Purpose |
+|------|---------|
+| `web/src/workspace/controls-screen.tsx` | Controls (`tool:screen-controls`): the live controls an AI made for one thing, beside the tool's preview. |
+| `web/src/workspace/controls-previews.tsx` | What the controls show beside them, by the preview kind (only the Controls screen uses it). |
+| `show/controls-mount.tsx` | The module entry the row names for `controls`: `mount` is `mountControlsScreen`. |

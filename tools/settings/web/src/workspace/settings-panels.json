@@ -1,0 +1,163 @@
+{
+  "title": "Settings",
+  "_what": "Settings as DATA (src/workspace/settings-screen.tsx): the rail's groups and pages in the order a person steps through them with the Previous and Next cards. A page names what it draws by one of `address` (a screen of the page, kept in place), `panel` (a panel settings-pages.tsx draws) or `tool` (a tool's own screen); an item with an `action` is not a page: `navigate` goes to its `href`. `words` are the shell's own words: the close button's name, and the Previous and Next cards'.",
+  "words": {
+    "close": "Close settings",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "default": "account",
+  "groups": [
+    {
+      "id": "personal",
+      "label": "Your account",
+      "items": [
+        {
+          "id": "account",
+          "label": "Account & security",
+          "icon": "UserRound",
+          "address": "/account"
+        },
+        {
+          "id": "workspace",
+          "label": "Workspace",
+          "icon": "Building2",
+          "panel": "workspace"
+        },
+        {
+          "id": "connections",
+          "label": "Connected accounts",
+          "icon": "Plug",
+          "address": "/connections"
+        },
+        {
+          "id": "ai",
+          "label": "AI apps & keys",
+          "icon": "Sparkles",
+          "address": "/ai-apps"
+        },
+        {
+          "id": "privacy",
+          "label": "Privacy",
+          "icon": "LockKeyhole",
+          "address": "/settings/privacy"
+        },
+        {
+          "id": "billing",
+          "label": "Billing",
+          "icon": "CreditCard",
+          "address": "/billing"
+        },
+        {
+          "id": "plan",
+          "label": "Plans",
+          "icon": "Layers",
+          "address": "/plan"
+        },
+        {
+          "id": "invite",
+          "label": "Invite friends",
+          "icon": "UserPlus",
+          "address": "/invite"
+        }
+      ]
+    },
+    {
+      "id": "workspace",
+      "label": "Your workspace",
+      "items": [
+        {
+          "id": "calendar",
+          "label": "Calendar",
+          "icon": "CalendarDays",
+          "address": "/calendar/settings"
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "icon": "Mail",
+          "panel": "email"
+        },
+        {
+          "id": "recording",
+          "label": "Recording inputs",
+          "icon": "Mic",
+          "address": "/always-recording"
+        },
+        {
+          "id": "meeting-recording",
+          "label": "Meeting recording",
+          "icon": "Mic",
+          "address": "/record-audio"
+        },
+        {
+          "id": "appearance",
+          "label": "Look & feel",
+          "icon": "Palette",
+          "panel": "look"
+        },
+        {
+          "id": "colour-names",
+          "label": "Colour names",
+          "icon": "SwatchBook",
+          "panel": "colour-names"
+        },
+        {
+          "id": "notifications",
+          "label": "Notifications",
+          "icon": "Bell",
+          "address": "/notification-settings"
+        },
+        {
+          "id": "shortcuts",
+          "label": "Shortcuts",
+          "icon": "Keyboard",
+          "panel": "keymap"
+        },
+        {
+          "id": "sharing",
+          "label": "Members & sharing",
+          "icon": "Users",
+          "address": "/sharing"
+        },
+        {
+          "id": "menubar",
+          "label": "Menu bar",
+          "icon": "PanelTop",
+          "panel": "menubar"
+        },
+        {
+          "id": "devices",
+          "label": "Download apps",
+          "icon": "Download",
+          "address": "/devices"
+        },
+        {
+          "id": "whats-new",
+          "label": "What's new",
+          "icon": "Sparkles",
+          "panel": "whats-new"
+        },
+        {
+          "id": "contact",
+          "label": "Contact us",
+          "icon": "MessageSquareHeart",
+          "tool": "tool:tell-trillions-makers"
+        }
+      ]
+    },
+    {
+      "id": "session",
+      "label": "Session",
+      "items": [
+        {
+          "id": "sign-out",
+          "label": "Log out",
+          "icon": "LogOut",
+          "action": "navigate",
+          "href": "/work/sign-out"
+        }
+      ]
+    }
+  ]
+}

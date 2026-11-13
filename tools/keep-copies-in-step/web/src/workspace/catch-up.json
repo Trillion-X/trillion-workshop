@@ -1,0 +1,222 @@
+{
+  "_what": "What the person sees about whether every copy of their things is in step (src/workspace/catch-up.tsx, drawn by parts/ui/show/catch-up). `states` are open keys a source reports (this device, each device catching up, anything else that keeps a copy): each has its words (`label`, `label_one` for a count of one, `label_measured` when how far it got is measured; {count} and {percent} fill in), a `detail` line, a tone word (good, attention, bad, info, quiet), an icon, a `rank` (the highest ranking state any copy is in leads the mark), the `actions` it offers, `quiet` (nothing to show while it leads) and `moving` (work going on: the dot breathes). A state a source reports with no row here reads as its own words, quiet. `apart_state` is the state records kept as two versions put everything in, counted by how many, weighed by its rank against every copy's state. `ages` turn a copy that has not caught up in a while into another state. `actions` are the words of each action (what it does is the source's). `kinds` name the icon for a kind of device or record. `words` are every other word. Whether the mark shows at all, anywhere, is the person's show rules (subject `catch-up`, facts `state`, `tone`, `count`, `where`).",
+  "subject": "catch-up",
+  "states": {
+    "offline": {
+      "label": "Working offline",
+      "detail": "What you do here is kept on this device and goes up by itself when you are back online.",
+      "tone": "attention",
+      "icon": "CloudOff",
+      "rank": 60
+    },
+    "two-versions": {
+      "label": "{count} kept as two versions",
+      "label_one": "1 kept as two versions",
+      "detail": "Two of your devices changed the same thing apart. Both are kept until you choose.",
+      "tone": "attention",
+      "icon": "GitCompareArrows",
+      "rank": 55
+    },
+    "not-saved": {
+      "label": "{count} changes could not be saved",
+      "label_one": "1 change could not be saved",
+      "detail": "Your store refused them. They are kept here for 30 days: try them again, or drop them.",
+      "tone": "bad",
+      "icon": "TriangleAlert",
+      "rank": 58,
+      "actions": [
+        "try-saved-again",
+        "drop-saved"
+      ]
+    },
+    "waiting": {
+      "label": "{count} changes waiting",
+      "label_one": "1 change waiting",
+      "detail": "Kept on this device until your store takes them.",
+      "tone": "info",
+      "icon": "CloudUpload",
+      "rank": 40,
+      "actions": [
+        "send-now"
+      ],
+      "moving": true
+    },
+    "catching-up": {
+      "label": "Catching up",
+      "label_measured": "Catching up {percent}%",
+      "detail": "Getting what changed on your other devices.",
+      "tone": "info",
+      "icon": "RefreshCw",
+      "rank": 35,
+      "moving": true
+    },
+    "behind": {
+      "label": "Not caught up in a while",
+      "detail": "A device has not caught up for days. It catches up the next time it is open and online.",
+      "tone": "attention",
+      "icon": "Clock",
+      "rank": 20
+    },
+    "caught-up": {
+      "label": "All caught up",
+      "tone": "good",
+      "icon": "CloudCheck",
+      "rank": 0,
+      "quiet": true
+    }
+  },
+  "ages": [
+    {
+      "from": [
+        "caught-up",
+        "waiting"
+      ],
+      "older_than_ms": 259200000,
+      "becomes": "behind"
+    }
+  ],
+  "actions": {
+    "try-saved-again": {
+      "label": "Try again",
+      "icon": "RotateCw",
+      "pending": "Sending",
+      "done": "Sent"
+    },
+    "drop-saved": {
+      "label": "Drop them",
+      "icon": "Trash2",
+      "pending": "Dropping",
+      "done": "Dropped"
+    },
+    "send-now": {
+      "label": "Send now",
+      "icon": "Send",
+      "pending": "Sending",
+      "done": "Sent"
+    }
+  },
+  "kinds": {
+    "": {
+      "icon": "MonitorSmartphone"
+    },
+    "computer": {
+      "icon": "Laptop"
+    },
+    "phone": {
+      "icon": "Smartphone"
+    },
+    "tablet": {
+      "icon": "Tablet"
+    },
+    "browser": {
+      "icon": "Globe"
+    },
+    "watch": {
+      "icon": "Watch"
+    },
+    "file": {
+      "icon": "FileText"
+    },
+    "list-row": {
+      "icon": "Rows3"
+    },
+    "message": {
+      "icon": "MessageSquare"
+    },
+    "record": {
+      "icon": "FileText"
+    }
+  },
+  "words": {
+    "this_device": "This device",
+    "caught_up_when": "Caught up",
+    "waiting_unit": "waiting",
+    "devices": "Your devices",
+    "two_versions": "Kept as two versions",
+    "versions_unit": "versions",
+    "apart_when": "Changed apart on two devices",
+    "other_copy": "Another copy of your records",
+    "all_in_step": "All caught up",
+    "try_again": "Try again",
+    "changed_apart": "{count} changed apart. Pick what to keep for each.",
+    "pick_each": "Pick which version of each to keep",
+    "same_one": "1 more is the same in both",
+    "same_many": "{count} more are the same in both",
+    "keep_side": "Keep {from}'s",
+    "keep_both": "Keep both",
+    "merge": "Keep my picks",
+    "empty": "Empty",
+    "menu_label": "Two versions",
+    "send_failed": "Your store has not taken them yet. They stay on this device and go up by themselves.",
+    "reading": "Reading your devices",
+    "read_failed": "Your devices could not be read",
+    "none_apart": "Nothing kept as two versions",
+    "none_apart_detail": "When two of your devices change the same thing apart, both versions wait here until you pick."
+  },
+  "send_wait_ms": 20000,
+  "store": {
+    "read": "/work/api/catch-up",
+    "settle": "/work/api/catch-up/settle",
+    "here": "/work/api/catch-up/here"
+  },
+  "apart_state": "two-versions",
+  "device": {
+    "_what": "How this device names itself to the person's store and how often it says how it stands: the first `platforms` and `browsers` row whose `match` is in the browser's own description names it (`title`); none matching is `app`. It tells the store when its state or waiting count changes, and otherwise at most every `report_every_ms`.",
+    "key": "trillion.device",
+    "title": "{browser} on {platform}",
+    "platforms": [
+      {
+        "match": "iPhone",
+        "name": "iPhone"
+      },
+      {
+        "match": "iPad",
+        "name": "iPad"
+      },
+      {
+        "match": "Android",
+        "name": "Android"
+      },
+      {
+        "match": "CrOS",
+        "name": "Chromebook"
+      },
+      {
+        "match": "Macintosh",
+        "name": "Mac"
+      },
+      {
+        "match": "Windows",
+        "name": "Windows"
+      },
+      {
+        "match": "Linux",
+        "name": "Linux"
+      }
+    ],
+    "browsers": [
+      {
+        "match": "Edg/",
+        "name": "Edge"
+      },
+      {
+        "match": "Firefox/",
+        "name": "Firefox"
+      },
+      {
+        "match": "Chrome/",
+        "name": "Chrome"
+      },
+      {
+        "match": "CriOS/",
+        "name": "Chrome"
+      },
+      {
+        "match": "Safari/",
+        "name": "Safari"
+      }
+    ],
+    "app": "Trillion app",
+    "report_every_ms": 1800000
+  }
+}

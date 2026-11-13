@@ -1,0 +1,56 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-SHOW-EVERY-FILE-I-USED-NEWEST-FIRST-SCREEN-MOUNT",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "The owner's ruling of 2026-11-03 1:02 AM CST, carried by lane screens-owner-resume",
+  "message_multihash": "1f:ac5cd598516e4b0d37df690253bf0180ef0f4fe61292c82076e8ce32a49ac8cb",
+  "quote": "the engine and the web app keep only generic primitives, and features, screens and tools move one to one into Workshop tools"
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "show the Recent screen of every file used, newest first",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/show-every-file-i-used-newest-first/show/recent-mount.tsx"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/show-every-file-i-used-newest-first/web/src/workspace/",
+   "why": "the Recent screen itself, moved byte for byte from the web client; this file only names its mount function as the module entry its screen row asks for, and holds no screen code"
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "show the Recent screen of every file used, newest first",
+    "Recent screen module entry",
+    "screen module mount"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "mountRecentScreen",
+    "mount"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "ab26bad4ed74d91249ab6cfaf2cab288b3f5c435"
+    },
+    {
+     "repository": "trillion-apps",
+     "commit": "47eb271e080fd7d68761b4a3871d6d57368b563d"
+    }
+   ]
+  }
+ },
+ "test_refs": [
+  "web/test/screen-modules.test.mjs in trillion-apps (every screen module a row names is a file of its tool folder)"
+ ]
+}

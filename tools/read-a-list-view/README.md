@@ -183,3 +183,14 @@ It is not an engine row. A run the engine starts gets record rights for named re
 **Depended on by:**
 - the Lists screen;
 - the view publish of `tools/export-records-as-list-rows`, which calls this read.
+
+## Screens moved from the web client
+
+These files were moved byte for byte from the web client (`moved-from.json` names each file's source path, commit and identity). Their imports of the web shell's files stay as written; the client build answers them with the shell's files and opens each screen as a screen module named by its row (`screen.module`).
+
+| File | Purpose |
+|------|---------|
+| `web/src/workspace/record-set-screen.tsx` | Sent, Spend, Visitors and Price tests (`tool:screen-sent`, `tool:screen-spend`, `tool:screen-visitors`, `tool:screen-price-tests`): any list whose answer describes itself, drawn in the record views; each row's `input` names what it reads. |
+| `web/src/workspace/chart-screen.tsx` | Chart (`tool:screen-chart`): any reading or list as one chart. |
+| `show/record-set-mount.tsx` | The module entry the row names for `record-set`: `mount` is `mountRecordSetScreen`. |
+| `show/chart-mount.tsx` | The module entry the row names for `chart`: `mount` is `mountChartScreen`. |

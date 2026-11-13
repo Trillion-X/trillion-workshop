@@ -13,6 +13,9 @@ Recently Deleted and Archived for a person's files: `namespace-set-aside.mjs`, m
 | `do-work/delete-archive-and-put-back.mjs` | `deleteArchiveAndPutBack({ files, now, steps })`: the steps over files handed in, in an in-memory SQLite store (what `tool-rows.json` runs) |
 | `moved-from.json` | Where each file brought in came from, with the identity of its bytes |
 | `tool-rows.json` | The row `tool:delete-archive-and-put-back-my-files`, with a sample that deletes a note, archives and puts back a folder, and sweeps a month later |
+| `web/src/workspace/recently-deleted-screen.tsx` | The Recently Deleted screen (`tool:recently-deleted`): what the person deleted or archived, newest first, with the days each has left and Put back. Moved byte for byte from the web client (`moved-from.json`); it imports the web shell's files as it was written, and the client build answers those imports with the shell's files. |
+| `web/src/workspace/storage-release-panel.tsx` | The storage panel above that list: storage kept, what waits to be given back and when, and the person's release rules. Only that screen imports it. |
+| `show/recently-deleted-mount.tsx` | The screen's module entry, the file its row names: `mount` is the screen's own mount function. |
 
 Everything but `namespace-set-aside.mjs` and `do-work/` was brought in byte for byte from old trillion's `src/` at b6ae0ebf815f (4ffa1dc4a2^). The one difference is in `carry-tables-into-records.mjs`: it imports `canonical` from `../decide-with-a-method/read-data/decision-records.mjs` (line 41) instead of `./decision-store.mjs`, which defines it with the same line (line 53) but imports old trillion's record-log store, which the Workshop does not have.
 

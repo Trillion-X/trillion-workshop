@@ -1,0 +1,443 @@
+{
+  "_what": "Words, choices and limits for the Calendar's event forms (src/workspace/calendar-event-forms.tsx): the opened event, editing one, and putting one on, with the event's repeat, reminders, colour, privacy, availability, call link and private note. Repeat presets are rows: `rule` is the RRULE line, with {byday} (the weekday's two-letter code), {dom} (day of the month) and {nth} (which of that weekday in the month, -1 for the last) filled from the event's start; `label` takes {weekday}, {dom_ordinal}, {nth_word} and {date}. Add a way to repeat by adding a row. Reminder presets are rows of minutes before the start; units name how many minutes each is. Nothing here names a source: what a source can write is its row of src/calendar.json.",
+  "words": {
+    "new_title": "Event title",
+    "new_title_placeholder": "Event title",
+    "new_starts": "Starts",
+    "new_ends": "Ends",
+    "new_all_day": "All day",
+    "new_ends_all_day": "Last day",
+    "new_place": "Calendar",
+    "new_about": "Notes",
+    "new_put_on": "Create event",
+    "new_cancel": "Cancel",
+    "event_duplicate": "Duplicate event",
+    "event_duplicate_review": "Check guests, repeats, reminders, and the call link before creating this copy.",
+    "new_done": "{title} was added to {place}.",
+    "move_to": "New time",
+    "move": "Move",
+    "new_location": "Location or meeting link",
+    "new_attendee": "Invite an email address (optional)",
+    "event_edit": "Edit event",
+    "event_save": "Save event",
+    "event_kept": "Event updated",
+    "event_guests_notice": "Google will notify invited people about changes to this event.",
+    "join_call": "Join call",
+    "new_video": "Add a Google Meet link",
+    "attendee_invitation": "Google will email this person an invitation when you create the event.",
+    "end_after_start": "End time must be after the start time.",
+    "end_on_or_after_start": "The last day must be the start day or later.",
+    "event_series": "Edit repeat settings in Google Calendar",
+    "new_description": "Add description",
+    "new_guests": "Add guests",
+    "new_guests_placeholder": "Add guests",
+    "new_guest_remove": "Remove {email}",
+    "new_guest_invalid": "{email} is not an email address.",
+    "new_guests_limit": "You can invite up to {count} people here.",
+    "new_location_placeholder": "Add a room or a call",
+    "new_calendar": "Calendar",
+    "new_calendar_spaces": "Spaces",
+    "new_options": "Event options",
+    "new_busy": "Busy",
+    "new_free": "Free",
+    "new_cancel_quick": "Cancel",
+    "new_close_quick": "Close",
+    "event_save_conflict": "Check the times: the end must come after the start.",
+    "video_heading": "Video call",
+    "video_add": "Add a video call",
+    "video_change_meet": "Change to Meet",
+    "video_connect_others": "Connect others",
+    "video_remove": "Remove link",
+    "video_zoom": "Use Zoom",
+    "video_custom": "Use my call link",
+    "video_unavailable": "This calendar cannot add or change a video call here.",
+    "video_remove_unavailable": "This calendar cannot remove a call link from an existing event. Remove it in Google Calendar.",
+    "video_provider_none": "No call link will be added.",
+    "video_link_label": "Call link",
+    "repeat_custom": "Custom…",
+    "repeat_custom_heading": "Custom repeat",
+    "repeat_custom_save": "Save",
+    "repeat_custom_cancel": "Cancel",
+    "repeat_series_instance": "This event belongs to a series. Edit the series in Google Calendar to change how it repeats.",
+    "repeat_custom_current": "Custom repeat",
+    "note_add": "+ Add private note",
+    "note_placeholder": "Add private notes",
+    "note_heading": "Private note",
+    "note_save": "Save note",
+    "note_remove": "Remove note",
+    "note_cancel": "Cancel",
+    "note_note": "Only you see this. It is never sent to guests or Google.",
+    "note_unavailable": "A private note cannot be kept for this event.",
+    "note_failed": "The note could not be saved.",
+    "note_removed": "Note removed",
+    "note_kept": "Note saved",
+    "note_edit": "Edit note"
+  },
+  "event_options": {
+    "presentation": {
+      "repeatIcon": "Repeat",
+      "reminderIcon": "Bell"
+    },
+    "words": {
+      "repeat": "Repeat",
+      "reminder": "Reminders",
+      "minutesBefore": "minutes before",
+      "keepExisting": "Keep existing",
+      "noReminder": "No reminder",
+      "addReminder": "Add",
+      "customReminder": "Custom reminder",
+      "reminderAmount": "Amount",
+      "reminderUnit": "Unit",
+      "removeReminder": "Remove {label}",
+      "reminderLimit": "You can set up to {count} reminders.",
+      "reminderPresets": "Add a reminder",
+      "currentReminders": "Reminders on this event"
+    }
+  },
+  "repeat": {
+    "presets": [
+      {
+        "id": "none",
+        "label": "Does not repeat",
+        "rule": null
+      },
+      {
+        "id": "day",
+        "label": "Every day",
+        "rule": "RRULE:FREQ=DAILY"
+      },
+      {
+        "id": "weekday",
+        "label": "Every weekday",
+        "rule": "RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR"
+      },
+      {
+        "id": "week",
+        "label": "Every {weekday}",
+        "rule": "RRULE:FREQ=WEEKLY;BYDAY={byday}"
+      },
+      {
+        "id": "other_week",
+        "label": "Every other {weekday}",
+        "rule": "RRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY={byday}"
+      },
+      {
+        "id": "month_day",
+        "label": "Monthly on the {dom_ordinal}",
+        "rule": "RRULE:FREQ=MONTHLY;BYMONTHDAY={dom}"
+      },
+      {
+        "id": "month_nth",
+        "label": "Monthly on the {nth_word} {weekday}",
+        "rule": "RRULE:FREQ=MONTHLY;BYDAY={nth}{byday}"
+      },
+      {
+        "id": "year",
+        "label": "Yearly on {date}",
+        "rule": "RRULE:FREQ=YEARLY"
+      }
+    ],
+    "weekday_names": [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ],
+    "weekday_codes": [
+      "SU",
+      "MO",
+      "TU",
+      "WE",
+      "TH",
+      "FR",
+      "SA"
+    ],
+    "nth_words": {
+      "1": "1st",
+      "2": "2nd",
+      "3": "3rd",
+      "4": "4th",
+      "-1": "last"
+    },
+    "ordinal_suffixes": {
+      "one": "st",
+      "two": "nd",
+      "few": "rd",
+      "other": "th"
+    },
+    "describe": {
+      "every": "Every {interval} {unit}",
+      "every_one": "Every {unit}",
+      "units": {
+        "DAILY": [
+          "day",
+          "days"
+        ],
+        "WEEKLY": [
+          "week",
+          "weeks"
+        ],
+        "MONTHLY": [
+          "month",
+          "months"
+        ],
+        "YEARLY": [
+          "year",
+          "years"
+        ]
+      },
+      "on": "on {days}",
+      "until": "until {date}",
+      "count": "{count} times",
+      "custom": "Custom repeat"
+    },
+    "weekday_short": [
+      "Sun",
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat"
+    ],
+    "frequencies": [
+      {
+        "value": "day",
+        "label": "day",
+        "rrule": "DAILY"
+      },
+      {
+        "value": "week",
+        "label": "week",
+        "rrule": "WEEKLY",
+        "weekdays": true
+      },
+      {
+        "value": "month",
+        "label": "month",
+        "rrule": "MONTHLY"
+      },
+      {
+        "value": "year",
+        "label": "year",
+        "rrule": "YEARLY"
+      }
+    ],
+    "weekdays": [
+      {
+        "value": "mon",
+        "label": "Mon",
+        "code": "MO"
+      },
+      {
+        "value": "tue",
+        "label": "Tue",
+        "code": "TU"
+      },
+      {
+        "value": "wed",
+        "label": "Wed",
+        "code": "WE"
+      },
+      {
+        "value": "thu",
+        "label": "Thu",
+        "code": "TH"
+      },
+      {
+        "value": "fri",
+        "label": "Fri",
+        "code": "FR"
+      },
+      {
+        "value": "sat",
+        "label": "Sat",
+        "code": "SA"
+      },
+      {
+        "value": "sun",
+        "label": "Sun",
+        "code": "SU"
+      }
+    ],
+    "recurrence_words": {
+      "repeat": "Repeat",
+      "every": "Every",
+      "interval": "Interval",
+      "on": "On",
+      "ends": "Ends",
+      "never": "Never",
+      "onDate": "On",
+      "after": "After",
+      "occurrences": "occurrences"
+    }
+  },
+  "reminders": {
+    "max": 5,
+    "max_minutes": 40320,
+    "at_start": "At start",
+    "before": "{amount} {unit} before",
+    "presets": [
+      {
+        "minutes": 0
+      },
+      {
+        "minutes": 1
+      },
+      {
+        "minutes": 5
+      },
+      {
+        "minutes": 15
+      },
+      {
+        "minutes": 30
+      },
+      {
+        "minutes": 60
+      }
+    ],
+    "units": [
+      {
+        "id": "minutes",
+        "minutes": 1,
+        "one": "minute",
+        "other": "minutes"
+      },
+      {
+        "id": "hours",
+        "minutes": 60,
+        "one": "hour",
+        "other": "hours"
+      },
+      {
+        "id": "days",
+        "minutes": 1440,
+        "one": "day",
+        "other": "days"
+      }
+    ]
+  },
+  "colors": {
+    "keys": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "A",
+      "B"
+    ],
+    "default_key": "0",
+    "default_label": "Calendar default"
+  },
+  "availability": {
+    "default": "opaque",
+    "tooltips": {
+      "opaque": "Change to free",
+      "transparent": "Change to busy"
+    },
+    "icons": {
+      "opaque": "CircleDot",
+      "transparent": "Circle"
+    },
+    "labels": {
+      "opaque": "Busy",
+      "transparent": "Free"
+    }
+  },
+  "event_properties": {
+    "presentation": {
+      "color": {
+        "triggerDisplay": "swatch"
+      },
+      "privacy": {
+        "triggerDisplay": "icon",
+        "icon": "LockKeyhole"
+      },
+      "availability": {
+        "triggerDisplay": "choice",
+        "icon": "EllipsisVertical"
+      }
+    },
+    "words": {
+      "color": "Color",
+      "privacy": "Privacy",
+      "availability": "Availability",
+      "keep": "Keep current",
+      "current": "Current: {label}",
+      "default": "Use calendar defaults",
+      "colors_unavailable": "Event colors could not be loaded. Try refreshing the calendar."
+    }
+  },
+  "guests": {
+    "max": 20
+  },
+  "new_event": {
+    "post": "/community/{place}/events",
+    "popover_icons": {
+      "description": "AlignLeft",
+      "guests": "Users",
+      "location": "MapPin",
+      "calendar": "CalendarDays"
+    }
+  },
+  "meeting_provider": {
+    "preference_key": "calendar-meeting-provider",
+    "words": {
+      "heading": "Default meeting provider",
+      "about": "The call link new events get.",
+      "none": "None",
+      "meet": "Google Meet",
+      "zoom": "Zoom",
+      "custom": "Custom",
+      "zoom_link": "Your Zoom meeting link",
+      "custom_link": "Your call link",
+      "saved": "Default meeting provider saved",
+      "failed": "The default meeting provider could not be saved."
+    },
+    "choices": [
+      {
+        "id": "none",
+        "key": "none"
+      },
+      {
+        "id": "meet",
+        "key": "meet"
+      },
+      {
+        "id": "zoom",
+        "key": "zoom",
+        "link": true
+      },
+      {
+        "id": "custom",
+        "key": "custom",
+        "link": true
+      }
+    ],
+    "default": "none",
+    "max_link_chars": 2000
+  },
+  "private_note": {
+    "key_prefix": "calendar-note:",
+    "max_chars": 2000,
+    "max_key_chars": 160
+  },
+  "declined": {
+    "preference_key": "calendar-show-declined",
+    "default": true,
+    "words": {
+      "label": "Show declined events",
+      "about": "Events you declined stay on the calendar, struck through.",
+      "failed": "The setting could not be saved."
+    }
+  }
+}

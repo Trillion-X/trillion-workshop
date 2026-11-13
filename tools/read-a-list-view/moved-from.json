@@ -1,0 +1,54 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion-apps",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "web/src/workspace/chart-screen.tsx",
+      "commit": "6c5d561107b6fd7c7800d8c400513108e0a472be",
+      "to": "tools/read-a-list-view/web/src/workspace/chart-screen.tsx",
+      "source_identity": "1f:75bc1aae07017690c5dbbcf19a1d1828655ddf0ac2144fedbe0e93c03edc2f3b",
+      "identity": "1f:75bc1aae07017690c5dbbcf19a1d1828655ddf0ac2144fedbe0e93c03edc2f3b",
+      "stays": [
+        "web/parts/ui/show/chart/ChartPlacement.tsx",
+        "web/parts/ui/show/chart/chart-from-records.ts",
+        "web/parts/ui/show/chart/chart-types.ts",
+        "web/parts/ui/show/container/index.ts",
+        "web/parts/ui/show/dropdown/index.ts",
+        "web/parts/ui/show/placement-kept/placement-kept.ts",
+        "web/parts/ui/show/react-surface-mount/index.ts",
+        "web/parts/ui/show/record-views/record-set.tsx",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/lazy-screen.ts",
+        "web/src/workspace/open-screen.ts",
+        "web/src/workspace/store-changes.ts"
+      ]
+    },
+    {
+      "from": "web/src/workspace/record-set-screen.tsx",
+      "commit": "6c5d561107b6fd7c7800d8c400513108e0a472be",
+      "to": "tools/read-a-list-view/web/src/workspace/record-set-screen.tsx",
+      "source_identity": "1f:4a4765159d04e9e48d90e36682c613b3192205153b42c02e1d5ab004aafc0923",
+      "identity": "1f:4a4765159d04e9e48d90e36682c613b3192205153b42c02e1d5ab004aafc0923",
+      "stays": [
+        "web/parts/ui/show/breadcrumb/mount-breadcrumb.tsx",
+        "web/parts/ui/show/container/index.ts",
+        "web/parts/ui/show/placement-kept/placement-kept.ts",
+        "web/parts/ui/show/react-surface-mount/index.ts",
+        "web/parts/ui/show/record-views/record-set.tsx",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/src/workspace/addressed-record-set.tsx",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/lazy-screen.ts",
+        "web/src/workspace/open-screen.ts",
+        "web/src/workspace/record-filter.ts",
+        "web/src/workspace/scope-focus.ts",
+        "web/src/workspace/store-changes.ts"
+      ]
+    }
+  ]
+}

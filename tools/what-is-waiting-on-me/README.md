@@ -27,3 +27,12 @@ The tool names no source, kind of record or thing that can wait. A source row is
 **Depends on:** Node 24 only.
 
 **Depended on by:** `tool-rows.json`; the workflows that name `tool:what-is-waiting-on-me`.
+
+## Screens
+
+Moved byte for byte from the web client (`moved-from.json` names each file's source path, commit and identity); the client build opens each from this folder as a screen module and shares the web shell's files it imports with the page.
+
+| File | Purpose |
+|------|---------|
+| `web/src/workspace/waiting-screen.tsx` | The screen: Waiting on you, one thing at a time (`tool:screen-waiting`) |
+| `show/waiting-mount.tsx` | Its mount entry: the one `mount(element, props)` export the row's `screen.module.entry` names |

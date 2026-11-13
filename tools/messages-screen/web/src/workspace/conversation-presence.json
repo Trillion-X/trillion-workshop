@@ -1,0 +1,18 @@
+{
+  "_what": "How people in a conversation are told apart on screen, read by src/workspace/conversation-presence.ts and drawn under the chat in src/workspace/messages-screen.tsx. `view` is the room view people watching the conversation share (src/board-room.mjs: only people on the same view hear each other). Times are milliseconds.",
+  "view": "messages",
+  "typing_word": "Typing",
+  "typing_every_ms": 2000,
+  "typing_for_ms": 5000,
+  "heard_for_ms": 30000,
+  "idle_after_ms": 120000,
+  "typing_one": "{name} is typing",
+  "typing_two": "{first} and {second} are typing",
+  "typing_many": "Several people are typing",
+  "here_one": "{name} is here",
+  "here_many": "{count} people are here",
+  "away_one": "{name} is away",
+  "away_many": "{count} are away",
+  "ai_here": "{name} is here",
+  "ai_away": "{name} has not been here lately"
+}

@@ -77,6 +77,24 @@
       "found_by": "same bytes"
     },
     {
+      "from": "parts/record-video/show/RecordVideoPanel.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-video-with-teleprompter/show/RecordVideoPanel.tsx",
+      "source_identity": "1f:a83e294a63d239aee7ba75b5b1c48e7cd009144d438f4b84981a2348ed39fb6e",
+      "identity": "1f:a83e294a63d239aee7ba75b5b1c48e7cd009144d438f4b84981a2348ed39fb6e",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/record-video/show/RecordingEnrichmentPanel.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/record-video-with-teleprompter/show/RecordingEnrichmentPanel.tsx",
+      "source_identity": "1f:082a549d99d8fe97ba5bedb2d0b863bd8f2191b69c19eb89562b18a92d285ed4",
+      "identity": "1f:082a549d99d8fe97ba5bedb2d0b863bd8f2191b69c19eb89562b18a92d285ed4",
+      "found_by": "same bytes"
+    },
+    {
       "from": "parts/record-video/show/browser-media-capture.ts",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
@@ -113,24 +131,6 @@
       "found_by": "same bytes"
     },
     {
-      "from": "parts/record-video/show/RecordingEnrichmentPanel.tsx",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/record-video-with-teleprompter/show/RecordingEnrichmentPanel.tsx",
-      "source_identity": "1f:082a549d99d8fe97ba5bedb2d0b863bd8f2191b69c19eb89562b18a92d285ed4",
-      "identity": "1f:082a549d99d8fe97ba5bedb2d0b863bd8f2191b69c19eb89562b18a92d285ed4",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "parts/record-video/show/RecordVideoPanel.tsx",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/record-video-with-teleprompter/show/RecordVideoPanel.tsx",
-      "source_identity": "1f:a83e294a63d239aee7ba75b5b1c48e7cd009144d438f4b84981a2348ed39fb6e",
-      "identity": "1f:a83e294a63d239aee7ba75b5b1c48e7cd009144d438f4b84981a2348ed39fb6e",
-      "found_by": "same bytes"
-    },
-    {
       "from": "parts/record-video/show/setup-observer.ts",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
@@ -147,6 +147,42 @@
       "source_identity": "1f:51b6e9e07221ff50938ed22210d3c2c98f7a9027cf91e2b5e8e4ce923bbd0938",
       "identity": "1f:51b6e9e07221ff50938ed22210d3c2c98f7a9027cf91e2b5e8e4ce923bbd0938",
       "found_by": "same bytes"
+    },
+    {
+      "from": "web/src/workspace/record-page-screens.json",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/record-video-with-teleprompter/web/src/workspace/record-page-screens.json",
+      "source_identity": "1f:4d30565f73375440b3150816c5d5963b0525eded30213370b10245e52f3251d2",
+      "identity": "1f:4d30565f73375440b3150816c5d5963b0525eded30213370b10245e52f3251d2"
+    },
+    {
+      "from": "web/src/workspace/record-video-screen.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/record-video-with-teleprompter/web/src/workspace/record-video-screen.tsx",
+      "source_identity": "1f:b181a87095a0922fa64a44a74aada7a25c6a312101522c7cc7ab80755a780f1c",
+      "identity": "1f:5dd6a0f48c11305c392316ed322d7c3579590ea1aca8b48ffd928d498f7c9c49",
+      "stays": [
+        "web/parts/record-video/do-work/recording-session-from-presentation-plan.mjs",
+        "web/parts/record-video/show/RecordVideoPanel.tsx",
+        "web/parts/record-video/show/live-recording.ts",
+        "web/parts/screen-arrangement/show/use-focus-container-while.ts",
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/react-surface-mount/index.ts",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/lazy-screen.ts",
+        "web/src/workspace/made-previews.ts",
+        "web/src/workspace/open-screen.ts",
+        "web/src/workspace/recording.json",
+        "web/src/workspace/recording.mjs",
+        "web/src/workspace/recordings.ts",
+        "web/src/workspace/records.ts",
+        "web/src/workspace/screens.mjs",
+        "web/src/workspace/script-view.ts",
+        "web/src/workspace/sharing-sheet.tsx",
+        "web/src/workspace/write-with-my-ai.tsx"
+      ]
     }
   ]
 }

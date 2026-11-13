@@ -17,6 +17,27 @@
       "to": "tools/show-every-file-i-used-newest-first/src/recent-files.mjs",
       "source_identity": "1f:4bf6ca7ba69d285431512811501c0344dc76468e7124904de5d6ed6cabc30fd8",
       "identity": "1f:649c8d4ee45922b7899d4ff7d2ba0982e3dd980666fdf8cf34e8cc9ec18fe03b"
+    },
+    {
+      "from": "web/src/workspace/recent-screen.tsx",
+      "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
+      "to": "tools/show-every-file-i-used-newest-first/web/src/workspace/recent-screen.tsx",
+      "source_identity": "1f:eed6b7ce30cef2011d524c7e522754d9e967e5169fb3899a2f5cf80ab174c771",
+      "identity": "1f:eed6b7ce30cef2011d524c7e522754d9e967e5169fb3899a2f5cf80ab174c771",
+      "stays": [
+        "web/parts/ui/show/media-preview/index.ts",
+        "web/parts/ui/show/placeable-surface-intent/placeable-surface-intent.ts",
+        "web/parts/ui/show/record-views/record-views.tsx",
+        "web/parts/ui/show/relative-time/relative-time.ts",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/file-picture.ts",
+        "web/src/workspace/made-previews.ts",
+        "web/src/workspace/open-screen.ts",
+        "web/src/workspace/record-filter.ts",
+        "web/src/workspace/store-changes.ts"
+      ]
     }
   ]
 }

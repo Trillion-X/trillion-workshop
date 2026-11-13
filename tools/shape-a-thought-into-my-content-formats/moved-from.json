@@ -14,6 +14,32 @@
       "byte_copy_commit": "9f150361c689d0ed4dba707e5c4fb832584d71d1",
       "changed": true,
       "found_by": "same bytes"
+    },
+    {
+      "from": "web/src/workspace/formats-screen.tsx",
+      "commit": "6c5d561107b6fd7c7800d8c400513108e0a472be",
+      "to": "tools/shape-a-thought-into-my-content-formats/web/src/workspace/formats-screen.tsx",
+      "source_identity": "1f:ed5a3322b63a21bc0457cec34b153885ecc321d7b3717d619f65f6754822ac5d",
+      "identity": "1f:d0743e0231fff85132feabb1a6b4bfec5eddb5eb0c9f80685bf63a9c560a76e1",
+      "stays": [
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/listing-card/index.ts",
+        "web/parts/ui/show/react-surface-mount/index.ts",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/recording.mjs"
+      ]
+    },
+    {
+      "from": "web/src/workspace/open-record-video.ts",
+      "commit": "6c5d561107b6fd7c7800d8c400513108e0a472be",
+      "to": "tools/shape-a-thought-into-my-content-formats/web/src/workspace/open-record-video.ts",
+      "source_identity": "1f:97b9cc118dea7f073a199caa29579d548fd3fa9c33c68ddceb4033e7d87ec812",
+      "identity": "1f:97b9cc118dea7f073a199caa29579d548fd3fa9c33c68ddceb4033e7d87ec812",
+      "stays": [
+        "web/src/workspace/open-screen.ts"
+      ]
     }
   ]
 }

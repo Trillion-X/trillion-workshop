@@ -61,3 +61,13 @@ A person's sales funnels, read from their own records: the offers in order, the 
 **Depends on:** Node in the tool container.
 
 **Depended on by:** Trillion's deploy (it reads `tool-rows.json` and bundles the files a row names).
+
+## Screens moved from the web client
+
+These files were moved byte for byte from the web client (`moved-from.json` names each file's source path, commit and identity). Their imports of the web shell's files stay as written; the client build answers them with the shell's files and opens each screen as a screen module named by its row (`screen.module`).
+
+| File | Purpose |
+|------|---------|
+| `web/src/workspace/funnels-screen.tsx` | Funnels and Funnel (`tool:screen-funnels`, `tool:screen-funnel`): every funnel file in the person's Funnels folder, and one funnel stage by stage. |
+| `show/funnels-mount.tsx` | The module entry the row names for `funnels`: `mount` is `mountFunnelsScreen`. |
+| `show/funnel-mount.tsx` | The module entry the row names for `funnel`: `mount` is `mountFunnelScreen`. |

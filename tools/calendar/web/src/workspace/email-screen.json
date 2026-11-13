@@ -1,0 +1,25 @@
+{
+  "composition": {
+    "kept_at": "screen-arrangement-of::trillion.mail::panes",
+    "words": {
+      "arrange": "Arrange mail",
+      "done": "Done arranging",
+      "layout": "Mail"
+    },
+    "pieces": [
+      { "id": "rail", "label": "Folders and accounts" },
+      { "id": "list", "label": "Messages" },
+      { "id": "detail", "label": "Message and draft" }
+    ],
+    "arrangement": {
+      "kind": "split",
+      "dir": "row",
+      "sizes": [1, 2, 3],
+      "children": [
+        { "kind": "pane", "surfaces": ["rail"] },
+        { "kind": "pane", "surfaces": ["list"] },
+        { "kind": "pane", "surfaces": ["detail"] }
+      ]
+    }
+  }
+}

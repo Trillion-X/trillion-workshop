@@ -14,3 +14,10 @@ The Marketplace shelf: everything a person's AI can use, theirs and everyone's (
 | `ports/` | The port contracts of the three do-work files |
 | `test/make-shelf-tiles.test.mjs` | Tiles against a made-up icons folder: own icons, an alias, the kind icon, machine titles left out, the job cut, the page file, icon files read and never run |
 | `tool-rows.json` | The rows `tool:read-rows-as-marketplace-shelf-items` and `tool:make-marketplace-tiles-with-their-icons` (on the person's computer) |
+
+## Screens
+
+| File | Purpose |
+|------|---------|
+| `web/src/workspace/marketplace-screen.tsx` | The Marketplace screen (`tool:screen-marketplace`): one shelf of everything a person's AI can use, read through the kinds in `marketplace-kinds.json`. Moved byte for byte from the web client (`moved-from.json`); it imports the web shell's files as it was written, and the client build answers those imports with the shell's files. |
+| `show/marketplace-mount.tsx` | The screen's module entry, the file its row names: `mount` is the screen's own mount function. |

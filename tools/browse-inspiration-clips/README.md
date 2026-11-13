@@ -12,6 +12,8 @@ Inspiration: everything worth making from, as named rows of cards (the next pick
 | `browse-inspiration.mjs` | `browseInspiration({ sources })`: the rows of cards over the source answers handed in, as one run (what `tool-rows.json` runs) |
 | `moved-from.json` | Where each brought-in file came from, and both identities |
 | `tool-rows.json` | The row `tool:sort-inspiration-clips-into-card-rows`, with a sample run over a made-up clip and format |
+| `web/src/workspace/inspiration-screen.tsx` | The Inspiration screen (`tool:inspiration`): the rows this tool answers, drawn by the shared card layouts as named rows, a shuffled wall or a grid, with the actions each card offers. Moved byte for byte from the web client (`moved-from.json`); it imports the web shell's files as it was written, and the client build answers those imports with the shell's files. |
+| `show/inspiration-mount.tsx` | The screen's module entry, the file its row names: `mount` is the screen's own mount function. |
 | `README.md` | This file |
 
 ## The row

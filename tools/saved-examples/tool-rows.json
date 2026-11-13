@@ -197,8 +197,8 @@
     },
     "screen": {
      "group": "content-plan",
-     "kind": "app-entry",
-     "entry": "saved-examples",
+     "kind": "module",
+     "module": { "package": "saved-examples", "entry": "show/saved-examples-mount.tsx" },
      "icon": "Bookmark",
      "label": "Saved examples",
      "about": "Posts that worked, kept to learn from."

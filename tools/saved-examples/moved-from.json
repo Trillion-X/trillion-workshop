@@ -17,6 +17,24 @@
       "to": "tools/saved-examples/from-old-trillion/src/saved-examples.mjs",
       "source_identity": "1f:2f3983566dac754a5fdf0277836fe9529976da35a33d0a812ad57e3dae45d050",
       "identity": "1f:2f3983566dac754a5fdf0277836fe9529976da35a33d0a812ad57e3dae45d050"
+    },
+    {
+      "from": "web/src/workspace/saved-examples-screen.tsx",
+      "commit": "6c5d561107b6fd7c7800d8c400513108e0a472be",
+      "to": "tools/saved-examples/web/src/workspace/saved-examples-screen.tsx",
+      "source_identity": "1f:d974d85c118a569b6d194983e295b283dde005a6ec518d9df69fa5a3cb9e677c",
+      "identity": "1f:6167cda886580c637a5af22b6d77eee43c36684b8e4da10f06206efea859992d",
+      "stays": [
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/link-preview/index.ts",
+        "web/parts/ui/show/react-surface-mount/index.ts",
+        "web/parts/ui/show/record-views/record-views.tsx",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/read-link.ts",
+        "web/src/workspace/record-filter.ts"
+      ]
     }
   ]
 }

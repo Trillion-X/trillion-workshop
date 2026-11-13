@@ -1,0 +1,10 @@
+{
+  "_what": "How a message that has not reached the account yet shows in its conversation (src/workspace/pending-lines.ts, drawn by the shared chat in src/workspace/messages-screen.tsx). The words are the person's own, shown at once as an optimistic echo from the device outbox (src/workspace/share-outbox.ts) with who-said-it reading `author`; Resend and Cancel are two ordinary message actions on that echo. `ref_prefix` is what marks an echo's reference so only echoes offer them.",
+  "ref_prefix": "pending:",
+  "author": "You - waiting to send",
+  "resend": { "intent": "resend-pending", "label": "Send again", "glyph": "RotateCw" },
+  "cancel": { "intent": "cancel-pending", "label": "Don't send", "glyph": "X", "confirm": "Throw this message away without sending it?" },
+  "resent": "Sent.",
+  "still_waiting": "Still could not reach your account. It stays here and is sent again on its own.",
+  "gone": "That message is no longer waiting."
+}

@@ -41,6 +41,8 @@ The old `/show-rules/accounts` and `/show-rules/set { give }` have no rows, beca
 | `ports/show-rules-store.json`, `ports/show-rules-door.json` | The port contracts |
 | `test/show-rules-*.test.mjs`, `test/show-type*.test.mjs` | The five old trillion tests; only their paths changed |
 | `test/show-rules.test.mjs` | Each row over made-up records against the records door stand-in |
+| `show/show-rules-admin-mount.tsx` | The module entry of `tool:screen-show-rules-admin`: its `mount` is `mountShowRulesAdminScreen`. |
+| `web/src/workspace/show-rules-admin-screen.tsx` | The admin's screen for sharing a preset with people: the preset's copy and its grant, written through the generic records write. Moved byte for byte from the web client (`moved-from.json`). |
 
 ## Dependencies
 
