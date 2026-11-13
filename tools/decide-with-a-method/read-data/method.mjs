@@ -141,7 +141,7 @@ export function ungradedOf(entry) {
   return { checks, graded, missing: Math.max(0, checks - graded) };
 }
 
-export function methodCatalogue(methodData, checkRows = [], { grader = { grader: 'self', words: '' }, link = 'part_of' } = {}) {
+export function methodCatalogue(methodData, checkRows = [], { grader = { grader: 'self', words: '' }, link = 'part_of', kinds = [] } = {}) {
   if (!Array.isArray(methodData) || !methodData.length) throw new Error('Install at least one method.');
   const methods = loadMethods(methodData, link);
   const voices = new Map();
@@ -151,6 +151,20 @@ export function methodCatalogue(methodData, checkRows = [], { grader = { grader:
   for (const data of methodData) for (const purpose of data.default_for ?? []) if (!defaults.has(purpose)) defaults.set(purpose, data.id);
   const checksByStep = Map.groupBy(checks, row => row.step);
   const checksById = new Map(checks.map(row => [row.id, row]));
+
+  // The kind of decision a case declared at scope (`decision_kind` in the scope answer, one of the person's decision-kind
+  // rows), or null for a case that declared none. A check row that names kinds (`applies_to`) is asked only of those
+  // kinds; a row naming none is asked of every kind, and so is every check of a case with no kind.
+  const kindIdsOf = row => (Array.isArray(row.applies_to) ? row.applies_to.filter(nonempty) : []);
+  const caseKindOf = record => {
+    const kind = record.guidance?.[0]?.answer?.decision_kind;
+    return nonempty(kind) ? kind : null;
+  };
+  const appliesToKind = (row, kind) => !kind || !kindIdsOf(row).length || kindIdsOf(row).includes(kind);
+  const checkKind = answer => {
+    if (!kinds.length) return;
+    if (!kinds.some(row => row.id === answer.decision_kind)) throw new Error(`decision_kind must be one of the kinds of decision: ${kinds.map(row => row.id).join(', ')}`);
+  };
 
   // The method a purpose uses when none is chosen: the row whose `default_for` lists it, otherwise the decision
   // default, otherwise the first method.
@@ -236,9 +250,21 @@ export function methodCatalogue(methodData, checkRows = [], { grader = { grader:
     if (step.kind === 'scope') return [];
     const active = context(record) ?? {};
     const lineage = lineageFor(methodOf(record).id);
-    const own = checksOfBranch(checksByStep.get(step.id) ?? [], lineage, link).filter(row => !row.when || active[row.when] === true);
-    const named = (step.check_ids ?? []).map(id => checksById.get(id)).filter(row => row && !own.includes(row));
+    const kind = caseKindOf(record);
+    const own = checksOfBranch(checksByStep.get(step.id) ?? [], lineage, link).filter(row => (!row.when || active[row.when] === true) && appliesToKind(row, kind));
+    const named = (step.check_ids ?? []).map(id => checksById.get(id)).filter(row => row && !own.includes(row) && appliesToKind(row, kind));
     return [...own, ...named];
+  }
+
+  // The checks of this step the case's kind of decision leaves out, each with the kinds it applies to, so the reply can
+  // say what was skipped and why. A row its switch already turns off is not a skip.
+  function skippedChecksFor(record, step) {
+    const kind = caseKindOf(record);
+    if (step.kind === 'scope' || !kind) return [];
+    const active = context(record) ?? {};
+    const lineage = lineageFor(methodOf(record).id);
+    const rows = [...checksOfBranch(checksByStep.get(step.id) ?? [], lineage, link).filter(row => !row.when || active[row.when] === true), ...(step.check_ids ?? []).map(id => checksById.get(id)).filter(Boolean)];
+    return [...new Map(rows.filter(row => !appliesToKind(row, kind)).map(row => [row.id, { id: row.id, applies_to: kindIdsOf(row), reason: `This case is a ${kind} decision; this check applies to ${kindIdsOf(row).join(', ')} decisions only.` }])).values()];
   }
 
   function workflowsDue(record, step) {
@@ -312,6 +338,7 @@ export function methodCatalogue(methodData, checkRows = [], { grader = { grader:
     if (step.kind === 'scope') {
       const given = answer.decision_context;
       if (!object(given)) throw new Error('Decision context is required');
+      checkKind(answer);
       for (const check of method.checks) {
         if (check.id in method.preset) continue;
         const implied = check.on_when_any_other_is_on && method.checks.some(other => other.id !== check.id && (given[other.id] === true || method.preset[other.id] === true));
@@ -364,7 +391,7 @@ export function methodCatalogue(methodData, checkRows = [], { grader = { grader:
       const impliedOf = check => check.on_when_any_other_is_on && method.checks.some(other => other.id !== check.id && (given[other.id] === true || method.preset[other.id] === true));
       // Every switch turned off with no reason is named together, once, with the shape its reason takes.
       const unexplained = switches.filter(check => !given[check.id] && !impliedOf(check) && !object(answer.omission_reasons?.[check.id]));
-      return gather([...common, ...switches.map(check => () => {
+      return gather([...common, () => checkKind(answer), ...switches.map(check => () => {
         const implied = impliedOf(check);
         if (typeof given[check.id] !== 'boolean' && !(implied && given[check.id] === undefined)) throw new Error(`${check.id} must be true or false`);
         if (given[check.id] || implied) return;
@@ -491,6 +518,10 @@ export function methodCatalogue(methodData, checkRows = [], { grader = { grader:
       properties.decision_context = { type: 'object', required: open.filter(check => !check.on_when_any_other_is_on).map(check => check.id), properties: Object.fromEntries(open.map(check => [check.id, { type: 'boolean', description: check.question }])) };
       properties.omission_reasons = { type: 'object', description: 'For every check set to false, the reason that check asks for, citing case evidence', properties: Object.fromEntries(open.map(check => [check.id, withRefs(fieldsSchema(check.skip_requires ?? [], method, rules), rules)])) };
       required.push('decision_context');
+      if (kinds.length) {
+        properties.decision_kind = { type: 'string', enum: kinds.map(row => row.id), description: `What kind of decision this is. A check that names the kinds it applies to is asked only of those kinds: ${kinds.map(row => `${row.id} (${row.about ?? row.name ?? row.id})`).join('; ')}` };
+        required.push('decision_kind');
+      }
     } else {
       for (const field of step.fields) {
         properties[field.name] = shapeSchema(field, method, rules);
@@ -537,7 +568,7 @@ export function methodCatalogue(methodData, checkRows = [], { grader = { grader:
     const step = nextStepOf(record);
     if (!step) return null;
     const method = methodOf(record);
-    const fields = step.kind === 'scope' ? ['decision_context', 'omission_reasons'] : step.fields.map(field => field.name);
+    const fields = step.kind === 'scope' ? ['decision_context', 'omission_reasons', ...(kinds.length ? ['decision_kind'] : [])] : step.fields.map(field => field.name);
     const checklist = checklistFor(record, step);
     const stage = (method.backbone ?? []).find(item => item.steps.includes(step.id));
     const question = { step_id: step.id, ...(stage ? { stage: { id: stage.id, name: stage.name } } : {}), question: step.question, fields: checklist.length ? [...fields, 'checklist'] : fields, requires: ['evidence_refs'], optional: ['scratchpad'], answer_schema: answerSchema(method, step, checklist, workflowsDue(record, step)) };
@@ -553,6 +584,9 @@ export function methodCatalogue(methodData, checkRows = [], { grader = { grader:
     // Each check as its id and its question; what a good answer does and what it refuses come by id on request
     // (checkTexts), so a step of many checks is not sent whole every time it is asked.
     if (checklist.length) question.checklist = checklist.map(({ id, check }) => ({ id, check }));
+    // The checks this case's kind of decision leaves out, and why, so nothing drops without being said.
+    const skipped = skippedChecksFor(record, step);
+    if (skipped.length) question.skipped_checks = skipped;
     // Every id a verdict may target (checklist and due workflow runs), so the calling AI names one list for all of them.
     const verdictChecks = verdictChecksFor(record, step);
     if (verdictChecks.length) question.verdict_checks = verdictChecks.map(({ id }) => id);
@@ -595,7 +629,7 @@ export function methodCatalogue(methodData, checkRows = [], { grader = { grader:
   }
 
   return {
-    defaultMethodId, methodOf, howToSayIt, listMethods, snapshotMethod, stepsFor, nextStepOf, methodCoverage, checklistFor,
+    defaultMethodId, methodOf, howToSayIt, listMethods, snapshotMethod, stepsFor, nextStepOf, methodCoverage, checklistFor, skippedChecksFor,
     workflowsDue, validateMethodAnswer, decisionFieldsFor, decisionFieldsToJudge, decisionFieldsAsked, decisionFieldsSaid,
     checkAnswersToJudge, verdictChecksFor, judgeContext, currentQuestion, checkTexts,
   };

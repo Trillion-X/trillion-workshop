@@ -604,6 +604,8 @@
     "check_row": "check",
     "check_list": "list:checks",
     "check_step_field": "step",
+    "kind_row": "decision-kind",
+    "kind_list": "list:decision-kinds",
     "default_method": "universal",
     "step_parts_field": "parts",
     "step": "decision-step:",

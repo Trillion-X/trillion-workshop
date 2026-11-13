@@ -120,7 +120,7 @@ async function methodsOf(door, named) {
   return methods;
 }
 const methodIdOf = record => record?.method_id ?? record?.method?.id ?? record?.input?.method;
-const catalogue = (methods, checks = []) => methodCatalogue(methods, checks, { grader: settings.grader, link: LINK });
+const catalogue = (methods, checks = [], kinds = []) => methodCatalogue(methods, checks, { grader: settings.grader, link: LINK, kinds });
 // The method functions with the check rows of one step, each read by its id: the rows the step lists as its parts
 // (`records.step_parts_field`) and the rows it names by id (`check_ids`), so a call carries one step's checks and costs
 // as many reads as the step has checks, never the size of the list. A step written before it listed its parts is read
@@ -129,7 +129,9 @@ const catalogue = (methods, checks = []) => methodCatalogue(methods, checks, { g
 async function catalogueAt(door, methods, record, step = undefined) {
   const bare = catalogue(methods);
   const current = step === undefined ? bare.nextStepOf(record) : step;
-  if (!current || current.kind === 'scope') return bare;
+  // The kinds of decision are the person's own rows; the scope question is the one that names one, so only it reads them.
+  if (current?.kind === 'scope') return catalogue(methods, [], await rowsOf(door, NAMES.kind_row));
+  if (!current) return bare;
   const parts = current[NAMES.step_parts_field];
   const checks = Array.isArray(parts) ? [] : await rowsOf(door, NAMES.check_row, { [NAMES.check_step_field]: current.id });
   const ids = [...new Set([...(Array.isArray(parts) ? parts : []), ...(current.check_ids ?? [])])].filter(nonempty);

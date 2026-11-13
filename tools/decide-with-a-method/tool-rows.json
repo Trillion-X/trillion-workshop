@@ -529,6 +529,12 @@
          "records:list",
          "records:read"
         ]
+       },
+       {
+        "kind": "record:decision-kind",
+        "operations": [
+         "records:list"
+        ]
        }
       ]
      }
@@ -1131,6 +1137,12 @@
          "records:list",
          "records:read"
         ]
+       },
+       {
+        "kind": "record:decision-kind",
+        "operations": [
+         "records:list"
+        ]
        }
       ]
      }
@@ -1505,6 +1517,12 @@
         "operations": [
          "records:list",
          "records:read"
+        ]
+       },
+       {
+        "kind": "record:decision-kind",
+        "operations": [
+         "records:list"
         ]
        }
       ]
@@ -2167,6 +2185,12 @@
          "records:list",
          "records:read"
         ]
+       },
+       {
+        "kind": "record:decision-kind",
+        "operations": [
+         "records:list"
+        ]
        }
       ]
      }
@@ -2493,6 +2517,12 @@
         "operations": [
          "records:list"
         ]
+       },
+       {
+        "kind": "record:decision-kind",
+        "operations": [
+         "records:list"
+        ]
        }
       ]
      }
@@ -2796,6 +2826,12 @@
        },
        {
         "kind": "record:check",
+        "operations": [
+         "records:list"
+        ]
+       },
+       {
+        "kind": "record:decision-kind",
         "operations": [
          "records:list"
         ]
