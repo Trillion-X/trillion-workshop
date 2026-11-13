@@ -432,6 +432,13 @@
         ]
        },
        {
+        "kind": "decision-refs",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
         "kind": "decision-evidence",
         "operations": [
          "records:read",
@@ -1045,6 +1052,12 @@
         ]
        },
        {
+        "kind": "decision-refs",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
         "kind": "decision-evidence",
         "operations": [
          "records:read",
@@ -1403,6 +1416,13 @@
         ]
        },
        {
+        "kind": "decision-refs",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
         "kind": "decision-evidence",
         "operations": [
          "records:read",
@@ -1720,6 +1740,13 @@
        {
         "kind": "decision-call",
         "operations": [
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-refs",
+        "operations": [
+         "records:read",
          "records:write"
         ]
        },
@@ -2058,6 +2085,13 @@
         ]
        },
        {
+        "kind": "decision-refs",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
         "kind": "decision-evidence",
         "operations": [
          "records:read",
@@ -2385,6 +2419,13 @@
         ]
        },
        {
+        "kind": "decision-refs",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
         "kind": "decision-evidence",
         "operations": [
          "records:read",
@@ -2677,6 +2718,13 @@
        {
         "kind": "decision-call",
         "operations": [
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-refs",
+        "operations": [
+         "records:read",
          "records:write"
         ]
        },
@@ -2989,6 +3037,13 @@
         ]
        },
        {
+        "kind": "decision-refs",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
         "kind": "decision-evidence",
         "operations": [
          "records:read",
@@ -3267,6 +3322,13 @@
         "kind": "decision-step",
         "operations": [
          "records:read"
+        ]
+       },
+       {
+        "kind": "decision-refs",
+        "operations": [
+         "records:read",
+         "records:write"
         ]
        },
        {
@@ -3600,6 +3662,12 @@
         ]
        },
        {
+        "kind": "decision-refs",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
         "kind": "decision-evidence",
         "operations": [
          "records:read"
@@ -3894,6 +3962,12 @@
        },
        {
         "kind": "decision-step",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "decision-refs",
         "operations": [
          "records:read"
         ]
