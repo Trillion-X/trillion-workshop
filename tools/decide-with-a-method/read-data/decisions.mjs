@@ -30,7 +30,8 @@
 //   6. A decision is kept as shared only by ./share-a-decision.mjs, after its privacy checks.
 //   7. Every check a step asks is graded by a second judge: an answer is kept only with a verdict taken for each of its
 //      checks, an answer kept before this rule is asked again until its verdicts are added, and a decision is made only
-//      when every step is graded.
+//      when every step is graded. At the scope step the checks are the reasons of the switches turned off, when the
+//      method rows give a reason check (./method.mjs switchReasonsToJudge): each verdict rests on a case evidence ref.
 import { readFileSync } from 'node:fs';
 import { AnswerProblems, judgedProblems, methodCatalogue, refusalWords, ungradedOf } from './method.mjs';
 import { takeCallerVerdicts } from './verdicts.mjs';

@@ -104,7 +104,7 @@ const skippable = (step, row) => step.checks_skippable !== false && row.skip !==
 // A refusal names the check and the words of the check the answer does not address, so the caller knows what to add.
 export const refusalWords = (prefix, verdict) => `${prefix}${verdict.id}: ${verdict.why}${verdict.missing ? ` The check asks: "${String(verdict.missing).trim()}".` : ''}`;
 export function judgedProblems(verdicts) {
-  return (verdicts ?? []).filter(verdict => verdict.meets === false).map(verdict => refusalWords(String(verdict.id).startsWith('workflow_runs.') ? '' : 'checklist.', verdict));
+  return (verdicts ?? []).filter(verdict => verdict.meets === false).map(verdict => refusalWords(verdict.field ? `${verdict.field}.` : String(verdict.id).startsWith('workflow_runs.') ? '' : 'checklist.', verdict));
 }
 export const stepAnswers = (step, answer) => Object.fromEntries((step.fields ?? []).filter(field => answer?.[field.name] !== undefined).map(field => [field.name, answer[field.name]]));
 
@@ -475,7 +475,29 @@ export function methodCatalogue(methodData, checkRows = [], { grader = { grader:
   const decisionFieldsAsked = record => decisionFieldsFor(record).map(({ name, label, ask }) => ({ name, label, ask }));
   const decisionFieldsSaid = (record, decision) => decisionFieldsFor(record).filter(field => field.says && typeof decision[field.name] === 'string' && decision[field.name].trim()).map(field => field.says.replace('{value}', decision[field.name].trim().replace(/[.\s]+$/, '')));
 
+  // A scope switch turned off is a claim about the case, so its reason is a check a second judge grades, when the method
+  // rows say how: the switch's own `reason_check`, else the method's `answer_rules.switch_reason` ({question} is the
+  // switch's question). A switch the method presets, or one turned on by another, carries no reason and takes no verdict.
+  const switchReasonCheck = (method, row) => {
+    const rule = row.reason_check ?? method.answer_rules?.switch_reason;
+    if (!object(rule) || !nonempty(rule.check)) return null;
+    const fill = text => String(text ?? '').replaceAll('{question}', row.question ?? row.id);
+    return { id: row.id, check: fill(rule.check), good_answer: fill(rule.good_answer), ...(rule.refuses ? { refuses: fill(rule.refuses) } : {}) };
+  };
+  const judgedSwitches = record => { const method = methodOf(record); return method.checks.filter(row => !(row.id in method.preset)).map(row => switchReasonCheck(method, row)).filter(Boolean); };
+  // The switches this scope answer turns off whose reason is judged: each verdict rests on a case evidence ref, never
+  // only on the reason's own words, so the reason is weighed against the case's records.
+  function switchReasonsToJudge(record, answer) {
+    const method = methodOf(record);
+    const given = object(answer?.decision_context) ? answer.decision_context : {};
+    const off = new Set(method.checks.filter(row => !(row.id in method.preset) && given[row.id] === false).map(row => row.id));
+    return judgedSwitches(record).filter(row => off.has(row.id)).map(row => ({
+      ...row, skippable: true, handled: false, answer: JSON.stringify(answer.omission_reasons?.[row.id] ?? {}), field: 'omission_reasons', rests_on_refs: true,
+    }));
+  }
+
   function checkAnswersToJudge(record, step, answer) {
+    if (step.kind === 'scope') return switchReasonsToJudge(record, answer);
     const asked = checklistFor(record, step).map(row => {
       const item = answer.checklist?.[row.id] ?? {};
       return { id: row.id, check: row.check, good_answer: row.good_answer, ...(row.refuses ? { refuses: row.refuses } : {}), skippable: skippable(step, row), handled: item.handled, answer: item.handled === false ? item.because : item.how };
@@ -483,7 +505,7 @@ export function methodCatalogue(methodData, checkRows = [], { grader = { grader:
     return [...asked, ...workflowsDue(record, step).map(row => ({ ...workflowCheck(row), handled: true, answer: JSON.stringify(answer.workflow_runs?.[row.workflow_id] ?? {}) }))];
   }
   // Every id a caller's verdict may target at this step: the checklist ids and the due workflow ids.
-  const verdictChecksFor = (record, step) => [
+  const verdictChecksFor = (record, step) => step.kind === 'scope' ? judgedSwitches(record).map(({ id, check }) => ({ id, check })) : [
     ...checklistFor(record, step).map(({ id, check }) => ({ id, check })),
     ...workflowsDue(record, step).map(row => { const { id, check } = workflowCheck(row); return { id, check }; }),
   ];
@@ -592,7 +614,7 @@ export function methodCatalogue(methodData, checkRows = [], { grader = { grader:
     if (verdictChecks.length) question.verdict_checks = verdictChecks.map(({ id }) => id);
     // The AI calling Trillion may judge each check itself: its verdict goes beside this answer, keyed by the id in verdict_checks (read-data/verdicts.mjs takeCallerVerdicts).
     // Who judges and the words it is given are the caller's (methodCatalogue grader), so the words follow the grader.
-    if (verdictChecks.length && grader.words) { question.verdicts = grader.words; question.grader = grader.grader; }
+    if (verdictChecks.length && grader.words) { question.verdicts = step.kind === 'scope' && grader.switch_words ? grader.switch_words : grader.words; question.grader = grader.grader; }
     if (step.kind === 'scope') question.checks = method.checks.filter(check => !(check.id in method.preset));
     // The method's workflows whose switch is on
     // (each { workflow_id, when?, use }): candidates for a plan, each a recipe the caller runs with tool:start-a-recipe-run
@@ -623,6 +645,8 @@ export function methodCatalogue(methodData, checkRows = [], { grader = { grader:
     const switches = method.checks.filter(check => !(check.id in method.preset)).map(check => ({
       id: check.id, check: check.question, good_answer: `Turned off, it takes ${(check.skip_requires ?? []).map(spec => spec.ask ?? spec.name).join(' ') || 'its reason'}, citing case evidence.`,
       refuses: 'A switch turned off with no reason, or with a reason that does not cite the case evidence.', skippable: true,
+      // Its reason, turned off, is judged by this check: the judge reads it here by the switch's id.
+      ...(switchReasonCheck(method, check) ? { reason_check: (({ id, ...rest }) => rest)(switchReasonCheck(method, check)) } : {}),
     }));
     const byId = new Map([...switches, ...asked].map(row => [row.id, row]));
     return { texts: ids.filter(id => byId.has(id)).map(id => byId.get(id)), unknown: ids.filter(id => !byId.has(id)) };

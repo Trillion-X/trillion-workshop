@@ -7,7 +7,8 @@
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. A verdict is taken only for a check of this step, with meets true or false, resting on an evidence ref of the
-//      case or on at least eight characters of this answer, and naming who judged it.
+//      case or on at least eight characters of this answer (only on an evidence ref when the check is judged against the
+//      case's own records: `rests_on_refs`, a scope switch's reason), and naming who judged it.
 //   2. A refusal holds only when the words it says are missing are words of its check (or of what the check refuses).
 //   3. Taking verdicts refuses nothing itself: the checks with no verdict taken come back as `rest`, and the step's owner
 //      (./decisions.mjs) keeps an answer only when `rest` is empty.
@@ -34,13 +35,16 @@ export function takeCallerVerdicts(rows, given, { answer = null, refs = [] } = {
     if (taken.has(row.id)) { drop('a verdict for this check is already taken'); continue; }
     if (typeof item.meets !== 'boolean') { drop('meets must be true or false'); continue; }
     const rests = plain(item.rests_on);
-    if (!rests || !(refs.includes(String(item.rests_on).trim()) || (rests.length >= 8 && said.includes(rests)))) { drop('rests_on must name a case evidence ref, or quote at least 8 characters of this answer'); continue; }
+    const onRef = refs.includes(String(item.rests_on ?? '').trim());
+    // A check judged against the case's own records (a scope switch's reason) rests on an evidence ref of the case.
+    if (row.rests_on_refs && !onRef) { drop('rests_on must name a case evidence ref: this reason is judged against the case\'s own records'); continue; }
+    if (!rests || !(onRef || (rests.length >= 8 && said.includes(rests)))) { drop('rests_on must name a case evidence ref, or quote at least 8 characters of this answer'); continue; }
     if (!item.meets && !grounded({ missing: item.missing }, row)) { drop(`missing must copy words of the check: ${row.check}`); continue; }
     // Who judged it is kept with the verdict for audit, whichever grader the calling AI was given.
     const graded_by = String(item.graded_by ?? '').trim();
     if (!graded_by) { drop('graded_by must name who judged it'); continue; }
     taken.add(row.id);
-    verdicts.push({ id: row.id, meets: item.meets, why: item.meets ? '' : 'The answer does not meet this check.', missing: item.meets ? '' : String(item.missing).trim(), by: 'calling-ai', graded_by });
+    verdicts.push({ id: row.id, ...(row.field ? { field: row.field } : {}), meets: item.meets, why: item.meets ? '' : 'The answer does not meet this check.', missing: item.meets ? '' : String(item.missing).trim(), by: 'calling-ai', graded_by });
   }
   return { verdicts, rest: rows.filter(row => !taken.has(row.id)), dropped };
 }
