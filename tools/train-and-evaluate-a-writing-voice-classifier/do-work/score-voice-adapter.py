@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import faulthandler
+import importlib
 import importlib.util
 import json
 import math
@@ -27,27 +28,47 @@ faulthandler.dump_traceback_later(90, repeat=False, file=sys.stderr)
 
 HERE = Path(__file__).resolve().parent
 print("phase: importing scorer dependencies", file=sys.stderr, flush=True)
-# The decider model frame (common.py, which loads the decider package from its pinned model snapshot) is the caller's:
-# --decider-common-dir names the folder that holds it on the computer that trains (the person's setting). A test puts
-# stand-ins for common and decider in sys.modules first.
-def decider_common_dir(argv):
+# Use the shared generic helper; the base model, prompt frame and device are supplied by the model DATA.
+def common_dir(argv):
     for index, word in enumerate(argv):
-        if word == "--decider-common-dir" and index + 1 < len(argv):
+        if word in ("--common-dir", "--decider-common-dir") and index + 1 < len(argv):
             return Path(argv[index + 1]).resolve()
-        if word.startswith("--decider-common-dir="):
+        if word.startswith("--common-dir=") or word.startswith("--decider-common-dir="):
             return Path(word.split("=", 1)[1]).resolve()
     return None
 
 
-FINETUNE = decider_common_dir(sys.argv)
-if FINETUNE is not None:
-    sys.path.insert(0, str(FINETUNE))
+COMMON_DIR = common_dir(sys.argv)
+if COMMON_DIR is not None:
+    sys.path.insert(0, str(COMMON_DIR))
 sys.path.insert(0, str(HERE))
 from exposure_audit import audit_exposure  # noqa: E402
-import common  # noqa: E402
-from decider.infer import Example, Q  # noqa: E402
-from decider.systemone import render_question, render_state  # noqa: E402
+common = sys.modules.get("common")
+Example = Q = None
+_render_question_impl = _render_state_impl = None
 print("phase: scorer dependencies imported", file=sys.stderr, flush=True)
+
+
+def load_renderers():
+    """Load the person's pinned request renderer only when scoring starts."""
+    global Example, Q, _render_question_impl, _render_state_impl
+    if Example is None or Q is None or _render_question_impl is None or _render_state_impl is None:
+        from decider.infer import Example as ExampleType, Q as QuestionType
+        from decider.systemone import render_question as question_renderer, render_state as state_renderer
+        Example, Q = ExampleType, QuestionType
+        _render_question_impl, _render_state_impl = question_renderer, state_renderer
+
+
+def render_question(spec):
+    if _render_question_impl is None:
+        load_renderers()
+    return _render_question_impl(spec)
+
+
+def render_state(value):
+    if _render_state_impl is None:
+        load_renderers()
+    return _render_state_impl(value)
 
 ROW_SCHEMA = "book-voice-adapter-training-row-v1"
 CHALLENGE_SCHEMA = "book-voice-decider-challenge-v3"
@@ -60,13 +81,15 @@ MULTI_CRITERION_PROVENANCE_SCHEMA = "book-voice-training-provenance-v3"
 MULTI_CRITERION_REQUEST_PROJECTION_POLICY = "maintained-requestPlan-multi-criterion-per-row-v1"
 
 
-def validate_challenge_file(path: Path, dataset_role: str, *, raw_bytes: bytes | None = None) -> dict:
+def validate_challenge_file(path: Path, dataset_role: str, *, mode: str = "evaluation", raw_bytes: bytes | None = None) -> dict:
     """Run the maintained validator before loading weights; never rewrite splits."""
     node = shutil.which("node")
     validator = HERE.parent / "read-data" / "evaluation-integrity.mjs"
     if not node or not validator.is_file():
         raise ValueError("Maintained challenge validation requires Node and its integrity consumer")
-    mode = "unlabeled" if dataset_role == "unlabeled_manuscript_diagnostic" else "scoring-evaluation"
+    if mode not in ("evaluation", "scoring-evaluation", "unlabeled"):
+        raise ValueError("Scoring mode must be evaluation or unlabeled")
+    mode = "unlabeled" if mode == "unlabeled" else "scoring-evaluation"
     script = '''
 import fs from 'node:fs';
 import {pathToFileURL} from 'node:url';
@@ -105,7 +128,7 @@ process.stdout.write(JSON.stringify({consumer: 'validateInput + requestPlan', mo
     return readback
 
 
-def scoring_limit_metadata(data_object: dict, dataset_role: str) -> tuple[dict, dict]:
+def scoring_limit_metadata(data_object: dict, dataset_role: str, *, mode: str = "evaluation") -> tuple[dict, dict]:
     """Read optional typed limit metadata without confusing descriptive notes for counts.
 
     Labeled development DATA may keep human-readable limits as a string list;
@@ -115,7 +138,7 @@ def scoring_limit_metadata(data_object: dict, dataset_role: str) -> tuple[dict, 
     """
     if not isinstance(data_object, dict):
         raise ValueError("Scoring DATA must be an object")
-    if dataset_role == "unlabeled_manuscript_diagnostic":
+    if mode == "unlabeled":
         if "limits" not in data_object or not isinstance(data_object["limits"], dict):
             raise ValueError("Unlabeled manuscript diagnostic needs object limits with coverage metadata")
         limits = data_object["limits"]
@@ -282,13 +305,14 @@ def jsonl_diagnostic_policy(provenance: dict | None) -> tuple[float, str]:
     return DEFAULT_DIAGNOSTIC_MIN_PROBABILITY, "maintained_default_0.5"
 
 
-def adapt_v3(data: dict) -> list[dict]:
+def adapt_v3(data: dict, *, source_projection: bool = False) -> list[dict]:
     if data.get("schema") != CHALLENGE_SCHEMA or not isinstance(data.get("items"), list) or not isinstance(data.get("criteria"), list):
         raise ValueError("Unsupported challenge JSON; expected the maintained typed-target v3 schema")
     output = []
     criteria = data["criteria"]
     for item in data["items"]:
-        if item.get("split") not in {"eval", "unlabeled"}:
+        allowed_splits = {"train", "eval", "unlabeled"} if source_projection else {"eval", "unlabeled"}
+        if item.get("split") not in allowed_splits:
             raise ValueError("v3 scoring input must contain only eval or unlabeled rows")
         if not isinstance(item.get("id"), str) or not isinstance(item.get("family"), str):
             raise ValueError("v3 scoring rows need stable ids and source-family labels")
@@ -332,114 +356,150 @@ def adapt_v3(data: dict) -> list[dict]:
     return output
 
 
-def exposure_from_receipt(receipt: dict, rows: list[dict], target_identity: dict) -> dict:
-    """Audit all trained state fields using the receipt's exact source projection.
+def exposure_from_receipt(receipt: dict, rows: list[dict], target_identity: dict, *,
+                          training_source_path: Path | None = None,
+                          training_provenance_path: Path | None = None,
+                          supplied_source_blake3: str | None = None,
+                          supplied_provenance_blake3: str | None = None) -> dict:
+    """Audit exposure from caller-supplied files whose identities are bound in the receipt.
 
-    This is detectable textual exposure, not a claim of semantic independence.
-    Missing provenance is explicitly unassessed; stale declared bytes refuse.
+    Old receipts may still name readable local paths. New receipts are portable and require
+    the exact source DATA, plus source-bound provenance for multi-criterion runs.
     """
     provenance = receipt.get("provenance") or {}
     source = provenance.get("source_dataset") if isinstance(provenance, dict) else None
     training_rows = []
     reason = "missing_receipt_source_dataset"
     verified = False
-    if (isinstance(source, dict) and isinstance(source.get("path"), str)
-            and re.fullmatch(r"[0-9a-f]{64}", source.get("blake3", ""))):
-        path = Path(source["path"])
+    scope = "Receipt-bound source DATA projected by adapt_v3; original training JSONL is not reread. No semantic independence or author approval claim."
+    source_path_text = source.get("path") if isinstance(source, dict) else None
+    source_path = training_source_path or (Path(source_path_text) if isinstance(source_path_text, str) else None)
+    source_hash = source.get("blake3") if isinstance(source, dict) else None
+    source_identity = source.get("identity") if isinstance(source, dict) else None
+    if source_identity is not None and (not isinstance(source_identity, str)
+            or re.fullmatch(r"1f:[0-9a-f]{64}", source_identity) is None):
+        raise ValueError("Training source receipt has a malformed BLAKE3 identity")
+    if supplied_source_blake3 is not None and supplied_source_blake3 != source_hash:
+        raise ValueError("Explicit training source DATA identity differs from the receipt")
+    if source_path is None:
+        reason = "missing_receipt_source_dataset" if not isinstance(source, dict) else "missing_supplied_training_source_data"
+    elif not isinstance(source_hash, str) or re.fullmatch(r"[0-9a-f]{64}", source_hash) is None:
+        reason = "missing_receipt_source_identity"
+    else:
         try:
-            raw = path.read_bytes()
+            raw = source_path.read_bytes()
         except OSError:
-            reason = "receipt_source_unreadable"
+            reason = "training_source_data_unreadable"
         else:
-            # Hash the bytes actually parsed, not a potentially replaced path.
             actual = snapshot_digest(raw)
-            if actual != source["blake3"]:
-                raise ValueError("Training exposure source changed from its receipt")
-            projected = adapt_v3(json.loads(raw))
+            if actual != source_hash or (source_identity is not None and source_identity != f"1f:{actual}"):
+                raise ValueError("Training exposure source changed from its receipt identity")
+            source_object = json.loads(raw)
+            # The source is an immutable historical training manifest, not a scoring request. Preserve its actual
+            # splits while projecting only the receipt's bound rows below; never turn train rows into eval rows.
+            projected = adapt_v3(source_object, source_projection=True)
             if provenance.get("schema") == MULTI_CRITERION_PROVENANCE_SCHEMA:
                 if provenance.get("request_projection_policy") != MULTI_CRITERION_REQUEST_PROJECTION_POLICY:
                     raise ValueError("Training exposure receipt has an unsupported multi-criterion projection policy")
-                provenance_path = provenance.get("path")
-                provenance_hash = provenance.get("blake3")
-                if (not isinstance(provenance_path, str) or not provenance_path.strip()
-                        or not isinstance(provenance_hash, str)
-                        or re.fullmatch(r"[0-9a-f]{64}", provenance_hash) is None):
-                    raise ValueError("Multi-criterion training exposure receipt lacks hash-bound provenance rows")
-                try:
-                    provenance_raw = Path(provenance_path).read_bytes()
-                except OSError as exc:
-                    raise ValueError("Multi-criterion training exposure provenance file is unavailable") from exc
-                if snapshot_digest(provenance_raw) != provenance_hash:
-                    raise ValueError("Multi-criterion training exposure provenance changed from its receipt")
-                source_provenance = json.loads(provenance_raw)
-                if (not isinstance(source_provenance, dict)
-                        or source_provenance.get("schema") != MULTI_CRITERION_PROVENANCE_SCHEMA
-                        or source_provenance.get("request_projection_policy")
-                        != MULTI_CRITERION_REQUEST_PROJECTION_POLICY
-                        or source_provenance.get("source_dataset") != source.get("path")
-                        or source_provenance.get("source_dataset_blake3") != source.get("blake3")):
-                    raise ValueError("Hash-bound multi-criterion provenance disagrees with its receipt source DATA")
-                source_bindings = source_provenance.get("rows")
-                training_ids = provenance.get("training_row_ids")
-                source_item_ids = provenance.get("source_item_ids")
-                criterion_ids = provenance.get("criterion_ids")
-                if (not isinstance(source_bindings, list)
-                        or not isinstance(training_ids, list) or not isinstance(source_item_ids, list)
-                        or not isinstance(criterion_ids, list)
-                        or type(receipt.get("rows")) is not int
-                        or not (len(training_ids) == len(source_item_ids) == len(criterion_ids)
-                                == len(source_bindings) == receipt.get("rows"))
-                        or not training_ids
-                        or any(not isinstance(value, str) or not value.strip()
-                               for value in training_ids + source_item_ids + criterion_ids)
-                        or len(training_ids) != len(set(training_ids))
-                        or len(set(zip(source_item_ids, criterion_ids))) != len(source_item_ids)):
-                    raise ValueError("Multi-criterion training exposure receipt has missing, duplicate, or miscounted bindings")
-                bound_training_ids = [binding.get("training_row_id") if isinstance(binding, dict) else None
+                provenance_path_text = provenance.get("path")
+                provenance_path = training_provenance_path or (
+                    Path(provenance_path_text) if isinstance(provenance_path_text, str) else None)
+                provenance_identity = provenance.get("identity")
+                legacy_provenance_hash = provenance.get("blake3")
+                if provenance_identity is not None and (not isinstance(provenance_identity, str)
+                        or re.fullmatch(r"1f:[0-9a-f]{64}", provenance_identity) is None):
+                    raise ValueError("Training provenance receipt has a malformed BLAKE3 identity")
+                expected_provenance_hash = (provenance_identity[3:] if isinstance(provenance_identity, str)
+                                            and re.fullmatch(r"1f:[0-9a-f]{64}", provenance_identity)
+                                            else legacy_provenance_hash)
+                if supplied_provenance_blake3 is not None and supplied_provenance_blake3 != expected_provenance_hash:
+                    raise ValueError("Explicit training provenance identity differs from the receipt")
+                if provenance_path is None or not isinstance(expected_provenance_hash, str) \
+                        or re.fullmatch(r"[0-9a-f]{64}", expected_provenance_hash) is None:
+                    reason = "missing_supplied_training_provenance"
+                else:
+                    try:
+                        provenance_raw = provenance_path.read_bytes()
+                    except OSError as exc:
+                        raise ValueError("Multi-criterion training provenance file is unavailable") from exc
+                    if snapshot_digest(provenance_raw) != expected_provenance_hash:
+                        raise ValueError("Multi-criterion training provenance does not match the receipt identity")
+                    source_provenance = json.loads(provenance_raw)
+                    if (not isinstance(source_provenance, dict)
+                            or source_provenance.get("schema") != MULTI_CRITERION_PROVENANCE_SCHEMA
+                            or source_provenance.get("request_projection_policy")
+                            != MULTI_CRITERION_REQUEST_PROJECTION_POLICY
+                            or source_provenance.get("source_dataset_blake3") != actual):
+                        raise ValueError("Hash-bound provenance disagrees with its supplied source DATA")
+                    source_bindings = source_provenance.get("rows")
+                    training_ids = provenance.get("training_row_ids")
+                    source_item_ids = provenance.get("source_item_ids")
+                    criterion_ids = provenance.get("criterion_ids")
+                    if (not isinstance(source_bindings, list)
+                            or not isinstance(training_ids, list) or not isinstance(source_item_ids, list)
+                            or not isinstance(criterion_ids, list)
+                            or type(receipt.get("rows")) is not int
+                            or not (len(training_ids) == len(source_item_ids) == len(criterion_ids)
+                                    == len(source_bindings) == receipt.get("rows"))
+                            or not training_ids
+                            or any(not isinstance(value, str) or not value.strip()
+                                   for value in training_ids + source_item_ids + criterion_ids)
+                            or len(training_ids) != len(set(training_ids))
+                            or len(set(zip(source_item_ids, criterion_ids))) != len(source_item_ids)):
+                        raise ValueError("Multi-criterion training exposure receipt has missing, duplicate, or miscounted bindings")
+                    bound_training_ids = [binding.get("training_row_id") if isinstance(binding, dict) else None
+                                          for binding in source_bindings]
+                    bound_source_ids = [binding.get("source_item_id") if isinstance(binding, dict) else None
+                                        for binding in source_bindings]
+                    bound_criterion_ids = [binding.get("criterion_id") if isinstance(binding, dict) else None
+                                           for binding in source_bindings]
+                    if (training_ids != bound_training_ids or source_item_ids != bound_source_ids
+                            or criterion_ids != bound_criterion_ids):
+                        raise ValueError("Multi-criterion receipt bindings are out of order from hash-bound provenance rows")
+                    bound_families = [binding.get("family") if isinstance(binding, dict) else None
                                       for binding in source_bindings]
-                bound_source_ids = [binding.get("source_item_id") if isinstance(binding, dict) else None
-                                    for binding in source_bindings]
-                bound_criterion_ids = [binding.get("criterion_id") if isinstance(binding, dict) else None
-                                       for binding in source_bindings]
-                if (training_ids != bound_training_ids or source_item_ids != bound_source_ids
-                        or criterion_ids != bound_criterion_ids):
-                    raise ValueError("Multi-criterion receipt bindings are out of order from hash-bound provenance rows")
-                bound_families = [binding.get("family") if isinstance(binding, dict) else None
-                                  for binding in source_bindings]
-                if (any(not isinstance(family, str) or not family.strip() for family in bound_families)
-                        or provenance.get("families") != sorted(set(bound_families))
-                        or source.get("schema") != MULTI_CRITERION_PROVENANCE_SCHEMA
-                        or source.get("training_row_ids") != training_ids
-                        or source.get("criterion_ids") != sorted(set(criterion_ids))):
-                    raise ValueError("Multi-criterion receipt summary identities do not match its ordered provenance rows")
-                projection_index = {}
-                for row in projected:
-                    key = (row["id"], row["criterion_id"])
-                    if key in projection_index:
-                        raise ValueError("Hash-bound source DATA has an ambiguous item/criterion projection")
-                    projection_index[key] = row
-                try:
-                    training_rows = [projection_index[(item_id, criterion_id)]
-                                     for item_id, criterion_id in zip(source_item_ids, criterion_ids)]
-                except KeyError as exc:
-                    raise ValueError("Multi-criterion training exposure binding is absent from hash-bound source DATA") from exc
-                verified_scope = "Receipt-bound source DATA projected by exact ordered (source_item_id, criterion_id) bindings; source selects only the receipt-declared training subset. Original training JSONL is not reread. No semantic independence or author approval claim."
-                reason = "receipt_bound_multi_criterion_v3_source_projection"
+                    if (any(not isinstance(family, str) or not family.strip() for family in bound_families)
+                            or provenance.get("families") != sorted(set(bound_families))
+                            or source.get("schema") != MULTI_CRITERION_PROVENANCE_SCHEMA):
+                        raise ValueError("Multi-criterion receipt summary identities do not match its ordered provenance rows")
+                    projection_index = {}
+                    for row in projected:
+                        key = (row["id"], row["criterion_id"])
+                        if key in projection_index:
+                            raise ValueError("Hash-bound source DATA has an ambiguous item/criterion projection")
+                        projection_index[key] = row
+                    try:
+                        training_rows = [projection_index[(item_id, criterion_id)]
+                                         for item_id, criterion_id in zip(source_item_ids, criterion_ids)]
+                    except KeyError as exc:
+                        raise ValueError("Multi-criterion training binding is absent from supplied source DATA") from exc
+                    scope = "Caller-supplied, identity-checked source DATA projected by exact ordered (source_item_id, criterion_id) bindings; source selects only the receipt-declared training subset. No semantic independence or author approval claim."
+                    reason = "receipt_bound_multi_criterion_v3_source_projection"
+                    verified = True
             else:
-                criterion_id = source.get("criterion_id")
-                training_rows = [row for row in projected if row["criterion_id"] == criterion_id]
-                if (not isinstance(criterion_id, str) or not training_rows
-                        or len(training_rows) != receipt.get("rows")
-                        or [row["id"] for row in training_rows] != provenance.get("row_ids")):
-                    raise ValueError("Training exposure projection does not match the receipt's rows")
-                verified_scope = "Receipt-bound source DATA projected by adapt_v3; original training JSONL is not reread. No semantic independence or author approval claim."
-                reason = "receipt_bound_v3_source_projection"
-            verified = True
-    else:
-        verified_scope = "Receipt-bound source DATA projected by adapt_v3; original training JSONL is not reread. No semantic independence or author approval claim."
-    result = audit_exposure(training_rows, rows, training_source=source, target_source=target_identity)
-    result["source_projection"] = {"status": reason, "source_bytes_verified": verified,
-        "scope": verified_scope}
+                criterion_id = provenance.get("criterion_id") or source.get("criterion_id")
+                row_ids = provenance.get("row_ids")
+                if not isinstance(criterion_id, str) or not isinstance(row_ids, list):
+                    reason = "missing_receipt_training_row_bindings"
+                else:
+                    by_id = {row["id"]: row for row in projected if row["criterion_id"] == criterion_id}
+                    if len(by_id) != len([row for row in projected if row["criterion_id"] == criterion_id]):
+                        raise ValueError("Source DATA has ambiguous item/criterion rows")
+                    try:
+                        training_rows = [by_id[row_id] for row_id in row_ids]
+                    except KeyError as exc:
+                        raise ValueError("Training exposure row binding is absent from supplied source DATA") from exc
+                    if not training_rows or len(training_rows) != receipt.get("rows"):
+                        raise ValueError("Training exposure projection does not match the receipt rows")
+                    reason = "supplied_source_data_v3_projection"
+                    verified = True
+    if receipt.get("schema") == "book-voice-adapter-training-receipt-v2" \
+            and any(row.get("split") != "train" for row in training_rows):
+        raise ValueError("A current training receipt cannot bind evaluation or unlabeled source rows")
+    training_source = {"path": str(source_path) if source_path else None,
+                       "source_dataset": {"blake3": source_hash, "schema": provenance.get("schema")}}
+    result = audit_exposure(training_rows, rows, training_source=training_source, target_source=target_identity)
+    result["source_projection"] = {"status": reason, "source_bytes_verified": verified, "scope": scope}
     return result
 
 
@@ -552,7 +612,7 @@ def validate_strict_jsonl_provenance(rows: list[dict], provenance: dict) -> None
         state_text = json.dumps(row["state"], ensure_ascii=False, separators=(",", ":"))
         validator_rows.append((state_text, question, gold_index))
     aligned = trainer.validate_provenance(validator_rows, provenance)
-    trainer.validate_source_dataset(provenance, aligned, validator_rows)
+    trainer.validate_source_dataset(provenance, aligned, validator_rows, mode="scoring-evaluation")
 
 
 def build_adapter_wire(row: dict, state_text: str, question: str) -> dict:
@@ -847,21 +907,41 @@ def main() -> None:
     os.umask(0o077)
     parser = argparse.ArgumentParser()
     parser.add_argument("--data", required=True, type=Path)
-    parser.add_argument("--decider-common-dir", type=Path,
-                        help="folder holding the decider model frame common.py (read before this parser runs)")
+    parser.add_argument("--common-dir", "--decider-common-dir", dest="common_dir", type=Path,
+                        help="folder holding the shared generic common.py helper")
+    parser.add_argument("--model-config", type=Path, help="private JSON projection of the exact model and ready records")
+    parser.add_argument("--model-owner-dir", type=Path, help="folder holding answer_many_states.py, the model identity owner")
     parser.add_argument("--adapter", required=True, type=Path)
     parser.add_argument("--out", required=True, type=Path)
     parser.add_argument("--provenance", type=Path)
+    parser.add_argument("--training-source-data", type=Path,
+                        help="exact source DATA used for training; its bytes must match the training receipt")
+    parser.add_argument("--training-source-data-blake3",
+                        help="expected BLAKE3 identity suffix from the training receipt")
+    parser.add_argument("--training-provenance", type=Path,
+                        help="exact source-bound provenance DATA used for training; its bytes must match the receipt")
+    parser.add_argument("--training-provenance-blake3",
+                        help="expected BLAKE3 identity suffix from the training receipt")
     parser.add_argument("--dataset-freeze", type=Path, help="optional freeze receipt whose data_blake3 binds this DATA")
     parser.add_argument("--dataset-role", required=True, help="opaque diagnostic role recorded in the report")
+    parser.add_argument("--mode", choices=("evaluation", "unlabeled"), default="evaluation",
+                        help="explicit scoring mode; dataset-role never changes validation")
     parser.add_argument("--batch", type=int, default=None, help="ordinary scoring batch size (default: 4)")
     parser.add_argument("--compare-batch", type=int,
                         help="compare one-row inference with this batch size using the same loaded eval-mode adapter")
     parser.add_argument("--row-indices",
                         help="optional comma-separated zero-based indices in adapted DATA row order; only with --compare-batch")
     parser.add_argument("--preflight-only", action="store_true",
-                        help="validate DATA and receipt-bound exposure without loading model weights")
+                        help="validate DATA and source-bound exposure without loading model weights")
     args = parser.parse_args()
+    if args.common_dir is None or args.model_config is None or args.model_owner_dir is None:
+        parser.error("--common-dir, --model-config and --model-owner-dir are required; model configuration is never inferred")
+    args.common_dir = args.common_dir.resolve(strict=True)
+    args.model_config = args.model_config.resolve(strict=True)
+    args.model_owner_dir = args.model_owner_dir.resolve(strict=True)
+    if common is None:
+        sys.path.insert(0, str(args.common_dir))
+        globals()["common"] = importlib.import_module("common")
     print("phase: resolving and validating inputs", file=sys.stderr, flush=True)
     args.data = args.data.resolve(strict=True)
     args.adapter = args.adapter.resolve(strict=True)
@@ -870,6 +950,14 @@ def main() -> None:
         args.provenance = args.provenance.resolve(strict=True)
     if args.dataset_freeze:
         args.dataset_freeze = args.dataset_freeze.resolve(strict=True)
+    if args.training_source_data:
+        args.training_source_data = args.training_source_data.resolve(strict=True)
+    if args.training_provenance:
+        args.training_provenance = args.training_provenance.resolve(strict=True)
+    if args.training_source_data_blake3 is not None and args.training_source_data is None:
+        parser.error("--training-source-data-blake3 requires --training-source-data")
+    if args.training_provenance_blake3 is not None and args.training_provenance is None:
+        parser.error("--training-provenance-blake3 requires --training-provenance")
     if args.out.exists():
         raise ValueError("Output already exists; choose a new private report path")
     if args.compare_batch is not None and args.batch is not None:
@@ -887,7 +975,36 @@ def main() -> None:
     receipt_path = args.adapter / "train-info.json"
     if not adapter_model.is_file() or not receipt_path.is_file():
         raise ValueError("Adapter needs adapter_model.safetensors and its train-info.json receipt")
+    training_receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+    trainer_spec = importlib.util.spec_from_file_location("voice_classifier_training_owner", HERE / "train-voice-adapter.py")
+    if trainer_spec is None or trainer_spec.loader is None:
+        raise ValueError("The maintained model identity verifier is unavailable")
+    trainer = importlib.util.module_from_spec(trainer_spec)
+    trainer_spec.loader.exec_module(trainer)
+    model_config, resolved_model_folder = trainer.resolve_verified_model(
+        args.model_config, args.model_owner_dir, require_dataset_bindings=False)
+    if not isinstance(training_receipt, dict) \
+            or training_receipt.get("ready_identity") != model_config["ready"]["identity"] \
+            or training_receipt.get("model_record") != model_config["model_record"] \
+            or training_receipt.get("ready_record") != model_config["ready_record"]:
+        raise ValueError("The supplied model and classifier-ready identity do not match the adapter receipt")
+    receipt_provenance = training_receipt.get("provenance") or {}
+    receipt_source = receipt_provenance.get("source_dataset") if isinstance(receipt_provenance, dict) else None
+    if isinstance(receipt_source, dict) and receipt_source.get("identity") and args.training_source_data is None:
+        parser.error("--training-source-data is required to verify this adapter's source-bound exposure")
+    if args.training_source_data is not None and args.training_source_data_blake3 is None:
+        parser.error("--training-source-data-blake3 is required with --training-source-data")
+    if (isinstance(receipt_provenance, dict)
+            and receipt_provenance.get("schema") == MULTI_CRITERION_PROVENANCE_SCHEMA
+            and args.training_provenance is None):
+        parser.error("--training-provenance is required to verify multi-criterion training exposure")
+    if args.training_provenance is not None and args.training_provenance_blake3 is None:
+        parser.error("--training-provenance-blake3 is required with --training-provenance")
+    common.configure(str(resolved_model_folder), model_config["frame"], model_config["device"])
+    common.LORA_TARGETS = model_config["lora_targets"]
+    load_renderers()
     identity_paths = [adapter_model, receipt_path, args.data]
+    identity_paths.extend([args.model_config])
     consumer_paths = {"scorer": Path(__file__).resolve(),
                       "integrity_validator": HERE.parent / "read-data" / "evaluation-integrity.mjs",
                       "exposure_audit": HERE / "exposure_audit.py"}
@@ -896,13 +1013,25 @@ def main() -> None:
         identity_paths.append(args.dataset_freeze)
     if args.provenance:
         identity_paths.append(args.provenance)
+    if args.training_source_data:
+        identity_paths.append(args.training_source_data)
+    if args.training_provenance:
+        identity_paths.append(args.training_provenance)
     identity_hashes = digests(identity_paths)
     consumer_identities = {name: identity_hashes[path] for name, path in consumer_paths.items()}
     print("phase: fixed input hashes verified", file=sys.stderr, flush=True)
-    training_receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
     adapter_hash = identity_hashes[adapter_model]
-    if training_receipt.get("adapter_model_blake3") != adapter_hash or training_receipt.get("base_snapshot") != str(common.MODEL):
-        raise ValueError("Adapter weights or base model do not match the training receipt")
+    if training_receipt.get("adapter_model_blake3") != adapter_hash:
+        raise ValueError("Adapter weights do not match the training receipt")
+    if args.training_source_data_blake3 is not None and identity_hashes[args.training_source_data] != args.training_source_data_blake3:
+        raise ValueError("Supplied training source DATA identity differs from the explicit BLAKE3 value")
+    if args.training_provenance_blake3 is not None and identity_hashes[args.training_provenance] != args.training_provenance_blake3:
+        raise ValueError("Supplied training provenance identity differs from the explicit BLAKE3 value")
+    if args.training_provenance is not None:
+        receipt_provenance_identity = receipt_provenance.get("identity") if isinstance(receipt_provenance, dict) else None
+        if isinstance(receipt_provenance_identity, str) and re.fullmatch(r"1f:[0-9a-f]{64}", receipt_provenance_identity) \
+                and identity_hashes[args.training_provenance] != receipt_provenance_identity[3:]:
+            raise ValueError("Supplied training provenance does not match the receipt identity")
     data_snapshot = args.data.read_bytes()
     if snapshot_digest(data_snapshot) != identity_hashes[args.data]:
         raise ValueError("Scoring DATA changed before snapshot validation")
@@ -916,31 +1045,35 @@ def main() -> None:
             raise ValueError("Evaluation diagnostics cannot consume training-split rows")
     else:
         data_object = json.loads(data_snapshot.decode("utf-8"))
-        input_validation = validate_challenge_file(args.data, args.dataset_role, raw_bytes=data_snapshot)
+        input_validation = validate_challenge_file(args.data, args.dataset_role, mode=args.mode, raw_bytes=data_snapshot)
         rows = adapt_v3(data_object)
         freeze = json.loads(args.dataset_freeze.read_text(encoding="utf-8")) if args.dataset_freeze else None
         if freeze is not None and freeze.get("data_blake3") != identity_hashes[args.data]:
             raise ValueError("Dataset freeze receipt does not match DATA")
         source_identity = data_object.get("source_identity")
-        if args.dataset_role == "unlabeled_manuscript_diagnostic":
+        if args.mode == "unlabeled":
             if not isinstance(source_identity, dict) or not isinstance(source_identity.get("source_blake3"), str):
                 raise ValueError("Unlabeled manuscript diagnostic needs a source identity with its frozen BLAKE3 hash")
-        unassessed_block_counts, unassessed_block_indices = scoring_limit_metadata(data_object, args.dataset_role)
+        unassessed_block_counts, unassessed_block_indices = scoring_limit_metadata(data_object, args.dataset_role, mode=args.mode)
         provenance = json.loads(args.provenance.read_text(encoding="utf-8")) if args.provenance else None
         if args.dataset_role == "in_sample_development_diagnostic":
             raise ValueError("In-sample diagnostic requires the trainer's JSONL input")
-        if args.dataset_role == "unlabeled_manuscript_diagnostic" and any(row["gold"] is not None for row in rows):
+        if args.mode == "unlabeled" and any(row["gold"] is not None for row in rows):
             raise ValueError("Unlabeled manuscript diagnostic may not contain gold labels")
-        if args.dataset_role != "unlabeled_manuscript_diagnostic" and any(row["gold"] is None for row in rows):
+        if args.mode != "unlabeled" and any(row["gold"] is None for row in rows):
             raise ValueError("Labeled development diagnostic requires gold checks")
     if args.data.suffix.lower() == ".jsonl":
         unassessed_block_counts = {}
         unassessed_block_indices = {}
-    if args.dataset_role == "unlabeled_manuscript_diagnostic" and any(row.get("gold") is not None for row in rows):
+    if args.mode == "unlabeled" and any(row.get("gold") is not None for row in rows):
         raise ValueError("Unlabeled diagnostic received labels")
     selected_indices = resolve_row_indices(args.row_indices, len(rows)) if args.compare_batch is not None else list(range(len(rows)))
     exposure = exposure_from_receipt(training_receipt, rows,
-        {"path": str(args.data), "blake3": identity_hashes[args.data]})
+        {"path": str(args.data), "blake3": identity_hashes[args.data]},
+        training_source_path=args.training_source_data,
+        training_provenance_path=args.training_provenance,
+        supplied_source_blake3=args.training_source_data_blake3,
+        supplied_provenance_blake3=args.training_provenance_blake3)
     if args.preflight_only:
         report = {
             "schema": "book-voice-isolated-input-preflight-v1",
@@ -963,6 +1096,10 @@ def main() -> None:
         return
 
     import torch
+    if common.DEVICE == "mps" and not torch.backends.mps.is_available():
+        raise RuntimeError("The model row selected MPS but this computer does not offer it")
+    if common.DEVICE == "cuda" and not torch.cuda.is_available():
+        raise RuntimeError("The model row selected CUDA but this computer does not offer it")
     common.quiet()
     print(f"phase: loading adapter and base model for {len(rows)} rows", file=sys.stderr, flush=True)
     model = common.load(adapter=str(args.adapter), train=False)
@@ -1024,7 +1161,11 @@ def main() -> None:
         report = {
             "schema": "book-voice-isolated-adapter-batch-comparison-v1",
             "dataset_role": args.dataset_role,
-            "route": "isolated-local-MPS-LoRA",
+            "route": f"isolated-local-{common.DEVICE.upper()}-LoRA",
+            "model": {"classifier": model_config["model"]["classifier"],
+                      "model_record": model_config["model_record"],
+                      "ready_record": model_config["ready_record"],
+                      "ready_identity": model_config["ready"]["identity"]},
             "qualification": "none; bounded numerical parity diagnostic only",
             "comparison": {
                 "baseline": "one request per model call",
@@ -1104,12 +1245,14 @@ def main() -> None:
     report = {
         "schema": "book-voice-isolated-adapter-evaluation-v1",
         "dataset_role": args.dataset_role,
-        "route": "isolated-local-MPS-LoRA",
+        "route": f"isolated-local-{common.DEVICE.upper()}-LoRA",
         "qualification": "none; development diagnostics only",
         "input_validation": input_validation,
         "training_exposure": exposure,
-        "model": "decider-v10",
-        "base_snapshot": str(common.MODEL),
+        "model": {"classifier": model_config["model"]["classifier"],
+                  "model_record": model_config["model_record"],
+                  "ready_record": model_config["ready_record"],
+                  "ready_identity": model_config["ready"]["identity"]},
         "adapter": str(args.adapter),
         "adapter_model_blake3": adapter_hash,
         "training_receipt_blake3": identity_hashes[receipt_path],

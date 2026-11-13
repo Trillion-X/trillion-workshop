@@ -13,6 +13,8 @@ import stat
 import sys
 import tempfile
 import types
+import importlib.util
+import json
 from pathlib import Path
 
 
@@ -77,7 +79,8 @@ def install():
     common = _module("common", MODEL=Path("/stand-in/decider-snapshot"), DEVICE="cpu", MAX_OPTIONS=8,
                      LORA_TARGETS=["q_proj", "v_proj"], FRAME='A line of copy:\n"{text}"', _Keep=_Keep, build=build,
                      collate=lambda items, pad: {"items": items, "pad": pad}, quiet=lambda: None,
-                     temperature=lambda: 1.0, load=None, DecisionModel=None)
+                     temperature=lambda: 1.0, load=None, DecisionModel=None,
+                     configure=lambda model, frame, device: common_configure(common, model, frame, device))
     decider = _module("decider")
     sys.modules.setdefault("common", common)
     sys.modules.setdefault("decider", decider)
@@ -88,6 +91,46 @@ def install():
     sys.modules.setdefault("transformers", _module("transformers", AutoTokenizer=Tokenizer))
     if not shutil.which("b3sum"):
         _b3sum_on_path()
+
+
+def common_configure(module, model, frame, device):
+    module.MODEL, module.FRAME, module.DEVICE = Path(model), frame, device
+
+
+def write_model_config(root: Path) -> tuple[Path, Path, dict]:
+    """Create synthetic ready files and a model projection using the actual identity owner."""
+    owner_dir = Path(__file__).resolve().parents[2] / "answer-questions-about-many-states" / "do-work"
+    folder = root / "model-snapshot"
+    folder.mkdir(parents=True, exist_ok=True)
+    for name, body in {
+        "config.json": b"{}\n", "decider_config.json": b"{}\n", "tokenizer.json": b"{}\n",
+        "tokenizer_config.json": b"{}\n", "adapter.safetensors": b"synthetic model bytes\n",
+    }.items():
+        (folder / name).write_bytes(body)
+    owner_path = owner_dir / "answer_many_states.py"
+    spec = importlib.util.spec_from_file_location("test_classifier_ready_identity_owner", owner_path)
+    owner = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(owner)
+    names = sorted(path.name for path in folder.iterdir())
+    identity, listing = owner.identity_of_files(str(folder), names)
+    ready = {"identity": identity, "files": [
+        {"name": name, "bytes": size, "blake3": digest} for name, size, digest in listing
+    ]}
+    config = {
+        "model": {"classifier": "questions-first-decider", "weights": {"folder": str(folder)}},
+        "ready": ready,
+        "frame": 'A line of copy:\n"{text}"', "device": "cpu",
+        "lora_targets": ["q_proj", "v_proj"],
+        "model_record": {"type": "model", "id": "model-test"},
+        "ready_record": {"type": "ready", "id": "ready-test"},
+        "dataset_record": {"type": "dataset", "id": "dataset-test"},
+        "training_data_identity": "1f:" + "1" * 64,
+        "provenance_identity": "1f:" + "2" * 64,
+        "source_data_identity": "1f:" + "3" * 64,
+    }
+    path = root / "model.json"
+    path.write_text(json.dumps(config), encoding="utf-8")
+    return path, owner_dir, config
 
 
 def _b3sum_on_path():

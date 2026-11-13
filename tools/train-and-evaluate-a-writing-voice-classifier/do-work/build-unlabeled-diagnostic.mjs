@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 /** Build frozen, label-free prose subsets for a selected maintained v3 criterion.
- * Moved from source-repo-a tools/copy-gate/build-book-voice-unlabeled-diagnostic.mjs: the blocks are
- * tools/pin-files-by-content's writingBlocks and BLAKE3 is tools/content-identity, each read from its one home. */
+ * The blocks come from the maintained text-block owner, and BLAKE3 identities come from the content-identity owner. */
 import {readFileSync, writeFileSync} from 'node:fs';
 import {basename, resolve} from 'node:path';
 import {classifyWritingBlock} from '../read-data/evaluation-integrity.mjs';

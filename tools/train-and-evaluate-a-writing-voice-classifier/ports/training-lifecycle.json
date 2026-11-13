@@ -1,0 +1,123 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-WRITING-ADAPTER-RECORDS-AND-FILES",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "01a1b7dd-eeaf-7d21-986a-422c030a02b1",
+    "message_multihash": "1f:b2928ca8e402e3ce1c0bd1c3f7ceb353c319ece4f2bb92f00cf266ad3218324e",
+    "quote": "Complete the authorized request through proportionate checks and a real outcome."
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "prepare source-bound writing classifier adapter training and scoring files from exact private records",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/train-and-evaluate-a-writing-voice-classifier/read-data/training-lifecycle.mjs"
+    }
+  ],
+  "preserve": [
+    "original trainer, scorer, model identity, Records/Files and run-journal owners remain the implementations",
+    "gold labels stay outside state; source families and exact byte identities are checked before training",
+    "evaluation mode is explicit and no data role can turn evaluation sources into training sources"
+  ],
+  "allowed_deltas": [],
+  "banned_substitutions": [
+    "a second model downloader, model cache, Files store, upload runtime or job journal",
+    "invented labels, relabelled held-out sources or a private host path treated as durable model authority"
+  ],
+  "baseline": {},
+  "distinct_from": [
+    {
+      "repository": {
+        "repository_multihash": "1f:7194f5aeee028c1b6843e2a7f56b491474b9df140a5f2fbaa1a1c6fb23039055"
+      },
+      "path": "tools/copy-gate/",
+      "why": "The original trainer, scorer and provenance tests use local path inputs. Their actual byte-copy ports remain the Python implementation this wrapper invokes; they do not read exact account records or immutable Files inputs, or publish output manifests through the generic engine."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/train-and-evaluate-a-writing-voice-classifier/do-work/",
+      "why": "Existing maintained Python training/scoring and exposure code is called, not rebuilt; existing requestPlan owns the request projection. The wrapper adds exact record and file input/output composition within this same capability."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/answer-questions-about-many-states/",
+      "why": "Its existing model_folder and identity_of_files own model resolution and ready-file identity. The trainer invokes those exact functions; it adds no classifier cache, model downloader, inference or bulk-job lifecycle."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/records-door/",
+      "why": "The wrapper imports the existing exact-record and whole-file readers, and the generic runner. It defines no alternate Records or Files protocol."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "src/tool_runs/",
+      "why": "The existing run journal, cancellation and output persistence stay in the engine. This wrapper declares them as DATA and contains no second job store or retry runtime."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/train-and-evaluate-a-writing-voice-classifier/README.md",
+      "why": "Documents the existing local trainer and scorer and their source-bound fixtures; it contains no Records/Files input or adapter output composition."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/train-and-evaluate-a-writing-voice-classifier/test/",
+      "why": "Synthetic source/provenance fixtures and tests exercise the existing training/scoring contracts. They are retained and extended; they are no implementation of the Records/Files composition."
+    }
+  ],
+  "proof": {
+    "search": {
+      "phrasings": [
+        "prepare source-bound writing classifier adapter training and scoring files from exact private records"
+      ],
+      "capability_rows": [
+        "train and evaluate a book's writing-voice classifier",
+        "write a short line and a bounded record for every failing test so the saved build keeps the source and assertion that failed",
+        "transcribe recordings with a time for every word, and redo the places where the speech model looped; hear a recording in the person's files, or a link's video, into words on their own computer; read transcript and caption files (srt, vtt, txt, json, YouTube json3) into timed words and check quotes against them",
+        "record for a short bounded time what the person does on their Mac and give it back as a draft workflow in words",
+        "report source files that break a rule written down as DATA",
+        "give the page its shipped guided tours when the workspace is built, read from the file the build writes",
+        "commit exactly the named files onto main from the shared checkout through a private index",
+        "read the exact identity and bytes of local files so a caller can check them against a known hash",
+        "stop a build when code reaches into a part's private files or names something a file no longer exports",
+        "list the tools an AI can call: derive tool rows from OpenAPI and tool-server sources, sign in to and talk to a tool server, and prepare each tool's result with its declared effects"
+      ],
+      "code_patterns": [
+        "training.{0,40}provenance",
+        "writing.{0,30}adapter.{0,30}record",
+        "classifier.{0,40}artifact"
+      ],
+      "repositories": [
+        {
+          "repository": "trillion",
+          "commit": "ed5e8d0389729321ca4263294b6a377235829e5e"
+        },
+        {
+          "repository": "trillion-rust",
+          "commit": "b80b5b9662c056268a3569c9ae1a5a7ab4e0e07f"
+        },
+        {
+          "repository": "trillion-workshop",
+          "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+        },
+        {
+          "repository": "trillion-site",
+          "commit": "14cb42dff1ab465388331616f82ca51f50761aab"
+        },
+        {
+          "repository_multihash": "1f:7194f5aeee028c1b6843e2a7f56b491474b9df140a5f2fbaa1a1c6fb23039055",
+          "commit": "b968a719d3efc64f6b75cafe72f2705ae297c23f"
+        },
+        {
+          "repository": "bitfield-packages",
+          "commit": "e89e776fcb3cd200f4327c599fd646e1778ef3a4"
+        }
+      ]
+    },
+    "test_refs": [
+      "tools/train-and-evaluate-a-writing-voice-classifier/test/training-lifecycle.test.mjs",
+      "tools/train-and-evaluate-a-writing-voice-classifier/test/test_train_voice_provenance.py",
+      "tools/train-and-evaluate-a-writing-voice-classifier/test/test_score_voice_admission.py"
+    ]
+  }
+}

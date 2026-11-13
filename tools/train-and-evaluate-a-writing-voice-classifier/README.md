@@ -4,7 +4,7 @@ Trains a small classifier to judge a writer's voice and measures, honestly, how 
 
 Nothing about any person is in this folder. The passages, labels, criteria, voice references, the classifier's address and model, the model snapshot and the adapter folders are the person's: their challenge sets are input, their settings are a row of their `list:settings` read with `tools/settings`. The fixtures under `test/fixtures` are made up.
 
-Moved from Trillion-X/source-repo-a `tools/copy-gate` (`evaluate-book-voice.mjs`, `evaluate-book-voice-integrity.mjs`, `build-book-voice-unlabeled-diagnostic.mjs`, `pack-book-voice-section-chunks.py`, `exposure_audit.py`, `train-book-voice-adapter.py`, `score-book-voice-adapter.py`) at 5a9ba398: the first commit here is their byte copy (`ports/*.json`), the next adapts them. Schema names (`book-voice-decider-challenge-v1..v3`, `book-voice-decider-evaluation-v2`, `book-voice-adapter-training-row-v1/v2`, `book-voice-training-provenance-v2/v3`) are kept unchanged so every stored set and report stays readable.
+Adapted from an earlier writing-classifier tool family; the existing contracts retain its source identities and citations. Schema names (`book-voice-decider-challenge-v1..v3`, `book-voice-decider-evaluation-v2`, `book-voice-adapter-training-row-v1/v2`, `book-voice-training-provenance-v2/v3`) stay unchanged so stored sets and reports remain readable. The persisted training receipt is v2 because it records Namespace file identities instead of temporary computer paths.
 
 ## How old Trillion did the same job
 
@@ -21,7 +21,10 @@ Old Trillion (Trillion-X/trillion) never trained or evaluated a voice classifier
 | `endpoint` | the `list:settings` row `record:setting:train-and-evaluate-a-writing-voice-classifier~<scope_kind>~<scope_id>`: the row's request carries it in `settings_record` as `records:read` gave it, read with `tools/settings` `setting()`; the command takes the file of that record (`--settings-record <file>`), or `--endpoint` | The classifier's `/v1/systemone` address. Its `/health` must name a serving identity, and every reply must name the same one and the requested model. |
 | `model` | the same row, or `--model` | The model asked, as its replies name it. |
 | `attempts`, `workers` | the same row (optional), or `--single-attempt`, `--workers` | Tries per request (3) and requests at once (4, at most 8). |
-| `decider_common_dir` | `--decider-common-dir` | Train and score only: the folder holding the decider model frame (`common.py`, which loads the pinned model snapshot), on the computer that trains. |
+| `model`, `ready` | exact `record` addresses | The selected model row gives `classifier`, `weights` (a prepared local folder or pinned Hugging Face revision), `frame`, `device` and `lora_targets`. Its `classifier-ready` row binds the exact file manifest. The existing model owner resolves the cached snapshot without downloads and every file is rechecked before compute. |
+| `dataset` | exact `record` address and three `namespace-file` inputs | Training: the dataset row binds private train JSONL, source-bound provenance and source challenge by BLAKE3 identity. Source families must stay in one split, with separate train and eval families. |
+| `settings` | exact `record` address | Training hyperparameters (`rank`, `epochs`, `lr`, `batch`, optional `max_steps`, `seed` and `lora_dropout`). |
+| `common_dir`, `model_owner_dir`, `model_config` | `--common-dir`, `--model-owner-dir`, `--model-config` | Native train/score commands use the same shared helper and model identity owner as ordinary runs. The private config projects exact model, ready and dataset identities; a receipt never supplies an old host path as authority. |
 | `decider_dir`, `tokenizer_model_dir` | `--decider-dir`, `--tokenizer-model-dir` | Packing only: the decider prompt package and its tokenizer. |
 
 ## What is fixed in code, and why
@@ -47,11 +50,13 @@ As commands on the person's computer:
 node do-work/evaluate-voice.mjs --data <challenge.json> --out <results.json> --live --settings-record <setting-record.json> [--single-attempt] [--resume]
 node do-work/build-unlabeled-diagnostic.mjs --freeze <SOURCE-FREEZE.json> --criteria <v3-DATA.json> [--criterion-id <id>] --out-dir <private-dir>
 python3 do-work/pack-section-chunks.py --data <v3.json> --out <packed.json> --tokenizer-model-dir <dir> --decider-dir <snapshot> [--tokens-only]
-python3 do-work/train-voice-adapter.py --decider-common-dir <dir> --data <train.jsonl> [--provenance <manifest.json>] --out <new-adapter-dir>
-python3 do-work/score-voice-adapter.py --decider-common-dir <dir> --data <v3.json> --adapter <adapter-dir> --out <report.json> --dataset-role <role>
+python3 do-work/train-voice-adapter.py --common-dir <shared-helper-dir> --model-owner-dir <classifier-worker-dir> --model-config <private-config.json> --data <train.jsonl> --provenance <manifest.json> --source-data <source.json> --out <new-adapter-dir>
+python3 do-work/score-voice-adapter.py --common-dir <shared-helper-dir> --model-owner-dir <classifier-worker-dir> --model-config <private-config.json> --data <v3-eval.json> --adapter <adapter-dir> --out <report.json> --dataset-role <role> --training-source-data <source.json> --training-source-data-blake3 <hex> --training-provenance <manifest.json> --training-provenance-blake3 <hex>
 ```
 
 ## Files
+
+The normal preparation row reads one exact private source challenge, projects only explicitly labelled training requests through `requestPlan`, and keeps the source, train JSONL, provenance and held-out evaluation files plus a dataset record. Training and scoring read their private files through the Records/Files door using exact identities. The generic engine publishes outputs and handles same-key retries. The scorer reads the original training source and provenance by their retained identities, so removing a temporary training folder does not remove the exposure audit. Native command evidence, ordinary tool execution, installation and classifier quality are separate checks.
 
 | File | Purpose |
 |---|---|
@@ -63,7 +68,8 @@ python3 do-work/score-voice-adapter.py --decider-common-dir <dir> --data <v3.jso
 | `do-work/train-voice-adapter.py` | `tool:train-a-writing-voice-adapter` (on the person's computer): row and provenance checks, then LoRA training and a receipt. |
 | `do-work/score-voice-adapter.py` | `tool:score-writing-with-a-voice-adapter` (on the person's computer): admission, receipt binding, scoring, summaries and the exposure audit. |
 | `ports/*.json` | One port contract for each file above (SOURCE_FIRST_PORT of the launch-video copy). |
-| `tool-rows.json` | The four rows. The evaluate row packs `tools/ask-a-small-model-for-a-verdict` (`do-work`), `tools/settings` (`read-data`), `tools/content-identity` and `@noble/hashes`; its sample reads a made-up settings row and plays recorded replies. |
+| `tool-rows.json` | The tool declarations. Train and score pin their Python interpreter and 39 wheels; the generic program and package owners verify and stage them. The evaluate row packs `tools/ask-a-small-model-for-a-verdict` (`do-work`), `tools/settings` (`read-data`), `tools/content-identity` and `@noble/hashes`; its sample reads a made-up settings row and plays recorded replies. |
+| `read-data/training-lifecycle.mjs`, `test/training-lifecycle.test.mjs` | Exact record, Files and model-snapshot bindings; the isolated Python launch adds the staged dependency root and preserves the original script arguments. Synthetic launch tests execute that path without model weights. |
 | `test/evaluation-integrity.test.mjs`, `test/scoring-input-mode.test.mjs`, `test/evaluate-voice-cli.test.mjs` | The old suites (15, 5 and 5 tests), on made-up fixtures and a loopback stand-in classifier. |
 | `test/tool-row.test.mjs`, `test/build-unlabeled-diagnostic.test.mjs` | New: the rows' samples, replay of recorded replies equals the recorded report, settings refusals; the unlabeled builder (it had no test). |
 | `test/test_*.py`, `test/python.test.mjs` | The old Python suites (87 tests), run by the wrapper. `test/stand_in_decider.py` stands in for the decider frame (no weights) and puts a `b3sum` made from Python's `blake3` on PATH when the program is missing. |
@@ -77,6 +83,6 @@ python3 do-work/score-voice-adapter.py --decider-common-dir <dir> --data <v3.jso
 
 ## Dependencies
 
-**Depends on:** Node 22+; `tools/ask-a-small-model-for-a-verdict` (the hosted classifier wire), `tools/settings` (the settings row), `tools/content-identity` and `@noble/hashes` (BLAKE3), `tools/pin-files-by-content` (`writingBlocks`, for the unlabeled builder). Python 3 for the audit. Train, score and pack also need, on the person's computer, torch, peft, transformers, the decider package in its pinned snapshot, the frame `common.py` and `b3sum`.
+**Depends on:** Node 22+; `tools/ask-a-small-model-for-a-verdict` (the hosted classifier wire), `tools/settings` (the settings row), `tools/content-identity` and `@noble/hashes` (BLAKE3), `tools/records-door` (exact records and file inputs), `tools/pin-files-by-content` (`writingBlocks`, for the unlabeled builder). The train and score rows declare Python 3.12.16 and all 39 wheels by official URL and verified payload BLAKE3. The generic engine stages the wheels at the private `python-dependencies` root; the Node helper starts `python3.12 -I -B`, adds that root and executes the original script with its original arguments. An ordinary contained run imported Torch 2.8.0, PEFT 0.21.2, Transformers 5.19.0 and BLAKE3 under that interpreter and checked all 39 distribution versions. Training and scoring use the person's pinned Decider snapshot, `b3sum` and the shared `common.py` frame/model owner. Native command dependencies remain listed in `requirements-training.txt`.
 
 **Depended on by:** the person's writing gate (a book export checks its voice through the evaluation report).

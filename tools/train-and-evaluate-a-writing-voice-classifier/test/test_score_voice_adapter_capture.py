@@ -94,7 +94,7 @@ class ScoringLimitsMetadataTests(unittest.TestCase):
         counts, indices = SCORER.scoring_limit_metadata(
             {"limits": {"unassessed_block_counts": expected_counts,
                         "unassessed_block_indices": expected_indices}},
-            "unlabeled_manuscript_diagnostic",
+            "unlabeled_manuscript_diagnostic", mode="unlabeled",
         )
         self.assertIs(counts, expected_counts)
         self.assertIs(indices, expected_indices)
@@ -103,12 +103,12 @@ class ScoringLimitsMetadataTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "needs object limits"):
             SCORER.scoring_limit_metadata(
                 {"limits": ["Coverage is not fully assessed."]},
-                "unlabeled_manuscript_diagnostic",
+                "unlabeled_manuscript_diagnostic", mode="unlabeled",
             )
 
     def test_unlabeled_manuscript_diagnostic_refuses_missing_limits(self):
         with self.assertRaisesRegex(ValueError, "needs object limits"):
-            SCORER.scoring_limit_metadata({}, "unlabeled_manuscript_diagnostic")
+            SCORER.scoring_limit_metadata({}, "unlabeled_manuscript_diagnostic", mode="unlabeled")
 
     def test_unlabeled_manuscript_diagnostic_requires_both_explicit_coverage_dictionaries(self):
         for limits in (
@@ -116,11 +116,11 @@ class ScoringLimitsMetadataTests(unittest.TestCase):
             {"unassessed_block_indices": {}},
         ):
             with self.subTest(limits=limits), self.assertRaisesRegex(ValueError, "explicit unassessed_block_counts"):
-                SCORER.scoring_limit_metadata({"limits": limits}, "unlabeled_manuscript_diagnostic")
+                SCORER.scoring_limit_metadata({"limits": limits}, "unlabeled_manuscript_diagnostic", mode="unlabeled")
 
     def test_unlabeled_manuscript_diagnostic_accepts_explicit_empty_coverage(self):
         counts, indices = SCORER.scoring_limit_metadata(
-            self.unlabeled_data({}, {}), "unlabeled_manuscript_diagnostic"
+            self.unlabeled_data({}, {}), "unlabeled_manuscript_diagnostic", mode="unlabeled"
         )
         self.assertEqual(counts, {})
         self.assertEqual(indices, {})
@@ -128,7 +128,7 @@ class ScoringLimitsMetadataTests(unittest.TestCase):
     def test_unlabeled_manuscript_diagnostic_requires_matching_kind_keys(self):
         with self.assertRaisesRegex(ValueError, "matching kind keys"):
             SCORER.scoring_limit_metadata(
-                self.unlabeled_data({"paragraph": 1}, {}), "unlabeled_manuscript_diagnostic"
+                self.unlabeled_data({"paragraph": 1}, {}), "unlabeled_manuscript_diagnostic", mode="unlabeled"
             )
 
     def test_unlabeled_manuscript_diagnostic_requires_coverage_objects(self):
@@ -136,14 +136,14 @@ class ScoringLimitsMetadataTests(unittest.TestCase):
             with self.subTest(counts=counts, indices=indices), self.assertRaisesRegex(ValueError, "must be objects"):
                 SCORER.scoring_limit_metadata(
                     {"limits": {"unassessed_block_counts": counts, "unassessed_block_indices": indices}},
-                    "unlabeled_manuscript_diagnostic",
+                    "unlabeled_manuscript_diagnostic", mode="unlabeled",
                 )
 
     def test_unlabeled_manuscript_diagnostic_rejects_unknown_block_kind(self):
         with self.assertRaisesRegex(ValueError, "unsupported block kinds"):
             SCORER.scoring_limit_metadata(
                 self.unlabeled_data({"unknown": 0}, {"unknown": []}),
-                "unlabeled_manuscript_diagnostic",
+                "unlabeled_manuscript_diagnostic", mode="unlabeled",
             )
 
     def test_unlabeled_manuscript_diagnostic_rejects_invalid_counts(self):
@@ -151,14 +151,14 @@ class ScoringLimitsMetadataTests(unittest.TestCase):
             with self.subTest(count=count), self.assertRaisesRegex(ValueError, "nonnegative integer"):
                 SCORER.scoring_limit_metadata(
                     self.unlabeled_data({"paragraph": count}, {"paragraph": []}),
-                    "unlabeled_manuscript_diagnostic",
+                    "unlabeled_manuscript_diagnostic", mode="unlabeled",
                 )
 
     def test_unlabeled_manuscript_diagnostic_rejects_count_index_length_mismatch(self):
         with self.assertRaisesRegex(ValueError, "must match its index list length"):
             SCORER.scoring_limit_metadata(
                 self.unlabeled_data({"paragraph": 2}, {"paragraph": [3]}),
-                "unlabeled_manuscript_diagnostic",
+                "unlabeled_manuscript_diagnostic", mode="unlabeled",
             )
 
     def test_unlabeled_manuscript_diagnostic_rejects_malformed_indices(self):
@@ -167,7 +167,7 @@ class ScoringLimitsMetadataTests(unittest.TestCase):
             with self.subTest(indices=indices), self.assertRaises(ValueError):
                 SCORER.scoring_limit_metadata(
                     self.unlabeled_data({"paragraph": count}, {"paragraph": indices}),
-                    "unlabeled_manuscript_diagnostic",
+                    "unlabeled_manuscript_diagnostic", mode="unlabeled",
                 )
 
     def test_unlabeled_manuscript_diagnostic_rejects_duplicate_indices_across_kinds(self):
@@ -177,14 +177,14 @@ class ScoringLimitsMetadataTests(unittest.TestCase):
                     {"paragraph": 1, "heading": 1},
                     {"paragraph": [4], "heading": [4]},
                 ),
-                "unlabeled_manuscript_diagnostic",
+                "unlabeled_manuscript_diagnostic", mode="unlabeled",
             )
 
     def test_unlabeled_manuscript_diagnostic_preserves_valid_nonempty_metadata(self):
         expected_counts = {"paragraph": 2, "table": 1}
         expected_indices = {"paragraph": [3, 7], "table": [11]}
         counts, indices = SCORER.scoring_limit_metadata(
-            self.unlabeled_data(expected_counts, expected_indices), "unlabeled_manuscript_diagnostic"
+            self.unlabeled_data(expected_counts, expected_indices), "unlabeled_manuscript_diagnostic", mode="unlabeled"
         )
         self.assertIs(counts, expected_counts)
         self.assertIs(indices, expected_indices)
@@ -237,6 +237,7 @@ class JsonlCriterionProvenanceTests(unittest.TestCase):
             root = Path(temp)
             source = {
                 "schema": SCORER.CHALLENGE_SCHEMA,
+                "dataset_role": "held-out scorer projection",
                 "criteria": [{
                     "id": "context-training-14",
                     "question": "Does this target work?",
@@ -248,7 +249,7 @@ class JsonlCriterionProvenanceTests(unittest.TestCase):
                     ],
                 }],
                 "items": [{
-                    "id": "case-1", "family": "family-a", "split": "train",
+                    "id": "case-1", "family": "family-a", "split": "eval",
                     "block_kind": "paragraph", "text": "target text",
                     "reader_context": "prior blocks", "checks": {"context-training-14": "pass"},
                 }],

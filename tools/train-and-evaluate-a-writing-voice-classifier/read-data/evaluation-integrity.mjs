@@ -1,6 +1,6 @@
 // tools/train-and-evaluate-a-writing-voice-classifier/read-data/evaluation-integrity.mjs
 // The maintained checks of a writing-voice challenge, its request plans and a stored evaluation report. Pure: nothing
-// is read or sent here. Moved from source-repo-a tools/copy-gate/evaluate-book-voice-integrity.mjs.
+// is read or sent here. Pure checks only; this module performs no external I/O.
 import { isDeepStrictEqual } from 'node:util';
 // The hosted classifier's wire shape has one home: tools/ask-a-small-model-for-a-verdict.
 import { intoBatchRequest, outOfBatchReply } from '../../ask-a-small-model-for-a-verdict/do-work/ask-a-hosted-classifier.mjs';
@@ -55,7 +55,15 @@ export function criterionDecisionLabels(criterion) {
 }
 
 export function validateInput(input, {mode = 'evaluation'} = {}) {
-  if (!['evaluation', 'scoring-evaluation', 'unlabeled'].includes(mode)) fail('unsupported input validation mode');
+  if (!['evaluation', 'scoring-evaluation', 'unlabeled', 'training'].includes(mode)) fail('unsupported input validation mode');
+  if (mode === 'training' && (input?.schema !== 'book-voice-decider-challenge-v3'
+      || !Array.isArray(input.items) || input.items.some(item => !isRecord(item)
+        || !['train', 'eval', 'unlabeled'].includes(item.split)))) {
+    fail('training validation requires v3 items with explicit source splits');
+  }
+  if (mode === 'training' && (typeof input.dataset_role !== 'string' || !input.dataset_role.trim())) {
+    fail('training source DATA must declare nonempty dataset_role metadata');
+  }
   if (!SCHEMAS.has(input?.schema) || !Array.isArray(input.items)) fail('unsupported challenge schema or items');
   if (mode === 'scoring-evaluation' && (input.schema !== 'book-voice-decider-challenge-v3'
       || input.items.some(item => !isRecord(item) || item.split !== 'eval'))) {
@@ -89,7 +97,9 @@ export function validateInput(input, {mode = 'evaluation'} = {}) {
     if (item.role != null && !['authored', 'quote', 'reference'].includes(item.role)) fail(`invalid authored role: ${item.id}`);
   }
   const evalItems = input.items.filter(item => item.split === 'eval');
-  const assessedItems = mode === 'unlabeled' ? input.items : evalItems;
+  const trainItems = input.items.filter(item => item.split === 'train');
+  const assessedItems = ['unlabeled', 'training'].includes(mode) ? input.items : evalItems;
+  if (mode === 'training' && !trainItems.length) fail('challenge set has no explicitly designated train items');
   if (!assessedItems.length) fail(mode === 'unlabeled' ? 'challenge set has no unlabeled items' : 'challenge set has no eval items');
 
   const criteria = input.criteria ?? null;
@@ -203,7 +213,7 @@ export function validateInput(input, {mode = 'evaluation'} = {}) {
       }
     }
   }
-  return { evalItems, criteria };
+  return mode === 'training' ? { evalItems, trainItems, criteria } : { evalItems, criteria };
 }
 
 export function requestPlan(input, item, criteria = input.criteria ?? null) {

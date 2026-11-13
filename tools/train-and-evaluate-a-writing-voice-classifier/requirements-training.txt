@@ -1,0 +1,4 @@
+# Observed in the configured Mac Python environment on 2026-11-07; this is a version pin, not a compatibility test.
+torch==2.8.0
+peft==0.21.2
+transformers==5.19.0

@@ -29,10 +29,19 @@ class MaintainedAdmissionTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             p=Path(folder)/'input.json'
             for split,role,mode in [('eval','editorial-development','scoring-evaluation'),
-                ('unlabeled','unlabeled_manuscript_diagnostic','unlabeled')]:
+                ('unlabeled','private-notebook-review','unlabeled')]:
                 p.write_text(json.dumps(data(split)))
-                r=SCORER.validate_challenge_file(p,role)
+                r=SCORER.validate_challenge_file(p,role,mode=mode)
                 self.assertEqual((r['mode'],r['items'],r['requests']),(mode,1,1))
+
+    def test_role_text_cannot_select_unlabeled_mode(self):
+        with tempfile.TemporaryDirectory() as folder:
+            p=Path(folder)/'input.json'
+            p.write_text(json.dumps(data('unlabeled')))
+            with self.assertRaisesRegex(ValueError,'rejected DATA before model loading'):
+                SCORER.validate_challenge_file(p,'unlabeled_manuscript_diagnostic')
+            r=SCORER.validate_challenge_file(p,'arbitrary-role',mode='unlabeled')
+            self.assertEqual(r['mode'],'unlabeled')
 
     def test_mixed_splits_are_refused_and_validation_uses_supplied_snapshot_bytes(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -57,10 +66,15 @@ class MaintainedAdmissionTests(unittest.TestCase):
             root=Path(folder);p=root/'input.json';d=data();del d['items'][0]['source_kind']
             p.write_text(json.dumps(d));adapter=root/'adapter';adapter.mkdir()
             weights=adapter/'adapter_model.safetensors';weights.write_bytes(b'not model weights')
+            model_path, owner_dir, model = stand_in_decider.write_model_config(root)
             (adapter/'train-info.json').write_text(json.dumps({
-                'adapter_model_blake3':SCORER.digest(weights),'base_snapshot':str(SCORER.common.MODEL)}))
+                'adapter_model_blake3':SCORER.digest(weights),'base_snapshot':str(SCORER.common.MODEL),
+                'frame':SCORER.common.FRAME,'device':SCORER.common.DEVICE,
+                'ready_identity':model['ready']['identity'],'model_record':model['model_record'],
+                'ready_record':model['ready_record']}))
             output=root/'not-created'/'nested'/'score.json'
-            argv=['scorer','--data',str(p),'--adapter',str(adapter),'--out',str(output),
+            argv=['scorer','--common-dir',str(Path(__file__).parent),'--model-config',str(model_path),
+                  '--model-owner-dir',str(owner_dir),'--data',str(p),'--adapter',str(adapter),'--out',str(output),
                   '--dataset-role','editorial-development']
             with patch.object(SCORER.sys,'argv',argv),patch.object(SCORER.common,'load') as load:
                 with self.assertRaisesRegex(ValueError,'rejected DATA before model loading'):
@@ -90,6 +104,48 @@ class MaintainedAdmissionTests(unittest.TestCase):
             receipt['provenance']['source_dataset']['blake3']='a'*64
             with self.assertRaisesRegex(ValueError,'source changed'):
                 SCORER.exposure_from_receipt(receipt,rows,{})
+
+    def test_portable_receipt_audits_only_explicitly_supplied_identity_bound_source_data(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);source_path=root/'source.json';source=data()
+            target='Previously rejected complete paragraph.'
+            source['items'][0]['reader_context']='Earlier text. '+target+' Following text.'
+            source_path.write_text(json.dumps(source),encoding='utf-8')
+            source_hash=SCORER.digest(source_path)
+            receipt={'rows':1,'provenance':{'schema':'book-voice-training-provenance-v2',
+                'criterion_id':'reader-fit','row_ids':['case-one'],'source_dataset':{
+                    'identity':'1f:'+source_hash,'blake3':source_hash,'schema':'book-voice-decider-challenge-v3'}}}
+            evaluation=data();evaluation['items'][0]['text']=target
+            rows=SCORER.adapt_v3(evaluation)
+            result=SCORER.exposure_from_receipt(receipt,rows,{},training_source_path=source_path,
+                supplied_source_blake3=source_hash)
+            self.assertTrue(result['source_projection']['source_bytes_verified'])
+            self.assertEqual(result['text_matches'][0]['field_key'],'reader_context')
+            self.assertEqual(result['training_source']['status'],'caller_declared')
+            source_path.write_text(json.dumps(data()),encoding='utf-8')
+            with self.assertRaisesRegex(ValueError,'source changed from its receipt identity'):
+                SCORER.exposure_from_receipt(receipt,rows,{},training_source_path=source_path,
+                    supplied_source_blake3=source_hash)
+
+    def test_current_receipt_audits_train_sources_without_scoring_or_relabelling_them(self):
+        with tempfile.TemporaryDirectory() as folder:
+            p=Path(folder)/'source.json';source=data('train')
+            evaluation=data();evaluation['items'][0].update(id='held-out',family='held-out-family',text='A separate held-out passage.')
+            source['items'].append(evaluation['items'][0])
+            before=json.dumps(source);p.write_text(before)
+            receipt={'schema':'book-voice-adapter-training-receipt-v2','rows':1,'provenance':{
+                'criterion_id':'reader-fit','row_ids':['case-one'],'source_dataset':{
+                    'identity':'1f:'+SCORER.digest(p),'blake3':SCORER.digest(p)}}}
+            result=SCORER.exposure_from_receipt(receipt,SCORER.adapt_v3(evaluation),{},training_source_path=p)
+            self.assertTrue(result['source_projection']['source_bytes_verified'])
+            self.assertEqual(result['text_matches'],[])
+            self.assertEqual(result['same_family_matches'],[])
+            self.assertEqual(p.read_text(),before)
+            with self.assertRaisesRegex(ValueError,'only eval or unlabeled'):
+                SCORER.adapt_v3(source)
+            receipt['provenance']['row_ids']=['held-out']
+            with self.assertRaisesRegex(ValueError,'cannot bind evaluation'):
+                SCORER.exposure_from_receipt(receipt,SCORER.adapt_v3(evaluation),{},training_source_path=p)
 
     def test_missing_training_provenance_is_unassessed_not_disjoint(self):
         result=SCORER.exposure_from_receipt({},SCORER.adapt_v3(data()),{})
@@ -143,9 +199,10 @@ class MaintainedAdmissionTests(unittest.TestCase):
                 'request_projection_policy':'maintained-requestPlan-multi-criterion-per-row-v1',
                 'rows':provenance_rows}
             provenance_path.write_text(json.dumps(source_provenance),encoding='utf-8')
+            provenance_hash=SCORER.digest(provenance_path)
             receipt={'rows':len(bindings),'provenance':{
-                'path':str(provenance_path),'blake3':SCORER.digest(provenance_path),
-                'source_dataset':{'path':str(source_path),'blake3':source_hash,
+                'identity':'1f:'+provenance_hash,
+                'source_dataset':{'identity':'1f:'+source_hash,'blake3':source_hash,
                     'schema':'book-voice-training-provenance-v3',
                     'criterion_ids':sorted({row[2] for row in bindings}),
                     'training_row_ids':[row[0] for row in bindings]},
@@ -158,7 +215,9 @@ class MaintainedAdmissionTests(unittest.TestCase):
             }}
             target_data=data();target_data['items'][0]['text']='Target phrase meaningful.'
             target_rows=SCORER.adapt_v3(target_data)
-            result=SCORER.exposure_from_receipt(receipt,target_rows,{'path':'target','blake3':'b'*64})
+            result=SCORER.exposure_from_receipt(receipt,target_rows,{'path':'target','blake3':'b'*64},
+                training_source_path=source_path,training_provenance_path=provenance_path,
+                supplied_source_blake3=source_hash,supplied_provenance_blake3=provenance_hash)
             self.assertEqual(result['source_projection']['status'],
                              'receipt_bound_multi_criterion_v3_source_projection')
             self.assertEqual(result['training_row_count'],4)
@@ -168,24 +227,29 @@ class MaintainedAdmissionTests(unittest.TestCase):
             duplicate=json.loads(json.dumps(receipt))
             duplicate['provenance']['training_row_ids'][1]='training-1'
             with self.assertRaisesRegex(ValueError,'duplicate, or miscounted'):
-                SCORER.exposure_from_receipt(duplicate,target_rows,{})
+                SCORER.exposure_from_receipt(duplicate,target_rows,{},training_source_path=source_path,
+                    training_provenance_path=provenance_path)
             duplicate_pair=json.loads(json.dumps(receipt))
             duplicate_pair['provenance']['source_item_ids'][1]='prose'
             duplicate_pair['provenance']['criterion_ids'][1]='voice'
             with self.assertRaisesRegex(ValueError,'duplicate, or miscounted'):
-                SCORER.exposure_from_receipt(duplicate_pair,target_rows,{})
+                SCORER.exposure_from_receipt(duplicate_pair,target_rows,{},training_source_path=source_path,
+                    training_provenance_path=provenance_path)
             omitted=json.loads(json.dumps(receipt))
             omitted['provenance']['criterion_ids'].pop()
             with self.assertRaisesRegex(ValueError,'missing, duplicate, or miscounted'):
-                SCORER.exposure_from_receipt(omitted,target_rows,{})
+                SCORER.exposure_from_receipt(omitted,target_rows,{},training_source_path=source_path,
+                    training_provenance_path=provenance_path)
             reordered=json.loads(json.dumps(receipt))
             reordered['provenance']['source_item_ids'][0],reordered['provenance']['source_item_ids'][1]=(
                 reordered['provenance']['source_item_ids'][1],reordered['provenance']['source_item_ids'][0])
             with self.assertRaisesRegex(ValueError,'out of order'):
-                SCORER.exposure_from_receipt(reordered,target_rows,{})
+                SCORER.exposure_from_receipt(reordered,target_rows,{},training_source_path=source_path,
+                    training_provenance_path=provenance_path)
             source_path.write_text(json.dumps({**source,'items':source['items'][:-1]}),encoding='utf-8')
             with self.assertRaisesRegex(ValueError,'source changed'):
-                SCORER.exposure_from_receipt(receipt,target_rows,{})
+                SCORER.exposure_from_receipt(receipt,target_rows,{},training_source_path=source_path,
+                    training_provenance_path=provenance_path)
 
     def test_preflight_cli_writes_a_distinct_noninference_receipt_without_loading_weights(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -194,10 +258,15 @@ class MaintainedAdmissionTests(unittest.TestCase):
             p.write_text(json.dumps(d))
             adapter=root/'adapter';adapter.mkdir()
             weights=adapter/'adapter_model.safetensors';weights.write_bytes(b'not model weights')
+            model_path, owner_dir, model = stand_in_decider.write_model_config(root)
             (adapter/'train-info.json').write_text(json.dumps({
-                'adapter_model_blake3':SCORER.digest(weights),'base_snapshot':str(SCORER.common.MODEL)}))
+                'adapter_model_blake3':SCORER.digest(weights),'base_snapshot':str(SCORER.common.MODEL),
+                'frame':SCORER.common.FRAME,'device':SCORER.common.DEVICE,
+                'ready_identity':model['ready']['identity'],'model_record':model['model_record'],
+                'ready_record':model['ready_record']}))
             output=root/'new'/'preflight.json'
-            argv=['scorer','--data',str(p),'--adapter',str(adapter),'--out',str(output),
+            argv=['scorer','--common-dir',str(Path(__file__).parent),'--model-config',str(model_path),
+                  '--model-owner-dir',str(owner_dir),'--data',str(p),'--adapter',str(adapter),'--out',str(output),
                   '--dataset-role','editorial-development','--preflight-only']
             with patch.object(SCORER.sys,'argv',argv),patch.object(SCORER.common,'load') as load:
                 SCORER.main();load.assert_not_called()
@@ -212,14 +281,19 @@ class MaintainedAdmissionTests(unittest.TestCase):
             root=Path(folder);p=root/'input.json';p.write_text(json.dumps(data()))
             adapter=root/'adapter';adapter.mkdir();weights=adapter/'adapter_model.safetensors'
             weights.write_bytes(b'not model weights')
+            model_path, owner_dir, model = stand_in_decider.write_model_config(root)
             (adapter/'train-info.json').write_text(json.dumps({
-                'adapter_model_blake3':SCORER.digest(weights),'base_snapshot':str(SCORER.common.MODEL)}))
+                'adapter_model_blake3':SCORER.digest(weights),'base_snapshot':str(SCORER.common.MODEL),
+                'frame':SCORER.common.FRAME,'device':SCORER.common.DEVICE,
+                'ready_identity':model['ready']['identity'],'model_record':model['model_record'],
+                'ready_record':model['ready_record']}))
             original_digests=SCORER.digests
             def change_after_hash(paths):
                 hashes=original_digests(paths)
                 changed=data();changed['items'][0]['text']='A concurrent writer replaced this explanation.'
                 p.write_text(json.dumps(changed));return hashes
-            argv=['scorer','--data',str(p),'--adapter',str(adapter),'--out',str(root/'new'/'report.json'),
+            argv=['scorer','--common-dir',str(Path(__file__).parent),'--model-config',str(model_path),
+                  '--model-owner-dir',str(owner_dir),'--data',str(p),'--adapter',str(adapter),'--out',str(root/'new'/'report.json'),
                   '--dataset-role','editorial-development','--preflight-only']
             with patch.object(SCORER.sys,'argv',argv),patch.object(SCORER,'digests',side_effect=change_after_hash),\
                     patch.object(SCORER.common,'load') as load:

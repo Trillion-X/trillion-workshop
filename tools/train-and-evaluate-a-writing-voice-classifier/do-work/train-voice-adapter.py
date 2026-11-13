@@ -11,10 +11,12 @@ from __future__ import annotations
 import argparse
 import base64
 import gc
+import importlib.util
 import json
 import math
 import os
 import random
+import re
 import shutil
 import stat
 import subprocess
@@ -24,24 +26,47 @@ from pathlib import Path
 
 
 HERE = Path(__file__).resolve().parent
-# The decider model frame (common.py, which loads the decider package from its pinned model snapshot) is the caller's:
-# --decider-common-dir names the folder that holds it on the computer that trains (the person's setting). A test puts
-# stand-ins for common and decider in sys.modules first.
-def decider_common_dir(argv):
+# The generic helper is shared with tools/fine-tune-a-small-model-on-a-persons-rules. Model folder, frame, device and
+# LoRA targets are configured from the model DATA after CLI parsing; no model-specific common.py is loaded.
+def common_dir(argv):
     for index, word in enumerate(argv):
-        if word == "--decider-common-dir" and index + 1 < len(argv):
+        if word == "--common-dir" and index + 1 < len(argv):
             return Path(argv[index + 1]).resolve()
-        if word.startswith("--decider-common-dir="):
+        if word.startswith("--common-dir="):
             return Path(word.split("=", 1)[1]).resolve()
     return None
 
 
-FINETUNE = decider_common_dir(sys.argv)
-if FINETUNE is not None:
-    sys.path.insert(0, str(FINETUNE))
-import common  # noqa: E402
-from decider.infer import Example, Q  # noqa: E402
-from decider.systemone import render_question, render_state  # noqa: E402
+COMMON_DIR = common_dir(sys.argv)
+if COMMON_DIR is not None:
+    sys.path.insert(0, str(COMMON_DIR))
+# Tests install a deterministic stand-in in sys.modules. In a real invocation the
+# required --common-dir is added and imported by main after argument validation.
+common = sys.modules.get("common")
+Example = Q = None
+_render_question_impl = _render_state_impl = None
+
+
+def load_renderers():
+    """Load the pinned request renderer when DATA is projected or model work begins."""
+    global Example, Q, _render_question_impl, _render_state_impl
+    if Example is None or Q is None or _render_question_impl is None or _render_state_impl is None:
+        from decider.infer import Example as ExampleType, Q as QuestionType
+        from decider.systemone import render_question as question_renderer, render_state as state_renderer
+        Example, Q = ExampleType, QuestionType
+        _render_question_impl, _render_state_impl = question_renderer, state_renderer
+
+
+def render_question(spec):
+    if _render_question_impl is None:
+        load_renderers()
+    return _render_question_impl(spec)
+
+
+def render_state(value):
+    if _render_state_impl is None:
+        load_renderers()
+    return _render_state_impl(value)
 
 ROW_SCHEMA = "book-voice-adapter-training-row-v1"
 MULTI_CRITERION_ROW_SCHEMA = "book-voice-adapter-training-row-v2"
@@ -67,6 +92,80 @@ def digest_bytes(content: bytes) -> str:
 
 def digest(path: Path) -> str:
     return digest_bytes(path.read_bytes())
+
+
+def resolve_verified_model(model_config_path: Path, owner_dir: Path, *, require_dataset_bindings: bool = True) -> tuple[dict, Path]:
+    """Resolve the exact model row with the classifier-ready identity owner, without fetching weights."""
+    try:
+        model_config = json.loads(model_config_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise ValueError("The model row projection is not valid JSON") from error
+    required = {"model", "ready", "frame", "device", "lora_targets", "model_record", "ready_record"}
+    dataset_fields = {"dataset_record", "training_data_identity", "provenance_identity", "source_data_identity"}
+    expected_fields = required | (dataset_fields if require_dataset_bindings else set())
+    if not isinstance(model_config, dict) or not expected_fields.issubset(model_config) \
+            or set(model_config) - required - dataset_fields:
+        raise ValueError("The model row projection needs exact model and classifier-ready identities")
+    if require_dataset_bindings and not dataset_fields.issubset(model_config):
+        raise ValueError("The training model projection needs exact dataset record and file identities")
+    model = model_config["model"]
+    ready = model_config["ready"]
+    if not isinstance(model, dict) or model.get("classifier") != "questions-first-decider":
+        raise ValueError("The model row must name the questions-first-decider family")
+    if not isinstance(ready, dict) or not isinstance(ready.get("identity"), str) \
+            or re.fullmatch(r"1f:[0-9a-f]{64}", ready["identity"]) is None \
+            or not isinstance(ready.get("files"), list):
+        raise ValueError("The model row needs its exact classifier-ready identity and file manifest")
+    for field in ("model_record", "ready_record", *(('dataset_record',) if require_dataset_bindings else ())):
+        address = model_config[field]
+        if not isinstance(address, dict) or set(address) != {"type", "id"} \
+                or any(not isinstance(value, str) or not value.strip() for value in address.values()):
+            raise ValueError(f"The model projection needs an exact {field} address")
+    if require_dataset_bindings:
+        for field in ("training_data_identity", "provenance_identity", "source_data_identity"):
+            if not isinstance(model_config[field], str) or re.fullmatch(r"1f:[0-9a-f]{64}", model_config[field]) is None:
+                raise ValueError(f"The dataset projection needs its exact {field}")
+    if not isinstance(model_config["frame"], str) or "{text}" not in model_config["frame"]:
+        raise ValueError("The model frame must contain {text}")
+    if model_config["device"] not in ("mps", "cuda", "cpu"):
+        raise ValueError("The model device must be mps, cuda or cpu")
+    targets = model_config["lora_targets"]
+    if not isinstance(targets, list) or not targets or any(not isinstance(name, str) or not name.strip() for name in targets) \
+            or len(targets) != len(set(targets)):
+        raise ValueError("The model row needs unique LoRA target module names")
+    files = ready["files"]
+    names = []
+    for item in files:
+        if not isinstance(item, dict) or set(item) != {"name", "bytes", "blake3"}:
+            raise ValueError("The ready-file manifest has an unsupported entry")
+        name = item["name"]
+        if not isinstance(name, str) or not name or name in (".", "..") or "/" in name or "\\" in name \
+                or "\x00" in name or name in names:
+            raise ValueError("The ready-file manifest has a duplicate or unsafe filename")
+        if type(item["bytes"]) is not int or item["bytes"] < 0 \
+                or not isinstance(item["blake3"], str) or len(item["blake3"]) != 64 \
+                or any(char not in "0123456789abcdef" for char in item["blake3"]):
+            raise ValueError("The ready-file manifest needs exact byte counts and BLAKE3 hashes")
+        names.append(name)
+    if len(names) < 5 or not {"config.json", "decider_config.json", "tokenizer.json", "tokenizer_config.json"}.issubset(names) \
+            or not any(name.endswith(".safetensors") for name in names):
+        raise ValueError("The ready-file manifest is missing classifier configuration or weights")
+    owner_path = owner_dir / "answer_many_states.py"
+    spec = importlib.util.spec_from_file_location("voice_classifier_model_owner", owner_path)
+    if spec is None or spec.loader is None:
+        raise ValueError("The declared classifier model identity owner is unavailable")
+    owner = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(owner)
+    try:
+        folder = Path(owner.model_folder(model, fetch=False)).resolve(strict=True)
+        actual_identity, actual_files = owner.identity_of_files(str(folder), names)
+    except Exception as error:
+        raise ValueError("The exact model row does not resolve to its ready local snapshot") from error
+    expected_files = [[item["name"], item["bytes"], item["blake3"]] for item in sorted(files, key=lambda x: x["name"])]
+    if actual_identity != ready["identity"] or actual_files != expected_files:
+        raise ValueError("The local model files do not match the model row's classifier-ready identity")
+    model_config["resolved_base_model"] = str(folder)
+    return model_config, folder
 
 
 def read_stable_source_bytes(path: Path, max_bytes: int = 8 * 1024 * 1024) -> bytes:
@@ -113,9 +212,13 @@ def read_stable_source_bytes(path: Path, max_bytes: int = 8 * 1024 * 1024) -> by
         os.close(descriptor)
 
 
-def load_rows(path: Path):
+def load_rows(path: Path, *, raw_bytes: bytes | None = None):
     rows = []
-    for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+    try:
+        text = path.read_text(encoding="utf-8") if raw_bytes is None else raw_bytes.decode("utf-8")
+    except UnicodeDecodeError as error:
+        raise ValueError("Training DATA is not valid UTF-8") from error
+    for line_number, line in enumerate(text.splitlines(), 1):
         if not line.strip():
             continue
         try:
@@ -289,8 +392,10 @@ def validate_multi_criterion_provenance(rows, provenance):
     return provenance_rows
 
 
-def project_multi_criterion_requests(source_data, provenance_rows):
-    """Validate and project the same immutable source snapshot through requestPlan."""
+def project_multi_criterion_requests(source_data, provenance_rows, *, mode="training"):
+    """Validate and project the same immutable source snapshot through requestPlan for an explicit split mode."""
+    if mode not in ("training", "scoring-evaluation"):
+        raise ValueError("Source request projection mode must be training or scoring-evaluation")
     node = shutil.which("node")
     validator = HERE.parent / "read-data" / "evaluation-integrity.mjs"
     if not node or not validator.is_file():
@@ -302,8 +407,9 @@ const {validateInput, requestPlan} = await import(pathToFileURL(modulePath).href
 const payload = JSON.parse(fs.readFileSync(0, 'utf8'));
 const inputBytes = Buffer.from(payload.source_dataset_bytes_base64, 'base64');
 const input = JSON.parse(inputBytes.toString('utf8'));
-const {evalItems} = validateInput(input, {mode: 'scoring-evaluation'});
-const byId = new Map(evalItems.map(item => [item.id, item]));
+const {trainItems, evalItems} = validateInput(input, {mode: MODE});
+const selectedItems = MODE === 'training' ? trainItems : evalItems;
+const byId = new Map(selectedItems.map(item => [item.id, item]));
 const rows = payload.bindings.map(binding => {
   const item = byId.get(binding.source_item_id);
   if (!item) throw new Error(`missing source item ${binding.source_item_id}`);
@@ -311,7 +417,7 @@ const rows = payload.bindings.map(binding => {
   return {item, content: plan.content, request: plan.asking[binding.criterion_id] ?? null};
 });
 process.stdout.write(JSON.stringify(rows));
-'''
+'''.replace("MODE", json.dumps(mode))
     bindings = [{"source_item_id": row["source_item_id"], "criterion_id": row["criterion_id"]}
                 for row in provenance_rows]
     source_bytes = json.dumps(source_data, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
@@ -338,8 +444,42 @@ process.stdout.write(JSON.stringify(rows));
     return projections
 
 
-def validate_multi_criterion_source_dataset(provenance, provenance_rows, training_rows):
-    """Verify every row against the maintained per-item, per-criterion requestPlan."""
+def validate_training_source_splits(source_data, *, mode="training"):
+    """Check every source item and family before any split-bound v2 or v3 binding is accepted."""
+    if mode not in ("training", "scoring-evaluation"):
+        raise ValueError("Source validation mode must be training or scoring-evaluation")
+    if not isinstance(source_data, dict) or source_data.get("schema") != "book-voice-decider-challenge-v3":
+        raise ValueError("Training source DATA must use maintained challenge schema v3")
+    role = source_data.get("dataset_role")
+    if mode == "training" and (not isinstance(role, str) or not role.strip()):
+        raise ValueError("Training source DATA must declare nonempty dataset_role metadata")
+    items = source_data.get("items")
+    if not isinstance(items, list) or not items:
+        raise ValueError("Training source DATA needs a nonempty item list")
+    ids = set()
+    family_splits = {}
+    selected_count = 0
+    for item in items:
+        if not isinstance(item, dict):
+            raise ValueError("Training source DATA items must be objects")
+        item_id, family, split = item.get("id"), item.get("family"), item.get("split")
+        if not isinstance(item_id, str) or not item_id.strip() or item_id in ids:
+            raise ValueError("Training source DATA item ids must be unique and nonempty")
+        if not isinstance(family, str) or not family.strip() or split not in ("train", "eval", "unlabeled"):
+            raise ValueError(f"Training source item {item_id} needs a family and explicit split")
+        previous = family_splits.get(family)
+        if previous is not None and previous != split:
+            raise ValueError(f"Source family {family} crosses split boundaries")
+        ids.add(item_id)
+        family_splits[family] = split
+        selected_count += split == ("train" if mode == "training" else "eval")
+    if not selected_count:
+        raise ValueError(f"Source DATA has no explicitly designated {'train' if mode == 'training' else 'eval'} items")
+    return {item["id"]: item for item in items}
+
+
+def validate_multi_criterion_source_dataset(provenance, provenance_rows, training_rows, *, mode="training"):
+    """Verify every row against the maintained per-item, per-criterion requestPlan in the named split."""
     if provenance.get("schema") != MULTI_CRITERION_PROVENANCE_SCHEMA:
         raise ValueError("Multi-criterion provenance must use book-voice-training-provenance-v3")
     if provenance.get("request_projection_policy") != MULTI_CRITERION_REQUEST_PROJECTION_POLICY:
@@ -357,10 +497,7 @@ def validate_multi_criterion_source_dataset(provenance, provenance_rows, trainin
     source_data = json.loads(source_bytes)
     if not isinstance(source_data, dict) or source_data.get("schema") != "book-voice-decider-challenge-v3":
         raise ValueError("Multi-criterion provenance source is not maintained schema-v3 DATA")
-    role = source_data.get("dataset_role")
-    required_role = "intentional training supervision, not heldout"
-    if not isinstance(role, str) or not (role == required_role or role.startswith(required_role + ";")):
-        raise ValueError("Multi-criterion source DATA must declare its training-supervision role")
+    validate_training_source_splits(source_data, mode=mode)
     criteria = source_data.get("criteria")
     source_items = source_data.get("items")
     if not isinstance(criteria, list) or not criteria or not isinstance(source_items, list):
@@ -406,6 +543,7 @@ def validate_multi_criterion_source_dataset(provenance, provenance_rows, trainin
         origin = item.get("origin")
         origin_kind = origin.get("kind") if isinstance(origin, dict) else item.get("source_kind")
         if (not isinstance(item.get("family"), str) or not item["family"].strip()
+                or item.get("split") not in ("train", "eval", "unlabeled")
                 or not isinstance(item.get("text"), str) or not item["text"].strip()
                 or not isinstance(item.get("block_kind"), str) or item["block_kind"] not in BLOCK_KINDS
                 or not isinstance(origin_kind, str) or not origin_kind.strip()):
@@ -424,7 +562,7 @@ def validate_multi_criterion_source_dataset(provenance, provenance_rows, trainin
 
     if not isinstance(training_rows, list) or len(training_rows) != len(provenance_rows):
         raise ValueError("Multi-criterion training DATA and provenance must contain the same number of rows")
-    projections = project_multi_criterion_requests(source_data, provenance_rows)
+    projections = project_multi_criterion_requests(source_data, provenance_rows, mode=mode)
     for index, (source, training_row, projection) in enumerate(zip(provenance_rows, training_rows, projections)):
         item = items_by_id.get(source["source_item_id"])
         criterion = criteria_by_id.get(source["criterion_id"])
@@ -437,8 +575,9 @@ def validate_multi_criterion_source_dataset(provenance, provenance_rows, trainin
             raise ValueError(f"Multi-criterion binding {index} has no source gold check")
         source_gold = checks[source["criterion_id"]]
         if (source.get("family") != item["family"] or source.get("text") != item["text"]
-                or source.get("gold_check") != source_gold):
-            raise ValueError(f"Multi-criterion binding {index} does not match its source item and gold check")
+                or source.get("gold_check") != source_gold
+                or item.get("split") != ("train" if mode == "training" else "eval")):
+            raise ValueError(f"Multi-criterion binding {index} does not match its selected source split, item and gold check")
         request = projection.get("request")
         if (not isinstance(request, dict) or not isinstance(request.get("question"), str)
                 or request.get("shape", {}).get("kind") != "one-of"):
@@ -465,10 +604,10 @@ def validate_multi_criterion_source_dataset(provenance, provenance_rows, trainin
     }
 
 
-def validate_source_dataset(provenance, provenance_rows, training_rows):
-    """Verify provenance labels and source identities against their frozen v3 DATA."""
+def validate_source_dataset(provenance, provenance_rows, training_rows, *, mode="training"):
+    """Verify provenance labels, source identities and the selected split against frozen v3 DATA."""
     if isinstance(provenance, dict) and provenance.get("schema") == MULTI_CRITERION_PROVENANCE_SCHEMA:
-        return validate_multi_criterion_source_dataset(provenance, provenance_rows, training_rows)
+        return validate_multi_criterion_source_dataset(provenance, provenance_rows, training_rows, mode=mode)
     if not isinstance(provenance, dict) or provenance.get("schema") != "book-voice-training-provenance-v2":
         raise ValueError("Training provenance must use book-voice-training-provenance-v2")
     has_projection_policy = "request_projection_policy" in provenance
@@ -484,11 +623,13 @@ def validate_source_dataset(provenance, provenance_rows, training_rows):
     if not isinstance(criterion_id, str) or not criterion_id.strip():
         raise ValueError("Training provenance must identify its source criterion")
     source_file = Path(source_path).resolve(strict=True)
-    if digest(source_file) != source_hash:
+    source_bytes = read_stable_source_bytes(source_file)
+    if digest_bytes(source_bytes) != source_hash:
         raise ValueError("Training provenance source DATA hash does not match its recorded BLAKE3")
-    source_data = json.loads(source_file.read_text(encoding="utf-8"))
+    source_data = json.loads(source_bytes.decode("utf-8"))
     if not isinstance(source_data, dict) or source_data.get("schema") != "book-voice-decider-challenge-v3":
         raise ValueError("Training provenance source is not maintained schema-v3 DATA")
+    by_id = validate_training_source_splits(source_data, mode=mode)
     criteria = [item for item in source_data.get("criteria", []) if isinstance(item, dict) and item.get("id") == criterion_id]
     if len(criteria) != 1:
         raise ValueError("Training provenance criterion id must resolve exactly once in source DATA")
@@ -498,7 +639,6 @@ def validate_source_dataset(provenance, provenance_rows, training_rows):
     source_items = source_data.get("items")
     if not isinstance(source_items, list):
         raise ValueError("Training provenance source DATA needs an item list")
-    by_id = {item.get("id"): item for item in source_items if isinstance(item, dict) and isinstance(item.get("id"), str)}
     if len(by_id) != len(source_items):
         raise ValueError("Training provenance source DATA item ids must be unique")
     if not isinstance(training_rows, list) or len(training_rows) != len(provenance_rows):
@@ -539,9 +679,10 @@ def validate_source_dataset(provenance, provenance_rows, training_rows):
         raise ValueError("Training provenance source DATA needs a criterion list")
     for index, (source, training_row) in enumerate(zip(provenance_rows, training_rows)):
         item = by_id.get(source["id"])
-        if (item is None or item.get("family") != source["family"] or item.get("text") != source["text"]
+        if (item is None or item.get("split") != ("train" if mode == "training" else "eval")
+                or item.get("family") != source["family"] or item.get("text") != source["text"]
                 or (item.get("checks") or {}).get(criterion_id) != source.get("label", source.get("gold"))):
-            raise ValueError(f"Training provenance row {index} does not match its frozen source DATA identity and label")
+            raise ValueError(f"Training provenance row {index} does not bind to the selected source split and its frozen identity/label")
         state_text, question, gold = training_row
         expected_reference = reference or ""
         expected_question = criterion_question
@@ -658,13 +799,17 @@ def summarize_fit_diagnostics(row_specs, logits_by_row):
     }
 
 
-def provenance_receipt(args, provenance, provenance_rows, source_dataset_identity):
+def provenance_receipt(args, provenance, provenance_rows, source_dataset_identity, model_config):
     if provenance is None:
         return None
     receipt = {
-        "path": str(args.provenance),
-        "blake3": digest(args.provenance),
-        "source_dataset": source_dataset_identity,
+        "identity": model_config["provenance_identity"],
+        "dataset_record": model_config["dataset_record"],
+        "source_dataset": {
+            "identity": model_config["source_data_identity"],
+            "blake3": source_dataset_identity["blake3"],
+            "schema": provenance.get("schema"),
+        },
     }
     if provenance.get("schema") == MULTI_CRITERION_PROVENANCE_SCHEMA:
         receipt.update({
@@ -677,6 +822,8 @@ def provenance_receipt(args, provenance, provenance_rows, source_dataset_identit
         })
         return receipt
     receipt.update({
+        "schema": provenance.get("schema"),
+        "criterion_id": source_dataset_identity.get("criterion_id"),
         "row_ids": [row["id"] for row in provenance_rows],
         "families": sorted({row["family"] for row in provenance_rows if isinstance(row, dict)
                              and isinstance(row.get("family"), str)}),
@@ -714,9 +861,12 @@ def collect_fit_logits(model, built, batch_size, torch):
 def build_argument_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument("--data", required=True, type=Path, help="private JSONL of v3-shaped training rows")
-    parser.add_argument("--decider-common-dir", type=Path,
-                        help="folder holding the decider model frame common.py (read before this parser runs)")
+    parser.add_argument("--common-dir", type=Path,
+                        help="folder holding the shared generic common.py helper")
+    parser.add_argument("--model-config", type=Path, help="private JSON projection of the exact model and ready records")
+    parser.add_argument("--model-owner-dir", type=Path, help="folder holding answer_many_states.py, the model identity owner")
     parser.add_argument("--provenance", type=Path, help="optional private row-aligned source provenance JSON")
+    parser.add_argument("--source-data", type=Path, help="exact private source DATA file named by the dataset record")
     parser.add_argument("--out", required=True, type=Path, help="new, isolated adapter directory")
     parser.add_argument("--rank", type=int, default=8)
     parser.add_argument("--epochs", type=float, default=1.0)
@@ -743,30 +893,72 @@ def validate_training_parameters(args):
         raise ValueError("lora-dropout must be finite and in the range [0, 1)")
 
 
+def validate_training_input_identities(model_config, data_bytes, provenance_bytes, source_data_blake3=None):
+    """Bind the exact byte snapshots used by validation to the selected dataset row."""
+    if "1f:" + digest_bytes(data_bytes) != model_config["training_data_identity"]:
+        raise ValueError("Training DATA does not match the exact dataset record identity")
+    if "1f:" + digest_bytes(provenance_bytes) != model_config["provenance_identity"]:
+        raise ValueError("Training provenance does not match the exact dataset record identity")
+    if source_data_blake3 is not None and "1f:" + source_data_blake3 != model_config["source_data_identity"]:
+        raise ValueError("Source DATA does not match the exact dataset record identity")
+
+
 def main():
     os.umask(0o077)
     parser = build_argument_parser()
     args = parser.parse_args()
+    if args.common_dir is None or args.model_config is None or args.model_owner_dir is None or args.provenance is None or args.source_data is None:
+        parser.error("--common-dir, --model-config, --model-owner-dir, --provenance and --source-data are required")
+    args.common_dir = args.common_dir.resolve(strict=True)
+    args.model_config = args.model_config.resolve(strict=True)
+    args.model_owner_dir = args.model_owner_dir.resolve(strict=True)
+    if common is None:
+        sys.path.insert(0, str(args.common_dir))
+        import importlib
+        globals()["common"] = importlib.import_module("common")
     args.data = args.data.resolve(strict=True)
-    if args.provenance:
-        args.provenance = args.provenance.resolve(strict=True)
+    args.provenance = args.provenance.resolve(strict=True)
+    args.source_data = args.source_data.resolve(strict=True)
     args.out = args.out.resolve()
     if args.out.exists():
         raise ValueError("Output path already exists; choose a new adapter destination")
     validate_training_parameters(args)
 
+    global Example, Q
+    model_config, model_folder = resolve_verified_model(args.model_config, args.model_owner_dir)
+    # Resolve the pinned renderer before configuring a device or loading weights. The model's package lives in its
+    # verified snapshot, which common.configure only adds later, after the DATA and provenance have been checked.
+    sys.path.insert(0, str(model_folder))
+    load_renderers()
+    data_bytes = read_stable_source_bytes(args.data)
+    provenance_bytes = read_stable_source_bytes(args.provenance)
+    validate_training_input_identities(model_config, data_bytes, provenance_bytes)
+    rows = load_rows(args.data, raw_bytes=data_bytes)
+    try:
+        provenance = json.loads(provenance_bytes.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise ValueError("Training provenance is not valid UTF-8 JSON") from error
+    if not isinstance(provenance, dict):
+        raise ValueError("Training provenance must be an object")
+    # The uploaded provenance bytes stay unchanged and identity-bound. Source DATA is supplied by its own file path.
+    provenance_for_source = dict(provenance)
+    provenance_for_source["source_dataset"] = str(args.source_data)
+    provenance_rows = validate_provenance(rows, provenance)
+    source_dataset_identity = validate_source_dataset(provenance_for_source, provenance_rows, rows)
+    validate_training_input_identities(model_config, data_bytes, provenance_bytes,
+                                       source_dataset_identity["blake3"])
+
+    common.configure(str(model_folder), model_config["frame"], model_config["device"])
+    common.LORA_TARGETS = model_config["lora_targets"]
     import torch
     import torch.nn.functional as F
     from peft import LoraConfig, get_peft_model
-
-    if not torch.backends.mps.is_available():
-        raise RuntimeError("This local training lane requires available Apple MPS")
-    if not common.MODEL.is_dir() or not (common.MODEL / "model.safetensors").is_file():
-        raise RuntimeError("The pinned cached Decider2B snapshot is unavailable; downloads are disabled")
-    rows = load_rows(args.data)
-    provenance = json.loads(args.provenance.read_text(encoding="utf-8")) if args.provenance else None
-    provenance_rows = validate_provenance(rows, provenance) if args.provenance else None
-    source_dataset_identity = validate_source_dataset(provenance, provenance_rows, rows) if args.provenance else None
+    if common.DEVICE == "mps" and not torch.backends.mps.is_available():
+        raise RuntimeError("The model row selected MPS but this computer does not offer it")
+    if common.DEVICE == "cuda" and not torch.cuda.is_available():
+        raise RuntimeError("The model row selected CUDA but this computer does not offer it")
+    if not common.MODEL.is_dir() or not any(path.is_file() for path in common.MODEL.glob("*.safetensors")):
+        raise RuntimeError("The supplied classifier-ready model snapshot has no safetensors weights")
     common.quiet()
     torch.manual_seed(args.seed)
     rng = random.Random(args.seed)
@@ -852,7 +1044,8 @@ def main():
             loss.backward()
             torch.nn.utils.clip_grad_norm_(parameters, 1.0)
             optimizer.step()
-            torch.mps.synchronize()
+            if common.DEVICE == "mps":
+                torch.mps.synchronize()
             duration = time.perf_counter() - tick
             step += 1
             losses.append(float(loss.detach().cpu()))
@@ -901,7 +1094,8 @@ def main():
     adapter_hash = digest(args.out / "adapter_model.safetensors")
     del optimizer, peft_model, model
     gc.collect()
-    torch.mps.empty_cache()
+    if common.DEVICE == "mps":
+        torch.mps.empty_cache()
     reloaded = common.load(adapter=str(args.out), train=False)
     reloaded.eval()
     smoke_batch = common.collate([built[0]], reloaded.tok.pad_token_id)
@@ -921,13 +1115,18 @@ def main():
     del reloaded, smoke_batch, smoke_tensors, smoke_logits
     del reloaded_logits, pre_save_logits, initial_adapter_parameters
     gc.collect()
-    torch.mps.empty_cache()
+    if common.DEVICE == "mps":
+        torch.mps.empty_cache()
     receipt = {
-        "schema": "book-voice-adapter-training-receipt-v1",
-        "base_snapshot": str(common.MODEL),
+        "schema": "book-voice-adapter-training-receipt-v2",
+        "model_record": model_config["model_record"],
+        "ready_record": model_config["ready_record"],
+        "ready_identity": model_config["ready"]["identity"],
+        "ready_files": model_config["ready"]["files"],
+        "frame": model_config["frame"],
         "data_blake3": digest(args.data),
         "rows": len(rows), "split_policy": "train-only input; no evaluation rows accepted",
-        "provenance": provenance_receipt(args, provenance, provenance_rows, source_dataset_identity),
+        "provenance": provenance_receipt(args, provenance, provenance_rows, source_dataset_identity, model_config),
         "state_renderer": "compact JSON text matching v3 JSON.stringify state",
         "question_renderer": "decider.systemone.render_question",
         "prompt_layout": "decider.prompt.build state_first; compared against the same systemone renderers used by the server",
@@ -935,7 +1134,7 @@ def main():
         "option_order_policy": "preserve served request order",
         "state_tokens_min": min(state_token_counts), "state_tokens_max": max(state_token_counts),
         "composed_row_tokens_max": max(row_token_counts),
-        "device": "mps", "dtype": "bfloat16", "rank": args.rank,
+        "device": common.DEVICE, "dtype": "bfloat16", "rank": args.rank,
         "alpha": 2 * args.rank, "dropout": args.lora_dropout,
         "lora_dropout": args.lora_dropout,
         "step_row_id_policy": "opaque-jsonl-ordinal-v1",
