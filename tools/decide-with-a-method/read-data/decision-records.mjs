@@ -362,6 +362,7 @@ export async function readDecision(door, id, steps = []) {
   const revision = await readRevision(door, id);
   const root = await door.read('decision', id);
   if (!root) return null;
+  mustRead('decision', id, root);
   const decision = refuseUnreadableSteps(await settled(door, get => joinDecision(id, root, get, steps)));
   markRead(decision, revision);
   return decision;

@@ -37,7 +37,7 @@ import { takeCallerVerdicts } from './verdicts.mjs';
 import { currentDecisionOutcome, decisionGeneration, decisionStatus, outcomeIsCurrent } from './decision-outcome.mjs';
 import { similarDecisions } from './similar-decisions.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
-import { canonical, inputIdentity, laidTogether, markRead, readDecision, readRevision, readStep, putBackSteps, EVERY_STEP, recordsOf, retriedOnConflict, versionKey, writeDecision } from './decision-records.mjs';
+import { canonical, inputIdentity, laidTogether, markRead, mustRead, readDecision, readRevision, readStep, putBackSteps, EVERY_STEP, recordsOf, retriedOnConflict, versionKey, writeDecision } from './decision-records.mjs';
 import { writeBatches } from '../../records-door/read-data/write-batches.mjs';
 import { linksOf } from '../../check-against-a-persons-rules-and-verdicts/do-work/branch.mjs';
 import { boundRuns, runProblem, unfinishedRuns } from './workflow-runs.mjs';
@@ -930,6 +930,7 @@ export async function endDecisions(input, { door }) {
   const large = [];
   for (const { decision_id: id, because } of asked) {
     const root = await door.read('decision', id);
+    if (root) mustRead('decision', id, root);
     if (!root) answers.set(id, { decision_id: id, ended: false, reason: WORDS.not_found });
     else if (root.status === ending.status) answers.set(id, { decision_id: id, ended: true, already: true, previous_status: root.previous_status ?? null, ended_at: root.ended_at ?? null });
     else if (ending.keeps_open.includes(root.status)) answers.set(id, { decision_id: id, ended: false, status: root.status, reason: say('end_kept_open', { status: root.status }) });

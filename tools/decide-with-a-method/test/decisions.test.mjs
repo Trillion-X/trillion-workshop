@@ -236,7 +236,7 @@ test('an answer cites only the decision\'s evidence or a current pursuit, which 
 
 test('once every question is answered the decision is asked for, with similar earlier decisions beside it', async () => {
   const door = account();
-  door.put('decision:earlier', 'decision', { created_at: '2026-01-01T00:00:00.000Z', method: { id: 'plain' }, status: 'needs_outcome', input: { goal: 'Decide the pottery camp price for winter', options: [{ id: 'a', label: 'Keep it' }], evidence: [] }, decision: { option_id: 'a', next_action: 'Keep the winter price' }, answered_steps: [] });
+  door.put('decision:earlier', 'decision', { id: 'decision:earlier', created_at: '2026-01-01T00:00:00.000Z', method: { id: 'plain' }, status: 'needs_outcome', input: { goal: 'Decide the pottery camp price for winter', options: [{ id: 'a', label: 'Keep it' }], evidence: [] }, decision: { option_id: 'a', next_action: 'Keep the winter price' }, answered_steps: [] });
   const id = await answered(door);
   const ready = await nextDecisionQuestion({ decision_id: id }, { door });
   assert.equal(ready.question, null);
@@ -774,7 +774,7 @@ test('a root written the old way still reads, and is laid apart at its next chan
   await reportADecisionResult({ decision_id: id, result: 'failed', summary: 'Only four families signed up', answered_by: 'person' }, { door });
   await addDecisionEvidence({ decision_id: id, evidence: [{ ref: 'e3', claim: 'Two families asked for a lower price' }] }, { door });
   const old = asOldRoot(door, id);
-  door.put(id, 'decision', { ...old, original_input: opened, cited_pursuits: { 'pursuit:camp': 'Keep the camp running: now Losing money; should be Covering costs' } });
+  door.put(id, 'decision', { id: id, ...old, original_input: opened, cited_pursuits: { 'pursuit:camp': 'Keep the camp running: now Losing money; should be Covering costs' } });
   assert.equal(door.value(id).input.evidence.length, 3, 'the old root holds its evidence');
   assert.equal(door.value(id).answered_steps.length, 3);
 
@@ -903,7 +903,7 @@ test('a root written while options were laid apart reads them back and folds the
   const root = door.value(id);
   const { options, ...input } = root.input;
   options.forEach((option, n) => door.put(`decision-option:${id}:${String(n).padStart(3, '0')}`, 'decision-option', option));
-  door.put(id, 'decision', { ...root, input, counts: { ...root.counts, options: options.length } });
+  door.put(id, 'decision', { id: id, ...root, input, counts: { ...root.counts, options: options.length } });
   const asked = await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: scope }, { door });
   assert.equal(asked.question.step_id, 'outcome', 'it reads');
   const folded = door.value(id);
@@ -961,8 +961,8 @@ test('a decision with a checked result or a correction to keep is never ended', 
 
 test('a decision that changed after it was read is not ended, the others are, and a missing one is not there', async () => {
   const door = memoryDoor();
-  door.put('source:camp-a', 'decision', { status: 'needs_outcome', goal: 'A made-up goal' });
-  door.put('source:camp-b', 'decision', { status: 'needs_outcome', goal: 'Another made-up goal' });
+  door.put('source:camp-a', 'decision', { id: 'source:camp-a', status: 'needs_outcome', goal: 'A made-up goal' });
+  door.put('source:camp-b', 'decision', { id: 'source:camp-b', status: 'needs_outcome', goal: 'Another made-up goal' });
   const read = door.read.bind(door);
   door.read = async (type, id) => {
     const value = await read(type, id);
@@ -982,7 +982,7 @@ test('a decision that changed after it was read is not ended, the others are, an
 
 test('ending refuses a call that is not 1 to 256 decisions, each named once with a because, by someone', async () => {
   const door = memoryDoor();
-  door.put('source:camp-a', 'decision', { status: 'needs_outcome' });
+  door.put('source:camp-a', 'decision', { id: 'source:camp-a', status: 'needs_outcome' });
   const one = { decision_id: 'source:camp-a', because: 'Done with it.' };
   const bad = [
     { decisions: Array.from({ length: 257 }, (_, n) => ({ decision_id: `source:camp-${n}`, because: 'Done.' })), by: 'test-agent' },
@@ -1020,7 +1020,7 @@ test('a decision whose root is too large for one conditioned write is ended thro
   assert.ok(size > 65000 && size < 80000, `the root is about 70 KB (${size})`);
   door.put(big, 'decision', root);
   putOldSteps(door, big);
-  door.put(small, 'decision', { status: 'needs_outcome', goal: 'A made-up goal' });
+  door.put(small, 'decision', { id: small, status: 'needs_outcome', goal: 'A made-up goal' });
   const answer = await endDecisions({ decisions: [{ decision_id: big, because: 'No one will carry it on.' }, { decision_id: small, because: 'Done with it.' }], by: 'test-agent' }, { door });
   assert.equal(answer.ended, 2);
   assert.deepEqual(answer.decisions.map(item => [item.ended, item.laid_apart ?? false]), [[true, true], [true, false]]);
@@ -1047,7 +1047,7 @@ test('a large decision that changed between its two reads is not ended and nothi
   const read = door.read.bind(door);
   let raw = 0;
   door.read = async (type, id) => {
-    if (type === 'decision' && id === big && ++raw === 3) door.put(big, 'decision', { ...oldLargeRoot(big), status: 'decided' });
+    if (type === 'decision' && id === big && ++raw === 3) door.put(big, 'decision', { id: big, ...oldLargeRoot(big), status: 'decided' });
     return read(type, id);
   };
   const before = door.records.size;
@@ -1062,7 +1062,7 @@ test('a large decision that changed between its two reads is not ended and nothi
 test('a door that answers 413 for a batch of several records still ends every decision', async () => {
   const door = memoryDoor();
   const ids = ['source:camp-a', 'source:camp-b', 'source:camp-c'];
-  for (const id of ids) door.put(id, 'decision', { status: 'needs_outcome', goal: `A made-up goal for ${id}` });
+  for (const id of ids) door.put(id, 'decision', { id: id, status: 'needs_outcome', goal: `A made-up goal for ${id}` });
   const write = door.write.bind(door);
   let refused = 0;
   door.write = async (list, options) => {
@@ -1078,7 +1078,7 @@ test('a door that answers 413 for a batch of several records still ends every de
 test('a single conditioned record the door still refuses as 413 is ended through its layout', async () => {
   const door = memoryDoor();
   const id = 'source:camp-a';
-  door.put(id, 'decision', { status: 'needs_outcome', goal: 'A made-up goal', input: { goal: 'A made-up goal', evidence: [{ ref: 'e1', claim: 'A made-up fact' }] } });
+  door.put(id, 'decision', { id, status: 'needs_outcome', goal: 'A made-up goal', input: { goal: 'A made-up goal', evidence: [{ ref: 'e1', claim: 'A made-up fact' }] } });
   const write = door.write.bind(door);
   let refusedOnce = false;
   door.write = async (list, options) => {
@@ -1153,7 +1153,7 @@ test('a decision whose laid-apart write the door still refuses as 413 is answere
   const door = memoryDoor();
   const big = 'source:old-huge-claim', small = 'source:camp-small';
   door.put(big, 'decision', oldRootWithHugeClaim(big));
-  door.put(small, 'decision', { status: 'needs_outcome', goal: 'A made-up goal' });
+  door.put(small, 'decision', { id: small, status: 'needs_outcome', goal: 'A made-up goal' });
   const write = door.write.bind(door);
   door.write = async (list, options) => {
     if (list.some(record => record.id.includes(big))) throw Object.assign(new Error('The records door answered 413.'), { code: 'http_413' });
@@ -1214,7 +1214,7 @@ test('a laid-apart end the engine refuses as a reused key answers that decision 
   const door = memoryDoor();
   const big = 'source:old-history-conflict', small = 'source:camp-small-conflict';
   door.put(big, 'decision', oldRootWithLargeField(big));
-  door.put(small, 'decision', { status: 'needs_outcome', goal: 'A made-up goal' });
+  door.put(small, 'decision', { id: small, status: 'needs_outcome', goal: 'A made-up goal' });
   const write = door.write.bind(door);
   door.write = async (list, options) => {
     if (options?.key?.startsWith(`end-a-decision:${big}`)) throw Object.assign(new Error('The records changed while this tool was running.'), { code: 'original_command_conflict' });
