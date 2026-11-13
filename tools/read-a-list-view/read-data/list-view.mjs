@@ -315,44 +315,80 @@ async function writtenRows(door, type, source, signal) {
   }
 }
 
-// A changed document: its row is read by its own id and reconciled from a source answer for that one path only, so
-// the document's other rows and every other document stay as they are. A source that answers no row for a path it
-// still holds keeps the old row: a deletion is named in `removed`, never inferred from a missing answer.
+/** The records one document holds now: its own row and its text-part rows (id <path>#...), as Map(record id -> value identity). */
+async function heldDocumentRows(door, type, source, path, signal) {
+  const held = new Map();
+  const cursors = new Set();
+  const own = `${type}:${source}${SOURCE_MARK}${encodeURIComponent(path)}`;
+  const parts = `${type}:${source}${SOURCE_MARK}${encodeURIComponent(`${path}#`)}`;
+  for (const prefix of [own, parts]) {
+    for (let after = null; ;) {
+      signal?.throwIfAborted();
+      const page = await door.list({ type, prefix, limit: limits.door_page_rows, ...(after ? { after } : {}) });
+      signal?.throwIfAborted();
+      if (!Array.isArray(page?.records) || page.next === undefined) {
+        throw say('records_unanswered', `Listing ${prefix} answered no records or continuation.`);
+      }
+      for (const record of page.records) {
+        if (typeof record.id !== 'string' || !record.id.startsWith(prefix) || record.type !== type) {
+          throw say('records_unanswered', `Listing ${prefix} answered an unrelated record.`);
+        }
+        // The own-row prefix also matches another document whose name starts with this one's; only this document's rows count.
+        if (prefix === own && record.id !== own) continue;
+        held.set(record.id, valueIdentity(record.value));
+      }
+      after = continued(page.next, after, cursors, `Listing ${prefix}`);
+      if (!after) break;
+    }
+  }
+  return held;
+}
+
+// A changed document: its rows (the row of the document and, when it is long, its linked text-part rows) are reconciled
+// from a source answer for that one path only, so every other document stays as it is. A part the document no longer
+// has is removed; a source that answers no row for a path it still holds keeps the old rows: a deletion is named in
+// `removed`, never inferred from a missing answer.
 async function refreshChangedSource({ door, type, source, paths, removedPaths, mostBytes, key, signal }) {
   let rows = 0, written = 0, removed = 0, unchanged = 0;
   const refused = [];
   for (const path of paths) {
     signal?.throwIfAborted();
-    const id = `${type}:${source.id}${SOURCE_MARK}${encodeURIComponent(path)}`;
-    const current = await door.read(type, id);
-    const held = current === null || current === undefined ? null : valueIdentity(current);
+    const held = await heldDocumentRows(door, type, source.id, path, signal);
     const seen = new Set(), writes = [];
     for await (const page of sourcePages(door, { ...source, paths: [path] }, mostBytes, signal)) {
       for (const row of page) {
-        if (row.id !== path) throw say('source_changed_path_mismatch', `The source answered ${row.id} for the changed document ${path}.`);
+        if (row.id !== path && !row.id.startsWith(`${path}#`)) {
+          throw say('source_changed_path_mismatch', `The source answered ${row.id} for the changed document ${path}.`);
+        }
+        const id = `${type}:${source.id}${SOURCE_MARK}${encodeURIComponent(row.id)}`;
         if (seen.has(id)) throw say('source_duplicate_row', `The row source ${source.id} answered a row id twice.`);
         seen.add(id);
         const value = projectedValues(source, row);
-        if (held === valueIdentity(value)) unchanged += 1;
+        if (held.get(id) === valueIdentity(value)) unchanged += 1;
         else writes.push({ id, type, value });
+        held.delete(id);
         rows += 1;
       }
     }
-    if (!seen.size && held !== null) {
-      throw say('source_changed_path_unanswered', `The source did not answer the existing changed document ${path}; its old row was preserved.`);
+    if (!seen.size && held.size) {
+      throw say('source_changed_path_unanswered', `The source did not answer the existing changed document ${path}; its old rows were preserved.`);
     }
+    const stale = [...held.keys()].map(id => ({ id, type, value: null }));
     const pathKey = `${key}:document:${encodeURIComponent(path)}`;
     const pageRefused = await writeAll(door, writes, `${pathKey}:write`, signal);
-    refused.push(...pageRefused);
+    const staleRefused = await writeAll(door, stale, `${pathKey}:remove`, signal);
+    refused.push(...pageRefused, ...staleRefused);
     written += writes.length - pageRefused.length;
+    removed += stale.length - staleRefused.length;
   }
   for (const path of removedPaths) {
     signal?.throwIfAborted();
-    const id = `${type}:${source.id}${SOURCE_MARK}${encodeURIComponent(path)}`;
-    if ((await door.read(type, id)) === null) continue;
-    const removalRefused = await writeAll(door, [{ id, type, value: null }], `${key}:document:${encodeURIComponent(path)}:remove`, signal);
+    const held = await heldDocumentRows(door, type, source.id, path, signal);
+    if (!held.size) continue;
+    const gone = [...held.keys()].map(id => ({ id, type, value: null }));
+    const removalRefused = await writeAll(door, gone, `${key}:document:${encodeURIComponent(path)}:remove`, signal);
     refused.push(...removalRefused);
-    removed += 1 - removalRefused.length;
+    removed += gone.length - removalRefused.length;
   }
   return { source: source.id, rows, written, removed, unchanged, refused };
 }

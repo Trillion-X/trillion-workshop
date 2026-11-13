@@ -32,7 +32,8 @@ function bakery(folder) {
     },
     run: async (tool, input) => {
       door.asked.push({ tool, input });
-      const rows = folder.filter(row => !input.paths || input.paths.includes(row.id));
+      // A long document answers its row and its linked text-part rows (<path>#text-part-N).
+      const rows = folder.filter(row => !input.paths || input.paths.some(path => row.id === path || row.id.startsWith(`${path}#`)));
       return { exit_code: 0, result: { rows, next: null } };
     },
     write: async (rows, { key }) => {
@@ -66,6 +67,25 @@ test('--changes reconciles only the named recipes: each is read by its own path,
   assert.deepEqual(recordOf(records, '/rolls.md'), { 'note.chore': 'bake rolls', 'note.minutes': 12 });
   assert.equal(recordOf(records, '/tart.md'), undefined, 'a removed document loses its row');
   assert.deepEqual(recordOf(records, '/scones.md'), { 'note.chore': 'bake scones', 'note.minutes': 15 }, 'an unnamed document is untouched');
+});
+
+test('a changed long document reconciles its linked text-part rows: written when changed, removed when the document got shorter', async () => {
+  const part = (index, text) => ({ id: index ? `/stew.md#text-part-${String(index + 1).padStart(8, '0')}` : '/stew.md',
+    values: { 'note.chore': 'simmer', 'document.parent': '/stew.md', 'document.part': index + 1, 'document.text': text } });
+  const folder = [recipe('bread', 40), part(0, 'a'), part(1, 'b'), part(2, 'c')];
+  const { door, records } = bakery(folder);
+  await refresh(door, {});
+  const key = index => `record:chore:documents~${encodeURIComponent(index ? `/stew.md#text-part-${String(index + 1).padStart(8, '0')}` : '/stew.md')}`;
+  assert.ok(records.has(key(2)), 'the long document starts with three rows');
+  folder.splice(1, 3, part(0, 'A'));
+  const answer = await refresh(door, { changes: { documents: { paths: ['/stew.md'], removed: [] } } });
+  assert.deepEqual(answer.sources, [{ source: 'documents', rows: 1, written: 1, removed: 2, unchanged: 0, refused: [] }]);
+  assert.equal(records.get(key(0))['document.text'], 'A');
+  assert.equal(records.has(key(1)) || records.has(key(2)), false, 'the parts the document no longer has are removed');
+  assert.deepEqual(recordOf(records, '/bread.md'), { 'note.chore': 'bake bread', 'note.minutes': 40 }, 'another document is untouched');
+  const removedAnswer = await refresh(door, { changes: { documents: { paths: [], removed: ['/stew.md'] } } });
+  assert.equal(records.has(key(0)), false, 'a removed long document loses every row');
+  assert.equal(removedAnswer.sources[0].removed, 1);
 });
 
 test('a changed document whose row is unchanged writes nothing', async () => {
