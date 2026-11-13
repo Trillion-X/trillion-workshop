@@ -1,5 +1,600 @@
 {
   "about": "DATA for tools/decide-with-a-method. `records`: where the person's own decision records are: the methods they decide with (the branch nodes of their one Checks list, `method_list`, row type `method_row`, the rows matching `method_where`, one per method: its id, name, steps, switches, backbone, decision fields and voice; a method is `method_link` the method it builds on (until the rows are rewritten, a row with no `method_link` is read by the first of `old_method_links` it has: a branch's old `extends`, a check's old `method`), up to a root, one link in place of `extends`) and their checks (rows of `check_list`, row type `check_row`, one per check: its id, the step it sharpens, the method it is `method_link`, its switch, its question and what a good answer does); a call reads a method's rows by id (`record:check:<id>`): the method it names or its decision was opened with, else `default_method`, then each method it is `method_link`, up to its root, so it costs the depth of the method tree, never the size of the list (only an account with neither row lists its rows matching `method_where`); and only the checks of the step it asks or judges, each by id: the ids its step lists in `step_parts_field` and in `check_ids` (a step that lists no parts yet is read by the door's `where` on `check_step_field`), and a question sends each check as its id and question, its whole words (good answer, refusals) coming by id on request, at most `most_explained` ids at once, a decision's answered steps (`step` + <decision id> + ':' + its number, `step_digits` wide; a logged call likewise under `call`, `call_digits` wide) and a decision opened from a source (`case_prefix` + the source id in base64url). `precedence`: who the current outcome of a decision belongs to when the person and a check disagree (read-data/decision-outcome.mjs): with person_confirmed_wins true a later check never replaces the person's own confirmed report; false, the newest current evidence wins. `similar`: how earlier decisions are brought back when a similar one comes up (read-data/similar-decisions.mjs): the newest `look_back` decisions in `order` (a declared order of the engine's decision records, newest first) are weighed by the words of `word` (a regular expression, matched in lower case) their goals share with this one, plus `same_method` when they were made with the same method; a decision whose method is not named was made with `default_method`. Those scoring more than `above` are kept, closest first, `limit` of them unless the caller asks for fewer or more, never more than `most`. `pursuits`: the person's pursuits travel with the questions whose step ids are in `with_steps`, the newest `carried` of them, found among at most `scan`. `most_cited_refs`: how many different references one answer may cite. `grader`: who judges each check (the calling AI, on its own subscription: `self` or `second-judge`) and the words it is given. `words`: what Trillion says at each moment of a decision ({name} is filled from the decision) and every refusal. `share`: how a decided decision is made safe to show strangers (tool:share-a-decision): the person's never-publish phrases are rows of row type `never_publish_row` (field `never_publish_field`); a rewrite has the `entry_fields` (words, or a list of words); `rewrite` is what the calling AI is told; the plain privacy pass (tools/learn-from-everyones-results) must find nothing in it, then `check_tool` must accept it under the `reidentification` rubric (a true-or-false question, synthetic calibration cases, accepted only when the answer is false), bound to exactly that rewrite; the kept entry is then sent to `pool_tool`. `records.version` and `records.version_digits`: how a superseded version of an answered step is named beside the step (`decision-step:<id>:<nnn>:v<vvv>`); the step's own record holds its current version. `revision`: the words a revision's `because` needs (`because_min_words`, `because_max_words`), who a revision is by when the caller does not say (`by`), and how long that name may be. `evidence.most_per_call`: how many evidence rows one add carries. `history.most_versions`: how many versions of a step its history returns, the newest. `writes` and `write_bytes`: how many records and bytes of their JSON one door write carries (the engine's cap, and room under its 64 KiB message); a decision laid apart in one change that needs more is written in parts, its root last. `records.laid_apart`: every list of a decision that grows as it grows, each kept as one record per item (`type` + ':' + <decision id> + ':' + its number, `digits` wide) with its length in the root's `counts`: evidence rows, answered steps' summaries, candidates, reported results, carried-out receipts, earlier decisions and cited pursuits (read-data/decision-records.mjs). `records.method`: the record type of a method snapshot, kept once under its content identity (`decision-method:<identity>`) and named by the root's `method_identity`. `record_bytes`: the most bytes of one record's JSON this tool writes besides the root; a larger one is kept as its short fields and `kept_in_parts`, its whole value as text in records of `records.part.type` (<its key> + `part.suffix` + its number, `part.digits` wide), each under the bound. A root itself over `record_bytes` (an old-layout root with a large field) keeps its largest fields, largest first, as one value in parts (<its id> + ':root-fields' + `part.suffix` + its number) until it fits, names them in `fields_in_parts` with the number of parts in `root_fields_in_parts`, and reads them back on the root; its id, status, ending, times, source, method, input identity, counts and decision never move. `options`: the options stay on the root, so a new decision's options are bounded: at most `most` of them and `most_bytes` bytes of their JSON, or the start is refused (`words.options_too_large`). `records.laid_apart.options` names where a root written while options were laid apart keeps them; they are read back from there and folded into the root at its next change.",
+  "input_schemas": {
+    "tool:bring-back-similar-decisions": {
+      "type": "object",
+      "required": [
+        "decision_id"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "decision_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The decision about to be made"
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50,
+          "description": "How many to bring back"
+        }
+      }
+    },
+    "tool:start-a-decision": {
+      "type": "object",
+      "required": [
+        "source_id",
+        "goal",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "source_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique text naming where this decision comes from"
+        },
+        "goal": {
+          "type": "string",
+          "minLength": 1,
+          "description": "What is being decided"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "ref",
+              "claim"
+            ],
+            "properties": {
+              "ref": {
+                "type": "string"
+              },
+              "claim": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "options": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "label"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "method": {
+          "type": "string",
+          "minLength": 1,
+          "description": "A method id from the person's methods"
+        },
+        "parent_decision_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "A decision of the person's this one takes its standing answers from (accepted, never itself)"
+        }
+      }
+    },
+    "tool:next-decision-question": {
+      "type": "object",
+      "required": [
+        "decision_id"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "decision_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The decision"
+        },
+        "explain": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 128,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Ids of this question's checks whose whole words (what a good answer does, what it refuses) to send back as explained"
+        },
+        "versions_of": {
+          "type": "string",
+          "minLength": 1,
+          "description": "A step of this decision with an answer: its versions are returned instead of the next question"
+        }
+      }
+    },
+    "tool:answer-a-decision-question": {
+      "type": "object",
+      "required": [
+        "decision_id",
+        "step_id"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "decision_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "step_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "answer": {
+          "type": "object",
+          "description": "The answer as the question's answer_schema says; not sent with from or with confirm"
+        },
+        "verdicts": {
+          "type": "array",
+          "description": "Your judge's verdicts on this step's checks, as the question's `verdicts` words say: each { check, meets, rests_on, missing?, graded_by }; with confirm, only the checks the step has no verdict for yet are added",
+          "items": {
+            "type": "object",
+            "required": [
+              "check",
+              "meets",
+              "rests_on",
+              "graded_by"
+            ],
+            "properties": {
+              "check": {
+                "type": "string"
+              },
+              "meets": {
+                "type": "boolean"
+              },
+              "rests_on": {
+                "type": "string"
+              },
+              "missing": {
+                "type": "string"
+              },
+              "graded_by": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "usage": {
+          "type": "object",
+          "description": "What answering cost, as you count it (model calls, tokens, seconds, a model name)"
+        },
+        "from": {
+          "type": "object",
+          "required": [
+            "decision_id",
+            "step_id"
+          ],
+          "additionalProperties": false,
+          "description": "Bring in another of the person's decisions' answer to this step as it stood instead of sending answer",
+          "properties": {
+            "decision_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "step_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "version": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "The version of that answer; the current one when left out"
+            }
+          }
+        },
+        "revise": {
+          "type": "object",
+          "required": [
+            "because"
+          ],
+          "additionalProperties": false,
+          "description": "Changes an answer already given: why it changes, in a few words; by names who changed it. On a decided decision it reopens the decision",
+          "properties": {
+            "because": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Why the answer changes, in words; kept on the reopened decision too"
+            },
+            "by": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Who changed it, when not the calling AI"
+            }
+          }
+        },
+        "confirm": {
+          "type": "boolean",
+          "const": true,
+          "description": "Confirms a re-asked answer unchanged, or, with verdicts, adds them to an answered step as a new version of the same answer; sent alone or with verdicts (no answer, from or revise)"
+        }
+      }
+    },
+    "tool:add-decision-evidence": {
+      "type": "object",
+      "required": [
+        "decision_id",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "decision_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The decision"
+        },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "description": "The rows to add: each { ref, claim } or { ref, from: { decision_id, ref } }",
+          "items": {
+            "type": "object",
+            "required": [
+              "ref"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "ref": {
+                "type": "string",
+                "minLength": 1,
+                "description": "A ref unique in this decision"
+              },
+              "claim": {
+                "type": "string",
+                "minLength": 1,
+                "description": "The fact, typed in"
+              },
+              "from": {
+                "type": "object",
+                "required": [
+                  "decision_id",
+                  "ref"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "decision_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "ref": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "tool:make-the-decision": {
+      "type": "object",
+      "required": [
+        "decision_id",
+        "decision"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "decision_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "decision": {
+          "type": "object",
+          "required": [
+            "option_id",
+            "reason",
+            "next_action",
+            "success_measure",
+            "evidence_refs"
+          ],
+          "properties": {
+            "option_id": {
+              "type": "string"
+            },
+            "reason": {
+              "type": "string"
+            },
+            "next_action": {
+              "type": "string"
+            },
+            "success_measure": {
+              "type": "string"
+            },
+            "evidence_refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "move": {
+              "type": "string"
+            }
+          }
+        },
+        "verdicts": {
+          "type": "array",
+          "description": "Your judge's verdicts on this step's checks, as the question's `verdicts` words say: each { check, meets, rests_on, missing?, graded_by }",
+          "items": {
+            "type": "object",
+            "required": [
+              "check",
+              "meets",
+              "rests_on",
+              "graded_by"
+            ],
+            "properties": {
+              "check": {
+                "type": "string"
+              },
+              "meets": {
+                "type": "boolean"
+              },
+              "rests_on": {
+                "type": "string"
+              },
+              "missing": {
+                "type": "string"
+              },
+              "graded_by": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "usage": {
+          "type": "object"
+        },
+        "expected_generation": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "tool:report-a-decision-result": {
+      "type": "object",
+      "required": [
+        "decision_id",
+        "result",
+        "summary",
+        "answered_by"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "decision_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "result": {
+          "type": "string",
+          "enum": [
+            "met",
+            "failed",
+            "unknown"
+          ]
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "answered_by": {
+          "type": "string",
+          "const": "person"
+        },
+        "source_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "supersedes": {
+          "type": "string",
+          "minLength": 1
+        },
+        "observed_at": {
+          "type": "string",
+          "description": "When it was seen, at or before now"
+        },
+        "expected_generation": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "tool:say-what-was-done": {
+      "type": "object",
+      "required": [
+        "decision_id",
+        "state",
+        "what_happened"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "decision_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "done",
+            "wall"
+          ]
+        },
+        "what_happened": {
+          "type": "string",
+          "minLength": 1
+        },
+        "by": {
+          "type": "string"
+        },
+        "workflow_runs": {
+          "type": "array",
+          "description": "Not accepted: a finished run is named by the engine, never by the words of a say, so any run id here is refused"
+        },
+        "expected_generation": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "tool:end-a-decision": {
+      "type": "object",
+      "required": [
+        "decisions",
+        "by"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "decisions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 256,
+          "items": {
+            "type": "object",
+            "required": [
+              "decision_id",
+              "because"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "decision_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "because": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "by": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "tool:share-a-decision": {
+      "type": "object",
+      "required": [
+        "decision_id"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "decision_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rewrite": {
+          "type": "object",
+          "description": "{ situation, options: [words], chosen, why, measured_by }, written by the calling AI from the redacted facts"
+        },
+        "reidentification": {
+          "type": "object",
+          "description": "The whole answer of tool:ask-a-small-model-for-a-verdict for the check this tool named"
+        }
+      }
+    },
+    "tool:see-my-decisions": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "metadata_only": {
+          "type": "boolean",
+          "description": "Answer only access, allowance and the no-pursuits words; read no row"
+        },
+        "native_collection_page": {
+          "type": "boolean",
+          "description": "One bounded page with its coverage, instead of the whole what-helped view"
+        },
+        "before": {
+          "type": "string",
+          "maxLength": 4096,
+          "description": "The next_before an earlier page answered: the page starts below this created_at"
+        },
+        "access": {
+          "type": "object",
+          "description": "What your computer reports: { capabilities: [names], limits?: { [access]: [{ count, per }] } }"
+        },
+        "allowance": {
+          "type": "object",
+          "description": "What your computer reports of your decision allowance: { count, per, used }"
+        },
+        "space_pursuits": {
+          "type": "array",
+          "description": "The pursuits your spaces share, shown beside your own"
+        }
+      }
+    },
+    "tool:answer-the-decisions-route": {
+      "type": "object",
+      "required": [
+        "path",
+        "method"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "The route after /work/api"
+        },
+        "method": {
+          "type": "string"
+        },
+        "query": {
+          "type": "object"
+        },
+        "body": {},
+        "browser": {
+          "type": "object"
+        }
+      }
+    },
+    "tool:answer-the-pursuits-page": {
+      "type": "object",
+      "required": [
+        "path",
+        "method"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "The page route after /work/api: /pursuits"
+        },
+        "method": {
+          "type": "string",
+          "enum": [
+            "GET",
+            "PUT",
+            "POST"
+          ]
+        },
+        "query": {
+          "type": "object",
+          "description": "The route's query parameters, by name"
+        },
+        "body": {
+          "description": "The JSON body the page sent ({} when none)"
+        },
+        "browser": {
+          "type": "object",
+          "description": "The asking browser's own facts: user_agent, origin, visitor"
+        }
+      }
+    }
+  },
   "records": {
     "method_row": "check",
     "method_list": "list:checks",

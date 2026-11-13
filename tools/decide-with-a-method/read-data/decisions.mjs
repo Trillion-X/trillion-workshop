@@ -52,12 +52,12 @@ const same = (a, b) => canonical(a) === canonical(b);
 // What Trillion says, filled from the decision; a filled value loses its trailing full stop, as the old words did.
 export const say = (name, parts = {}) => WORDS[name].replace(/\{(\w+)\}/g, (_, key) => String(parts[key] ?? '').trim().replace(/[.\s]+$/, ''));
 export const refuse = (name, parts) => { throw new Error(say(name, parts)); };
-// A call's fields are the ones its tool row declares (input_schema in tool-rows.json, the row with the tool's id): a field the
-// call does not declare is refused by name, and a field a free-form object holds that the call declares at its top level
-// (`verdicts` inside `answer`) is refused where it belongs, instead of being read as nothing.
-const TOOL_ROWS = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(row => row.payload);
+// A call's fields are the ones its tool row declares: input_schemas in decide-with-a-method.json, copied from each row's input_schema
+// in tool-rows.json (the installed tool ships read-data/ only, so the root file is not read here). A field the call does not
+// declare is refused by name, and a field a free-form object holds that the call declares at its top level (`verdicts` inside
+// `answer`) is refused where it belongs, instead of being read as nothing.
 export function refuseMisplacedFields(toolId, input) {
-  const schema = TOOL_ROWS.find(row => row.id === toolId)?.input_schema;
+  const schema = settings.input_schemas[toolId];
   if (!object(schema?.properties) || !object(input)) return;
   const fields = Object.keys(schema.properties);
   if (schema.additionalProperties === false) {
