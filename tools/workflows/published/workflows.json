@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflows:public",
   "list": "workflows",
-  "blake3": "e6c382c40af8e450e0aa8c7515009db74e4bfe9b03d32220b5d3939cf9fd8238",
+  "blake3": "b7a2ac51ed52dfb30665fd99c747a6f863a9f0333bcb468c514d46f4006ef765",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -1597,6 +1597,64 @@
     "source": "{\"from\": \"Built from Trillion's own parts: the business setup meta-workflow (parent plus steps with when, do, done_when, if_missing, good_answer, why), the follow-through and file-what-needs-the-person patterns, and the decision method.\", \"lessons\": [\"L078 research before the plan: each item's rules and routes are researched with sources (step research-each-item)\", \"L082 banana level: every step names its tool, its input and the readback that proves it\", \"BUDAG: no provider, payee, bank, person or rule is written in this workflow; kinds, rules and research questions are record:money-kind rows, and the items are the person's own rows\"], \"reuses\": [\"tool:search-everything-in-a-small-container\", \"tool:list-every-connection\", \"tool:list-connected-drives\", \"tool:google-account-find_my_mailbox\", \"tool:list-a-drive-folder\", \"tool:google-account-search_mail\", \"tool:google-account-read_mail_headers\", \"tool:google-account-read_a_mail\", \"tool:read-documents-as-list-rows\", \"tool:read-namespace-documents-as-list-rows\", \"tool:match-rows\", \"tool:reconcile-lines-against-a-statement\", \"tool:post-balanced-entries\", \"tool:set-fields-by-rules\", \"tool:search-the-public-web\", \"tool:read-public-web-page\", \"tool:start-a-decision\", \"tool:judge-against-rules\", \"tool:check-copy\", \"tool:google-account-create_draft\", \"tool:google-account-send_draft\", \"tool:send-a-message-on-this-mac\", \"tool:drive-the-screen\", \"workflow:file-what-needs-the-person\", \"tool:what-is-waiting-on-me\", \"tool:google-account-list_new_mail\"], \"gaps\": \"Each tool the workflow needs and the catalogue lacks is a record:workflow-gap row (see the gap ids named in the steps).\", \"note\": \"Synthetic-free by construction: the recipe contains no real data. Real items live only in the person's own records.\"}",
     "title": "Put a household's money in order from a vague request",
     "wakes": "[{\"id\": \"monthly-check\", \"on\": {\"time\": {\"from_ms\": 1796083200000, \"every_ms\": 2592000000}}, \"budget\": {\"steps\": 200, \"wall_ms\": 1800000}, \"input\": {\"start_at\": \"open-the-pursuit\", \"request\": \"Monthly check: run the money-in-order workflow again for the open money pursuit.\"}}]"
+   }
+  },
+  {
+   "id": "answer-commenters-with-videos",
+   "values": {
+    "definition": "",
+    "flags": "{\"generic\": true, \"sends_public_replies\": true, \"needs_yes_before_public_reply\": true}",
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"accounts\": {\"type\": \"array\", \"items\": {\"type\": \"object\", \"properties\": {\"platform\": {\"type\": \"string\"}, \"handle_or_link\": {\"type\": \"string\"}, \"why\": {\"type\": \"string\", \"description\": \"Optional. When left out it is read from the person's own lists (their pursuits, pillars and audience records) and written in the answer.\"}}, \"required\": [\"platform\", \"handle_or_link\"]}}, \"pursuit\": {\"type\": \"string\"}, \"owner_list\": {\"type\": \"string\"}, \"most_per_run\": {\"type\": \"integer\", \"minimum\": 1, \"description\": \"Optional. Left out, the tools' own per-run limits and the person's cost ceiling decide; no number is set here.\"}}, \"required\": [\"accounts\", \"pursuit\", \"owner_list\"]}",
+    "job": "Watch the accounts the person names on any platform so each new post is pulled in, read the comments under those posts (questions, disagreements, the newest), pick the commenters whose words are worth a video, make a video that answers each one in the person's voice, reply on the comment with the video once the person says yes, and read how it did.",
+    "made_from": [
+     "workflow:make-one-piece-of-content-from-audience-to-publish",
+     "workflow:read-the-week-and-make-more-of-what-won"
+    ],
+    "produces": "Rows of list comment-leads (one per commenter worth answering, with the video made and where it was posted) and, per lead, a drafted reply.",
+    "published_from": "",
+    "recipe": "workflow:answer-commenters-with-videos",
+    "source": "{\"from\": \"the person, 2026-11-12 10:40 PM CST: comments under another account's posts are an endless source of video ideas, and replying on the comment with the video puts the answer in front of an audience already known to want it.\", \"note\": \"Built on tool:watch-my-sources, tool:keep-channels-latest-videos-and-captions (comment_mix), tool:keep-public-posts-by-link, tool:keep-forum-posts-from-a-public-archive and tool:pull-my-instagram-comments. The accounts, the pursuit and the owner list are input, never named here. No reply tool exists for YouTube, X, TikTok, Threads or Reddit: those replies stay drafts, recorded as rows of list:workflow-gaps.\"}",
+    "title": "Answer commenters with videos"
+   }
+  },
+  {
+   "id": "make-the-piece-without-waiting-for-the-person",
+   "values": {
+    "definition": "",
+    "flags": "{\"generic\": true, \"makes_a_voice\": true}",
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"piece_row\": {\"type\": \"string\"}, \"due_at\": {\"type\": \"string\"}, \"waiting_on\": {\"type\": \"string\"}}, \"required\": [\"piece_row\"]}",
+    "job": "When a piece of content is waiting on a step only the person can do (filming, a voiceover), list the other ways to reach the finished piece, and when the due time passes without their step, make it from the written script in the person's own cloned voice with their own assets, check it, draft it, and keep that path as a permanent branch so nobody asks next time.",
+    "made_from": [
+     "workflow:make-short-videos-from-footage",
+     "workflow:make-one-piece-of-content-from-audience-to-publish"
+    ],
+    "produces": "A finished video drafted for approval, and one row of list tree-branches that makes this path part of the tree.",
+    "published_from": "",
+    "recipe": "workflow:make-the-piece-without-waiting-for-the-person",
+    "source": "{\"from\": \"the person, 2026-11-12: a wait on the person is an artificial bottleneck; after a time, voice-clone the written script so the piece still goes out, and make that path a permanent branch.\", \"note\": \"Uses only the person's own enrolled or cloned voice (tool:say-with-a-voice-model); a stand-in for anyone else is never made. The waiting step, the time and the piece are input rows.\"}",
+    "title": "Make the piece without waiting for the person"
+   }
+  },
+  {
+   "id": "grow-the-one-tree",
+   "values": {
+    "definition": "",
+    "flags": "{\"generic\": true, \"fans_out\": true, \"reads_tree_branches\": true}",
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"seed\": {\"type\": \"object\", \"properties\": {\"words\": {\"type\": \"string\"}, \"came_from\": {\"type\": \"string\"}}, \"required\": [\"words\"]}, \"owner\": {\"type\": \"object\", \"properties\": {\"task_list\": {\"type\": \"string\"}, \"pursuit\": {\"type\": \"string\"}}, \"required\": [\"task_list\", \"pursuit\"]}, \"visibility\": {\"type\": \"string\", \"enum\": [\"public\", \"internal\"]}, \"agents_per_step\": {\"type\": \"object\", \"additionalProperties\": {\"type\": \"integer\", \"minimum\": 1}}, \"niches\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}}, \"required\": [\"seed\", \"owner\", \"visibility\"]}",
+    "job": "Take one seed (a thought, a note, an email, a finding), write it as the root task, choose from the person's list of branches those that fire for it, run each branch with as many agents as one number says, keep every output once in its owner list so later branches reuse it, relay the work from branch to branch, write in the person's voice, test for real, package, make the video, answer and log the change publicly or internally, learn and prune, measure cost and watch time, and show all of it as task rows.",
+    "made_from": [
+     "workflow:quintillion",
+     "workflow:infinity",
+     "workflow:answer-commenters-with-videos",
+     "workflow:make-the-piece-without-waiting-for-the-person",
+     "workflow:make-one-piece-of-content-from-audience-to-publish",
+     "workflow:read-the-week-and-make-more-of-what-won"
+    ],
+    "produces": "A tree of task rows under the root (each child done only when its done_when holds), the outputs in their owner lists, one tree-outputs row per output, and measurement rows.",
+    "published_from": "",
+    "recipe": "workflow:grow-the-one-tree",
+    "source": "{\"from\": \"the person, 2026-11-12 8:17 PM CST onward: one input is the seed and fires every branch; every output is reused N by N; one number sets how many agents run a step; simulation is the workflow engine used this way; progress shows in table, task and canvas views.\", \"note\": \"The branches are rows of list tree-branches, so adding a branch is adding a row and never an edit here. The owner (Trillion, the person, a client such as a school) is input: tasks go under owner.task_list and owner.pursuit, using the task lists and pursuits that already exist. visibility internal keeps work (for example a price experiment) off the public change log.\"}",
+    "title": "Grow the one tree"
    }
   }
  ]

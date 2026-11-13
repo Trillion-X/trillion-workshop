@@ -1,0 +1,523 @@
+{
+ "kit": "the-one-tree",
+ "about": "Everything a person needs to run the one tree from the first minute: the three workflows, the lists they write to with example rows, a worked example, and how to pour the example rows into lists the person already has.",
+ "workflows": [
+  "workflow:grow-the-one-tree",
+  "workflow:answer-commenters-with-videos",
+  "workflow:make-the-piece-without-waiting-for-the-person"
+ ],
+ "reused_workflows": [
+  "workflow:find-unexplored-ground",
+  "workflow:research-what-everyone-says",
+  "workflow:turn-what-you-said-into-content",
+  "workflow:possibility-to-proof",
+  "workflow:handle-every-inbox-daily",
+  "workflow:keep-a-changelog-from-what-shipped",
+  "workflow:read-the-week-and-make-more-of-what-won"
+ ],
+ "lists": [
+  {
+   "id": "list:comment-leads",
+   "definition": {
+    "about": "Each comment worth answering with a video: the words as written, where it was said, the video made and how it did.",
+    "fields": [
+     {
+      "id": "comment",
+      "kind": "text",
+      "label": "Comment (as written)"
+     },
+     {
+      "id": "kind",
+      "kind": "choice",
+      "label": "Kind",
+      "choices": [
+       "question",
+       "disagreement",
+       "other"
+      ]
+     },
+     {
+      "id": "platform",
+      "kind": "text",
+      "label": "Platform"
+     },
+     {
+      "id": "source_link",
+      "kind": "text",
+      "label": "Where it was said"
+     },
+     {
+      "id": "why",
+      "kind": "long-text",
+      "label": "Why it is worth a video"
+     },
+     {
+      "id": "state",
+      "kind": "choice",
+      "label": "State",
+      "choices": [
+       "Picked",
+       "Being made",
+       "Posted",
+       "reply-ready",
+       "Replied",
+       "Answered",
+       "No response",
+       "Skipped"
+      ]
+     },
+     {
+      "id": "pursuit",
+      "kind": "text",
+      "label": "Pursuit"
+     },
+     {
+      "id": "task_list",
+      "kind": "text",
+      "label": "Task list"
+     },
+     {
+      "id": "piece",
+      "kind": "text",
+      "label": "Content piece"
+     },
+     {
+      "id": "reply",
+      "kind": "long-text",
+      "label": "Reply"
+     },
+     {
+      "id": "measure",
+      "kind": "text",
+      "label": "Numbers"
+     }
+    ],
+    "icon": "GitBranch",
+    "indexes": [],
+    "label": "Comment leads",
+    "row_type": "comment-leads",
+    "title_field": "comment"
+   }
+  },
+  {
+   "id": "list:tree-branches",
+   "definition": {
+    "about": "Every branch of the one tree as a row: which workflow it runs, when it fires, how many agents, whether its work is public or internal by default. Adding a branch is adding a row.",
+    "fields": [
+     {
+      "id": "branch",
+      "kind": "text",
+      "label": "Branch"
+     },
+     {
+      "id": "workflow",
+      "kind": "text",
+      "label": "Workflow"
+     },
+     {
+      "id": "fires_when",
+      "kind": "long-text",
+      "label": "Fires when"
+     },
+     {
+      "id": "agents",
+      "kind": "number",
+      "label": "Agents"
+     },
+     {
+      "id": "visibility_default",
+      "kind": "choice",
+      "label": "Visible by default",
+      "choices": [
+       "public",
+       "internal"
+      ]
+     },
+     {
+      "id": "state",
+      "kind": "choice",
+      "label": "State",
+      "choices": [
+       "On",
+       "Off"
+      ]
+     },
+     {
+      "id": "evidence",
+      "kind": "long-text",
+      "label": "Evidence"
+     }
+    ],
+    "icon": "GitBranch",
+    "indexes": [],
+    "label": "Tree branches",
+    "row_type": "tree-branches",
+    "title_field": "branch"
+   }
+  },
+  {
+   "id": "list:tree-outputs",
+   "definition": {
+    "about": "References only, one row per output of the one tree: the id of the row that holds it, the branch that made it, the seed, and the branches that reuse it. The output itself stays in its own list; nothing is copied here.",
+    "fields": [
+     {
+      "id": "output_ref",
+      "kind": "text",
+      "label": "Output row"
+     },
+     {
+      "id": "made_by_branch",
+      "kind": "text",
+      "label": "Made by branch"
+     },
+     {
+      "id": "seed",
+      "kind": "text",
+      "label": "Seed (root task)"
+     },
+     {
+      "id": "reused_by",
+      "kind": "tags",
+      "label": "Reused by"
+     },
+     {
+      "choices": [
+       "public",
+       "internal"
+      ],
+      "id": "visibility",
+      "kind": "choice",
+      "label": "Visibility"
+     }
+    ],
+    "icon": "GitBranch",
+    "indexes": [],
+    "label": "Tree outputs",
+    "row_type": "tree-outputs",
+    "title_field": "output_ref"
+   }
+  }
+ ],
+ "example_rows": [
+  {
+   "id": "record:tree-branches:turn-what-you-said-into-content",
+   "type": "record:tree-branches",
+   "value": {
+    "agents": 1,
+    "branch": "Turn what was said into content",
+    "evidence": "Default branch of workflow:grow-the-one-tree, 2026-11-12.",
+    "fires_when": "the seed is the person's own words",
+    "state": "On",
+    "visibility_default": "public",
+    "workflow": "workflow:turn-what-you-said-into-content"
+   }
+  },
+  {
+   "id": "record:tree-branches:research-what-everyone-says",
+   "type": "record:tree-branches",
+   "value": {
+    "agents": 1,
+    "branch": "Research what everyone says",
+    "evidence": "Default branch of workflow:grow-the-one-tree, 2026-11-12.",
+    "fires_when": "a seed makes a claim or names a subject",
+    "state": "On",
+    "visibility_default": "internal",
+    "workflow": "workflow:research-what-everyone-says"
+   }
+  },
+  {
+   "id": "record:tree-branches:real-life-cases",
+   "type": "record:tree-branches",
+   "value": {
+    "agents": 1,
+    "branch": "Find real situations and the friction in them",
+    "evidence": "Existing mode workflow chosen as a branch of workflow:grow-the-one-tree, 2026-11-12; the row points at the workflow id, it is no second registry.",
+    "fires_when": "at the start of a pursuit and when new evidence arrives",
+    "state": "On",
+    "visibility_default": "internal",
+    "workflow": "workflow:real-life-cases"
+   }
+  },
+  {
+   "id": "record:tree-branches:read-the-week",
+   "type": "record:tree-branches",
+   "value": {
+    "agents": 1,
+    "branch": "Read the week and make more of what won",
+    "evidence": "Default branch of workflow:grow-the-one-tree, 2026-11-12.",
+    "fires_when": "weekly, once pieces are published",
+    "state": "On",
+    "visibility_default": "internal",
+    "workflow": "workflow:read-the-week-and-make-more-of-what-won"
+   }
+  },
+  {
+   "id": "record:tree-branches:put-it-in-the-world",
+   "type": "record:tree-branches",
+   "value": {
+    "agents": 1,
+    "branch": "Make the offer reachable",
+    "evidence": "Existing mode workflow chosen as a branch of workflow:grow-the-one-tree, 2026-11-12; the row points at the workflow id, it is no second registry.",
+    "fires_when": "when something worth releasing is ready",
+    "state": "On",
+    "visibility_default": "public",
+    "workflow": "workflow:put-it-in-the-world"
+   }
+  },
+  {
+   "id": "record:tree-branches:possibility-to-proof",
+   "type": "record:tree-branches",
+   "value": {
+    "agents": 1,
+    "branch": "Turn a finding into software and Workshop tools",
+    "evidence": "Default branch of workflow:grow-the-one-tree, 2026-11-12.",
+    "fires_when": "a finding describes a tool, app or service worth making",
+    "state": "On",
+    "visibility_default": "internal",
+    "workflow": "workflow:possibility-to-proof"
+   }
+  },
+  {
+   "id": "record:tree-branches:personalized-reach-out",
+   "type": "record:tree-branches",
+   "value": {
+    "agents": 1,
+    "branch": "Reach the right people individually",
+    "evidence": "Existing mode workflow chosen as a branch of workflow:grow-the-one-tree, 2026-11-12; the row points at the workflow id, it is no second registry.",
+    "fires_when": "when a piece answers a named person's question",
+    "state": "On",
+    "visibility_default": "public",
+    "workflow": "workflow:personalized-reach-out"
+   }
+  },
+  {
+   "id": "record:tree-branches:no-wait-voice-clone",
+   "type": "record:tree-branches",
+   "value": {
+    "agents": 1,
+    "branch": "Make the piece without waiting",
+    "evidence": "Default branch of workflow:grow-the-one-tree, 2026-11-12.",
+    "fires_when": "a waiting step is past its due time",
+    "state": "On",
+    "visibility_default": "internal",
+    "workflow": "workflow:make-the-piece-without-waiting-for-the-person"
+   }
+  },
+  {
+   "id": "record:tree-branches:make-it-perform",
+   "type": "record:tree-branches",
+   "value": {
+    "agents": 1,
+    "branch": "Improve how it is found and converts",
+    "evidence": "Existing mode workflow chosen as a branch of workflow:grow-the-one-tree, 2026-11-12; the row points at the workflow id, it is no second registry.",
+    "fires_when": "after publication",
+    "state": "On",
+    "visibility_default": "internal",
+    "workflow": "workflow:make-it-perform"
+   }
+  },
+  {
+   "id": "record:tree-branches:keep-it-working",
+   "type": "record:tree-branches",
+   "value": {
+    "agents": 1,
+    "branch": "Keep a verified result working",
+    "evidence": "Existing mode workflow chosen as a branch of workflow:grow-the-one-tree, 2026-11-12; the row points at the workflow id, it is no second registry.",
+    "fires_when": "after a result is proven",
+    "state": "On",
+    "visibility_default": "internal",
+    "workflow": "workflow:keep-it-working"
+   }
+  },
+  {
+   "id": "record:tree-branches:keep-a-changelog",
+   "type": "record:tree-branches",
+   "value": {
+    "agents": 1,
+    "branch": "Log what shipped",
+    "evidence": "Default branch of workflow:grow-the-one-tree, 2026-11-12.",
+    "fires_when": "something shipped from the seed",
+    "state": "On",
+    "visibility_default": "internal",
+    "workflow": "workflow:keep-a-changelog-from-what-shipped"
+   }
+  },
+  {
+   "id": "record:tree-branches:infinity",
+   "type": "record:tree-branches",
+   "value": {
+    "agents": 1,
+    "branch": "Keep improving without a ceiling",
+    "evidence": "Existing mode workflow chosen as a branch of workflow:grow-the-one-tree, 2026-11-12; the row points at the workflow id, it is no second registry.",
+    "fires_when": "after every pass; its continue step registers the wake",
+    "state": "On",
+    "visibility_default": "internal",
+    "workflow": "workflow:infinity"
+   }
+  },
+  {
+   "id": "record:tree-branches:handle-every-inbox",
+   "type": "record:tree-branches",
+   "value": {
+    "agents": 1,
+    "branch": "Answer the mail",
+    "evidence": "Default branch of workflow:grow-the-one-tree, 2026-11-12.",
+    "fires_when": "the seed is, or produces, a thread that needs an answer",
+    "state": "On",
+    "visibility_default": "internal",
+    "workflow": "workflow:handle-every-inbox-daily"
+   }
+  },
+  {
+   "id": "record:tree-branches:follow-through",
+   "type": "record:tree-branches",
+   "value": {
+    "agents": 1,
+    "branch": "Carry commitments to a checked outcome",
+    "evidence": "Existing mode workflow chosen as a branch of workflow:grow-the-one-tree, 2026-11-12; the row points at the workflow id, it is no second registry.",
+    "fires_when": "when something is promised",
+    "state": "On",
+    "visibility_default": "internal",
+    "workflow": "workflow:follow-through"
+   }
+  },
+  {
+   "id": "record:tree-branches:first-win",
+   "type": "record:tree-branches",
+   "value": {
+    "agents": 1,
+    "branch": "Take a new customer to a first result",
+    "evidence": "Existing mode workflow chosen as a branch of workflow:grow-the-one-tree, 2026-11-12; the row points at the workflow id, it is no second registry.",
+    "fires_when": "when a customer arrives",
+    "state": "On",
+    "visibility_default": "internal",
+    "workflow": "workflow:first-win"
+   }
+  },
+  {
+   "id": "record:tree-branches:find-unexplored-ground",
+   "type": "record:tree-branches",
+   "value": {
+    "agents": 1,
+    "branch": "Find unexplored ground",
+    "evidence": "Default branch of workflow:grow-the-one-tree, 2026-11-12.",
+    "fires_when": "a seed names a field or niche",
+    "state": "On",
+    "visibility_default": "internal",
+    "workflow": "workflow:find-unexplored-ground"
+   }
+  },
+  {
+   "id": "record:tree-branches:comment-keyword-offer",
+   "type": "record:tree-branches",
+   "value": {
+    "agents": 1,
+    "branch": "Offer a kit by comment keyword",
+    "evidence": "a library reference on offering a free tool to everyone who comments a keyword; the keyword rules are rows of list reply-rules (Instagram only today); points at the existing workflow id.",
+    "fires_when": "a post offers a Workshop kit to anyone who comments a keyword",
+    "state": "On",
+    "visibility_default": "public",
+    "workflow": "workflow:answer-comments-and-messages"
+   }
+  },
+  {
+   "id": "record:tree-branches:answer-commenters",
+   "type": "record:tree-branches",
+   "value": {
+    "agents": 1,
+    "branch": "Answer commenters with videos",
+    "evidence": "Default branch of workflow:grow-the-one-tree, 2026-11-12.",
+    "fires_when": "a watched account has new posts with comments",
+    "state": "On",
+    "visibility_default": "public",
+    "workflow": "workflow:answer-commenters-with-videos"
+   }
+  }
+ ],
+ "reused_lists": [
+  "calendar-tasks",
+  "content-pieces",
+  "findings",
+  "shipped-outputs",
+  "signals",
+  "signal-sources",
+  "cost-measurements",
+  "workflow-gaps",
+  "reply-rules"
+ ],
+ "worked_example": {
+  "workflow": "workflow:answer-commenters-with-videos",
+  "input": {
+   "accounts": [
+    {
+     "platform": "youtube",
+     "handle_or_link": "https://www.youtube.com/@ExampleChannel",
+     "why": "Its viewers ask the questions my audience asks."
+    }
+   ],
+   "pursuit": "pursuit:example-content",
+   "owner_list": "record:calendar-task-list:example",
+   "most_per_run": 5
+  },
+  "what_happens": [
+   "A signal-sources row for the channel is written with watching Yes.",
+   "tool:watch-my-sources keeps each new video as a signals row (the first read is a quiet baseline).",
+   "tool:keep-channels-latest-videos-and-captions keeps captions and the top comments by kind (question, disagreement, newest).",
+   "Each comment worth a video becomes a comment-leads row with the words as written.",
+   "workflow:make-one-piece-of-content-from-audience-to-publish makes the video with the comment as the audience evidence.",
+   "The reply with the video link goes out after the person's yes (Instagram) or waits as reply-ready (other platforms)."
+  ],
+  "result_rows": [
+   "list:signal-sources",
+   "list:signals",
+   "list:comment-leads",
+   "list:content-pieces"
+  ]
+ },
+ "pour_into_my_list": "Each example row is a complete row of its list. To use a list you already keep instead, write the row's values into the fields of your list that mean the same (branch, workflow, fires_when, agents, visibility_default, state) with records:write at @own-records, and tell the workflow your list by id.",
+ "check": "The recipes in recipes/workflows.json for these three ids pass recipeProblems with no tool gaps.",
+ "waiting_to_publish": [
+  "workflow:handle-every-inbox-daily"
+ ],
+ "waiting_to_publish_why": "Written in the account on 2026-11-12 by the inbox lane and not yet published to the Workshop; the email branch runs it once it is.",
+ "modes_are_selectors": "The generic mode workflows (quintillion, infinity, real-life-cases, trillion-x-mode, first-win, follow-through, keep-it-working, make-it-perform, put-it-in-the-world, personalized-reach-out) stay the selectors. Branch rows point at their workflow ids; no second registry. Five mode steps gained one pointer sentence each: real-life-cases--case, quintillion--compose, infinity--bottleneck, infinity--continue, personalized-reach-out--follow.",
+ "one_use_of_the_tree": "The content tree is one use of the tree, branches and leaves structure the person named for their gauntlet and decision method; the branch rows are its leaves.",
+ "views": "Table = the lists; task = the tree's calendar-task rows; canvas = the existing workflow canvas of the recipe. Nothing new is built for them.",
+ "new_steps": {
+  "workflow:answer-commenters-with-videos": [
+   "set-watched-accounts",
+   "keep-posts-and-comments (with the treg fallback on refusal)",
+   "pick-commenters",
+   "reply-with-the-video",
+   "keep-posts-and-comments: tool:read-youtube-comments is the first route for YouTube comments, harvest tool then treg after"
+  ],
+  "workflow:make-the-piece-without-waiting-for-the-person": [
+   "wait-until-the-due-time",
+   "voice-clone-the-script",
+   "keep-the-path-as-a-permanent-branch"
+  ],
+  "workflow:grow-the-one-tree": [
+   "choose-branches (rows, not code)",
+   "fan-out (agents number per branch)",
+   "keep-outputs (N-by-N reuse)",
+   "relay",
+   "build-the-content-map",
+   "test-for-real",
+   "package",
+   "answer-and-change-log (public or internal)",
+   "learn-and-prune (retire after 3 failures)",
+   "measure (tokens, cost, watch time)",
+   "write-in-the-voice: the outline path (hook, talking points, outro in his own words) beside the full script and the voice-clone path",
+   "learn-and-prune: daily retraining of the writing on his edits and results"
+  ]
+ },
+ "cut_as_restating_a_mode_step": [
+  "grow-the-one-tree--show (names existing views; moved to views)",
+  "make-the-piece-without-waiting-for-the-person--find-the-alternative-paths (restates infinity--bottleneck; folded into read-the-piece)"
+ ],
+ "library_rows": [
+  "a library reference on turning a voice note into an outline",
+  "a library reference on offering a free tool to everyone who comments a keyword"
+ ],
+ "pilot": "Published with every wake off (wakes []) until the decision verdict is recorded; no routine runs before then."
+}

@@ -4,6 +4,397 @@
     {
       "payload": {
         "kind": "workflow-recipe",
+        "id": "workflow:answer-commenters-with-videos",
+        "label": "Answer commenters with videos",
+        "job": "Watch the accounts the person names on any platform so each new post is pulled in, read the comments under those posts (questions, disagreements, the newest), pick the commenters whose words are worth a video, make a video that answers each one in the person's voice, reply on the comment with the video once the person says yes, and read how it did.",
+        "produces": "Rows of list comment-leads (one per commenter worth answering, with the video made and where it was posted) and, per lead, a drafted reply.",
+        "made_from": [
+          "workflow:make-one-piece-of-content-from-audience-to-publish",
+          "workflow:read-the-week-and-make-more-of-what-won"
+        ],
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "accounts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "platform": {
+                    "type": "string"
+                  },
+                  "handle_or_link": {
+                    "type": "string"
+                  },
+                  "why": {
+                    "type": "string",
+                    "description": "Optional. When left out it is read from the person's own lists (their pursuits, pillars and audience records) and written in the answer."
+                  }
+                },
+                "required": [
+                  "platform",
+                  "handle_or_link"
+                ]
+              }
+            },
+            "pursuit": {
+              "type": "string"
+            },
+            "owner_list": {
+              "type": "string"
+            },
+            "most_per_run": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Optional. Left out, the tools' own per-run limits and the person's cost ceiling decide; no number is set here."
+            }
+          },
+          "required": [
+            "accounts",
+            "pursuit",
+            "owner_list"
+          ]
+        },
+        "source": {
+          "from": "the person, 2026-11-12 10:40 PM CST: comments under another account's posts are an endless source of video ideas, and replying on the comment with the video puts the answer in front of an audience already known to want it.",
+          "note": "Built on tool:watch-my-sources, tool:keep-channels-latest-videos-and-captions (comment_mix), tool:keep-public-posts-by-link, tool:keep-forum-posts-from-a-public-archive and tool:pull-my-instagram-comments. The accounts, the pursuit and the owner list are input, never named here. No reply tool exists for YouTube, X, TikTok, Threads or Reddit: those replies stay drafts, recorded as rows of list:workflow-gaps."
+        },
+        "steps": [
+          {
+            "id": "set-watched-accounts",
+            "title": "Put each account into the sources I watch",
+            "do": "For each item of input.accounts write one row to list signal-sources through run_resource_operation at @own-records, records:write: id \"record:signal-sources:<platform>-<handle or slug of the link>\", value {name: the handle or link, address: the link, kind: youtube-channel for YouTube, x-account for X, feed or page for any other, watching: \"Yes\"}. A row already held keeps the fields you do not write. Read each row back. If an account has no why, derive it: read the person's pursuits, content pillars and audience rows (records:list at @own-records) and write one line saying which of them this account's audience serves, with the row ids; write that line in the answer, never ask the person for it.",
+            "submit": {
+              "type": "object",
+              "properties": {
+                "watched": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "row_id": {
+                        "type": "string"
+                      },
+                      "platform": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "row_id",
+                      "platform"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "watched"
+              ]
+            },
+            "checks": [
+              {
+                "kind": "distinct-at-least",
+                "path": [
+                  "this",
+                  "watched"
+                ],
+                "count": 1,
+                "says": "At least one account is now watched."
+              }
+            ],
+            "when": "At the start, and whenever input.accounts changes.",
+            "done_when": "Every account of the input has a signal-sources row that reads back with watching Yes.",
+            "if_missing": "If a platform has no kind in the list, write kind page with the account's address and say so in the answer; never drop the account.",
+            "why": "A source not in signal-sources is never read, so nothing downstream starts.",
+            "good_answer": "One row per account, kind matching the platform, watching Yes.",
+            "part_of": [
+              "record:workflow-recipe:answer-commenters-with-videos"
+            ]
+          },
+          {
+            "id": "watch",
+            "title": "Read what is new",
+            "do": "Call tool:watch-my-sources with input {most_per_source: 10}. When it answers weigh_wanted, answer that question yourself as the person's AI (reply with the JSON it asks for and nothing else) and call it again with weighed {identity, reply}. Hand each of arrivals to the person's arrival door as the tool says. Keep the links of the new posts it kept.",
+            "submit": {
+              "type": "object",
+              "properties": {
+                "new_posts": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "link": {
+                        "type": "string"
+                      },
+                      "platform": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "link",
+                      "platform"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "new_posts"
+              ]
+            },
+            "checks": [],
+            "when": "Every hour (the wake), and after set-watched-accounts.",
+            "done_when": "Every weigh_wanted question was answered and every arrival was handed in; new_posts lists the new post links (an empty list is a valid quiet hour).",
+            "if_missing": "If the tool answers an error for one source, keep going with the rest and list the source in the answer; never read a source it refused.",
+            "why": "New posts are the trigger of the whole branch; a quiet first read of a source is a baseline, not a failure.",
+            "good_answer": "A list of new post links, or an empty list.",
+            "part_of": [
+              "record:workflow-recipe:answer-commenters-with-videos"
+            ]
+          },
+          {
+            "id": "keep-posts-and-comments",
+            "title": "Keep the words and the comments",
+            "do": "Group the new post links by platform. YouTube comments, first route: for each new video id call tool:read-youtube-comments with account_id (a row of the person's service-connections for YouTube, service_connection:youtube or service_connection:youtube:<account>) and the video_id, following page_token until none comes back; it reads only and changes nothing; judge each comment's kind (question, disagreement or other) yourself from its words. YouTube captions and a video that has no connected account, or when the first route is refused: call tool:keep-channels-latest-videos-and-captions with the seeds, caption_languages [\"en.*\"], comment_mix {question: 10, disagreement: 10, newest: 10, read: 200} and rows that write each video into your sources list (record:sources:<video id>), repeating with its again input until again is null. X: call tool:keep-public-posts-by-link with the post links and skip_ids of the post ids already kept. A subreddit: call tool:keep-forum-posts-from-a-public-archive with the forum names. The person's own Instagram account only: call tool:pull-my-instagram-comments with the person's account name. Never log in as the person on another service and never keep media files. When tool:keep-channels-latest-videos-and-captions answers a refusal (stopped: refusal, a robot check or too many requests), do not wait the minutes and do not stop: take the treg route for the same videos in the same run. Captions: tool:call-a-treg-endpoint with account service_connection:treg, endpoint scrapecreators.x.v1-youtube-video-transcript, method GET, query {\"url\": the video's full link, for example https://www.youtube.com/watch?v=<id>}; comments (only if tool:read-youtube-comments is also unavailable): endpoint treg.youtube.video.comments, method POST, body {\"video_id\": the video id}. Read each endpoint first with tool:read-a-treg-endpoint-and-its-price, set max_cost_usd at or above the quoted price for one call (the comments endpoint pays each provider it tries, up to its route maximum), and check tool:read-my-treg-balance covers the run. On a timeout, retry the same call with the SAME request key; on a refusal that names a field, correct that field and call with a new key; wait and try once more after the minutes a provider gives. Write the same rows the harvest tool would (record:sources:<video id> for the video, comments with their kind). Record in the run that the treg route was taken and why. A refusal is a missing branch, not a stop.",
+            "submit": {
+              "type": "object",
+              "properties": {
+                "comments": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "text": {
+                        "type": "string"
+                      },
+                      "kind": {
+                        "type": "string"
+                      },
+                      "source_link": {
+                        "type": "string"
+                      },
+                      "author_note": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "text",
+                      "kind",
+                      "source_link"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "comments"
+              ]
+            },
+            "checks": [],
+            "when": "After watch, when new_posts is not empty.",
+            "done_when": "Every new post has its text or captions kept and its comments listed, each with its kind (question, disagreement or other) and the link of the post it is under.",
+            "if_missing": "If the treg route also fails or the balance cannot cover it, keep what came, name both refusals, and leave the posts for the next hourly run; never drop a post.",
+            "why": "The comments are the raw audience words; they must be word for word and tied to the post they were under.",
+            "good_answer": "Comments as written, each with kind and link.",
+            "part_of": [
+              "record:workflow-recipe:answer-commenters-with-videos"
+            ]
+          },
+          {
+            "id": "pick-commenters",
+            "title": "Pick the comments worth a video",
+            "do": "Read every comment of the previous step. Pick every comment that clears the bar below, most liked first and then newest; only when the person gave input.most_per_run stop at that number (no default number is set here): a real question, a clear disagreement or a stuck point that a video from the person's own pursuit (input.pursuit) could answer. Skip abuse, spam, anything private about another person, and anything the person has no standing to answer. For each pick write one row to list comment-leads, records:write at @own-records, id \"record:comment-leads:<post id>-<n>\", value {comment: the words exactly as written, kind, source_link, platform, why: one sentence on the video it could be, state: \"Picked\", pursuit: input.pursuit, task_list: input.owner_list}. Read each row back.",
+            "submit": {
+              "type": "object",
+              "properties": {
+                "lead_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "skipped": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "source_link": {
+                        "type": "string"
+                      },
+                      "reason": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              },
+              "required": [
+                "lead_ids"
+              ]
+            },
+            "checks": [
+              {
+                "kind": "distinct-at-least",
+                "path": [
+                  "this",
+                  "lead_ids"
+                ],
+                "count": 1,
+                "says": "At least one lead is picked, or the run says why none."
+              }
+            ],
+            "when": "After keep-posts-and-comments.",
+            "done_when": "Every pick is a comment-leads row that reads back with the comment word for word.",
+            "if_missing": "If no comment is worth a video, write no row, answer an empty lead_ids and give the reason in skipped.",
+            "why": "A video that answers a real person's words is the arbitrage; a paraphrased or invented comment would be a lie to that person.",
+            "good_answer": "Row ids of the leads, each with the commenter's own words.",
+            "part_of": [
+              "record:workflow-recipe:answer-commenters-with-videos"
+            ]
+          },
+          {
+            "id": "make-the-answer-video",
+            "title": "Make a video that answers it",
+            "do": "For each lead call tool:start-a-recipe-run with row workflow:make-one-piece-of-content-from-audience-to-publish and input that gives the comment (words, kind and source_link) as the audience step's evidence, input.pursuit as the purpose and the destinations the person has. Read how the person writes with tool:read-voice before any words are written. Keep the content-pieces row id the run makes on the lead row (field piece) and set its state to \"Being made\".",
+            "submit": {
+              "type": "object",
+              "properties": {
+                "made": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "lead_id": {
+                        "type": "string"
+                      },
+                      "piece_row": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "lead_id",
+                      "piece_row"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "made"
+              ]
+            },
+            "checks": [
+              {
+                "kind": "subset-of",
+                "path": [
+                  "this",
+                  "made",
+                  "*",
+                  "lead_id"
+                ],
+                "of": [
+                  "steps",
+                  "pick-commenters",
+                  "lead_ids"
+                ],
+                "says": "Every video answers a picked lead."
+              }
+            ],
+            "when": "After pick-commenters, for each lead.",
+            "done_when": "Each lead has a content-pieces row and a finished run of the content workflow.",
+            "if_missing": "If the run waits on the person (filming), do not stop the lead: start workflow:make-the-piece-without-waiting-for-the-person for it and say so.",
+            "why": "The video is the answer the commenter will be shown; it must be in the person's voice and from their own material.",
+            "good_answer": "Lead ids with the piece row each became.",
+            "part_of": [
+              "record:workflow-recipe:answer-commenters-with-videos"
+            ]
+          },
+          {
+            "id": "reply-with-the-video",
+            "title": "Reply on the comment with the video",
+            "do": "For each lead whose video is posted, write the reply: one or two sentences in the person's voice that name what the commenter asked and give the video link; never a pitch. Decide whether it may go with tool:decide-an-agent-action (the person's policy and standing rule); a public reply goes out only when it answers allowed, or after the person's own yes. For a place that has a row in the reply places (Instagram and YouTube today), decide with tool:decide-the-replies (input {place, account_id, pulled}; for YouTube pass the answers of tool:read-youtube-comments as pulled.comment) and send each decision whose action is send with tool:send-a-reply-on-instagram or tool:send-a-reply-on-youtube, by the place of the decision (it sends once and keeps a reply-kept row). Every other platform: write the reply text and link into the lead row as state \"reply-ready\" (no reply tool exists there) and write one row to list workflow-gaps (record:workflow-gap:reply-to-a-comment-<platform>, value {tool_wanted: reply to a comment on <platform>, needed_by: workflow:answer-commenters-with-videos, status: open}) when it is not already open. Other platforms: before writing reply-ready, look for a reply endpoint with tool:search-the-treg-catalog (the catalog lists reply-write endpoints for YouTube, X, Facebook and Instagram comments; none counts as usable until the person has connected that account and one reply has been verified live), and read the person's standing allow, ask or refuse rule for public replies with tool:decide-an-agent-action; a standing rule row, when the person has set one, replaces asking per reply.",
+            "submit": {
+              "type": "object",
+              "properties": {
+                "replies": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "lead_id": {
+                        "type": "string"
+                      },
+                      "state": {
+                        "type": "string"
+                      },
+                      "text": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "lead_id",
+                      "state",
+                      "text"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "replies"
+              ]
+            },
+            "checks": [],
+            "when": "After make-the-answer-video, once the video is posted.",
+            "done_when": "Every posted lead has a reply that is sent, waiting for the person's yes, or reply-ready, and the lead row says which.",
+            "if_missing": "If the decision says ask, show the person the reply and the comment and wait; never send it.",
+            "why": "A reply on the comment is where the commenter sees the answer; it speaks in public in the person's name.",
+            "good_answer": "Each reply with its state; none sent without an allowed decision or a yes.",
+            "part_of": [
+              "record:workflow-recipe:answer-commenters-with-videos"
+            ]
+          },
+          {
+            "id": "measure-and-feed-back",
+            "title": "Read the numbers and feed them back",
+            "do": "Call tool:see-how-each-post-did with the post ids of the answer videos. Write each result onto its comment-leads row (views, replies back, state \"Answered\" or \"No response\"). Add the leads to the next run of workflow:read-the-week-and-make-more-of-what-won as pieces, so an angle that wins is repeated and one that fails three times is retired.",
+            "submit": {
+              "type": "object",
+              "properties": {
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "lead_id": {
+                        "type": "string"
+                      },
+                      "measure": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "lead_id",
+                      "measure"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "results"
+              ]
+            },
+            "checks": [],
+            "when": "Seven days after a reply, and again at 28.",
+            "done_when": "Every posted lead has its numbers on its row.",
+            "if_missing": "If a post has no numbers yet, leave the lead as it is and say when to read again.",
+            "why": "What worked tells which accounts and which kinds of comments are worth watching.",
+            "good_answer": "Numbers as the places give them, one per lead.",
+            "part_of": [
+              "record:workflow-recipe:answer-commenters-with-videos"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "workflow-recipe",
         "id": "workflow:answer-comments-and-messages",
         "label": "Answer comments and messages",
         "job": "Pull new Instagram messages, pick each person's reply from the person's own templates, check the replies against the person's rules, and hand them over to be sent.",
@@ -10258,6 +10649,663 @@
     {
       "payload": {
         "kind": "workflow-recipe",
+        "id": "workflow:grow-the-one-tree",
+        "label": "Grow the one tree",
+        "job": "Take one seed (a thought, a note, an email, a finding), write it as the root task, choose from the person's list of branches those that fire for it, run each branch with as many agents as one number says, keep every output once in its owner list so later branches reuse it, relay the work from branch to branch, write in the person's voice, test for real, package, make the video, answer and log the change publicly or internally, learn and prune, measure cost and watch time, and show all of it as task rows.",
+        "produces": "A tree of task rows under the root (each child done only when its done_when holds), the outputs in their owner lists, one tree-outputs row per output, and measurement rows.",
+        "made_from": [
+          "workflow:quintillion",
+          "workflow:infinity",
+          "workflow:answer-commenters-with-videos",
+          "workflow:make-the-piece-without-waiting-for-the-person",
+          "workflow:make-one-piece-of-content-from-audience-to-publish",
+          "workflow:read-the-week-and-make-more-of-what-won"
+        ],
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "seed": {
+              "type": "object",
+              "properties": {
+                "words": {
+                  "type": "string"
+                },
+                "came_from": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "words"
+              ]
+            },
+            "owner": {
+              "type": "object",
+              "properties": {
+                "task_list": {
+                  "type": "string"
+                },
+                "pursuit": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "task_list",
+                "pursuit"
+              ]
+            },
+            "visibility": {
+              "type": "string",
+              "enum": [
+                "public",
+                "internal"
+              ]
+            },
+            "agents_per_step": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "niches": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "seed",
+            "owner",
+            "visibility"
+          ]
+        },
+        "source": {
+          "from": "the person, 2026-11-12 8:17 PM CST onward: one input is the seed and fires every branch; every output is reused N by N; one number sets how many agents run a step; simulation is the workflow engine used this way; progress shows in table, task and canvas views.",
+          "note": "The branches are rows of list tree-branches, so adding a branch is adding a row and never an edit here. The owner (Trillion, the person, a client such as a school) is input: tasks go under owner.task_list and owner.pursuit, using the task lists and pursuits that already exist. visibility internal keeps work (for example a price experiment) off the public change log."
+        },
+        "steps": [
+          {
+            "id": "plant-the-seed",
+            "title": "Write the root task",
+            "do": "Write one row to list calendar-tasks (records:write at @own-records, type record:calendar-task): id \"record:calendar-task:tree-<short slug of the seed words>\", value {title: the seed in one line, description: input.seed.words and came_from, collection_id: [input.owner.task_list], priority: \"high\", status: \"To do\", children: []}. Every later step adds children (parent_id pointing here) and a child is set Done only when its done_when holds. Read the row back.",
+            "submit": {
+              "type": "object",
+              "properties": {
+                "root_task": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "root_task"
+              ]
+            },
+            "checks": [
+              {
+                "kind": "distinct-at-least",
+                "path": [
+                  "this",
+                  "root_task"
+                ],
+                "count": 1,
+                "says": "The root task id is given."
+              }
+            ],
+            "when": "At the start.",
+            "done_when": "The root task reads back with the seed's words and the owner's task list.",
+            "if_missing": "If the seed was already planted (a root task has the same description), reuse it and say so.",
+            "why": "The plan is rows that get checked off, so nothing is skipped.",
+            "good_answer": "One root row.",
+            "part_of": [
+              "record:workflow-recipe:grow-the-one-tree"
+            ]
+          },
+          {
+            "id": "choose-branches",
+            "title": "Choose the branches that fire",
+            "do": "First take the seed apart: one seed is often a mix (ideas, material for content, journal, instructions to the AI, a question, a claim) and is never judged as one thing. Split its words into the parts it really holds, whatever those are, each part keeping its own words word for word and its position in the seed; list the parts in the answer. Then, for each part separately: Read the rows of list tree-branches (records:list at @own-records, type record:tree-branches), each {branch, workflow, fires_when, agents, visibility_default, state}. choose every branch whose state is On and whose fires_when this part meets (judge it against the part's words and input.niches). Give each its agent count from input.agents_per_step under its branch id, else the row's agents, else 1. Write one child task per chosen branch and part under the root, naming the part. A part no branch meets is kept as a row in list findings with its words, never dropped.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "parts",
+                "chosen"
+              ],
+              "properties": {
+                "parts": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "words"
+                    ],
+                    "properties": {
+                      "words": {
+                        "type": "string"
+                      },
+                      "routed_to": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "chosen": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "branch",
+                      "workflow",
+                      "agents",
+                      "task"
+                    ],
+                    "properties": {
+                      "branch": {
+                        "type": "string"
+                      },
+                      "workflow": {
+                        "type": "string"
+                      },
+                      "agents": {
+                        "type": "integer"
+                      },
+                      "task": {
+                        "type": "string"
+                      },
+                      "part": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "distinct-at-least",
+                "path": [
+                  "this",
+                  "chosen"
+                ],
+                "count": 1,
+                "says": "At least one branch is chosen."
+              }
+            ],
+            "when": "After plant-the-seed.",
+            "done_when": "Every part of the seed has been routed to at least one branch or kept as a finding, and every chosen branch has a child task naming its part and an agent count.",
+            "if_missing": "If tree-branches has no rows, write the default rows first (record:tree-branches:<slug>) for the workflows this recipe names, then choose.",
+            "why": "The branches are data, so a new branch needs only a new row. A note is a mix; routing it whole loses the parts (the person, 2026-11-13: the arrival split into request or pursuit is instance-solving).",
+            "good_answer": "Chosen branches with their agent counts.",
+            "part_of": [
+              "record:workflow-recipe:grow-the-one-tree"
+            ]
+          },
+          {
+            "id": "fan-out",
+            "title": "Run every chosen branch",
+            "do": "For each chosen branch call tool:start-a-recipe-run with row workflow: the branch's workflow and an input made from the seed, the owner and the visibility. Start as many runs as the branch's agents number says: each run is one agent and writes its own rows. A larger number is the same step with more runs (this is also how a simulation runs); there is no separate engine. Keep each run id on its child task. A branch whose source tool is refused takes its fallback in the same run, never a wait: for YouTube captions and comments that is the treg route written in workflow:answer-commenters-with-videos step keep-posts-and-comments.",
+            "submit": {
+              "type": "object",
+              "properties": {
+                "runs": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "branch": {
+                        "type": "string"
+                      },
+                      "run_id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "branch",
+                      "run_id"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "runs"
+              ]
+            },
+            "checks": [
+              {
+                "kind": "subset-of",
+                "path": [
+                  "this",
+                  "runs",
+                  "*",
+                  "branch"
+                ],
+                "of": [
+                  "steps",
+                  "choose-branches",
+                  "chosen",
+                  "*",
+                  "branch"
+                ],
+                "says": "Every run belongs to a chosen branch."
+              }
+            ],
+            "when": "After choose-branches.",
+            "done_when": "Every chosen branch has as many runs as agents.",
+            "if_missing": "If a run cannot start, record why on its child task and keep the others going.",
+            "why": "One number sets the width of the tree.",
+            "good_answer": "Run ids per branch.",
+            "part_of": [
+              "record:workflow-recipe:grow-the-one-tree"
+            ]
+          },
+          {
+            "id": "keep-outputs",
+            "title": "Keep each output once and say who reuses it",
+            "do": "Each output goes in its owner list: content-pieces, findings, shipped-outputs or signals. For each write one row to list tree-outputs (record:tree-outputs:<slug>): {output_ref: the row id, made_by_branch, seed: the root task id, reused_by: [], visibility}. Before a branch makes anything, read tree-outputs for this seed and use what is there instead of making it again; add the branch to the output's reused_by. list tree-outputs holds references only: the id of the row that holds the output, the branch, the seed and who reuses it; never copy an output's words or data into it.",
+            "submit": {
+              "type": "object",
+              "properties": {
+                "outputs": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "output_ref": {
+                        "type": "string"
+                      },
+                      "made_by_branch": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "output_ref",
+                      "made_by_branch"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "outputs"
+              ]
+            },
+            "checks": [],
+            "when": "As each run finishes.",
+            "done_when": "Every output has a tree-outputs row that reads back.",
+            "if_missing": "If an output has no owner list, use findings and say why.",
+            "why": "N by N: one output feeds many branches without being made again.",
+            "good_answer": "Output refs with the branch that made them.",
+            "part_of": [
+              "record:workflow-recipe:grow-the-one-tree"
+            ]
+          },
+          {
+            "id": "relay",
+            "title": "Hand the baton on",
+            "do": "For each branch that needs another branch's output, write its child task naming the output rows, and send the work with trillion send (an ai-job whose words name the task id and the output rows and what done looks like). The next agent takes it and starts from the named outputs.",
+            "submit": {
+              "type": "object",
+              "properties": {
+                "handoffs": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "to_task": {
+                        "type": "string"
+                      },
+                      "job_id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "to_task",
+                      "job_id"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "handoffs"
+              ]
+            },
+            "checks": [],
+            "when": "After keep-outputs.",
+            "done_when": "Every dependent branch has a child task and a job naming the outputs it starts from.",
+            "if_missing": "If no AI is ready for a job, leave it waiting; a waiting job is still a hand-off.",
+            "why": "The next branch must start from the work, not from nothing.",
+            "good_answer": "Task ids with job ids.",
+            "part_of": [
+              "record:workflow-recipe:grow-the-one-tree"
+            ]
+          },
+          {
+            "id": "build-the-content-map",
+            "title": "Build the content map before writing",
+            "do": "Keep the map of what to make as rows, from the person's own records first: pillars (3 to 4), under each its topics (5 to 7), under each ideas (5 to 10), under each angles (4 to 5), one row per node in list:content-pillars and list:content-pieces with its parent named, and the proven post or video structure each angle borrows (from tool:watch-my-sources items, the outputs of the research branch and list:content-formats). Take the structure of a proven piece, never its words: check each draft with tool:check-a-reference-adaptation-contract. Open each pillar, topic and idea only from rows that exist; write nothing for a node you could not ground. When the person has a recorded interview of themselves, take pillars and beliefs from it with word-for-word quotes. Reaching a named person with a prepared map and drafts is a separate outreach: do it only from public evidence and only after workflow:personalized-reach-out checks consent.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "map_rows"
+              ],
+              "properties": {
+                "map_rows": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "level",
+                      "parent"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "level": {
+                        "type": "string"
+                      },
+                      "parent": {
+                        "type": "string"
+                      },
+                      "structure": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": [],
+            "when": "After relay, before write-in-the-voice, when a content branch fired.",
+            "done_when": "Every pillar has topics, every topic ideas and every idea angles, each node a row that names its parent, and each angle names the proven structure it borrows.",
+            "if_missing": "If a level has no grounded node, write the level as empty with the reason; never fill it with invented ideas.",
+            "why": "The video this came from (a reference video) builds the map first so every later script starts from a proven structure and a grounded idea.",
+            "good_answer": "Draft rows per format.",
+            "part_of": [
+              "record:workflow-recipe:grow-the-one-tree"
+            ]
+          },
+          {
+            "id": "write-in-the-voice",
+            "title": "Write it in the person's voice",
+            "do": "Call tool:read-voice for the kind of writing, then write with the person's writing workflows into each format the seed fits: a post, a script, a book chapter, a letter. Keep each draft as a content-pieces row and a tree-outputs row. Three paths to a filmable piece, chosen per piece and allowed side by side: (a) the full script in the person's formats; (b) the outline path: when the part is a voice memo with a content idea, write only hook, talking points and outro, each a line in his own words from the memo (word for word where he said it, source named), into the piece's outline field of list content-pieces, so he films from the outline in one take and it does not sound like an AI script; (c) the voice-clone path of workflow:make-the-piece-without-waiting-for-the-person when his step is late.",
+            "submit": {
+              "type": "object",
+              "properties": {
+                "drafts": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "piece_row": {
+                        "type": "string"
+                      },
+                      "format": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "piece_row",
+                      "format"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "drafts"
+              ]
+            },
+            "checks": [],
+            "when": "After keep-outputs, for each branch that writes.",
+            "done_when": "Every draft is kept with its format and was written after reading the voice.",
+            "if_missing": "If there is no voice kept for a kind, write in the nearest kind and say so.",
+            "why": "The same words in the person's own voice are what make it theirs.",
+            "good_answer": "Draft rows per format.",
+            "part_of": [
+              "record:workflow-recipe:grow-the-one-tree"
+            ]
+          },
+          {
+            "id": "test-for-real",
+            "title": "Test the variants against reality",
+            "do": "Draft the variants with tool:draft-a-post, post all of them under the person's approval rule, read the winner with tool:read-experiment-results or tool:see-how-each-post-did, and converge on the one that stays. Keep the numbers on the pieces.",
+            "submit": {
+              "type": "object",
+              "properties": {
+                "winner": {
+                  "type": "string"
+                },
+                "numbers": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "winner"
+              ]
+            },
+            "checks": [],
+            "when": "After write-in-the-voice.",
+            "done_when": "A winner is named from real numbers.",
+            "if_missing": "If the numbers are too small, say so and test again; never name a winner on no data.",
+            "why": "A real test beats a simulated one.",
+            "good_answer": "The winner with its numbers.",
+            "part_of": [
+              "record:workflow-recipe:grow-the-one-tree"
+            ]
+          },
+          {
+            "id": "package",
+            "title": "Package for each place",
+            "do": "Call tool:check-a-post for each place the piece goes and change what it refuses (aspect, length, caption, cover).",
+            "submit": {
+              "type": "object",
+              "properties": {
+                "ready": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "piece_row": {
+                        "type": "string"
+                      },
+                      "place": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "piece_row",
+                      "place"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "ready"
+              ]
+            },
+            "checks": [],
+            "when": "After test-for-real.",
+            "done_when": "Every piece is ready for each place it goes.",
+            "if_missing": "Drop a place that cannot take it and say so.",
+            "why": "Each place has its own rules.",
+            "good_answer": "Piece and place pairs that passed.",
+            "part_of": [
+              "record:workflow-recipe:grow-the-one-tree"
+            ]
+          },
+          {
+            "id": "make-the-video",
+            "title": "Make the video",
+            "do": "Call tool:start-a-recipe-run with row workflow:make-one-piece-of-content-from-audience-to-publish. If a step waits on the person past its due time, start workflow:make-the-piece-without-waiting-for-the-person for the piece.",
+            "submit": {
+              "type": "object",
+              "properties": {
+                "videos": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "piece_row": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "piece_row"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "videos"
+              ]
+            },
+            "checks": [],
+            "when": "After package, for each branch that makes video.",
+            "done_when": "Every video piece has a run; none is left waiting only on the person.",
+            "if_missing": "If neither run can start, record why on the child task.",
+            "why": "The tree never stops for a person.",
+            "good_answer": "Piece rows made into videos.",
+            "part_of": [
+              "record:workflow-recipe:grow-the-one-tree"
+            ]
+          },
+          {
+            "id": "answer-and-change-log",
+            "title": "Answer, and log the change",
+            "do": "Mail answers: run workflow:handle-every-inbox-daily or the branch for the thread. Change log: run workflow:keep-a-changelog-from-what-shipped with the visibility of the seed; a row marked internal is kept for the team and never reaches the public change log (for example a price experiment).",
+            "submit": {
+              "type": "object",
+              "properties": {
+                "changelog_rows": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "answers": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "changelog_rows"
+              ]
+            },
+            "checks": [],
+            "when": "After the work lands.",
+            "done_when": "Every shipped change has one change-log row with its visibility.",
+            "if_missing": "If the visibility is not given, treat it as internal.",
+            "why": "Some work is real but not for the public.",
+            "good_answer": "Row ids of the change log and answers.",
+            "part_of": [
+              "record:workflow-recipe:grow-the-one-tree"
+            ]
+          },
+          {
+            "id": "learn-and-prune",
+            "title": "Feed learnings back and prune",
+            "do": "Run workflow:read-the-week-and-make-more-of-what-won. Write what it learned into the branch rows (agents, fires_when) and the voice. Retire a branch variant only after it failed three times; keep the row and set state Off with the reasons. Every day also retrain the writing on real results: read the person's edits to what was written for him with tool:keep-a-voice-edit and tool:find-repeated-voice-edits, save the repeated ones with tool:save-voice, and read the day's numbers with tool:see-how-each-post-did, so the next outline or script starts from what worked.",
+            "submit": {
+              "type": "object",
+              "properties": {
+                "learned": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "retired": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "learned"
+              ]
+            },
+            "checks": [],
+            "when": "Weekly.",
+            "done_when": "Learnings are written and only three-time failures are retired.",
+            "if_missing": "If no number is available, retire nothing.",
+            "why": "The tree improves from its own results and stays clean.",
+            "good_answer": "What changed in which row.",
+            "part_of": [
+              "record:workflow-recipe:grow-the-one-tree"
+            ]
+          },
+          {
+            "id": "measure",
+            "title": "Count tokens, cost and watch time",
+            "do": "Write one row per branch to list cost-measurements: provider, operation, metric (tokens, cost, watch time), unit, scenario_id the root task, measured or unknown. Use measured numbers only; write unknown where none exists.",
+            "submit": {
+              "type": "object",
+              "properties": {
+                "measurement_rows": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "measurement_rows"
+              ]
+            },
+            "checks": [],
+            "when": "After each run.",
+            "done_when": "Every branch run has its measurement rows.",
+            "if_missing": "Write unknown, never a guess.",
+            "why": "Cost and watch time say which branches are worth their width.",
+            "good_answer": "Measurement row ids.",
+            "part_of": [
+              "record:workflow-recipe:grow-the-one-tree"
+            ]
+          },
+          {
+            "id": "show",
+            "title": "Show the tree",
+            "do": "The tree is the root task and its children: open them in the Calendar tasks table and task views; the canvas view is this recipe's workflow canvas. Tell the person in one line which root task to open and how many children are Done of all. Build nothing new.",
+            "submit": {
+              "type": "object",
+              "properties": {
+                "root_task": {
+                  "type": "string"
+                },
+                "done": {
+                  "type": "integer"
+                },
+                "total": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "root_task",
+                "done",
+                "total"
+              ]
+            },
+            "checks": [],
+            "when": "At the end of each run.",
+            "done_when": "The person has the root task id and the Done count.",
+            "if_missing": "If a child is not Done, name it.",
+            "why": "Progress is the share of children Done.",
+            "good_answer": "One line with the root task and the count.",
+            "part_of": [
+              "record:workflow-recipe:grow-the-one-tree"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "workflow-recipe",
         "id": "workflow:hire-help-for-a-step",
         "label": "Hire help for a step",
         "job": "Hire a person nearby (TaskRabbit and services like it, or an employee by email) to do a step that needs someone physically there, after one tap with the price, then make sure they did it",
@@ -10736,7 +11784,7 @@
           {
             "id": "bottleneck",
             "title": "Find the highest-value constraint",
-            "do": "This mode adds no permissions. Keep effects within the user's request and the rights, consent, preferences and opt-outs of other people. Use bounded batches and current resource limits; stop or cancel cleanly when the boundary is reached. Apply the exact request and its exclusions. A required but blocked step stays open; record the wall with the run, never submit invented completion. Evidence admission checks structure and references, not the truth of an external observation.\n\nbottleneck: Find the current bottleneck from observed evidence. Search live Marketplace items, tools and workflows for the generative capability and current licensed owner that can remove it; describe and reuse the best fit before extending anything.\n\ncapability-review-bottleneck: At this stage search the current Marketplace, Yours and Everyone's, for useful tools, workflows, data and connected MCP capabilities. Always review REA, 21st.dev and Mobbin alongside other discovered capabilities: keep the must-review set distinct from the open set of useful capabilities. Describe each relevant candidate's actual job, inputs, licence, running place and observed results, then use the capable licensed owner when it fits. Reuse already verified output when the underlying state is unchanged. Record the exact unavailable route, lost evidence and available equivalent; never claim a tool was used without its actual output. Improve a missing generic capability through its owner rather than hardcoding the example.",
+            "do": "This mode adds no permissions. Keep effects within the user's request and the rights, consent, preferences and opt-outs of other people. Use bounded batches and current resource limits; stop or cancel cleanly when the boundary is reached. Apply the exact request and its exclusions. A required but blocked step stays open; record the wall with the run, never submit invented completion. Evidence admission checks structure and references, not the truth of an external observation.\n\nbottleneck: Find the current bottleneck from observed evidence. Search live Marketplace items, tools and workflows for the generative capability and current licensed owner that can remove it; describe and reuse the best fit before extending anything.\n\ncapability-review-bottleneck: At this stage search the current Marketplace, Yours and Everyone's, for useful tools, workflows, data and connected MCP capabilities. Always review REA, 21st.dev and Mobbin alongside other discovered capabilities: keep the must-review set distinct from the open set of useful capabilities. Describe each relevant candidate's actual job, inputs, licence, running place and observed results, then use the capable licensed owner when it fits. Reuse already verified output when the underlying state is unchanged. Record the exact unavailable route, lost evidence and available equivalent; never claim a tool was used without its actual output. Improve a missing generic capability through its owner rather than hardcoding the example. A step that waits on the person is a missing branch, not a stop: workflow:make-the-piece-without-waiting-for-the-person writes the other path as a permanent row of list tree-branches.",
             "submit": {
               "type": "object",
               "additionalProperties": false,
@@ -11109,7 +12157,7 @@
           {
             "id": "continue",
             "title": "Continue from evidence or stop cleanly",
-            "do": "Carry out only the work authorized for this run. Check affected people's access, consent and contact preferences before any effect. Set a finite limit for each pass and retain unfinished dependencies as open work. References and schema admission establish an inspectable record; assess the underlying observations separately.\n\nhonest-recursion: Evaluate new observations against the starting measurements. Reconsider which outcomes, dimensions, metrics, nesting levels, assumptions and experiment choices are useful, including the evaluation method itself. Keep a distinction only when it changes a worthwhile result. Treat exploratory ideas as proposals and test apparent limits before treating them as permanent. Another pass needs both new evidence and a specific unresolved cause worth addressing; limit its elapsed time, expense, concurrency and batch size. For a continuing pursuit, save progress and the next discovery or improvement event through its established workflow or scheduling owner. Confirm that the continuation is registered before describing it as active. Finishing one case or using up one pass leaves that pursuit open. Stop its continuation when authorization ends, the pursuit closes, it expires or the person cancels it. Avoid empty polling, unsupported success claims and claims of mathematically infinite execution.\n\ncapability-review-continue: Inspect the current account and public capability catalogs, including connected MCP operations. Consider REA, 21st.dev and Mobbin as well as other useful candidates. Determine each candidate's purpose, accepted inputs, license, execution host and observed performance. Choose an available licensed capability for the present need; cached verified output is sufficient when its relevant inputs have not changed. Preserve failed access attempts and what they leave unknown, and check an available equivalent when appropriate. A claimed tool use requires its returned evidence. Extend the responsible shared capability when a recurring gap warrants it.",
+            "do": "Carry out only the work authorized for this run. Check affected people's access, consent and contact preferences before any effect. Set a finite limit for each pass and retain unfinished dependencies as open work. References and schema admission establish an inspectable record; assess the underlying observations separately.\n\nhonest-recursion: Evaluate new observations against the starting measurements. Reconsider which outcomes, dimensions, metrics, nesting levels, assumptions and experiment choices are useful, including the evaluation method itself. Keep a distinction only when it changes a worthwhile result. Treat exploratory ideas as proposals and test apparent limits before treating them as permanent. Another pass needs both new evidence and a specific unresolved cause worth addressing; limit its elapsed time, expense, concurrency and batch size. For a continuing pursuit, save progress and the next discovery or improvement event through its established workflow or scheduling owner. Confirm that the continuation is registered before describing it as active. Finishing one case or using up one pass leaves that pursuit open. Stop its continuation when authorization ends, the pursuit closes, it expires or the person cancels it. Avoid empty polling, unsupported success claims and claims of mathematically infinite execution.\n\ncapability-review-continue: Inspect the current account and public capability catalogs, including connected MCP operations. Consider REA, 21st.dev and Mobbin as well as other useful candidates. Determine each candidate's purpose, accepted inputs, license, execution host and observed performance. Choose an available licensed capability for the present need; cached verified output is sufficient when its relevant inputs have not changed. Preserve failed access attempts and what they leave unknown, and check an available equivalent when appropriate. A claimed tool use requires its returned evidence. Extend the responsible shared capability when a recurring gap warrants it. For content, the continuation event is the daily wake of workflow:grow-the-one-tree; register and read back that wake before saying it runs.",
             "submit": {
               "type": "object",
               "additionalProperties": false,
@@ -19804,6 +20852,287 @@
     {
       "payload": {
         "kind": "workflow-recipe",
+        "id": "workflow:make-the-piece-without-waiting-for-the-person",
+        "label": "Make the piece without waiting for the person",
+        "job": "When a piece of content is waiting on a step only the person can do (filming, a voiceover), list the other ways to reach the finished piece, and when the due time passes without their step, make it from the written script in the person's own cloned voice with their own assets, check it, draft it, and keep that path as a permanent branch so nobody asks next time.",
+        "produces": "A finished video drafted for approval, and one row of list tree-branches that makes this path part of the tree.",
+        "made_from": [
+          "workflow:make-short-videos-from-footage",
+          "workflow:make-one-piece-of-content-from-audience-to-publish"
+        ],
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "piece_row": {
+              "type": "string"
+            },
+            "due_at": {
+              "type": "string"
+            },
+            "waiting_on": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "piece_row"
+          ]
+        },
+        "source": {
+          "from": "the person, 2026-11-12: a wait on the person is an artificial bottleneck; after a time, voice-clone the written script so the piece still goes out, and make that path a permanent branch.",
+          "note": "Uses only the person's own enrolled or cloned voice (tool:say-with-a-voice-model); a stand-in for anyone else is never made. The waiting step, the time and the piece are input rows."
+        },
+        "steps": [
+          {
+            "id": "read-the-piece",
+            "title": "Read the piece and what it waits on",
+            "do": "Read input.piece_row from list content-pieces with records:read at @own-records: its script, shots, state, who does the next step and its goes_out date and time. The due time is input.due_at when given, else the row's goes_out date and time in the person's zone. Keep input.waiting_on, else the row's who field. Then list every other way to reach the end without the person's step (a waiting step is a missing branch); write them in the answer and take the first that needs nothing from the person.",
+            "submit": {
+              "type": "object",
+              "properties": {
+                "piece_row": {
+                  "type": "string"
+                },
+                "script": {
+                  "type": "string"
+                },
+                "due_at": {
+                  "type": "string"
+                },
+                "waiting_on": {
+                  "type": "string"
+                },
+                "state": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "piece_row",
+                "script",
+                "due_at",
+                "waiting_on"
+              ]
+            },
+            "checks": [],
+            "when": "Each time this runs.",
+            "done_when": "The script, the due time and the waiting step are read from the row.",
+            "if_missing": "If there is no script, stop with the reason; the script is written by workflow:make-one-piece-of-content-from-audience-to-publish first.",
+            "why": "The fallback starts from the written script, so a piece without one has no fallback yet.",
+            "good_answer": "The row's own words and times.",
+            "part_of": [
+              "record:workflow-recipe:make-the-piece-without-waiting-for-the-person"
+            ]
+          },
+          {
+            "id": "find-the-alternative-paths",
+            "title": "List every other way to the end",
+            "do": "A waiting step is a missing alternative, not a blocker. List every way the piece could still reach the end without the person's step: their own voice cloned from the script, a recording they already made that covers it (search their recordings), b-roll and pictures from their assets, text on screen. For each path say what it needs, whether the person's own consent exists for it (an enrolled voice), and the one that follows the person's rules. Choose the path; the default is the cloned voice.",
+            "submit": {
+              "type": "object",
+              "properties": {
+                "paths": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "path": {
+                        "type": "string"
+                      },
+                      "needs": {
+                        "type": "string"
+                      },
+                      "allowed": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "path",
+                      "needs",
+                      "allowed"
+                    ]
+                  }
+                },
+                "chosen": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "paths",
+                "chosen"
+              ]
+            },
+            "checks": [
+              {
+                "kind": "distinct-at-least",
+                "path": [
+                  "this",
+                  "paths"
+                ],
+                "count": 2,
+                "says": "At least two paths are listed."
+              }
+            ],
+            "when": "After read-the-piece.",
+            "done_when": "At least two paths are named and one chosen that is allowed.",
+            "if_missing": "If no path is allowed, say what the person must give (an enrolled voice) and write it as a task row under the piece; never use another person's voice.",
+            "why": "Naming the other ways is what removes the bottleneck.",
+            "good_answer": "Paths with what each needs, and the chosen one.",
+            "part_of": [
+              "record:workflow-recipe:make-the-piece-without-waiting-for-the-person"
+            ]
+          },
+          {
+            "id": "wait-until-the-due-time",
+            "title": "Give the person until the due time",
+            "do": "Read the piece row again. If the person's own recording or voiceover has arrived (state or recordings changed), stop this run: their own always wins; hand the piece back to workflow:make-one-piece-of-content-from-audience-to-publish. If the due time has not passed, answer waiting true and end; the wake brings the run back. If it has passed, answer waiting false.",
+            "submit": {
+              "type": "object",
+              "properties": {
+                "waiting": {
+                  "type": "boolean"
+                },
+                "person_arrived": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "waiting",
+                "person_arrived"
+              ]
+            },
+            "checks": [],
+            "when": "After find-the-alternative-paths.",
+            "done_when": "Either the run ended because the person's own step arrived or the due time passed.",
+            "if_missing": "If the due time cannot be read, treat the piece as not due and say which field was missing.",
+            "why": "The person's own words and face beat a clone; the clone is only for when they are not there by the time.",
+            "good_answer": "Waiting true until the time, then false.",
+            "part_of": [
+              "record:workflow-recipe:make-the-piece-without-waiting-for-the-person"
+            ]
+          },
+          {
+            "id": "voice-clone-the-script",
+            "title": "Say the script in the person's own voice",
+            "do": "Call tool:say-with-a-voice-model with the script text and the person's own cloned voice (list voices through tool:voices and use the one marked as theirs). Never use a neutral voice for a piece that is posted as them, and never any other person's voice. Keep the audio file in the person's files and its path.",
+            "submit": {
+              "type": "object",
+              "properties": {
+                "audio_file": {
+                  "type": "string"
+                },
+                "voice": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "audio_file",
+                "voice"
+              ]
+            },
+            "checks": [],
+            "when": "After the due time passed with nothing arrived.",
+            "done_when": "An audio file exists that says the script in the person's own voice.",
+            "if_missing": "If the person has no cloned voice, stop and file a task row asking for the one recording the clone needs; do not substitute.",
+            "why": "A clone of the person's own voice is the stand-in they chose; anything else would misrepresent who is speaking.",
+            "good_answer": "The audio file and the voice used.",
+            "part_of": [
+              "record:workflow-recipe:make-the-piece-without-waiting-for-the-person"
+            ]
+          },
+          {
+            "id": "make-the-video",
+            "title": "Make the video from the person's assets",
+            "do": "Call tool:start-a-recipe-run with row workflow:make-short-videos-from-footage using the audio file as the voice, the person's own recordings, assets, style, music and sound lists (kept in their Namespace) and the shots of the piece row. Where footage is missing use tool:cut-and-caption and tool:layer-pictures-over-video with their pictures and b-roll. Keep the output file on the piece row.",
+            "submit": {
+              "type": "object",
+              "properties": {
+                "video_file": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "video_file"
+              ]
+            },
+            "checks": [],
+            "when": "After voice-clone-the-script.",
+            "done_when": "A rendered video file is kept on the piece row.",
+            "if_missing": "If footage is missing, use pictures and captions from the person's assets and say which shots were replaced.",
+            "why": "The look and sound must be the person's established ones.",
+            "good_answer": "One video file on the piece row.",
+            "part_of": [
+              "record:workflow-recipe:make-the-piece-without-waiting-for-the-person"
+            ]
+          },
+          {
+            "id": "check-and-draft",
+            "title": "Check it and keep it as a draft",
+            "do": "Call tool:check-a-post for each place it goes, fix what it refuses, then tool:draft-a-post. The video says in its description that it uses the person's voice only if the person's setting says so. It is approved and set to go only under the person's standing approval setting; if there is none, show it to the person and wait. Never skip approval silently.",
+            "submit": {
+              "type": "object",
+              "properties": {
+                "draft_id": {
+                  "type": "string"
+                },
+                "approval": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "draft_id",
+                "approval"
+              ]
+            },
+            "checks": [],
+            "when": "After make-the-video.",
+            "done_when": "A draft exists, every place has passed check-a-post, and approval is recorded as given or waiting.",
+            "if_missing": "If a place refuses it, change the piece for that place; if it cannot be changed, drop that place and say so.",
+            "why": "A cloned-voice video goes out in the person's name, so their approval rule holds.",
+            "good_answer": "Draft id and the approval state.",
+            "part_of": [
+              "record:workflow-recipe:make-the-piece-without-waiting-for-the-person"
+            ]
+          },
+          {
+            "id": "keep-the-path-as-a-permanent-branch",
+            "title": "Make this path part of the tree",
+            "do": "Write one row to list tree-branches (records:write at @own-records) id \"record:tree-branches:no-wait-voice-clone\": {branch: \"Make the piece without waiting\", workflow: \"workflow:make-the-piece-without-waiting-for-the-person\", fires_when: \"a waiting step is past its due time\", agents: 1, visibility_default: \"internal\", state: \"On\"}. If the row exists, keep it and add this piece to its evidence. Say in the answer that the path is now a branch and nobody has to ask next time.",
+            "submit": {
+              "type": "object",
+              "properties": {
+                "branch_row": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "branch_row"
+              ]
+            },
+            "checks": [
+              {
+                "kind": "distinct-at-least",
+                "path": [
+                  "this",
+                  "branch_row"
+                ],
+                "count": 1,
+                "says": "The branch row id is given."
+              }
+            ],
+            "when": "After check-and-draft.",
+            "done_when": "The tree-branches row reads back.",
+            "if_missing": "If the row exists, keep it; do not write a second copy.",
+            "why": "A path found once must not have to be found again.",
+            "good_answer": "The branch row id.",
+            "part_of": [
+              "record:workflow-recipe:make-the-piece-without-waiting-for-the-person"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "workflow-recipe",
         "id": "workflow:manage-member-billing",
         "label": "Manage member billing",
         "job": "List subscriptions that ended, cancel at the end of a period when a member asks, tag the reason, count paid installments, show a member their offers, and record the billing-page gap.",
@@ -26998,7 +28327,7 @@
           {
             "id": "follow",
             "title": "Respond to real signals",
-            "do": "This mode adds no permissions. Act only within the user's request and the channel's rules. Respect consent, recipient preferences, suppression lists, opt-outs and do-not-contact signals; never endlessly contact someone. Apply the exact request and its exclusions. A required but blocked step stays open; record the wall with the run, never submit invented completion. Evidence admission checks structure and references, not the truth of an external observation.\n\nfollowup: Follow up only when relevant new evidence or the recipient's stated preference supports it, within bounded cadence and duration. Stop on reply, decline, opt-out, expiry or exhausted bounded attempts; never use idle polling.\n\ncapability-review-follow: At this stage search the current Marketplace, Yours and Everyone's, for useful tools, workflows, data and connected MCP capabilities. Always review REA, 21st.dev and Mobbin alongside other discovered capabilities: keep the must-review set distinct from the open set of useful capabilities. Describe each relevant candidate's actual job, inputs, licence, running place and observed results, then use the capable licensed owner when it fits. Reuse already verified output when the underlying state is unchanged. Record the exact unavailable route, lost evidence and available equivalent; never claim a tool was used without its actual output. Improve a missing generic capability through its owner rather than hardcoding the example.",
+            "do": "This mode adds no permissions. Act only within the user's request and the channel's rules. Respect consent, recipient preferences, suppression lists, opt-outs and do-not-contact signals; never endlessly contact someone. Apply the exact request and its exclusions. A required but blocked step stays open; record the wall with the run, never submit invented completion. Evidence admission checks structure and references, not the truth of an external observation.\n\nfollowup: Follow up only when relevant new evidence or the recipient's stated preference supports it, within bounded cadence and duration. Stop on reply, decline, opt-out, expiry or exhausted bounded attempts; never use idle polling.\n\ncapability-review-follow: At this stage search the current Marketplace, Yours and Everyone's, for useful tools, workflows, data and connected MCP capabilities. Always review REA, 21st.dev and Mobbin alongside other discovered capabilities: keep the must-review set distinct from the open set of useful capabilities. Describe each relevant candidate's actual job, inputs, licence, running place and observed results, then use the capable licensed owner when it fits. Reuse already verified output when the underlying state is unchanged. Record the exact unavailable route, lost evidence and available equivalent; never claim a tool was used without its actual output. Improve a missing generic capability through its owner rather than hardcoding the example. A reply on a person's own comment that carries a video made for them is this follow step: see workflow:answer-commenters-with-videos, step reply-with-the-video.",
             "submit": {
               "type": "object",
               "additionalProperties": false,
@@ -31833,7 +33162,7 @@
           {
             "id": "compose",
             "title": "Find and compose current capabilities",
-            "do": "This mode adds no permissions. Each composed workflow retains its own authority, licensed owner, recipient rights, opt-outs, finite resource limits and stop conditions. A stage advances only on actual workflow run readback and outcome evidence. Apply the exact request and its exclusions. A required but blocked step stays open; record the wall with the run, never submit invented completion. Evidence admission checks structure and references, not the truth of an external observation.\n\nfind-composition: Search live Marketplace listings, find tools and find_workflow for the job at hand. Describe the current licensed capable owners, reuse their existing workflow runs, and compose only the modes and actions that resolve this customer's observed bottleneck. Do not create fake IDs or a second engine.\n\nexecution-standard-each-stage: Require workflow:trillion-x-mode through the actual workflow:trillion-x-mode run at every applicable stage and read back each real run result. Preserve run identity, outputs, checks, failures and continuation state; a mode record or queued run is not proof that the workflow ran.\n\nmode-research: Always review whether REA, 21st.dev, Mobbin and other research/design capabilities apply at each stage. Use the actually available declared route when relevant; record attempted failures, their evidential loss and a current equivalent. Never claim use without observed output.\n\ninfinity-child: When continued multidimensional improvement applies, find and describe the current Infinity Mode workflow, workflow:infinity, run it through the existing workflow engine, then read back its actual run. Keep quality, depth, breadth, scale, granularity across nested levels, reliability, continuity, energy, user effort, cost, latency, setup and resource consumption as independent dimensions. Keep chosen improvement directions separately observable rather than combining them into one ratio. Investigate apparent conflicts and recursively question the dimensions, measures, hierarchy, objectives and method itself against actual outcomes. Preserve the person's actual per-level settings and configurable conditions, including choices to tune or disable behavior; per-pass resource bounds do not cap the aspiration.\n\ncapability-review-compose: At this stage search the current Marketplace, Yours and Everyone's, for useful tools, workflows, data and connected MCP capabilities. Always review REA, 21st.dev and Mobbin alongside other discovered capabilities: keep the must-review set distinct from the open set of useful capabilities. Describe each relevant candidate's actual job, inputs, licence, running place and observed results, then use the capable licensed owner when it fits. Reuse already verified output when the underlying state is unchanged. Record the exact unavailable route, lost evidence and available equivalent; never claim a tool was used without its actual output. Improve a missing generic capability through its owner rather than hardcoding the example.",
+            "do": "This mode adds no permissions. Each composed workflow retains its own authority, licensed owner, recipient rights, opt-outs, finite resource limits and stop conditions. A stage advances only on actual workflow run readback and outcome evidence. Apply the exact request and its exclusions. A required but blocked step stays open; record the wall with the run, never submit invented completion. Evidence admission checks structure and references, not the truth of an external observation.\n\nfind-composition: Search live Marketplace listings, find tools and find_workflow for the job at hand. Describe the current licensed capable owners, reuse their existing workflow runs, and compose only the modes and actions that resolve this customer's observed bottleneck. Do not create fake IDs or a second engine.\n\nexecution-standard-each-stage: Require workflow:trillion-x-mode through the actual workflow:trillion-x-mode run at every applicable stage and read back each real run result. Preserve run identity, outputs, checks, failures and continuation state; a mode record or queued run is not proof that the workflow ran.\n\nmode-research: Always review whether REA, 21st.dev, Mobbin and other research/design capabilities apply at each stage. Use the actually available declared route when relevant; record attempted failures, their evidential loss and a current equivalent. Never claim use without observed output.\n\ninfinity-child: When continued multidimensional improvement applies, find and describe the current Infinity Mode workflow, workflow:infinity, run it through the existing workflow engine, then read back its actual run. Keep quality, depth, breadth, scale, granularity across nested levels, reliability, continuity, energy, user effort, cost, latency, setup and resource consumption as independent dimensions. Keep chosen improvement directions separately observable rather than combining them into one ratio. Investigate apparent conflicts and recursively question the dimensions, measures, hierarchy, objectives and method itself against actual outcomes. Preserve the person's actual per-level settings and configurable conditions, including choices to tune or disable behavior; per-pass resource bounds do not cap the aspiration.\n\ncapability-review-compose: At this stage search the current Marketplace, Yours and Everyone's, for useful tools, workflows, data and connected MCP capabilities. Always review REA, 21st.dev and Mobbin alongside other discovered capabilities: keep the must-review set distinct from the open set of useful capabilities. Describe each relevant candidate's actual job, inputs, licence, running place and observed results, then use the capable licensed owner when it fits. Reuse already verified output when the underlying state is unchanged. Record the exact unavailable route, lost evidence and available equivalent; never claim a tool was used without its actual output. Improve a missing generic capability through its owner rather than hardcoding the example. For content, compose workflow:grow-the-one-tree: the rows of list tree-branches name the workflows it composes, and a new branch is a new row.",
             "submit": {
               "type": "object",
               "additionalProperties": false,
@@ -36119,7 +37448,7 @@
           {
             "id": "case",
             "title": "Find a real situation",
-            "do": "Current owner route: discover each named legacy operation through the account's available MCP or CLI catalog and inspect its actual schema before acting; use the current equivalent in the existing owner rather than assuming an old API still exists. A listed recipe runs through that catalog; an account-private recipe can use tool:start-a-recipe-run with its exact workflow id in input.row. Read back the resulting persisted work record and preserve its ordered steps, schemas, checks, outputs and source identity while doing the work. A queued job is not an executed step or checked outcome. Keep an unavailable operation open with its exact gap, existing owner, next action and recovery event; never weaken a requirement to pass. When this work encounters outside or shared material that warrants application, reuse workflow:turn-something-shared-into-what-you-can-use as the common source-to-application path and reuse its existing source-bound result. That process is not a mandatory extra run for unrelated work, and a nested application must not restart the same source/request recursively.\n\nThis mode adds no permissions. Respect source terms, privacy, consent and the independent rights of people whose cases or data are involved. Apply the exact request and its exclusions. A required but blocked step stays open; record the wall with the run, never submit invented completion. Evidence admission checks structure and references, not the truth of an external observation.\n\nfind-cases: Discover worthwhile real-life cases in parallel from current authorized sources as relevant: user tasks and records, forums, Product Hunt, news releases, YouTube transcripts and comments, X, Instagram and other configurable sources. Search live Marketplace tools and workflows first. Use source-watch triggers and existing retained case lists with cursors/status when available; do not manufacture demand or freeze this open source set into code.\n\ncapability-review-case: At this stage search the current Marketplace, Yours and Everyone's, for useful tools, workflows, data and connected MCP capabilities. Always review REA, 21st.dev and Mobbin alongside other discovered capabilities: keep the must-review set distinct from the open set of useful capabilities. Describe each relevant candidate's actual job, inputs, licence, running place and observed results, then use the capable licensed owner when it fits. Reuse already verified output when the underlying state is unchanged. Record the exact unavailable route, lost evidence and available equivalent; never claim a tool was used without its actual output. Improve a missing generic capability through its owner rather than hardcoding the example.",
+            "do": "Current owner route: discover each named legacy operation through the account's available MCP or CLI catalog and inspect its actual schema before acting; use the current equivalent in the existing owner rather than assuming an old API still exists. A listed recipe runs through that catalog; an account-private recipe can use tool:start-a-recipe-run with its exact workflow id in input.row. Read back the resulting persisted work record and preserve its ordered steps, schemas, checks, outputs and source identity while doing the work. A queued job is not an executed step or checked outcome. Keep an unavailable operation open with its exact gap, existing owner, next action and recovery event; never weaken a requirement to pass. When this work encounters outside or shared material that warrants application, reuse workflow:turn-something-shared-into-what-you-can-use as the common source-to-application path and reuse its existing source-bound result. That process is not a mandatory extra run for unrelated work, and a nested application must not restart the same source/request recursively.\n\nThis mode adds no permissions. Respect source terms, privacy, consent and the independent rights of people whose cases or data are involved. Apply the exact request and its exclusions. A required but blocked step stays open; record the wall with the run, never submit invented completion. Evidence admission checks structure and references, not the truth of an external observation.\n\nfind-cases: Discover worthwhile real-life cases in parallel from current authorized sources as relevant: user tasks and records, forums, Product Hunt, news releases, YouTube transcripts and comments, X, Instagram and other configurable sources. Search live Marketplace tools and workflows first. Use source-watch triggers and existing retained case lists with cursors/status when available; do not manufacture demand or freeze this open source set into code.\n\ncapability-review-case: At this stage search the current Marketplace, Yours and Everyone's, for useful tools, workflows, data and connected MCP capabilities. Always review REA, 21st.dev and Mobbin alongside other discovered capabilities: keep the must-review set distinct from the open set of useful capabilities. Describe each relevant candidate's actual job, inputs, licence, running place and observed results, then use the capable licensed owner when it fits. Reuse already verified output when the underlying state is unchanged. Record the exact unavailable route, lost evidence and available equivalent; never claim a tool was used without its actual output. Improve a missing generic capability through its owner rather than hardcoding the example. When the real situations are comments under other people's posts, run workflow:answer-commenters-with-videos for its watch, keep and pick steps; the comments it keeps are rows of list comment-leads.",
             "submit": {
               "type": "object",
               "additionalProperties": false,
