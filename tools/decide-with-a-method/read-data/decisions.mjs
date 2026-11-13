@@ -340,7 +340,7 @@ async function parentOf(door, parentId, id) {
 export async function inheritableFrom(door, record, question, standing = settings.inherit.standing_steps) {
   if (!record.parent || !question || !standing.includes(question.step_id)) return null;
   const parent = await readDecision(door, record.parent.decision_id, [question.step_id]);
-  const kept = parent?.guidance?.find(item => item.step_id === question.step_id && !item.lost);
+  const kept = parent?.guidance?.find(item => item.step_id === question.step_id);
   if (!kept) return null;
   return { decision_id: parent.id, step_id: question.step_id, version: kept.version ?? 1 };
 }
@@ -373,7 +373,7 @@ export async function nextDecisionQuestion(input, { door }) {
 async function versionsReply(door, record, stepId) {
   if (!nonempty(stepId)) refuse('versions_shape');
   const at = record.guidance.findIndex(item => item.step_id === stepId);
-  if (at < 0 || record.guidance[at].lost) refuse('unanswered_step', { step: stepId });
+  if (at < 0 || !record.guidance[at].step_id) refuse('unanswered_step', { step: stepId });
   const current = record.guidance[at];
   const top = current.version ?? 1;
   const versions = [];
@@ -416,7 +416,7 @@ export async function readStepAsStood(door, decisionId, stepId, version) {
   if (!source) refuse('from_not_found');
   const at = source.guidance.findIndex(item => item.step_id === stepId);
   const current = at >= 0 ? source.guidance[at] : null;
-  if (!current || current.lost) refuse('from_step_missing', { step: stepId, version: version ?? 1 });
+  if (!current || !current.step_id) refuse('from_step_missing', { step: stepId, version: version ?? 1 });
   const wanted = version ?? current.version ?? 1;
   let entry = current;
   if (wanted !== (current.version ?? 1)) {
@@ -605,7 +605,7 @@ export async function answerADecisionQuestion(input, { door }) {
     if (flagged && (!next || next.id !== input.step_id)) throw new Error(outOfTurn(record, next, input.step_id));
     if (input.verdicts !== undefined) {
       const step = bare.stepsFor(record).find(item => item.id === input.step_id);
-      if (!step || entry.lost) refuse('confirm_inactive', { step: input.step_id });
+      if (!step || !entry.step_id) refuse('confirm_inactive', { step: input.step_id });
       const added = await confirmWithVerdicts(door, methods, record, at, step, input.verdicts, new Date().toISOString());
       if (added) return added;
     }

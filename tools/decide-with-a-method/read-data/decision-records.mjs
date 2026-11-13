@@ -87,7 +87,8 @@ const flagsOf = entry => ({
   ...(entry.recheck_of ? { recheck_of: entry.recheck_of } : {}), ...(entry.rechecked_at ? { rechecked_at: entry.rechecked_at } : {}),
 });
 const stubOf = entry => ({ step_id: entry.step_id, answered_at: entry.answered_at, ...gradingOf(entry), ...flagsOf(entry) });
-const lostStep = stub => ({ step_id: stub?.step_id ?? null, answer: {}, answered_at: stub?.answered_at ?? null, lost: true });
+// A step whose record cannot be read keeps its summary's times and no step_id: the identity field is what makes it a step.
+const lostStep = stub => ({ answer: {}, answered_at: stub?.answered_at ?? null });
 
 // The lists laid apart, by the name of their count on the root: where each lives on the decision as the tools use it.
 // `answered_steps` is the decision's guidance as summaries, kept by recordsOf and readDecision themselves.
@@ -217,6 +218,15 @@ function fitted(records) {
 // and one that reads through the door call the same code. `get(type, key)` answers the record a reader already holds: its
 // value, null when it is known not to exist, undefined when it was not read yet. The join asks for what it needs through
 // `get`; `settled` runs it again over the records read for the ones it asked about, until it asks about no more.
+/**
+ * The one check that a record a read depends on is there: a value that is absent or unreadable (null, or a lost entry) is
+ * refused with one named error carrying what it was and which record it is. Nothing is returned in its place.
+ */
+export function mustRead(kind, id, value) {
+  const field = settings.identity_fields[kind];
+  if (value === null || value === undefined || (field && !Object.hasOwn(value, field))) throw Object.assign(new Error(`${kind} ${id} is not visible to this read. Nothing was changed.`), { code: 'not_visible', kind, id });
+  return value;
+}
 /** A record's value whole: as kept, or put back together from its parts; throws when a part is not visible. */
 export function wholeValue(key, value, get) {
   if (!object(value) || !Number.isInteger(value.kept_in_parts)) return value;
@@ -226,7 +236,7 @@ export function wholeValue(key, value, get) {
     const part = get(NAMES.part.type, partOf);
     if (part === undefined) return undefined;
     // A part that is not there is an error, never a missing value: a summary read as lost would be written back as a stub.
-    if (typeof part?.text !== 'string') throw Object.assign(new Error(`Part ${partOf} of this decision is not visible to this read. Nothing was changed.`), { code: 'part_unreadable' });
+    mustRead('part', partOf, typeof part?.text === 'string' ? part : null);
     text += part.text;
   }
   return unpackStep(JSON.parse(text));
@@ -241,7 +251,9 @@ function refsOf(id, root, get) {
   if (value === undefined) return undefined;
   const kept = wholeValue(key, value, get);
   if (kept === undefined) return undefined;
-  return kept ? { step_refs: kept.step_refs ?? [], items: kept.items ?? {} } : none;
+  // A root that names its refs record reads that record or is refused: an absent record is never read as empty refs.
+  mustRead('refs', key, kept);
+  return { step_refs: kept.step_refs ?? [], items: kept.items ?? {} };
 }
 /** The join run over what `door` holds: every record it asked about is read together, until it asks about no more. */
 export async function settled(door, join) {
@@ -272,7 +284,7 @@ export function itemsIn(get, id, list, count, refs = []) {
   return Array.from({ length: count }, (_, n) => {
     const key = itemAt(list, id, n, refs[n]);
     const kept = wholeValue(key, get(type, key), get);
-    return kept ?? { lost: true };
+    return kept ?? {};
   });
 }
 
@@ -340,8 +352,8 @@ export function joinDecision(id, root, get, steps = []) {
 }
 /** A step that cannot be read is an error, never a stub: no reader returns an entry with no step in it, and no write sees one to keep. */
 export function refuseUnreadableSteps(decision) {
-  const unreadable = decision.guidance.flatMap((entry, n) => (entry.lost === true || !entry.step_id ? [n] : []));
-  if (unreadable.length) throw Object.assign(new Error(`Step ${unreadable.join(', ')} of this decision could not be read: its record holds no step. The decision was not changed.`), { code: 'step_unreadable' });
+  decision.guidance.forEach((entry, n) => mustRead('step', `${decision.id}:${n}`, entry));
+  (decision.input?.evidence ?? []).forEach((row, n) => mustRead('evidence', `${decision.id}:${n}`, row));
   return decision;
 }
 export async function readDecision(door, id, steps = []) {
@@ -435,7 +447,7 @@ export async function putBackSteps(door, record) {
   let history = null;
   for (const [n, entry] of record.guidance.entries()) {
     if (was[n] === undefined || was[n].checks !== undefined) continue;
-    if (entry.lost !== true) {
+    if (entry.step_id !== undefined) {
       if (stubOf(entry).checks !== undefined && was[n].step_id === entry.step_id) repaired.push({ index: n, step_id: entry.step_id, from: 'step' });
       continue;
     }

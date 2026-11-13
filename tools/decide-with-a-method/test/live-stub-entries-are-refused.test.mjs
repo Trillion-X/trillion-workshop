@@ -32,15 +32,15 @@ async function caseWithStubStep() {
 
 test('reading a case with a step that has no step in it refuses, and names the step', async () => {
   const { door, id } = await caseWithStubStep();
-  await assert.rejects(() => readDecision(door, id), /step/i);
+  await assert.rejects(() => readDecision(door, id), /not visible/);
 });
 
 test('confirming a step refuses a case with a step that has no step in it', async () => {
   const { door, id } = await caseWithStubStep();
-  await assert.rejects(() => answerADecisionQuestion({ decision_id: id, step_id: 'scope', confirm: true }, { door }), /step/i);
+  await assert.rejects(() => answerADecisionQuestion({ decision_id: id, step_id: 'scope', confirm: true }, { door }), /not visible/);
 });
 
 test('the next question refuses a case with a step that has no step in it', async () => {
   const { door, id } = await caseWithStubStep();
-  await assert.rejects(() => nextDecisionQuestion({ decision_id: id }, { door }), /step/i);
+  await assert.rejects(() => nextDecisionQuestion({ decision_id: id }, { door }), /not visible/);
 });

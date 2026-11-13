@@ -26,7 +26,7 @@ test('a later write refuses a case whose unreadable step is gone, and changes no
   // The outcome step's own record cannot be read (it is gone from the door), while the decision still holds the step.
   door.records.delete(`${ANSWERED}:${id}:001:c${before[1]}`);
   const keysBefore = [...door.records.keys()].sort();
-  await assert.rejects(() => addDecisionEvidence({ decision_id: id, evidence: [{ ref: 'e3', claim: 'The waiting list grew this month' }] }, { door }), /could not be read/);
+  await assert.rejects(() => addDecisionEvidence({ decision_id: id, evidence: [{ ref: 'e3', claim: 'The waiting list grew this month' }] }, { door }), /not visible/);
   assert.deepEqual([...door.records.keys()].sort(), keysBefore, 'nothing is written in place of the unreadable step');
   assert.equal((await refsOfCase(door, id)).items.answered_steps[1], before[1], 'the reference to the unreadable step stands');
 });
