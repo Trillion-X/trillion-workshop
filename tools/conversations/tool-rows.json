@@ -118,7 +118,8 @@
                   "read-data/records-door.mjs",
                   "read-data/settled-write.mjs",
                   "read-data/whole-file.mjs",
-                  "read-data/write-batches.mjs"
+                  "read-data/write-batches.mjs",
+                  "read-data/large-file.json"
                 ],
                 "at": "/opt/records-door"
               },
@@ -791,7 +792,8 @@
                   "read-data/records-door.mjs",
                   "read-data/settled-write.mjs",
                   "read-data/whole-file.mjs",
-                  "read-data/write-batches.mjs"
+                  "read-data/write-batches.mjs",
+                  "read-data/large-file.json"
                 ],
                 "at": "/opt/records-door"
               },

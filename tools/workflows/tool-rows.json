@@ -326,7 +326,10 @@
                 "package": "workflows",
                 "paths": [
                   "do-work",
-                  "read-data"
+                  "read-data",
+                  "recipe-check-kinds.json",
+                  "host-tools.json",
+                  "recipe-wake-causes.json"
                 ],
                 "at": "/opt/workflows"
               },
@@ -484,7 +487,10 @@
                 "package": "workflows",
                 "paths": [
                   "do-work",
-                  "read-data"
+                  "read-data",
+                  "recipe-check-kinds.json",
+                  "host-tools.json",
+                  "recipe-wake-causes.json"
                 ],
                 "at": "/opt/workflows"
               },

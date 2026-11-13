@@ -271,7 +271,8 @@
               {
                 "package": "decide-with-a-method",
                 "paths": [
-                  "read-data"
+                  "read-data",
+                  "tool-rows.json"
                 ],
                 "at": "/opt/decide-with-a-method"
               },
@@ -314,7 +315,8 @@
               {
                 "package": "learn-from-everyones-results",
                 "paths": [
-                  "read-data/plain-privacy-pass.mjs"
+                  "read-data/plain-privacy-pass.mjs",
+                  "read-data/plain-privacy-pass.json"
                 ],
                 "at": "/opt/learn-from-everyones-results"
               },

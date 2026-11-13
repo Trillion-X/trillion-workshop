@@ -140,7 +140,8 @@
               {
                 "package": "who-does-each-step",
                 "paths": [
-                  "read-data/who-does.mjs"
+                  "read-data/who-does.mjs",
+                  "read-data/words.json"
                 ],
                 "at": "/opt/who-does-each-step"
               },
@@ -504,7 +505,8 @@
               {
                 "package": "who-does-each-step",
                 "paths": [
-                  "read-data/who-does.mjs"
+                  "read-data/who-does.mjs",
+                  "read-data/words.json"
                 ],
                 "at": "/opt/who-does-each-step"
               },

@@ -93,6 +93,32 @@ const specsOf = (src) => {
   return [...out];
 };
 
+// Files a program reads beside itself: new URL('<relative>', import.meta.url) with a literal path. The engine installs only
+// what package_files names. A read in the module's top-level code (outside every block, not in an arrow function) runs when
+// the module loads, so an unpacked one is ENOENT on every call of every row that reaches the module:
+// missing-relative-read, a gate finding. A read inside a function, a fallback or an output path is report only
+// (relative-read-not-packed): it may never run, or name a file the program writes.
+const READ_RE = /new\s+URL\(\s*(['"`])(\.{1,2}\/[^'"`$]*)\1\s*,\s*import\.meta\.url\s*\)/g;
+function readsOf(src) {
+  const out = new Map(); // spec -> loads (true when any read of it runs at module load)
+  const matches = [...src.matchAll(READ_RE)];
+  if (!matches.length) return out;
+  // Brace depth at each match (approximate: strings and comments are not skipped, as blockFrom).
+  let depth = 0;
+  let at = 0;
+  for (const m of matches) {
+    for (; at < m.index; at += 1) {
+      if (src[at] === '{') depth += 1;
+      else if (src[at] === '}') depth = Math.max(0, depth - 1);
+    }
+    const lineStart = src.lastIndexOf('\n', m.index) + 1;
+    const statement = src.slice(lineStart, m.index);
+    const loads = depth === 0 && !/=>/.test(statement) && /readFileSync\s*\(\s*$|readFileSync\s*\(\s*fileURLToPath\s*\(\s*$/.test(statement);
+    out.set(m[2], (out.get(m[2]) ?? false) || loads);
+  }
+  return out;
+}
+
 const isBuiltin = (s) => s.startsWith('node:') || ['fs', 'path', 'crypto', 'child_process', 'os', 'url', 'util', 'http', 'https', 'net', 'stream', 'events', 'zlib', 'buffer', 'readline', 'assert', 'worker_threads', 'module', 'tty', 'process'].includes(s);
 
 // Expand one row's package_files into the set of workshop files it covers.
@@ -270,6 +296,7 @@ function checkRow(rowFile, desc) {
     if (w && fileSet.has(w.ws) && /\.(mjs|js|cjs|py|sh)$/.test(w.ws) && !coveredBy(covers, w.pkg, w.ws.split('/').slice(2).join('/'))) findings.push({ kind: 'argv-not-declared', target: a, pkg: w.pkg, needs: w.ws });
   }
   const visited = new Set();
+  const reads = new Set();
   const needed = new Map();
   while (queue.length) {
     const { ws, from } = queue.shift();
@@ -278,6 +305,20 @@ function checkRow(rowFile, desc) {
     const src = text(ws);
     if (src === null) continue;
     const installed = '/opt/' + ws.replace(/^tools\//, '');
+    // A test file packed with its folder never runs on the engine: its reads are not the row's.
+    const isTest = /(^|\/)(__tests__|tests?)\/|\.test\.[mc]?js$/.test(ws);
+    for (const [spec, loads] of isTest ? [] : readsOf(src)) {
+      const w = toWorkshop(resolveRel(installed, spec), covers);
+      if (!w) continue;
+      const target = w.ws.replace(/\/$/, '');
+      // A read of a folder (new URL('./', ...)) or of a file the tree does not hold (one the program writes) packs nothing.
+      if (!fileSet.has(target)) continue;
+      if (loads) reads.add(target);
+      if (!coveredBy(covers, w.pkg, target.split('/').slice(2).join('/'))) {
+        const key = `read|${ws}|${spec}`;
+        if (!seen.has(key)) { seen.add(key); findings.push({ kind: loads ? 'missing-relative-read' : 'relative-read-not-packed', from: ws, spec, needs: target, pkg: w.pkg, declared_pkg: w.declared }); }
+      }
+    }
     for (const spec of specsOf(src)) {
       if (spec.startsWith('.') || spec.startsWith('/')) {
         const target = spec.startsWith('/') ? spec : resolveRel(installed.replace(/^\/opt\//, '/opt/'), spec);
@@ -305,7 +346,7 @@ function checkRow(rowFile, desc) {
   }
   const items = [...files];
   const extra = new Map();
-  for (const ws of [...visited].sort()) {
+  for (const ws of [...new Set([...visited, ...reads])].sort()) {
     const [, pkg, ...rest] = ws.split('/');
     const rel = rest.join('/');
     if (!fileSet.has(ws) || coveredBy(covers, pkg, rel)) continue;
@@ -349,3 +390,6 @@ return { results, shapes, byRow };
 }
 
 export const packageFilesByRow = (args) => toolRowFindings(args).byRow;
+
+// The finding kinds that refuse a push (tool-row-imports-gate.mjs) and fail test/every-tool-row-imports.test.mjs.
+export const GATE_KINDS = ['missing-relative-import', 'missing-relative-read', 'argv-not-declared', 'door-without-records'];
