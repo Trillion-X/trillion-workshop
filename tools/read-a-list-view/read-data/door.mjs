@@ -77,7 +77,7 @@ export async function openDoor(config, { keyOf = credentialKey } = {}) {
   }
   const key = await keyOf(transport.credential);
   let step = 0;
-  // A busy door (HTTP 503 or selected_owner_unavailable), a call whose outcome is unknown and a call over the key's rate
+  // A busy door (HTTP 503 or selected_owner_unavailable), a write that ran out of the door's time before it started, a call whose outcome is unknown and a call over the key's rate
   // (sign_in_too_many_calls, after the wait it names) are sent again with the
   // same request key after a growing wait, never a new key, so a call that did happen answers its first answer.
   const callOnce = async (address, method, input, request_key) => {
@@ -98,6 +98,10 @@ export async function openDoor(config, { keyOf = credentialKey } = {}) {
       const answer = result.structuredContent ?? result;
       if (!result.isError) return answer;
       if ((answer?.code === 'selected_owner_unavailable' || answer?.outcome === 'unknown') && again) { await wait(FIRST_WAIT_MS * 2 ** attempt); continue; }
+      // A write that ran past the door's own bound for one call (legacy_records Bounds elapsed, 5 s; a write measured 4 s
+      // whatever its size, 1 row or 64) and says it never started wrote nothing: it is sent again with the same key. Splitting
+      // it into smaller writes would only add calls, each paying the same fixed cost against the same bound.
+      if (answer?.code === 'write_deadline_exceeded' && answer?.outcome === 'not_started' && again) { await wait(FIRST_WAIT_MS * 2 ** attempt); continue; }
       // A door that counts this key's calls (sign_in_too_many_calls) says how long to wait; the same call is sent after it.
       if (answer?.code === 'sign_in_too_many_calls' && again) { await wait(1000 * (Number(answer.detail?.retry_after_seconds) || 60)); continue; }
       throw say(answer?.code ?? 'refused', `${method} was refused: ${JSON.stringify(answer).slice(0, 300)}`);
