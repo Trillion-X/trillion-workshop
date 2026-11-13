@@ -9,7 +9,7 @@
 // write the door does not answer in time is sent again with its own request key, and the counts read back per app.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync, appendFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync, appendFileSync, utimesSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
@@ -183,6 +183,40 @@ test('a session that grew is read on from its byte offset, and only the new rows
   const later = await importConversationsFrom(request(home, { source: 'codex-sessions' }), context);
   assert.deepEqual([later.messages_added, later.messages_already_kept, later.files_skipped], [1, 0, 1]);
   assert.equal(fake.kept.get('record:ai-conversation:codex-aaaaaaaa-0001').value.messages, 3);
+});
+
+// The sweep old Trillion's recorder ran every few minutes (record-every-message.mjs --sweep, sweep.changed_within_days 7),
+// as a run of the resume tool on a clock: only the AI apps' sessions changed within the window are read, a turn added
+// since the last run is kept and nothing before it again, and a run with no window still reads the older session.
+test('a sweep reads only the sessions changed within its window, and keeps each new turn once', async t => {
+  const { home } = makeHome();
+  const { fake, context } = await doorFor();
+  t.after(async () => { rmSync(home, { recursive: true, force: true }); await fake.close(); });
+  const daysBefore = days => new Date(NOW.getTime() - days * 86_400_000);
+  const claudeLive = '.claude/projects/-bakery/11111111-2222-3333-4444-555555555555.jsonl';
+  const codexOld = '.codex/archived_sessions/rollout-aaaaaaaa-0002.jsonl';
+  for (const file of [claudeLive, '.codex/sessions/2026/10/02/rollout-aaaaaaaa-0001.jsonl', '.gemini/tmp/abc123/chats/session-2026-10-03.json', '.hermes/sessions/session_20261004.json']) utimesSync(join(home, file), daysBefore(1), daysBefore(1));
+  utimesSync(join(home, codexOld), daysBefore(30), daysBefore(30));
+  const sweep = { sources: ['claude-code-sessions', 'codex-sessions', 'gemini-cli-sessions', 'hermes-sessions'], changed_within_days: 7, time_box_seconds: 100 };
+
+  const first = await resumeConversationImports(request(home, sweep), context);
+  assert.equal(first.more, false);
+  assert.deepEqual(Object.fromEntries(first.sources.map(source => [source.source, [source.files_found, source.messages_added]])),
+    { 'claude-code-sessions': [1, 2], 'codex-sessions': [1, 2], 'gemini-cli-sessions': [1, 2], 'hermes-sessions': [1, 2] });
+  assert.ok(!fake.kept.has('record:ai-conversation:codex-aaaaaaaa-0002'), 'a session older than the window is not read');
+
+  appendFileSync(join(home, claudeLive), lines([
+    { type: 'user', sessionId: '11111111-2222-3333-4444-555555555555', uuid: 'cc-3', timestamp: '2026-11-04T11:59:00Z', origin: { kind: 'human' }, promptSource: 'typed', message: { role: 'user', content: 'Now the rye page.' } },
+  ]));
+  utimesSync(join(home, claudeLive), daysBefore(0), daysBefore(0));
+  const next = await resumeConversationImports(request(home, sweep), context);
+  assert.deepEqual(next.sources.map(source => [source.source, source.messages_added, source.messages_already_kept]),
+    [['claude-code-sessions', 1, 0], ['codex-sessions', 0, 0], ['gemini-cli-sessions', 0, 0], ['hermes-sessions', 0, 0]]);
+  const said = ofType(fake, 'message').filter(record => record.value.speaker === 'person' && record.value.conversation_id === 'claude-code:11111111-2222-3333-4444-555555555555');
+  assert.deepEqual(said.map(record => [record.value.text, record.value.at]).sort(), [['Add a sourdough recipe page.', '2026-10-01T10:00:00.000Z'], ['Now the rye page.', '2026-11-04T11:59:00.000Z']]);
+
+  const whole = await resumeConversationImports(request(home, { sources: ['codex-sessions'] }), context);
+  assert.deepEqual([whole.sources[0].files_found, whole.sources[0].messages_added], [2, 2]);
 });
 
 test('a door that answers 503 midway stops the run where it was kept, and a resume finishes with nothing kept twice', async t => {

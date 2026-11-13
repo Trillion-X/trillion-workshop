@@ -1171,6 +1171,11 @@
               "additionalProperties": { "type": "string", "minLength": 1 },
               "description": "Where a message's file is when it is not beside the export: { attachment id (file-XXXX): a path in the granted folder }"
             },
+            "changed_within_days": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Only the files changed within this many days (old Trillion's recorder swept the sessions changed within 7); without it every file is read"
+            },
             "time_box_seconds": {
               "type": "integer",
               "minimum": 1,
@@ -1535,6 +1540,11 @@
                   }
                 }
               }
+            },
+            "changed_within_days": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Only the files changed within this many days (old Trillion's recorder swept the sessions changed within 7); without it every file is read"
             },
             "time_box_seconds": {
               "type": "integer",

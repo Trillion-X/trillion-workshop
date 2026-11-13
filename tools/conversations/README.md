@@ -38,6 +38,11 @@ source and both identities; `ports/` holds the contracts). What is kept is what 
 - **A cursor row per file and per source** (`conversation-import-cursor:<source>[:<file key>]`): where the file's read
   is (a conversation's place, a decoder page, or a transcript's byte offset with the recorder's context), what it kept,
   and whether it is done. A rerun skips a done, unchanged file and reads a grown session on from its offset.
+- **Only what changed lately**: `changed_within_days` (import and resume) reads only the files changed within that many
+  days. Run every 180 s with 7 over the four AI apps' sessions, it is old Trillion's recorder sweep
+  (`record-every-message.mjs --sweep`, `sweep.every_seconds` and `sweep.changed_within_days`): each new turn is kept
+  within minutes with no hook, and a turn a hook missed heals on the next run. The clock is an engine wake the person
+  declares as a `wake-declaration` record and switches on; without a window every file is read, as before.
 - **A busy or slow door**: every call is sent again after a growing wait (`first_wait_ms` doubling to `most_wait_ms`,
   `retries` times) on 503, a timeout (`call_timeout_ms`) or an unknown outcome, with the same request key, so a write
   that landed answers its first receipt. Past that the run stops with `stopped` and `more: true`; the next run resumes.

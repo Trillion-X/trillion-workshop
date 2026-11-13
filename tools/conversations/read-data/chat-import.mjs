@@ -536,8 +536,12 @@ function walk(home, folder, depth, wanted, budget) {
   return found;
 }
 
-/** Each source row with the files of it found in the home: [{ source, files: [{ file, bytes, changed_ms }] }]. */
-export function sourcesFoundIn(home, { only, more_places: morePlaces = [], rules = places } = {}) {
+/**
+ * Each source row with the files of it found in the home: [{ source, files: [{ file, bytes, changed_ms }] }]. With
+ * changed_since_ms, only the files changed since then (old Trillion's recorder swept only the sessions changed within
+ * record-every-message.json `sweep.changed_within_days`; older ones are history, read when no window is asked).
+ */
+export function sourcesFoundIn(home, { only, more_places: morePlaces = [], changed_since_ms: changedSince = null, rules = places } = {}) {
   const budget = { left: rules.settings.most_files_looked_at };
   const exportPlaces = [...rules.export_places, ...morePlaces];
   return rules.sources.filter(source => !only || only.includes(source.id)).map(source => {
@@ -557,6 +561,7 @@ export function sourcesFoundIn(home, { only, more_places: morePlaces = [], rules
       for (const place of exportPlaces) files.push(...walk(home, place.folder, place.depth, take, budget));
     }
     files = [...new Map(files.map(file => [file.file, file])).values()].sort((a, b) => a.file.localeCompare(b.file));
+    if (changedSince !== null) files = files.filter(file => file.changed_ms >= changedSince);
     return { source, files };
   });
 }
@@ -831,6 +836,9 @@ async function importOneSource(home, door, { source, files }, { deadline, now, g
 
 const requestOf = request => ({ input: request?.input ?? (request?.folder === undefined ? request ?? {} : {}), folder: request?.folder });
 const rulesOf = context => ({ ...settings, ...(context.rules ?? {}) });
+// A run's window (input.changed_within_days) as the earliest change time a file must have, or null for every file.
+const changedSinceOf = (input, context) => (Number(input.changed_within_days) > 0
+  ? (context.now ?? (() => new Date()))().getTime() - Number(input.changed_within_days) * 86_400_000 : null);
 const runOptions = (input, context) => ({
   deadline: Date.now() + 1000 * Math.min(Math.max(Number(input.time_box_seconds) || settings.time_box_seconds, 1), settings.time_box_seconds),
   now: context.now ?? (() => new Date()),
@@ -855,7 +863,7 @@ export async function importConversationsFrom(request, context = {}) {
   const { input, folder } = requestOf(request);
   const source = knownSource(input.source);
   const home = homeOf(folder);
-  let [{ files }] = sourcesFoundIn(home, { only: [source.id], more_places: input.more_places ?? [] });
+  let [{ files }] = sourcesFoundIn(home, { only: [source.id], more_places: input.more_places ?? [], changed_since_ms: changedSinceOf(input, context) });
   if (Array.isArray(input.files) && input.files.length) {
     files = input.files.map(file => {
       const real = inside(home, resolve(home, file));
@@ -878,7 +886,7 @@ export async function resumeConversationImports(request, context = {}) {
   const door = patientDoor(context.door, { wait: context.wait, rules: rulesOf(context) });
   const options = runOptions(input, context);
   const sources = [];
-  for (const found of sourcesFoundIn(home, { only, more_places: input.more_places ?? [] })) {
+  for (const found of sourcesFoundIn(home, { only, more_places: input.more_places ?? [], changed_since_ms: changedSinceOf(input, context) })) {
     if (!found.files.length) continue;
     if (Date.now() >= options.deadline) { sources.push({ source: found.source.id, done: false, waiting: true }); continue; }
     const result = await importOneSource(home, door, found, options);
