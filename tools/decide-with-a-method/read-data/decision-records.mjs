@@ -217,13 +217,16 @@ function fitted(records) {
 // and one that reads through the door call the same code. `get(type, key)` answers the record a reader already holds: its
 // value, null when it is known not to exist, undefined when it was not read yet. The join asks for what it needs through
 // `get`; `settled` runs it again over the records read for the ones it asked about, until it asks about no more.
-/** A record's value whole: as kept, or put back together from its parts; null when a part is missing. */
+/** A record's value whole: as kept, or put back together from its parts; throws when a part is not visible. */
 export function wholeValue(key, value, get) {
   if (!object(value) || !Number.isInteger(value.kept_in_parts)) return value;
   let text = '';
   for (let n = 0; n < value.kept_in_parts; n += 1) {
-    const part = get(NAMES.part.type, partKey(key, n));
-    if (typeof part?.text !== 'string') return null;
+    const partOf = partKey(key, n);
+    const part = get(NAMES.part.type, partOf);
+    if (part === undefined) return undefined;
+    // A part that is not there is an error, never a missing value: a summary read as lost would be written back as a stub.
+    if (typeof part?.text !== 'string') throw Object.assign(new Error(`Part ${partOf} of this decision is not visible to this read. Nothing was changed.`), { code: 'part_unreadable' });
     text += part.text;
   }
   return unpackStep(JSON.parse(text));
@@ -335,13 +338,19 @@ export function joinDecision(id, root, get, steps = []) {
   LOADED.set(decision, loaded);
   return decision;
 }
+/** A step that cannot be read is an error, never a stub: no reader returns an entry with no step in it, and no write sees one to keep. */
+export function refuseUnreadableSteps(decision) {
+  const unreadable = decision.guidance.flatMap((entry, n) => (entry.lost === true || !entry.step_id ? [n] : []));
+  if (unreadable.length) throw Object.assign(new Error(`Step ${unreadable.join(', ')} of this decision could not be read: its record holds no step. The decision was not changed.`), { code: 'step_unreadable' });
+  return decision;
+}
 export async function readDecision(door, id, steps = []) {
   // The revision is read before the root: a commit between the two reads then leaves a revision older than the root,
   // which the write made from this read refuses, never a stale root under a newer revision it would be accepted against.
   const revision = await readRevision(door, id);
   const root = await door.read('decision', id);
   if (!root) return null;
-  const decision = await settled(door, get => joinDecision(id, root, get, steps));
+  const decision = refuseUnreadableSteps(await settled(door, get => joinDecision(id, root, get, steps)));
   markRead(decision, revision);
   return decision;
 }
@@ -468,9 +477,7 @@ export function recordsOf(record, changed = [], archived = []) {
     items.push(...changedItems(id, list, now, loaded[list], loaded.item_refs?.[list]));
     itemRefs[list] = refsAfter(now, loaded[list], loaded.item_refs?.[list]);
   }
-  // A step whose record could not be read (`lost`) is written back as it was read: the summary loaded for it stands, so a write
-  // never replaces a step it could not read with a summary that has no step in it.
-  const stubs = guidance.map((entry, n) => (entry.lost === true && loaded.answered_steps?.[n] !== undefined ? JSON.parse(loaded.answered_steps[n]) : stubOf(entry)));
+  const stubs = guidance.map(stubOf);
   counts.answered_steps = stubs.length;
   items.push(...changedItems(id, 'answered_steps', stubs, loaded.answered_steps, loaded.item_refs?.answered_steps));
   itemRefs.answered_steps = refsAfter(stubs, loaded.answered_steps, loaded.item_refs?.answered_steps);

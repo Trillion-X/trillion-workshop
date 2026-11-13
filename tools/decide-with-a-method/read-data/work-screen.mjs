@@ -26,7 +26,7 @@ import decisionSteps from './decision-progress.json' with { type: 'json' };
 import words from './what-helped-words.json' with { type: 'json' };
 import settings from './decide-with-a-method.json' with { type: 'json' };
 import { decisionResult as outcomeResult, decisionStatus as outcomeStatus } from './decision-outcome.mjs';
-import { joinDecision, settled } from './decision-records.mjs';
+import { joinDecision, refuseUnreadableSteps, settled } from './decision-records.mjs';
 
 // Who wins when the person and a check disagree is the decision tools' own setting.
 const decisionResult = record => outcomeResult(record, settings.precedence);
@@ -373,7 +373,7 @@ async function everyRow(door, query, most, what) {
 }
 
 /** One decision with its lists and every step put back, as the decision tools lay it out. */
-const wholeDecision = (door, row) => settled(door, get => joinDecision(row.id, row.value, get, EVERY_STEP));
+const wholeDecision = async (door, row) => refuseUnreadableSteps(await settled(door, get => joinDecision(row.id, row.value, get, EVERY_STEP)));
 
 // --- src/decision-store.mjs (summaryOf, summariesOf over rows read here) ---
 const summaryOf = record => ({

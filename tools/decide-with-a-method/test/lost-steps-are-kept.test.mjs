@@ -16,7 +16,7 @@ const input = {
   options: [{ id: 'keep', label: 'Keep the price' }, { id: 'raise', label: 'Raise the price' }],
 };
 
-test('a later write leaves a step whose record cannot be read where it stood, and removes nothing from the case', async () => {
+test('a later write refuses a case whose unreadable step is gone, and changes nothing', async () => {
   const door = account();
   const { case_id: id, question: scope } = await startADecision(input, { door });
   const scoped = await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: fill(scope, { refs: ['user-verbatim'] }) }, { door });
@@ -25,9 +25,8 @@ test('a later write leaves a step whose record cannot be read where it stood, an
   assert.equal(before.length, 2, 'two answered steps are kept');
   // The outcome step's own record cannot be read (it is gone from the door), while the decision still holds the step.
   door.records.delete(`${ANSWERED}:${id}:001:c${before[1]}`);
-  await addDecisionEvidence({ decision_id: id, evidence: [{ ref: 'e3', claim: 'The waiting list grew this month' }] }, { door });
-  const after = (await refsOfCase(door, id)).items.answered_steps;
-  assert.equal(after[0], before[0], 'the readable step keeps its reference');
-  assert.equal(after[1], before[1], 'the unreadable step keeps its reference');
-  assert.equal([...door.records.keys()].filter(key => key.startsWith(`${ANSWERED}:${id}:001:c`)).length, 0, 'no summary is written in place of the unreadable step');
+  const keysBefore = [...door.records.keys()].sort();
+  await assert.rejects(() => addDecisionEvidence({ decision_id: id, evidence: [{ ref: 'e3', claim: 'The waiting list grew this month' }] }, { door }), /could not be read/);
+  assert.deepEqual([...door.records.keys()].sort(), keysBefore, 'nothing is written in place of the unreadable step');
+  assert.equal((await refsOfCase(door, id)).items.answered_steps[1], before[1], 'the reference to the unreadable step stands');
 });
