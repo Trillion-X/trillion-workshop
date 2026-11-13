@@ -17,7 +17,7 @@
 //
 // usage: publish-an-engine-release.mjs publish REQUEST_FILE [--commit COMMIT] | accept REQUEST_FILE ENTRY_FILE BODY_FILE
 //        | make-key KEY_FILE | public-key KEY_FILE
-import { chmodSync, closeSync, createReadStream, createWriteStream, existsSync, fstatSync, fsyncSync, lstatSync, mkdirSync, openSync, readdirSync, readFileSync, renameSync, rmdirSync, rmSync, statSync, writeFileSync, writeSync } from 'node:fs';
+import { chmodSync, closeSync, createReadStream, createWriteStream, existsSync, fstatSync, fsyncSync, lstatSync, mkdirSync, openSync, readdirSync, readFileSync, realpathSync, renameSync, rmdirSync, rmSync, statSync, symlinkSync, unlinkSync, utimesSync, writeFileSync, writeSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, resolve as resolvePath } from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -25,6 +25,7 @@ import { gunzipSync, gzipSync } from 'node:zlib';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { packageFilesByRow } from '../../../test-helpers/tool-row-imports.mjs';
 import { tarGz, untarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
+import { gitSshCommand, overSsh } from './git-ssh.mjs';
 import { addRelease, checkCommit, checkEntry, checkTarget, ENGINE_KIND, feedStatusOf, mayPublish, newSigningKey, publicKeyHex, readFeed, roads, settings, signEntry, signerOf } from './release-feed.mjs';
 
 const refuse = (message, exit = 1) => Object.assign(new Error(message), { exit });
@@ -60,13 +61,22 @@ export function runProgram(program, args, { cwd, env = process.env, token, timeo
 
 const git = (folder, args, options = {}) => runProgram('git', ['-C', folder, ...args], options);
 
+/** The repository `folder` made once, its `origin` the `repository`. */
+async function openRepository(folder, repository) {
+  if (!existsSync(join(folder, '.git'))) { mkdirSync(folder, { recursive: true }); await git(folder, ['init', '-q']); }
+  const remotes = (await git(folder, ['remote'])).split('\n');
+  await git(folder, remotes.includes('origin') ? ['remote', 'set-url', 'origin', repository] : ['remote', 'add', 'origin', repository]);
+}
+
+/** `git fetch` in `folder` with the token on descriptor 3 (the credential helper reads it there): `refs` fetched from origin. */
+const fetchFromOrigin = (folder, refs, { token, env = process.env, timeout }) =>
+  git(folder, ['-c', 'credential.helper=', '-c', `credential.helper=${CREDENTIAL_HELPER}`, '-c', 'core.askPass=true', 'fetch', '-q', '--no-tags', 'origin', ...refs],
+    { token: token ?? '', env: { ...env, GIT_TERMINAL_PROMPT: '0' }, ...(timeout ? { timeout } : {}) });
+
 /** The repository at the branch's tip in WORK/source, fetched with the token; answers the branch tip. */
 export async function fetchRepository({ repository, branch, source, token }) {
-  if (!existsSync(join(source, '.git'))) { mkdirSync(source, { recursive: true }); await git(source, ['init', '-q']); }
-  const remotes = (await git(source, ['remote'])).split('\n');
-  await git(source, remotes.includes('origin') ? ['remote', 'set-url', 'origin', repository] : ['remote', 'add', 'origin', repository]);
-  await git(source, ['-c', 'credential.helper=', '-c', `credential.helper=${CREDENTIAL_HELPER}`, '-c', 'core.askPass=true',
-    'fetch', '-q', '--no-tags', 'origin', `+refs/heads/${branch}:refs/remotes/origin/${branch}`], { token: token ?? '', env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } });
+  await openRepository(source, repository);
+  await fetchFromOrigin(source, [`+refs/heads/${branch}:refs/remotes/origin/${branch}`], { token });
   return (await git(source, ['rev-parse', `refs/remotes/origin/${branch}`])).trim();
 }
 
@@ -103,15 +113,16 @@ export function filesUnder(root, paths, skip = []) {
   });
 }
 
-/** Pack the program at the root, the extra programs under product/ (`extra_binaries_folder`), and product/ when the commit
- *  has one, as tar.gz into `file`; answers { content, bytes }. An unpacker that predates the extra programs accepts only the
- *  program at the root and anything under product/, so the extra programs must sit there to be unpacked at all. A kind whose
+/** Pack the program at the root, the extra programs under product/ (`extra_binaries_folder`), product/ when the commit
+ *  has one, and `client` (the web client's files, `layProductClient`) under it, as tar.gz into `file`; answers { content, bytes }.
+ *  An unpacker that predates the extra programs accepts only the program at the root and anything under product/, so the
+ *  extra programs must sit there to be unpacked at all. A kind whose
  *  `body` is `binary-at-root` (the forwarder) packs its one program at the root and nothing else. */
-export function packRelease({ program, source, file, names = [settings.binary, ...settings.extra_binaries], body = 'engine' }) {
+export function packRelease({ program, source, file, names = [settings.binary, ...settings.extra_binaries], body = 'engine', client = [] }) {
   const product = body === 'engine' && existsSync(join(source, settings.product_folder)) ? filesUnder(source, [settings.product_folder]) : [];
   const [root, ...extras] = names;
   const beside = filesUnder(dirname(program), extras).map(one => ({ ...one, name: `${settings.extra_binaries_folder}/${one.name}` }));
-  const packed = tarGz([...filesUnder(dirname(program), [root]), ...beside, ...product]);
+  const packed = tarGz([...filesUnder(dirname(program), [root]), ...beside, ...product, ...client]);
   writeFileSync(file, packed, { mode: 0o644 });
   return { content: makeHashCodeHexFromBytes(packed), bytes: packed.length };
 }
@@ -142,6 +153,79 @@ export async function archiveRelease({ source, commit, prefix, file }) {
   const packed = gzipSync(Buffer.concat([tar.subarray(0, end), entry, Buffer.alloc(2 * BLOCK)]), { level: 9 });
   writeFileSync(file, packed, { mode: 0o644 });
   return { content: makeHashCodeHexFromBytes(packed), bytes: packed.length };
+}
+
+const P = settings.product_client;
+const COMMIT_ID = new RegExp(settings.commit_pattern);
+const FOLDER_NAME = /^[A-Za-z0-9][A-Za-z0-9._-]{0,99}$/;
+
+/** The engine repository's pin file checked: the web client commit it pins and how that commit builds. `allowed` is the one
+ *  repository this builder reads for it (the install request's product_client.repository). Pure; throws exit 5. */
+export function checkProductPin(pin, allowed) {
+  const fail = why => { throw refuse(`${P.pin_file} is not a web client pin: ${why}.`, 5); };
+  const fields = ['repository', 'commit', 'into', 'checkout_folder', 'engine_folder', 'build'];
+  if (!pin || typeof pin !== 'object' || Array.isArray(pin)) fail('it must be a JSON object');
+  const unknown = Object.keys(pin).filter(name => name !== '_what' && !fields.includes(name));
+  if (unknown.length) fail(`unknown field ${unknown.join(', ')}`);
+  if (typeof allowed !== 'string' || !allowed) throw refuse(`The commit pins a web client (${P.pin_file}) but this builder names no product_client.repository to read it from: install it with one.`, 5);
+  if (pin.repository !== allowed) fail(`its repository ${JSON.stringify(pin.repository)} is not the one this builder reads, ${allowed}`);
+  if (typeof pin.commit !== 'string' || !COMMIT_ID.test(pin.commit)) fail('commit must be the full lowercase hex id of the client commit');
+  for (const name of ['into', 'checkout_folder', 'engine_folder']) if (typeof pin[name] !== 'string' || !FOLDER_NAME.test(pin[name]) || pin[name].includes('..')) fail(`${name} must be one plain folder name`);
+  if (pin.checkout_folder === pin.engine_folder) fail('checkout_folder and engine_folder must differ');
+  if (!Array.isArray(pin.build) || !pin.build.length || pin.build.length > P.build_arguments_at_most || !pin.build.every(word => typeof word === 'string' && word && !/[\0\n]/.test(word))) fail(`build must be 1 to ${P.build_arguments_at_most} words`);
+  if (!P.programs.includes(pin.build[0])) fail(`build starts with ${JSON.stringify(pin.build[0])}, not one of ${P.programs.join(', ')}`);
+  const tokens = pin.build.flatMap(word => word.match(/\{[^}]*\}/g) ?? []);
+  if (tokens.some(token => !P.placeholders.includes(token))) fail(`build names a placeholder other than ${P.placeholders.join(', ')}`);
+  if (!tokens.includes('{out}')) fail('build must name {out}, the folder the client is built into');
+  return pin;
+}
+
+/** The program and arguments of a pin's build, its placeholders replaced. Pure. */
+export const buildArguments = (pin, values) => pin.build.map(word => word.replaceAll('{checkout}', values.checkout).replaceAll('{commit}', values.commit).replaceAll('{out}', values.out));
+
+/** The client commit at `folder`, fetched with the repository's own read key (or the token) and checked out clean. */
+async function fetchClientCommit({ repository, commit, folder, token }) {
+  await openRepository(folder, repository);
+  const env = overSsh(repository) ? { ...process.env, GIT_SSH_COMMAND: gitSshCommand(settings.on_builder.product_key_file) } : process.env;
+  await fetchFromOrigin(folder, [commit], { token, env, timeout: P.fetch_timeout_ms });
+  await git(folder, ['-c', 'advice.detachedHead=false', 'checkout', '-q', '--force', '--detach', commit]);
+  await git(folder, ['clean', '-q', '-ffdx']);
+}
+
+/**
+ * The web client the commit pins, as the entries every target packs under product/<into> (`packRelease`'s `client`). They are
+ * not written into `source`: the engine's own build refuses a file under its product/ folder it does not list. A commit with no
+ * pin file has no client of its own: no entries. The client is built once per pin (its identity names the folder it is kept in)
+ * and read from there; a build that fails fails the publish, so no release is signed without the client its commit pins.
+ */
+export async function layProductClient({ request, source, work, env, token, log }) {
+  const pinFile = join(source, P.pin_file);
+  if (!existsSync(pinFile)) return [];
+  let parsed;
+  try { parsed = JSON.parse(readFileSync(pinFile, 'utf8')); } catch { throw refuse(`${P.pin_file} is not JSON.`, 5); }
+  const pin = checkProductPin(parsed, request.product_client?.repository);
+  if (existsSync(join(source, settings.product_folder, pin.into))) throw refuse(`The commit holds ${settings.product_folder}/${pin.into} and pins a web client for it: it holds one or the other.`, 5);
+  const base = join(work, P.folder), builtRoot = join(base, P.built_folder);
+  mkdirSync(builtRoot, { recursive: true, mode: 0o700 });
+  const key = makeHashCodeHexFromBytes(Buffer.from(JSON.stringify([pin.repository, pin.commit, pin.into, pin.build]))).slice(3), built = join(builtRoot, key);
+  if (!existsSync(built)) {
+    const checkout = join(base, pin.checkout_folder), engine = join(base, pin.engine_folder), building = join(realpathSync(builtRoot), `${key}.building`);
+    await fetchClientCommit({ repository: pin.repository, commit: pin.commit, folder: checkout, token });
+    // The client repository's own layout: the engine checkout sits beside the client's.
+    if (lstatSync(engine, { throwIfNoEntry: false })?.isSymbolicLink()) unlinkSync(engine);
+    symlinkSync(source, engine);
+    for (const left of [building, `${building}.work`]) rmSync(left, { recursive: true, force: true });
+    const [program, ...args] = buildArguments(pin, { checkout: realpathSync(checkout), commit: pin.commit, out: building });
+    await runProgram(program, args, { cwd: checkout, env, timeout: P.build_timeout_ms, log });
+    renameSync(building, built);
+  }
+  const files = filesUnder(built, readdirSync(built)).map(file => ({ ...file, name: `${settings.product_folder}/${pin.into}/${file.name}` }));
+  const now = new Date();
+  utimesSync(built, now, now);
+  // Only the newest `keep_built` clients stay; a build another publish left half-made goes with the older ones.
+  const kept = readdirSync(builtRoot).map(name => ({ name, at: statSync(join(builtRoot, name)).mtimeMs })).sort((left, right) => right.at - left.at);
+  for (const { name } of kept.filter(one => one.name !== key).slice(P.keep_built - 1)) rmSync(join(builtRoot, name), { recursive: true, force: true });
+  return files;
 }
 
 /** The publish kind a request names (settings.kinds, one row each): the engine when it names none. */
@@ -241,6 +325,7 @@ export async function publish(request, { token = '', commit: asked, credentials 
   const urgent = request.urgent === true || trailer.split('\n').includes('true');
   const log = createWriteStream(join(work, 'build.log'));
   try {
+    const client = kind.build && (kind.body ?? 'engine') === 'engine' ? await layProductClient({ request, source, work, env, token, log }) : [];
     // Each target builds in its own target folder, kept between runs so a later commit reuses what that target compiled.
     // Up to settings.parallel_builds targets build at once. The host target goes first: its failure fails the publish;
     // a Mac or cross target that fails is only reported in feed-status.json.
@@ -253,15 +338,15 @@ export async function publish(request, { token = '', commit: asked, credentials 
         await runProgram(request.toolchain?.cargo ?? 'cargo', ['build', '--release', ...binaryArgs(linuxBinaries)], { cwd: source, env: { ...env, CARGO_TARGET_DIR: targetDirOf(work, target) }, timeout: settings.build_timeout_ms, log });
         const program = join(targetDirOf(work, target), 'release', binaryOf(kind));
         for (const name of linuxBinaries) if (!existsSync(join(dirname(program), name))) throw refuse(`cargo finished but made no ${name} in ${dirname(program)}: the repository's package must have each of ${linuxBinaries.join(', ')}.`);
-        pack = part => packRelease({ program, source, file: part, names: linuxBinaries, body });
+        pack = part => packRelease({ program, source, file: part, names: linuxBinaries, body, client });
       } else pack = part => archiveRelease({ source, commit, prefix: `${target}-${commit}`, file: part });
       return packSignAndAdd({ request, feedFolder, pack, privateKey, publicKey, fields: { commit, sequence, target, urgent } });
     };
     const darwinTargets = darwin?.targets ?? [];
     const builds = [
       hostBuild,
-      ...darwinTargets.map(one => () => publishDarwin({ request, darwin, source, work, targetDir: targetDirOf(work, one), env, log, feedFolder, feedNow, privateKey, publicKey, fields: { commit, sequence, target: one, urgent } })),
-      ...zigRows.map(row => () => publishZigbuild({ request, source, targetDir: targetDirOf(work, row.triple), env, log, feedFolder, privateKey, publicKey, buildEnv: row.build_env, fields: { commit, sequence, target: checkTarget(row.triple), urgent } })),
+      ...darwinTargets.map(one => () => publishDarwin({ request, darwin, source, work, client, targetDir: targetDirOf(work, one), env, log, feedFolder, feedNow, privateKey, publicKey, fields: { commit, sequence, target: one, urgent } })),
+      ...zigRows.map(row => () => publishZigbuild({ request, source, client, targetDir: targetDirOf(work, row.triple), env, log, feedFolder, privateKey, publicKey, buildEnv: row.build_env, fields: { commit, sequence, target: checkTarget(row.triple), urgent } })),
     ];
     const targets = [target, ...darwinTargets, ...zigRows.map(row => row.triple)];
     const [host, ...rest] = await settledInTurns(builds, settings.parallel_builds);
@@ -308,14 +393,14 @@ export function buildEnvironment({ commit, sequence }) {
  * One cross-built target of the commit already checked out: built with cargo-zigbuild for `target` (no Mac signing),
  * packed, signed and added like the builder's own target. Its roads row names it `zigbuild` (release-roads.json).
  */
-export async function publishZigbuild({ request, source, targetDir, env, log, feedFolder, privateKey, publicKey, fields, buildEnv = {} }) {
+export async function publishZigbuild({ request, source, client, targetDir, env, log, feedFolder, privateKey, publicKey, fields, buildEnv = {} }) {
   const { target } = fields;
   const toolchain = request.toolchain ?? {};
   const crossEnv = { ...env, ...buildEnv, CARGO_TARGET_DIR: targetDir, ...(toolchain.zig_python ? { CARGO_ZIGBUILD_PYTHON_PATH: toolchain.zig_python } : {}) };
   await runProgram(toolchain.cargo ?? 'cargo', ['zigbuild', '--release', ...binaryArgs([settings.binary, ...settings.extra_binaries]), '--target', target], { cwd: source, env: crossEnv, timeout: settings.build_timeout_ms, log });
   const built = join(targetDir, target, 'release', settings.binary);
   for (const name of [settings.binary, ...settings.extra_binaries]) if (!existsSync(join(dirname(built), name))) throw refuse(`cargo zigbuild finished but made no ${name} in ${dirname(built)}.`);
-  return packSignAndAdd({ request, feedFolder, pack: part => packRelease({ program: built, source, file: part }), privateKey, publicKey, fields });
+  return packSignAndAdd({ request, feedFolder, pack: part => packRelease({ program: built, source, file: part, client }), privateKey, publicKey, fields });
 }
 
 /** Pack a commit's release (`pack` writes the tar.gz at the path it is given), sign its entry and add it to the feed under the lock. */
@@ -392,7 +477,7 @@ export function darwinOf(request, credentials) {
  * to the requirement the Mac app admits a feed release by (`checkDeveloperId`), then packed, signed and added like
  * the builder's own target. A sequence older than the feed's for this target is refused before it is built.
  */
-export async function publishDarwin({ request, darwin, source, work, targetDir, env, log, feedFolder, feedNow, privateKey, publicKey, fields }) {
+export async function publishDarwin({ request, darwin, source, work, client, targetDir, env, log, feedFolder, feedNow, privateKey, publicKey, fields }) {
   const { target } = fields;
   const may = mayPublish(feedNow(), fields);
   if (may.already) return answerOf(may.already, { publicKey, already: true, dropped: 0, held: feedNow().releases.length });
@@ -416,7 +501,7 @@ export async function publishDarwin({ request, darwin, source, work, targetDir, 
     '--timestamp-url', D.timestamp_url, '--binary-identifier', settings.binary, built, signed], { env, timeout: settings.git_timeout_ms, log });
   checkDeveloperId(await runProgram(rcodesign, ['print-signature-info', signed], { env }), darwin.team_id);
   chmodSync(signed, 0o755);
-  return packSignAndAdd({ request, feedFolder, pack: part => packRelease({ program: signed, source, file: part, names: [settings.binary] }), privateKey, publicKey, fields });
+  return packSignAndAdd({ request, feedFolder, pack: part => packRelease({ program: signed, source, file: part, names: [settings.binary], client }), privateKey, publicKey, fields });
 }
 
 /**

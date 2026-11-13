@@ -23,6 +23,7 @@ import { fileURLToPath } from 'node:url';
 import { filesUnder, privateInput } from './publish-an-engine-release.mjs';
 import { tarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
 import { ENGINE_KIND, readFeed, settings } from './release-feed.mjs';
+import { gitSshCommand, overSsh } from './git-ssh.mjs';
 
 const SETUP = fileURLToPath(new URL('./set-up-the-builder.sh', import.meta.url));
 const SETUP_DARWIN = fileURLToPath(new URL('./set-up-darwin-builds.sh', import.meta.url));
@@ -78,6 +79,7 @@ export function checkRequest(request) {
     if (typeof team !== 'string' || !new RegExp(D.team_pattern).test(team)) throw refuse('darwin.team_id must be the Mac app\'s Developer ID team (10 letters and digits, the OU of its certificate).');
     if (typeof sdk !== 'string' || !/\.tar\.xz$/.test(sdk)) throw refuse('darwin.sdk must name a macOS SDK packed as .tar.xz on this computer, its one top folder the SDK (tar -C "$(xcrun --show-sdk-path)/.." -chJf MacOSX.sdk.tar.xz "$(basename "$(xcrun --show-sdk-path)")" on a Mac with Xcode).');
   }
+  if (request.product_client !== undefined && (typeof request.product_client?.repository !== 'string' || !/^(https:\/\/|ssh:\/\/|git@)/.test(request.product_client.repository))) throw refuse('product_client.repository must be the URL git fetches the web client repository from: the one repository the engine repository\'s pin file may name.');
   if (request.keep_releases !== undefined && (!Number.isSafeInteger(request.keep_releases) || request.keep_releases < 1 || request.keep_releases > settings.keep_releases)) throw refuse(`keep_releases must be a whole number from 1 to ${settings.keep_releases}.`);
   return request;
 }
@@ -92,6 +94,7 @@ export function builderConfig(request) {
     toolchain: { cargo: `${B.home}/.cargo/bin/cargo`, rustc: `${B.home}/.cargo/bin/rustc`, ...(request.darwin ? { rcodesign: `${B.home}/.cargo/bin/rcodesign`, zig_python: `${D.zig_folder}/bin/python3` } : {}) },
     receiver: { host: '127.0.0.1', port: settings.receiver_port, path: settings.push_path, entry_path: settings.entry_path },
     accept_entries_from: request.accept_entries_from ?? [],
+    ...(request.product_client ? { product_client: { repository: request.product_client.repository } } : {}),
     ...(request.darwin ? { darwin: { targets: request.darwin.targets ?? D.targets, team_id: request.darwin.team_id, sdk_root: D.sdk_folder } } : {}),
   };
 }
@@ -100,9 +103,6 @@ const credential = name => `${B.credentials_folder}/${B.service}-${name}`;
 const toolFile = name => `${B.tool_folder}/tools/publish-an-engine-release/do-work/${name}`;
 const PATH = `${B.home}/.cargo/bin:/usr/local/bin:/usr/bin:/bin`;
 
-/** A repository git reaches over SSH, with the builder's own read key instead of a token. */
-export const overSsh = url => /^(ssh:\/\/|git@)/.test(url);
-const GIT_SSH = `ssh -i ${B.repository_key_file} -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=${B.repository_known_hosts}`;
 
 /** The receiver's systemd unit: its two credentials opened onto descriptors 3 and 4; git uses the builder's read key when `sshKey`;
  *  with `darwin`, the Developer ID identity and its password are opened too, as files in $CREDENTIALS_DIRECTORY that
@@ -119,7 +119,7 @@ User=${B.user}
 Group=${B.user}
 Environment=PATH=${PATH}
 Environment=HOME=${B.home}
-${sshKey ? `Environment="GIT_SSH_COMMAND=${GIT_SSH}"\n` : ''}${darwin ? Object.values(D.credentials).map(name => `LoadCredentialEncrypted=${name}:${credential(name)}\n`).join('') : ''}${hasToken ? `LoadCredentialEncrypted=repository-token:${credential('repository-token')}\n` : ''}LoadCredentialEncrypted=push-secret:${credential('push-secret')}
+${sshKey ? `Environment="GIT_SSH_COMMAND=${gitSshCommand(B.repository_key_file)}"\n` : ''}${darwin ? Object.values(D.credentials).map(name => `LoadCredentialEncrypted=${name}:${credential(name)}\n`).join('') : ''}${hasToken ? `LoadCredentialEncrypted=repository-token:${credential('repository-token')}\n` : ''}LoadCredentialEncrypted=push-secret:${credential('push-secret')}
 ExecStart=/bin/sh -c 'exec node ${toolFile('receive-pushes.mjs')} serve ${B.config_file} 3<${hasToken ? '"$CREDENTIALS_DIRECTORY/repository-token"' : '/dev/null'} 4<"$CREDENTIALS_DIRECTORY/push-secret"'
 Restart=on-failure
 RestartSec=5
@@ -157,6 +157,9 @@ export async function installBuilder(request, { token = '', secret = '', identit
   const deployKey = sshKey
     ? (await run(machine, `runuser -u ${q(B.user)} -- sh -c ${q(`test -f ${q(B.repository_key_file)} || ssh-keygen -q -t ed25519 -N '' -C ${q(`${B.user}@${request.builder.host_name}`)} -f ${q(B.repository_key_file)}`)} && cat ${q(`${B.repository_key_file}.pub`)}`)).trim()
     : null;
+  const productKey = request.product_client && overSsh(request.product_client.repository)
+    ? (await run(machine, `runuser -u ${q(B.user)} -- sh -c ${q(`test -f ${q(B.product_key_file)} || ssh-keygen -q -t ed25519 -N '' -C ${q(`${B.user}-product@${request.builder.host_name}`)} -f ${q(B.product_key_file)}`)} && cat ${q(`${B.product_key_file}.pub`)}`)).trim()
+    : null;
   await run(machine, `install -d -m 0700 ${q(B.credentials_folder)} && umask 077 && systemd-creds encrypt --name=push-secret - ${q(credential('push-secret'))}`, secret);
   if (token) await run(machine, `umask 077 && systemd-creds encrypt --name=repository-token - ${q(credential('repository-token'))}`, token);
   else await run(machine, `rm -f ${q(credential('repository-token'))}`);
@@ -173,7 +176,7 @@ export async function installBuilder(request, { token = '', secret = '', identit
   const active = (await run(machine, `systemctl daemon-reload && systemctl enable ${q(B.service)} >/dev/null 2>&1; systemctl restart ${q(B.service)} && sleep 2 && systemctl is-active ${q(B.service)}`)).trim();
   const host = request.builder.host_name;
   return {
-    public_key: key.public_key, key_made: key.made, deploy_key: deployKey,
+    public_key: key.public_key, key_made: key.made, deploy_key: deployKey, ...(request.product_client ? { product_deploy_key: productKey } : {}),
     feed_url: `https://${host}${settings.feed_path}${ENGINE_KIND.feed_file}`, receiver_active: active === 'active', feed_status: await feedStatus(host, fetchImpl),
     webhook: { url: `https://${host}${settings.push_path}`, content_type: 'application/json', events: ['push'] },
     entries_url: `https://${host}${settings.entry_path}`, accept_entries_from: request.accept_entries_from ?? [],

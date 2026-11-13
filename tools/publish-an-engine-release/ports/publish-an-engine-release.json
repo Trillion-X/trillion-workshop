@@ -24,6 +24,9 @@
     },
     {
       "path": "tools/publish-an-engine-release/do-work/install-a-builder.mjs"
+    },
+    {
+      "path": "tools/publish-an-engine-release/do-work/git-ssh.mjs"
     }
   ],
   "preserve": [],
