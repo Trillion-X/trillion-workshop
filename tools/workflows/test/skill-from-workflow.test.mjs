@@ -54,3 +54,14 @@ test('the command writes the skill, and --check refuses a hand edit and a missin
   assert.equal(drift.status, 1);
   assert.match(drift.stderr, /DRIFT/);
 });
+
+test('a recipe row\'s skill field gives the trigger and the extra sections, placed at the start or the end, and without it nothing is added', () => {
+  const skill = { description: 'Use when someone says dig.', sections: [{ title: 'Judgments', text: 'Answer plainly.', at: 'start' }, { title: 'Where output goes', text: 'Only into rows.' }] };
+  const row = { ...recipeRow, value: { ...recipeRow.value, skill: JSON.stringify(skill) } };
+  const made = skillFromWorkflow(recipeFromRows(row, stepRows));
+  assert.ok(made.includes('description: "Use when someone says dig."'));
+  assert.ok(made.indexOf('## Judgments') > 0 && made.indexOf('## Judgments') < made.indexOf('## Run the workflow'));
+  assert.ok(made.indexOf('## Where output goes') > made.indexOf('### 3. Write it up'));
+  assert.ok(made.includes('Answer plainly.') && made.includes('Only into rows.'));
+  assert.ok(!text().includes('## Judgments'));
+});

@@ -6,6 +6,11 @@
 //
 //   skillFromWorkflow(recipe) -> the SKILL.md text, the same bytes for the same rows
 //
+// A recipe row may carry `skill`, the words a skill holds that no step says: `{ description, sections: [{ title, text, at }] }`.
+// `description` replaces the generated one (the trigger: when to use the skill); each section is written under its title,
+// `at: 'start'` (after the purpose, before the run) or `at: 'end'` (after the steps). They are rows' data, so a hand edit of
+// the skill that adds words is still refused, and nothing a skill said is lost to the generator.
+//
 // do-work/skill-from-workflow.mjs reads the rows (a file of the records door's answers, or the door itself) and writes the
 // skill or checks the file on disk against it.
 
@@ -25,6 +30,9 @@ const handsBack = step => {
   return required.length ? required.map(name => `\`${name}\``).join(', ') : 'an object';
 };
 
+const sections = (recipe, at) => (recipe.skill?.sections ?? []).filter(section => (section.at ?? 'end') === at)
+  .flatMap(section => [`## ${section.title}`, '', section.text.trim(), '']);
+
 export function skillFromWorkflow(recipe) {
   const slug = slugOf(recipe);
   const inputs = Object.keys(recipe.input_schema?.properties ?? {});
@@ -32,7 +40,7 @@ export function skillFromWorkflow(recipe) {
   const lines = [
     '---',
     `name: ${slug}`,
-    `description: ${quote(`Use when asked to: ${oneLine(recipe.job)} Runs ${recipe.id}; this skill is generated from that workflow's rows.`)}`,
+    `description: ${quote(recipe.skill?.description ?? `Use when asked to: ${oneLine(recipe.job)} Runs ${recipe.id}; this skill is generated from that workflow's rows.`)}`,
     '---',
     `# ${recipe.label}`,
     '',
@@ -40,6 +48,7 @@ export function skillFromWorkflow(recipe) {
     '',
     `**Purpose:** ${oneLine(recipe.job)}`,
     '',
+    ...sections(recipe, 'start'),
     '## Run the workflow',
     '',
     `The steps, their schemas and their checks are the rows of \`${recipe.id}\` in the person's list of workflows. Start it, then do each step in order:`,
@@ -58,6 +67,7 @@ export function skillFromWorkflow(recipe) {
     const checks = (step.checks ?? []).map(check => check.says).filter(Boolean);
     if (checks.length) lines.push('', 'Checks that must pass:', ...checks.map(says => `- ${says}`));
   });
+  lines.push(...sections(recipe, 'end'));
   if (recipe.source) lines.push('', '## Where this workflow came from', '', oneLine(typeof recipe.source === 'string' ? recipe.source : JSON.stringify(recipe.source)));
   return `${lines.join('\n')}\n`;
 }
