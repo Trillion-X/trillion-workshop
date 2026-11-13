@@ -542,7 +542,7 @@
                 "defaults": {
                   "target": "workshop.run-tool"
                 },
-                "_what": "A button on every row that runs a Workshop tool: action.definition_ids names the tool, action.label the button's words, action.input fixed inputs, and action.copy maps the row's values to the tool's inputs ({ key: <tool input>, from: \"answers.<field id>\" } or \"record.title\"). The tool receives only the inputs its own schema takes."
+                "_what": "A button on every row that runs a Workshop tool: action.operation names the tool, action.label the button's words, action.input fixed inputs, and action.copy maps the row's values to the tool's inputs ({ key: <tool input>, from: \"answers.<field id>\" } or \"record.title\"). The tool receives only the inputs its own schema takes."
               }
             }
           ],

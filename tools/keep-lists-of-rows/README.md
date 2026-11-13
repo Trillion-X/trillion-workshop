@@ -59,7 +59,7 @@ The surface's screens (every `show/` file that draws through the app's shared `u
 | `listFieldRoles` / `listCanDraw` | `(fields) => ListFieldRoles` / `(row, fields, nested?) => boolean` | What each field is for; whether a view is offered. |
 | `doneValuesOf` | `(field, {done_tones, done_values}) => string[]` | The values of a field that mean done: its `settles` when it declares them, else the `done` rule of `views-offered-to-every-list.json`; `listFieldRoles` and the record views' Sprints design read it. |
 | `recordActionsFromRows` / `runRecordAction` | `(rows) => VisualDatabaseActionDescriptor[]` / `(action, {id, title, payload}, value?, answers?) => Promise<unknown[]>` | Decode a list's action rows; run one on a record. `answers` (a person's list passes the row's values) is read by `copy` as `answers.<field id>`. |
-| `invokeVisualDatabaseAction` | `(action, context, sender?) => Promise<unknown[]>` | The package's interpreter. |
+| `invokeVisualDatabaseAction` | `(action, context, sender?) => Promise<unknown[]>` | The package's interpreter: it builds one request per action and sends it to the action's target; it runs no steps and keeps no run. An action for `workshop.run-tool` names its Workshop tool in `operation` (the page runs it through `tools:run`). `definition_ids` is for targets that run a workflow definition by id (the workflow engine's own word for one), never for a tool. |
 
 ## Dependencies
 
