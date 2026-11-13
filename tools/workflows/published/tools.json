@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:b895f8c0e1e55efcca3c97639a82a667b076f8fba9688529a187f8b379dc4bbd"
+  "blake3": "1f:86aee757e2d4737ffa444d76811f8236cec6b5df2948651183c0f0c658504cb6"
  },
  "fields": [
   {
@@ -12898,6 +12898,21 @@
     "title": "Start a run of a recipe: leave its steps as a job for my AI",
     "job": "When a recipe of mine is started, by a wake I switched on or by a call, put its steps and its input in my own records as one job waiting for my AI, once per firing",
     "description": "Every recipe row runs as this tool (the recipes' row source names it in invoke_with), with the recipe's id in input.row. It reads that recipe from the person's own list of workflows and the rows of its steps, or else from the public recipes folder (the person's own row wins when both hold the id), and writes one record of kind ai-job, id ai-job:<recipe id>:<request key>, holding status waiting, the recipe id and label, its steps, the input it was started with and the wake cause that started it. It does no step itself, schedules nothing and keeps nothing else. The AI that next connects to the person's records lists ai-job records with status waiting, does the oldest, and writes status done with its result. A firing or a call that comes again with the same request key finds its job and writes nothing.",
+    "status": "active",
+    "maker": "maker:workflows",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "workflows"
+   }
+  },
+  {
+   "id": "tool:start-a-steps-agents",
+   "values": {
+    "title": "Start the agents of one step of a recipe run: one waiting job per lane",
+    "job": "When a step of a recipe run says it has several agents, start that many jobs for it in my own records, each with its own lane, so each lane is done by its own AI",
+    "description": "Reads the run (the ai-job tool:start-a-recipe-run wrote) and its step, whose own row says how many agents run it (agents, one whole number, 1 when left out) and may name the lanes (lanes). A step with one agent starts nothing. Otherwise it writes one waiting ai-job per lane, id <run id>:<step id>:<lane id>, holding the step, the run's input and cause, the lane and a note telling that AI to do only its lane. The jobs are written in batches that fit the door, the step's first lane last, so a start that comes again finds the first lane's job and changes none, even one an AI already finished. The step's lane-jobs check refuses an answer unless every lane names its own such job and that job ran.",
     "status": "active",
     "maker": "maker:workflows",
     "licence_class": "licence:maker-own",

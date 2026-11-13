@@ -68,7 +68,7 @@ test('step rows carry agents and lanes into the recipe', () => {
   assert.equal(recipeFromRows(row, [{ value: { ...step.value, agents: undefined, lanes: undefined } }]).steps[0].agents, undefined);
 });
 
-const ranAll = { catalogs: { 'ran-job': () => true } };
+const ranAll = { catalogs: { 'ran-job': job => `ai:taker-of-${job}` } };
 const answer = (step, jobOf = lane => `ai-job:workflow:made-up-dig:k1:dig:${lane}`) => ({ lanes: laneIds(step).map(id => ({ id, job: jobOf(id) })) });
 const judge = (step, output, options = ranAll) => checkResults(step, { this: output, input: {}, steps: {}, run: 'ai-job:workflow:made-up-dig:k1' }, options).find(result => result.kind === 'lane-jobs');
 
@@ -99,12 +99,21 @@ test('a missing lane, a repeated lane id, a lane id the step does not hold and a
 
 test('a lane whose job did not run fails, and with no way to look jobs up the check is not evaluated, never passed', () => {
   const step = stepOf({ agents: 2 });
-  const notRan = judge(step, answer(step), { catalogs: { 'ran-job': job => !job.endsWith('dig-2') } });
+  const notRan = judge(step, answer(step), { catalogs: { 'ran-job': job => (job.endsWith('dig-2') ? null : `ai:taker-of-${job}`) } });
   assert.equal(notRan.passed, false);
   assert.deepEqual(notRan.failing, ['dig-2']);
   const blind = judge(step, answer(step), {});
   assert.equal(blind.evaluated, false);
   assert.equal(blind.passed, undefined);
+});
+
+test('one taker finishing several lanes fails every lane it finished, however many jobs it ran', () => {
+  const step = stepOf({ agents: 6 });
+  const alone = judge(step, answer(step), { catalogs: { 'ran-job': () => 'ai:one-worker' } });
+  assert.equal(alone.passed, false);
+  assert.deepEqual(alone.failing.sort(), laneIds(step).sort());
+  const two = judge(step, answer(step), { catalogs: { 'ran-job': job => (/dig-[12]$/.test(job) ? 'ai:shared' : `ai:taker-of-${job}`) } });
+  assert.deepEqual(two.failing.sort(), ['dig-1', 'dig-2']);
 });
 
 test('a step with one agent has nothing to fan out and the check holds with one lane', () => {

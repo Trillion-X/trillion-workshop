@@ -10,7 +10,7 @@
     { "catalog": "tool", "meaning": "A tool the host offers." },
     { "catalog": "list-row", "meaning": "A row in one of the account's lists." },
     { "catalog": "record", "meaning": "A record in the account's data." },
-    { "catalog": "ran-job", "meaning": "An ai-job that was taken and finished." }
+    { "catalog": "ran-job", "meaning": "An ai-job that was taken and finished; the lookup answers the taker that finished it." }
   ],
   "kinds": [
     {
@@ -73,7 +73,7 @@
     },
     {
       "kind": "lane-jobs",
-      "meaning": "Each lane of a step that has several agents is handed back with the id of its own job, and every such job ran. The lanes are the step's own (its lanes, or its id and a place) and the number of agents is the step's agents.",
+      "meaning": "Each lane of a step that has several agents is handed back with the id of its own job, and every such job ran, each finished by a different taker. The lanes are the step's own (its lanes, or its id and a place) and the number of agents is the step's agents.",
       "fields": [
         { "field": "path", "shape": "path", "required": true, "refusal": "is required." },
         { "field": "lane", "shape": "key", "required": true, "refusal": "must name the field holding each lane's id." },

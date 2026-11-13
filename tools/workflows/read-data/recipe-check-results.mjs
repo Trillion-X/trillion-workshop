@@ -41,7 +41,7 @@ export const CHECK_EVALUATORS = {
   'differs-from': (check, c) => { const of = new Set(valuesAt(check.of, c).map(same)); return valuesAt(check.path, c).filter(value => of.has(same(value))); },
   // One lane per agent of the step, each handed back with the id of its own job, and each such job one that ran: the
   // lane ids are the step's own (laneIds), a job's id is fixed by the run, step and lane (laneJobId) so no job stands
-  // for two lanes, and `ran-job` is the catalog the caller looks a finished job up in. The failing values are lane ids.
+  // for two lanes, and `ran-job` is the catalog the caller looks a finished job up in, answering the taker that finished it (nothing when it did not run); a taker that finished two lanes fails both. The failing values are lane ids.
   'lane-jobs': (check, c, { catalogs = {}, step } = {}) => {
     if (!step) return { reason: 'the check needs the step it belongs to, to know its lanes' };
     const failing = new Set();
@@ -60,7 +60,11 @@ export const CHECK_EVALUATORS = {
     if (failing.size) return [...failing];
     const ran = catalogs['ran-job'];
     if (typeof ran !== 'function') return { reason: 'no ran-job catalog was given to look the lanes\' jobs up in' };
-    return [...lanes].filter(([, job]) => !ran(job)).map(([lane]) => lane);
+    // The catalog answers the taker that finished the job, and nothing when it did not run; two lanes done by one taker fail.
+    const takers = new Map([...lanes].map(([lane, job]) => [lane, ran(job)]));
+    const count = new Map();
+    for (const taker of takers.values()) if (taker) count.set(taker, (count.get(taker) ?? 0) + 1);
+    return [...takers].filter(([, taker]) => !taker || count.get(taker) > 1).map(([lane]) => lane);
   },
   exists: (check, c, { catalogs = {} } = {}) => {
     const known = catalogs[check.catalog];
