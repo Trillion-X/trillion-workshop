@@ -11,6 +11,9 @@ import { spawn } from 'node:child_process';
 import { once } from 'node:events';
 import { holdReading, reachOf, programOf, releaseReading, computerIdOf, startReading, fileKeeper, rowsOf, adoptProgress } from '../../run-on-a-persons-computer/read-this-computer.mjs';
 import { startHandlers, loadHandlers, settings } from '../harness/wake-sessions.mjs';
+import { liveInputs, readersWith, serviceReader } from '../../bring-in-new-items-from-this-computer/computer/inputs.mjs';
+import { listsOverDoor } from '../../records-door/read-data/lists-door.mjs';
+import { memoryDoor } from '../../watch-my-sources/test/memory-door.mjs';
 
 const folder = () => fs.mkdtempSync(path.join(os.tmpdir(), 'read-this-computer-'));
 
@@ -234,4 +237,21 @@ test('the helper starts each handler that runs by itself, and one that fails to 
   assert.match(logged[0], /bad did not start: no/);
   const reader = (await loadHandlers()).find(handler => handler.path === '../../run-on-a-persons-computer/read-this-computer.mjs');
   assert.ok(reader && typeof reader.start === 'function' && reader.wants({ event: {} }) === false, 'reading this computer is a handler row that takes no events');
+});
+
+test('the reader reads the places from the account list: a service added there is read with no change to the reader', async () => {
+  const shared = folder();
+  const lists = listsOverDoor(memoryDoor());
+  const rows = { sources: [], every_seconds: 600, read_every_seconds: 30, files_folder: '/Files' };
+  const inputs = liveInputs({ lists, rows, everySeconds: 0 });
+  await inputs.refresh();
+  await lists.putRows('inputs', { rows: [{ id: 'made-up', values: { label: 'Made-up service', category: 'Notes', look: { paths: [] }, read: { route: 'Made-up service', reader: 'tool', tool: 'tool:made-up-list', items: 'things', fields: { source_id: 'id', text: 'words' }, settle_seconds: 0 } } }] });
+  const reader = startReading({ rows, inputs, readers: readersWith({ tool: serviceReader(async () => ({ things: [{ id: 't1', words: 'first thing' }] })) }),
+    account: async () => {
+      return { status: 200, body: { message_id: 'm1', arrival_id: 'a1' } }; },
+    keep: async () => ({}), shared, timers: false, log: () => {}, hearing: () => null, look: async () => ({ sources: [], browser_sites: [] }) });
+  try {
+    await reader.once();
+    assert.deepEqual(reader.status().places.map(place => place.route), ['Made-up service'], 'the place is a row of the list, read after it was added');
+  } finally { reader.stop(); fs.rmSync(shared, { recursive: true, force: true }); }
 });

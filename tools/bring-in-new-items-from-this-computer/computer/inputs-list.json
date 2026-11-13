@@ -1,0 +1,18 @@
+{
+  "_what": "The account list `inputs`: one row for every place the person's items come from, a store on a computer or a connected service. The reader (read-this-computer.mjs) reads this list through the person's door, not computer-sources.json; that file's `sources` are only the rows the list starts with (inputs.mjs startersOf), copied in once when the list is made. A row is the place's old source row: `label`, `category`, `look` (how to find it on a computer), `gate` (the switch it needs), and `read`, the block that names a generic reader kind. The readers know a kind of store, never an app: `sqlite`, `folder`, `incoming` (a computer), and `tool` (a connected service: any Workshop tool the row names, its input, where its list of new things is and which field of a thing is its id, time, title and words). A service row names its connection by handle in `connection` and never holds a secret. `reading` No leaves a place listed and unread. To add an input, add a row.",
+  "id": "inputs",
+  "label": "Inputs",
+  "title_field": "label",
+  "fields": [
+    {"id": "label", "label": "Name", "kind": "text"},
+    {"id": "category", "label": "Kind of thing it holds", "kind": "text"},
+    {"id": "reading", "label": "Reading", "kind": "choice", "choices": ["Yes", "No"]},
+    {"id": "connection", "label": "Connection (handle in your connections)", "kind": "text"},
+    {"id": "gate", "label": "Switch it needs", "kind": "text"},
+    {"id": "read.route", "label": "Arrives as", "kind": "text"},
+    {"id": "read.reader", "label": "Reader", "kind": "text"},
+    {"id": "read.store", "label": "Store it reads", "kind": "text"},
+    {"id": "read.tool", "label": "Tool it reads with", "kind": "text"},
+    {"id": "read.settle_seconds", "label": "Seconds an item must stay unchanged", "kind": "number"}
+  ]
+}

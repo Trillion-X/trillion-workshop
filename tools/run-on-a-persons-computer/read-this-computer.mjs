@@ -49,6 +49,9 @@ import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { computerSources } from '../bring-in-new-items-from-this-computer/computer/computer-sources.mjs';
 import { readNewItems } from '../bring-in-new-items-from-this-computer/computer/read-new-items.mjs';
+import { isRead, liveInputs, readersWith, serviceReader, toolRunner } from '../bring-in-new-items-from-this-computer/computer/inputs.mjs';
+import { openRecordsDoorAt } from '../records-door/read-data/records-door.mjs';
+import { listsOverDoor } from '../records-door/read-data/lists-door.mjs';
 import { hearWith, hearingHere, hearingState, resultsOver, startKeepers } from './keep-drive-files.mjs';
 import { observeVisual, captionWith } from './observe-visual.mjs';
 import { startListening } from './listen.mjs';
@@ -140,6 +143,12 @@ export const accountCaller = (origin, key, fetchImpl = fetch) => async (route, {
   } catch { return null; }
 };
 
+/** The person's own records door, reached at the account's one address with their key: { lists, run }. */
+export function accountDoor({ origin, key, fetchImpl = fetch }) {
+  const door = openRecordsDoorAt({ url: `${origin.replace(/\/$/, '')}/mcp`, resource: '@own-records', capability: key, fetchImpl });
+  return { lists: listsOverDoor(door), run: toolRunner(door) };
+}
+
 /** Keeps one small file in the person's files under `folder` (POST /namespace/write): { id, name }. */
 const WHOLE_REQUEST_FILE_BYTES = 12 * 1024 * 1024;
 export const fileKeeper = (account, folder, { origin = null, key = null } = {}) => async file => {
@@ -191,11 +200,13 @@ export function installedGate({ settings = null, home = homedir(), read = readFi
 // running is not stopped here (only the helper stops programs).
 const gatedPiece = (on, make, idle) => { let made = on() ? make() : null; return { look: (...args) => (on() ? (made ??= make()).look(...args) : idle) }; };
 const hearingOnce = rows => { let row; return () => (row === undefined ? (row = hearingHere(rows.hearing ?? [])) : row); };
-export function startReading({ rows = rowsOf(), key = null, origin, account = accountCaller(origin, key), keep = fileKeeper(account, rows.files_folder, { origin, key }), hearing = hearingOnce(rows), hear = async recording => { const row = hearing(); return row ? hearWith(row, recording) : null; }, keepWords = origin && key ? (identity, { produced_by: producedBy, ...value }) => resultsOver(bearerControl({ origin, authorization: async () => `Bearer ${key}` })).put(identity, value, producedBy ?? hearing()?.produced_by ?? 'this computer') : null, see = (picture, type, { caption = true, caption_timeout_seconds: timeout } = {}) => observeVisual(picture, type, { captionRow: rows.visual_caption, captionAlways: true, caption: rows.visual_caption && caption ? (pixels, words) => captionWith(timeout ? { ...rows.visual_caption, timeout_seconds: timeout } : rows.visual_caption, pixels, words) : null }), keepSeen = origin && key ? (identity, value) => resultsOver(bearerControl({ origin, authorization: async () => `Bearer ${key}` }), 'visual-observation').put(identity, value, 'Vision OCR on this Mac') : null, shared = sharedFolder(), stateFolder = shared, adoptFrom = null, program = programOf(), timers = true, log = line => process.stderr.write(`${line}\n`), readers, look, gate = installedGate(), keepers = timers ? gatedPiece(() => gate('keepers'), () => startKeepers({ rows, key, origin, log }), []) : { look: () => [] }, listener = timers ? gatedPiece(() => gate('listener'), () => startListening({ rows, key, origin, log }), false) : { look: () => false }, offer = timers ? () => (gate('offer') ? offerInBrowsers({ stateFile: join(shared, 'offered-in-browsers.json'), log }) : []) : () => [] } = {}) {
+export function startReading({ rows = rowsOf(), key = null, origin, account = accountCaller(origin, key), keep = fileKeeper(account, rows.files_folder, { origin, key }), hearing = hearingOnce(rows), hear = async recording => { const row = hearing(); return row ? hearWith(row, recording) : null; }, keepWords = origin && key ? (identity, { produced_by: producedBy, ...value }) => resultsOver(bearerControl({ origin, authorization: async () => `Bearer ${key}` })).put(identity, value, producedBy ?? hearing()?.produced_by ?? 'this computer') : null, see = (picture, type, { caption = true, caption_timeout_seconds: timeout } = {}) => observeVisual(picture, type, { captionRow: rows.visual_caption, captionAlways: true, caption: rows.visual_caption && caption ? (pixels, words) => captionWith(timeout ? { ...rows.visual_caption, timeout_seconds: timeout } : rows.visual_caption, pixels, words) : null }), keepSeen = origin && key ? (identity, value) => resultsOver(bearerControl({ origin, authorization: async () => `Bearer ${key}` }), 'visual-observation').put(identity, value, 'Vision OCR on this Mac') : null, shared = sharedFolder(), stateFolder = shared, adoptFrom = null, program = programOf(), timers = true, log = line => process.stderr.write(`${line}\n`), doorOf = origin && key ? accountDoor({ origin, key }) : null, inputs = doorOf ? liveInputs({ lists: doorOf.lists, rows, cacheFile: join(stateFolder, 'inputs-cache.json'), log }) : null, readers = doorOf ? readersWith({ tool: serviceReader(doorOf.run) }) : undefined, look, gate = installedGate(), keepers = timers ? gatedPiece(() => gate('keepers'), () => startKeepers({ rows, key, origin, log }), []) : { look: () => [] }, listener = timers ? gatedPiece(() => gate('listener'), () => startListening({ rows, key, origin, log }), false) : { look: () => false }, offer = timers ? () => (gate('offer') ? offerInBrowsers({ stateFile: join(shared, 'offered-in-browsers.json'), log }) : []) : () => [] } = {}) {
   const lock = join(shared, 'reading.lock');
+  // The places are the rows of the account's list `inputs` (inputs.mjs); the file's rows are only where the list starts.
+  if (inputs) rows = { ...rows, sources: inputs.sources };
   adoptProgress(adoptFrom, stateFolder);
   const seed = readJson(join(stateFolder, 'computer-sources.json'))?.computer_id ?? null;
-  const reading = readNewItems({ carriers: rows.sources.filter(row => row.read).map(row => row.read), account, keep, stateFile: join(stateFolder, 'written-elsewhere.json'), workdir: join(stateFolder, 'written-elsewhere-previews'), hear, keepWords, see, keepSeen, longText: rows.long_text ?? null, ...(rows.turned_away ? { turnedAway: rows.turned_away } : {}), ...(rows.item_trouble ? { itemTrouble: rows.item_trouble } : {}), log, ...(readers ? { readers } : {}) });
+  const reading = readNewItems({ carriers: inputs ? inputs.carriers : rows.sources.filter(isRead).map(row => row.read), account, keep, stateFile: join(stateFolder, 'written-elsewhere.json'), workdir: join(stateFolder, 'written-elsewhere-previews'), hear, keepWords, see, keepSeen, longText: rows.long_text ?? null, ...(rows.turned_away ? { turnedAway: rows.turned_away } : {}), ...(rows.item_trouble ? { itemTrouble: rows.item_trouble } : {}), log, ...(readers ? { readers } : {}) });
   const finding = computerSources({ rows, account, stateFile: join(stateFolder, 'computer-sources.json'), workdir: join(stateFolder, 'computer-sources-work'), computerId: computerIdOf(join(shared, 'computer.json'), seed), program, carriers: () => reading.status(), connectionsUrl: origin ? `${origin.replace(/\/$/, '')}/connections` : null, log, ...(look ? { look } : {}) });
   let elsewhere = false;
   let busy = 0;
@@ -213,10 +224,10 @@ export function startReading({ rows = rowsOf(), key = null, origin, account = ac
   // Each tick also starts the first hearing program's one-time preparation when it is due (keep-drive-files.mjs
   // prepareHearing), so a Mac that can hear with it is ready before its first recording.
   const prepared = () => { const row = timers ? hearing() : null; if (!row) return null; try { return hearingState(row); } catch (error) { log(`Hearing: ${error.message}`); return null; } };
-  const tick = async () => { if (mine()) { keepers.look(); listener.look(); prepared(); await whileBusy(() => reading.tick()); } };
+  const tick = async () => { if (mine()) { if (inputs) await inputs.refresh(); keepers.look(); listener.look(); prepared(); await whileBusy(() => reading.tick()); } };
   // Each look also puts Trillion's browser extensions where the browsers installed here will offer them
   // (offer-in-browsers.mjs), once per browser.
-  const lookNow = async () => (mine() ? whileBusy(() => { offer(); follow(); return finding.look(); }) : null);
+  const lookNow = async () => (mine() ? whileBusy(async () => { if (inputs) await inputs.refresh(); offer(); follow(); return finding.look(); }) : null);
   const handles = [], paced = [];
   if (timers) {
     handles.push(setTimeout(tick, 5_000), setTimeout(lookNow, 15_000));

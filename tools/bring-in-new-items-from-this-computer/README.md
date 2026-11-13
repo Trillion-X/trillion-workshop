@@ -2,9 +2,10 @@
 
 Brings in what is new in each place on the person's computer (a notes store, a recordings store and its files, a chat
 database, a calendar, a folder of downloads or pictures, a carried conversation, the address book) and sends it to their
-account's one door, where each arrival is kept as one of the account's own rows. Every place is a row of
-`computer/computer-sources.json`; one generic reader reads any place its row describes, so a place on any computer
-(macOS, Windows, Linux) is one more row and never code.
+account's one door, where each arrival is kept as one of the account's own rows. Every place, a store on a computer or a
+connected service, is a row of the account's list `inputs`; one generic reader reads any place its row describes, so a
+place on any computer (macOS, Windows, Linux) or a service is one more row and never code. `computer/computer-sources.json`
+`sources` are only the rows the list starts with, copied in once when the list is made.
 
 Moved here from Trillion-X/trillion's `computer/` by `tools/move-code-between-trees`
 (`move-rows/trillion-computer-places-to-workshop.json`); `moved-from.json` names each file's source path and commit and
@@ -21,6 +22,29 @@ files from here; it holds no copy of its own.
 
 The one Connections list, services and these places together, is `tool:list-every-connection` in
 `tools/connect-a-service-and-seal-its-key`, which reads this folder's place rows and can take this tool's answer.
+
+## The inputs list
+
+`computer/inputs.mjs` is how the reader reaches the list `inputs` (`computer/inputs-list.json` is its definition) through
+the person's records door: it makes the list once with `computer-sources.json`'s `sources` as its starting rows (a row the
+person later removes or changes is never put back), reads the rows back as the places the reader looks at and reads (at most
+once in `inputs.every_seconds`), and keeps the last rows it saw (`inputs-cache.json` in the computer's progress folder) so a
+Mac that cannot reach the account goes on reading what it read. A row's `reading` set to No leaves the place listed (Connections
+shows it) and unread. A service row names its connection by handle (`connection`) and never holds a secret.
+
+A connected service is read by the `tool` reader, in the reader's own process: the row names a Workshop tool (`tool`), its
+`input` (strings filled with `{since}`, `{since_seconds}`, `{since_ms}`), where the list of new things is in the tool's answer
+(`items`), which field of a thing is its id, time, title and words (`fields`), the time unit (`time`: `iso`, `unix-seconds` or
+`unix-ms`) and, in place of a words field, a `text` template over the thing's top-level values. Nothing in the code names a
+service. Added by writing one row of `inputs`, for example (a made-up service):
+
+```json
+{"label": "Madeup Notes", "category": "Notes", "connection": "service_connection:madeup-notes",
+ "read": {"route": "Madeup Notes", "reader": "tool", "tool": "tool:madeup-notes-list-changed",
+          "input": {"connection": {"connection_id": "service_connection:madeup-notes"}, "changed_since": "{since}"},
+          "items": "notes", "time": "unix-seconds", "fields": {"source_id": "id", "at": "changed", "title": "name", "text": "body"},
+          "settle_seconds": 0}}
+```
 
 ## A place is a row
 
@@ -54,7 +78,10 @@ try here is skipped (no preview, no pane, the host name for the computer's name)
 |------|---------|
 | `computer/read-new-items.mjs` | The readers and `readNewItems`: settle, send once per version, group per window, preview and copy pictures, hear a recording and read a picture before sending, back-fill the past newest first, and each place's and each item's waits. |
 | `computer/read-new-items.json` | How many reader child processes run at once and how long a read waits for one. |
-| `computer/computer-sources.json` | Every place and its rules, as rows. |
+| `computer/computer-sources.json` | The rows the `inputs` list starts with, and every wait and word the reader keeps. |
+| `computer/inputs.mjs` | The `inputs` list as the reader reaches it (`liveInputs`, `startersOf`), and the `tool` reader for a connected service (`serviceReader`, `toolRunner`, `readersWith`). |
+| `computer/inputs-list.json` | The list's definition: its fields and what a row holds. |
+| `test/inputs-are-rows.test.mjs` | The list is made once, a removed row stays removed, a paused row is unread, an unreachable account keeps the last rows, and a made-up service added as one row arrives once each. |
 | `computer/computer-sources.mjs` | Finds which places are on this computer and which need a switch (`look`), `placesOf` for a store with wildcards, `accessPaneAddress`, and `programRun` / `openAddress` (the `programs` rows). |
 | `do-work/look-at-this-computer.mjs` | The run of `tool:look-for-the-places-on-this-computer`: one look confined to the granted folder. |
 | `tool-rows.json` | That row. |

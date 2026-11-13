@@ -93,6 +93,12 @@ function isTransportFailure(error) {
 
 export function openRecordsDoor({ descriptor = 3, fetchImpl = fetch, wait = ms => new Promise(done => setTimeout(done, ms)) } = {}) {
   const { url, resource, capability, files_resource: filesResource, tools_resource: toolsResource } = JSON.parse(readFileSync(descriptor, 'utf8'));
+  return openRecordsDoorAt({ url, resource, capability, filesResource, toolsResource, fetchImpl, wait });
+}
+
+// The same door for a program that holds the person's own key and the account's address instead of a run's descriptor
+// (the Trillion helper on their computer): { url, resource, capability } as the descriptor carries them.
+export function openRecordsDoorAt({ url, resource, capability, filesResource, toolsResource, fetchImpl = fetch, wait = ms => new Promise(done => setTimeout(done, ms)) } = {}) {
   if (typeof url !== 'string' || typeof resource !== 'string' || typeof capability !== 'string') {
     throw new RecordsDoorError('no_door', 'This run was not handed a records door.');
   }

@@ -4,6 +4,9 @@ How a Workshop tool reaches the person's own records: the client for the records
 command that runs a tool written as a function. A library: it offers no tool of its own, and every row that reads or
 writes records packs `do-work` and `read-data` here at `/opt/records-door`.
 
+`openRecordsDoorAt({ url, resource, capability })` is the same door for a program that holds the person's own key and the account's address
+instead of a run's descriptor (the Trillion helper reading the account's `inputs` list); `openRecordsDoor` reads the descriptor and calls it.
+
 ## The contract
 
 A row asks for the door in its invoke, with one rights item per record kind:
