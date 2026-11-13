@@ -5,6 +5,20 @@
   "calls": [],
   "files": [
     {
+      "from": "records/marketplace-screens.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/show-my-screens-from-a-catalogue-of-reads-and-layouts/from-old-trillion/records/marketplace-screens.json",
+      "source_identity": "1f:a76f73b84a7313dac2f7d6b3bca732552b33df0205dab5fa348df205e0125c01",
+      "identity": "1f:a76f73b84a7313dac2f7d6b3bca732552b33df0205dab5fa348df205e0125c01"
+    },
+    {
+      "from": "scripts/publish-marketplace-screens.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/show-my-screens-from-a-catalogue-of-reads-and-layouts/from-old-trillion/scripts/publish-marketplace-screens.mjs",
+      "source_identity": "1f:3025f2d195351e15a82ed7d79e9ca13f6c70643a1b26898fb3415b6174a94b5a",
+      "identity": "1f:3025f2d195351e15a82ed7d79e9ca13f6c70643a1b26898fb3415b6174a94b5a"
+    },
+    {
       "from": "src/screen.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/show-my-screens-from-a-catalogue-of-reads-and-layouts/from-old-trillion/src/screen.mjs.held",
@@ -21,18 +35,11 @@
       "held": true
     },
     {
-      "from": "records/marketplace-screens.json",
-      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/show-my-screens-from-a-catalogue-of-reads-and-layouts/from-old-trillion/records/marketplace-screens.json",
-      "source_identity": "1f:a76f73b84a7313dac2f7d6b3bca732552b33df0205dab5fa348df205e0125c01",
-      "identity": "1f:a76f73b84a7313dac2f7d6b3bca732552b33df0205dab5fa348df205e0125c01"
-    },
-    {
-      "from": "scripts/publish-marketplace-screens.mjs",
-      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/show-my-screens-from-a-catalogue-of-reads-and-layouts/from-old-trillion/scripts/publish-marketplace-screens.mjs",
-      "source_identity": "1f:3025f2d195351e15a82ed7d79e9ca13f6c70643a1b26898fb3415b6174a94b5a",
-      "identity": "1f:3025f2d195351e15a82ed7d79e9ca13f6c70643a1b26898fb3415b6174a94b5a"
+      "from": "web/src/pursuit-detail-screen.mjs",
+      "commit": "949e613efc0be7bebeac0f783c8d9629f2c18ae6",
+      "to": "tools/show-my-screens-from-a-catalogue-of-reads-and-layouts/web/src/pursuit-detail-screen.mjs",
+      "source_identity": "1f:5c68d9f64bef4b36444f566e27408091d10b2784f714c84741cf904852b5e9ec",
+      "identity": "1f:5c68d9f64bef4b36444f566e27408091d10b2784f714c84741cf904852b5e9ec"
     }
   ]
 }

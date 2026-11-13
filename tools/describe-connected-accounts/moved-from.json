@@ -31,6 +31,21 @@
       "to": "tools/describe-connected-accounts/src/connection-card-words.mjs",
       "source_identity": "1f:47f9e40598bd030a76f27d941401d0acbf3f3d44666170d37220690759a094c1",
       "identity": "1f:47f9e40598bd030a76f27d941401d0acbf3f3d44666170d37220690759a094c1"
+    },
+    {
+      "from": "web/src/connection-card-words.mjs",
+      "commit": "949e613efc0be7bebeac0f783c8d9629f2c18ae6",
+      "to": "tools/describe-connected-accounts/src/connection-card-words.mjs",
+      "source_identity": "1f:47f9e40598bd030a76f27d941401d0acbf3f3d44666170d37220690759a094c1",
+      "identity": "1f:47f9e40598bd030a76f27d941401d0acbf3f3d44666170d37220690759a094c1",
+      "reused": true
+    },
+    {
+      "from": "web/src/connector-screen.mjs",
+      "commit": "949e613efc0be7bebeac0f783c8d9629f2c18ae6",
+      "to": "tools/describe-connected-accounts/web/src/connector-screen.mjs",
+      "source_identity": "1f:b970ce79a985830b69ff808647ed183f5879ca996759599adb1bc1387685c64d",
+      "identity": "1f:dc5258048ff10226f3e96f44c03ce232f4d44e827ac6cfa3c67a7f08dcdc44f3"
     }
   ]
 }

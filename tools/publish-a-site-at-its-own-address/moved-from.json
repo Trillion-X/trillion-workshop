@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion-apps",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "web/src/public-site-pages.mjs",
+      "commit": "949e613efc0be7bebeac0f783c8d9629f2c18ae6",
+      "to": "tools/publish-a-site-at-its-own-address/web/src/public-site-pages.mjs",
+      "source_identity": "1f:318ff54e2b399ddc04d77556a9baefab58401e5378d802bddae1398d3faad6d2",
+      "identity": "1f:318ff54e2b399ddc04d77556a9baefab58401e5378d802bddae1398d3faad6d2"
+    },
+    {
+      "from": "web/test/public-site-pages.test.mjs",
+      "commit": "949e613efc0be7bebeac0f783c8d9629f2c18ae6",
+      "to": "tools/publish-a-site-at-its-own-address/web/test/public-site-pages.test.mjs",
+      "source_identity": "1f:abe19f2699707016711d6fc7643720cbbb0a8ca83563edcde7df9ba3da90b680",
+      "identity": "1f:abe19f2699707016711d6fc7643720cbbb0a8ca83563edcde7df9ba3da90b680"
+    }
+  ]
+}

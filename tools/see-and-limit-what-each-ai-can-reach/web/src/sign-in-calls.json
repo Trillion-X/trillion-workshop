@@ -1,0 +1,20 @@
+{
+  "_what": "How many calls one sign-in (a personal key, an AI app's grant, or the account itself) may make before it is asked to wait, counted at the Worker before the person's store is woken (src/sign-in-calls.mjs). It protects the person: one AI that runs away cannot keep their Trillion busy for their other AIs or run up its time. Each tier is a Cloudflare rate limiting binding the deploy declares from this file. The first rule whose `when` all hold picks the tier: `holds` is an access the person's plan gives (src/sales.json), `caller` is what signed in (key, app, account), `approved_by` how it was approved (src/sign-in-lifetimes.json kinds). A rule with no `when` is the default. Adding a tier or a rule is a change here only. Decision source:security-hardening-revocation-and-ingress-2026-10-05.",
+  "tiers": [
+    { "id": "plan", "binding": "SIGN_IN_CALLS_PLAN", "namespace_id": "7303", "limit": 3000, "period_seconds": 60 },
+    { "id": "standard", "binding": "SIGN_IN_CALLS", "namespace_id": "7302", "limit": 1200, "period_seconds": 60 },
+    { "id": "weaker", "binding": "SIGN_IN_CALLS_WEAKER", "namespace_id": "7304", "limit": 300, "period_seconds": 60 }
+  ],
+  "rules": [
+    { "when": { "approved_by": ["email", "phone", "password", "unknown"], "caller": ["app"] }, "tier": "weaker" },
+    { "when": { "holds": "access:decision-kept" }, "tier": "plan" },
+    { "tier": "standard" }
+  ],
+  "plan_kept_seconds": 600,
+  "retry_after_seconds": 60,
+  "words": {
+    "refused": "This sign-in made more than {limit} calls in {seconds} seconds. Wait a minute, or ask for several things in one call.",
+    "line": "Up to {limit} calls a minute",
+    "used": "{used} in the last minute"
+  }
+}

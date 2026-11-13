@@ -1,0 +1,257 @@
+{
+  "comment": "The Price tests screen (src/price-tests-screen.mjs): first, for each running test, which price is winning and how sure that is; then how many real people were shown each price (the service's own test accounts left out, and how many there were), where people stop on the way from seeing a price to paying, the share who paid and money per person shown; then one row per price. Each row's menu shows everyone that price (settle) or stops its test, both through tool:run-price-experiments; a test is started or changed by asking an AI or on that tool's own screen. The operator account's tests are Trillion's own plan prices, read from the service's book.",
+  "view": {
+    "label": "Price tests",
+    "preference_key": "price-tests",
+    "first_view": {
+      "wide": "table",
+      "narrow": "table"
+    },
+    "empty": {
+      "icon": "FlaskConical",
+      "title": "No price tests yet",
+      "description": "Ask your AI to test two or more prices for an offer. Each person sees one of them, always the same one, and the results show here."
+    },
+    "no_match": "No price matches.",
+    "group": [
+      {
+        "field": "experiment"
+      }
+    ],
+    "fields": [
+      {
+        "id": "price",
+        "label": "Price",
+        "icon": "Tag",
+        "sortable": true
+      },
+      {
+        "id": "experiment",
+        "label": "Test",
+        "icon": "FlaskConical",
+        "filterable": true,
+        "groupable": true
+      },
+      {
+        "id": "standing",
+        "label": "Standing",
+        "icon": "CircleDot",
+        "filterable": true,
+        "groupable": true
+      },
+      {
+        "id": "people",
+        "label": "Real people shown",
+        "icon": "Users",
+        "sortable": true,
+        "total": "sum"
+      },
+      {
+        "id": "own",
+        "label": "Our own test accounts",
+        "icon": "FlaskConical",
+        "sortable": true,
+        "total": "sum"
+      },
+      {
+        "id": "checkout_started",
+        "label": "Started checkout",
+        "icon": "ShoppingCart",
+        "sortable": true,
+        "total": "sum"
+      },
+      {
+        "id": "paid",
+        "label": "People who paid",
+        "icon": "CreditCard",
+        "sortable": true,
+        "total": "sum"
+      },
+      {
+        "id": "paid_percent",
+        "label": "Share who paid",
+        "icon": "Percent",
+        "kind": "percent",
+        "sortable": true
+      },
+      {
+        "id": "money",
+        "label": "Money in",
+        "icon": "Banknote",
+        "kind": "money",
+        "sortable": true,
+        "total": "sum"
+      },
+      {
+        "id": "money_per_shown",
+        "label": "Money per person shown",
+        "icon": "TrendingUp",
+        "kind": "money",
+        "sortable": true
+      },
+      {
+        "id": "chance_best",
+        "label": "Chance it is the best price",
+        "icon": "Trophy",
+        "kind": "percent",
+        "sortable": true
+      },
+      {
+        "id": "leading",
+        "label": "Leading",
+        "icon": "Crown",
+        "filterable": true
+      }
+    ],
+    "actions": [
+      {
+        "id": "show-everyone",
+        "label": "Show everyone this price",
+        "icon": "Crown",
+        "target": "workshop.run-tool",
+        "operation": "tool:run-price-experiments",
+        "input": {
+          "operation": "settle",
+          "action_label": "Show everyone this price"
+        },
+        "copy": [
+          {
+            "key": "experiment_id",
+            "from": "record.payload.experiment_id"
+          },
+          {
+            "key": "winner",
+            "from": "record.payload.arm"
+          }
+        ]
+      },
+      {
+        "id": "stop-test",
+        "label": "Stop this test",
+        "icon": "CircleStop",
+        "target": "workshop.run-tool",
+        "operation": "tool:run-price-experiments",
+        "input": {
+          "operation": "stop",
+          "action_label": "Stop this test"
+        },
+        "copy": [
+          {
+            "key": "experiment_id",
+            "from": "record.payload.experiment_id"
+          }
+        ]
+      }
+    ]
+  },
+  "words": {
+    "standing": {
+      "running": "Running",
+      "settled": "Settled",
+      "stopped": "Stopped"
+    },
+    "settled_on": "Everyone sees {winner}",
+    "leading": "Leading",
+    "winner": "Chosen",
+    "same_label": "{label} at {price}",
+    "verdict_leading": "{price} is winning: {chance}% sure it brings in the most money per person shown.",
+    "verdict_nobody_paid": "No price is winning yet: none of the {people} real people shown a price has paid.",
+    "verdict_nobody_shown": "No price is winning yet: no real people have been shown a price.",
+    "own_left_out": "{own} of the {shown} shown were our own test accounts, left out here.",
+    "stages": {
+      "people": "Shown a price",
+      "checkout_started": "Started checkout",
+      "paid": "Paid"
+    },
+    "biggest_drop": "Most stop between {from} and {to}: {before} to {after}.",
+    "no_drop": "Nobody has reached a price yet.",
+    "checkouts_since": "Counted from {since}."
+  },
+  "charts_per_test": {
+    "_what": "The charts drawn for each running test, above the list, in this order: which price is winning, then the counts. Each reads that test's rows only; {test}, {verdict}, {own_left_out} and {drop} in its words are filled for that test (src/price-tests-screen.mjs). A chart of chances reads only prices whose chance is known.",
+    "charts": [
+      {
+        "id": "winning",
+        "title": "Which price is winning",
+        "mark": "bar",
+        "reading": "chance_best",
+        "group": "chart_label",
+        "formula": "most",
+        "value_kind": "percent",
+        "records_path": [
+          "chances"
+        ],
+        "description": "{verdict}",
+        "empty": {
+          "title": "No price is winning yet",
+          "description": "{verdict}"
+        },
+        "wide": true
+      },
+      {
+        "id": "people",
+        "title": "Real people shown each price",
+        "mark": "bar",
+        "reading": "people",
+        "group": "chart_label",
+        "formula": "sum",
+        "value_kind": "count",
+        "records_path": [
+          "running"
+        ],
+        "description": "{own_left_out}",
+        "empty": {
+          "title": "No real people have been shown a price yet"
+        }
+      },
+      {
+        "id": "way-to-paying",
+        "title": "From seeing a price to paying",
+        "mark": "bar",
+        "reading": "count",
+        "group": "stage",
+        "formula": "sum",
+        "value_kind": "count",
+        "records_path": [
+          "stages"
+        ],
+        "description": "{drop}",
+        "empty": {
+          "title": "Nobody has reached a price yet"
+        }
+      },
+      {
+        "id": "paid-share",
+        "title": "Share who paid",
+        "mark": "bar",
+        "reading": "paid_percent",
+        "group": "chart_label",
+        "formula": "average",
+        "value_kind": "percent",
+        "records_path": [
+          "running"
+        ],
+        "description": "{test}",
+        "empty": {
+          "title": "Nobody has paid yet"
+        }
+      },
+      {
+        "id": "money-per-shown",
+        "title": "Money per person shown",
+        "mark": "bar",
+        "reading": "money_per_shown",
+        "group": "chart_label",
+        "formula": "average",
+        "value_kind": "money",
+        "records_path": [
+          "running"
+        ],
+        "description": "{test}",
+        "empty": {
+          "title": "No money in yet"
+        }
+      }
+    ]
+  }
+}

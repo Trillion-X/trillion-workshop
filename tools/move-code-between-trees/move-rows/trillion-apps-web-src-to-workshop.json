@@ -1,0 +1,136 @@
+{
+  "id": "move:trillion-apps-web-src-to-workshop",
+  "about": "The server-drawn screens of Trillion's web client (trillion-apps web/src) that no other apps code imports, moved into the Workshop tool that owns the feature, each under its source path inside the tool, with every file only they import and the tests that read only moved files. It is the split of move:trillion-app-screens-to-apps: a screen of that row that stays in apps stays because it imports a file of the web shell (html-page, progress-words, the shell's address words) or because apps code outside tests imports it. The owner's ruling (2026-11-03 1:02 AM CST): the engine and the web app keep only generic primitives, and features, screens and tools move one to one into Workshop tools.",
+  "source": {
+    "name": "Trillion-X/trillion-apps",
+    "test_folders": [
+      "web/test"
+    ]
+  },
+  "destination": {
+    "name": "Trillion-X/trillion-workshop",
+    "package": "trillion-workshop",
+    "shared_folder": "tools/shared-code"
+  },
+  "keep": [],
+  "host_provides": [
+    "framer-motion",
+    "hls.js",
+    "react",
+    "react-dom",
+    "trillion-walkthroughs"
+  ],
+  "provider_calls": [
+    {
+      "id": "durable-object",
+      "find": "\\bextends\\s+DurableObject\\b|\\bDurableObjectState\\b|\\bDurableObjectNamespace\\b"
+    },
+    {
+      "id": "kv",
+      "find": "\\bKVNamespace\\b|(?<![.\\w$])env\\.[A-Z][A-Z0-9_]*_KV\\b"
+    }
+  ],
+  "calls": [
+    {
+      "id": "maker-name-in-comment",
+      "find": "\\bJ[a-z]{5}(?=,? 20\\d\\d-\\d\\d-\\d\\d)",
+      "replace": "The maker",
+      "means": "A real person's name in a source comment, by its place (before a date), swapped for a made-up one: a public tree holds made-up data only."
+    },
+    {
+      "id": "owner-name-in-comment",
+      "find": "\\bB[a-z]{4}(?=,? 20\\d\\d-\\d\\d-\\d\\d:|: \")",
+      "replace": "The owner",
+      "means": "A real person's name in a source comment, by its place (before a date or a quote), swapped for a made-up one: a public tree holds made-up data only."
+    },
+    {
+      "id": "content-identity-import",
+      "find": "import \\{ blake3 \\} from '@noble/hashes/blake3\\.js';",
+      "replace": "import { makeHashCodeHexFromBytes } from '../../../content-identity/read-data/identity.mjs';",
+      "means": "A direct BLAKE3 import swapped for the declared content-identity owner, which one-owner-per-registered-name makes the only place that names the hash (the file sits in tools/<tool>/web/src, so the owner is three folders up)."
+    },
+    {
+      "id": "content-identity-hex-import",
+      "find": "import \\{ bytesToHex \\} from '@noble/hashes/utils\\.js';\\n",
+      "replace": "",
+      "means": "The hex helper only the direct BLAKE3 call used; the owner hands the hex back."
+    },
+    {
+      "id": "content-identity-short-call",
+      "find": "bytesToHex\\(blake3\\(encoder\\.encode\\(value\\)\\)\\)\\.slice\\(0, 32\\)",
+      "replace": "makeHashCodeHexFromBytes(encoder.encode(value)).slice(3, 35)",
+      "means": "The owner's identity is `1f:` and the same 64 hex digits; dropping the three-character prefix and keeping the first 32 digits gives the exact short hash the file made before."
+    }
+  ],
+  "groups": [
+    {
+      "id": "connector-screen",
+      "owner": [
+        "web/src/connector-screen.mjs"
+      ],
+      "to": "tools/describe-connected-accounts",
+      "joins_tool": "tools/describe-connected-accounts says in plain words what each connected account is and what its card says; this brings the Find a connector section of Connections (the connectors the public catalogs answered with, and Use for each) beside the words it already holds in src/connection-card-words.mjs, whose README names this file as a caller that had not moved",
+      "capability": "find a connector to add to my account"
+    },
+    {
+      "id": "link-page-screen",
+      "owner": [
+        "web/src/link-page-screen.mjs"
+      ],
+      "to": "tools/share-links",
+      "joins_tool": "tools/share-links holds the link-in-bio tools (src/link-page-tools.mjs, whose header says the same owner answers the Link in bio screen); this brings the screen's facts (the page on or off, its address for each place, the person's own links, what people opened) and the changes its buttons send",
+      "capability": "set up my link in bio page"
+    },
+    {
+      "id": "price-tests-screen",
+      "owner": [
+        "web/src/price-tests-screen.mjs"
+      ],
+      "to": "tools/run-the-services-own-price-experiments-each-kept-in-its-own-book",
+      "joins_tool": "tools/run-the-services-own-price-experiments-each-kept-in-its-own-book runs the service's price experiments; this brings the Price tests screen's answer (which price is winning and how sure) with the experiment engine it reads and the files only they import",
+      "capability": "see which price is winning"
+    },
+    {
+      "id": "pursuit-detail-screen",
+      "owner": [
+        "web/src/pursuit-detail-screen.mjs"
+      ],
+      "to": "tools/show-my-screens-from-a-catalogue-of-reads-and-layouts",
+      "joins_tool": "tools/show-my-screens-from-a-catalogue-of-reads-and-layouts holds the catalogue screens (tool:progress is one of its rows); this brings the facts one pursuit opened on Progress shows",
+      "capability": "open one pursuit on Progress"
+    },
+    {
+      "id": "ai-apps-screen",
+      "owner": [
+        "web/src/ai-apps-screen.mjs"
+      ],
+      "to": "tools/see-and-limit-what-each-ai-can-reach",
+      "joins_tool": "tools/see-and-limit-what-each-ai-can-reach shows what each AI may reach and lets the person change it; this brings the AI apps and keys screen's facts (every AI app and key, its reach, idle lifetime and call rate) and its Webhooks section",
+      "capability": "see my connected AI apps and keys"
+    },
+    {
+      "id": "public-site-pages",
+      "owner": [
+        "web/src/public-site-pages.mjs"
+      ],
+      "to": "tools/publish-a-site-at-its-own-address",
+      "joins_tool": "tools/publish-a-site-at-its-own-address gives a site its address; this brings the rule that a page belonging to the public site answers a redirect to the public owner",
+      "capability": "send a public-site address to its owner"
+    },
+    {
+      "id": "placed-capability-runtime",
+      "owner": [
+        "web/parts/ui/show/public-app-editor/placed-capability-runtime.mjs"
+      ],
+      "to": "tools/place-a-sign-up-form-or-a-published-recipe-on-a-site",
+      "joins_tool": "tools/place-a-sign-up-form-or-a-published-recipe-on-a-site shows visitors a safe view of a capability placed on a site page; this brings the runtime that draws the placed capability's form and result",
+      "capability": "run a capability placed on a site page"
+    }
+  ],
+  "leave_tests": [
+    {
+      "path": "web/test/pursuit-detail-screen.test.mjs",
+      "why": "It reads the facts of one pursuit through the web shell's address and screen words (src/workspace/addresses.mjs, src/workspace/screens.mjs), which other apps code imports too; it stays in apps and imports the moved screen from the tool."
+    }
+  ]
+}

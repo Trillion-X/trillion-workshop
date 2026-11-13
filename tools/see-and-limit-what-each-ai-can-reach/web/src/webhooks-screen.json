@@ -1,0 +1,69 @@
+{
+  "_what": "The Webhooks section of AI apps & keys: the person's own webhooks, a form to add one, and what each signed message carries so they can check it. Every word is here. `headers` is the signed message's real headers (src/mcp-events.mjs post), `signature` how its check is made.",
+  "heading": "Webhooks",
+  "body": "A webhook sends a signed message to an address you choose whenever the event you picked happens in your Trillion. Trillion asks the address to answer once, to be sure it is yours, before it saves it.",
+  "unnamed_event": "An event in my Trillion",
+  "empty": "You have no webhooks.",
+  "unreadable": "Your webhooks could not be read just now. Try again in a moment.",
+  "row_detail": "{event} · made {day}{last}",
+  "last_sent": " · last sent {day}",
+  "sent_count": " · sent {count}",
+  "actions": {
+    "send_test": "Send a test",
+    "remove": "Remove",
+    "remove_confirm": "Remove this webhook? Its address stops getting messages right away."
+  },
+  "add": {
+    "title": "Add a webhook",
+    "url_label": "Address to send to",
+    "url_placeholder": "https://example.com/hooks/trillion",
+    "event_label": "When this happens",
+    "button": "Add webhook",
+    "busy": "Checking the address…",
+    "secret_label": "The signing secret for this webhook. Copy it now: it is shown only this once.",
+    "secret_said": "Use the secret to check each message's signature.",
+    "name_label": "Name (optional)",
+    "name_placeholder": "Production webhook",
+    "open": "Add"
+  },
+  "said": {
+    "added": "The webhook is on.",
+    "removed": "The webhook is off.",
+    "gone": "That webhook is already gone.",
+    "tested_ok": "The address answered the test message ({status}).",
+    "tested_failed": "The address did not accept the test message{status}.",
+    "need_event": "Choose when the webhook sends.",
+    "address_refused": "The address must be a public https address."
+  },
+  "docs": {
+    "title": "What each message carries",
+    "body": "Every message is one POST with a JSON body, signed the Standard Webhooks way. Check the signature before you trust the message.",
+    "headers": [
+      {
+        "name": "webhook-id",
+        "about": "The message's own id. It stays the same when Trillion sends the same message again."
+      },
+      {
+        "name": "webhook-timestamp",
+        "about": "When it was sent, in seconds. Refuse messages that are far from now."
+      },
+      {
+        "name": "webhook-signature",
+        "about": "v1, then a comma, then the base64 of an HMAC-SHA256 over id, timestamp and the exact body, joined by dots, keyed with your secret."
+      },
+      {
+        "name": "x-mcp-subscription-id",
+        "about": "Which of your webhooks this message is for."
+      },
+      {
+        "name": "content-type",
+        "about": "application/json"
+      }
+    ],
+    "signature": "signature = base64(HMAC-SHA256(secret bytes, \"<webhook-id>.<webhook-timestamp>.<body>\"))",
+    "secret_note": "The secret is whsec_ followed by base64. Decode what follows whsec_ to get the key's bytes.",
+    "retry": "A message is tried again after 5 seconds, 30 seconds, 2 minutes, 10 minutes and an hour. Answer 2xx to take it, 410 to end the webhook.",
+    "open": "Read"
+  },
+  "row_detail_with_address": "{address} · {event} · made {day}{last}"
+}

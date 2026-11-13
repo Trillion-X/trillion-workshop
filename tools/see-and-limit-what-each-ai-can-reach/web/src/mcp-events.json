@@ -1,0 +1,100 @@
+{
+  "_what": "The events a chat app subscribed to Trillion's MCP server is sent when work moves (MCP Events, protocol 2026-07-28, webhook delivery; src/mcp-events.mjs). One row per event: its stable name, what it says, which handoff moments (src/agents.mjs tell) make it, the subscription arguments (inputSchema) and the shape of what is delivered (payloadSchema, filled from the handoff fields it names). `agent_argument` names the argument that picks work by agent id and `agent_field` the handoff field it is compared with; without it, the event goes to the AI that subscribed (its reader). `anyone_argument` names the argument that also takes work handed to whichever AI takes it first (the moments in `anyone_moments`). A new event is one row here; nothing that sends events changes.",
+  "protocol_version": "2026-07-28",
+  "grant_ms": { "default": 604800000, "min": 3600000, "max": 2592000000 },
+  "refresh_share": 0.9,
+  "verified_for_ms": 86400000,
+  "max_subscriptions": 50,
+  "person_reader": "person:webhooks",
+  "label_max": 80,
+  "person_grant_ms": 315360000000,
+  "max_waiting": 200,
+  "max_body_bytes": 262144,
+  "timeout_ms": 10000,
+  "retry_seconds": [5, 30, 120, 600, 3600],
+  "text_max": 300,
+  "events": [
+    {
+      "name": "work.waiting",
+      "label": "Work is handed to one of my AIs",
+      "description": "Work was handed to the published agent named in agent_id (publish this chat with publish_agent first, and use its agent_id) in the person's Trillion. The event names the handoff; read it with read_handoff, take it with take_work and finish it with finish_work.",
+      "moments": ["waiting", "waiting_for_anyone"],
+      "agent_argument": "agent_id",
+      "agent_field": "to_agent",
+      "anyone_argument": "include_work_for_anyone",
+      "anyone_moments": ["waiting_for_anyone"],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["agent_id"],
+        "properties": {
+          "agent_id": { "type": "string", "description": "The published agent whose work starts this chat (an agent_id from publish_agent or find_agents). Several apps can sign in under the same app name, so work is picked by agent, never by app name." },
+          "include_work_for_anyone": { "type": "boolean", "description": "Also work handed to whichever of the person's AIs takes it first." }
+        }
+      },
+      "payloadSchema": {
+        "type": "object",
+        "required": ["handoff_id", "job", "handed_at"],
+        "properties": {
+          "handoff_id": { "type": "string" },
+          "job": { "type": "string" },
+          "to_agent": { "type": ["string", "null"] },
+          "from_agent": { "type": ["string", "null"] },
+          "handed_at": { "type": "string" }
+        }
+      }
+    },
+    {
+      "name": "work.finished",
+      "label": "Work I handed off is finished",
+      "description": "Work this AI handed off (or that the agent named in agent_id handed off) was finished. Read the result with read_handoff.",
+      "moments": ["finished"],
+      "agent_argument": "agent_id",
+      "agent_field": "from_agent",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "agent_id": { "type": "string", "description": "Only work this published agent handed off. Left out: work this chat handed off." }
+        }
+      },
+      "payloadSchema": {
+        "type": "object",
+        "required": ["handoff_id", "job", "finished_at"],
+        "properties": {
+          "handoff_id": { "type": "string" },
+          "job": { "type": "string" },
+          "taken_by": { "type": ["string", "null"] },
+          "summary": { "type": ["string", "null"] },
+          "finished_at": { "type": "string" }
+        }
+      }
+    },
+    {
+      "name": "work.stuck",
+      "label": "Work I handed off is stuck",
+      "description": "An AI said something is in the way of work this AI (or the agent named in agent_id) handed off. Read it with read_handoff.",
+      "moments": ["stuck"],
+      "agent_argument": "agent_id",
+      "agent_field": "from_agent",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "agent_id": { "type": "string", "description": "Only work this published agent handed off. Left out: work this chat handed off." }
+        }
+      },
+      "payloadSchema": {
+        "type": "object",
+        "required": ["handoff_id", "job", "in_the_way"],
+        "properties": {
+          "handoff_id": { "type": "string" },
+          "job": { "type": "string" },
+          "in_the_way": { "type": "string" },
+          "in_the_way_by": { "type": ["string", "null"] },
+          "in_the_way_at": { "type": ["string", "null"] }
+        }
+      }
+    }
+  ]
+}

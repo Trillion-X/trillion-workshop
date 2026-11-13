@@ -1,0 +1,30 @@
+{
+  "idle_days_by_approval": {
+    "passkey": 90,
+    "key": 90,
+    "personal_key": 30,
+    "password": 30,
+    "email": 30,
+    "phone": 30,
+    "unknown": 30
+  },
+  "choices_days": [
+    1,
+    7,
+    30,
+    90
+  ],
+  "most_days": 90,
+  "use_noted_every_seconds": 3600,
+  "words": {
+    "field": "Stops working after this long unused",
+    "choice": "{days} days unused",
+    "choice_one": "1 day unused",
+    "line": "Stops after {days} days unused",
+    "ended": "This sign-in went unused for longer than its person allows. Sign in again."
+  },
+  "never_idle": [
+    "service"
+  ],
+  "_never_idle": "Principals with no credential to go stale: Trillion's own internal callers (src/service-actor.mjs), minted again for each scope. The account owner can still end one, and every other fence applies."
+}

@@ -5,6 +5,13 @@
   "calls": [],
   "files": [
     {
+      "from": "records/service-price-experiments.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-the-services-own-price-experiments-each-kept-in-its-own-book/from-old-trillion/records/service-price-experiments.json",
+      "source_identity": "1f:86046d3279c3f53b1f1d693f0ce51aa533c150ead74852d9fb07289614371e57",
+      "identity": "1f:86046d3279c3f53b1f1d693f0ce51aa533c150ead74852d9fb07289614371e57"
+    },
+    {
       "from": "src/service-price-experiments.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/run-the-services-own-price-experiments-each-kept-in-its-own-book/from-old-trillion/src/service-price-experiments.mjs.held",
@@ -13,11 +20,46 @@
       "held": true
     },
     {
-      "from": "records/service-price-experiments.json",
-      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/run-the-services-own-price-experiments-each-kept-in-its-own-book/from-old-trillion/records/service-price-experiments.json",
-      "source_identity": "1f:86046d3279c3f53b1f1d693f0ce51aa533c150ead74852d9fb07289614371e57",
-      "identity": "1f:86046d3279c3f53b1f1d693f0ce51aa533c150ead74852d9fb07289614371e57"
+      "from": "web/src/kept-reads.mjs",
+      "commit": "949e613efc0be7bebeac0f783c8d9629f2c18ae6",
+      "to": "tools/run-the-services-own-price-experiments-each-kept-in-its-own-book/web/src/kept-reads.mjs",
+      "source_identity": "1f:8dc84805d3c9a74e536753ccd26cc41af4c097e953a788c70ae2cf946d81fb7c",
+      "identity": "1f:8dc84805d3c9a74e536753ccd26cc41af4c097e953a788c70ae2cf946d81fb7c"
+    },
+    {
+      "from": "web/src/price-experiments.json",
+      "commit": "949e613efc0be7bebeac0f783c8d9629f2c18ae6",
+      "to": "tools/run-the-services-own-price-experiments-each-kept-in-its-own-book/web/src/price-experiments.json",
+      "source_identity": "1f:3f44e3638ccbd00141cb5bf2a4d3492582a36d1bb3c8fada74be7c3727b72e9f",
+      "identity": "1f:3f44e3638ccbd00141cb5bf2a4d3492582a36d1bb3c8fada74be7c3727b72e9f"
+    },
+    {
+      "from": "web/src/price-experiments.mjs",
+      "commit": "949e613efc0be7bebeac0f783c8d9629f2c18ae6",
+      "to": "tools/run-the-services-own-price-experiments-each-kept-in-its-own-book/web/src/price-experiments.mjs",
+      "source_identity": "1f:691052a159e4e2e05ffbb91a0333fa73623c6e3e07b86ed64e7ebaa8ab540631",
+      "identity": "1f:fd5d7f5e3298ebe25c8c10bd1c0b79347abb6c58127fcdf0be8798d8f52316cd"
+    },
+    {
+      "from": "web/src/price-tests-screen.json",
+      "commit": "949e613efc0be7bebeac0f783c8d9629f2c18ae6",
+      "to": "tools/run-the-services-own-price-experiments-each-kept-in-its-own-book/web/src/price-tests-screen.json",
+      "source_identity": "1f:ed3df7d542d292f7a77f0fc279544a89d06e4d7fa95520e7344eab0917bc63e0",
+      "identity": "1f:ed3df7d542d292f7a77f0fc279544a89d06e4d7fa95520e7344eab0917bc63e0"
+    },
+    {
+      "from": "web/src/price-tests-screen.mjs",
+      "commit": "949e613efc0be7bebeac0f783c8d9629f2c18ae6",
+      "to": "tools/run-the-services-own-price-experiments-each-kept-in-its-own-book/web/src/price-tests-screen.mjs",
+      "source_identity": "1f:b4894f268c502aca0a8b6a9cf22b9f3a42810296be1d2d973ef3f33630eaf21b",
+      "identity": "1f:b4894f268c502aca0a8b6a9cf22b9f3a42810296be1d2d973ef3f33630eaf21b"
+    },
+    {
+      "from": "web/src/shipped-defaults.mjs",
+      "commit": "949e613efc0be7bebeac0f783c8d9629f2c18ae6",
+      "to": "tools/run-the-services-own-price-experiments-each-kept-in-its-own-book/web/src/shipped-defaults.mjs",
+      "source_identity": "1f:ea3493f263700d291f09bcc3b2fdb933ca94893674eec3913bf68a13090cbd4d",
+      "identity": "1f:ea3493f263700d291f09bcc3b2fdb933ca94893674eec3913bf68a13090cbd4d"
     }
   ]
 }

@@ -2,7 +2,26 @@
   "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
   "source": "Trillion-X/trillion",
   "package": "trillion-workshop",
-  "calls": [],
+  "calls": [
+    {
+      "id": "content-identity-import",
+      "find": "import \\{ blake3 \\} from '@noble/hashes/blake3\\.js';",
+      "replace": "import { makeHashCodeHexFromBytes } from '../../../content-identity/read-data/identity.mjs';",
+      "means": "A direct BLAKE3 import swapped for the declared content-identity owner, which one-owner-per-registered-name makes the only place that names the hash (the file sits in tools/<tool>/web/src, so the owner is three folders up)."
+    },
+    {
+      "id": "content-identity-hex-import",
+      "find": "import \\{ bytesToHex \\} from '@noble/hashes/utils\\.js';\\n",
+      "replace": "",
+      "means": "The hex helper only the direct BLAKE3 call used; the owner hands the hex back."
+    },
+    {
+      "id": "content-identity-short-call",
+      "find": "bytesToHex\\(blake3\\(encoder\\.encode\\(value\\)\\)\\)\\.slice\\(0, 32\\)",
+      "replace": "makeHashCodeHexFromBytes(encoder.encode(value)).slice(3, 35)",
+      "means": "The owner's identity is `1f:` and the same 64 hex digits; dropping the three-character prefix and keeping the first 32 digits gives the exact short hash the file made before."
+    }
+  ],
   "files": [
     {
       "from": "src/ai-reach-words.json",
@@ -17,6 +36,14 @@
       "to": "tools/see-and-limit-what-each-ai-can-reach/src/ai-reach.mjs",
       "source_identity": "1f:b41c4f26109485fe00716f56f32c53b81c23c511f38333482e113b0fc7d34a26",
       "identity": "1f:2c55ab4e6d627ac494ff632037e395e15c876a85f335c4d0abc941d9e1c9e9c7"
+    },
+    {
+      "from": "web/src/ai-reach.mjs",
+      "commit": "949e613efc0be7bebeac0f783c8d9629f2c18ae6",
+      "to": "tools/see-and-limit-what-each-ai-can-reach/src/ai-reach.mjs",
+      "source_identity": "1f:6d0ff7bcb5c624eac9124060d6ebf917e78a15bc8c77ce3179bca80edc0ec77f",
+      "identity": "1f:2c55ab4e6d627ac494ff632037e395e15c876a85f335c4d0abc941d9e1c9e9c7",
+      "reused": true
     },
     {
       "from": "src/ais.mjs",
@@ -47,6 +74,14 @@
       "identity": "1f:52873a05dac16ea840f6914af5118c474a6018b1fb1fd625f5b9298d440d2aab"
     },
     {
+      "from": "test/ais.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/see-and-limit-what-each-ai-can-reach/test/ais.test.mjs",
+      "source_identity": "1f:b71443354bae690b0ebeb05e73ebb4d805b0ba878358cd870a3c751e37efcf95",
+      "identity": "1f:cde5fc845bcc6df06d55a02298291ad79c64cb61b4a72edfdd0c5282fc1c9c4b",
+      "adapted": "six tests are the old ones over src/ais.mjs, with old mcpSignInId and countingHost as stand-ins; tests over connected-ais, person-spaces, the Connect screen and source reads of old account-routes, screen-reads and person-store are left out: none runs anywhere."
+    },
+    {
       "from": "test/proposer-names.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/see-and-limit-what-each-ai-can-reach/test/proposer-names.test.mjs",
@@ -54,12 +89,86 @@
       "identity": "1f:7603e3a95fa0b1d0dce9bdaa6bfce4f54daf004a571c1b4e0bfc7544cab4e0da"
     },
     {
-      "from": "test/ais.test.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/see-and-limit-what-each-ai-can-reach/test/ais.test.mjs",
-      "source_identity": "1f:b71443354bae690b0ebeb05e73ebb4d805b0ba878358cd870a3c751e37efcf95",
-      "identity": "1f:cde5fc845bcc6df06d55a02298291ad79c64cb61b4a72edfdd0c5282fc1c9c4b",
-      "adapted": "six tests are the old ones over src/ais.mjs, with old mcpSignInId and countingHost as stand-ins; tests over connected-ais, person-spaces, the Connect screen and source reads of old account-routes, screen-reads and person-store are left out: none runs anywhere."
+      "from": "web/src/ai-apps-screen.mjs",
+      "commit": "949e613efc0be7bebeac0f783c8d9629f2c18ae6",
+      "to": "tools/see-and-limit-what-each-ai-can-reach/web/src/ai-apps-screen.mjs",
+      "source_identity": "1f:f11a505d986361274a58c56c8d9fc69cbfb2a038a838a58fb33ace2a94f167f5",
+      "identity": "1f:671304b80bd459b14d29ac737ccfe321fd5f1e6abc30c0f9ad37242118f8b396"
+    },
+    {
+      "from": "web/src/mcp-events.json",
+      "commit": "949e613efc0be7bebeac0f783c8d9629f2c18ae6",
+      "to": "tools/see-and-limit-what-each-ai-can-reach/web/src/mcp-events.json",
+      "source_identity": "1f:a67b01b9f2868b3bce8e5fb567bee589533a4ec4df6fc55655a379dc79b17f22",
+      "identity": "1f:a67b01b9f2868b3bce8e5fb567bee589533a4ec4df6fc55655a379dc79b17f22"
+    },
+    {
+      "from": "web/src/mcp-events.mjs",
+      "commit": "949e613efc0be7bebeac0f783c8d9629f2c18ae6",
+      "to": "tools/see-and-limit-what-each-ai-can-reach/web/src/mcp-events.mjs",
+      "source_identity": "1f:20148ec454997c621d9699d61e4ef5f0fbb04fb24803147f9755bdece30d74d9",
+      "identity": "1f:6d2b973386b89c5cd2d0e6e7698c63c0c09a821112f2ecfa12fe00e16620c0bd",
+      "calls": [
+        "content-identity-import",
+        "content-identity-hex-import",
+        "content-identity-short-call"
+      ]
+    },
+    {
+      "from": "web/src/screen-day.mjs",
+      "commit": "949e613efc0be7bebeac0f783c8d9629f2c18ae6",
+      "to": "tools/see-and-limit-what-each-ai-can-reach/web/src/screen-day.mjs",
+      "source_identity": "1f:50b1475c45acc2be5fd7b93b04493a2605a24d5c4ea0fc2b4e0b0619ceade72b",
+      "identity": "1f:50b1475c45acc2be5fd7b93b04493a2605a24d5c4ea0fc2b4e0b0619ceade72b"
+    },
+    {
+      "from": "web/src/sign-in-calls.json",
+      "commit": "949e613efc0be7bebeac0f783c8d9629f2c18ae6",
+      "to": "tools/see-and-limit-what-each-ai-can-reach/web/src/sign-in-calls.json",
+      "source_identity": "1f:210502e0a41f725434292b3e5279e2829fedf196f18afcb36a21f89ab5a05310",
+      "identity": "1f:210502e0a41f725434292b3e5279e2829fedf196f18afcb36a21f89ab5a05310"
+    },
+    {
+      "from": "web/src/sign-in-calls.mjs",
+      "commit": "949e613efc0be7bebeac0f783c8d9629f2c18ae6",
+      "to": "tools/see-and-limit-what-each-ai-can-reach/web/src/sign-in-calls.mjs",
+      "source_identity": "1f:152e4cd5eca20e5211f6f233e6ba45f5eb9f040c8f0d9526d90cf0263bb6dd07",
+      "identity": "1f:152e4cd5eca20e5211f6f233e6ba45f5eb9f040c8f0d9526d90cf0263bb6dd07"
+    },
+    {
+      "from": "web/src/sign-in-lifetimes.json",
+      "commit": "949e613efc0be7bebeac0f783c8d9629f2c18ae6",
+      "to": "tools/see-and-limit-what-each-ai-can-reach/web/src/sign-in-lifetimes.json",
+      "source_identity": "1f:6038a45ac12110ac603f6ac7612bf9d89f9ca1f276d707bb1c113603bea5e9c1",
+      "identity": "1f:6038a45ac12110ac603f6ac7612bf9d89f9ca1f276d707bb1c113603bea5e9c1"
+    },
+    {
+      "from": "web/src/sign-in-lifetimes.mjs",
+      "commit": "949e613efc0be7bebeac0f783c8d9629f2c18ae6",
+      "to": "tools/see-and-limit-what-each-ai-can-reach/web/src/sign-in-lifetimes.mjs",
+      "source_identity": "1f:8ce8e9f861e19b73c88d12f219f18b670218ba9b82e8aa110f71dd517c33de60",
+      "identity": "1f:8ce8e9f861e19b73c88d12f219f18b670218ba9b82e8aa110f71dd517c33de60"
+    },
+    {
+      "from": "web/src/webhooks-screen.json",
+      "commit": "949e613efc0be7bebeac0f783c8d9629f2c18ae6",
+      "to": "tools/see-and-limit-what-each-ai-can-reach/web/src/webhooks-screen.json",
+      "source_identity": "1f:1d43125ff96c6f4fe9e9ca868364864513599cb0d2b3b7e5dac817a189288d2a",
+      "identity": "1f:1d43125ff96c6f4fe9e9ca868364864513599cb0d2b3b7e5dac817a189288d2a"
+    },
+    {
+      "from": "web/src/webhooks-screen.mjs",
+      "commit": "949e613efc0be7bebeac0f783c8d9629f2c18ae6",
+      "to": "tools/see-and-limit-what-each-ai-can-reach/web/src/webhooks-screen.mjs",
+      "source_identity": "1f:572f6678973d496caa5c16861ff23cf2707525a7c242704410ce3abc33ba787b",
+      "identity": "1f:572f6678973d496caa5c16861ff23cf2707525a7c242704410ce3abc33ba787b"
+    },
+    {
+      "from": "web/test/catalogue-screen-ai-apps.test.mjs",
+      "commit": "949e613efc0be7bebeac0f783c8d9629f2c18ae6",
+      "to": "tools/see-and-limit-what-each-ai-can-reach/web/test/catalogue-screen-ai-apps.test.mjs",
+      "source_identity": "1f:4e748ea085f0c3aa14d8d160cb7266828c68b628fed1a1d63d55e5e3e4a4cce4",
+      "identity": "1f:f7fdc3959f28023856cb2dcc936ba93c689f79907a8c3ffe4ee0d32bcb3cf8b1"
     }
   ]
 }

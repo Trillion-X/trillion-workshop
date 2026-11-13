@@ -13,6 +13,14 @@
       "reused": true
     },
     {
+      "from": "web/src/geometric-pricing.mjs",
+      "commit": "949e613efc0be7bebeac0f783c8d9629f2c18ae6",
+      "to": "tools/price-and-sell-by-contract/src/geometric-pricing.mjs",
+      "source_identity": "1f:5baf387eb9d42810ee355b3e7c8e208219777d7921aaeba7d32e0694017eea18",
+      "identity": "1f:5baf387eb9d42810ee355b3e7c8e208219777d7921aaeba7d32e0694017eea18",
+      "reused": true
+    },
+    {
       "from": "src/usage-meters.json",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/price-and-sell-by-contract/src/usage-meters.json",

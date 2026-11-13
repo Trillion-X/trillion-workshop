@@ -24,3 +24,4 @@ Moved byte for byte from Trillion-X/trillion (commit b92aa549f2) by `tools/move-
 | `tool-rows.json` | The Workshop row. |
 | `moved-from.json` | Where each moved file came from and its identities. |
 | `part.json` | Public files. |
+| `web/src/connector-screen.mjs` | The Find a connector section of Connections as guide DATA: a search box, then each connector the public catalogs answered with (name, what it does, where it was found) and Use, which adds it through the add-a-tool-server tool. Moved byte for byte from the web client (`moved-from.json`); it imports `src/connection-card-words.mjs` of this folder. |

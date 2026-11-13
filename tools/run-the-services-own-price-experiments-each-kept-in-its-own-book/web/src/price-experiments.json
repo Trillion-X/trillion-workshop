@@ -1,0 +1,49 @@
+{
+  "comment": "Price experiments as one record shape every account keeps (src/price-experiments.mjs): Trillion's own plan prices are the operator account's experiments, published to the Worker's payment config; anyone else's are tested on their own offers and prices. Every moment of an experiment is a commercial event (src/commercial-events.mjs) named here, so the same events feed a funnel graph (whose own measures.event_stage_map puts each event at a stage) and the experiment's results. `measure` is how the leading arm is read: money brought in per observer shown it. `published_prefix` is where each of the service's experiments is kept for the Worker, one key per experiment written by that experiment's own owner (src/payment.mjs readPaymentConfig). `assigned_prefix` is the Worker's sticky assignment memo for a signed-in account (price-arm:<experiment>:<account>); an operator experiment's people shown it are counted from there.",
+  "kinds": {
+    "_what": "What an arm is. A price arm has amount_cents (read from the offer it names); a variant arm has variant, any JSON the caller serves as it is (an introduction's words, a send time, a title). Every arm of one experiment is one kind. Per kind: its event words, the moments that convert (each counts its amount_cents, or value_unit when it carries none) and take back, how the leading arm is read, and what an experiment optimizes when the saver does not say.",
+    "price": {
+      "events": { "shown": "price_shown", "paid": "price_paid", "refunded": "price_refunded" },
+      "converts": ["paid"],
+      "takes_back": ["refunded"],
+          "optimizing_for": "Money brought in per person shown a price."
+    },
+    "variant": {
+      "events": { "shown": "arm_shown", "converted": "arm_converted" },
+      "converts": ["converted"],
+      "takes_back": [],
+      "value_unit": 1,
+      "measure": "converted_per_shown",
+      "optimizing_for": "People who did what the experiment is for, per person shown an arm."
+    }
+  },
+  "states": [
+    "running",
+    "settled",
+    "stopped"
+  ],
+  "published_prefix": "payment:price-experiment:",
+  "assigned_prefix": "price-arm:",
+  "words": {
+    "saved": "{label} is running: each person shown it sees one of its {arms} arms, the same one every time.",
+    "settled": "{label} is settled: everyone is now shown {winner}.",
+    "stopped": "{label} is stopped: nobody new is shown its prices.",
+    "no_experiment": "There is no experiment {id} in this account.",
+    "arm_kind": "Arm {n} needs amount_cents (a price) or variant (anything else it serves).",
+    "one_kind": "Every arm of one experiment is one kind: all prices, or all variants.",
+    "moment": "moment is one of {moments} for this experiment; a person shown an arm is kept by assign.",
+    "operation": "Choose a price experiment operation: list, read, save, settle, stop, assign, record, results, shown_offers, ladder, price_now or next_round."
+  },
+  "own_accounts": {
+    "_what": "Accounts that are the service's own, never people a price was tested on: the operator, an account named at the service's own domain (every proof account, inbox address and watch the service runs is), and, for memos kept before this was known, an account since deleted. The Worker marks such an account's arm memo own (src/payment.mjs priceArmsFor), and results count the people shown each price without them.",
+    "name_patterns": ["@(?:[a-z0-9-]+\\.)*gettrillion\\.ai$"]
+  },
+  "funnel": {
+    "_what": "Each price's way to paying on the Price tests screen: people shown it, checkouts started on its offer, payments. Visitors shown a price and checkouts started are counted from `counted_from` (UTC hour), when the service's own accounts (own_accounts) stopped being counted as either.",
+    "counted_from": "2026-10-07T05"
+  },
+  "chance": {
+    "draws": 4000,
+    "_what": "How many draws chance_best makes: each arm's share who pay drawn from Beta(paid + 1, shown - paid + 1) times what a payer brought in; an arm's chance of being the best price is the share of draws it led."
+  }
+}
