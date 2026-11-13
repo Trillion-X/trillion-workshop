@@ -324,7 +324,7 @@ export function joinDecision(id, root, get, steps = []) {
     loaded.item_refs = refs.items;
     loaded.step_refs = refs.step_refs;
   }
-  const wanted = new Set([0, ...stubs.flatMap((stub, n) => (steps.includes(stub.step_id) ? [n] : []))]);
+  const wanted = new Set([0, ...stubs.flatMap((stub, n) => (steps === EVERY_STEP || steps.includes(stub.step_id) ? [n] : []))]);
   const guidance = [];
   for (const [n, stub] of stubs.entries()) {
     if (wanted.has(n)) guidance.push({ ...(stepIn(get, stepAt(id, n, loaded.step_refs?.[n])) ?? lostStep(stub)), ...flagsOf(stub) });
@@ -383,6 +383,71 @@ function changedItems(id, list, items, was = [], wasRefs = []) {
 // The reference each item is held at after a write: a changed one at its new identity, an unchanged one where it was read.
 const refsAfter = (items, was = [], wasRefs = [], changedOf = item => item) => items.map((item, n) => (canonical(item) !== was[n]
   ? contentRef(changedOf(item)) : (wasRefs[n] ?? null)));
+
+/** The `steps` of a read that asks for every answered step whole, whatever its summary says its step is. */
+export const EVERY_STEP = 'every-step';
+
+// The refs records a case was ever given: write-once, one per write, so together the history of what each index named.
+async function refsHistory(door, id) {
+  const out = [];
+  for await (const row of door.list({ type: NAMES.refs, prefix: `${NAMES.refs}:${id}${CONTENT}` })) {
+    const value = await settled(door, get => wholeValue(row.id, row.value, get));
+    if (object(value)) out.push({ step_refs: value.step_refs ?? [], items: value.items ?? {} });
+  }
+  return out;
+}
+// The step and the summary a past refs record named at index n, when both are there and are the same graded step.
+async function pastStepAt(door, id, n, past) {
+  const stepRef = past.step_refs[n];
+  const summaryRef = past.items.answered_steps?.[n];
+  if (!summaryRef) return null;
+  const [step, summary] = await settled(door, get => {
+    const kept = stepIn(get, stepAt(id, n, stepRef));
+    const stub = wholeValue(itemAt('answered_steps', id, n, summaryRef), get(LAID.answered_steps.type, itemAt('answered_steps', id, n, summaryRef)), get);
+    return kept === undefined || stub === undefined ? undefined : [kept, stub];
+  });
+  return step && summary && summary.checks !== undefined && step.step_id === summary.step_id ? { step, summary, stepRef, summaryRef } : null;
+}
+const newest = (a, b) => (b === null || (a.step.version ?? 1) > (b.step.version ?? 1)
+  || ((a.step.version ?? 1) === (b.step.version ?? 1) && String(a.summary.answered_at) > String(b.summary.answered_at)) ? a : b);
+
+/**
+ * Puts right the answered steps of a decision read with every step whole (`EVERY_STEP`): a summary that lost its grading
+ * (`checks`) gets, when its step's own record is there, the summary that step makes; when its step's record cannot be read, the
+ * summary and step the case's own history of refs named for that index with the highest version. Nothing else changes: the
+ * record is made ready for `recordsOf`, which keeps every other reference as it was read.
+ * Returns the steps put right and how many answered steps carried their step before.
+ */
+export async function putBackSteps(door, record) {
+  const loaded = LOADED.get(record) ?? { answered_steps: [] };
+  const was = loaded.answered_steps.map(text => JSON.parse(text));
+  const graded = was.filter(stub => stub.checks !== undefined).length;
+  const repaired = [];
+  let history = null;
+  for (const [n, entry] of record.guidance.entries()) {
+    if (was[n] === undefined || was[n].checks !== undefined) continue;
+    if (entry.lost !== true) {
+      if (stubOf(entry).checks !== undefined && was[n].step_id === entry.step_id) repaired.push({ index: n, step_id: entry.step_id, from: 'step' });
+      continue;
+    }
+    history ??= await refsHistory(door, record.id);
+    let best = null;
+    for (const past of history) {
+      const found = await pastStepAt(door, record.id, n, past);
+      if (found) best = newest(found, best);
+    }
+    if (!best) continue;
+    loaded.step_refs = Object.assign([], loaded.step_refs, { [n]: best.stepRef });
+    loaded.item_refs = { ...loaded.item_refs, answered_steps: Object.assign([], loaded.item_refs?.answered_steps, { [n]: best.summaryRef }) };
+    loaded.answered_steps[n] = canonical(best.summary);
+    record.guidance[n] = { ...best.summary };
+    repaired.push({ index: n, step_id: best.summary.step_id, from: 'history' });
+  }
+  // Every summary that is not being put right is written back as it was read.
+  const mended = new Set(repaired.map(item => item.index));
+  record.guidance = record.guidance.map((entry, n) => (mended.has(n) || n === 0 ? entry : { ...was[n] }));
+  return { repaired, answered: graded, total: was.length };
+}
 
 /**
  * The records one write keeps: the root with its counts and pointers, the steps at `changed` (indices into the guidance),

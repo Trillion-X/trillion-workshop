@@ -37,7 +37,7 @@ import { takeCallerVerdicts } from './verdicts.mjs';
 import { currentDecisionOutcome, decisionGeneration, decisionStatus, outcomeIsCurrent } from './decision-outcome.mjs';
 import { similarDecisions } from './similar-decisions.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
-import { canonical, inputIdentity, laidTogether, markRead, readDecision, readRevision, readStep, recordsOf, retriedOnConflict, versionKey, writeDecision } from './decision-records.mjs';
+import { canonical, inputIdentity, laidTogether, markRead, readDecision, readRevision, readStep, putBackSteps, EVERY_STEP, recordsOf, retriedOnConflict, versionKey, writeDecision } from './decision-records.mjs';
 import { writeBatches } from '../../records-door/read-data/write-batches.mjs';
 import { linksOf } from '../../check-against-a-persons-rules-and-verdicts/do-work/branch.mjs';
 import { boundRuns, runProblem, unfinishedRuns } from './workflow-runs.mjs';
@@ -498,6 +498,21 @@ export async function addDecisionEvidence(input, { door }) {
     if (!added.length) return { case_id: id, added: [], replayed: true, evidence: record.input.evidence.length };
     await writeDecision(door, recordsOf(record), `add-decision-evidence:${id}:${attempt}`);
     return { case_id: id, added, evidence: record.input.evidence.length };
+  });
+}
+
+/** tool:repair-a-decisions-answered-steps. input { decision_id }: an answered step whose summary lost its grading is put back from
+ * the step's own record, or, when that record cannot be read, from what the case's own history of refs named for it with the
+ * highest version. No step record, answer, verdict or other summary changes, and a case with nothing to put right is not written. */
+export async function repairDecisionSteps(input, { door }) {
+  refuseMisplacedFields('tool:repair-a-decisions-answered-steps', input);
+  const id = decisionId(input);
+  return retriedOnConflict(async attempt => {
+    const record = await decisionOrRefuse(door, id, EVERY_STEP);
+    const { repaired, answered, total } = await putBackSteps(door, record);
+    const summary = { case_id: id, repaired, answered_before: answered, answered_after: answered + repaired.length, answered_steps: total };
+    if (repaired.length) await writeDecision(door, recordsOf(record), `repair-a-decisions-answered-steps:${id}:${attempt}`);
+    return summary;
   });
 }
 

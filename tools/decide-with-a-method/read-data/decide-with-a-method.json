@@ -223,6 +223,20 @@
         }
       }
     },
+    "tool:repair-a-decisions-answered-steps": {
+      "type": "object",
+      "required": [
+        "decision_id"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "decision_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The decision"
+        }
+      }
+    },
     "tool:add-decision-evidence": {
       "type": "object",
       "required": [

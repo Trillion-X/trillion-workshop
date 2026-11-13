@@ -1853,6 +1853,549 @@
   {
    "payload": {
     "kind": "ai-tool-descriptor",
+    "id": "tool:repair-a-decisions-answered-steps",
+    "label": "Put back a decision's answered steps",
+    "job": "Put back the answered steps of a decision whose case lost them, so the decision reads as answered as far as it was",
+    "description": "Reads a decision of the person's own with every answered step whole and puts right each answered step whose summary has lost its grading: from the step's own record when it is there (a summary written for a step the door could not read), otherwise from the step and summary the case's own earlier refs named for that position, the highest version. Then the case's refs name them. No step record, answer, verdict or other summary changes, a position nothing can restore is left as it is, and a decision with nothing to put right is not written. Returns the steps put back by position, step id and where they came from, how many of the decision's answered steps carry their step before and after, and how many it has.",
+    "status": "active",
+    "result_selector": "$.result",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "decision_id"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "decision_id": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The decision"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "case_id",
+      "repaired",
+      "answered_before",
+      "answered_after",
+      "answered_steps"
+     ],
+     "properties": {
+      "case_id": {
+       "type": "string"
+      },
+      "repaired": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "index",
+         "step_id",
+         "from"
+        ]
+       }
+      },
+      "answered_before": {
+       "type": "integer"
+      },
+      "answered_after": {
+       "type": "integer"
+      },
+      "answered_steps": {
+       "type": "integer"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": false,
+     "workdir": "/opt/decide-with-a-method",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/decide-with-a-method/read-data/decisions.mjs",
+      "repairDecisionSteps"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "decide-with-a-method",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/decide-with-a-method"
+       },
+       {
+        "package": "check-against-a-persons-rules-and-verdicts",
+        "paths": [
+         "do-work/branch.mjs"
+        ],
+        "at": "/opt/check-against-a-persons-rules-and-verdicts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "learn-from-everyones-results",
+        "paths": [
+         "read-data/plain-privacy-pass.mjs"
+        ],
+        "at": "/opt/learn-from-everyones-results"
+       },
+       {
+        "package": "ask-a-small-model-for-a-verdict",
+        "paths": [
+         "do-work/ask-a-hosted-classifier.mjs",
+         "do-work/ask-a-locally-served-model.mjs",
+         "do-work/ask-for-a-verdict.mjs",
+         "do-work/fresh-local-classifier-fetch.mjs",
+         "do-work/judge-content.mjs",
+         "do-work/who-can-be-asked.mjs"
+        ],
+        "at": "/opt/ask-a-small-model-for-a-verdict"
+       },
+       {
+        "package": "browse-and-upload-my-files",
+        "paths": [
+         "built-stored-bytes/content-chunks/content_chunks.js",
+         "do-work/content-chunks.mjs",
+         "do-work/namespace-client.mjs",
+         "do-work/send-a-file-to-a-namespace.mjs",
+         "do-work/send-retry.mjs",
+         "do-work/send-window.mjs",
+         "do-work/shared-file-reference.mjs",
+         "send-settings.json"
+        ],
+        "at": "/opt/browse-and-upload-my-files"
+       }
+      ]
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "decision",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-revision",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-step",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-call",
+        "operations": [
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-evidence",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-answered-step",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-option",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-candidate",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-report",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-carried-out",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-history",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-cited-pursuit",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-method",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-part",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-refs",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       }
+      ]
+     }
+    },
+    "needs": {
+     "expected_seconds": 10,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:decide-with-a-method",
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "decision_id": "source:c2FtcGxlOmNsYXNzLXByaWNlLTE"
+      },
+      "records": [
+       {
+        "id": "source:c2FtcGxlOmNsYXNzLXByaWNlLTE",
+        "type": "decision",
+        "value": {
+         "source_id": "sample:class-price-1",
+         "scratchpad": [],
+         "status": "needs_decision",
+         "decision": null,
+         "actions": [],
+         "checks": [],
+         "pursuits_known": false,
+         "created_at": "2026-11-04T01:56:42.606Z",
+         "method_id": "plain",
+         "method_identity": "1f:93b86e25a6dc7519835836adf6fb75c2183fcc0801f956f270f30dd55e3b02b0",
+         "call_count": 0,
+         "id": "source:c2FtcGxlOmNsYXNzLXByaWNlLTE",
+         "input": {
+          "source_id": "sample:class-price-1",
+          "goal": "Decide the made-up sample class price for spring",
+          "options": [
+           {
+            "id": "keep",
+            "label": "Keep the price"
+           },
+           {
+            "id": "raise",
+            "label": "Raise the price"
+           }
+          ]
+         },
+         "input_identity": "1f:9d26086010288bd06202895ce302c3d1327f99d8c0b38de5712eab18a055a548",
+         "counts": {
+          "evidence": 2,
+          "candidates": 0,
+          "reports": 0,
+          "carried_out": 0,
+          "decision_history": 0,
+          "cited_pursuits": 0,
+          "answered_steps": 1
+         }
+        }
+       },
+       {
+        "id": "decision-evidence:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:0000",
+        "type": "decision-evidence",
+        "value": {
+         "ref": "e1",
+         "claim": "Last spring twelve made-up families signed up at the old price"
+        }
+       },
+       {
+        "id": "decision-evidence:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:0001",
+        "type": "decision-evidence",
+        "value": {
+         "ref": "e2",
+         "claim": "The made-up material costs went up this year"
+        }
+       },
+       {
+        "id": "decision-method:1f:93b86e25a6dc7519835836adf6fb75c2183fcc0801f956f270f30dd55e3b02b0",
+        "type": "decision-method",
+        "value": {
+         "method": {
+          "id": "plain",
+          "name": "Plain method",
+          "about": "A made-up method for the tests",
+          "checks": [
+           {
+            "id": "worth_weighing",
+            "question": "Is this worth weighing beyond a quick choice?",
+            "on_when_any_other_is_on": true,
+            "skip_requires": [
+             {
+              "name": "why_quick",
+              "label": "Why it is quick",
+              "kind": "text",
+              "min_words": 2
+             }
+            ]
+           },
+           {
+            "id": "compare_existing",
+            "question": "Could something that already exists do this?",
+            "skip_requires": [
+             {
+              "name": "searched",
+              "label": "Where you looked",
+              "kind": "list",
+              "min": 1,
+              "min_words": 2,
+              "ask": "Where did you look for something that already does this?"
+             }
+            ]
+           }
+          ],
+          "preset": {},
+          "steps": [
+           {
+            "id": "scope",
+            "kind": "scope",
+            "question": "What kind of decision is this?"
+           },
+           {
+            "id": "outcome",
+            "question": "Name the change: what is in which state now, and which state should it be in?",
+            "fields": [
+             {
+              "name": "desired_result",
+              "label": "Where you want it"
+             },
+             {
+              "name": "current_state",
+              "label": "Where it is now"
+             }
+            ],
+            "checks_skippable": false
+           },
+           {
+            "id": "proof",
+            "question": "How will you know it worked?",
+            "fields": [
+             {
+              "name": "check_by",
+              "label": "Check by",
+              "kind": "date"
+             },
+             {
+              "name": "measure",
+              "label": "What you will measure"
+             }
+            ]
+           },
+           {
+            "id": "existing",
+            "question": "What already exists?",
+            "when": "compare_existing",
+            "fields": [
+             {
+              "name": "found",
+              "label": "What you found",
+              "kind": "list"
+             }
+            ]
+           }
+          ],
+          "backbone": [
+           {
+            "id": "name",
+            "name": "Name the change",
+            "steps": [
+             "outcome"
+            ]
+           },
+           {
+            "id": "test",
+            "name": "Test it",
+            "steps": [
+             "proof",
+             "existing"
+            ]
+           }
+          ],
+          "answer_rules": {
+           "field_min_words": 2,
+           "list_item_min_words": 2,
+           "evidence_min": 1,
+           "check": {
+            "handled": [
+             {
+              "name": "how",
+              "label": "How it was handled",
+              "kind": "text",
+              "min_words": 1
+             }
+            ],
+            "skip": [
+             {
+              "name": "because",
+              "label": "Why it does not apply",
+              "kind": "text",
+              "min_words": 1
+             }
+            ],
+            "distinct": true
+           }
+          },
+          "decision_fields": [
+           {
+            "name": "who_it_changes",
+            "label": "Who it changes beyond you",
+            "when": "worth_weighing",
+            "ask": "Who beyond the person does this change?",
+            "check": "Who beyond the person does this move change, and what is different for them?",
+            "good_answer": "Names people beyond the person and one concrete difference for them.",
+            "says": "Who it changes beyond you: {value}."
+           }
+          ],
+          "workflows": []
+         }
+        }
+       },
+       {
+        "id": "decision-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:000",
+        "type": "decision-step",
+        "value": {
+         "step_id": "scope",
+         "answer": {
+          "decision_context": {
+           "worth_weighing": true,
+           "compare_existing": false
+          },
+          "omission_reasons": {
+           "compare_existing": {
+            "searched": [
+             "the sample price list"
+            ],
+            "evidence_refs": [
+             "e1"
+            ]
+           }
+          },
+          "evidence_refs": [
+           "e1"
+          ]
+         },
+         "verdicts": {
+          "given": []
+         },
+         "judged_checks": 0,
+         "answered_at": "2026-11-04T01:56:42.931Z",
+         "version": 1,
+         "by": "calling-ai"
+        }
+       },
+       {
+        "id": "decision-answered-step:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:000",
+        "type": "decision-answered-step",
+        "value": {
+         "step_id": "scope",
+         "answered_at": "2026-11-04T01:56:42.931Z",
+         "checks": 0,
+         "graded": 0,
+         "graded_by": "",
+         "version": 1,
+         "needs_recheck": false
+        }
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
     "id": "tool:make-the-decision",
     "label": "Make the decision",
     "job": "Record what my AI decided, why, what to do next and how we will know it worked",
