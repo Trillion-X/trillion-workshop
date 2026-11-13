@@ -379,6 +379,44 @@
       "evidence": "README.md:3 makes quiz questions from text, checks answers against a form's questions, and scores answers into a segment with its follow-up"
     },
     {
+      "capability": "gather words from people into an ordinary list: ask each person once for a case after their own positive word, keep what they say with the consent they gave, approve it exactly as reviewed, and read back only the words that may be shown on a page",
+      "owner": [
+        "tools/gather-words-from-people/"
+      ],
+      "entry": "tools/gather-words-from-people/tool-rows.json",
+      "evidence": "tools/gather-words-from-people/README.md: the four tools read a list's own gathers block (which fields hold the words, speaker, consent and state, which consents allow showing and how the name appears) and write rows of that list through the records door; the list stays an ordinary list and the tools name no list, consent or state.",
+      "distinct_from": [
+        {
+          "job": "ask people questions and act on their answers: make quiz questions from text, check answers against a form, score answers into a segment with its follow-up",
+          "why": "That owner keeps a form's answers as answer-fact records of fixed kinds and scores them; this owner asks a person once for words, keeps the words as a row of any list the person owns with the consent that came with them, and decides what may be shown."
+        },
+        {
+          "job": "take requests through forms and route each to its owner with a receipt",
+          "why": "That owner routes a request to the owner who can act on it; this owner asks for words and keeps them, and routes nothing to an owner."
+        },
+        {
+          "job": "send a message or email to people through a chosen provider (email service, text message, Messages)",
+          "why": "That owner sends; this owner only writes the asked row and the draft and sends nothing, so the person's chosen sender and its mail rules stay the one way a message leaves."
+        },
+        {
+          "job": "write a post, check it for each place it goes, approve it as reviewed and set it to go at its time",
+          "why": "That owner approves a social post exactly as reviewed and schedules it; this owner approves a person's own words with their consent for display on a page, and schedules and posts nothing."
+        },
+        {
+          "job": "keep what a list says true: set a list up for review with an owner, a review state and a check-again date per row, mark rows verified, outdated or asking to be checked, and list the rows nobody uses by use heat that halves with time",
+          "why": "That owner keeps a row's review state and expiry; this owner keeps another person's consent and an approval pinned to the words reviewed, which a review state does not carry."
+        },
+        {
+          "job": "read one page of what a person's list or saved view shows: the list's own rows, then the rows of each row source it declares (each read by running the source's tool), kept and ordered by the view's rules and sort",
+          "why": "That owner reads any list or view for a person on their computer; this owner reads only what may be shown publicly from a list that gathers words, and drops any row whose consent, state or pin no longer allows it."
+        },
+        {
+          "job": "tell who is in a recording or a picture: keep a person's voice or face print only with the consent words that say who agreed and how, name the voices of a transcript against those prints, find and name faces in a picture or video, and list the people the prints can name",
+          "why": "That owner keeps consent for biometric prints of people in media; this owner keeps consent for showing a person's own written words and has no print, recording or picture."
+        }
+      ]
+    },
+    {
       "capability": "assemble an edit plan into a rough cut of a video and check the cut",
       "owner": ["tools/assemble-a-plan-into-a-cut/"],
       "entry": "tools/assemble-a-plan-into-a-cut/tool-rows.json",

@@ -1,0 +1,1159 @@
+{
+ "kind": "tool-rows",
+ "record_set": "gather-words-from-people-tool-rows",
+ "what_this_is": "The Workshop rows for gathering words from people into an ordinary list in tools/gather-words-from-people: ask, keep with consent, approve exactly as reviewed, and read back what may be shown.",
+ "records": [
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:gather-words-from-people",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "id": "tool:ask-people-for-words",
+    "label": "Ask people for their words",
+    "job": "Ask people, each after their own good word, to say in their own words how it went, keeping one asked row per person for a case",
+    "description": "Writes one asked row in the list for each person who may be asked, and returns each person's draft ({to, subject, body}) from the words the list's gathers.ask holds, with {name} filled in. Sends nothing: the draft goes out through a sending tool the person chose. A person is asked once for a case (the same person and case is skipped as already_asked), and only with `win`, a reference to the person's own positive word that made this the time to ask (otherwise skipped as no_win). The address is in the draft only, never in the kept row. Returns asked ({row_id, person, draft}) and skipped ({person, reason}).",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "list",
+      "type",
+      "case",
+      "people"
+     ],
+     "properties": {
+      "list": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The list's id, such as list:praise. Its definition must hold a `gathers` block."
+      },
+      "type": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The list's row type as record:<row_type>, such as record:praise. It must be the list's own."
+      },
+      "case": {
+       "type": "string",
+       "minLength": 1,
+       "description": "What the asking is about, such as an order or a course: one ask per person per case"
+      },
+      "people": {
+       "type": "array",
+       "minItems": 1,
+       "maxItems": 256,
+       "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+         "id",
+         "name"
+        ],
+        "properties": {
+         "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Who the person is in the person's own records"
+         },
+         "name": {
+          "type": "string",
+          "minLength": 1
+         },
+         "address": {
+          "type": "string",
+          "description": "Where the draft goes; kept out of the row"
+         },
+         "win": {
+          "type": "string",
+          "description": "The reference to their own positive word, such as a message id or a record id"
+         }
+        }
+       }
+      },
+      "now": {
+       "type": "string",
+       "format": "date-time",
+       "description": "When they were asked (default: now)"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "description": "{ asked: [{ row_id, person, draft }], skipped: [{ person, reason }] }"
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "gather-words-from-people",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/gather-words-from-people"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "browse-and-upload-my-files",
+        "paths": [
+         "built-stored-bytes/content-chunks/content_chunks.js",
+         "do-work/content-chunks.mjs",
+         "do-work/namespace-client.mjs",
+         "do-work/send-a-file-to-a-namespace.mjs",
+         "do-work/send-retry.mjs",
+         "do-work/send-window.mjs",
+         "do-work/shared-file-reference.mjs",
+         "send-settings.json"
+        ],
+        "at": "/opt/browse-and-upload-my-files"
+       }
+      ]
+     },
+     "workdir": "/opt/gather-words-from-people",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/gather-words-from-people/do-work/gather-words-on-the-records-door.mjs",
+      "askPeopleForWords"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "list",
+        "id": {
+         "fill": {
+          "from": "input",
+          "field": "list"
+         }
+        },
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": {
+         "fill": {
+          "from": "input",
+          "field": "type"
+         }
+        },
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "Written for the Workshop: gathering words from people into an ordinary list, from the person's existing review-request rules (ask only after the customer's own positive word, once per case, optional, no incentive) and exact-as-reviewed approval"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "list": "list:sample-praise",
+       "type": "record:sample-praise",
+       "case": "sample-case",
+       "people": [
+        {
+         "id": "p1",
+         "name": "Sample Person",
+         "address": "sample@example.com",
+         "win": "made-up-ref"
+        }
+       ],
+       "now": "2026-11-01T00:00:00Z"
+      },
+      "records": [
+       {
+        "id": "list:sample-praise",
+        "type": "list",
+        "value": {
+         "label": "Sample praise",
+         "row_type": "sample-praise",
+         "fields": [
+          {
+           "id": "words",
+           "kind": "text",
+           "label": "words"
+          },
+          {
+           "id": "who",
+           "kind": "text",
+           "label": "who"
+          },
+          {
+           "id": "person",
+           "kind": "text",
+           "label": "person"
+          },
+          {
+           "id": "consent",
+           "kind": "text",
+           "label": "consent"
+          },
+          {
+           "id": "consent_note",
+           "kind": "text",
+           "label": "consent_note"
+          },
+          {
+           "id": "status",
+           "kind": "text",
+           "label": "status"
+          },
+          {
+           "id": "case",
+           "kind": "text",
+           "label": "case"
+          },
+          {
+           "id": "win",
+           "kind": "text",
+           "label": "win"
+          },
+          {
+           "id": "asked_at",
+           "kind": "text",
+           "label": "asked_at"
+          },
+          {
+           "id": "approved_identity",
+           "kind": "text",
+           "label": "approved_identity"
+          }
+         ],
+         "gathers": {
+          "fields": {
+           "words": "words",
+           "who": "who",
+           "person": "person",
+           "consent": "consent",
+           "consent_note": "consent_note",
+           "status": "status",
+           "case": "case",
+           "win": "win",
+           "asked_at": "asked_at",
+           "approved_identity": "approved_identity"
+          },
+          "consents": [
+           {
+            "id": "full-name",
+            "label": "Show my words with my name",
+            "may_show": true,
+            "name_use": "full"
+           },
+           {
+            "id": "private",
+            "label": "Keep my words private",
+            "may_show": false
+           }
+          ],
+          "states": {
+           "asked": "asked",
+           "received": "received",
+           "approved": "approved",
+           "declined": "declined",
+           "withdrawn": "withdrawn"
+          },
+          "ask": {
+           "subject": "How did it go, {name}?",
+           "body": "Hi {name}, would you tell us in your own words how it went? Reply only if you want to."
+          }
+         }
+        }
+       }
+      ]
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:gather-words-from-people",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "id": "tool:keep-the-words-a-person-gave",
+    "label": "Keep the words a person gave",
+    "job": "Keep the words a person gave in reply, with the consent they gave and the words that gave it, as a received row of the list",
+    "description": "Keeps words with one of the consents the list declares and consent_note, the person's own words that gave it (or where they are). With row_id it fills the row that asked them; without it, `who` is required and the words become their own row, the same words from the same person always the same row. Sets the row to received and takes away any approval, so changed words are reviewed again. A withdrawn row takes no more words. The same call again changes nothing. Returns row_id, status and changed.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "list",
+      "type",
+      "words",
+      "consent",
+      "consent_note"
+     ],
+     "properties": {
+      "list": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The list's id, such as list:praise. Its definition must hold a `gathers` block."
+      },
+      "type": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The list's row type as record:<row_type>, such as record:praise. It must be the list's own."
+      },
+      "row_id": {
+       "type": "string",
+       "description": "The row that asked them"
+      },
+      "who": {
+       "type": "string",
+       "description": "The speaker, when no row asked them"
+      },
+      "words": {
+       "type": "string",
+       "minLength": 1,
+       "description": "Their words, exactly as they gave them"
+      },
+      "consent": {
+       "type": "string",
+       "minLength": 1,
+       "description": "One of the list's consent ids"
+      },
+      "consent_note": {
+       "type": "string",
+       "minLength": 1,
+       "description": "Their own words that gave this consent, or where they are kept"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "description": "{ row_id, status, changed }"
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "gather-words-from-people",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/gather-words-from-people"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "browse-and-upload-my-files",
+        "paths": [
+         "built-stored-bytes/content-chunks/content_chunks.js",
+         "do-work/content-chunks.mjs",
+         "do-work/namespace-client.mjs",
+         "do-work/send-a-file-to-a-namespace.mjs",
+         "do-work/send-retry.mjs",
+         "do-work/send-window.mjs",
+         "do-work/shared-file-reference.mjs",
+         "send-settings.json"
+        ],
+        "at": "/opt/browse-and-upload-my-files"
+       }
+      ]
+     },
+     "workdir": "/opt/gather-words-from-people",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/gather-words-from-people/do-work/gather-words-on-the-records-door.mjs",
+      "keepTheWordsAPersonGave"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "list",
+        "id": {
+         "fill": {
+          "from": "input",
+          "field": "list"
+         }
+        },
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": {
+         "fill": {
+          "from": "input",
+          "field": "type"
+         }
+        },
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "Written for the Workshop: gathering words from people into an ordinary list, from the person's existing review-request rules (ask only after the customer's own positive word, once per case, optional, no incentive) and exact-as-reviewed approval"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "list": "list:sample-praise",
+       "type": "record:sample-praise",
+       "who": "Sample Person",
+       "words": "Made-up words about a made-up product.",
+       "consent": "full-name",
+       "consent_note": "made-up consent"
+      },
+      "records": [
+       {
+        "id": "list:sample-praise",
+        "type": "list",
+        "value": {
+         "label": "Sample praise",
+         "row_type": "sample-praise",
+         "fields": [
+          {
+           "id": "words",
+           "kind": "text",
+           "label": "words"
+          },
+          {
+           "id": "who",
+           "kind": "text",
+           "label": "who"
+          },
+          {
+           "id": "person",
+           "kind": "text",
+           "label": "person"
+          },
+          {
+           "id": "consent",
+           "kind": "text",
+           "label": "consent"
+          },
+          {
+           "id": "consent_note",
+           "kind": "text",
+           "label": "consent_note"
+          },
+          {
+           "id": "status",
+           "kind": "text",
+           "label": "status"
+          },
+          {
+           "id": "case",
+           "kind": "text",
+           "label": "case"
+          },
+          {
+           "id": "win",
+           "kind": "text",
+           "label": "win"
+          },
+          {
+           "id": "asked_at",
+           "kind": "text",
+           "label": "asked_at"
+          },
+          {
+           "id": "approved_identity",
+           "kind": "text",
+           "label": "approved_identity"
+          }
+         ],
+         "gathers": {
+          "fields": {
+           "words": "words",
+           "who": "who",
+           "person": "person",
+           "consent": "consent",
+           "consent_note": "consent_note",
+           "status": "status",
+           "case": "case",
+           "win": "win",
+           "asked_at": "asked_at",
+           "approved_identity": "approved_identity"
+          },
+          "consents": [
+           {
+            "id": "full-name",
+            "label": "Show my words with my name",
+            "may_show": true,
+            "name_use": "full"
+           },
+           {
+            "id": "private",
+            "label": "Keep my words private",
+            "may_show": false
+           }
+          ],
+          "states": {
+           "asked": "asked",
+           "received": "received",
+           "approved": "approved",
+           "declined": "declined",
+           "withdrawn": "withdrawn"
+          },
+          "ask": {
+           "subject": "How did it go, {name}?",
+           "body": "Hi {name}, would you tell us in your own words how it went? Reply only if you want to."
+          }
+         }
+        }
+       }
+      ]
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:gather-words-from-people",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "id": "tool:approve-words-to-show",
+    "label": "Approve words to show",
+    "job": "Approve, decline or withdraw one row of words exactly as it was reviewed, so only approved words are ever shown",
+    "description": "decision approve needs reviewed_words equal to the words now in the row, a received row, and a consent that allows showing: then the row is approved and pinned to the speaker, the words and the consent together. decline marks a received row declined. withdraw (the person took their consent back, or the owner took the words down) works on any row and stops it showing at once. The write is refused if the row changed since it was read. Returns row_id and status.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "list",
+      "type",
+      "row_id",
+      "decision"
+     ],
+     "properties": {
+      "list": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The list's id, such as list:praise. Its definition must hold a `gathers` block."
+      },
+      "type": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The list's row type as record:<row_type>, such as record:praise. It must be the list's own."
+      },
+      "row_id": {
+       "type": "string",
+       "minLength": 1
+      },
+      "decision": {
+       "type": "string",
+       "enum": [
+        "approve",
+        "decline",
+        "withdraw"
+       ]
+      },
+      "reviewed_words": {
+       "type": "string",
+       "description": "The words exactly as the reviewer read them; required to approve"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "description": "{ row_id, status }"
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "gather-words-from-people",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/gather-words-from-people"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "browse-and-upload-my-files",
+        "paths": [
+         "built-stored-bytes/content-chunks/content_chunks.js",
+         "do-work/content-chunks.mjs",
+         "do-work/namespace-client.mjs",
+         "do-work/send-a-file-to-a-namespace.mjs",
+         "do-work/send-retry.mjs",
+         "do-work/send-window.mjs",
+         "do-work/shared-file-reference.mjs",
+         "send-settings.json"
+        ],
+        "at": "/opt/browse-and-upload-my-files"
+       }
+      ]
+     },
+     "workdir": "/opt/gather-words-from-people",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/gather-words-from-people/do-work/gather-words-on-the-records-door.mjs",
+      "approveWordsToShow"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "list",
+        "id": {
+         "fill": {
+          "from": "input",
+          "field": "list"
+         }
+        },
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": {
+         "fill": {
+          "from": "input",
+          "field": "type"
+         }
+        },
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "Written for the Workshop: gathering words from people into an ordinary list, from the person's existing review-request rules (ask only after the customer's own positive word, once per case, optional, no incentive) and exact-as-reviewed approval"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "list": "list:sample-praise",
+       "type": "record:sample-praise",
+       "row_id": "record:sample-praise:sample-1",
+       "decision": "approve",
+       "reviewed_words": "Made-up words about a made-up product."
+      },
+      "records": [
+       {
+        "id": "list:sample-praise",
+        "type": "list",
+        "value": {
+         "label": "Sample praise",
+         "row_type": "sample-praise",
+         "fields": [
+          {
+           "id": "words",
+           "kind": "text",
+           "label": "words"
+          },
+          {
+           "id": "who",
+           "kind": "text",
+           "label": "who"
+          },
+          {
+           "id": "person",
+           "kind": "text",
+           "label": "person"
+          },
+          {
+           "id": "consent",
+           "kind": "text",
+           "label": "consent"
+          },
+          {
+           "id": "consent_note",
+           "kind": "text",
+           "label": "consent_note"
+          },
+          {
+           "id": "status",
+           "kind": "text",
+           "label": "status"
+          },
+          {
+           "id": "case",
+           "kind": "text",
+           "label": "case"
+          },
+          {
+           "id": "win",
+           "kind": "text",
+           "label": "win"
+          },
+          {
+           "id": "asked_at",
+           "kind": "text",
+           "label": "asked_at"
+          },
+          {
+           "id": "approved_identity",
+           "kind": "text",
+           "label": "approved_identity"
+          }
+         ],
+         "gathers": {
+          "fields": {
+           "words": "words",
+           "who": "who",
+           "person": "person",
+           "consent": "consent",
+           "consent_note": "consent_note",
+           "status": "status",
+           "case": "case",
+           "win": "win",
+           "asked_at": "asked_at",
+           "approved_identity": "approved_identity"
+          },
+          "consents": [
+           {
+            "id": "full-name",
+            "label": "Show my words with my name",
+            "may_show": true,
+            "name_use": "full"
+           },
+           {
+            "id": "private",
+            "label": "Keep my words private",
+            "may_show": false
+           }
+          ],
+          "states": {
+           "asked": "asked",
+           "received": "received",
+           "approved": "approved",
+           "declined": "declined",
+           "withdrawn": "withdrawn"
+          },
+          "ask": {
+           "subject": "How did it go, {name}?",
+           "body": "Hi {name}, would you tell us in your own words how it went? Reply only if you want to."
+          }
+         }
+        }
+       },
+       {
+        "id": "record:sample-praise:sample-1",
+        "type": "record:sample-praise",
+        "value": {
+         "who": "Sample Person",
+         "person": "p1",
+         "words": "Made-up words about a made-up product.",
+         "consent": "full-name",
+         "consent_note": "made-up consent",
+         "status": "received",
+         "case": "sample-case",
+         "win": "made-up-ref",
+         "asked_at": "2026-11-01T00:00:00Z"
+        }
+       }
+      ]
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:gather-words-from-people",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "id": "tool:read-words-that-may-show",
+    "label": "Read the words that may be shown",
+    "job": "Read the words of a list that may be shown on a page: approved, consented to be shown, and unchanged since approval, as items for a page's proof section",
+    "description": "Reads the list's rows and returns only those whose state is approved, whose consent allows showing and whose pin still matches the speaker, words and consent now in the row, as items {heading, body, row_id} that tool:write-a-sales-page takes as a proof section's items (heading = the name as the consent says: whole, first name only, or the list's own anonymous heading). Every other row is counted in held_back by its reason (not_approved, changed_since_approved, consent_does_not_allow_showing) and never returned. limit keeps the first items. Returns items, shown, may_show_total and held_back.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "list",
+      "type"
+     ],
+     "properties": {
+      "list": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The list's id, such as list:praise. Its definition must hold a `gathers` block."
+      },
+      "type": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The list's row type as record:<row_type>, such as record:praise. It must be the list's own."
+      },
+      "limit": {
+       "type": "integer",
+       "minimum": 1,
+       "description": "The most items to return"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "description": "{ items: [{ heading, body, row_id }], shown, may_show_total, held_back }"
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "gather-words-from-people",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/gather-words-from-people"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "browse-and-upload-my-files",
+        "paths": [
+         "built-stored-bytes/content-chunks/content_chunks.js",
+         "do-work/content-chunks.mjs",
+         "do-work/namespace-client.mjs",
+         "do-work/send-a-file-to-a-namespace.mjs",
+         "do-work/send-retry.mjs",
+         "do-work/send-window.mjs",
+         "do-work/shared-file-reference.mjs",
+         "send-settings.json"
+        ],
+        "at": "/opt/browse-and-upload-my-files"
+       }
+      ]
+     },
+     "workdir": "/opt/gather-words-from-people",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/gather-words-from-people/do-work/gather-words-on-the-records-door.mjs",
+      "readWordsThatMayShow"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "list",
+        "id": {
+         "fill": {
+          "from": "input",
+          "field": "list"
+         }
+        },
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": {
+         "fill": {
+          "from": "input",
+          "field": "type"
+         }
+        },
+        "operations": [
+         "records:list"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "Written for the Workshop: gathering words from people into an ordinary list, from the person's existing review-request rules (ask only after the customer's own positive word, once per case, optional, no incentive) and exact-as-reviewed approval"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "list": "list:sample-praise",
+       "type": "record:sample-praise"
+      },
+      "records": [
+       {
+        "id": "list:sample-praise",
+        "type": "list",
+        "value": {
+         "label": "Sample praise",
+         "row_type": "sample-praise",
+         "fields": [
+          {
+           "id": "words",
+           "kind": "text",
+           "label": "words"
+          },
+          {
+           "id": "who",
+           "kind": "text",
+           "label": "who"
+          },
+          {
+           "id": "person",
+           "kind": "text",
+           "label": "person"
+          },
+          {
+           "id": "consent",
+           "kind": "text",
+           "label": "consent"
+          },
+          {
+           "id": "consent_note",
+           "kind": "text",
+           "label": "consent_note"
+          },
+          {
+           "id": "status",
+           "kind": "text",
+           "label": "status"
+          },
+          {
+           "id": "case",
+           "kind": "text",
+           "label": "case"
+          },
+          {
+           "id": "win",
+           "kind": "text",
+           "label": "win"
+          },
+          {
+           "id": "asked_at",
+           "kind": "text",
+           "label": "asked_at"
+          },
+          {
+           "id": "approved_identity",
+           "kind": "text",
+           "label": "approved_identity"
+          }
+         ],
+         "gathers": {
+          "fields": {
+           "words": "words",
+           "who": "who",
+           "person": "person",
+           "consent": "consent",
+           "consent_note": "consent_note",
+           "status": "status",
+           "case": "case",
+           "win": "win",
+           "asked_at": "asked_at",
+           "approved_identity": "approved_identity"
+          },
+          "consents": [
+           {
+            "id": "full-name",
+            "label": "Show my words with my name",
+            "may_show": true,
+            "name_use": "full"
+           },
+           {
+            "id": "private",
+            "label": "Keep my words private",
+            "may_show": false
+           }
+          ],
+          "states": {
+           "asked": "asked",
+           "received": "received",
+           "approved": "approved",
+           "declined": "declined",
+           "withdrawn": "withdrawn"
+          },
+          "ask": {
+           "subject": "How did it go, {name}?",
+           "body": "Hi {name}, would you tell us in your own words how it went? Reply only if you want to."
+          }
+         }
+        }
+       }
+      ]
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  }
+ ]
+}
