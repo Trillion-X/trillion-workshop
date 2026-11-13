@@ -403,7 +403,9 @@ export function recordsOf(record, changed = [], archived = []) {
     items.push(...changedItems(id, list, now, loaded[list], loaded.item_refs?.[list]));
     itemRefs[list] = refsAfter(now, loaded[list], loaded.item_refs?.[list]);
   }
-  const stubs = guidance.map(stubOf);
+  // A step whose record could not be read (`lost`) is written back as it was read: the summary loaded for it stands, so a write
+  // never replaces a step it could not read with a summary that has no step in it.
+  const stubs = guidance.map((entry, n) => (entry.lost === true && loaded.answered_steps?.[n] !== undefined ? JSON.parse(loaded.answered_steps[n]) : stubOf(entry)));
   counts.answered_steps = stubs.length;
   items.push(...changedItems(id, 'answered_steps', stubs, loaded.answered_steps, loaded.item_refs?.answered_steps));
   itemRefs.answered_steps = refsAfter(stubs, loaded.answered_steps, loaded.item_refs?.answered_steps);
