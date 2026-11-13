@@ -8,9 +8,9 @@ Calendar tasks and to-do lists: named task lists with counts, tasks scheduled on
 |------|---------|
 | `calendar-tasks.mjs` | The Calendar task owner from Trillion-X/trillion src/calendar-tasks.mjs (moved in a9ee258, #76). Only its import paths changed: wall time, zone drift and quiet hours are `tools/run-work-later-or-on-a-repeat/do-work`'s, the operation identity is `tools/shared-code/src/typed-operation-contract.mjs`, the day override is `parts/ui/show/schedule-calendar/schedule-planner.mjs` here |
 | `parts/ui/show/schedule-calendar/` | `schedule-planner.mjs` (`planSchedule`, `dayOverrideOf`), its `.json` and `schedule-placement.mjs`, moved byte for byte by `move-rows/trillion-calendar-tasks-schedule-planner.json` |
-| `test/` | `calendar-tasks.test.mjs`, `calendar-tasks-amie.test.mjs` and `schedule-calendar-planner.test.mjs`, moved with the planner (import paths only) |
+| `test/` | `calendar-tasks.test.mjs`, `calendar-tasks-amie.test.mjs` and `schedule-calendar-planner.test.mjs`, moved with the planner (import paths only); `calendar-task-progress.test.mjs` reads progress back through the real Lists owner and formula engine |
 | `calendar-task-messages.mjs` | `classifyMessage(message, rows)`: the built-in list a mail message becomes a todo in, by the `email_split` rows (brought in byte for byte, `moved-from.json`) |
-| `calendar-tasks.json` | DATA: the task list's fields, colours, priorities, working hours, preferences, `email_split` rows and words (brought in byte for byte, `moved-from.json`) |
+| `calendar-tasks.json` | DATA: the task list's fields (`progress` is a formula over rollups of the task's steps, the rows paired with `parent_id` through `children`, at every depth; what counts as settled is the Status field's own `settles`), colours, priorities, working hours, preferences, `email_split` rows and words (brought in byte for byte, `moved-from.json`) |
 | `sort-mail-into-task-lists.mjs` | `sortMailIntoTaskLists({ messages })`: each message's built-in list and the count per list (what `tool-rows.json` runs) |
 | `moved-from.json` | Where each brought-in file came from, with the identity of its bytes |
 | `tool-rows.json` | The row `tool:sort-mail-into-built-in-task-lists`, with a sample run that sends an invitation to the calendar list |

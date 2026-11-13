@@ -65,7 +65,7 @@ test('Calendar task actions create, schedule and complete rows through generic L
   assert.deepEqual(created.task, {
     id: 'calendar-task-1', title: 'Write the brief', parent_id: null, collection_id: null, description: '', priority: null, labels: [], duration_minutes: 45, due: '2026-10-20',
     minimum_duration_minutes: null, slice_of: null, deadline_type: null, start_on: null, blocked_by: [], pinned_until: null, snoozed_until: null,
-    created_at: '2026-10-20T08:00:00.000Z', time_spent_minutes: 0, smart_list: null, auto_placed: false,
+    created_at: '2026-10-20T08:00:00.000Z', time_spent_minutes: 0, smart_list: null, auto_placed: false, progress: null,
     starts_at: null, ends_at: null, source_id: null, source_url: null, status: 'To do', may_move: true, may_cancel: false,
   });
   assert.equal(created.kept, false);

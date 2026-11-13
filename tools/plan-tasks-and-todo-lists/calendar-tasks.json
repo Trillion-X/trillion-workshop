@@ -9,7 +9,15 @@
     "about": "Tasks you can schedule on your calendar.",
     "fields": [
       { "id": "title", "label": "Task", "kind": "text" },
-      { "id": "parent_id", "label": "Parent task", "kind": "link", "hidden_by_default": true, "links_to": "calendar-tasks", "on_target_remove": "detach", "link_constraints": { "max_links": 1, "require_target": true, "acyclic": true } },
+      { "id": "parent_id", "label": "Parent task", "kind": "link", "hidden_by_default": true, "links_to": "calendar-tasks", "pairs_with": "children", "on_target_remove": "detach", "link_constraints": { "max_links": 1, "require_target": true, "acyclic": true } },
+      { "id": "children", "label": "Steps", "kind": "link", "hidden_by_default": true, "editable": false, "duplicate": "drop", "links_to": "calendar-tasks", "pairs_with": "parent_id", "on_target_remove": "detach" },
+      { "id": "step_count", "label": "Steps (count)", "kind": "rollup", "hidden_by_default": true, "rollup": { "through": "children", "op": "count" } },
+      { "id": "own_settled", "label": "This task settled (1 or 0)", "kind": "rollup", "hidden_by_default": true, "rollup": { "op": "count", "where": { "kind": "group", "combinator": "and", "negate": false, "rules": [{ "kind": "rule", "field": "status", "operator": "is_any_of", "params": { "values": { "settles_of": "status" } } }] } } },
+      { "id": "steps_total_below", "label": "End steps below", "kind": "rollup", "hidden_by_default": true, "rollup": { "through": "children", "field": "steps_total", "op": "sum" } },
+      { "id": "steps_done_below", "label": "Settled end steps below", "kind": "rollup", "hidden_by_default": true, "rollup": { "through": "children", "field": "steps_done", "op": "sum" } },
+      { "id": "steps_total", "label": "End steps", "kind": "formula", "hidden_by_default": true, "derive": { "request": { "binding": { "$kind": "binding", "select": { "from": "self", "path": ["step_count"] }, "transform": [{ "op": "op:core.eq", "args": { "value": 0 } }, { "op": "op:core.if", "args": { "then": 1, "else": { "$kind": "binding", "select": { "from": "context", "path": ["steps_total_below"] } } } }] } } } },
+      { "id": "steps_done", "label": "Settled end steps", "kind": "formula", "hidden_by_default": true, "derive": { "request": { "binding": { "$kind": "binding", "select": { "from": "self", "path": ["step_count"] }, "transform": [{ "op": "op:core.eq", "args": { "value": 0 } }, { "op": "op:core.if", "args": { "then": { "$kind": "binding", "select": { "from": "context", "path": ["own_settled"] } }, "else": { "$kind": "binding", "select": { "from": "context", "path": ["steps_done_below"] } } } }] } } } },
+      { "id": "progress", "label": "Progress (%)", "kind": "formula", "derive": { "request": { "binding": { "$kind": "binding", "select": { "from": "self", "path": ["steps_done"] }, "transform": [{ "op": "op:core.mul", "args": { "value": 100 } }, { "op": "op:core.div", "args": { "value": { "$kind": "binding", "select": { "from": "context", "path": ["steps_total"] } } } }, { "op": "op:core.round", "args": { "digits": 0 } }, { "op": "op:core.to_number" }] } } } },
       { "id": "duplicate_of", "label": "Copied from", "kind": "link", "hidden_by_default": true, "links_to": "calendar-tasks", "on_target_remove": "detach" },
       { "id": "collection_id", "label": "Task list", "kind": "link", "hidden_by_default": true, "links_to": "calendar-task-lists", "on_target_remove": "detach", "link_constraints": { "max_links": 1, "require_target": true } },
       { "id": "description", "label": "Description", "kind": "long-text", "hidden_by_default": true },
@@ -175,7 +183,7 @@
   "slices": { "most": 12, "least_minutes": 5 },
   "undo": {
     "_what": "Every change to Calendar tasks answers with `undo`, the one action (restore) that puts the changed fields back, if no one has changed them since. These fields belong to a repeating series or to the order of the list and are never restored by it; a change that touched one answers no undo.",
-    "excluded_fields": ["recurrence", "recurrence_series", "recurrence_index", "recurrence_rule_revision", "recurrence_anchor_date", "manual_order"],
+    "excluded_fields": ["children", "step_count", "own_settled", "steps_total_below", "steps_done_below", "steps_total", "steps_done", "progress", "recurrence", "recurrence_series", "recurrence_index", "recurrence_rule_revision", "recurrence_anchor_date", "manual_order"],
     "most_rows": 500
   },
   "bulk": {

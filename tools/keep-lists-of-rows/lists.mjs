@@ -124,7 +124,7 @@ import { isSourceId, pathIdsOf, planPath, planPathAhead, sourceNamespacesOf, wit
 import { fieldsWritten, noteRecordsWriting } from '../keep-and-wake-ai-sessions-on-this-computer/src/live-keys.mjs';
 import { bindParameters, parametersOf } from '../query-and-change-list-rows/src/list-view-parameters.mjs';
 import { listFilters, viewsWithFiltersExpanded } from '../query-and-change-list-rows/src/list-filters.mjs';
-import { asViewed, checkRollups, withRollups } from '../query-and-change-list-rows/src/list-rollups.mjs';
+import { asViewed, checkRollups, withComputedFields } from '../query-and-change-list-rows/src/list-rollups.mjs';
 import { viaOf, viaWords } from '../formulas/read-data/write-via.mjs';
 import { checkHistoryFields, fieldHistoryOf, historyFieldsOf, historyKeptBy, historyValues, historyViewed, keepValueHistory } from '../formulas/read-data/list-value-history.mjs';
 import { gatedWriter, listProposals } from '../query-and-change-list-rows/src/list-proposals.mjs';
@@ -2338,7 +2338,7 @@ export async function readThroughView(lists, id, viewId, { filterRows, ruleKindO
   const named = JSON.stringify(view);
   const keyFields = keyFieldsOf(answer.list.fields).filter(field => named.includes(JSON.stringify(field.id)));
   const fields = [...answer.list.fields.map(field => historyViewed(relationshipViewed(asViewed(field)), answer.list.fields)), ...paths.map(plan => ({ id: plan.id, label: plan.label, kind: plan.kind })), ...sourceFields, ...keyFields.map(({ of: _of, ...field }) => field)];
-  const rows = withKeyValues(await withPathValues(lists, paths, await withRollups(lists, answer.list, answer.rows, { evaluateBinding })), keyFields);
+  const rows = withKeyValues(await withPathValues(lists, paths, await withComputedFields(lists, answer.list, answer.rows, { evaluateBinding })), keyFields);
   const projection = await projectSavedView({ view, fields, rows, filterRows, ruleKindOf, readRecord, evaluateBinding, now: now?.() ?? Date.now() });
   return {
     ...answer,
@@ -2348,10 +2348,9 @@ export async function readThroughView(lists, id, viewId, { filterRows, ruleKindO
   };
 }
 
-// One list read with its rollup fields worked out (src/list-rollups.mjs) by the formula engine, when there is one.
 export async function readWithRollups(lists, id, options, evaluateBinding) {
   const answer = await lists.read(id, options);
-  return { ...answer, rows: await withRollups(lists, answer.list, answer.rows, { evaluateBinding }) };
+  return { ...answer, rows: await withComputedFields(lists, answer.list, answer.rows, { evaluateBinding }) };
 }
 // The views of a list as list_list_views answers them: each with the parameters its rules ask for when read.
 export const viewsWithParameters = views => views.map(view => {

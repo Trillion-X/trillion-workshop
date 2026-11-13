@@ -402,6 +402,7 @@ const taskOf = (row, rule) => {
     snoozed_until: row.values.snoozed_until ?? null,
     created_at: row.values.created_at ?? null,
     time_spent_minutes: row.values.time_spent_minutes ?? 0,
+    progress: row.values.progress ?? null,
     smart_list: row.values.smart_list ?? null,
     auto_placed: row.values.placed_by !== undefined && row.values.placed_by !== null,
     starts_at: row.values.starts_at ?? null,
@@ -469,7 +470,8 @@ async function upgradeList(lists, shape) {
     return saved?.kind !== field.kind || saved?.links_to !== field.links_to
       || JSON.stringify(saved?.link_constraints ?? null) !== JSON.stringify(field.link_constraints ?? null)
       || choiceDataKeys.some(key => JSON.stringify(saved?.[key] ?? null) !== JSON.stringify(field[key] ?? null))
-      || saved?.on_target_remove !== field.on_target_remove;
+      || saved?.on_target_remove !== field.on_target_remove || saved?.pairs_with !== field.pairs_with
+      || JSON.stringify(saved?.rollup ?? null) !== JSON.stringify(field.rollup ?? null) || JSON.stringify(saved?.derive ?? null) !== JSON.stringify(field.derive ?? null);
   }) || (ordered && (JSON.stringify(current.indexes ?? []) !== JSON.stringify(shape.indexes)
     || JSON.stringify(current.ordering ?? null) !== JSON.stringify(shape.ordering)))) {
     await lists.save({ ...current, id: shape.id, fields, ...(ordered ? { indexes: shape.indexes, ordering: shape.ordering } : {}) }, { actor: { by: 'calendar' } });

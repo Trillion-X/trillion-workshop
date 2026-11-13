@@ -72,13 +72,16 @@
               {
                 "package": "documents-as-list-rows",
                 "paths": [
-                  "document-properties.mjs"
+                  "document-properties.mjs",
+                  "read-data/document-properties.json",
+                  "read-data/document-properties.mjs"
                 ],
                 "at": "/opt/documents-as-list-rows"
               },
               {
                 "package": "formula-engine",
                 "paths": [
+                  "rules/compile-rules.mjs",
                   "rules/rule-operators.json"
                 ],
                 "at": "/opt/formula-engine"

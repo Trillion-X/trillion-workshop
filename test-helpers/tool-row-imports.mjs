@@ -37,6 +37,30 @@ const SYSTEM_DATA = 'test-helpers/tool-row-imports.json';
 const DOOR_EXCEPTIONS = 'test-helpers/tool-row-door-exceptions.json';
 const LOCKFILE = 'package-lock.json';
 
+// Static import specifiers (relative and bare) from JS source.
+// Words are separated by whitespace and never contain it, so a statement can end in one way only. A statement that does not
+// reach its `from` fails for every keyword inside the same run of words, so the scan skips the run once: time stays in
+// proportion to the size of the source however long a run of words without punctuation it holds.
+const BINDINGS = String.raw`[\w*{},$]+(?:\s+[\w*{},$]+)*`;
+const KEYWORD = /import|export/g;
+const STATEMENT = new RegExp(String.raw`(?:import\s+(?:${BINDINGS}\s+from\s+)?|export\s+${BINDINGS}\s+from\s+|import\s*\()\s*['"]([^'"]+)['"]`, 'y');
+const DYNAMIC = /import\s*\(\s*['"]([^'"]+)['"]/y;
+const RUN = /[\w*{},$\s]*/y;
+export const specsOf = (src) => {
+  const out = new Set();
+  let skipUntil = 0;
+  let k;
+  KEYWORD.lastIndex = 0;
+  while ((k = KEYWORD.exec(src))) {
+    const pattern = k.index < skipUntil ? DYNAMIC : STATEMENT;
+    pattern.lastIndex = k.index;
+    const m = pattern.exec(src);
+    if (m) { out.add(m[1]); KEYWORD.lastIndex = pattern.lastIndex; continue; }
+    if (pattern === STATEMENT) { RUN.lastIndex = k.index; RUN.exec(src); skipUntil = RUN.lastIndex; }
+  }
+  return [...out];
+};
+
 export function toolRowFindings({ repo, ref = 'HEAD' }) {
   const REF = ref;
 // Read-only: for every ai-tool-descriptor row in trillion-workshop origin/main,
@@ -45,6 +69,12 @@ export function toolRowFindings({ repo, ref = 'HEAD' }) {
 // Usage: node check-imports.mjs <workshop-repo> <out.json>
 
 const git = (args, opts = {}) => execFileSync('git', ['-C', repo, ...args], { maxBuffer: 1 << 30, ...opts });
+
+// `git -C <folder>` falls through to an enclosing repository when the folder is not itself one (a scratch export inside
+// another checkout), and the gate would judge that other tree's commit and report on files this tree never had. A folder
+// that is not the top of a git repository is refused by name.
+const top = (() => { try { return fs.realpathSync(git(['rev-parse', '--show-toplevel'], { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim()); } catch { return null; } })();
+if (top !== fs.realpathSync(repo)) throw new Error(`${repo} is not the top of a git repository${top ? ` (git resolves it to ${top})` : ''}: the gate reads git objects at ${REF}, so it judges only a repository's own commit. Commit the tree, or pass the repository that holds its commit as repo and the commit as ref.`);
 
 const allFiles = git(['ls-tree', '-r', '--name-only', REF]).toString().split('\n').filter(Boolean);
 const fileSet = new Set(allFiles);
@@ -81,16 +111,6 @@ const resolvesToModule = (name) => {
   if (!entry) return null;
   const kind = Object.keys(entry.dependencies ?? {}).length ? 'module_tree' : 'module';
   return { kind, name, version: entry.version };
-};
-
-// Static import specifiers (relative and bare) from JS source.
-const IMPORT_RE = /(?:import\s+(?:[\w*{}\s,$]+\s+from\s+)?|export\s+[\w*{}\s,$]+\s+from\s+|import\s*\()\s*['"]([^'"]+)['"]/g;
-const specsOf = (src) => {
-  const out = new Set();
-  let m;
-  IMPORT_RE.lastIndex = 0;
-  while ((m = IMPORT_RE.exec(src))) out.add(m[1]);
-  return [...out];
 };
 
 const isBuiltin = (s) => s.startsWith('node:') || ['fs', 'path', 'crypto', 'child_process', 'os', 'url', 'util', 'http', 'https', 'net', 'stream', 'events', 'zlib', 'buffer', 'readline', 'assert', 'worker_threads', 'module', 'tty', 'process'].includes(s);

@@ -7,7 +7,7 @@ import { exportListFiles, importListFiles } from '../../query-and-change-list-ro
 import { backlinks, duplicateRows, fileReferences, joinAnswers, mergeRows, planRowRequest, resolveRows, rewriteFileNames, withDangling } from '../../query-and-change-list-rows/src/list-row-operations.mjs';
 import { readSnapshot, snapshotPages, takeSnapshot } from '../../query-and-change-list-rows/src/list-snapshots.mjs';
 import { coldRows, reviewRows, rowsNeedingReview } from '../../review-what-a-list-says/read-data/list-review.mjs';
-import { withRollups } from '../../query-and-change-list-rows/src/list-rollups.mjs';
+import { withComputedFields } from '../../query-and-change-list-rows/src/list-rollups.mjs';
 import { makeLists, viewsWithParameters } from '../../keep-lists-of-rows/lists.mjs';
 import { INTRODUCTION_REFUSED, isIntroduction, withProposerNames } from './ais.mjs';
 
@@ -79,7 +79,7 @@ export function nativeRecordConsumers({ eeaf, decisions, source, lists, listStor
     'lists:all': input => withRights('lists:all', input, () => input.native_collection_page ? listCall('page',input) : listCall('all')),
     'lists:find': input => withRights('lists:find', input, () => listCall('find', input.list_id ?? input.id)),
     'lists:put': input => withRights('lists:put', input, () => listWrite('lists:put', 'save', input, { actor: actorOf() })),
-    // A rollup field's value is worked out from the linked rows by the formula engine on every read (src/list-rollups.mjs).
+    // A rollup or formula field's value is worked out by the formula engine on every read (src/list-rollups.mjs withComputedFields).
     'lists:read': input => withRights('lists:read', input, async () => {
       const answer = await listCall('read', input.list_id ?? input.id, {
         ...(input.row_ids === undefined ? {} : { row_ids: input.row_ids }),
@@ -87,7 +87,7 @@ export function nativeRecordConsumers({ eeaf, decisions, source, lists, listStor
         ...(input.open === undefined ? {} : { open: input.open }), ...(input.order === undefined ? {} : { order: input.order }),
         ...(input.limit === undefined ? {} : { limit: input.limit }), ...(input.cursor === undefined ? {} : { cursor: input.cursor }),
       });
-      return { ...answer, rows: await withRollups(listOwner, answer.list, answer.rows, { evaluateBinding: evaluateBinding ?? undefined }) };
+      return { ...answer, rows: await withComputedFields(listOwner, answer.list, answer.rows, { evaluateBinding: evaluateBinding ?? undefined }) };
     }),
     'lists:changes': input => withRights('lists:changes', input, () => listCall('changes', input.list_id ?? input.id, input.since)),
     'lists:search': input => withRights('lists:search', input, () => listCall('search', input)),
