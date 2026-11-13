@@ -758,6 +758,10 @@ function asOldRoot(door, id) {
   const view = caseView(door, id);
   const { counts: _counts, input_identity: _identity, method_identity: _method, ...old } = { ...view, counts: null };
   for (const key of [...door.records.keys()]) if (/^decision-(evidence|answered-step|option|candidate|report|carried-out|history|cited-pursuit):/.test(key)) door.records.delete(key);
+  for (const key of [...door.records.keys()]) {
+    const [, plain] = /^(decision-step:.+:\d{3}):c1f:[0-9a-f]+$/.exec(key) ?? [];
+    if (plain) { door.put(plain, 'decision-step', door.value(key)); door.records.delete(key); }
+  }
   door.put(id, 'decision', old);
   return old;
 }
@@ -993,6 +997,11 @@ test('ending refuses a call that is not 1 to 256 decisions, each named once with
 
 // A made-up decision in the old layout: its evidence rows, its method snapshot and its answered steps inline on a root of
 // about 70 KB, so the root and its `expected` cannot fit one 64 KiB door message together.
+// The steps' own records, at the plain keys the old layout kept them under.
+function putOldSteps(door, id) {
+  door.put(`decision-step:${id}:000`, 'decision-step', { step_id: 'scope', answer: scope, answered_at: '2026-01-02T03:04:05.000Z', version: 1 });
+  door.put(`decision-step:${id}:001`, 'decision-step', { step_id: 'outcome', answer: outcomeAnswer, answered_at: '2026-01-02T03:05:05.000Z', version: 1 });
+}
 function oldLargeRoot(id) {
   const evidence = Array.from({ length: 300 }, (_, n) => ({ ref: `e${n + 1}`, claim: `Made-up fact ${n}: a synthetic detail about the camp venue, its cost and its timing, written out so the root grows.` }));
   const method = { ...plainMethod(), about: 'A made-up method with a long description, kept inline as roots once were. '.repeat(340) };
@@ -1010,6 +1019,7 @@ test('a decision whose root is too large for one conditioned write is ended thro
   const size = Buffer.byteLength(JSON.stringify(root));
   assert.ok(size > 65000 && size < 80000, `the root is about 70 KB (${size})`);
   door.put(big, 'decision', root);
+  putOldSteps(door, big);
   door.put(small, 'decision', { status: 'needs_outcome', goal: 'A made-up goal' });
   const answer = await endDecisions({ decisions: [{ decision_id: big, because: 'No one will carry it on.' }, { decision_id: small, because: 'Done with it.' }], by: 'test-agent' }, { door });
   assert.equal(answer.ended, 2);
@@ -1033,6 +1043,7 @@ test('a large decision that changed between its two reads is not ended and nothi
   const door = memoryDoor();
   const big = 'source:old-large';
   door.put(big, 'decision', oldLargeRoot(big));
+  putOldSteps(door, big);
   const read = door.read.bind(door);
   let raw = 0;
   door.read = async (type, id) => {
