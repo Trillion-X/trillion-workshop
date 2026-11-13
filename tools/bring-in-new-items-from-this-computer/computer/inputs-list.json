@@ -1,5 +1,5 @@
 {
-  "_what": "The account list `inputs`: one row for every place the person's items come from, a store on a computer or a connected service. The reader (read-this-computer.mjs) reads this list through the person's door, not computer-sources.json; that file's `sources` are only the rows the list starts with (inputs.mjs startersOf), copied in once when the list is made. A row is the place's old source row: `label`, `category`, `look` (how to find it on a computer), `gate` (the switch it needs), and `read`, the block that names a generic reader kind. The readers know a kind of store, never an app: `sqlite`, `folder`, `incoming` (a computer), and `tool` (a connected service: any Workshop tool the row names, its input, where its list of new things is and which field of a thing is its id, time, title and words). A service row names its connection by handle in `connection` and never holds a secret. `reading` No leaves a place listed and unread. To add an input, add a row.",
+  "_what": "The account list `inputs`: one row for every place the person's items come from, a store on a computer or a connected service. The reader (read-this-computer.mjs) reads this list through the person's door, not computer-sources.json; that file's `sources` are only the rows the list starts with (inputs.mjs startersOf), copied in once when the list is made. A row is the place's old source row: `label`, `category`, `look` (how to find it on a computer), `gate` (the switch it needs), and `read`, the block that names a generic reader kind. The readers know a kind of store, never an app: `sqlite`, `folder`, `incoming` (a computer), and `tool` (a connected service: any Workshop tool the row names, its input, where its list of new things is and which field of a thing is its id, time, title and words). A service row names its connection by handle in `connection` and never holds a secret. `reading` No leaves a place listed and unread. A place another tool keeps (an AI app's sessions, kept as messages by tools/conversations on a clock) names it in `kept_by` ({tool, source}) and has no `read` block, so this reader leaves it to that tool. To add an input, add a row.",
   "id": "inputs",
   "label": "Inputs",
   "title_field": "label",
@@ -13,6 +13,8 @@
     {"id": "read.reader", "label": "Reader", "kind": "text"},
     {"id": "read.store", "label": "Store it reads", "kind": "text"},
     {"id": "read.tool", "label": "Tool it reads with", "kind": "text"},
-    {"id": "read.settle_seconds", "label": "Seconds an item must stay unchanged", "kind": "number"}
+    {"id": "read.settle_seconds", "label": "Seconds an item must stay unchanged", "kind": "number"},
+    {"id": "kept_by.tool", "label": "Kept by tool", "kind": "text"},
+    {"id": "kept_by.source", "label": "Its source in that tool", "kind": "text"}
   ]
 }
