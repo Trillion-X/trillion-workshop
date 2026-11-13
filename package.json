@@ -22,7 +22,7 @@
     "README.md"
   ],
   "scripts": {
-    "test": "node --test --test-force-exit 'test/**/*.test.mjs' 'tools/**/*.test.mjs' 'tools/**/*.test.ts'"
+    "test": "node --import ./test-helpers/own-tmpdir.mjs --test --test-force-exit 'test/**/*.test.mjs' 'tools/**/*.test.mjs' 'tools/**/*.test.ts'"
   },
   "dependencies": {
     "@electric-sql/pglite": "0.5.9",
