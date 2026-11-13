@@ -1,0 +1,513 @@
+{
+  "kind": "tool-rows",
+  "record_set": "total-a-list-or-view-tool-rows",
+  "what_this_is": "The Workshop row for tools/total-a-list-or-view: totals over one of a person's lists or saved views, run over their records through the records door by the list owner's own aggregate code. Nothing in it names a list, field or measure; the person's list and the measures in tools/keep-and-wake-ai-sessions-on-this-computer/src/lists.json `aggregates` are the data.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:total-a-list-or-view",
+        "label": "Total a list or a view",
+        "status": "active",
+        "job": "Add up a list, or one of its saved views, without reading its rows: how many rows, the sum, average, smallest or largest of a number field, over the whole list or for each value of one field",
+        "description": "Totals over one of my lists or one of its saved views, without sending the rows: measures: [{ op, field? }] where op is count (rows), filled or distinct (any field), or sum, average, median, min or max (a number field), each answered once for the whole list and, with group_by, once for each value of that field (at most 100 groups; a field holding several tags counts the row once per tag). With view_id only the rows that view keeps are totalled, read the way the page shows the view. The answer says how many rows it counted and complete: false when it stopped before the end, so a partial total is never taken for the whole. This run is granted this one list and its row kind only and reads nothing else. Old trillion's read_list_aggregates (POST /lists/<id>/aggregate).",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "list_id",
+            "type",
+            "measures"
+          ],
+          "properties": {
+            "list_id": {
+              "type": "string",
+              "pattern": "^list:.+",
+              "description": "The list's record id, like list:orders; this run's right to read the list is filled from it"
+            },
+            "type": {
+              "type": "string",
+              "pattern": "^record:.+",
+              "description": "The kind of the list's rows, record: and the list's row_type (record:order); this run's right to read the rows is filled from it"
+            },
+            "measures": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 20,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "op"
+                ],
+                "properties": {
+                  "op": {
+                    "type": "string",
+                    "description": "count, filled, distinct, sum, average, median, min or max"
+                  },
+                  "field": {
+                    "type": "string",
+                    "description": "The field to total (not needed for count)"
+                  }
+                }
+              }
+            },
+            "group_by": {
+              "type": "string",
+              "description": "A field of the list: one set of totals for each value it holds"
+            },
+            "view_id": {
+              "type": "string",
+              "description": "One of the list's saved views: only the rows it keeps are totalled"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "list_id",
+            "rows_counted",
+            "complete",
+            "measures"
+          ],
+          "properties": {
+            "list_id": {
+              "type": "string"
+            },
+            "view_id": {
+              "type": "string"
+            },
+            "rows_counted": {
+              "type": "integer"
+            },
+            "complete": {
+              "type": "boolean"
+            },
+            "measures": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "op",
+                  "value"
+                ],
+                "properties": {
+                  "field": {},
+                  "op": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "value": {}
+                }
+              }
+            },
+            "group_by": {
+              "type": "string"
+            },
+            "groups_more": {
+              "type": "boolean"
+            },
+            "groups": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "key",
+                  "rows",
+                  "measures"
+                ],
+                "properties": {
+                  "key": {
+                    "type": "string"
+                  },
+                  "rows": {
+                    "type": "integer"
+                  },
+                  "measures": {
+                    "type": "array"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data/identity.mjs"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "package": "documents-as-list-rows",
+                "paths": [
+                  "document-properties.mjs"
+                ],
+                "at": "/opt/documents-as-list-rows"
+              },
+              {
+                "package": "formula-engine",
+                "paths": [
+                  "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
+                  "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
+                  "rules/compile-rules.mjs",
+                  "rules/evaluate-over-rows.mjs",
+                  "rules/evaluation-guards.json",
+                  "rules/evaluation-guards.mjs",
+                  "rules/filter-rows-by-rules.mjs",
+                  "rules/rule-operators.json"
+                ],
+                "at": "/opt/formula-engine"
+              },
+              {
+                "package": "formulas",
+                "paths": [
+                  "read-data/list-refusals.mjs",
+                  "read-data/list-value-history.mjs",
+                  "read-data/lists.json",
+                  "read-data/write-via.json",
+                  "read-data/write-via.mjs"
+                ],
+                "at": "/opt/formulas"
+              },
+              {
+                "package": "keep-and-wake-ai-sessions-on-this-computer",
+                "paths": [
+                  "parts/live-namespace/do-work/blake3.mjs",
+                  "src/entity-mentions.json",
+                  "src/entity-mentions.mjs",
+                  "src/lists.json",
+                  "src/live-keys.json",
+                  "src/live-keys.mjs",
+                  "src/renamed-tools.json",
+                  "src/sold-copies.json",
+                  "src/work-progress.mjs"
+                ],
+                "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+              },
+              {
+                "package": "keep-lists-of-rows",
+                "paths": [
+                  "do-work/fractional-order.ts",
+                  "lists-over-the-records-door.mjs",
+                  "lists.mjs",
+                  "read-data/configuration-aspects.json",
+                  "read-data/configuration-values.mjs",
+                  "read-data/saved-view-engine.mjs",
+                  "record-at.mjs"
+                ],
+                "at": "/opt/keep-lists-of-rows"
+              },
+              {
+                "package": "query-and-change-list-rows",
+                "paths": [
+                  "src/choice-kinds.json",
+                  "src/choice-mapping.mjs",
+                  "src/configurations.mjs",
+                  "src/document-properties.json",
+                  "src/list-aggregates.mjs",
+                  "src/list-filters.mjs",
+                  "src/list-identity.mjs",
+                  "src/list-input-grammar.mjs",
+                  "src/list-keys.mjs",
+                  "src/list-pairs.mjs",
+                  "src/list-paths.mjs",
+                  "src/list-plain-files.mjs",
+                  "src/list-proposals.mjs",
+                  "src/list-refusals.mjs",
+                  "src/list-relationships.json",
+                  "src/list-relationships.mjs",
+                  "src/list-rollups.mjs",
+                  "src/list-row-operations.mjs",
+                  "src/list-row-transfer.mjs",
+                  "src/list-snapshots.mjs",
+                  "src/list-stamps.mjs",
+                  "src/list-view-parameters.mjs"
+                ],
+                "at": "/opt/query-and-change-list-rows"
+              },
+              {
+                "package": "record-log",
+                "paths": [
+                  "do-work/log-position.mjs",
+                  "do-work/record-model.mjs",
+                  "do-work/record-time.mjs"
+                ],
+                "at": "/opt/record-log"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work/run-an-export.mjs",
+                  "read-data/byte-pages.mjs",
+                  "read-data/records-door.mjs",
+                  "read-data/settled-write.mjs",
+                  "read-data/write-batches.mjs"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "review-what-a-list-says",
+                "paths": [
+                  "read-data/list-refusals.mjs",
+                  "read-data/list-review.mjs",
+                  "read-data/lists.json"
+                ],
+                "at": "/opt/review-what-a-list-says"
+              },
+              {
+                "package": "run-work-later-or-on-a-repeat",
+                "paths": [
+                  "do-work/quiet-hours.json",
+                  "do-work/quiet-hours.ts",
+                  "do-work/wall-time.ts",
+                  "do-work/zone-drift.ts"
+                ],
+                "at": "/opt/run-work-later-or-on-a-repeat"
+              },
+              {
+                "package": "set-up-my-account",
+                "paths": [
+                  "read-data/effect-outcomes.json",
+                  "read-data/failure-codes.json",
+                  "read-data/platform-failures.json"
+                ],
+                "at": "/opt/set-up-my-account"
+              },
+              {
+                "package": "settle-amounts-and-reconcile",
+                "paths": [
+                  "read-data/list-settlements.json",
+                  "read-data/list-settlements.mjs"
+                ],
+                "at": "/opt/settle-amounts-and-reconcile"
+              },
+              {
+                "package": "shared-code",
+                "paths": [
+                  "src/failure.mjs",
+                  "src/renamed-tools.mjs",
+                  "src/repo-explorer.mjs",
+                  "src/sold-copies.mjs",
+                  "src/task-proposals.json",
+                  "src/typed-operation-contract.mjs"
+                ],
+                "at": "/opt/shared-code"
+              },
+              {
+                "package": "total-a-list-or-view",
+                "paths": [
+                  "do-work/total-a-list.mjs"
+                ],
+                "at": "/opt/total-a-list-or-view"
+              },
+              {
+                "package": "turn-a-list-column-that-holds-names-into",
+                "paths": [
+                  "src/naming-fields.mjs"
+                ],
+                "at": "/opt/turn-a-list-column-that-holds-names-into"
+              },
+              {
+                "package": "ui",
+                "paths": [
+                  "show/record-picker/record-value.ts"
+                ],
+                "at": "/opt/ui"
+              },
+              {
+                "package": "walk-nested-input-within-limits",
+                "paths": [
+                  "read-data/bounded-walk.json",
+                  "read-data/bounded-walk.mjs"
+                ],
+                "at": "/opt/walk-nested-input-within-limits"
+              },
+              {
+                "package": "wall-time",
+                "paths": [
+                  "read-data/wall-time.mjs"
+                ],
+                "at": "/opt/wall-time"
+              },
+              {
+                "package": "wall-time",
+                "paths": [
+                  "read-data/wall-time.mjs"
+                ],
+                "at": "/opt/node_modules/trillion-workshop/tools/wall-time"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "blake2.js",
+                  "blake3.js",
+                  "package.json",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/total-a-list-or-view",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/total-a-list-or-view/do-work/total-a-list.mjs",
+            "totalAList"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "list",
+                "id": {
+                  "fill": {
+                    "from": "input",
+                    "field": "list_id"
+                  }
+                },
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": {
+                  "fill": {
+                    "from": "input",
+                    "field": "type"
+                  }
+                },
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "list-view",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "list-filter",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 3,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:trillion",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion src/list-tools.mjs:171 read_list_aggregates -> src/lists.mjs POST /lists/<id>/aggregate -> src/list-aggregates.mjs aggregateRows, through tools/keep-lists-of-rows/lists-over-the-records-door.mjs"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "list_id": "list:orders",
+              "type": "record:order",
+              "group_by": "kind",
+              "measures": [
+                {
+                  "op": "count"
+                },
+                {
+                  "op": "sum",
+                  "field": "amount"
+                }
+              ]
+            },
+            "records": [
+              {
+                "id": "list:orders",
+                "type": "list",
+                "value": {
+                  "id": "orders",
+                  "label": "Orders",
+                  "row_type": "order",
+                  "title_field": "item",
+                  "fields": [
+                    {
+                      "id": "item",
+                      "kind": "text"
+                    },
+                    {
+                      "id": "kind",
+                      "kind": "text"
+                    },
+                    {
+                      "id": "amount",
+                      "kind": "number"
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "record:order:a",
+                "type": "record:order",
+                "value": {
+                  "item": "a",
+                  "kind": "bread",
+                  "amount": 4
+                }
+              },
+              {
+                "id": "record:order:b",
+                "type": "record:order",
+                "value": {
+                  "item": "b",
+                  "kind": "cake",
+                  "amount": 30
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

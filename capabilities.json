@@ -564,6 +564,38 @@
       ]
     },
     {
+      "capability": "add up a person's list or a saved view without reading its rows: a count, and the sum, average, median, smallest or largest of a field, over the whole list or for each value of one field",
+      "owner": ["tools/total-a-list-or-view/"],
+      "entry": "tools/total-a-list-or-view/tool-rows.json",
+      "evidence": "README.md:3 old Trillion's read_list_aggregates (src/list-tools.mjs:171 -> POST /lists/<id>/aggregate) moved over: aggregateRows (tools/query-and-change-list-rows/src/list-aggregates.mjs:49) run by the list owner over the records door; test/total-a-list-or-view.test.mjs runs the row against the fake door with exactly its rights",
+      "distinct_from": [
+        {
+          "job": "read one page of what a person's list or saved view shows: the list's own rows, then the rows of each row source it declares (each read by running the source's tool), kept and ordered by the view's rules and sort",
+          "why": "that tool reads one page of the rows a list or view shows; this one answers only the totals of all of them, and reads no page for the asker"
+        },
+        {
+          "job": "one question over everything a person keeps, ranked best first",
+          "why": "that tool finds rows holding words; this one counts rows and adds up a number field"
+        },
+        {
+          "job": "add up revenue, refunds, net revenue and active recurring revenue from a list of payments",
+          "why": "that tool is given payment events and the meaning of their fields; this one totals any list the person keeps by the fields its own definition declares"
+        },
+        {
+          "job": "say what saving rows to a list cost, how many rows were written beyond the ones I sent, with every save",
+          "why": "that tool measures the cost of a save; this one reads a list and adds up its rows' values"
+        },
+        {
+          "job": "search a list of people by any field, rank people by the points their activity earns, and merge people a source sends",
+          "why": "that tool finds and ranks people records it is handed; this one totals the rows of any list by the fields its own definition declares"
+        },
+        {
+          "job": "work out the value each field of a row holds: set fields on the rows my rules match, fill a column by trying my sources in order until one passes my check, and settle which source's value wins by my precedence, keeping who offered what",
+          "why": "that tool decides what a row's field holds; this one only reads rows and adds up a field over them, and changes nothing"
+        }
+      ]
+    },
+    {
       "capability": "cut word-timed transcripts, or untimed transcript text, into spoken moments and file each moment into topic buckets",
       "owner": ["tools/file-spoken-moments-into-topic-buckets/"],
       "entry": "tools/file-spoken-moments-into-topic-buckets/tool-rows.json",
