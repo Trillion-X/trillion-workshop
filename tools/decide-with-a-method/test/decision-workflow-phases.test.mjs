@@ -4,11 +4,11 @@
 // workflows on its first step after the scope (read-data/method.mjs workflowsDue); the obligations a plan leaves are
 // tools/track-decision-obligations/src/decision-workflows.mjs (moved byte for byte), which the run-checking tests use as
 // they did. The old engine's in-memory store and its restart are a fresh read of the same records door.
-// Changed as the owner behaves (README "Not here yet": "A workflow run named by run_id cannot be read by these tools, so
-// it is refused, and a plan whose decision needs a finished decision-phase run waits", words.run_id_unchecked and
-// words.decision_phase_runs): every run_id a plan, a decision or a receipt names is refused, so a finished run is never
-// reused or bound here, and a person's `met` report never verifies an outcome (decisions.mjs applyOutcome: only a
-// checked result does). The judge is the calling AI's (read-data/verdicts.mjs), its refusal named by check words.
+// Changed as the owner behaves: a run named by run_id is read back from the person's own records (read-data/workflow-runs.mjs:
+// a Workshop run is the `ai-job` a recipe start writes) and accepted only as a finished run of the planned workflow whose
+// every step it was started with is answered, so a finished run is reused and bound here, and a person's `met` report never
+// verifies an outcome (decisions.mjs applyOutcome: only a checked result does). The judge is the calling AI's
+// (read-data/verdicts.mjs), its refusal named by check words.
 // Left out, no running owner: recordOutcomeCheck and the independent observer (executeAction, observeOutcome; the
 // ninth test, and the outcome-check halves of the fourth and last): searched the three repos for recordOutcomeCheck,
 // observeOutcome and executeAction: none outside held copies; this tool takes the person's report only.
@@ -17,6 +17,7 @@ import assert from 'node:assert/strict';
 import { answerADecisionQuestion, makeTheDecision, nextDecisionQuestion, reportADecisionResult, sayWhatWasDone, startADecision } from '../read-data/decisions.mjs';
 import { readDecision, recordsOf, writeDecision } from '../read-data/decision-records.mjs';
 import { validateWorkflowBindings, workflowObligations, workflowRunProblems } from '../../track-decision-obligations/src/decision-workflows.mjs';
+import { runProblem } from '../read-data/workflow-runs.mjs';
 import { plainMethod } from './fixtures.mjs';
 import { account, fill } from './old-engine-for-tests.mjs';
 
@@ -33,6 +34,13 @@ function workflowMethod() {
   method.decision_fields = [];
   return method;
 }
+// A run as a recipe start writes it (ai-job) and its AI finishes it: two steps, one with a schema, one with a done_when.
+const STEPS = [
+  { id: 'look', title: 'Look', do: 'Look at the case', submit: { type: 'object', required: ['answer'], properties: { answer: { type: 'string', minLength: 10 } } } },
+  { id: 'say', title: 'Say', do: 'Say what you saw', done_when: 'It is said in words' },
+];
+const RESULT = { look: { answer: 'The dependency is missing' }, say: 'Said it in words' };
+const putRun = (door, id, workflow, extra = {}) => door.put(id, 'ai-job', { kind: 'ai-job', status: 'done', row: workflow, job: STEPS, result: RESULT, ...extra });
 const pass = question => (question.verdict_checks ?? []).map(check => ({ check, meets: true, rests_on: 'source', graded_by: 'second-judge-test' }));
 
 async function fixture({ oldAnswer } = {}) {
@@ -115,7 +123,8 @@ test('execution can follow the choice, but planned or working runs cannot produc
   await sayWhatWasDone({ decision_id: f.id, state: 'done', what_happened: 'The immediate next action was taken' }, { door: f.door });
   await reportADecisionResult({ decision_id: f.id, result: 'met', summary: 'It looks done.', answered_by: 'person' }, { door: f.door });
   assert.equal((await f.record()).status, 'needs_outcome', 'a planned, unfinished run never yields a verified outcome');
-  await assert.rejects(sayWhatWasDone({ decision_id: f.id, state: 'wall', what_happened: 'The run is waiting on its final independent observation', workflow_runs: { [CHANGE]: { run_id: 'run:change' } } }, { door: f.door }), /run_id/);
+  putRun(f.door, 'ai-job:run-change', CHANGE, { status: 'working' });
+  await assert.rejects(sayWhatWasDone({ decision_id: f.id, state: 'wall', what_happened: 'The run is waiting on its final independent observation', workflow_runs: { [CHANGE]: { run_id: 'ai-job:run-change' } } }, { door: f.door }), /Run ai-job:run-change is working, not done/);
   assert.equal((await f.record()).status, 'needs_outcome');
 });
 
@@ -126,31 +135,66 @@ test('decision-phase evidence must be finished; an existing matching finished ru
   assert.equal(afterQuestions.ready_for_decision, false);
   assert.match(String(afterQuestions.decision_blockers?.[0]), /planned and remains unfinished/);
   await assert.rejects(f.decide(), /planned a workflow run its decision needs \(workflow:find-proof\)/);
-  // A run cannot be checked here, so naming one is refused rather than trusted.
-  await assert.rejects(f.decide({ workflow_runs: { [FIND]: { run_id: 'run:existing' } } }), /run_id/);
   assert.equal((await f.record()).decision, null);
+  putRun(f.door, 'ai-job:run-find', FIND);
+  const decided = await f.decide({ workflow_runs: { [FIND]: { run_id: 'ai-job:run-find' } } });
+  assert.equal(decided.decision.workflow_runs[FIND].run_id, 'ai-job:run-find');
+  assert.deepEqual((await f.record()).decision.workflow_runs, { [FIND]: { run_id: 'ai-job:run-find' } });
 });
 
-test('readiness checks a referenced decision-phase run again when its real state changes', async () => {
+test('a decision-phase run that does not pass is refused with its exact reason and the decision waits', async () => {
   const f = await fixture();
-  await assert.rejects(f.answerPlan(plan({ [FIND]: applicable('decision', { run_id: 'run:find' }), [CHANGE]: unnecessary() })), /run_id/);
-  assert.equal((await f.record()).workflow_plan, undefined);
+  await f.answerPlan(plan({ [FIND]: applicable('decision'), [CHANGE]: unnecessary() }));
+  await f.finishQuestions();
+  const named = id => ({ workflow_runs: { [FIND]: { run_id: id } } });
+  putRun(f.door, 'ai-job:other', CHANGE);
+  putRun(f.door, 'ai-job:waiting', FIND, { status: 'waiting' });
+  putRun(f.door, 'ai-job:short', FIND, { result: { look: { answer: 'short' }, say: 'Said it' } });
+  putRun(f.door, 'ai-job:skipped', FIND, { result: { look: RESULT.look } });
+  putRun(f.door, 'ai-job:stepless', FIND, { job: [] });
+  putRun(f.door, 'ai-job:text', FIND, { result: 'not an object' });
+  await assert.rejects(f.decide(named('ai-job:missing')), /Run ai-job:missing is not a record of this account/);
+  await assert.rejects(f.decide(named('ai-job:other')), /not a run of workflow:find-proof: it is a run of workflow:make-change/);
+  await assert.rejects(f.decide(named('ai-job:waiting')), /is waiting, not done/);
+  await assert.rejects(f.decide(named('ai-job:short')), /look\.answer is shorter than 10 characters/);
+  await assert.rejects(f.decide(named('ai-job:skipped')), /say has no result/);
+  await assert.rejects(f.decide(named('ai-job:stepless')), /holds no steps/);
+  await assert.rejects(f.decide(named('ai-job:text')), /does not answer every step/);
+  await assert.rejects(f.decide({ workflow_runs: { 'workflow:unplanned': { run_id: 'ai-job:other' } } }), /not a workflow this decision's accepted plan declared applicable/);
+  await assert.rejects(f.decide({ workflow_runs: { [FIND]: { run_id: 'ai-job:other', required_phase: 'execution' } } }), /names a run as \{ run_id \} and nothing else/);
   assert.equal((await f.record()).decision, null);
 });
 
-test('run identity and actual completion fail closed for missing readers, wrong recipes, and stale timestamps', async () => {
-  const binding = { [CHANGE]: { run_id: 'run:claimed' } };
-  assert.match((await workflowRunProblems(binding, undefined, { finished: true }))[0], /no account-owned.*reader/);
-  assert.match((await workflowRunProblems(binding, async () => undefined, { finished: true }))[0], /not a run.*on this account/);
-  assert.match((await workflowRunProblems(binding, async () => ({ recipe: { id: FIND }, state: 'finished' }), { finished: true }))[0], /not a run/);
-  for (const state of ['working', 'failed', 'stuck']) {
-    assert.match((await workflowRunProblems(binding, async () => ({ recipe: { id: CHANGE }, state, finished_at: '2026-10-01T00:00:00Z' }), { finished: true }))[0], /not finished/);
-  }
-  assert.deepEqual(await workflowRunProblems(binding, async () => ({ recipe: { id: CHANGE }, finished_at: '2026-10-01T00:00:00Z' }), { finished: true }), []);
+test('a run named in the plan is checked again when the decision is made, and a run the plan reuses decides on its own', async () => {
+  const f = await fixture();
+  await assert.rejects(f.answerPlan(plan({ [FIND]: applicable('decision', { run_id: 'ai-job:run-find' }), [CHANGE]: unnecessary() })), /Run ai-job:run-find is not a record of this account/);
+  assert.equal((await f.record()).workflow_plan, undefined);
+  putRun(f.door, 'ai-job:run-find', FIND, { status: 'working' });
+  await f.answerPlan(plan({ [FIND]: applicable('decision', { run_id: 'ai-job:run-find' }), [CHANGE]: unnecessary() }));
+  const afterQuestions = await f.finishQuestions();
+  assert.equal(afterQuestions.decision_blockers, undefined, 'a plan that names its run waits on no named run');
+  await assert.rejects(f.decide(), /is working, not done/);
+  putRun(f.door, 'ai-job:run-find', FIND);
+  assert.ok((await f.decide()).decision);
+});
+
+test('a finished run is judged by what it was started with: its steps, each answered, and a result written as JSON text', async () => {
+  const door = account({ method: workflowMethod(), checks: [] });
+  putRun(door, 'ai-job:ok', FIND, { result: JSON.stringify(RESULT) });
+  assert.equal(await runProblem(door, FIND, 'ai-job:ok', { finished: true }), null);
+  assert.equal(await runProblem(door, FIND, 'ai-job:ok', { finished: false }), null);
+  assert.equal((await runProblem(door, CHANGE, 'ai-job:ok', { finished: false })).word, 'run_wrong_workflow');
+  putRun(door, 'ai-job:failed', FIND, { status: 'failed' });
+  assert.equal(await runProblem(door, FIND, 'ai-job:failed', { finished: false }), null, 'identity alone does not judge state');
+  assert.equal((await runProblem(door, FIND, 'ai-job:failed', { finished: true })).word, 'run_not_finished');
+  putRun(door, 'ai-job:blank', FIND, { result: { look: RESULT.look, say: '   ' } });
+  assert.match((await runProblem(door, FIND, 'ai-job:blank', { finished: true })).parts.steps, /say has no result/);
   const f = await fixture();
   await f.answerPlan(); await f.finishQuestions(); await f.decide();
-  await assert.rejects(sayWhatWasDone({ decision_id: f.id, state: 'done', what_happened: 'Claimed run', workflow_runs: binding }, { door: f.door }), /run_id/);
-  assert.equal((await f.record()).carried_out, undefined);
+  putRun(f.door, 'ai-job:run-change', CHANGE);
+  const receipt = await sayWhatWasDone({ decision_id: f.id, state: 'done', what_happened: 'Made the change', workflow_runs: { [CHANGE]: { run_id: 'ai-job:run-change' } } }, { door: f.door });
+  assert.deepEqual(receipt.carried_out.workflow_runs, { [CHANGE]: { run_id: 'ai-job:run-change' } });
+  assert.equal(workflowObligations(await f.record())[0].state, 'run_referenced');
 });
 
 test('binding a run cannot change its phase or applicability, and old-generation receipts do not close new work', async () => {

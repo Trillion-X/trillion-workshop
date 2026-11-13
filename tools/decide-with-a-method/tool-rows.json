@@ -1488,6 +1488,12 @@
         ]
        },
        {
+        "kind": "ai-job",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
         "kind": "pursuit",
         "operations": [
          "records:read",
@@ -2143,6 +2149,12 @@
         ]
        },
        {
+        "kind": "ai-job",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
         "kind": "pursuit",
         "operations": [
          "records:read",
@@ -2767,6 +2779,12 @@
         "operations": [
          "records:read",
          "records:write"
+        ]
+       },
+       {
+        "kind": "ai-job",
+        "operations": [
+         "records:read"
         ]
        },
        {

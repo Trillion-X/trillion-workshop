@@ -40,6 +40,7 @@ import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/ident
 import { canonical, inputIdentity, laidTogether, markRead, readDecision, readRevision, readStep, recordsOf, retriedOnConflict, versionKey, writeDecision } from './decision-records.mjs';
 import { writeBatches } from '../../records-door/read-data/write-batches.mjs';
 import { linksOf } from '../../check-against-a-persons-rules-and-verdicts/do-work/branch.mjs';
+import { boundRuns, runProblem, unfinishedRuns } from './workflow-runs.mjs';
 
 const settings = JSON.parse(readFileSync(new URL('./decide-with-a-method.json', import.meta.url), 'utf8'));
 const { records: NAMES, words: WORDS, precedence, candidates: CANDIDATES, revision: REVISION, evidence: EVIDENCE, history: HISTORY, options: OPTIONS } = settings;
@@ -198,11 +199,26 @@ async function citable(door, record, refs) {
 // A cited pursuit is copied into the decision as it stood then, so the record still reads true after it changes.
 const keepCited = (record, pursuits, refs) => { for (const ref of refs) { const item = pursuits[ref]; if (item) (record.cited_pursuits ??= {})[ref] = `${item.title}: now ${item.now}; should be ${item.after}`; } };
 
-// A planned workflow run is checked by run id; no run can be read here, so a named run is refused, never trusted.
-function noRunIds(runs, prefix) {
+// A run a call names is read back from the person's own records and judged (./workflow-runs.mjs), never trusted.
+const refuseRun = problem => refuse(problem.word, problem.parts);
+// A plan may name a run it reuses; it must be a run of that workflow on this account. Whether it finished is judged when the
+// decision, or the receipt of what was done, is made.
+async function checkPlannedRuns(door, runs) {
   for (const [workflow, item] of Object.entries(object(runs) ? runs : {})) {
-    if (item?.run_id !== undefined) refuse('run_id_unchecked', { label: `${prefix}.${workflow}` });
+    if (item?.run_id === undefined) continue;
+    const problem = await runProblem(door, workflow, item.run_id, { finished: false });
+    if (problem) refuseRun(problem);
   }
+}
+// The runs a decision's accepted plan and a call's named runs bind, each a finished run of its workflow, or a refusal. A
+// receipt (`namedOnly`) judges only the runs it names: a run the plan reuses may still be working when work hits a wall.
+async function finishedRuns(door, record, named, label, { namedOnly = false } = {}) {
+  const { bound: all, problem } = boundRuns(record.workflow_plan?.items, named, label);
+  if (problem) refuseRun(problem);
+  const bound = namedOnly ? Object.fromEntries(Object.entries(all).filter(([workflow]) => object(named) && workflow in named)) : all;
+  const problems = await unfinishedRuns(door, bound);
+  if (problems.length) throw new Error(problems.map(item => say(item.word, item.parts)).join(' '));
+  return bound;
 }
 
 const usageOf = value => {
@@ -256,14 +272,15 @@ const ready = (cat, record) => {
 
 const decisionPhaseWorkflows = record => Object.entries(object(record.workflow_plan?.items) ? record.workflow_plan.items : {})
   .filter(([, item]) => item?.applicable === true && item.required_phase === 'decision').map(([workflow]) => workflow);
+const unrunDecisionWorkflows = record => decisionPhaseWorkflows(record).filter(workflow => record.workflow_plan.items[workflow].run_id === undefined);
 const replyReady = reply => !reply.question && !reply.decision_blockers?.length;
 
 async function guideReply(door, cat, record) {
   const question = cat.currentQuestion(record);
-  // Answering the method's last question does not finish the evidence work its accepted plan still requires.
-  // This host cannot verify a named run, so these are the same blockers enforced by makeTheDecision.
-  const blockers = !question && !record.decision ? decisionPhaseWorkflows(record).map(workflow =>
-    `${workflow} is planned and remains unfinished (decision phase); its finished run must be checked before deciding.`) : [];
+  // Answering the method's last question does not finish the evidence work its accepted plan still requires. A plan that
+  // names no run for a decision-phase workflow waits for one, as makeTheDecision does; a named run is checked there.
+  const blockers = !question && !record.decision ? unrunDecisionWorkflows(record).map(workflow =>
+    `${workflow} is planned and remains unfinished (decision phase); name its finished run as decision.workflow_runs.${workflow}.run_id when deciding.`) : [];
   // At the moment of choice, what happened in similar earlier decisions.
   const similar = !question && !record.decision ? (await similarDecisions({ decision_id: record.id, limit: 5 }, { door })).similar_decisions : undefined;
   return {
@@ -598,7 +615,7 @@ export async function answerADecisionQuestion(input, { door }) {
   const refs = citedRefsIn(answer);
   const cited = await citable(door, record, refs);
   cat.validateMethodAnswer(record, step, answer, cited.refs);
-  noRunIds(answer?.workflow_runs, 'workflow_runs');
+  await checkPlannedRuns(door, answer?.workflow_runs);
   const toJudge = cat.checkAnswersToJudge(record, step, answer);
   const { verdicts, rest, dropped } = takeCallerVerdicts(toJudge, input.verdicts, { answer, refs: [...cited.refs] });
   const problems = judgedProblems(verdicts);
@@ -694,9 +711,10 @@ export async function makeTheDecision(input, { door }) {
   const cited = await citable(door, record, decision.evidence_refs.filter(ref => typeof ref === 'string'));
   if (decision.evidence_refs.length === 0 || decision.evidence_refs.some(ref => !cited.refs.has(ref))) refuse('decision_evidence');
   if (record.decision && same(record.decision, decision)) return decidedReply(cat, record, true);
-  noRunIds(decision.workflow_runs, 'decision.workflow_runs');
-  // Evidence declared necessary for choosing must be finished first; no run can be read here, so such a plan waits.
-  const needsRuns = decisionPhaseWorkflows(record);
+  // Evidence declared necessary for choosing must be finished first: each such workflow needs a run, bound in the plan or
+  // named here, and every run bound is read back as a finished run of its workflow.
+  const bound = await finishedRuns(door, record, decision.workflow_runs, 'decision.workflow_runs');
+  const needsRuns = decisionPhaseWorkflows(record).filter(workflow => bound[workflow] === undefined);
   if (needsRuns.length) refuse('decision_phase_runs', { workflows: needsRuns.join(', ') });
   keepCited(record, cited.pursuits, decision.evidence_refs);
   if (record.decision) {
@@ -782,11 +800,11 @@ export async function sayWhatWasDone(input, { door }) {
   const id = decisionId(input);
   if (!['done', 'wall'].includes(input.state) || !nonempty(input.what_happened)) refuse('said_shape');
   if (input.expected_generation !== undefined && (!Number.isInteger(input.expected_generation) || input.expected_generation < 1)) refuse('generation_shape');
-  noRunIds(input.workflow_runs, 'workflow_runs');
   const record = await decisionOrRefuse(door, id);
   if (!record.decision) refuse('no_decision_yet');
+  const runs = await finishedRuns(door, record, input.workflow_runs, 'workflow_runs', { namedOnly: true });
   if (input.expected_generation !== undefined && input.expected_generation !== (record.decision_generation ?? 1)) refuse('said_generation_changed');
-  const entry = { decision_generation: record.decision_generation ?? 1, state: input.state, what_happened: String(input.what_happened).slice(0, 4000), by: nonempty(input.by) ? String(input.by).slice(0, 200) : null, at: new Date().toISOString() };
+  const entry = { decision_generation: record.decision_generation ?? 1, state: input.state, what_happened: String(input.what_happened).slice(0, 4000), by: nonempty(input.by) ? String(input.by).slice(0, 200) : null, at: new Date().toISOString(), ...(input.workflow_runs ? { workflow_runs: Object.fromEntries(Object.keys(input.workflow_runs).map(workflow => [workflow, { run_id: runs[workflow] }])) } : {}) };
   (record.carried_out ??= []).push(entry);
   await writeDecision(door, recordsOf(record), `say-what-was-done:${id}:${record.carried_out.length}`);
   return { case_id: id, carried_out: entry, status: record.status };

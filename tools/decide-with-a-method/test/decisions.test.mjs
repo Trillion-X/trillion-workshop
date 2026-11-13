@@ -334,7 +334,10 @@ test('the tool rows reach only the decision records, the person\'s pursuits and 
     const row = rows.find(each => each.id === id);
     assert.ok(row, `${id} has a row`);
     const rights = row.invoke.records.rights;
-    for (const right of rights) assert.ok([...decisionKinds, 'pursuit', 'record:check'].includes(right.kind), `${id} reaches ${right.kind}`);
+    // A decision's named workflow runs are read back as ai-job records, and only by the tools that take a run.
+    const runKinds = ['tool:answer-a-decision-question', 'tool:make-the-decision', 'tool:say-what-was-done'].includes(id) ? ['ai-job'] : [];
+    for (const right of rights) assert.ok([...decisionKinds, 'pursuit', 'record:check', ...runKinds].includes(right.kind), `${id} reaches ${right.kind}`);
+    for (const kind of runKinds) assert.deepEqual(rights.find(right => right.kind === kind)?.operations, ['records:read'], `${id} only reads ${kind} rows`);
     // Ending a large old-layout decision goes through its record layout, so every decision tool reaches each laid-apart kind.
     for (const kind of decisionKinds.filter(each => each !== 'decision-call')) assert.ok(rights.some(right => right.kind === kind), `${id} reaches ${kind}, where a decision keeps its parts`);
     if (['tool:add-decision-evidence', 'tool:end-a-decision'].includes(id)) assert.ok(!rights.some(right => right.kind.startsWith('record:')), 'adding evidence reads no method rows');
