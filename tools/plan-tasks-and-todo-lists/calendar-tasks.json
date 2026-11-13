@@ -207,10 +207,11 @@
   },
   "limits": { "time_spent_minutes": 100000, "title_chars": 200, "description_chars": 10000, "label_chars": 80, "labels_per_task": 20, "duration_minutes": 1440, "source_id_chars": 500, "source_url_chars": 2048 },
   "job_link": {
-    "about": "A task whose description names an AI job (record_type:key, written there by the lane launcher) is done only when that job has the settled status and a non-empty result field. The job records are the ones tools/hand-work-to-ais keeps.",
+    "about": "A task a lane-job link row names (the lane launcher writes the row: type link.record_type, value {job, task}) is done only when every job the rows name for it has the settled status and a non-empty result field. The task description is not read. The job records are the ones tools/hand-work-to-ais keeps.",
     "record_type": "ai-job",
     "settled_status": "done",
-    "result_field": "result"
+    "result_field": "result",
+    "link": { "record_type": "lane-job-link", "job_field": "job", "task_field": "task", "task_record_prefix": "record:calendar-task:" }
   },
   "words": {
     "bad_capacity": "Give the most minutes of planned work a day (1 to 1440), a caution band, and weekday limits from 0 (Sunday) to 6.",

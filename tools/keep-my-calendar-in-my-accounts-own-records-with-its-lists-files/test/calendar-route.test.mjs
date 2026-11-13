@@ -115,3 +115,23 @@ test('the route row runs as the engine runs it, against the stand-in door with e
   assert.equal(ran.result.status, 200, JSON.stringify(ran.result));
   assert.ok(ran.kept.some(record => record.type === 'record:calendar-task'), 'the task is kept through the door');
 });
+
+test('a task a lane-job link row names cannot be completed through the route until that job is done with a result', async () => {
+  const { door, kept } = personDoor();
+  await route(door, '/calendar/tasks');
+  const added = await route(door, '/calendar/tasks', 'POST', {}, { action: 'create', request_key: 'linked-1', title: 'Sample linked work', duration_minutes: 15 });
+  assert.equal(added.status, 200, JSON.stringify(added.body));
+  const recordId = [...kept.keys()].find(id => id.startsWith('record:calendar-task:'));
+  const taskId = added.body.task.id;
+  const job = (status, result) => kept.set('ai-job:sample-lane', { id: 'ai-job:sample-lane', type: 'ai-job', value: { status, ...(result ? { result } : {}) } });
+  // A link row of the launcher's shape: its id is not record:-prefixed, the description is never read.
+  kept.set('lane-job-link:sample-lane', { id: 'lane-job-link:sample-lane', type: 'lane-job-link', value: { job: 'ai-job:sample-lane', task: recordId, kind: ['record:calendar-task-list:x'], paths: [] } });
+  kept.set('lane-job-link:other-lane', { id: 'lane-job-link:other-lane', type: 'lane-job-link', value: { job: 'ai-job:other-lane', task: 'record:calendar-task:someone-else', paths: [] } });
+  job('taken');
+  const refused = await route(door, '/calendar/tasks', 'POST', {}, { action: 'complete', task_id: taskId });
+  assert.equal(refused.status >= 400, true, JSON.stringify(refused.body));
+  assert.match(JSON.stringify(refused.body), /ai-job:sample-lane, and that job is taken/);
+  job('done', 'Finished; read back.');
+  const settled = await route(door, '/calendar/tasks', 'POST', {}, { action: 'complete', task_id: taskId });
+  assert.equal(settled.status, 200, JSON.stringify(settled.body));
+});

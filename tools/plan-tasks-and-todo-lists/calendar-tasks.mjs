@@ -735,9 +735,10 @@ function undoFor(changes) {
 //  - A task linked to a Workshop workflow (source_id "workflow:<slug>") needs that workflow's latest run verdict to have
 //    passed. The run judge writes the verdict as the capability-check row capability-check:workflow-run-<slug> in the list
 //    everything-still-working; its state is the verdict. No row, or any state but passed, refuses.
-//  - A task whose description names an AI job (ai-job:<key>, put there by the lane launcher) needs every job it names to
-//    be done with a result (data.job_link). The jobs come from options.jobs, the owner's reader of the person's job
-//    records; a task that names a job and has no reader refuses, because a gate that cannot read its DATA never passes.
+//  - A task a lane-job link row names (the launcher's link row: data.job_link.link, value {job, task}) needs every job those
+//    rows name for it to be done with a result (data.job_link). The jobs come from options.jobs, the owner's reader of the person's
+//    job records, and the keys of the jobs the link rows name for this task from options.jobsOfTask. The task's description is not
+//    read: the link row is the only link. A caller with no jobsOfTask reader (a test, never the owner) sees no link.
 const WORKFLOW_VERDICT_LIST = 'everything-still-working';
 async function refuseUnlessLinkedWorkIsFinished(lists, row, options = {}) {
   const link = row?.values?.source_id;
@@ -749,8 +750,7 @@ async function refuseUnlessLinkedWorkIsFinished(lists, row, options = {}) {
       throw new CalendarTasksError(`This task is linked to workflow ${slug}, and its latest run verdict is ${verdict?.state ?? 'missing'}, not passed. Run the workflow's check before marking it done.`);
     }
   }
-  const description = row?.values?.description;
-  const named = typeof description === 'string' ? [...new Set([...description.matchAll(new RegExp(`\\b${data.job_link.record_type}:([A-Za-z0-9][A-Za-z0-9._-]*)`, 'g'))].map(match => match[1]))] : [];
+  const named = typeof options.jobsOfTask === 'function' ? [...new Set(await options.jobsOfTask(row.id))] : [];
   for (const key of named) {
     if (typeof options.jobs !== 'function') throw new CalendarTasksError(`This task is linked to ${data.job_link.record_type}:${key}, and this owner cannot read the job, so it cannot say the job is finished.`);
     const job = await options.jobs(key);
