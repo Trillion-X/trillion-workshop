@@ -72,16 +72,20 @@ test('--changes reconciles only the named recipes: each is read by its own path,
 test('a changed long document reconciles its linked text-part rows: written when changed, removed when the document got shorter', async () => {
   const part = (index, text) => ({ id: index ? `/stew.md#text-part-${String(index + 1).padStart(8, '0')}` : '/stew.md',
     values: { 'note.chore': 'simmer', 'document.parent': '/stew.md', 'document.part': index + 1, 'document.text': text } });
-  const folder = [recipe('bread', 40), part(0, 'a'), part(1, 'b'), part(2, 'c')];
+  const folder = [recipe('bread', 40), part(0, 'a'), part(1, 'b'), part(2, 'c'), part(3, 'd')];
   const { door, records } = bakery(folder);
+  // The door may answer fewer records than asked and point on: two a page, so a document's own-row listing and its
+  // part-row listing both page through the same records (the stall check must not span the two listings).
+  const listed = door.list;
+  door.list = args => listed({ ...args, limit: Math.min(args.limit, 2) });
   await refresh(door, {});
   const key = index => `record:chore:documents~${encodeURIComponent(index ? `/stew.md#text-part-${String(index + 1).padStart(8, '0')}` : '/stew.md')}`;
-  assert.ok(records.has(key(2)), 'the long document starts with three rows');
-  folder.splice(1, 3, part(0, 'A'));
+  assert.ok(records.has(key(3)), 'the long document starts with four rows');
+  folder.splice(1, 4, part(0, 'A'));
   const answer = await refresh(door, { changes: { documents: { paths: ['/stew.md'], removed: [] } } });
-  assert.deepEqual(answer.sources, [{ source: 'documents', rows: 1, written: 1, removed: 2, unchanged: 0, refused: [] }]);
+  assert.deepEqual(answer.sources, [{ source: 'documents', rows: 1, written: 1, removed: 3, unchanged: 0, refused: [] }]);
   assert.equal(records.get(key(0))['document.text'], 'A');
-  assert.equal(records.has(key(1)) || records.has(key(2)), false, 'the parts the document no longer has are removed');
+  assert.equal(records.has(key(1)) || records.has(key(2)) || records.has(key(3)), false, 'the parts the document no longer has are removed');
   assert.deepEqual(recordOf(records, '/bread.md'), { 'note.chore': 'bake bread', 'note.minutes': 40 }, 'another document is untouched');
   const removedAnswer = await refresh(door, { changes: { documents: { paths: [], removed: ['/stew.md'] } } });
   assert.equal(records.has(key(0)), false, 'a removed long document loses every row');

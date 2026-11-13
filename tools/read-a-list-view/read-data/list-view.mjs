@@ -318,10 +318,11 @@ async function writtenRows(door, type, source, signal) {
 /** The records one document holds now: its own row and its text-part rows (id <path>#...), as Map(record id -> value identity). */
 async function heldDocumentRows(door, type, source, path, signal) {
   const held = new Map();
-  const cursors = new Set();
   const own = `${type}:${source}${SOURCE_MARK}${encodeURIComponent(path)}`;
   const parts = `${type}:${source}${SOURCE_MARK}${encodeURIComponent(`${path}#`)}`;
   for (const prefix of [own, parts]) {
+    // The own-row prefix also lists every part row, so the two listings pass through the same cursors: one set each.
+    const cursors = new Set();
     for (let after = null; ;) {
       signal?.throwIfAborted();
       const page = await door.list({ type, prefix, limit: limits.door_page_rows, ...(after ? { after } : {}) });
