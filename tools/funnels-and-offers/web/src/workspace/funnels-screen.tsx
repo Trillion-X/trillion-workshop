@@ -164,6 +164,8 @@ export function mountFunnelScreen(element: HTMLElement, props: { surfaceInput?: 
   if (!path) { mountScreenState(element, { status: 'empty', icon: 'Filter', title: 'No funnel was named', description: 'Open a funnel from Funnels.', action: goTo('Open Funnels', 'trillion.funnels') }); return () => element.replaceChildren(); }
   const host = document.createElement('div');
   host.className = 'trillion-funnels';
+  // The loading state the tool host draws here gives the element the shared control scope; a funnel is drawn without it, as it was before it moved.
+  element.classList.remove('coss-ui');
   element.replaceChildren(host);
   const root = createRoot(host);
   root.render(<OneFunnel path={path} />);

@@ -2,7 +2,14 @@
   "about": "Files moved here byte for byte from Trillion-X/trillion (old main, commit 5dc302be37) by the old-trillion sweep. Each names its source path and commit and the BLAKE3 identity of its bytes there and here.",
   "source": "Trillion-X/trillion",
   "package": "trillion-workshop",
-  "calls": [],
+  "calls": [
+    {
+      "id": "funnel-without-the-hosts-scope",
+      "find": "(  host\\.className = 'trillion-funnels';\\n)(  element\\.replaceChildren\\(host\\);\\n  const root = createRoot\\(host\\);\\n  root\\.render\\(<OneFunnel)",
+      "replace": "$1  // The loading state the tool host draws here gives the element the shared control scope; a funnel is drawn without it, as it was before it moved.\n  element.classList.remove('coss-ui');\n$2",
+      "means": "One funnel's mount takes back the control scope the tool host's loading state left on its element, so the cards keep the borders they had when the page mounted the screen itself."
+    }
+  ],
   "files": [
     {
       "from": "records/workshop-money-tool-records.json",
@@ -16,7 +23,7 @@
       "commit": "6c5d561107b6fd7c7800d8c400513108e0a472be",
       "to": "tools/funnels-and-offers/web/src/workspace/funnels-screen.tsx",
       "source_identity": "1f:6c6eb1a95832caaa20df28fef173415677742505472137080edebbb306996ad1",
-      "identity": "1f:526a9acc4104e558b5ef24d84abfb7c0ed0b992773b168d0a5dbd4f74d2e3865",
+      "identity": "1f:3854fe785b2f310421b043a6fb15a83e6a79e96cc9f138b6dc0c3700ef79f999",
       "stays": [
         "web/parts/funnel-offer-graph/show/FunnelCanvas.tsx",
         "web/parts/ui/index.ts",
@@ -29,6 +36,9 @@
         "web/src/workspace/failure.ts",
         "web/src/workspace/open-screen.ts",
         "web/src/workspace/record-filter.ts"
+      ],
+      "calls": [
+        "funnel-without-the-hosts-scope"
       ]
     }
   ]

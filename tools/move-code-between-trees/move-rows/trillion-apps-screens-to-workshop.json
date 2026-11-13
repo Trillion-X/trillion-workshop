@@ -58,6 +58,12 @@
       "find": "bytesToHex\\(blake3\\(new TextEncoder\\(\\)\\.encode\\(key\\)\\)\\)",
       "replace": "makeHashCodeHexFromBytes(new TextEncoder().encode(key)).slice(3)",
       "means": "The owner's identity is `1f:` and the same 64 hex digits; dropping the three-character prefix gives the exact hex the grant row already holds."
+    },
+    {
+      "id": "funnel-without-the-hosts-scope",
+      "find": "(  host\\.className = 'trillion-funnels';\\n)(  element\\.replaceChildren\\(host\\);\\n  const root = createRoot\\(host\\);\\n  root\\.render\\(<OneFunnel)",
+      "replace": "$1  // The loading state the tool host draws here gives the element the shared control scope; a funnel is drawn without it, as it was before it moved.\n  element.classList.remove('coss-ui');\n$2",
+      "means": "One funnel's mount takes back the control scope the tool host's loading state left on its element, so the cards keep the borders they had when the page mounted the screen itself."
     }
   ],
   "read_as_rows": [],
