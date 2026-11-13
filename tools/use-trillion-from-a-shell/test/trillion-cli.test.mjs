@@ -9,7 +9,7 @@ import settings from '../do-work/trillion.json' with { type: 'json' };
 import {
   TrillionError, agentOf, aiOf, aiRecordOf, allPages, groupsOf, argumentsFor, computerNameOf, computerOf, credentialFor, doorFor, grantStore, holdingOf, installProgram,
   installSkills, jobLines, keyStore, main, modelOf, namesOf, parseArgs, pkce, placeOf, providerOf, publishRecord, render, repliesOf, sendNote,
-  serveOnce, signInWithBrowser, stateOf, trillionClient, waitFor, workCall,
+  opWhole, serveOnce, signInWithBrowser, stateOf, trillionClient, waitFor, workCall,
 } from '../do-work/trillion.mjs';
 
 const KEY = `nm_${'ab'.repeat(32)}`;
@@ -618,6 +618,14 @@ test('a refused engine call names the step that refused it: the message ends wit
   const client = trillionClient({ door: doorAt('http://127.0.0.1:9/mcp', { local: true }), credential: keyCredential, fetchImpl, rules: quick, wait: noWait });
   await assert.rejects(client.op('@workshop-tools', 'tools:list', {}), error => error.code === 'original_workspace_source_unavailable'
     && error.answer.cause === 'src/x.rs:118:36:Error::Invalid#abc' && /Cause: src\/x\.rs:118:36:Error::Invalid#abc$/.test(error.message));
+});
+
+test('a refused call names the request key it was sent under, so the caller can quote it', async () => {
+  const reply = { jsonrpc: '2.0', id: 1, result: { isError: true, content: [{ type: 'text', text: 'refused' }],
+    structuredContent: { code: 'original_input_refused', outcome: 'not_started' } } };
+  const fetchImpl = async () => new Response(JSON.stringify(reply), { status: 200, headers: { 'content-type': 'application/json' } });
+  const client = trillionClient({ door: doorAt('http://127.0.0.1:9/mcp', { local: true }), credential: keyCredential, fetchImpl, rules: quick, wait: noWait });
+  await assert.rejects(opWhole(client, '@own-records', 'records:write', {}, { requestKey: 'quote-me-7' }), error => /Request key: quote-me-7/.test(error.message));
 });
 
 test('a job shows its own words, and its label on a line of its own', () => {

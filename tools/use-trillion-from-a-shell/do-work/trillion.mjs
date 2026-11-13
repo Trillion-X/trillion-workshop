@@ -531,14 +531,16 @@ async function wholeAnswer(client, address, method, input, first, { requestKey, 
 
 /** One operation answered whole: `op` under one request key for the call and every page of its answer, and when the
  *  answer is a byte page, every page after it (wholeAnswer). */
-async function opWhole(client, address, method, input, { requestKey = randomUUID(), rules = settings } = {}) {
+export async function opWhole(client, address, method, input, { requestKey = randomUUID(), rules = settings } = {}) {
   try {
     return await opWholeOnce(client, address, method, input, { requestKey, rules });
   } catch (error) {
-    // A call that times out may still have landed under this key: the same key answers it, so the way to ask again is the key.
-    if (error instanceof TrillionError && error.status === 4) {
-      const hint = fill(rules.words.retry_with_key, { key: requestKey, flag: '--request-key' });
-      throw Object.assign(new TrillionError(`${error.message} ${hint}`, { status: error.status }), { answer: error.answer, code: error.code });
+    // Every refusal names the key it was sent under, so a caller can quote it. A call that times out may still have landed under
+    // this key: the same key answers it, so the way to ask again is the key.
+    const line = fill(rules.words.request_key_line, { key: requestKey });
+    const hint = error instanceof TrillionError && error.status === 4 ? ` ${fill(rules.words.retry_with_key, { key: requestKey, flag: '--request-key' })}` : '';
+    if (error instanceof TrillionError) {
+      throw Object.assign(new TrillionError(`${error.message} ${line}${hint}`, { status: error.status }), { answer: error.answer, code: error.code });
     }
     throw error;
   }
