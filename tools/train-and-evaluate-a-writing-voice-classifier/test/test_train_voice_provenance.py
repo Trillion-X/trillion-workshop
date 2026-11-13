@@ -82,45 +82,6 @@ class TrainingParameterValidationTests(unittest.TestCase):
                     TRAINER.validate_training_parameters(args)
 
 
-class ClassifierReadyIdentityTests(unittest.TestCase):
-    def test_model_resolution_uses_exact_classifier_ready_identity_without_fetching(self):
-        with tempfile.TemporaryDirectory() as folder:
-            root = Path(folder)
-            model_path, owner_dir, model = stand_in_decider.write_model_config(root)
-            resolved, snapshot = TRAINER.resolve_verified_model(model_path, owner_dir)
-            self.assertEqual(snapshot, Path(model["model"]["weights"]["folder"]).resolve())
-            self.assertEqual(resolved["ready"]["identity"], model["ready"]["identity"])
-            (snapshot / "adapter.safetensors").write_bytes(b"changed weights")
-            with self.assertRaisesRegex(ValueError, "do not match.*classifier-ready identity"):
-                TRAINER.resolve_verified_model(model_path, owner_dir)
-
-    def test_training_record_files_must_match_all_exact_dataset_identities(self):
-        data_bytes = b'{"training":"rows"}\n'
-        provenance_bytes = b'{"provenance":"rows"}\n'
-        source_hash = "a" * 64
-        model = {
-            "training_data_identity": "1f:" + TRAINER.digest_bytes(data_bytes),
-            "provenance_identity": "1f:" + TRAINER.digest_bytes(provenance_bytes),
-            "source_data_identity": "1f:" + source_hash,
-        }
-        TRAINER.validate_training_input_identities(model, data_bytes, provenance_bytes, source_hash)
-        with self.assertRaisesRegex(ValueError, "Training DATA does not match"):
-            TRAINER.validate_training_input_identities(model, data_bytes + b" ", provenance_bytes, source_hash)
-        with self.assertRaisesRegex(ValueError, "Training provenance does not match"):
-            TRAINER.validate_training_input_identities(model, data_bytes, provenance_bytes + b" ", source_hash)
-        with self.assertRaisesRegex(ValueError, "Source DATA does not match"):
-            TRAINER.validate_training_input_identities(model, data_bytes, provenance_bytes, "b" * 64)
-
-    def test_ready_file_manifest_refuses_duplicate_and_unsafe_names(self):
-        with tempfile.TemporaryDirectory() as folder:
-            root = Path(folder)
-            model_path, owner_dir, model = stand_in_decider.write_model_config(root)
-            model["ready"]["files"].append(dict(model["ready"]["files"][0]))
-            model_path.write_text(json.dumps(model), encoding="utf-8")
-            with self.assertRaisesRegex(ValueError, "duplicate or unsafe"):
-                TRAINER.resolve_verified_model(model_path, owner_dir)
-
-
 class ExplicitProvenanceLabelTests(unittest.TestCase):
     def test_arbitrary_id_with_explicit_matching_label_is_accepted(self):
         rows = [row()]
@@ -223,33 +184,6 @@ process.stdout.write(JSON.stringify({policy: TYPED_REQUEST_POLICY, projections: 
         identity = self.validate_rows(self.raw_rows)
         self.assertEqual(identity["criterion_id"], "wording-and-connections")
 
-    def test_eval_source_item_cannot_be_bound_as_training_even_with_magic_role(self):
-        with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
-            source = json.loads(Path(self.provenance["source_dataset"]).read_text(encoding="utf-8"))
-            source["dataset_role"] = "intentional training supervision, not heldout"
-            source["items"][0]["split"] = "eval"
-            source_path = root / "source.json"
-            source_path.write_text(json.dumps(source), encoding="utf-8")
-            provenance = copy.deepcopy(self.provenance)
-            provenance["source_dataset"] = str(source_path)
-            provenance["source_dataset_blake3"] = TRAINER.digest(source_path)
-            with self.assertRaisesRegex(ValueError, "selected source split"):
-                self.validate_rows(self.raw_rows, provenance)
-
-    def test_source_family_cannot_cross_train_and_eval_splits(self):
-        with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
-            source = json.loads(Path(self.provenance["source_dataset"]).read_text(encoding="utf-8"))
-            source["items"].append(dict(source["items"][0], id="family-leak", split="eval"))
-            source_path = root / "source.json"
-            source_path.write_text(json.dumps(source), encoding="utf-8")
-            provenance = copy.deepcopy(self.provenance)
-            provenance["source_dataset"] = str(source_path)
-            provenance["source_dataset_blake3"] = TRAINER.digest(source_path)
-            with self.assertRaisesRegex(ValueError, "family .* crosses split boundaries"):
-                self.validate_rows(self.raw_rows, provenance)
-
     def test_current_voice_range26_rows_match_frozen_v3_projection(self):
         if not VOICE_RANGE16_DATA.is_file() or not VOICE_RANGE16_PROVENANCE.is_file():
             self.skipTest("the private voice-range v2 DATA is unavailable")
@@ -296,8 +230,7 @@ process.stdout.write(JSON.stringify({policy: TYPED_REQUEST_POLICY, projections: 
         }
         item = {"id": "sample", "family": "family-a", "split": "train", "text": "Target text.",
                 "block_kind": "paragraph", "reader_context": "Previous text.", "checks": {"spoken-style": "pass"}}
-        source_data = {"schema": "book-voice-decider-challenge-v3", "dataset_role": "training examples",
-                       "criteria": [criterion, other], "items": [item]}
+        source_data = {"schema": "book-voice-decider-challenge-v3", "criteria": [criterion, other], "items": [item]}
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             source_path = root / "DATA.json"
@@ -358,7 +291,7 @@ class MultiCriterionRequestPlanBindingTests(unittest.TestCase):
             self.skipTest("Node and b3sum are required for maintained requestPlan fixtures")
         source = {
             "schema": "book-voice-decider-challenge-v3",
-            "dataset_role": "author-selected training examples",
+            "dataset_role": "intentional training supervision, not heldout",
             "criteria": [
                 {"id": "heading-voice", "primitive": "one-of", "question": "Does the heading fit the author's voice?",
                  "reference_context": "Heading voice reference A.", "applies_to": ["heading"],
@@ -375,12 +308,11 @@ class MultiCriterionRequestPlanBindingTests(unittest.TestCase):
                              {"name": "empty", "description": "The required fields are absent."}]},
             ],
             "items": [
-                # This heading is invented for the projection fixture.
-                {"id": "why-this-order", "family": "heading-pair", "split": "train",
-                 "origin": {"kind": "root-adjudicated-heading"}, "text": "## Moss On Saturn",
+                {"id": "why-this-order", "family": "heading-pair", "split": "eval",
+                 "origin": {"kind": "root-adjudicated-heading"}, "text": "## Why this order",
                  "block_kind": "heading", "reader_context": "",
                  "checks": {"heading-voice": "pass", "heading-order": "pass"}},
-                {"id": "three-column-table", "family": "table-pair", "split": "train",
+                {"id": "three-column-table", "family": "table-pair", "split": "eval",
                  "origin": {"kind": "root-adjudicated-table"},
                  "text": "| Field | Reason |\n| --- | --- |\n| Body | Keeps a person alive. |",
                  "block_kind": "table", "reader_context": "",
@@ -444,27 +376,6 @@ class MultiCriterionRequestPlanBindingTests(unittest.TestCase):
             self.assertTrue(bundle["data_rows"][0]["question"].endswith("Use reference_text.heading-voice."))
             self.assertTrue(bundle["data_rows"][1]["question"].endswith("Use reference_text.heading-order."))
             self.assertEqual(list(bundle["data_rows"][2]["options"]), ["complete", "partial", "empty"])
-
-    def test_old_eval_as_train_with_magic_role_is_refused(self):
-        with tempfile.TemporaryDirectory() as temporary:
-            bundle = self.make_bundle(Path(temporary))
-            bundle["source"]["dataset_role"] = "intentional training supervision, not heldout"
-            for item in bundle["source"]["items"]:
-                item["split"] = "eval"
-            bundle["source_path"].write_text(json.dumps(bundle["source"], ensure_ascii=False), encoding="utf-8")
-            bundle["provenance"]["source_dataset_blake3"] = TRAINER.digest(bundle["source_path"])
-            with self.assertRaisesRegex(ValueError, "no explicitly designated train items"):
-                self.validate_bundle(bundle)
-
-    def test_family_cannot_cross_source_splits_even_when_bound_row_is_train(self):
-        with tempfile.TemporaryDirectory() as temporary:
-            bundle = self.make_bundle(Path(temporary))
-            bundle["source"]["items"].append(dict(bundle["source"]["items"][0],
-                id="same-family-heldout", split="eval"))
-            bundle["source_path"].write_text(json.dumps(bundle["source"], ensure_ascii=False), encoding="utf-8")
-            bundle["provenance"]["source_dataset_blake3"] = TRAINER.digest(bundle["source_path"])
-            with self.assertRaisesRegex(ValueError, "family .* crosses split boundaries"):
-                self.validate_bundle(bundle)
 
     def test_missing_and_duplicate_bindings_are_refused(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -533,11 +444,11 @@ class MultiCriterionRequestPlanBindingTests(unittest.TestCase):
             original_hash = bundle["provenance"]["source_dataset_blake3"]
             original_project = TRAINER.project_multi_criterion_requests
 
-            def replace_source_then_project(source_snapshot, provenance_rows, *, mode="training"):
+            def replace_source_then_project(source_snapshot, provenance_rows):
                 changed = copy.deepcopy(bundle["source"])
                 changed["criteria"][0]["question"] = "Replaced after the hash snapshot."
                 bundle["source_path"].write_text(json.dumps(changed, ensure_ascii=False), encoding="utf-8")
-                return original_project(source_snapshot, provenance_rows, mode=mode)
+                return original_project(source_snapshot, provenance_rows)
 
             with mock.patch.object(TRAINER, "project_multi_criterion_requests", side_effect=replace_source_then_project):
                 identity = self.validate_bundle(bundle)

@@ -10,9 +10,7 @@
   "mode": "SOURCE_FIRST_PORT",
   "sources": [
     {
-      "repository": {
-        "repository_multihash": "1f:7194f5aeee028c1b6843e2a7f56b491474b9df140a5f2fbaa1a1c6fb23039055"
-      },
+      "repository": "source-repo-a",
       "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
       "path_multihash": "1f:94fc571e045c22ec9ab7ddd652436fc1333d3bbd9e50a2e3f64156a177ff5a56",
       "multihash": "1f:6feb4bf5695d78b6b5289a465eb045f01ae200e6e6cf47d5d3f1853e7595456f",
@@ -45,7 +43,7 @@
     "copied_before_adaptation": true,
     "source_multihash": "1f:6feb4bf5695d78b6b5289a465eb045f01ae200e6e6cf47d5d3f1853e7595456f",
     "target_multihash_at_baseline": "1f:6feb4bf5695d78b6b5289a465eb045f01ae200e6e6cf47d5d3f1853e7595456f",
-    "commit": "b64680e8a957fc944d4da7b71e0cf3b34cae1900"
+    "commit": "07fa0cbde4e9f8933feb39038f7a752fa0d30211"
   },
   "proof": {
     "minimum_meaningful_line_retention": 0.6,

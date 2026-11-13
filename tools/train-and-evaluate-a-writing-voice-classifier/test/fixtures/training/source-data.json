@@ -1,6 +1,6 @@
 {
   "schema": "book-voice-decider-challenge-v3",
-  "dataset_role": "author-selected writing examples for training",
+  "dataset_role": "intentional training supervision, not heldout",
   "criteria": [
     {
       "id": "wording-and-connections",

@@ -1,7 +1,7 @@
 {
   "schema": "book-voice-training-provenance-v2",
   "source_dataset": "source-data.json",
-  "source_dataset_blake3": "d6657e771b4c1887e6c8058c2edddc1558c34cd6654cde728fd3628e3f6cd3e1",
+  "source_dataset_blake3": "dff483b8e5b79ec0fa05bd672cfd35ff4a026d4b16beeee07c9e4a53dd4dc1a5",
   "criterion_id": "wording-and-connections",
   "rows": [
     {

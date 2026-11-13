@@ -13,5 +13,5 @@ test('the Python tests of train-and-evaluate-a-writing-voice-classifier pass', {
   const run = spawnSync('python3', ['-I', '-m', 'unittest', 'discover', '-s', here, '-p', 'test_*.py'], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
   assert.equal(run.status, 0, `${run.stdout}\n${run.stderr}`);
   assert.match(run.stderr, /\nOK/);
-  assert.match(run.stderr, /Ran [1-9]\d* tests/);
+  assert.match(run.stderr, /Ran 87 tests/);
 });

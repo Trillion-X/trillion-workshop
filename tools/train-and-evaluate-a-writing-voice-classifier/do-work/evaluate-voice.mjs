@@ -3,7 +3,8 @@
  * Read-only held-out evaluation for a writing-voice classifier's checks.
  * Asks the hosted classifier (tools/ask-a-small-model-for-a-verdict, /v1/systemone) one request per passage;
  * nothing is trained, weighted or stored as a verdict here. Each result is checkpointed as it lands.
- * The endpoint and model come from caller settings or explicit arguments, never an environment variable or a default.
+ * Moved from source-repo-a tools/copy-gate/evaluate-book-voice.mjs: the endpoint and model are the person's
+ * settings (a list:settings row read with tools/settings) or arguments, never an environment variable or a default.
  *
  * Usage:
  *   node evaluate-voice.mjs --data <challenge.json> --out <results.json> --live (--settings-record <record.json> | --endpoint <url> --model <id>)
