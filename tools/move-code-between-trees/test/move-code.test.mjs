@@ -146,7 +146,10 @@ test('a second lane carries out only its own groups, and the shared file still l
 test('refusals say what to do', () => {
   assert.throws(() => moveCode({ step: 'move' }), /step is plan/);
   assert.throws(() => moveCode({ step: 'plan', source_folder: '/x', destination_folder: '/y' }), /Name the move row/);
-  assert.throws(() => moveCode({ step: 'plan', row: { ...row, destination: {} }, source_folder: '.', destination_folder: '.' }), /shared_folder/);
+  const source = repository(sourceFiles());
+  const destination = repository(destinationFiles());
+  try { assert.throws(() => moveCode({ step: 'plan', row: { ...row, destination: {} }, source_folder: source, destination_folder: destination }), /shared_folder/); }
+  finally { rmSync(source, { recursive: true, force: true }); rmSync(destination, { recursive: true, force: true }); }
 });
 
 test('content read as rows holds nothing: it stays, is not moved, and the plan and receipt name it', () => {
@@ -168,6 +171,43 @@ test('content read as rows holds nothing: it stays, is not moved, and the plan a
     assert.deepEqual(receipt.files.find(file => file.from === 'src/lens.mjs').reads_rows, ['notes/bean-lens.json']);
     git(destination, 'add', '-A'); git(destination, 'commit', '-q', '-m', 'moved');
     const proof = moveCode({ step: 'check', row: asRows, source_folder: source, destination_folder: destination, source_after_folder: source, run: false });
+    assert.equal(proof.ok, true, JSON.stringify(proof.folders.map(item => item.problems)));
+  } finally { rmSync(source, { recursive: true, force: true }); rmSync(destination, { recursive: true, force: true }); }
+});
+
+test('an owner_only group moves just the files its rows name; what they import stays as written, and the plan and receipt name it', () => {
+  const source = repository({
+    ...sourceFiles(),
+    'shell/store.mjs': "export const store = {};\n",
+    'shell/bean-page.mjs': "import { store } from './store.mjs';\nimport { mountPanel } from './bean-panel.mjs';\nexport const mountBeanPage = () => [store, mountPanel];\n",
+    'shell/bean-panel.mjs': "import { store } from './store.mjs';\nexport const mountPanel = () => store;\n",
+    'shell/index.mjs': "import { mountBeanPage } from './bean-page.mjs';\nexport const open = () => mountBeanPage();\n",
+    'shell/moved-from.json': json({ files: [{ from: 'old/bean-page.mjs', to: 'shell/bean-page.mjs' }, { from: 'old/store.mjs', to: 'shell/store.mjs' }] }),
+  });
+  const destination = repository(destinationFiles());
+  try {
+    const pageRow = { ...row, groups_from: undefined, groups: [{ id: 'bean-page', owner: ['shell/bean-page.mjs', 'shell/bean-panel.mjs'], to: 'tools/bean-page', owner_only: true }] };
+    const bothPackages = { ...sourceFiles(), 'shell/bean-view.mjs': "import { createElement } from 'preact';\nexport const view = () => createElement('p');\n" };
+    const viewSource = repository(bothPackages);
+    try {
+      const viewRow = { ...row, groups_from: undefined, groups: [{ id: 'bean-view', owner: ['shell/bean-view.mjs'], to: 'tools/bean-view', owner_only: true }] };
+      assert.match(moveCode({ step: 'plan', row: viewRow, source_folder: viewSource, destination_folder: destination }).groups[0].held[0], /imports the package preact, which neither tree declares/);
+      assert.deepEqual(moveCode({ step: 'plan', row: { ...viewRow, host_provides: ['preact'] }, source_folder: viewSource, destination_folder: destination }).groups[0].held, [], 'a package the host supplies holds nothing');
+    } finally { rmSync(viewSource, { recursive: true, force: true }); }
+    const plan = moveCode({ step: 'plan', row: pageRow, source_folder: source, destination_folder: destination });
+    assert.deepEqual(plan.groups[0].held, []);
+    assert.deepEqual(plan.files.map(file => file.from), ['shell/bean-page.mjs', 'shell/bean-panel.mjs'], 'the store they import is not followed');
+    assert.deepEqual(plan.files.find(file => file.from === 'shell/bean-page.mjs').stays, ['shell/store.mjs']);
+    moveCode({ step: 'apply', row: pageRow, source_folder: source, destination_folder: destination });
+    assert.ok(existsSync(join(source, 'shell/store.mjs')), 'the store stays');
+    assert.ok(!existsSync(join(destination, 'tools/bean-page/shell/store.mjs')), 'and is not copied');
+    assert.match(readFileSync(join(destination, 'tools/bean-page/shell/bean-page.mjs'), 'utf8'), /from '\.\/store\.mjs'/, 'the import is kept as written');
+    assert.match(readFileSync(join(source, 'shell/index.mjs'), 'utf8'), /from 'tool-box\/tools\/bean-page\/shell\/bean-page\.mjs'/, 'the file that stays imports the moved one from the package');
+    const receipt = JSON.parse(readFileSync(join(destination, 'tools/bean-page/moved-from.json'), 'utf8'));
+    assert.deepEqual(receipt.files.find(file => file.from === 'shell/bean-page.mjs').stays, ['shell/store.mjs']);
+    assert.deepEqual(JSON.parse(readFileSync(join(source, 'shell/moved-from.json'), 'utf8')).files.map(entry => entry.to), ['shell/store.mjs'], 'the source\'s own receipt no longer names the files that left');
+    git(destination, 'add', '-A'); git(destination, 'commit', '-q', '-m', 'moved');
+    const proof = moveCode({ step: 'check', row: pageRow, source_folder: source, destination_folder: destination, source_after_folder: source, run: false });
     assert.equal(proof.ok, true, JSON.stringify(proof.folders.map(item => item.problems)));
   } finally { rmSync(source, { recursive: true, force: true }); rmSync(destination, { recursive: true, force: true }); }
 });

@@ -1,0 +1,24 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion-apps",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "web/src/workspace/notification-settings-screen.tsx",
+      "commit": "8e60fe996292119a24645964c774b72baa86c5f3",
+      "to": "tools/notifications/web/src/workspace/notification-settings-screen.tsx",
+      "source_identity": "1f:976504ec033401c1d9801e686550ad37d372ef35c196edbee84c32c19f814758",
+      "identity": "1f:33e8ab876fd19b51e710e841f3fb67243516fba31bf6df58a7584e5657edb63a",
+      "stays": [
+        "web/parts/ui/index.ts",
+        "web/parts/ui/show/coss/notifications.tsx",
+        "web/parts/ui/show/react-surface-mount/index.ts",
+        "web/parts/ui/show/screen-state/index.ts",
+        "web/src/workspace/api.ts",
+        "web/src/workspace/failure.ts",
+        "web/src/workspace/show-rules-settings.tsx"
+      ]
+    }
+  ]
+}

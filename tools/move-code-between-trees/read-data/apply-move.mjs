@@ -55,7 +55,7 @@ export function applyMove(plan, row, source, destination, { sourceFolder, destin
     } else file.identity = file.identity_here ?? file.source_identity;
     const folder = receiptFolder(file.to, plan, row);
     if (!receipts.has(folder)) receipts.set(folder, []);
-    receipts.get(folder).push({ from: file.from, commit: source.commit, to: file.to, source_identity: file.source_identity, identity: file.identity, ...(file.reused ? { reused: true } : {}), ...(file.adapted ? { adapted: file.adapted } : {}), ...(file.swaps?.length ? { calls: file.swaps.map(hit => hit.id) } : {}), ...(file.reads_rows ? { reads_rows: file.reads_rows } : {}), ...(file.homes ? { homes: file.homes } : {}) });
+    receipts.get(folder).push({ from: file.from, commit: source.commit, to: file.to, source_identity: file.source_identity, identity: file.identity, ...(file.reused ? { reused: true } : {}), ...(file.adapted ? { adapted: file.adapted } : {}), ...(file.swaps?.length ? { calls: file.swaps.map(hit => hit.id) } : {}), ...(file.reads_rows ? { reads_rows: file.reads_rows } : {}), ...(file.stays ? { stays: file.stays } : {}), ...(file.homes ? { homes: file.homes } : {}) });
   }
   for (const [folder, entries] of receipts) {
     const path = join(destinationFolder, folder, 'moved-from.json');
@@ -75,8 +75,19 @@ export function applyMove(plan, row, source, destination, { sourceFolder, destin
     describeFolder(destinationFolder, folder, row, plan);
   }
 
-  // 2. One copy: the originals leave the source.
+  // 2. One copy: the originals leave the source, and so do the entries of the source's own receipts that named them there.
   for (const file of files) rmSync(join(sourceFolder, file.from));
+  const gone = new Set(files.map(file => file.from));
+  for (const receiptPath of [...source.files].filter(path => posix.basename(path) === 'moved-from.json')) {
+    const at = join(sourceFolder, receiptPath);
+    if (!existsSync(at)) continue;
+    const text = readFileSync(at, 'utf8');
+    const receipt = JSON.parse(text);
+    if (!Array.isArray(receipt.files) || !receipt.files.some(entry => gone.has(entry.to))) continue;
+    receipt.files = receipt.files.filter(entry => !gone.has(entry.to));
+    const indent = /^([ \t]+)"/m.exec(text)?.[1] ?? 2;
+    writeFileSync(at, `${JSON.stringify(receipt, null, indent)}\n`);
+  }
 
   // 3. Source files that stay import the moved files from the destination package.
   for (const item of plan.importers) {

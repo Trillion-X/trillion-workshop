@@ -72,6 +72,9 @@ The old action fixed an event's `kind` to one name and its `privacy_class` to on
 | `read-data/http2-request.mjs` | Bounded HTTP/2 transport with verified TLS and the engine’s HTTPS CONNECT proxy. |
 | `test/http2-request.test.mjs` | Local TLS/proxy, deadline, response bounds, certificate and cleanup checks. |
 | `test/web-push.test.mjs` | Web Push subscription encryption and VAPID request validation. |
+| `web/src/workspace/notification-settings-screen.tsx` | The Notification settings screen (`tool:screen-notification-settings`): which kinds of news reach the person, in Trillion, on this computer, by email, through their AIs or a messaging account, and the show rules that silence a kind. Moved byte for byte from the web client (`moved-from.json`); it imports the web shell's files as it was written, and the client build answers those imports with the shell's files. |
+| `show/notification-settings-mount.tsx` | The screen's module entry, the file its row names: `mount` is the screen's own mount function. |
+| `moved-from.json` | The receipt of the move: the screen's source path and commit, the identity of its bytes there and here, and the web shell files it keeps importing (`stays`). |
 
 ## Dependencies
 

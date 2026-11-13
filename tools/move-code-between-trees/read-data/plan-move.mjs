@@ -50,6 +50,9 @@ export function planMove(row, source, destination) {
     if (!item?.from || !item?.home || !item?.source_identity) throw new MoveRefusal('row_incomplete', 'Each homes_in_packages row names from (the source path), home (the package specifier it is imported by) and source_identity (the identity of its source bytes, which the receipt in that package names).');
     homesInPackages.set(item.from, item);
   }
+  // Packages the program that builds the moved files supplies itself (the web client gives its screens React): they are
+  // neither declared by the destination nor held for want of a version.
+  const hostProvides = new Set(row.host_provides ?? []);
   const swaps = row.calls ?? [];
   const detectors = row.provider_calls ?? [];
   // A detector match the row names as no provider call (a parameter called env holding the process environment, say):
@@ -108,7 +111,9 @@ export function planMove(row, source, destination) {
     const roots = filesOf(source, group.owner ?? []);
     const held = [];
     if (!roots.length) held.push(`its owner rows name no file at ${source.commit.slice(0, 10)}: it has moved already or its rows are stale`);
-    const closure = closureOf(roots);
+    // A group that moves only the files its owner rows name (`owner_only`) leaves everything they import where it is: the
+    // moved files keep those imports as written, and the plan and the receipt name what stays (`stays`).
+    const closure = group.owner_only ? new Set(roots.filter(path => source.exists(path))) : closureOf(roots);
     // A destination folder that is already a tool holds this feature in its own shape: a second copy is not made. A
     // group whose row says joins_tool (with why) brings that tool code it does not have yet; its files still land under
     // their own source path inside the tool folder, and any path the tool already holds is still refused at apply.
@@ -269,13 +274,17 @@ export function planMove(row, source, destination) {
           changes.push({ start: item.start, end: item.end, specifier: requestFor(to, there, there, there), was: item.specifier });
         } else if (!isRelative(item.specifier) && !item.specifier.startsWith('#') && !RUNTIME_SCHEME.test(item.specifier) && !builtinModules.includes(item.specifier) && item.how !== 'url') {
           const name = packageOf(item.specifier);
-          if (!declared[name] && name !== packageName) {
+          if (!declared[name] && name !== packageName && !hostProvides.has(name)) {
             packagesToAdd.set(name, sourceVersions[name] ?? null);
             plan.packages = [...new Set([...(plan.packages ?? []), name])];
           }
         }
       }
       plan.import_changes = changes;
+      if (owners.some(id => byId.get(id).owner_only)) {
+        const stays = requestsOf(path).filter(item => item.target && !landing.has(item.target) && !homesInPackages.has(item.target)).map(item => item.target);
+        if (stays.length) plan.stays = [...new Set(stays)].sort();
+      }
       const rowsRead = requestsOf(path).filter(item => item.target && readAsRows(item.target)).map(item => item.target);
       if (rowsRead.length) plan.reads_rows = [...new Set(rowsRead)];
       const swapped = swapCalls(text(path), swaps);
@@ -324,7 +333,7 @@ export function planMove(row, source, destination) {
   // A group held after placement (a collision, a provider call left, a staying reader) gives back its files: planning
   // again without it settles which files the shared folder still needs. Each pass holds at least one more group.
   if (result.files.some(file => file.groups.some(id => byId.get(id).held.length))) {
-    const narrowed = { ...row, groups: groups.filter(group => !group.held.length).map(({ id, owner, to, capability, joins_tool, held_until }) => ({ id, owner, to, capability, ...(joins_tool ? { joins_tool } : {}), ...(held_until ? { held_until } : {}) })), groups_from: undefined, only: undefined };
+    const narrowed = { ...row, groups: groups.filter(group => !group.held.length).map(({ id, owner, to, capability, joins_tool, held_until, owner_only }) => ({ id, owner, to, capability, ...(joins_tool ? { joins_tool } : {}), ...(held_until ? { held_until } : {}), ...(owner_only ? { owner_only } : {}) })), groups_from: undefined, only: undefined };
     const again = planMove(narrowed, source, destination);
     again.groups.push(...groups.filter(group => group.held.length).map(summary));
     return again;

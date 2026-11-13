@@ -1,0 +1,39 @@
+{
+ "id": "move:trillion-apps-screens-to-workshop",
+ "about": "The workspace screens that Trillion's web client (trillion-apps web/src/workspace) draws, moved byte for byte into the Workshop tool that owns the feature, each under its source path inside the tool. The ruling (the owner's ruling, 2026-11-03 1:02 AM CST): the engine and the web app keep only generic primitives, and features, screens and tools move one to one into Workshop tools. A group is owner_only: it moves the screen file and the helpers only that screen uses, and every file of the web shell they import stays where it is, imported as written; the client build answers those imports with the shell's files (web/scripts/workshop-shell-imports.mjs, from the tool's moved-from.json), and the page opens the screen as a screen module (web/scripts/screen-modules.mjs) named by its Workshop row.",
+ "source": {
+  "name": "Trillion-X/trillion-apps",
+  "test_folders": []
+ },
+ "destination": {
+  "name": "Trillion-X/trillion-workshop",
+  "package": "trillion-workshop",
+  "shared_folder": "tools/shared-code"
+ },
+ "keep": [],
+ "host_provides": ["react", "react-dom"],
+ "provider_calls": [
+  {
+   "id": "durable-object",
+   "find": "\\bextends\\s+DurableObject\\b|\\bDurableObjectState\\b|\\bDurableObjectNamespace\\b"
+  },
+  {
+   "id": "kv",
+   "find": "\\bKVNamespace\\b|(?<![.\\w$])env\\.[A-Z][A-Z0-9_]*_KV\\b"
+  }
+ ],
+ "calls": [],
+ "read_as_rows": [],
+ "groups": [
+  {
+   "id": "notification-settings-screen",
+   "owner": [
+    "web/src/workspace/notification-settings-screen.tsx"
+   ],
+   "to": "tools/notifications",
+   "owner_only": true,
+   "joins_tool": "tools/notifications reads and sends a person's notices; this brings the screen where a person chooses which notices reach them and how (tool:screen-notification-settings)",
+   "capability": "choose which notices reach me and how"
+  }
+ ]
+}
