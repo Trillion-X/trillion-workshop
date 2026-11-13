@@ -43,7 +43,8 @@ const APP_ROWS = 2;
 const startQuery = { service: 'google-account', status: 'Active', read_only: 'true', can_send_as: 'false', can_be_primary: 'false', account: 'someone@example.com' };
 
 // The engine's answer of each nested run, made up: the trade's tokens are already the held word (reply_holds_values).
-const onePage = [{ id: '1000000000000001', name: 'Made Up Page', access_token: HELD }];
+const onePage = [{ id: '1000000000000001', name: 'Made Up Page' }];
+const twoPages = [...onePage, { id: '1000000000000002', name: 'Another Made Up Page' }];
 const toolRuns = ({ pages = onePage, email = 'someone@example.com', traded = { access_token: HELD, refresh_token: HELD, id_token: HELD, expires_in: 3599, scope: 'openid email https://www.googleapis.com/auth/gmail.readonly', token_type: 'Bearer' }, tradeError = null } = {}) => ({
   'tool:trade-a-gmail-sign-in-code-for-its-tokens': () => (tradeError ? { tool: 'tool:trade-a-gmail-sign-in-code-for-its-tokens', status: 400, error: tradeError } : { tool: 'tool:trade-a-gmail-sign-in-code-for-its-tokens', status: 200, result: traded }),
   'tool:google-account-find_my_mailbox': () => ({ tool: 'tool:google-account-find_my_mailbox', status: 200, result: { emailAddress: email, messagesTotal: 3, threadsTotal: 2, historyId: '1' } }),
@@ -53,6 +54,7 @@ const toolRuns = ({ pages = onePage, email = 'someone@example.com', traded = { a
   'tool:trade-a-facebook-sign-in-code-for-its-short-token': () => ({ status: 200, result: { access_token: HELD, token_type: 'bearer', expires_in: 5183944 } }),
   'tool:trade-a-short-facebook-token-for-a-long-one': () => ({ status: 200, result: { access_token: HELD, token_type: 'bearer', expires_in: 5183944 } }),
   'tool:list-the-facebook-pages-a-sign-in-reaches': () => ({ status: 200, result: { data: pages } }),
+  'tool:keep-a-facebook-pages-token': () => ({ status: 200, result: { id: 'kept', access_token: HELD } }),
   'tool:trade-a-threads-sign-in-code-for-its-short-token': () => ({ status: 200, result: { access_token: HELD, user_id: 17800000000000002 } }),
   'tool:trade-a-short-threads-token-for-a-long-one': () => ({ status: 200, result: { access_token: HELD, token_type: 'bearer', expires_in: 5183944 } }),
   'tool:check-the-threads-connection': () => ({ status: 200, result: { id: '17800000000000002', username: 'made_up_threads_account' } }),
@@ -258,7 +260,7 @@ test('every switched-on service has a hosted sign-in descriptor whose callback i
     assert.ok(last.invoke.reply_holds_values.some(item => item.from === 'access_token' && item.keep_as_field === (acquire.fills_field ?? 'access_token')), `${vendor}: the last trade keeps the access token`);
     if (acquire.refresh) assert.ok(first.invoke.reply_holds_values.some(item => item.keep_as_field === (acquire.refresh.field ?? 'refresh_token')));
   }
-  assert.deepEqual([...new Set(row.invoke.records.runs)].sort(), [...new Set(Object.values(settings.services).flatMap(service => [...service.trade, service.verify.tool]))].sort());
+  assert.deepEqual([...new Set(row.invoke.records.runs)].sort(), [...new Set(Object.values(settings.services).flatMap(service => [...service.trade, service.verify.tool, ...(service.choice ? [service.choice.tool] : [])]))].sort());
 });
 
 // Facebook Page and Threads: each is a descriptor already, switched on here by a row of services and its trade rows.
@@ -280,7 +282,7 @@ test('a Facebook sign-in asks the Page scopes, trades the code twice, reads the 
   assert.equal(address.searchParams.get('scope'), acquire.scopes.join(','));
   assert.equal(address.searchParams.get('auth_type'), 'rerequest');
   assert.equal(run.last.result.status, 200, JSON.stringify(run.last));
-  assert.deepEqual(run.runs.map(item => item.tool), [...settings.services['facebook-messenger'].trade, settings.services['facebook-messenger'].verify.tool]);
+  assert.deepEqual(run.runs.map(item => item.tool), [...settings.services['facebook-messenger'].trade, settings.services['facebook-messenger'].verify.tool, settings.services['facebook-messenger'].choice.tool]);
   const [written] = typed(run, 'record:service-connection').filter(record => record.value.kind === settings.account_kind);
   assert.equal(written.value.account_label, 'Made Up Page');
   assert.deepEqual(written.value.plain, { page_id: '1000000000000001' });
@@ -288,12 +290,32 @@ test('a Facebook sign-in asks the Page scopes, trades the code twice, reads the 
   assert.doesNotMatch(JSON.stringify(run.last), /made-up-(access|short)/);
 });
 
-test('a Facebook sign-in that reaches no Page, or more than one, saves nothing', async () => {
-  for (const [pages, say] of [[[], /does not reach any account/], [[...onePage, { id: '1000000000000002', name: 'Another Made Up Page', access_token: HELD }], /more than one account/]]) {
-    const { run } = await signedIn(metaQuery('facebook-messenger'), toolRuns({ pages }));
+test('a Facebook sign-in that reaches no Page saves nothing', async () => {
+  const { run } = await signedIn(metaQuery('facebook-messenger'), toolRuns({ pages: [] }));
+  assert.equal(run.last.result.status, 400, JSON.stringify(run.last));
+  assert.match(run.last.result.body, /does not reach any account/);
+  assert.equal(typed(run, 'record:service-connection').length, META_APP_ROWS);
+});
+
+test('a Facebook sign-in that reaches several Pages connects the Page named beforehand, and keeps only that Page\'s token', async () => {
+  const { run } = await signedIn({ ...metaQuery('facebook-messenger'), account: 'another made up page' }, toolRuns({ pages: twoPages }));
+  assert.equal(run.last.result.status, 200, JSON.stringify(run.last));
+  const kept = run.runs.at(-1);
+  assert.equal(kept.tool, 'tool:keep-a-facebook-pages-token');
+  assert.equal(kept.input.page_id, '1000000000000002');
+  assert.match(kept.input.connection.connection_id, /^service_connection:facebook-messenger:/);
+  const [written] = typed(run, 'record:service-connection').filter(record => record.value.kind === settings.account_kind);
+  assert.equal(written.value.account_label, 'Another Made Up Page');
+  assert.deepEqual(written.value.plain, { page_id: '1000000000000002' });
+});
+
+test('a Facebook sign-in that reaches several Pages with none named, or none of the one named, saves nothing and keeps no Page token', async () => {
+  for (const account of [undefined, 'A Page It Does Not Reach']) {
+    const { run } = await signedIn({ ...metaQuery('facebook-messenger'), ...(account ? { account } : {}) }, toolRuns({ pages: twoPages }));
     assert.equal(run.last.result.status, 400, JSON.stringify(run.last));
-    assert.match(run.last.result.body, say);
+    assert.match(run.last.result.body, /more than one account/);
     assert.equal(typed(run, 'record:service-connection').length, META_APP_ROWS);
+    assert.ok(!run.runs.some(item => item.tool === 'tool:keep-a-facebook-pages-token'));
   }
 });
 
@@ -320,14 +342,18 @@ test('the Threads check asks only the Threads host, with the held token placed i
   assert.equal(check.invoke.refresh.token_url, 'https://graph.threads.net/refresh_access_token');
 });
 
-test('the Facebook trades keep each token as the connection field the next step and the checks read, and the Page list keeps its Page tokens held', () => {
+test('the Facebook Page list holds no token, and the keep row keeps one named Page\'s token as the connection\'s page_access_token', () => {
   const byId = new Map(rows.records.map(record => [record.payload.id, record.payload]));
-  const pagesRow = byId.get(settings.services['facebook-messenger'].verify.tool);
+  const service = settings.services['facebook-messenger'];
+  const pagesRow = byId.get(service.verify.tool);
   assert.equal(pagesRow.read_only, true);
   assert.equal(new URL(pagesRow.invoke.url).hostname, 'graph.facebook.com');
   assert.deepEqual(pagesRow.invoke.credential_injections.map(item => [item.field_id, item.hosts]), [['user_access_token', ['graph.facebook.com']]]);
-  const kept = pagesRow.invoke.reply_holds_values.map(item => [item.from, item.keep_as_field]);
-  assert.deepEqual(kept[0], ['data.0.access_token', 'page_access_token']);
-  assert.equal(kept.length, 2, 'a second Page token that the list answers is held as well, so no Page token is in the answer');
-  assert.equal(pagesRow.invoke.query.limit.const, 2);
+  assert.equal(pagesRow.invoke.query.fields.const, 'id,name');
+  assert.equal(pagesRow.invoke.reply_holds_values, undefined);
+  const keepRow = byId.get(service.choice.tool);
+  assert.equal(new URL(keepRow.invoke.url).hostname, 'graph.facebook.com');
+  assert.deepEqual(keepRow.invoke.credential_injections.map(item => [item.field_id, item.hosts]), [['user_access_token', ['graph.facebook.com']]]);
+  assert.deepEqual(keepRow.invoke.reply_holds_values, [{ from: 'access_token', keep_as_field: 'page_access_token' }]);
+  assert.ok(row.invoke.records.runs.includes(service.choice.tool));
 });

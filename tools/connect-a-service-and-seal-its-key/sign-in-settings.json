@@ -32,7 +32,8 @@
   },
   "facebook-messenger": {
    "trade": ["tool:trade-a-facebook-sign-in-code-for-its-short-token", "tool:trade-a-short-facebook-token-for-a-long-one"],
-   "verify": { "tool": "tool:list-the-facebook-pages-a-sign-in-reaches", "input": { "connection": { "connection_id": "{connection_id}" } } }
+   "verify": { "tool": "tool:list-the-facebook-pages-a-sign-in-reaches", "input": { "connection": { "connection_id": "{connection_id}" } } },
+   "choice": { "tool": "tool:keep-a-facebook-pages-token", "input": { "connection": { "connection_id": "{connection_id}" }, "page_id": "{id}" } }
   },
   "threads": {
    "trade": ["tool:trade-a-threads-sign-in-code-for-its-short-token", "tool:trade-a-short-threads-token-for-a-long-one"],
@@ -53,7 +54,7 @@
   "no_token": "the service answered without a token.",
   "not_checked": "the new connection could not be checked with the service.",
   "no_account": "this sign-in does not reach any account Trillion can connect.",
-  "many_accounts": "this sign-in reaches more than one account; connect again and pick just one on the sign-in page.",
+  "many_accounts": "this sign-in reaches more than one account and the link was not made for one of them by name; connect again with the account named, or pick just one on the sign-in page.",
   "other_account": "you signed in as {account}, and this link was made for {expected}. Sign in with {expected}.",
   "unnamed_account": "the service did not say which account signed in, so it could not be checked against {expected}.",
   "connected": "{service} is connected as {account}. Your AI can use it now. You can close this tab.",

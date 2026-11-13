@@ -794,7 +794,7 @@
         "id": "tool:list-the-facebook-pages-a-sign-in-reaches",
         "label": "List the Facebook Pages a sign-in reaches",
         "job": "Read which Facebook Pages the connection's sign-in manages, keeping each Page's own token sealed in the vault",
-        "description": "The facebook-messenger descriptor's acquire.choose.list: GET graph.facebook.com/v23.0/me/accounts (at most two Pages, enough to tell one from several) with the connection's user token, placed from the vault only as the request leaves. The first Page's access_token is kept in the vault as the connection's page_access_token field, and a second one's as other_page_access_token, before the reply is read, so no Page token is in the answer. The answer is each Page's id and name. Run by tool:connect-an-account-by-signing-in-to-the-service at the sign-in callback, which connects only when exactly one Page is reached.",
+        "description": "The facebook-messenger descriptor's acquire.choose.list: GET graph.facebook.com/v23.0/me/accounts (id and name only, at most 100 Pages) with the connection's user token, placed from the vault only as the request leaves. The answer is each Page's id and name; no Page token is read or kept here. Run by tool:connect-an-account-by-signing-in-to-the-service at the sign-in callback, which connects the Page the person named beforehand (or the only one reached) and then runs tool:keep-a-facebook-pages-token for it.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -820,7 +820,7 @@
         },
         "output_schema": {
           "type": "object",
-          "description": "The Pages the sign-in reaches: { data: [{ id, name, access_token }] }, each token replaced by the held word"
+          "description": "The Pages the sign-in reaches: { data: [{ id, name }] }"
         },
         "invoke": {
           "kind": "http",
@@ -832,10 +832,99 @@
           },
           "query": {
             "fields": {
-              "const": "id,name,access_token"
+              "const": "id,name"
             },
             "limit": {
-              "const": 2
+              "const": 100
+            }
+          },
+          "credential_injections": [
+            {
+              "field_id": "user_access_token",
+              "hosts": [
+                "graph.facebook.com"
+              ],
+              "placement": {
+                "kind": "query",
+                "name": "access_token"
+              }
+            }
+          ],
+          "connection": {
+            "vendor": "facebook-messenger",
+            "from_input": "connection"
+          }
+        },
+        "result_selector": "$",
+        "provenance": {
+          "source": "trillion src/connect.mjs chooseFrom (tag old-trillion-before-worker-retire)",
+          "descriptor": "tools/connect-a-service-and-seal-its-key/records.json service-connection-descriptor facebook-messenger acquire.choose"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:public-web-address"
+        ],
+        "maker": "maker:connect-a-service-and-seal-its-key",
+        "listed_on": "2026-11-12T00:00:00Z",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": true
+        },
+        "read_only": false,
+        "id": "tool:keep-a-facebook-pages-token",
+        "label": "Keep one Facebook Page's own token",
+        "job": "Read the one Page the person chose from the connection's sign-in and keep its own token sealed in the vault",
+        "description": "GET graph.facebook.com/v23.0/{page_id}?fields=access_token with the connection's user token, placed from the vault only as the request leaves. The Page's access_token is kept in the vault as the connection's page_access_token field before the reply is read, so it is never in the answer. Run by tool:connect-an-account-by-signing-in-to-the-service at the sign-in callback, for the Page the person named beforehand or the only one the sign-in reaches.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "connection",
+            "page_id"
+          ],
+          "properties": {
+            "connection": {
+              "type": "object",
+              "required": [
+                "connection_id"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "connection_id": {
+                  "type": "string",
+                  "description": "The new connection the sign-in fills: service_connection:<vendor>:<account>, made by tool:connect-an-account-by-signing-in-to-the-service when the sign-in started"
+                }
+              },
+              "description": "The connection whose held fields the reply fills, by its handle only"
+            },
+            "page_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The id of the Page chosen from tool:list-the-facebook-pages-a-sign-in-reaches"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The Page's id and its token replaced by the held word"
+        },
+        "invoke": {
+          "kind": "http",
+          "url": "https://graph.facebook.com/v23.0/{page_id}",
+          "method": "GET",
+          "timeout_seconds": 30,
+          "headers": {
+            "accept": "application/json"
+          },
+          "query": {
+            "fields": {
+              "const": "access_token"
             }
           },
           "credential_injections": [
@@ -856,18 +945,14 @@
           },
           "reply_holds_values": [
             {
-              "from": "data.0.access_token",
+              "from": "access_token",
               "keep_as_field": "page_access_token"
-            },
-            {
-              "from": "data.1.access_token",
-              "keep_as_field": "other_page_access_token"
             }
           ]
         },
         "result_selector": "$",
         "provenance": {
-          "source": "trillion src/connect.mjs chooseFrom (tag old-trillion-before-worker-retire)",
+          "source": "trillion src/connect.mjs chooseFrom (tag old-trillion-before-worker-retire): the chosen Page's token",
           "descriptor": "tools/connect-a-service-and-seal-its-key/records.json service-connection-descriptor facebook-messenger acquire.choose"
         }
       }
@@ -1257,6 +1342,7 @@
               "tool:trade-a-facebook-sign-in-code-for-its-short-token",
               "tool:trade-a-short-facebook-token-for-a-long-one",
               "tool:list-the-facebook-pages-a-sign-in-reaches",
+              "tool:keep-a-facebook-pages-token",
               "tool:trade-a-threads-sign-in-code-for-its-short-token",
               "tool:trade-a-short-threads-token-for-a-long-one",
               "tool:check-the-threads-connection",

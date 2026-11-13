@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:13592b8dfc09fd233fd600b2e77c147d3f1cac1ca1dc9441631294d31724921d"
+  "blake3": "1f:b895f8c0e1e55efcca3c97639a82a667b076f8fba9688529a187f8b379dc4bbd"
  },
  "fields": [
   {
@@ -5423,6 +5423,22 @@
    }
   },
   {
+   "id": "tool:keep-a-facebook-pages-token",
+   "values": {
+    "title": "Keep one Facebook Page's own token",
+    "job": "Read the one Page the person chose from the connection's sign-in and keep its own token sealed in the vault",
+    "description": "GET graph.facebook.com/v23.0/{page_id}?fields=access_token with the connection's user token, placed from the vault only as the request leaves. The Page's access_token is kept in the vault as the connection's page_access_token field before the reply is read, so it is never in the answer. Run by tool:connect-an-account-by-signing-in-to-the-service at the sign-in callback, for the Page the person named beforehand or the only one the sign-in reaches.",
+    "status": "active",
+    "maker": "maker:connect-a-service-and-seal-its-key",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "listed_on": "2026-11-12T00:00:00Z",
+    "folder": "connect-a-service-and-seal-its-key"
+   }
+  },
+  {
    "id": "tool:keep-a-held-value-by-name",
    "values": {
     "title": "Keep a held value by name in my vault",
@@ -6189,7 +6205,7 @@
    "values": {
     "title": "List the Facebook Pages a sign-in reaches",
     "job": "Read which Facebook Pages the connection's sign-in manages, keeping each Page's own token sealed in the vault",
-    "description": "The facebook-messenger descriptor's acquire.choose.list: GET graph.facebook.com/v23.0/me/accounts (at most two Pages, enough to tell one from several) with the connection's user token, placed from the vault only as the request leaves. The first Page's access_token is kept in the vault as the connection's page_access_token field, and a second one's as other_page_access_token, before the reply is read, so no Page token is in the answer. The answer is each Page's id and name. Run by tool:connect-an-account-by-signing-in-to-the-service at the sign-in callback, which connects only when exactly one Page is reached.",
+    "description": "The facebook-messenger descriptor's acquire.choose.list: GET graph.facebook.com/v23.0/me/accounts (id and name only, at most 100 Pages) with the connection's user token, placed from the vault only as the request leaves. The answer is each Page's id and name; no Page token is read or kept here. Run by tool:connect-an-account-by-signing-in-to-the-service at the sign-in callback, which connects the Page the person named beforehand (or the only one reached) and then runs tool:keep-a-facebook-pages-token for it.",
     "status": "active",
     "maker": "maker:connect-a-service-and-seal-its-key",
     "licence_class": "licence:maker-own",

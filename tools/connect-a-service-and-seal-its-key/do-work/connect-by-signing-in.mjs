@@ -171,7 +171,7 @@ async function handleConnectStart(input, { door }) {
 // Why a nested run did not answer: the engine's own words (it has replaced every held value in them).
 const failed = answer => String(answer?.error ?? words.not_checked).slice(0, 300);
 // `{connection_id}` in a verify row's input template, as the new connection's id.
-const filled = (template, connectionId) => JSON.parse(JSON.stringify(template).replaceAll('{connection_id}', connectionId));
+const filled = (template, connectionId, chosenId = '') => JSON.parse(JSON.stringify(template).replaceAll('{connection_id}', connectionId).replaceAll('{id}', chosenId));
 
 // Trade the code for the tokens (every trade row in order), then check the connection with the service: the account
 // it names, the plain values it fills and the scopes the service granted, or the words of why not.
@@ -202,8 +202,17 @@ async function tradeAndCheck(door, descriptor, saved, code) {
   if (acquire.choose) {
     const reached = (acquire.choose.items_path ?? []).reduce((at, part) => (at === undefined || at === null ? undefined : at[part]), body);
     if (!Array.isArray(reached) || reached.length === 0) return { why: words.no_account };
-    if (reached.length > 1) return { why: words.many_accounts };
-    chosen = reached[0];
+    // Several accounts: the one the link was made for, named beforehand; with none named, or none of them so named, none.
+    const named = text(saved.account)?.toLocaleLowerCase('en-US');
+    const matching = reached.length === 1 ? reached : reached.filter(item => named && firstAt(item, [acquire.choose.label_path ?? []])?.toLocaleLowerCase('en-US') === named);
+    if (matching.length !== 1) return { why: words.many_accounts };
+    chosen = matching[0];
+    // The service's own row that keeps the chosen account's token (a Page's own token) runs only for the one chosen.
+    if (service.choice) {
+      const id = firstAt(chosen, [acquire.choose.id_path ?? ['id']]);
+      const kept = id ? await door.run(service.choice.tool, filled(service.choice.input, saved.connection_id, id), { key: 'choice' }) : null;
+      if (!kept || kept.error !== undefined) return { why: `${words.not_checked} ${failed(kept)}` };
+    }
   }
   const secrets = new Set((descriptor.credentialFields ?? []).filter(field => field.secret).map(field => field.id));
   const chosenFills = (acquire.choose?.fills ?? []).filter(fill => !secrets.has(fill.field));
