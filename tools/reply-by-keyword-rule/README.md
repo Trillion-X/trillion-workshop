@@ -1,7 +1,11 @@
 # tools/reply-by-keyword-rule/
 
-Automatic replies to the person's Instagram direct messages and comments, by keyword rule, ManyChat-style, on the
-person's own connected account. Two tools: one decides which reply to send now, the other sends one chosen reply once.
+Automatic replies to what people send or comment on the person's connected places, by keyword rule, ManyChat-style, on
+the person's own connected account. One tool decides which reply to send now; each place has a send row that sends one
+chosen reply once. A place is a row of `read-data/reply-places.json` (where its items are pulled from, whose words are
+the person's own, how long a reply is allowed, who it goes to, and the request that sends it); Instagram and YouTube
+are two such rows, and a place the code has never heard of is one more row and one send row that holds its connection.
+Nothing in `do-work/` or `read-data/*.mjs` names a place (a test reads every file to prove it).
 
 The rules are the person's own `reply-rule` records (a list of rows, read in their `order`): `{ id, enabled: 'on' | 'off', words, mode:
 'any' | 'all', reply, order }`. `reply` is a template filled by `tools/reply-templates`. Nothing in this folder names a
@@ -15,45 +19,49 @@ keeps its own database and holds the Meta token itself. A GitHub tool row runs o
 and cannot host a public webhook or keep a token outside the vault, so none is adopted. The decision is recorded in the
 Workshop decision engine (candidate:1: a generic rule tool on the existing Meta connection).
 
-## Meta windows (enforced in `read-data/reply-rules.mjs`)
+## Windows and places (the place rows, enforced in `read-data/reply-rules.mjs`)
 
-| Reply | Allowed while | Recipient |
-|-------|---------------|-----------|
-| Direct message | less than 24 hours since the other person's last message | `recipient.id` (the person's account id) |
-| Private reply to a comment | less than 7 days since the comment, once per comment | `recipient.comment_id` |
+| Place, channel | Reply allowed while | Recipient |
+|----------------|---------------------|-----------|
+| Instagram, `dm` | less than 24 hours since the other person's last message (only the latest message of a thread is answered) | `recipient.id` (the person's account id) |
+| Instagram, `private-reply` | less than 7 days since the comment, once per comment | `recipient.comment_id` |
+| YouTube, `comment` | no window (`window_ms: null`); once per comment through the reply key | the comment's thread id, as the request's `parentId` |
 
-Only the latest message of a thread is answered, and only when the other person wrote it. The window is checked when
-a reply is chosen and again when it is sent.
+The window is checked when a reply is chosen and again when it is sent. Instagram's items are the pulls kept in the
+person's records; YouTube's are the answers of `tool:read-youtube-comments` handed to the decide row as
+`pulled.comment` (that tool keeps nothing). YouTube's own channel id is read from the person's connection record.
 
 ## Tools
 
 | Tool | What it does | Records |
 |------|--------------|---------|
-| `tool:decide-the-instagram-replies` | Chooses the reply to send now for each latest direct message and each pulled comment, with the reason for each skip (window closed, already sent, no rule matches, latest message or comment is the person's own). Sends nothing | read and list `reply-rule`, `account-snapshot-part` (the pulled `instagram-messages` and `instagram-comments` threads), `instagram-reply` |
-| `tool:pull-my-instagram-comments` (in `tools/pull-from-connected-accounts`) | Pulls the comments on each post of the Instagram account into the `instagram-comments` snapshot, one thread per post | the held token; `account-snapshot-part` |
-| `tool:send-an-instagram-reply` | Sends one chosen reply (a decision whose action is send) to graph.instagram.com, the window checked again first. The reply is kept before it leaves; a reply with no answer is kept `not-known` and never retried | read and write `instagram-reply`; the held access token on descriptor 4 |
+| `tool:decide-the-replies` | For one place (`place`, a row id) chooses the reply to send now for each item, with the reason for each skip (window closed, already sent, no rule matches, the item is the person's own, no recipient). Sends nothing | read and list `reply-rule`, `account-snapshot-part`, `reply-kept`; read `connection` |
+| `tool:pull-my-instagram-comments` (in `tools/pull-from-connected-accounts`) | Pulls the comments on each post of the Instagram account into the `instagram-comments` snapshot | the held token; `account-snapshot-part` |
+| `tool:send-a-reply-on-instagram`, `tool:send-a-reply-on-youtube` | Send one chosen reply (a decision whose action is send) as its place row's request says, to the place row's hosts only, the window checked again first. The reply is kept before it leaves; a reply with no answer is kept `not-known` and never retried | read and write `reply-kept`; the held access token on descriptor 4 |
 
-`instagram-reply` records are keyed by reply key (`<message id>:<rule id>`), one per reply, with `state`: `sending`,
+`reply-kept` records are keyed by place and reply key (`<message id>:<rule id>`), one per reply, with `state`: `sending`,
 `sent`, `failed` or `not-known`.
 
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `read-data/reply-rules.mjs` | Pure: `normalise`, `ruleMatches`, `dmWindowOpen`, `privateReplyOpen`, `chooseReplies`, `checkSend`. |
+| `read-data/reply-places.json` | One row per place: connection vendor, send row, own-id rule, hosts, and each channel's pull, field paths, window, recipient and request. |
+| `read-data/reply-rules.mjs` | Pure: `normalise`, `ruleMatches`, `pick`, `fill`, `windowOpen`, `itemsOf`, `chooseReplies`, `checkSend`. |
 | `do-work/decide-the-replies.mjs` | `decideTheReplies`, the decide row's export (reads the records door). |
-| `do-work/send-an-instagram-reply.mjs` | `sendAnInstagramReply`, the send row's export. |
-| `tool-rows.json` | The two rows. |
-| `test/reply-rules.test.mjs` | The rules and both windows, against made-up messages. |
-| `test/decide-and-send.test.mjs` | Decide and send against a fake records door and a fake Meta answer; a closed window sends nothing; a key is sent once; an unknown outcome is not retried; a private reply goes to the comment id. |
+| `do-work/send-a-reply.mjs` | `sendAReply`, every send row's export. |
+| `tool-rows.json` | The three rows. |
+| `test/reply-rules.test.mjs` | The rules, the windows, the template and a place made up in the test, against made-up messages. |
+| `test/decide-and-send.test.mjs` | Decide and send against a fake records door and a fake answer; a closed window sends nothing; a key is sent once; an unknown outcome is not retried; a place the code has never heard of is one row; no code file names a place. |
 
 ## Gaps
 
-- The `reply-rule` and `instagram-reply` record kinds need their list definitions in the person's Trillion lists before
+- The `reply-rule` and `reply-kept` record kinds need their list definitions in the person's Trillion lists before
   a live rule can be written.
 
 ## Dependencies
 
 **Depends on:** `tools/reply-templates` (the reply text), `tools/pull-from-connected-accounts` (the pulled threads and
-the snapshot key segments), `tools/records-door` (the run's records), the Meta connection (`instagram` vendor, held
-access token on descriptor 4). Node 24 only.
+the snapshot key segments), `tools/records-door` (the run's records), each place's connection (held access token on descriptor 4). Node 24 only.
+
+YouTube's reply request (`comments.insert`) has not been run against the live service; its row is proved against a made-up answer only.

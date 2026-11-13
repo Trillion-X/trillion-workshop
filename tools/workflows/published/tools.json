@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:33af9ffddf34039d264b816b36b514fd9be530c469c14eed23524ded53c7b9b9"
+  "blake3": "1f:1d2e7c6fb3cf0d83dc308473db0a6766e900585b7afd03edf9d3213a7abda310"
  },
  "fields": [
   {
@@ -2951,11 +2951,11 @@
    }
   },
   {
-   "id": "tool:decide-the-instagram-replies",
+   "id": "tool:decide-the-replies",
    "values": {
-    "title": "Decide the Instagram replies",
-    "job": "Say which automatic reply to send now to each Instagram direct message or comment by the person's keyword rules, and which to leave and why",
-    "description": "Reads the person's reply rules (their reply-rule rows, in order), the pulled Instagram direct-message conversations and the pulled Instagram comments (the instagram-messages and instagram-comments pulls) of one account, and says for each latest message whether a rule's reply is to be sent now: the rule must match, the message must be the other person's, and the Meta window must still be open (24 hours for a direct message, 7 days for a comment's private reply). A reply already kept is never chosen again, and a comment on the person's own account is never answered. A source never pulled is named under not_pulled. It sends nothing and keeps nothing; tool:send-an-instagram-reply sends one chosen reply.",
+    "title": "Decide the replies",
+    "job": "Say which automatic reply to send now to each message or comment a person received on one of their connected places, by their keyword rules, and which to leave and why",
+    "description": "Reads the person's reply rules (their reply-rule rows, in order), one place's row (read-data/reply-places.json: where its items come from, whose words are the person's own, how long a reply is allowed, who it goes to) and the items of that place, and says for each item whether a rule's reply is to be sent now: the rule must match, the item must be someone else's, and the place's window, if it sets one, must still be open. Items come from the place's pulls kept in the person's records (give account, the name the pull was kept under) or from a pull tool's answer handed in as pulled.<channel id>; a channel with neither is named under not_pulled. A place whose own id is a readable field of the person's connection needs account_id, the connection. A reply already kept is never chosen again. It sends nothing and keeps nothing; the place's send row (its send_tool) sends one chosen reply.",
     "status": "active",
     "maker": "maker:reply-by-keyword-rule",
     "licence_class": "licence:maker-own",
@@ -3330,14 +3330,14 @@
   {
    "id": "tool:export-a-document-to-a-file",
    "values": {
-    "title": "Save a document as a Word file, a PDF, Markdown or plain text (runs on your computer)",
-    "job": "Turn a document written as a tree of text blocks into a Word (docx) file, a PDF, a Markdown file or a plain text file, with headings, paragraphs and tables kept in order",
-    "description": "Takes a job file and a rules file. The job holds the title, the tree (each node has props with its text, a heading level if it is one, and children; a node with children that all hold two or more short texts is read as a table row, two or more such rows as a table) and a descriptor: format_id, destination_dir (a full path) and file_stem (a plain name, no folder). The rules file is a JSON list of rows of kind structured-file-projection-rules; each names which props carry text, where a heading level is, and per format how the body is built (Markdown and text by templates, Word by heading, body and table styles, PDF by a TrueType font file name and heading sizes). A starter rules file is in read-data/starter-projection-rules.json. Word is written with the standard library only. PDF needs the reportlab library and the named font; an unreadable font or a character the font cannot draw stops the export with a message, never a substituted character. The file is read back and compared to what was meant before the result is printed. Add --project-only to see the sections the tree would give without writing a file.",
+    "title": "Save anything as a file: a list, a table, a document, a board, words or a picture, as PDF, Word, Excel, CSV, Markdown, text, web page, SVG and more",
+    "job": "Turn one document made of headings, words, lists, tables, graphs, calendar events and pictures into a file in the format asked for, and give the file back",
+    "description": "Give the document and the id of a format. The document is { title?, blocks }. A block is one of: { kind: heading, level 1 to 6, text }; { kind: paragraph, text }; { kind: list, ordered?, items: words or { text, children } }; { kind: table, title?, columns: [names], rows: [[cells]], currencies?: [code or null per column] } (a cell is words, a number, true or false, or null; a column with a currency code such as USD is written as money, $1,234.56, in PDF, Word, Markdown, text and web page, and kept as a number in CSV and Excel, with a money format in Excel); { kind: graph, title?, nodes: [{ id, label? }], edges: [{ from, to, label? }] }; { kind: events, title?, events: [{ title, start, end?, description? }] } (start and end are ISO dates or times); { kind: picture, title?, svg } (one complete svg element); { kind: ink, operations, styles?, target?, default_stroke? } (the ink marks of a space, drawn as a picture). The format is one row of the formats list (tool:list-the-file-formats-an-export-can-make): pdf, docx (Word), xlsx (Excel), csv, tsv, markdown, txt, html, slides (a web page with one printed page per top heading), svg, png, json, ics (calendar), mermaid, dot, graphml, opml and freemind. A format that does not draw a kind of block writes it another way: a graph or events as tables. A kind it cannot write at all is refused by name, never dropped. A person's own format can be given whole as format_row (the same shape as a row of the list) instead of an id. file_stem names the file (a plain name with no folder; the document's title when left out). The answer has filename, mime, byte_length and base64 (the whole file), and text as well when the file is text. The page of PDF and SVG is the paper the request names, else the region of its locale, else US Letter, in portrait or landscape. A PDF is written in Helvetica; a character that font cannot draw stops the export with the character named, and nothing is replaced. png comes back as the svg, with finish set to raster-png: a page draws it to a canvas.",
     "status": "active",
     "maker": "maker:export-documents-to-files",
     "licence_class": "licence:maker-own",
     "placements": [
-     "placement:your-computer"
+     "placement:small-container"
     ],
     "folder": "export-documents-to-files"
    }
@@ -3388,21 +3388,6 @@
    }
   },
   {
-   "id": "tool:export-ink-marks-as-svg",
-   "values": {
-    "title": "Export the ink marks on a space as an SVG picture",
-    "job": "Draw the ink marks showing on a page or picture as an SVG fragment, with the bounds of all the ink, so the ink can be laid over an export of that page",
-    "description": "Give the mark operations, their styles and the space. Every showing mark becomes one stroke path in the space's own coordinates (M x y, L x y, Z when closed, round caps, the style's stroke, width and opacity, width 3 and opacity 1 when the style says nothing), so the fragment needs no transform to sit over the page it was drawn on. The bounds are the box around all the ink, or null when there is none. A style that names only a colour token has no colour a standalone picture can resolve, so give default_stroke; a mark with neither is refused rather than drawn in a colour nobody chose. Fills are not drawn.",
-    "status": "active",
-    "maker": "maker:draw-ink-marks",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "draw-ink-marks"
-   }
-  },
-  {
    "id": "tool:export-records-as-list-rows",
    "values": {
     "title": "Turn my records into rows for my Trillion lists (runs on your computer)",
@@ -3437,7 +3422,7 @@
    "values": {
     "title": "Fade live ink marks",
     "job": "Work out how visible each ink mark drawn live on a canvas or screen is at a given instant, so live marks fade instead of piling up, and when each is gone",
-    "description": "Give now (the instant to look at, an ISO time or milliseconds since the epoch), fade ({ hold_ms, fade_ms }: how long a mark is fully seen, then how long it takes to go) and marks ([{ ref, created_at? }]). Answers marks, one per mark in the order given, each with opacity (1 until hold_ms has passed since created_at, falling in a straight line to 0 over fade_ms, 0 after), shown and gone_at (the ISO instant it goes, or null for a mark with no usable time, which never fades), and the counts shown and gone. It reads only what it is given: no clock is read, nothing is drawn, no mark is changed or deleted. Refuses an empty list, a mark without a ref, a now that is not a time and a hold_ms or fade_ms that is not a number of zero or more. The screen (show/GraphCanvas.tsx, show/AddressedMarkLayer.tsx and the mark toolbar) also lays a list out as linked cards, takes the pen and keeps each stroke; this run does none of that. Folding, shaping, erasing and exporting marks are the tool:see-the-ink-marks-on-a-space, tool:turn-a-drawn-stroke-into-a-mark-shape, tool:find-the-ink-mark-to-erase and tool:export-ink-marks-as-svg rows in tools/draw-ink-marks.",
+    "description": "Give now (the instant to look at, an ISO time or milliseconds since the epoch), fade ({ hold_ms, fade_ms }: how long a mark is fully seen, then how long it takes to go) and marks ([{ ref, created_at? }]). Answers marks, one per mark in the order given, each with opacity (1 until hold_ms has passed since created_at, falling in a straight line to 0 over fade_ms, 0 after), shown and gone_at (the ISO instant it goes, or null for a mark with no usable time, which never fades), and the counts shown and gone. It reads only what it is given: no clock is read, nothing is drawn, no mark is changed or deleted. Refuses an empty list, a mark without a ref, a now that is not a time and a hold_ms or fade_ms that is not a number of zero or more. The screen (show/GraphCanvas.tsx, show/AddressedMarkLayer.tsx and the mark toolbar) also lays a list out as linked cards, takes the pen and keeps each stroke; this run does none of that. Folding, shaping and erasing marks are the tool:see-the-ink-marks-on-a-space, tool:turn-a-drawn-stroke-into-a-mark-shape and tool:find-the-ink-mark-to-erase rows in tools/draw-ink-marks; exporting marks as a picture file is the ink block of tool:export-a-document-to-a-file.",
     "status": "active",
     "maker": "maker:draw-lists-on-a-canvas",
     "licence_class": "licence:maker-own",
@@ -5423,8 +5408,8 @@
    "id": "tool:keep-a-held-value-by-name",
    "values": {
     "title": "Keep a held value by name in my vault",
-    "job": "Keep one secret value (a key, a token) under a name in my own Trillion vault, so my tools and AIs can use it by name without ever seeing it",
-    "description": "Stores the value on stdin under the given name in the person's own vault through the engine's held-values:put operation, with the person's own key as the credential. The name is one the vault accepts, and a service connection's own names are refused by the engine. The value never goes on a command line, into a log or into the answer: the answer is {name, accepted}. Accepted means written at the writer, or queued sealed for the writer when this computer is not the writer. Connections keep their values through service-connections; use this for any other secret.",
+    "job": "Keep one secret value (a key, a token) under a name in my own Trillion vault, or remove the value held under a name, so my tools and AIs can use it by name without ever seeing it",
+    "description": "Stores the value on stdin under the given name in the person's own vault through the engine's held-values:put operation, with the person's own key as the credential. The name is one the vault accepts, and a service connection's own names are refused by the engine. The value never goes on a command line, into a log or into the answer: the answer is {name, accepted}. Accepted means written at the writer, or queued sealed for the writer when this computer is not the writer. Connections keep their values through service-connections; use this for any other secret. With --remove NAME --issuer-status revoked|unknown it removes the value held under that name through held-values:remove instead, reads no stdin and answers {name, removed, issuer_status} (removed false when none was held) or {name, queued: true, issuer_status} when this computer is not the writer. Removing a held value does not revoke it at its issuer, so the caller says whether it was revoked there or is unknown.",
     "status": "active",
     "maker": "maker:keep-a-held-value-by-name",
     "licence_class": "licence:maker-own",
@@ -6182,6 +6167,21 @@
    }
   },
   {
+   "id": "tool:list-the-file-formats-an-export-can-make",
+   "values": {
+    "title": "List the file formats an export can be written in",
+    "job": "Show every format a document can be exported to, with its file ending, its media type and the block kinds it writes itself",
+    "description": "Takes nothing. Answers formats: one row each with id, label, extension, mime and draws (the block kinds the format writes itself; the others are written as tables or refused), and finished_by when a page must do the last step (png). The ids are what tool:export-a-document-to-a-file takes as format.",
+    "status": "active",
+    "maker": "maker:export-documents-to-files",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "export-documents-to-files"
+   }
+  },
+  {
    "id": "tool:list-the-items-in-a-saved-file",
    "values": {
     "title": "List the items in a list saved on your computer (runs on your computer)",
@@ -6615,9 +6615,9 @@
   {
    "id": "tool:make-a-sales-contract",
    "values": {
-    "title": "Make a sales contract's terms, file request and approval link",
+    "title": "Make a sales contract's terms, export request and approval link",
     "job": "Make the terms of an accepted sales contract ready to give out: what the buyer must accept, the terms as rows, the request that turns them into a PDF, Word, spreadsheet, Markdown or text file, and a link the buyer opens to accept",
-    "description": "Give a contract (its name, currency, total in cents, customer, offer and a list of rules such as Commitment and GrantAccess) and which file forms you want (pdf, csv, xlsx, md, txt; all by default). Returns acceptance_requirements (always the terms; the payment obligation when a rule is a Commitment; the installment authorization when it has a payment schedule), terms_rows (the contract's facts and one row per rule, money in the locale you name, en-US by default), file_request (a structured-file-output.request that tool:export-documents-to-files turns into the files) and output_forms. With a base_url it also returns approval_link: a link that carries the whole request, so the buyer can open it on any computer and see the same contract. The forms a contract can be made in are the rows of data/contract-output-targets.json. Nothing here knows what is being sold, who the parties are or what anything costs.",
+    "description": "Give a contract (its name, currency, total in cents, customer, offer and a list of rules such as Commitment and GrantAccess) and which file forms you want (pdf, csv, xlsx, md, txt; all by default). Returns acceptance_requirements (always the terms; the payment obligation when a rule is a Commitment; the installment authorization when it has a payment schedule), terms_rows (the contract's facts and one row per rule, money in the locale you name, en-US by default), export_request (the document, the file stem and the format ids that tool:export-a-document-to-a-file turns into the files) and output_forms. With a base_url it also returns approval_link: a link that carries the whole request, so the buyer can open it on any computer and see the same contract. The forms a contract can be made in are the rows of data/contract-output-targets.json. Nothing here knows what is being sold, who the parties are or what anything costs.",
     "status": "active",
     "maker": "maker:legal-document-builder",
     "licence_class": "licence:maker-own",
@@ -10788,6 +10788,21 @@
    }
   },
   {
+   "id": "tool:repair-a-decisions-answered-steps",
+   "values": {
+    "title": "Put back a decision's answered steps",
+    "job": "Put back the answered steps of a decision whose case lost them, so the decision reads as answered as far as it was",
+    "description": "Reads a decision of the person's own with every answered step whole and puts right each answered step whose summary has lost its grading: from the step's own record when it is there (a summary written for a step the door could not read), otherwise from the step and summary the case's own earlier refs named for that position, the highest version. Then the case's refs name them. No step record, answer, verdict or other summary changes, a position nothing can restore is left as it is, and a decision with nothing to put right is not written. Returns the steps put back by position, step id and where they came from, how many of the decision's answered steps carry their step before and after, and how many it has.",
+    "status": "active",
+    "maker": "maker:decide-with-a-method",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "decide-with-a-method"
+   }
+  },
+  {
    "id": "tool:replace-one-piece-of-text-in-a-file",
    "values": {
     "title": "Change one piece of text in a file",
@@ -12144,6 +12159,36 @@
    }
   },
   {
+   "id": "tool:send-a-reply-on-instagram",
+   "values": {
+    "title": "Send a reply on Instagram",
+    "job": "Send one chosen automatic reply to one Instagram message or comment, once, while its place's window, if it sets one, is still open",
+    "description": "Give account_id and one decision from tool:decide-the-replies whose action is send. The place row's request for the decision's channel is sent (read-data/reply-places.json), the window is checked again at the moment of sending: a closed window sends nothing. The reply is kept before it is sent, so a reply sent once is never sent again; if no answer comes back the reply is kept as not-known for a person to look at, and it is not retried. The account's held token is placed only on the request, only to the place's own hosts, never kept. It posts publicly on the person's account: run it only for replies the person's rules chose.",
+    "status": "active",
+    "maker": "maker:reply-by-keyword-rule",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "reply-by-keyword-rule"
+   }
+  },
+  {
+   "id": "tool:send-a-reply-on-youtube",
+   "values": {
+    "title": "Send a reply on YouTube",
+    "job": "Send one chosen automatic reply to one YouTube message or comment, once, while its place's window, if it sets one, is still open",
+    "description": "Give account_id and one decision from tool:decide-the-replies whose action is send. The place row's request for the decision's channel is sent (read-data/reply-places.json), the window is checked again at the moment of sending: a closed window sends nothing. The reply is kept before it is sent, so a reply sent once is never sent again; if no answer comes back the reply is kept as not-known for a person to look at, and it is not retried. The account's held token is placed only on the request, only to the place's own hosts, never kept. It posts publicly on the person's account: run it only for replies the person's rules chose.",
+    "status": "active",
+    "maker": "maker:reply-by-keyword-rule",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "reply-by-keyword-rule"
+   }
+  },
+  {
    "id": "tool:send-a-text-with-twilio",
    "values": {
     "title": "Send a text message with Twilio",
@@ -12186,21 +12231,6 @@
      "placement:your-computer"
     ],
     "folder": "send-messages"
-   }
-  },
-  {
-   "id": "tool:send-an-instagram-reply",
-   "values": {
-    "title": "Send an Instagram reply",
-    "job": "Send one chosen automatic reply to one Instagram direct message or to one comment (a private reply), once, while its Meta window is still open",
-    "description": "Give account_id and one decision from tool:decide-the-instagram-replies whose action is send. The window is checked again at the moment of sending: a closed window sends nothing. The reply is kept before it is sent, so a reply sent once is never sent again; if no answer comes back the reply is kept as not-known for a person to look at, and it is not retried. The account's held Instagram token is placed only on the request to graph.instagram.com, never kept. It posts publicly on the person's account: run it only for replies the person's rules chose.",
-    "status": "active",
-    "maker": "maker:reply-by-keyword-rule",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "reply-by-keyword-rule"
    }
   },
   {

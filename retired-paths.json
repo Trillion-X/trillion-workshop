@@ -37,6 +37,25 @@
       "reference_patterns": [
         "records-door/test/run-row\\.mjs"
       ]
+    },
+    {
+      "path": "tools/reply-by-keyword-rule/do-work/send-an-instagram-reply.mjs",
+      "replaced_by": "tools/reply-by-keyword-rule/do-work/send-a-reply.mjs (sendAReply) with tool:decide-the-replies: the place, how its items are read, its window, its recipient and its request are a row of tools/reply-by-keyword-rule/read-data/reply-places.json; Instagram and YouTube are two rows, and a new place is one more row and one send row",
+      "retired_at": "2026-11-13",
+      "tag": "retired/reply-by-keyword-rule-instagram-only-2026-11-13",
+      "reason": "Owner decision, 2026-11-13: replies to comments and messages are not Instagram-only. The sender, the decide row, the windows and the record kind named one place in code (tool:decide-the-instagram-replies, tool:send-an-instagram-reply, the instagram-reply record kind, two Meta windows as constants); a second place would have been a second copy of each. The place is now DATA read by one code path.",
+      "decision": {
+        "by": "the owner",
+        "words": "Make answer-comments-and-messages generic: the platform, how comments are pulled and how a reply is sent become row values, read by one code path; Instagram becomes one row and YouTube a second row, with no platform named in code.",
+        "source": "the lane brief ai-job:0fb35869-b9c4-40ad-b07e-1f5ccdf28b40 (answer-comments-generic-platform) in the owner's Trillion account, 2026-11-13"
+      },
+      "allowed_exceptions": [],
+      "reference_patterns": [
+        "\\bdecide-the-instagram-replies\\b",
+        "\\bsend-an-instagram-reply\\b",
+        "\\bsendAnInstagramReply\\b",
+        "\\binstagram-reply\\b"
+      ]
     }
   ],
   "awaiting_switch": []

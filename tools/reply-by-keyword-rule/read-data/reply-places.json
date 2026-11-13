@@ -1,0 +1,89 @@
+{
+  "_what": "The places a person's automatic replies go to, one row per place, read by one code path (read-data/reply-rules.mjs, do-work/decide-the-replies.mjs, do-work/send-a-reply.mjs). A place row says: which kind of connection reaches the account (connection_vendor), which tool row sends to it (send_tool), whose own words are never answered (self_id: {snapshot_state: true} the account id its pull kept, or {plain: field} a readable field of the person's connection record), and its channels. A channel is one kind of thing that can be answered: where its items come from (pull: {snapshot: name} the pulled threads of that source, or {handed_in: {tool, items_path}} the answer of that pull tool, handed to the decide row as pulled.<channel id>), which of a thread's messages are answered (which: latest, or each), where each field of an item is (fields, as dotted paths; thread_id is a path in the thread), what to say when the person wrote it (own_reason), who the reply goes to (recipient, a template of the item's fields), how long after the item a reply is still allowed (window_ms, or null for no window), and the request that sends it (request: method, url, optional body; a {name} is filled from the decision, a field of the form {recipient} stands for the whole object). send says which hosts the held token may go to, its descriptor and the header it goes in as {token}. A new place is one more row here and one send row that holds its connection; nothing in the code names a place.",
+  "places": [
+    {
+      "id": "reply-place:instagram",
+      "label": "Instagram",
+      "connection_vendor": "instagram",
+      "send_tool": "tool:send-a-reply-on-instagram",
+      "self_id": { "snapshot_state": true },
+      "send": {
+        "hosts": ["graph.instagram.com"],
+        "token_descriptor": 4,
+        "headers": { "Authorization": "Bearer {token}", "Content-Type": "application/json" },
+        "timeout_ms": 20000
+      },
+      "channels": [
+        {
+          "id": "dm",
+          "pull": { "snapshot": "instagram-messages" },
+          "which": "latest",
+          "fields": { "message_id": "id", "from_id": "from.id", "created_time": "created_time", "text": "message", "thread_id": "id" },
+          "own_reason": "latest-message-is-ours",
+          "recipient": { "id": "{from_id}" },
+          "window_ms": 86400000,
+          "request": {
+            "method": "POST",
+            "url": "https://graph.instagram.com/v21.0/me/messages",
+            "body": { "recipient": "{recipient}", "message": { "text": "{reply_text}" } },
+            "id_path": "message_id",
+            "error_path": "error.message"
+          }
+        },
+        {
+          "id": "private-reply",
+          "pull": { "snapshot": "instagram-comments" },
+          "which": "each",
+          "fields": { "message_id": "id", "from_id": "from.id", "created_time": "timestamp", "text": "text", "thread_id": "id" },
+          "own_reason": "comment-is-ours",
+          "recipient": { "comment_id": "{message_id}" },
+          "window_ms": 604800000,
+          "request": {
+            "method": "POST",
+            "url": "https://graph.instagram.com/v21.0/me/messages",
+            "body": { "recipient": "{recipient}", "message": { "text": "{reply_text}" } },
+            "id_path": "message_id",
+            "error_path": "error.message"
+          }
+        }
+      ]
+    },
+    {
+      "id": "reply-place:youtube",
+      "label": "YouTube",
+      "connection_vendor": "youtube",
+      "send_tool": "tool:send-a-reply-on-youtube",
+      "self_id": { "plain": "youtube_channel_id" },
+      "send": {
+        "hosts": ["www.googleapis.com"],
+        "token_descriptor": 4,
+        "headers": { "Authorization": "Bearer {token}", "Content-Type": "application/json" },
+        "timeout_ms": 20000
+      },
+      "channels": [
+        {
+          "id": "comment",
+          "pull": { "handed_in": { "tool": "tool:read-youtube-comments", "items_path": "items" } },
+          "which": "each",
+          "fields": {
+            "message_id": "id",
+            "from_id": "snippet.topLevelComment.snippet.authorChannelId.value",
+            "created_time": "snippet.topLevelComment.snippet.publishedAt",
+            "text": "snippet.topLevelComment.snippet.textDisplay",
+            "thread_id": "id"
+          },
+          "own_reason": "comment-is-ours",
+          "recipient": {},
+          "window_ms": null,
+          "request": {
+            "method": "POST",
+            "url": "https://www.googleapis.com/youtube/v3/comments?part=snippet",
+            "body": { "snippet": { "parentId": "{message_id}", "textOriginal": "{reply_text}" } },
+            "id_path": "id",
+            "error_path": "error.message"
+          }
+        }
+      ]
+    }
+  ]
+}

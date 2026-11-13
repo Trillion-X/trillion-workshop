@@ -1,11 +1,11 @@
 {
   "kind": "tool-rows",
   "record_set": "reply-by-keyword-rule-tool-rows",
-  "what_this_is": "The Workshop rows for automatic replies by keyword rule (tools/reply-by-keyword-rule): decide which reply to send, then send it once inside Meta's window.",
+  "what_this_is": "The Workshop rows for automatic replies by keyword rule (tools/reply-by-keyword-rule): decide which reply to send for any place a row names (read-data/reply-places.json), then send it once with that place's send row.",
   "records": [
     {
-      "id": "package::reply-by-keyword-rule::tool::decide-the-instagram-replies",
-      "address": "package::reply-by-keyword-rule::tool::decide-the-instagram-replies",
+      "id": "package::reply-by-keyword-rule::tool::decide-the-replies",
+      "address": "package::reply-by-keyword-rule::tool::decide-the-replies",
       "path": [
         "current-item",
         "published-record"
@@ -24,20 +24,32 @@
           "memory_mb": 256
         },
         "read_only": true,
-        "id": "tool:decide-the-instagram-replies",
-        "label": "Decide the Instagram replies",
-        "job": "Say which automatic reply to send now to each Instagram direct message or comment by the person's keyword rules, and which to leave and why",
-        "description": "Reads the person's reply rules (their reply-rule rows, in order), the pulled Instagram direct-message conversations and the pulled Instagram comments (the instagram-messages and instagram-comments pulls) of one account, and says for each latest message whether a rule's reply is to be sent now: the rule must match, the message must be the other person's, and the Meta window must still be open (24 hours for a direct message, 7 days for a comment's private reply). A reply already kept is never chosen again, and a comment on the person's own account is never answered. A source never pulled is named under not_pulled. It sends nothing and keeps nothing; tool:send-an-instagram-reply sends one chosen reply.",
+        "id": "tool:decide-the-replies",
+        "label": "Decide the replies",
+        "job": "Say which automatic reply to send now to each message or comment a person received on one of their connected places, by their keyword rules, and which to leave and why",
+        "description": "Reads the person's reply rules (their reply-rule rows, in order), one place's row (read-data/reply-places.json: where its items come from, whose words are the person's own, how long a reply is allowed, who it goes to) and the items of that place, and says for each item whether a rule's reply is to be sent now: the rule must match, the item must be someone else's, and the place's window, if it sets one, must still be open. Items come from the place's pulls kept in the person's records (give account, the name the pull was kept under) or from a pull tool's answer handed in as pulled.<channel id>; a channel with neither is named under not_pulled. A place whose own id is a readable field of the person's connection needs account_id, the connection. A reply already kept is never chosen again. It sends nothing and keeps nothing; the place's send row (its send_tool) sends one chosen reply.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "account_id"
+            "place"
           ],
           "properties": {
+            "place": {
+              "type": "string",
+              "description": "The place's row id in reply-places.json, for example reply-place:instagram or reply-place:youtube"
+            },
+            "account": {
+              "type": "string",
+              "description": "The name the place's pulls were kept under, as the pull tools named it (default: default)"
+            },
             "account_id": {
               "type": "string",
-              "description": "The pulled Instagram account's name, as tool:pull-my-instagram-messages named it (its account, default default)"
+              "description": "The person's connection for the place, service_connection:<vendor> or service_connection:<vendor>:<name>; needed by a place that reads the person's own id from it"
+            },
+            "pulled": {
+              "type": "object",
+              "description": "For a place whose items are handed in: the answers of its pull tool, by channel id, each an array of answers (one per page or video)"
             },
             "now": {
               "type": "string",
@@ -48,11 +60,14 @@
         "output_schema": {
           "type": "object",
           "required": [
-            "account_id",
+            "place",
             "decisions"
           ],
           "properties": {
-            "account_id": {
+            "place": {
+              "type": "string"
+            },
+            "account": {
               "type": "string"
             },
             "decisions": {
@@ -169,10 +184,16 @@
                 ]
               },
               {
-                "kind": "instagram-reply",
+                "kind": "reply-kept",
                 "operations": [
                   "records:read",
                   "records:list"
+                ]
+              },
+              {
+                "kind": "connection",
+                "operations": [
+                  "records:read"
                 ]
               }
             ]
@@ -182,8 +203,8 @@
       }
     },
     {
-      "id": "package::reply-by-keyword-rule::tool::send-an-instagram-reply",
-      "address": "package::reply-by-keyword-rule::tool::send-an-instagram-reply",
+      "id": "package::reply-by-keyword-rule::tool::send-a-reply-on-instagram",
+      "address": "package::reply-by-keyword-rule::tool::send-a-reply-on-instagram",
       "path": [
         "current-item",
         "published-record"
@@ -200,10 +221,10 @@
           "expected_seconds": 60,
           "network_egress": true
         },
-        "id": "tool:send-an-instagram-reply",
-        "label": "Send an Instagram reply",
-        "job": "Send one chosen automatic reply to one Instagram direct message or to one comment (a private reply), once, while its Meta window is still open",
-        "description": "Give account_id and one decision from tool:decide-the-instagram-replies whose action is send. The window is checked again at the moment of sending: a closed window sends nothing. The reply is kept before it is sent, so a reply sent once is never sent again; if no answer comes back the reply is kept as not-known for a person to look at, and it is not retried. The account's held Instagram token is placed only on the request to graph.instagram.com, never kept. It posts publicly on the person's account: run it only for replies the person's rules chose.",
+        "id": "tool:send-a-reply-on-instagram",
+        "label": "Send a reply on Instagram",
+        "job": "Send one chosen automatic reply to one Instagram message or comment, once, while its place's window, if it sets one, is still open",
+        "description": "Give account_id and one decision from tool:decide-the-replies whose action is send. The place row's request for the decision's channel is sent (read-data/reply-places.json), the window is checked again at the moment of sending: a closed window sends nothing. The reply is kept before it is sent, so a reply sent once is never sent again; if no answer comes back the reply is kept as not-known for a person to look at, and it is not retried. The account's held token is placed only on the request, only to the place's own hosts, never kept. It posts publicly on the person's account: run it only for replies the person's rules chose.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -218,7 +239,7 @@
             },
             "decision": {
               "type": "object",
-              "description": "One decision from tool:decide-the-instagram-replies whose action is send"
+              "description": "One decision from tool:decide-the-replies whose action is send"
             }
           }
         },
@@ -338,8 +359,8 @@
           "argv": [
             "node",
             "/opt/records-door/do-work/run-an-export.mjs",
-            "/opt/reply-by-keyword-rule/do-work/send-an-instagram-reply.mjs",
-            "sendAnInstagramReply"
+            "/opt/reply-by-keyword-rule/do-work/send-a-reply.mjs",
+            "sendAReply"
           ],
           "stdin": {
             "fill": {
@@ -350,7 +371,7 @@
             "fd": 3,
             "rights": [
               {
-                "kind": "instagram-reply",
+                "kind": "reply-kept",
                 "operations": [
                   "records:read",
                   "records:write"
@@ -360,6 +381,208 @@
           },
           "connection": {
             "vendor": "instagram",
+            "from_input": "account_id"
+          },
+          "credential_mounts": [
+            {
+              "field_id": "access_token",
+              "fd": 4
+            }
+          ]
+        },
+        "result_selector": "$.result"
+      }
+    },
+    {
+      "id": "package::reply-by-keyword-rule::tool::send-a-reply-on-youtube",
+      "address": "package::reply-by-keyword-rule::tool::send-a-reply-on-youtube",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:reply-by-keyword-rule",
+        "needs": {
+          "expected_seconds": 60,
+          "network_egress": true
+        },
+        "id": "tool:send-a-reply-on-youtube",
+        "label": "Send a reply on YouTube",
+        "job": "Send one chosen automatic reply to one YouTube message or comment, once, while its place's window, if it sets one, is still open",
+        "description": "Give account_id and one decision from tool:decide-the-replies whose action is send. The place row's request for the decision's channel is sent (read-data/reply-places.json), the window is checked again at the moment of sending: a closed window sends nothing. The reply is kept before it is sent, so a reply sent once is never sent again; if no answer comes back the reply is kept as not-known for a person to look at, and it is not retried. The account's held token is placed only on the request, only to the place's own hosts, never kept. It posts publicly on the person's account: run it only for replies the person's rules chose.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "account_id",
+            "decision"
+          ],
+          "properties": {
+            "account_id": {
+              "type": "string",
+              "description": "One of the person's YouTube accounts, service_connection:youtube or service_connection:youtube:<account>"
+            },
+            "decision": {
+              "type": "object",
+              "description": "One decision from tool:decide-the-replies whose action is send"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "status",
+            "key"
+          ],
+          "properties": {
+            "status": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "refresh": {
+            "token_url": "https://oauth2.googleapis.com/token",
+            "asked": {
+              "method": "POST",
+              "grant_type": "refresh_token",
+              "token_param": "refresh_token"
+            },
+            "client_auth": "form",
+            "client": {
+              "id": {
+                "name": "google-sign-in-client-id"
+              },
+              "secret": {
+                "name": "google-sign-in-client-secret"
+              }
+            },
+            "access_field": "access_token",
+            "token_paths": [
+              [
+                "access_token"
+              ]
+            ],
+            "expires_path": [
+              "expires_in"
+            ],
+            "refresh": {
+              "field": "refresh_token",
+              "token_paths": [
+                [
+                  "refresh_token"
+                ]
+              ]
+            },
+            "when_expiry_unknown": true
+          },
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "reply-by-keyword-rule",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/reply-by-keyword-rule"
+              },
+              {
+                "package": "reply-templates",
+                "paths": [
+                  "read-data/expand.mjs"
+                ],
+                "at": "/opt/reply-templates"
+              },
+              {
+                "package": "pull-from-connected-accounts",
+                "paths": [
+                  "read-data/snapshot.mjs"
+                ],
+                "at": "/opt/pull-from-connected-accounts"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          },
+          "workdir": "/opt/reply-by-keyword-rule",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/reply-by-keyword-rule/do-work/send-a-reply.mjs",
+            "sendAReply"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "reply-kept",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              }
+            ]
+          },
+          "connection": {
+            "vendor": "youtube",
             "from_input": "account_id"
           },
           "credential_mounts": [
