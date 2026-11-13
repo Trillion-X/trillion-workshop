@@ -2577,6 +2577,10 @@
       "by": {
        "type": "string"
       },
+      "workflow_runs": {
+       "type": "array",
+       "description": "Not accepted: a finished run is named by the engine, never by the words of a say, so any run id here is refused"
+      },
       "expected_generation": {
        "type": "integer",
        "minimum": 1

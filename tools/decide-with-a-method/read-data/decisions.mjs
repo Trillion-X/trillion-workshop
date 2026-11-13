@@ -52,6 +52,23 @@ const same = (a, b) => canonical(a) === canonical(b);
 // What Trillion says, filled from the decision; a filled value loses its trailing full stop, as the old words did.
 export const say = (name, parts = {}) => WORDS[name].replace(/\{(\w+)\}/g, (_, key) => String(parts[key] ?? '').trim().replace(/[.\s]+$/, ''));
 export const refuse = (name, parts) => { throw new Error(say(name, parts)); };
+// A call's fields are the ones its tool row declares (input_schema in tool-rows.json, the row with the tool's id): a field the
+// call does not declare is refused by name, and a field a free-form object holds that the call declares at its top level
+// (`verdicts` inside `answer`) is refused where it belongs, instead of being read as nothing.
+const TOOL_ROWS = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(row => row.payload);
+export function refuseMisplacedFields(toolId, input) {
+  const schema = TOOL_ROWS.find(row => row.id === toolId)?.input_schema;
+  if (!object(schema?.properties) || !object(input)) return;
+  const fields = Object.keys(schema.properties);
+  if (schema.additionalProperties === false) {
+    for (const name of Object.keys(input)) if (!fields.includes(name)) refuse('field_unknown', { name, fields: fields.join(', ') });
+  }
+  for (const [name, value] of Object.entries(input)) {
+    if (!object(value)) continue;
+    const declared = object(schema.properties[name]?.properties) ? schema.properties[name].properties : {};
+    for (const key of Object.keys(value)) if (key !== name && fields.includes(key) && !(key in declared)) refuse('field_misplaced', { name: key, in: name });
+  }
+}
 
 export const caseIdFor = sourceId => `${NAMES.case_prefix}${Buffer.from(sourceId).toString('base64url')}`;
 
@@ -271,6 +288,7 @@ export async function decisionOrRefuse(door, id, steps) {
 /** tool:start-a-decision. input { source_id, goal, evidence: [{ ref, claim }], options?: [{ id, label }], method? }: with no
  * options the method's own steps generate and rule out candidates (optionsOf). */
 export async function startADecision(input, { door }) {
+  refuseMisplacedFields('tool:start-a-decision', input);
   const methods = await methodsOf(door, input?.method);
   const { id, method } = validatedCase(input, catalogue(methods));
   const current = await readDecision(door, id);
@@ -313,6 +331,7 @@ export async function inheritableFrom(door, record, question, standing = setting
  * they belong to; the question itself was already sent. `versions_of` names a step, and the reply is its versions, oldest
  * first, each with who, when, why and its answer. */
 export async function nextDecisionQuestion(input, { door }) {
+  refuseMisplacedFields('tool:next-decision-question', input);
   if (input.versions_of !== undefined) {
     const record = await decisionOrRefuse(door, decisionId(input), nonempty(input.versions_of) ? [input.versions_of] : []);
     return versionsReply(door, record, input.versions_of);
@@ -446,6 +465,7 @@ function takeEvidence(record, rows) {
 /** tool:add-decision-evidence. input { decision_id, evidence: [{ ref, claim } | { ref, from: { decision_id, ref } }] }: rows
  * added at any time, each kept with when it came in; the same rows again replay, and an answer may cite them at once. */
 export async function addDecisionEvidence(input, { door }) {
+  refuseMisplacedFields('tool:add-decision-evidence', input);
   const id = decisionId(input);
   const items = input.evidence;
   if (!Array.isArray(items) || items.length < 1 || items.length > EVIDENCE.most_per_call) refuse('evidence_count', { count: EVIDENCE.most_per_call });
@@ -533,6 +553,7 @@ function reopen(record, { step_id, because, now }) {
  * confirmation of a re-asked step unchanged, or with verdicts added as a new version of the same answer (a decided decision stays
  * decided); `from` answers with another decision's step as it stood. */
 export async function answerADecisionQuestion(input, { door }) {
+  refuseMisplacedFields('tool:answer-a-decision-question', input);
   const id = decisionId(input);
   if (!nonempty(input.step_id)) refuse('answer_needs_step');
   answerShape(input);
@@ -641,6 +662,7 @@ function decisionShape(decision, expectedGeneration) {
 
 /** tool:make-the-decision. input { decision_id, decision: { option_id, reason, next_action, success_measure, evidence_refs, move?, ...fields }, verdicts?, usage?, expected_generation? } */
 export async function makeTheDecision(input, { door }) {
+  refuseMisplacedFields('tool:make-the-decision', input);
   const id = decisionId(input);
   const { decision, expected_generation: expectedGeneration } = input;
   const record = await decisionOrRefuse(door, id, ['proof']);
@@ -722,6 +744,7 @@ function observedAt(value, now) {
 
 /** tool:report-a-decision-result. input { decision_id, result, summary, answered_by: "person", source_ref?, supersedes?, observed_at?, expected_generation? } */
 export async function reportADecisionResult(input, { door }) {
+  refuseMisplacedFields('tool:report-a-decision-result', input);
   const id = decisionId(input);
   if (!['met', 'failed', 'unknown'].includes(input.result) || !nonempty(input.summary)) refuse('result_shape');
   if (input.answered_by !== 'person') refuse('ask_the_person');
@@ -755,6 +778,7 @@ export async function reportADecisionResult(input, { door }) {
 
 /** tool:say-what-was-done. input { decision_id, state: "done" | "wall", what_happened, by?, expected_generation? } */
 export async function sayWhatWasDone(input, { door }) {
+  refuseMisplacedFields('tool:say-what-was-done', input);
   const id = decisionId(input);
   if (!['done', 'wall'].includes(input.state) || !nonempty(input.what_happened)) refuse('said_shape');
   if (input.expected_generation !== undefined && (!Number.isInteger(input.expected_generation) || input.expected_generation < 1)) refuse('generation_shape');
@@ -833,6 +857,7 @@ async function writeEnded(door, batch, answers, roots) {
  * ended with already; one whose status is in ending.keeps_open, or that is not there, is not ended. One whose conditioned
  * write is over `write_bytes` is ended through its layout and answers laid_apart. */
 export async function endDecisions(input, { door }) {
+  refuseMisplacedFields('tool:end-a-decision', input);
   const { ending } = settings;
   const asked = input?.decisions;
   if (!Array.isArray(asked) || asked.length < 1 || asked.length > ending.most || !nonempty(input.by)

@@ -12,7 +12,7 @@
 // tools/keep-and-wake-ai-sessions-on-this-computer/src/decision-store.mjs, whose addCall no running decision tool calls).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { answerADecisionQuestion, startADecision } from '../read-data/decisions.mjs';
+import { answerADecisionQuestion, keepDecision, startADecision } from '../read-data/decisions.mjs';
 import { readDecision } from '../read-data/decision-records.mjs';
 import { account, fill, judged } from './old-engine-for-tests.mjs';
 
@@ -23,12 +23,18 @@ const input = {
   options: [{ id: 'reconcile', label: 'Durable reconciliation' }, { id: 'manual', label: 'Keep copying by hand' }],
 };
 
+// Retracts one evidence row of a case as a write of its own: the row is kept at its new content identity and the root moves with it.
+async function retract(door, id, ref) {
+  const record = await readDecision(door, id);
+  record.input.evidence.find(item => item.ref === ref).retracted_at = new Date().toISOString();
+  await keepDecision(door, record, `retract-decision-evidence:${id}:${ref}`);
+}
+
 async function atOutcome() {
   const door = account();
   const { case_id: id, question: scope } = await startADecision(input, { door });
-  // The old engine's reviseEvidence({ retract: ['old'] }): the row stays, marked retracted.
-  const row = `decision-evidence:${id}:0001`;
-  door.put(row, 'decision-evidence', { ...door.value(row), retracted_at: new Date().toISOString() });
+  // The old engine's reviseEvidence({ retract: ['old'] }): the row stays, marked retracted, through the same write a change makes.
+  await retract(door, id, 'old');
   const { question } = await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: fill(scope, { refs: ['user-verbatim'] }) }, { door });
   assert.equal(question.step_id, 'outcome');
   return { door, id, question };
@@ -64,4 +70,18 @@ test('a refused answer is kept with its call, with every problem in full and the
     return true;
   });
   assert.equal((await readDecision(door, id)).guidance.length, 1, 'the refused answer is not kept as the step');
+});
+
+test('a retraction written under the new layout is read back as gone, and a refused retraction moves nothing', async () => {
+  const door = account();
+  const { case_id: id } = await startADecision(input, { door });
+  const stale = await readDecision(door, id);
+  await retract(door, id, 'old');
+  const kept = await readDecision(door, id);
+  assert.deepEqual(kept.input.evidence.filter(item => !item.retracted_at).map(item => item.ref), ['user-verbatim'], 'the retracted row reads back as gone');
+  const before = [...door.records.entries()].map(([key, kept]) => [key, JSON.stringify(kept)]);
+  stale.input.evidence.find(item => item.ref === 'user-verbatim').retracted_at = new Date().toISOString();
+  await assert.rejects(keepDecision(door, stale, `retract-decision-evidence:${id}:user-verbatim`), /case changed/);
+  assert.deepEqual([...door.records.entries()].map(([key, kept]) => [key, JSON.stringify(kept)]), before, 'a refused retraction moves nothing');
+  assert.deepEqual((await readDecision(door, id)).input.evidence.filter(item => !item.retracted_at).map(item => item.ref), ['user-verbatim']);
 });

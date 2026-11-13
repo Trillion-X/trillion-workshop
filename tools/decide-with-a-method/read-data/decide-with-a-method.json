@@ -162,6 +162,8 @@
     "end_shape": "Name 1 to {most} decisions to end, each { decision_id, because } with its own decision_id, and by: who ends them",
     "end_kept_open": "A decision with status {status} has a result or a correction to keep; it is not ended.",
     "end_changed": "The decision changed after it was read; it is not ended. Read it again before ending it.",
+    "field_unknown": "\"{name}\" is not a field of this call. The fields it declares are: {fields}.",
+    "field_misplaced": "\"{name}\" belongs at the top level of the call, not inside \"{in}\".",
     "end_too_large": "The records door refused this decision's write as too large; it is not ended and is as it was."
   },
   "share": {
