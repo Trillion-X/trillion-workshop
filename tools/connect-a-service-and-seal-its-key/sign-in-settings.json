@@ -1,0 +1,54 @@
+{
+ "_what": "What tool:connect-an-account-by-signing-in-to-the-service reads (do-work/connect-by-signing-in.mjs). `routes` are its two page routes under `route_prefix` (the engine's @workshop-routes rows in trillion-rust src/server/tool-routes.json); the callback route is every switched-on descriptor's acquire.redirect.path, so the address a service sends the person back to is `public_origin` + `route_prefix` + that path. `list` is the person's service-connections list: its own choice and boolean fields are the starting values a sign-in is started with, every row it holds and every row written here is a record of type record:<its row_type>, a row of kind `sign_in_app_kind` holds a sign-in app's id in the open (an OAuth client id is not a secret, RFC 6749 section 2.2; the old Worker published it as service-plain-values) under `client_id`, named by the descriptor's hosted_client.id_name in `client_id_name`, and a connected account is a row of kind `account_kind`. `pending` is how a started sign-in waits for its callback: one record of type `type` whose id is `id_prefix` and the BLAKE3 identity of its state, until `link_seconds` (or the start's own wait_seconds) and then `state_seconds` have passed, the old Worker's LINK_SECONDS and STATE_SECONDS. `services` are the descriptors whose sign-in is switched on here: the http rows that trade the code for the tokens in order (`trade`, the first given the code), and the row that checks the new connection (`verify`, its input with `{connection_id}` standing for the new connection's id); a descriptor not named here is refused. `flows` are the descriptor acquire.flow values these routes run (the old Worker's hosted sign-in, oauth2_auth_code); a descriptor whose flow is not listed (a device code, a provider-hosted window) is refused at the start, so a new flow is one entry here and its own start and callback, never a service named in code. `words` are what the person reads; {service}, {account}, {expected} and {why} are filled in.",
+ "public_origin": "https://app.gettrillion.ai",
+ "route_prefix": "/work/api",
+ "routes": { "start": "/connect/start", "callback": "/connect/callback" },
+ "flows": ["oauth2_auth_code"],
+ "list": "list:service-connections",
+ "sign_in_app_kind": "sign-in-app",
+ "account_kind": "signed-in-account",
+ "pending": {
+  "type": "service-connection-pending",
+  "id_prefix": "service-connection-pending:",
+  "link_seconds": 900,
+  "state_seconds": 600
+ },
+ "services": {
+  "google-account": {
+   "trade": ["tool:trade-a-gmail-sign-in-code-for-its-tokens"],
+   "verify": { "tool": "tool:google-account-find_my_mailbox", "input": { "connection": { "connection_id": "{connection_id}" } } }
+  },
+  "youtube": {
+   "trade": ["tool:trade-a-youtube-sign-in-code-for-its-tokens"],
+   "verify": { "tool": "tool:check-the-youtube-connection", "input": { "account_id": "{connection_id}" } }
+  },
+  "x": {
+   "trade": ["tool:trade-an-x-sign-in-code-for-its-tokens"],
+   "verify": { "tool": "tool:check-the-x-connection", "input": { "account_id": "{connection_id}" } }
+  },
+  "instagram": {
+   "trade": ["tool:trade-an-instagram-sign-in-code-for-its-short-token", "tool:trade-a-short-instagram-token-for-a-long-one"],
+   "verify": { "tool": "tool:check-the-instagram-connection", "input": { "account_id": "{connection_id}" } }
+  }
+ },
+ "words": {
+  "not_found": "Not found",
+  "unknown_service": "{service} cannot be connected by signing in here.",
+  "not_switched_on": "Connecting {service} is not switched on yet: this account holds no sign-in app id for it. Nothing was sent anywhere.",
+  "starting_value": "Say each starting value of the new connection: {why}.",
+  "bad_scopes": "scopes must name only scopes this service's sign-in lists, separated by spaces or commas: {why}.",
+  "bad_wait": "wait_seconds must be a whole number of seconds above 0.",
+  "bad_return": "return_to must be a path on this site that starts with one /.",
+  "expired": "This sign-in has expired or was already used. Nothing was saved. Ask for a new link to connect.",
+  "not_connected": "{service} was not connected: the sign-in was cancelled, refused, or no longer matches this service. Nothing was saved. Ask for a new link to try again.",
+  "refused": "{service} was not connected: {why} Nothing was saved. Ask for a new link to try again.",
+  "no_token": "the service answered without a token.",
+  "not_checked": "the new connection could not be checked with the service.",
+  "no_account": "this sign-in does not reach any account Trillion can connect.",
+  "many_accounts": "this sign-in reaches more than one account; connect again and pick just one on the sign-in page.",
+  "other_account": "you signed in as {account}, and this link was made for {expected}. Sign in with {expected}.",
+  "unnamed_account": "the service did not say which account signed in, so it could not be checked against {expected}.",
+  "connected": "{service} is connected as {account}. Your AI can use it now. You can close this tab.",
+  "connected_back": "{service} is connected as {account}. Your AI can use it now. Go back: {back}"
+ }
+}

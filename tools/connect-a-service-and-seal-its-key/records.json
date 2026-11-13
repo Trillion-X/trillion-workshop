@@ -2032,6 +2032,7 @@
      "hosted_client": {
       "id_name": "x-sign-in-client-id",
       "secret_name": "x-sign-in-client-secret",
+      "basic_name": "x-sign-in-client-secret-basic",
       "made_at": {
        "label": "X Developer Portal",
        "url": "https://developer.x.com/en/portal/dashboard",

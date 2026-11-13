@@ -558,6 +558,392 @@
           "descriptor": "tools/connect-a-service-and-seal-its-key/records.json service-connection-descriptor instagram acquire.then[0]"
         }
       }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:connect-a-service-and-seal-its-key",
+        "id": "tool:connect-an-account-by-signing-in-to-the-service",
+        "listed_on": "2026-11-12T00:00:00Z",
+        "label": "Connect an account by signing in to the service",
+        "job": "Connect an account (Gmail, YouTube, Instagram, any service whose sign-in is switched on) by signing in on the service's own page, starting it with the values the new connection should have",
+        "description": "The page routes GET /work/api/connect/start and GET /work/api/connect/callback, run for the page's account (or by an AI with { path, method, query }). Start: query service (a descriptor vendor of this folder's records.json whose sign-in is switched on), each starting value of the new row of list:service-connections (its choice and boolean fields: status, read_only, can_send_as, can_be_primary), and optionally account (the account meant: the service is asked to pre-choose it and the callback refuses any other), wait_seconds (how long the link waits to be opened) and return_to (a path on this site). It keeps the state as a service-connection-pending record named by the state's digest, with the PKCE verifier and the starting values, and answers { authorize_url, service, connection_id, expires_at }: the service's own sign-in address for the person to open (the engine lets no route tool answer a redirect). Callback: the service sends the person back with code and state; the pending record is removed first (a state is used once), then an unknown or expired state, a service error, a missing code or a descriptor that no longer matches answers why and saves nothing. Otherwise the code is traded for the tokens by this folder's http rows (kept sealed in the vault as the new connection's fields), the connection is checked with the service, and one records:write creates the service-connection row with its starting values. The answer is a plain page that says connected, or why not. No token, verifier or secret is in any answer.",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "path",
+            "method"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "The page route after /work/api: /connect/start or /connect/callback"
+            },
+            "method": {
+              "type": "string",
+              "enum": [
+                "GET"
+              ]
+            },
+            "query": {
+              "type": "object",
+              "description": "The route's query parameters, by name"
+            },
+            "body": {
+              "description": "The JSON body the page sent ({} when none)"
+            },
+            "browser": {
+              "type": "object",
+              "description": "The asking browser's own facts: user_agent, origin, visitor"
+            },
+            "account_id": {
+              "type": "string",
+              "description": "The page's admitted account, set by the engine"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "status",
+            "body"
+          ],
+          "properties": {
+            "status": {
+              "type": "integer"
+            },
+            "body": {},
+            "http": {
+              "type": "object"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "connect-a-service-and-seal-its-key",
+                "paths": [
+                  "do-work/connect-by-signing-in.mjs",
+                  "sign-in-settings.json",
+                  "records.json"
+                ],
+                "at": "/opt/connect-a-service-and-seal-its-key"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          },
+          "workdir": "/opt/connect-a-service-and-seal-its-key",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/connect-a-service-and-seal-its-key/do-work/connect-by-signing-in.mjs",
+            "answerConnectRoute"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "list",
+                "id": "list:service-connections",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "record:service-connection",
+                "operations": [
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "service-connection-pending",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              }
+            ],
+            "runs": [
+              "tool:trade-a-gmail-sign-in-code-for-its-tokens",
+              "tool:google-account-find_my_mailbox",
+              "tool:trade-a-youtube-sign-in-code-for-its-tokens",
+              "tool:check-the-youtube-connection",
+              "tool:trade-an-instagram-sign-in-code-for-its-short-token",
+              "tool:trade-a-short-instagram-token-for-a-long-one",
+              "tool:check-the-instagram-connection",
+              "tool:trade-an-x-sign-in-code-for-its-tokens",
+              "tool:check-the-x-connection"
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": { "path": "/connect/callback", "method": "GET", "query": {}, "body": {} },
+            "output_selector": "$.status",
+            "contains": "410"
+          }
+        ],
+        "provenance": {
+          "source": "trillion src/connect.mjs handleConnectStart and handleConnectCallback, src/worker.mjs lines 823-835 and 4411 (tag old-trillion-before-worker-retire); ports/connect-by-signing-in.json in tools/connect-a-service-and-seal-its-key"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:public-web-address"
+        ],
+        "maker": "maker:connect-a-service-and-seal-its-key",
+        "listed_on": "2026-11-12T00:00:00Z",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": true
+        },
+        "read_only": false,
+        "id": "tool:trade-an-x-sign-in-code-for-its-tokens",
+        "label": "Trade an X sign-in code for its tokens",
+        "job": "Trade the code X's sign-in page handed back for the connection's access and refresh tokens, kept sealed in the vault",
+        "description": "One token request to X (the x descriptor's acquire.token_url, client_auth basic, PKCE): the code, the callback address, the PKCE verifier and the sign-in app's id go in a form body, and the app's Basic credentials (the held x-sign-in-client-secret-basic) in the Authorization header, each placed from the vault only as the request leaves. The reply's access_token and refresh_token are kept in the vault as the new connection's own fields (reply_holds_values) before the reply is read. Run by tool:connect-an-account-by-signing-in-to-the-service at the sign-in callback.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "connection",
+            "code",
+            "redirect_uri",
+            "code_verifier"
+          ],
+          "properties": {
+            "connection": {
+              "type": "object",
+              "required": [
+                "connection_id"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "connection_id": {
+                  "type": "string",
+                  "description": "The connection: service_connection:x or service_connection:x:<account>"
+                }
+              },
+              "description": "The connection, by its handle only"
+            },
+            "code": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The code X handed back to the sign-in callback"
+            },
+            "redirect_uri": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The callback address the sign-in was started with"
+            },
+            "code_verifier": {
+              "type": "string",
+              "minLength": 43,
+              "maxLength": 128,
+              "description": "The PKCE verifier the sign-in was started with (RFC 7636)"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "X's token reply, each kept token replaced by the held word"
+        },
+        "invoke": {
+          "kind": "http",
+          "url": "https://api.x.com/2/oauth2/token",
+          "method": "POST",
+          "body_encoding": "form",
+          "timeout_seconds": 30,
+          "headers": {
+            "accept": "application/json"
+          },
+          "body": {
+            "grant_type": "authorization_code",
+            "code": "{code}",
+            "redirect_uri": "{redirect_uri}",
+            "code_verifier": "{code_verifier}",
+            "client_id": "{{client_id}}"
+          },
+          "credential_injections": [
+            {
+              "secret_name": "x-sign-in-client-id",
+              "hosts": [
+                "api.x.com"
+              ],
+              "placement": {
+                "kind": "placeholder",
+                "name": "client_id"
+              }
+            },
+            {
+              "secret_name": "x-sign-in-client-secret-basic",
+              "hosts": [
+                "api.x.com"
+              ],
+              "placement": {
+                "kind": "header",
+                "name": "Authorization",
+                "prefix": "Basic "
+              }
+            }
+          ],
+          "connection": {
+            "vendor": "x",
+            "from_input": "connection"
+          },
+          "reply_holds_values": [
+            {
+              "from": "access_token",
+              "keep_as_field": "access_token"
+            },
+            {
+              "from": "refresh_token",
+              "keep_as_field": "refresh_token"
+            }
+          ]
+        },
+        "result_selector": "$",
+        "provenance": {
+          "source": "trillion src/connect.mjs exchangeCode, CLIENT_PLACEMENTS.basic (tag old-trillion-before-worker-retire)",
+          "descriptor": "tools/connect-a-service-and-seal-its-key/records.json service-connection-descriptor x acquire"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:public-web-address"
+        ],
+        "maker": "maker:connect-a-service-and-seal-its-key",
+        "listed_on": "2026-11-12T00:00:00Z",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": true
+        },
+        "read_only": true,
+        "id": "tool:check-the-x-connection",
+        "label": "Check the X connection",
+        "job": "Check that the person's X connection still reaches its account, and say which account it is",
+        "description": "Asks X which account the connection signs in as (GET /2/users/me, the x descriptor's verifyRequest), with the access token the person's vault holds for it, placed only as the request leaves and never shown. Returns X's answer: data.id and data.username. A refusal (an expired or revoked sign-in) means the person connects X again. It changes nothing.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "account_id"
+          ],
+          "properties": {
+            "account_id": {
+              "type": "string",
+              "description": "One of the person's X accounts: service_connection:x or service_connection:x:<account>"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "http",
+          "url": "https://api.x.com/2/users/me",
+          "method": "GET",
+          "timeout_seconds": 20,
+          "headers": {
+            "accept": "application/json"
+          },
+          "credential_injections": [
+            {
+              "hosts": [
+                "api.x.com"
+              ],
+              "field_id": "access_token",
+              "placement": {
+                "kind": "header",
+                "name": "Authorization",
+                "prefix": "Bearer "
+              }
+            }
+          ],
+          "connection": {
+            "vendor": "x",
+            "from_input": "account_id"
+          }
+        },
+        "result_selector": "$",
+        "provenance": {
+          "descriptor": "tools/connect-a-service-and-seal-its-key/records.json service-connection-descriptor x verifyRequest"
+        }
+      }
     }
   ]
 }

@@ -1,7 +1,7 @@
 {
  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
  "id": "REF-CONNECT-AN-ACCOUNT-BY-SIGNING-IN-TO-THE-SERVICE",
- "status": "BASELINED",
+ "status": "ADAPTED",
  "directive": {
   "thread_id": "connect lane, ai-command-center, 2026-11-12",
   "message_multihash": "1f:bbac5060e0a8ad431c6b78190c70888e619c9a97cf41f329218aec352ee5411d",
@@ -54,6 +54,7 @@
   "copied_before_adaptation": true,
   "source_multihash": "1f:0afc19e7aea8150e73f0006c2504dc9ba03edbc96f3fad8f14c0589b4afab51e",
   "target_multihash_at_baseline": "1f:0afc19e7aea8150e73f0006c2504dc9ba03edbc96f3fad8f14c0589b4afab51e",
+  "commit": "e78f9fa7532894b8ba6925417ac93c2e8aa5ec28",
   "recorded_at": "2026-11-12T00:00:00Z"
  },
  "proof": {
