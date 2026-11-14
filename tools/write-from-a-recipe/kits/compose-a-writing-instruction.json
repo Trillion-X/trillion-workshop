@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:compose-a-writing-instruction's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Build the exact instruction to write something from a writing recipe and the person's material, before writing it\", with {\"recipe_id\":\"writing-recipe:action-items\",\"work_item\":{\"text\":\"Book the hall. Maybe think about snacks someday. Send the invites by Friday.\"}}. It runs tool:compose-a-writing-instruction and answers {\"recipe_id\":\"writing-recipe:action-items\",\"instruction_text\":\"Extract concrete action items from the following as a checklist. Start each with a verb, make each independently doable, and drop anything that is not actionable.\\n\\nBook the hall. Maybe think about snacks someday. Send the invites by Friday.\",\"input_refs\":[],\"output_kind\":\"note\",\"output_schema\":null,\"gate_policy\":null ...",
   "lists": [],

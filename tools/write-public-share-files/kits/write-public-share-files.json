@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:write-public-share-files's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Write the public files of every share link of mine that anyone may open, into the folder my public server serves, and remove the files of links I revoked or that expired\", with {\"origin\":\"https://example.com\",\"row_kind\":\"record:example\"}. It runs tool:write-public-share-files and answers {\"written\":2,\"unchanged\":0,\"removed\":[],\"published\":[],\"left_out\":[],\"ended\":[],\"next_change_at\":null}",
   "lists": [],

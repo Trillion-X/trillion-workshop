@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:list-writing-recipes's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"List the ready writing recipes (summarize, translate, rewrite, critique and more) and the instruction blocks a recipe can use\", with {\"words\":\"translate spanish\"}. It runs tool:list-writing-recipes and answers {\"recipes\":[{\"id\":\"writing-recipe:translate-spanish\",\"label\":\"Translate to Spanish\",\"section\":\"AI\",\"needs\":[\"text\"],\"fields\":[]}],\"blocks\":[],\"sections\":[\"AI\",\"Analyze\",\"Code\",\"Data\",\"Ideate\",\"Learn\",\"Plan\",\"Summarize\",\"Transform\",\"Translate\",\"Writing\"]}",
   "lists": [],
