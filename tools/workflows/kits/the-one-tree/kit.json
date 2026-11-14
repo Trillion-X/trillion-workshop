@@ -1,6 +1,6 @@
 {
  "kit": "the-one-tree",
- "about": "Everything a person needs to run the one tree from the first minute: the three workflows, the lists they write to with example rows, a worked example, and how to pour the example rows into lists the person already has.",
+ "about": "Everything a person needs to run the one tree from the first minute: the three workflows, the lists they write to with their definitions, how every workflow becomes a branch through the conditions on its own row, a worked example, and how to pour rows into lists the person already has.",
  "workflows": [
   "workflow:grow-the-one-tree",
   "workflow:answer-commenters-with-videos",
@@ -11,7 +11,6 @@
   "workflow:research-what-everyone-says",
   "workflow:turn-what-you-said-into-content",
   "workflow:possibility-to-proof",
-  "workflow:handle-every-inbox-daily",
   "workflow:keep-a-changelog-from-what-shipped",
   "workflow:read-the-week-and-make-more-of-what-won"
  ],
@@ -100,62 +99,6 @@
    }
   },
   {
-   "id": "list:tree-branches",
-   "definition": {
-    "about": "Every branch of the one tree as a row: which workflow it runs, when it fires, how many agents, whether its work is public or internal by default. Adding a branch is adding a row.",
-    "fields": [
-     {
-      "id": "branch",
-      "kind": "text",
-      "label": "Branch"
-     },
-     {
-      "id": "workflow",
-      "kind": "text",
-      "label": "Workflow"
-     },
-     {
-      "id": "fires_when",
-      "kind": "long-text",
-      "label": "Fires when"
-     },
-     {
-      "id": "agents",
-      "kind": "number",
-      "label": "Agents"
-     },
-     {
-      "id": "visibility_default",
-      "kind": "choice",
-      "label": "Visible by default",
-      "choices": [
-       "public",
-       "internal"
-      ]
-     },
-     {
-      "id": "state",
-      "kind": "choice",
-      "label": "State",
-      "choices": [
-       "On",
-       "Off"
-      ]
-     },
-     {
-      "id": "evidence",
-      "kind": "long-text",
-      "label": "Evidence"
-     }
-    ],
-    "icon": "GitBranch",
-    "indexes": [],
-    "label": "Tree branches",
-    "row_type": "tree-branches",
-    "title_field": "branch"
-   }
-  },
-  {
    "id": "list:tree-outputs",
    "definition": {
     "about": "References only, one row per output of the one tree: the id of the row that holds it, the branch that made it, the seed, and the branches that reuse it. The output itself stays in its own list; nothing is copied here.",
@@ -196,507 +139,9 @@
     "row_type": "tree-outputs",
     "title_field": "output_ref"
    }
-  },
-  {
-   "id": "list:tree-branch-conditions",
-   "definition": {
-    "about": "When each branch of the one tree fires, as conditions the engine evaluates: one row per condition, {fields, tree} for tool:filter-rows-by-rules over one typed part of a seed (kinds, subjects, people, niches as tags; own_words true or false). A branch fires for a part when any of its On condition rows keeps it. label keeps the words the condition was made from (the branch's fires_when, or the AI's judgment); made_by says which. When no condition keeps a part, the AI judges the branches' fires_when and writes its judgment back here as a new row, so the next such part is chosen by the engine. Adding a condition is adding a row.",
-    "fields": [
-     {
-      "id": "branch",
-      "kind": "text",
-      "label": "Branch row"
-     },
-     {
-      "id": "label",
-      "kind": "long-text",
-      "label": "Fires when (words)"
-     },
-     {
-      "id": "condition",
-      "kind": "long-text",
-      "label": "Condition (fields and rule tree)"
-     },
-     {
-      "id": "made_by",
-      "kind": "text",
-      "label": "Made by"
-     },
-     {
-      "choices": [
-       "On",
-       "Off"
-      ],
-      "id": "state",
-      "kind": "choice",
-      "label": "State"
-     },
-     {
-      "id": "evidence",
-      "kind": "long-text",
-      "label": "Evidence"
-     }
-    ],
-    "icon": "GitBranch",
-    "indexes": [],
-    "label": "Tree branch conditions",
-    "row_type": "tree-branch-conditions",
-    "title_field": "label"
-   }
   }
  ],
- "example_rows": [
-  {
-   "id": "record:tree-branches:turn-what-you-said-into-content",
-   "type": "record:tree-branches",
-   "value": {
-    "agents": 1,
-    "branch": "Turn what was said into content",
-    "evidence": "Default branch of workflow:grow-the-one-tree, 2026-11-12.",
-    "fires_when": "the seed is the person's own words",
-    "state": "On",
-    "visibility_default": "public",
-    "workflow": "workflow:turn-what-you-said-into-content"
-   }
-  },
-  {
-   "id": "record:tree-branches:research-what-everyone-says",
-   "type": "record:tree-branches",
-   "value": {
-    "agents": 1,
-    "branch": "Research what everyone says",
-    "evidence": "Default branch of workflow:grow-the-one-tree, 2026-11-12.",
-    "fires_when": "a seed makes a claim or names a subject",
-    "state": "On",
-    "visibility_default": "internal",
-    "workflow": "workflow:research-what-everyone-says"
-   }
-  },
-  {
-   "id": "record:tree-branches:real-life-cases",
-   "type": "record:tree-branches",
-   "value": {
-    "agents": 1,
-    "branch": "Find real situations and the friction in them",
-    "evidence": "Existing mode workflow chosen as a branch of workflow:grow-the-one-tree, 2026-11-12; the row points at the workflow id, it is no second registry.",
-    "fires_when": "at the start of a pursuit and when new evidence arrives",
-    "state": "On",
-    "visibility_default": "internal",
-    "workflow": "workflow:real-life-cases"
-   }
-  },
-  {
-   "id": "record:tree-branches:read-the-week",
-   "type": "record:tree-branches",
-   "value": {
-    "agents": 1,
-    "branch": "Read the week and make more of what won",
-    "evidence": "Default branch of workflow:grow-the-one-tree, 2026-11-12.",
-    "fires_when": "weekly, once pieces are published",
-    "state": "On",
-    "visibility_default": "internal",
-    "workflow": "workflow:read-the-week-and-make-more-of-what-won"
-   }
-  },
-  {
-   "id": "record:tree-branches:put-it-in-the-world",
-   "type": "record:tree-branches",
-   "value": {
-    "agents": 1,
-    "branch": "Make the offer reachable",
-    "evidence": "Existing mode workflow chosen as a branch of workflow:grow-the-one-tree, 2026-11-12; the row points at the workflow id, it is no second registry.",
-    "fires_when": "when something worth releasing is ready",
-    "state": "On",
-    "visibility_default": "public",
-    "workflow": "workflow:put-it-in-the-world"
-   }
-  },
-  {
-   "id": "record:tree-branches:possibility-to-proof",
-   "type": "record:tree-branches",
-   "value": {
-    "agents": 1,
-    "branch": "Turn a finding into software and Workshop tools",
-    "evidence": "Default branch of workflow:grow-the-one-tree, 2026-11-12.",
-    "fires_when": "a finding describes a tool, app or service worth making",
-    "state": "On",
-    "visibility_default": "internal",
-    "workflow": "workflow:possibility-to-proof"
-   }
-  },
-  {
-   "id": "record:tree-branches:personalized-reach-out",
-   "type": "record:tree-branches",
-   "value": {
-    "agents": 1,
-    "branch": "Reach the right people individually",
-    "evidence": "Existing mode workflow chosen as a branch of workflow:grow-the-one-tree, 2026-11-12; the row points at the workflow id, it is no second registry.",
-    "fires_when": "when a piece answers a named person's question",
-    "state": "On",
-    "visibility_default": "public",
-    "workflow": "workflow:personalized-reach-out"
-   }
-  },
-  {
-   "id": "record:tree-branches:no-wait-voice-clone",
-   "type": "record:tree-branches",
-   "value": {
-    "agents": 1,
-    "branch": "Make the piece without waiting",
-    "evidence": "Default branch of workflow:grow-the-one-tree, 2026-11-12.",
-    "fires_when": "a waiting step is past its due time",
-    "state": "On",
-    "visibility_default": "internal",
-    "workflow": "workflow:make-the-piece-without-waiting-for-the-person"
-   }
-  },
-  {
-   "id": "record:tree-branches:make-it-perform",
-   "type": "record:tree-branches",
-   "value": {
-    "agents": 1,
-    "branch": "Improve how it is found and converts",
-    "evidence": "Existing mode workflow chosen as a branch of workflow:grow-the-one-tree, 2026-11-12; the row points at the workflow id, it is no second registry.",
-    "fires_when": "after publication",
-    "state": "On",
-    "visibility_default": "internal",
-    "workflow": "workflow:make-it-perform"
-   }
-  },
-  {
-   "id": "record:tree-branches:keep-it-working",
-   "type": "record:tree-branches",
-   "value": {
-    "agents": 1,
-    "branch": "Keep a verified result working",
-    "evidence": "Existing mode workflow chosen as a branch of workflow:grow-the-one-tree, 2026-11-12; the row points at the workflow id, it is no second registry.",
-    "fires_when": "after a result is proven",
-    "state": "On",
-    "visibility_default": "internal",
-    "workflow": "workflow:keep-it-working"
-   }
-  },
-  {
-   "id": "record:tree-branches:keep-a-changelog",
-   "type": "record:tree-branches",
-   "value": {
-    "agents": 1,
-    "branch": "Log what shipped",
-    "evidence": "Default branch of workflow:grow-the-one-tree, 2026-11-12.",
-    "fires_when": "something shipped from the seed",
-    "state": "On",
-    "visibility_default": "internal",
-    "workflow": "workflow:keep-a-changelog-from-what-shipped"
-   }
-  },
-  {
-   "id": "record:tree-branches:infinity",
-   "type": "record:tree-branches",
-   "value": {
-    "agents": 1,
-    "branch": "Keep improving without a ceiling",
-    "evidence": "Existing mode workflow chosen as a branch of workflow:grow-the-one-tree, 2026-11-12; the row points at the workflow id, it is no second registry.",
-    "fires_when": "after every pass; its continue step registers the wake",
-    "state": "On",
-    "visibility_default": "internal",
-    "workflow": "workflow:infinity"
-   }
-  },
-  {
-   "id": "record:tree-branches:handle-every-inbox",
-   "type": "record:tree-branches",
-   "value": {
-    "agents": 1,
-    "branch": "Answer the mail",
-    "evidence": "Default branch of workflow:grow-the-one-tree, 2026-11-12.",
-    "fires_when": "the seed is, or produces, a thread that needs an answer",
-    "state": "On",
-    "visibility_default": "internal",
-    "workflow": "workflow:handle-every-inbox-daily"
-   }
-  },
-  {
-   "id": "record:tree-branches:follow-through",
-   "type": "record:tree-branches",
-   "value": {
-    "agents": 1,
-    "branch": "Carry commitments to a checked outcome",
-    "evidence": "Existing mode workflow chosen as a branch of workflow:grow-the-one-tree, 2026-11-12; the row points at the workflow id, it is no second registry.",
-    "fires_when": "when something is promised",
-    "state": "On",
-    "visibility_default": "internal",
-    "workflow": "workflow:follow-through"
-   }
-  },
-  {
-   "id": "record:tree-branches:first-win",
-   "type": "record:tree-branches",
-   "value": {
-    "agents": 1,
-    "branch": "Take a new customer to a first result",
-    "evidence": "Existing mode workflow chosen as a branch of workflow:grow-the-one-tree, 2026-11-12; the row points at the workflow id, it is no second registry.",
-    "fires_when": "when a customer arrives",
-    "state": "On",
-    "visibility_default": "internal",
-    "workflow": "workflow:first-win"
-   }
-  },
-  {
-   "id": "record:tree-branches:find-unexplored-ground",
-   "type": "record:tree-branches",
-   "value": {
-    "agents": 1,
-    "branch": "Find unexplored ground",
-    "evidence": "Default branch of workflow:grow-the-one-tree, 2026-11-12.",
-    "fires_when": "a seed names a field or niche",
-    "state": "On",
-    "visibility_default": "internal",
-    "workflow": "workflow:find-unexplored-ground"
-   }
-  },
-  {
-   "id": "record:tree-branches:comment-keyword-offer",
-   "type": "record:tree-branches",
-   "value": {
-    "agents": 1,
-    "branch": "Offer a kit by comment keyword",
-    "evidence": "a library reference on offering a free tool to everyone who comments a keyword; the keyword rules are rows of list reply-rules (Instagram only today); points at the existing workflow id.",
-    "fires_when": "a post offers a Workshop kit to anyone who comments a keyword",
-    "state": "On",
-    "visibility_default": "public",
-    "workflow": "workflow:answer-comments-and-messages"
-   }
-  },
-  {
-   "id": "record:tree-branches:answer-commenters",
-   "type": "record:tree-branches",
-   "value": {
-    "agents": 1,
-    "branch": "Answer commenters with videos",
-    "evidence": "Default branch of workflow:grow-the-one-tree, 2026-11-12.",
-    "fires_when": "a watched account has new posts with comments",
-    "state": "On",
-    "visibility_default": "public",
-    "workflow": "workflow:answer-commenters-with-videos"
-   }
-  },
-  {
-   "id": "record:tree-branch-conditions:turn-what-you-said-into-content--from-fires-when",
-   "type": "record:tree-branch-conditions",
-   "value": {
-    "branch": "record:tree-branches:turn-what-you-said-into-content",
-    "label": "the seed is the person's own words",
-    "condition": "{\"fields\":[{\"id\":\"own_words\",\"kind\":\"boolean\",\"path\":[\"own_words\"]}],\"tree\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"own_words\",\"operator\":\"is_true\"}]}}",
-    "made_by": "fires_when",
-    "state": "On",
-    "evidence": "The branch row's fires_when, \"the seed is the person's own words\", written as a rule over a seed part's typed fields, 2026-11-13 (lane one-tree-any-input)."
-   }
-  },
-  {
-   "id": "record:tree-branch-conditions:research-what-everyone-says--from-fires-when",
-   "type": "record:tree-branch-conditions",
-   "value": {
-    "branch": "record:tree-branches:research-what-everyone-says",
-    "label": "a seed makes a claim or names a subject",
-    "condition": "{\"fields\":[{\"id\":\"kinds\",\"kind\":\"tags\",\"path\":[\"kinds\"]},{\"id\":\"subjects\",\"kind\":\"tags\",\"path\":[\"subjects\"]}],\"tree\":{\"kind\":\"group\",\"combinator\":\"or\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"kinds\",\"operator\":\"has_any_of\",\"params\":{\"values\":[\"claim\"]}},{\"kind\":\"rule\",\"field\":\"subjects\",\"operator\":\"is_not_empty\"}]}}",
-    "made_by": "fires_when",
-    "state": "On",
-    "evidence": "The branch row's fires_when, \"a seed makes a claim or names a subject\", written as a rule over a seed part's typed fields, 2026-11-13 (lane one-tree-any-input)."
-   }
-  },
-  {
-   "id": "record:tree-branch-conditions:real-life-cases--from-fires-when",
-   "type": "record:tree-branch-conditions",
-   "value": {
-    "branch": "record:tree-branches:real-life-cases",
-    "label": "at the start of a pursuit and when new evidence arrives",
-    "condition": "{\"fields\":[{\"id\":\"kinds\",\"kind\":\"tags\",\"path\":[\"kinds\"]}],\"tree\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"kinds\",\"operator\":\"has_any_of\",\"params\":{\"values\":[\"pursuit-start\",\"new-evidence\"]}}]}}",
-    "made_by": "fires_when",
-    "state": "On",
-    "evidence": "The branch row's fires_when, \"at the start of a pursuit and when new evidence arrives\", written as a rule over a seed part's typed fields, 2026-11-13 (lane one-tree-any-input)."
-   }
-  },
-  {
-   "id": "record:tree-branch-conditions:read-the-week--from-fires-when",
-   "type": "record:tree-branch-conditions",
-   "value": {
-    "branch": "record:tree-branches:read-the-week",
-    "label": "weekly, once pieces are published",
-    "condition": "{\"fields\":[{\"id\":\"kinds\",\"kind\":\"tags\",\"path\":[\"kinds\"]}],\"tree\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"kinds\",\"operator\":\"has_any_of\",\"params\":{\"values\":[\"week-ended\"]}}]}}",
-    "made_by": "fires_when",
-    "state": "On",
-    "evidence": "The branch row's fires_when, \"weekly, once pieces are published\", written as a rule over a seed part's typed fields, 2026-11-13 (lane one-tree-any-input)."
-   }
-  },
-  {
-   "id": "record:tree-branch-conditions:put-it-in-the-world--from-fires-when",
-   "type": "record:tree-branch-conditions",
-   "value": {
-    "branch": "record:tree-branches:put-it-in-the-world",
-    "label": "when something worth releasing is ready",
-    "condition": "{\"fields\":[{\"id\":\"kinds\",\"kind\":\"tags\",\"path\":[\"kinds\"]}],\"tree\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"kinds\",\"operator\":\"has_any_of\",\"params\":{\"values\":[\"ready-to-release\"]}}]}}",
-    "made_by": "fires_when",
-    "state": "On",
-    "evidence": "The branch row's fires_when, \"when something worth releasing is ready\", written as a rule over a seed part's typed fields, 2026-11-13 (lane one-tree-any-input)."
-   }
-  },
-  {
-   "id": "record:tree-branch-conditions:possibility-to-proof--from-fires-when",
-   "type": "record:tree-branch-conditions",
-   "value": {
-    "branch": "record:tree-branches:possibility-to-proof",
-    "label": "a finding describes a tool, app or service worth making",
-    "condition": "{\"fields\":[{\"id\":\"kinds\",\"kind\":\"tags\",\"path\":[\"kinds\"]}],\"tree\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"kinds\",\"operator\":\"has_any_of\",\"params\":{\"values\":[\"tool-idea\"]}}]}}",
-    "made_by": "fires_when",
-    "state": "On",
-    "evidence": "The branch row's fires_when, \"a finding describes a tool, app or service worth making\", written as a rule over a seed part's typed fields, 2026-11-13 (lane one-tree-any-input)."
-   }
-  },
-  {
-   "id": "record:tree-branch-conditions:personalized-reach-out--from-fires-when",
-   "type": "record:tree-branch-conditions",
-   "value": {
-    "branch": "record:tree-branches:personalized-reach-out",
-    "label": "when a piece answers a named person's question",
-    "condition": "{\"fields\":[{\"id\":\"kinds\",\"kind\":\"tags\",\"path\":[\"kinds\"]},{\"id\":\"people\",\"kind\":\"tags\",\"path\":[\"people\"]}],\"tree\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"kinds\",\"operator\":\"has_any_of\",\"params\":{\"values\":[\"answer\"]}},{\"kind\":\"rule\",\"field\":\"people\",\"operator\":\"is_not_empty\"}]}}",
-    "made_by": "fires_when",
-    "state": "On",
-    "evidence": "The branch row's fires_when, \"when a piece answers a named person's question\", written as a rule over a seed part's typed fields, 2026-11-13 (lane one-tree-any-input)."
-   }
-  },
-  {
-   "id": "record:tree-branch-conditions:no-wait-voice-clone--from-fires-when",
-   "type": "record:tree-branch-conditions",
-   "value": {
-    "branch": "record:tree-branches:no-wait-voice-clone",
-    "label": "a waiting step is past its due time",
-    "condition": "{\"fields\":[{\"id\":\"kinds\",\"kind\":\"tags\",\"path\":[\"kinds\"]}],\"tree\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"kinds\",\"operator\":\"has_any_of\",\"params\":{\"values\":[\"past-due\"]}}]}}",
-    "made_by": "fires_when",
-    "state": "On",
-    "evidence": "The branch row's fires_when, \"a waiting step is past its due time\", written as a rule over a seed part's typed fields, 2026-11-13 (lane one-tree-any-input)."
-   }
-  },
-  {
-   "id": "record:tree-branch-conditions:make-it-perform--from-fires-when",
-   "type": "record:tree-branch-conditions",
-   "value": {
-    "branch": "record:tree-branches:make-it-perform",
-    "label": "after publication",
-    "condition": "{\"fields\":[{\"id\":\"kinds\",\"kind\":\"tags\",\"path\":[\"kinds\"]}],\"tree\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"kinds\",\"operator\":\"has_any_of\",\"params\":{\"values\":[\"published\"]}}]}}",
-    "made_by": "fires_when",
-    "state": "On",
-    "evidence": "The branch row's fires_when, \"after publication\", written as a rule over a seed part's typed fields, 2026-11-13 (lane one-tree-any-input)."
-   }
-  },
-  {
-   "id": "record:tree-branch-conditions:keep-it-working--from-fires-when",
-   "type": "record:tree-branch-conditions",
-   "value": {
-    "branch": "record:tree-branches:keep-it-working",
-    "label": "after a result is proven",
-    "condition": "{\"fields\":[{\"id\":\"kinds\",\"kind\":\"tags\",\"path\":[\"kinds\"]}],\"tree\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"kinds\",\"operator\":\"has_any_of\",\"params\":{\"values\":[\"result-proven\"]}}]}}",
-    "made_by": "fires_when",
-    "state": "On",
-    "evidence": "The branch row's fires_when, \"after a result is proven\", written as a rule over a seed part's typed fields, 2026-11-13 (lane one-tree-any-input)."
-   }
-  },
-  {
-   "id": "record:tree-branch-conditions:keep-a-changelog--from-fires-when",
-   "type": "record:tree-branch-conditions",
-   "value": {
-    "branch": "record:tree-branches:keep-a-changelog",
-    "label": "something shipped from the seed",
-    "condition": "{\"fields\":[{\"id\":\"kinds\",\"kind\":\"tags\",\"path\":[\"kinds\"]}],\"tree\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"kinds\",\"operator\":\"has_any_of\",\"params\":{\"values\":[\"shipped\"]}}]}}",
-    "made_by": "fires_when",
-    "state": "On",
-    "evidence": "The branch row's fires_when, \"something shipped from the seed\", written as a rule over a seed part's typed fields, 2026-11-13 (lane one-tree-any-input)."
-   }
-  },
-  {
-   "id": "record:tree-branch-conditions:infinity--from-fires-when",
-   "type": "record:tree-branch-conditions",
-   "value": {
-    "branch": "record:tree-branches:infinity",
-    "label": "after every pass; its continue step registers the wake",
-    "condition": "{\"fields\":[{\"id\":\"kinds\",\"kind\":\"tags\",\"path\":[\"kinds\"]}],\"tree\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"kinds\",\"operator\":\"has_any_of\",\"params\":{\"values\":[\"pass-finished\"]}}]}}",
-    "made_by": "fires_when",
-    "state": "On",
-    "evidence": "The branch row's fires_when, \"after every pass; its continue step registers the wake\", written as a rule over a seed part's typed fields, 2026-11-13 (lane one-tree-any-input)."
-   }
-  },
-  {
-   "id": "record:tree-branch-conditions:handle-every-inbox--from-fires-when",
-   "type": "record:tree-branch-conditions",
-   "value": {
-    "branch": "record:tree-branches:handle-every-inbox",
-    "label": "the seed is, or produces, a thread that needs an answer",
-    "condition": "{\"fields\":[{\"id\":\"kinds\",\"kind\":\"tags\",\"path\":[\"kinds\"]}],\"tree\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"kinds\",\"operator\":\"has_any_of\",\"params\":{\"values\":[\"thread-needs-answer\"]}}]}}",
-    "made_by": "fires_when",
-    "state": "On",
-    "evidence": "The branch row's fires_when, \"the seed is, or produces, a thread that needs an answer\", written as a rule over a seed part's typed fields, 2026-11-13 (lane one-tree-any-input)."
-   }
-  },
-  {
-   "id": "record:tree-branch-conditions:follow-through--from-fires-when",
-   "type": "record:tree-branch-conditions",
-   "value": {
-    "branch": "record:tree-branches:follow-through",
-    "label": "when something is promised",
-    "condition": "{\"fields\":[{\"id\":\"kinds\",\"kind\":\"tags\",\"path\":[\"kinds\"]}],\"tree\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"kinds\",\"operator\":\"has_any_of\",\"params\":{\"values\":[\"promise\"]}}]}}",
-    "made_by": "fires_when",
-    "state": "On",
-    "evidence": "The branch row's fires_when, \"when something is promised\", written as a rule over a seed part's typed fields, 2026-11-13 (lane one-tree-any-input)."
-   }
-  },
-  {
-   "id": "record:tree-branch-conditions:first-win--from-fires-when",
-   "type": "record:tree-branch-conditions",
-   "value": {
-    "branch": "record:tree-branches:first-win",
-    "label": "when a customer arrives",
-    "condition": "{\"fields\":[{\"id\":\"kinds\",\"kind\":\"tags\",\"path\":[\"kinds\"]}],\"tree\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"kinds\",\"operator\":\"has_any_of\",\"params\":{\"values\":[\"customer-arrived\"]}}]}}",
-    "made_by": "fires_when",
-    "state": "On",
-    "evidence": "The branch row's fires_when, \"when a customer arrives\", written as a rule over a seed part's typed fields, 2026-11-13 (lane one-tree-any-input)."
-   }
-  },
-  {
-   "id": "record:tree-branch-conditions:find-unexplored-ground--from-fires-when",
-   "type": "record:tree-branch-conditions",
-   "value": {
-    "branch": "record:tree-branches:find-unexplored-ground",
-    "label": "a seed names a field or niche",
-    "condition": "{\"fields\":[{\"id\":\"niches\",\"kind\":\"tags\",\"path\":[\"niches\"]},{\"id\":\"kinds\",\"kind\":\"tags\",\"path\":[\"kinds\"]}],\"tree\":{\"kind\":\"group\",\"combinator\":\"or\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"niches\",\"operator\":\"is_not_empty\"},{\"kind\":\"rule\",\"field\":\"kinds\",\"operator\":\"has_any_of\",\"params\":{\"values\":[\"niche\"]}}]}}",
-    "made_by": "fires_when",
-    "state": "On",
-    "evidence": "The branch row's fires_when, \"a seed names a field or niche\", written as a rule over a seed part's typed fields, 2026-11-13 (lane one-tree-any-input)."
-   }
-  },
-  {
-   "id": "record:tree-branch-conditions:comment-keyword-offer--from-fires-when",
-   "type": "record:tree-branch-conditions",
-   "value": {
-    "branch": "record:tree-branches:comment-keyword-offer",
-    "label": "a post offers a Workshop kit to anyone who comments a keyword",
-    "condition": "{\"fields\":[{\"id\":\"kinds\",\"kind\":\"tags\",\"path\":[\"kinds\"]}],\"tree\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"kinds\",\"operator\":\"has_any_of\",\"params\":{\"values\":[\"keyword-offer-post\"]}}]}}",
-    "made_by": "fires_when",
-    "state": "On",
-    "evidence": "The branch row's fires_when, \"a post offers a Workshop kit to anyone who comments a keyword\", written as a rule over a seed part's typed fields, 2026-11-13 (lane one-tree-any-input)."
-   }
-  },
-  {
-   "id": "record:tree-branch-conditions:answer-commenters--from-fires-when",
-   "type": "record:tree-branch-conditions",
-   "value": {
-    "branch": "record:tree-branches:answer-commenters",
-    "label": "a watched account has new posts with comments",
-    "condition": "{\"fields\":[{\"id\":\"kinds\",\"kind\":\"tags\",\"path\":[\"kinds\"]}],\"tree\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"kinds\",\"operator\":\"has_any_of\",\"params\":{\"values\":[\"new-comments\"]}}]}}",
-    "made_by": "fires_when",
-    "state": "On",
-    "evidence": "The branch row's fires_when, \"a watched account has new posts with comments\", written as a rule over a seed part's typed fields, 2026-11-13 (lane one-tree-any-input)."
-   }
-  }
- ],
+ "example_rows": [],
  "reused_lists": [
   "calendar-tasks",
   "content-pieces",
@@ -737,14 +182,12 @@
    "list:content-pieces"
   ]
  },
- "pour_into_my_list": "Each example row is a complete row of its list. To use a list you already keep instead, write the row's values into the fields of your list that mean the same (branch, workflow, fires_when, agents, visibility_default, state) with records:write at @own-records, and tell the workflow your list by id.",
+ "pour_into_my_list": "The lists here are definitions; pour rows into a list you already keep with tool:pour-example-rows-into-my-list. To make one of your workflows fire for a kind of part, write its row with a fires_when list (records:write at @own-records); to change when an installed workflow fires, write a row of yours with only {recipe, fires_when}.",
  "check": "The recipes in recipes/workflows.json for these three ids pass recipeProblems with no tool gaps.",
- "waiting_to_publish": [
-  "workflow:handle-every-inbox-daily"
- ],
- "waiting_to_publish_why": "Written in the account on 2026-11-12 by the inbox lane and not yet published to the Workshop; the email branch runs it once it is.",
- "modes_are_selectors": "The generic mode workflows (quintillion, infinity, real-life-cases, trillion-x-mode, first-win, follow-through, keep-it-working, make-it-perform, put-it-in-the-world, personalized-reach-out) stay the selectors. Branch rows point at their workflow ids; no second registry. Five mode steps gained one pointer sentence each: real-life-cases--case, quintillion--compose, infinity--bottleneck, infinity--continue, personalized-reach-out--follow.",
- "one_use_of_the_tree": "The content tree is one use of the tree, branches and leaves structure the person named for their gauntlet and decision method; the branch rows are its leaves.",
+ "waiting_to_publish": [],
+ "waiting_to_publish_why": "None: the branches are no longer named here. Every workflow the person has (their own rows, for example an inbox workflow kept only in their account) and every workflow the Workshop installs is a candidate, chosen by the conditions on its own row.",
+ "modes_are_selectors": "The generic mode workflows (quintillion, infinity, real-life-cases, trillion-x-mode, first-win, follow-through, keep-it-working, make-it-perform, put-it-in-the-world, personalized-reach-out) stay the selectors, each choosing itself by the conditions on its own row; no second registry. Five mode steps gained one pointer sentence each: real-life-cases--case, quintillion--compose, infinity--bottleneck, infinity--continue, personalized-reach-out--follow.",
+ "one_use_of_the_tree": "The content tree is one use of the tree, branches and leaves structure the person named for their gauntlet and decision method; every workflow is a branch and its outputs are the leaves.",
  "views": "Table = the lists; task = the tree's calendar-task rows; canvas = the existing workflow canvas of the recipe. Nothing new is built for them.",
  "new_steps": {
   "workflow:answer-commenters-with-videos": [
@@ -760,7 +203,6 @@
    "keep-the-path-as-a-permanent-branch"
   ],
   "workflow:grow-the-one-tree": [
-   "choose-branches (rows, not code)",
    "fan-out (agents number per branch)",
    "keep-outputs (N-by-N reuse)",
    "relay",
@@ -773,9 +215,10 @@
    "write-in-the-voice: the outline path (hook, talking points, outro in his own words) beside the full script and the voice-clone path",
    "learn-and-prune: daily retraining of the writing on his edits and results",
    "plant-the-seed: a record wake's changed rows are the seeds when no seed is given",
-   "choose-branches: typed parts (kinds, subjects, people, niches, own_words); the engine chooses through list tree-branch-conditions with tool:filter-rows-by-rules; the AI judges only parts no condition keeps and writes its judgment back as a condition row",
-   "fan-out: agents_per_step passed on to every branch run; a blocked branch heals into a new branch row and condition row in the same pass",
-   "learn-and-prune: learnings as new rows; prune only on three measured failures"
+   "learn-and-prune: learnings as new rows; prune only on three measured failures",
+   "choose-branches: every workflow is a candidate; tool:choose-the-workflows-that-fire evaluates each workflow's own fires_when over the typed parts; the AI judges only parts no condition keeps and writes its judgment onto that workflow's row",
+   "fan-out: agents_per_step passed on to every workflow run; a blocked branch heals into a condition on an existing workflow or a new workflow row with its condition, in the same pass",
+   "learn-and-prune: learnings as conditions and step agents numbers on the workflows' own rows over every workflow; prune only on three measured failures"
   ]
  },
  "cut_as_restating_a_mode_step": [
@@ -787,5 +230,6 @@
   "a library reference on offering a free tool to everyone who comments a keyword"
  ],
  "pilot": "Published with one wake, daily (start_at learn-and-prune), the continuation infinity's continue step names; like every Workshop wake it is off until the person switches it on (wake:switch). A person starts the tree from new rows of any list of theirs with a wake-declaration in their own records naming workflow:grow-the-one-tree, on {record: {resource: own-records, prefix: <that list's row id prefix>}}, input {start_at: plant-the-seed, owner, visibility}; plant-the-seed makes each row the cause names a seed. The decision verdict is recorded (GO, 2026-11-13).",
- "agents": "One number per step or branch: the row's agents is the default (a step row of any recipe, a branch row of list tree-branches) and the run's input agents_per_step under that id overrides it for the run (read-data/step-agents.mjs runStep). The trunk passes agents_per_step on to each branch run, so one map sets the width of the whole tree."
+ "agents": "One number per step: a step row's agents is the default (any recipe) and the run's input agents_per_step under that id overrides it for the run (read-data/step-agents.mjs runStep). The trunk passes agents_per_step on to each workflow it starts, and under a workflow's id it sets how many runs of that workflow start, so one map sets the width of the whole tree.",
+ "branches": "Every workflow is a branch. Each workflow carries its own conditions on its row (fires_when, tools/workflows/branches/fires-when.json): a list of {label, condition: {fields, tree}, made_by, state, evidence}, the condition being what tool:filter-rows-by-rules takes over one typed seed part. choose-branches calls tool:choose-the-workflows-that-fire, which reads every workflow row the person has and every installed recipe (their own row wins; a row of theirs with only {recipe, fires_when} adds conditions to an installed workflow) and lets the formulas engine choose. The 17 published workflows that were rows of the old list tree-branches carry their conditions in the Workshop (recipes/workflows.json); a workflow with none is judged by its words once and the judgment written onto its row. Adding a workflow or installing a kit adds a branch; nothing is listed."
 }

@@ -17,6 +17,8 @@ const JSON_FIELDS = {
   recipe: ['input_schema', 'source', 'wakes', 'definition', 'skill', 'files'],
   step: ['checks', 'run_tool', 'actor_policy', 'lanes', 'lanes_from'],
 };
+// A workflow says when it fires on its own row (branches/fires-when.json), kept as JSON text like the fields above.
+JSON_FIELDS.recipe.push('fires_when');
 
 const valuesOf = row => row?.values ?? row?.value ?? {};
 
@@ -25,7 +27,7 @@ export function applyWorkflowRowUpdates(workflowsView, stepsView, updateData) {
   if (updateData?.account_row_sync?.status !== 'pending' || updateData.account_row_sync.canonical_rows_readback !== false) {
     throw new Error('Local workflow row updates require explicit pending account synchronization and no canonical row readback.');
   }
-  const apply = (view, updates, label) => {
+  const apply = (view, updates, label, newFields = []) => {
     if (!Array.isArray(view?.rows) || !Array.isArray(updates)) throw new Error(`${label} view and updates must be arrays of rows.`);
     const rows = view.rows.map(row => ({ ...row, values: { ...valuesOf(row) } }));
     for (const update of updates) {
@@ -39,11 +41,13 @@ export function applyWorkflowRowUpdates(workflowsView, stepsView, updateData) {
         rows.push({ id: update.id, values: { ...update.values } });
       }
     }
-    return { ...view, rows };
+    // A field the rows now hold and the view does not yet list is added after the others, once.
+    const added = newFields.filter(field => !view.fields?.some(known => known.id === field.id));
+    return { ...view, ...(added.length ? { fields: [...view.fields, ...added] } : {}), rows };
   };
   return {
-    workflows: apply(workflowsView, updateData.workflow_rows, 'workflow'),
-    steps: apply(stepsView, updateData.step_rows, 'workflow step'),
+    workflows: apply(workflowsView, updateData.workflow_rows, 'workflow', updateData.workflow_fields),
+    steps: apply(stepsView, updateData.step_rows, 'workflow step', updateData.step_fields),
     account_row_sync: updateData.account_row_sync,
   };
 }

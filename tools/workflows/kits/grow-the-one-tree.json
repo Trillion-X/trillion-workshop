@@ -2,123 +2,67 @@
   "start_here": "Say to your AI: \"Run workflow:grow-the-one-tree with the seed 'New staff learn our order sheet faster from filled-in rows than from the how-to', owner task list record:calendar-task-list:example and pursuit pursuit:example-content, visibility public.\"",
   "lists": [
     {
-      "list": "list:tree-branches",
-      "label": "Tree branches",
-      "row_type": "record:tree-branches",
-      "holds": "Every branch of the one tree as a row: which workflow it runs, when it fires, how many agents, whether its work is public or internal by default. Adding a branch is adding a row.",
+      "list": "list:workflows",
+      "label": "Workflows",
+      "row_type": "record:workflow-recipe",
+      "holds": "Every workflow is a branch of the tree: each row is one workflow (its id, title and job) and says when it fires on its own row (fires_when: a list of conditions, each the {fields, tree} tool:filter-rows-by-rules takes over one typed part of a seed). Adding a workflow, or installing a kit, adds a branch; no list of branches is kept.",
       "fields": [
         {
-          "id": "branch",
+          "id": "recipe",
           "kind": "text",
-          "label": "Branch",
-          "alike": [
-            "name",
-            "path"
-          ]
-        },
-        {
-          "id": "workflow",
-          "kind": "text",
-          "label": "Workflow",
+          "label": "Recipe id",
           "alike": [
             "playbook",
             "process",
-            "recipe"
+            "workflow"
+          ]
+        },
+        {
+          "id": "title",
+          "kind": "text",
+          "label": "Workflow",
+          "alike": [
+            "name",
+            "title"
+          ]
+        },
+        {
+          "id": "job",
+          "kind": "long-text",
+          "label": "What it gets done",
+          "alike": [
+            "description",
+            "purpose"
           ]
         },
         {
           "id": "fires_when",
           "kind": "long-text",
-          "label": "Fires when",
+          "label": "Fires when (JSON list of conditions)",
           "alike": [
             "trigger",
-            "when"
-          ]
-        },
-        {
-          "id": "agents",
-          "kind": "number",
-          "label": "Agents",
-          "alike": [
-            "workers",
-            "parallel runs"
-          ]
-        },
-        {
-          "id": "visibility_default",
-          "kind": "choice",
-          "label": "Visibility",
-          "alike": [
-            "public or internal",
-            "audience"
-          ]
-        },
-        {
-          "id": "state",
-          "kind": "choice",
-          "label": "State",
-          "alike": [
-            "status",
-            "on/off"
-          ]
-        },
-        {
-          "id": "evidence",
-          "kind": "long-text",
-          "label": "Evidence",
-          "alike": [
-            "why",
-            "notes"
+            "when",
+            "conditions"
           ]
         }
       ],
       "example_rows": [
         {
-          "id": "turn-what-you-said-into-content",
+          "id": "hand-new-staff-the-filled-in-sheet",
           "values": {
-            "agents": 1,
-            "branch": "Turn what was said into content",
-            "evidence": "Default branch of workflow:grow-the-one-tree, 2026-11-12.",
-            "fires_when": "the seed is the person's own words",
-            "state": "On",
-            "visibility_default": "public",
-            "workflow": "workflow:turn-what-you-said-into-content"
+            "recipe": "workflow:hand-new-staff-the-filled-in-sheet",
+            "title": "Hand new staff the filled-in sheet",
+            "job": "When someone new starts, give them three filled-in example rows of the order sheet before the how-to.",
+            "fires_when": "[{\"label\":\"someone new starts\",\"condition\":{\"fields\":[{\"id\":\"kinds\",\"kind\":\"tags\",\"path\":[\"kinds\"]}],\"tree\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"kinds\",\"operator\":\"has_any_of\",\"params\":{\"values\":[\"new-hire\"]}}]}},\"made_by\":\"the person\",\"state\":\"On\"}]"
           }
         },
         {
-          "id": "research-what-everyone-says",
+          "id": "turn-a-finding-into-a-plan",
           "values": {
-            "agents": 1,
-            "branch": "Research what everyone says",
-            "evidence": "Default branch of workflow:grow-the-one-tree, 2026-11-12.",
-            "fires_when": "a seed makes a claim or names a subject",
-            "state": "On",
-            "visibility_default": "internal",
-            "workflow": "workflow:research-what-everyone-says"
-          }
-        },
-        {
-          "id": "real-life-cases",
-          "values": {
-            "agents": 1,
-            "branch": "Find real situations and the friction in them",
-            "evidence": "Existing mode workflow chosen as a branch of workflow:grow-the-one-tree, 2026-11-12; the row points at the workflow id, it is no second registry.",
-            "fires_when": "at the start of a pursuit and when new evidence arrives",
-            "state": "On",
-            "visibility_default": "internal",
-            "workflow": "workflow:real-life-cases"
-          }
-        },
-        {
-          "id": "read-the-week",
-          "values": {
-            "agents": 1,
-            "branch": "Read the week and make more of what won",
-            "evidence": "Default branch of workflow:grow-the-one-tree, 2026-11-12.",
-            "fires_when": "weekly, once pieces are published",
-            "state": "On",
-            "visibility_default": "internal",
-            "workflow": "workflow:read-the-week-and-make-more-of-what-won"
+            "recipe": "workflow:turn-a-finding-into-a-plan",
+            "title": "Turn a finding into a plan",
+            "job": "Turn a research finding into a facts-first plan with its gaps named.",
+            "fires_when": "[{\"label\":\"a research finding arrives\",\"condition\":{\"fields\":[{\"id\":\"kinds\",\"kind\":\"tags\",\"path\":[\"kinds\"]}],\"tree\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"kinds\",\"operator\":\"has_any_of\",\"params\":{\"values\":[\"finding\"]}}]}},\"made_by\":\"the person\",\"state\":\"On\"}]"
           }
         }
       ],
@@ -185,10 +129,10 @@
           "id": "rows-not-instructions-thread",
           "values": {
             "output_ref": "record:content-pieces:rows-not-instructions-thread",
-            "made_by_branch": "record:tree-branches:turn-what-you-said-into-content",
+            "made_by_branch": "workflow:turn-what-you-said-into-content",
             "seed": "record:calendar-task:tree-hand-people-the-rows",
             "reused_by": [
-              "record:tree-branches:research-what-everyone-says"
+              "workflow:research-what-everyone-says"
             ],
             "visibility": "public"
           }
@@ -197,7 +141,7 @@
           "id": "rows-claim-sources",
           "values": {
             "output_ref": "record:findings:rows-beat-instructions-sources",
-            "made_by_branch": "record:tree-branches:research-what-everyone-says",
+            "made_by_branch": "workflow:research-what-everyone-says",
             "seed": "record:calendar-task:tree-hand-people-the-rows",
             "reused_by": [],
             "visibility": "internal"
@@ -523,6 +467,7 @@
   ],
   "tools": [
     "tool:start-a-recipe-run",
+    "tool:choose-the-workflows-that-fire",
     "tool:pour-example-rows-into-my-list",
     "tool:check-a-post",
     "tool:check-a-reference-adaptation-contract",
@@ -537,16 +482,16 @@
     "tool:watch-my-sources"
   ],
   "instructions": [
-    "1. Pour the example tree-branches rows into the list you keep your processes and their triggers in (see pour), or make list:tree-branches from them: each row names a workflow and when it fires.",
+    "1. Give each workflow you keep its conditions: on its row of your list of workflows (or a list you already keep for processes and their triggers, see pour) write fires_when, a list of {label, condition: {fields, tree}, made_by, state}. Workflows you install from the Workshop bring their own; a row of yours with only {recipe, fires_when} changes when an installed one fires.",
     "2. Pour or make list:content-pillars, list:content-formats and list:content-pieces from their example rows, and make list:tree-outputs empty; the run writes it.",
     "3. Say \"Run workflow:grow-the-one-tree\" with the seed (its words and where it came from), owner.task_list, owner.pursuit and visibility; the AI starts it with tool:start-a-recipe-run (row workflow:grow-the-one-tree).",
-    "4. Read the choose-branches answer: the parts the seed was split into and, for each, the branch rows that fire. Turn a branch Off in its row if it should not run for seeds like this.",
-    "5. Each output lands once in its owner list with a tree-outputs row naming the branch that made it; later branches read tree-outputs before they make anything.",
+    "4. Read the choose-branches answer: the parts the seed was split into and, for each, the workflows whose conditions kept it (tool:choose-the-workflows-that-fire), and any workflow the AI judged and gave a new condition on its row. Set a condition's state Off on its workflow's row if it should not fire for seeds like this.",
+    "5. Each output lands once in its owner list with a tree-outputs row naming the workflow that made it; later workflows read tree-outputs before they make anything.",
     "6. Open the root task in the Calendar tasks table: the show step says which root task to open and how many children are Done."
   ],
   "worked_examples": [
     {
-      "title": "One seed fires two branches",
+      "title": "One seed fires two workflows",
       "ask": "Grow the tree from this: new staff learn our order sheet faster from filled-in rows than from the how-to.",
       "mcp": {
         "server": "trillion",
@@ -573,8 +518,8 @@
       },
       "workflow": "workflow:grow-the-one-tree",
       "step": "choose-branches",
-      "given": "list:tree-branches holds the four example rows (turn-what-you-said-into-content fires when the seed is the person's own words; research-what-everyone-says fires when a seed makes a claim).",
-      "hands_back": "Parts: one claim (\"filled-in rows teach faster than a how-to\") and material for content (the person's own words). Branches that fire: record:tree-branches:turn-what-you-said-into-content (agents 1, public) and record:tree-branches:research-what-everyone-says (agents 1, internal). The root task record:calendar-task:tree-hand-people-the-rows gets two child tasks, one per branch."
+      "given": "Among the person's workflows and the installed ones, workflow:turn-what-you-said-into-content fires when the seed is the person's own words and workflow:research-what-everyone-says when a seed makes a claim or names a subject (each condition on its own row).",
+      "hands_back": "Parts: one claim (\"filled-in rows teach faster than a how-to\") and material for content (the person's own words). tool:choose-the-workflows-that-fire chose workflow:research-what-everyone-says for the claim and workflow:turn-what-you-said-into-content for the person's own words. The root task record:calendar-task:tree-hand-people-the-rows gets two child tasks, one per workflow, each naming the condition that chose it."
     }
   ],
   "pour": {
@@ -582,7 +527,7 @@
     "least_coverage": 0.8,
     "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
     "example": {
-      "kit_list": "list:tree-branches",
+      "kit_list": "list:workflows",
       "into": {
         "list": "list:my-procedures",
         "row_type": "record:procedure",
@@ -596,24 +541,12 @@
             "label": "Playbook"
           },
           {
+            "id": "description",
+            "label": "Description"
+          },
+          {
             "id": "trigger",
             "label": "Trigger"
-          },
-          {
-            "id": "workers",
-            "label": "Workers"
-          },
-          {
-            "id": "audience",
-            "label": "Audience"
-          },
-          {
-            "id": "status",
-            "label": "Status"
-          },
-          {
-            "id": "notes",
-            "label": "Notes"
           }
         ]
       }

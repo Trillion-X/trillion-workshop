@@ -256,6 +256,254 @@
     {
       "payload": {
         "kind": "ai-tool-descriptor",
+        "id": "tool:choose-the-workflows-that-fire",
+        "label": "Choose which of my workflows fire for these parts of a seed",
+        "status": "active",
+        "job": "Say which of all my workflows, and the Workshop's I have installed, fire for each part of something that arrived, from the conditions each workflow carries on its own row",
+        "description": "Every workflow is a candidate branch of the one tree. Takes parts: the parts of one seed, each an object of its typed fields (for example kinds, subjects, people, niches, own_words; the fields are whatever the conditions read). Reads every workflow row the person has (their list of workflows under each type arrivals/recipe-row-types.json lists) and every recipe this Workshop installs; when both hold an id the person's row wins, and when it holds no conditions the installed recipe's are used. Each workflow's conditions are its fires_when (branches/fires-when.json): a list of { label, condition: { fields, tree }, made_by, state }, the same fields and tree tool:filter-rows-by-rules takes, evaluated by the same formulas engine over the parts. Answers chosen (one row per workflow, part and condition that kept it), unfinished (conditions with a rule the engine cannot evaluate or no rule at all, which choose nothing), unconditioned (workflows with no condition On, by id and label, to be judged by their words), unmatched_parts and the counts. Nothing is written; no workflow, branch or tag is named in the tool.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "parts"
+          ],
+          "properties": {
+            "parts": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object"
+              },
+              "description": "The seed's parts, each an object of the typed fields the conditions read"
+            },
+            "operators": {
+              "type": "object",
+              "description": "Comparisons and combinators as rows of data, as tool:filter-rows-by-rules takes them; left out for the built-in ones"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "workflows",
+            "chosen",
+            "unfinished",
+            "unconditioned",
+            "unmatched_parts"
+          ],
+          "properties": {
+            "workflows": {
+              "type": "integer"
+            },
+            "own": {
+              "type": "integer"
+            },
+            "catalog_only": {
+              "type": "integer"
+            },
+            "chosen": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "workflow",
+                  "part",
+                  "condition"
+                ],
+                "properties": {
+                  "workflow": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "part": {
+                    "type": "integer"
+                  },
+                  "condition": {
+                    "type": "string"
+                  },
+                  "made_by": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "from": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "unfinished": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "unconditioned": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "workflow"
+                ],
+                "properties": {
+                  "workflow": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            },
+            "unmatched_parts": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/read-data/choose-the-workflows-that-fire.mjs",
+            "chooseTheWorkflowsThatFire"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "workflows",
+                "paths": [
+                  "read-data/choose-the-workflows-that-fire.mjs",
+                  "recipes",
+                  "arrivals",
+                  "branches"
+                ],
+                "at": "/opt/workflows"
+              },
+              {
+                "package": "formulas",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/formulas"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "most_writes": 0,
+            "rights": [
+              {
+                "kind": "record:workflow-recipe",
+                "operations": [
+                  "records:list"
+                ],
+                "prefix": "record:workflow-recipe:"
+              },
+              {
+                "kind": "workflow-recipe",
+                "operations": [
+                  "records:list"
+                ],
+                "prefix": "record:workflow-recipe:"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false,
+          "memory_mb": 256
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:workflows",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "parts": [
+                {
+                  "words": "A finding: most small teams never write their plan down.",
+                  "kinds": [
+                    "finding"
+                  ],
+                  "subjects": [
+                    "planning"
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
         "id": "tool:start-a-steps-agents",
         "label": "Start the agents of one step of a recipe run: one waiting job per lane",
         "status": "active",
@@ -1126,28 +1374,6 @@
                   "read-data/identity.mjs"
                 ],
                 "at": "/opt/content-identity"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           }
@@ -1306,28 +1532,6 @@
                   "read-data/identity.mjs"
                 ],
                 "at": "/opt/content-identity"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           }

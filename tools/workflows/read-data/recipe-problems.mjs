@@ -4,6 +4,7 @@
 import { readFileSync } from 'node:fs';
 import { wakeProblems, WAKE_VOCABULARY } from './wake-problems.mjs';
 import { agentProblems, runsLaneJobs } from './step-agents.mjs';
+import { conditionProblems, FIRES_WHEN } from './choose-the-workflows-that-fire.mjs';
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const nonempty = value => typeof value === 'string' && value.trim().length > 0;
@@ -145,6 +146,7 @@ export function recipeProblems(recipe, vocabulary = CHECK_VOCABULARY) {
   if (recipe.input_schema !== undefined && !(object(recipe.input_schema) && recipe.input_schema.type === 'object')) problems.push('input_schema must be a JSON Schema with "type": "object".');
   const stepIds = (Array.isArray(recipe.definition?.steps) ? recipe.definition.steps : Array.isArray(recipe.steps) ? recipe.steps : []).map(step => step?.id);
   problems.push(...wakeProblems(recipe[WAKE_VOCABULARY.field], { stepIds, inputFields: Object.keys(recipe.input_schema?.properties ?? {}) }));
+  problems.push(...conditionProblems(recipe[FIRES_WHEN.field]));
   if (recipe.definition !== undefined) return [...problems, ...definitionProblems(recipe.definition, vocabulary)];
   if (!Array.isArray(recipe.steps) || recipe.steps.length === 0) return [...problems, 'steps (or definition) must list at least one step.'];
   const seen = new Set();

@@ -143,123 +143,65 @@
       ]
     },
     {
-      "list": "list:tree-branches",
-      "label": "Tree branches",
-      "row_type": "record:tree-branches",
-      "holds": "Every branch of the one tree as a row: which workflow it runs, when it fires, how many agents, whether its work is public or internal by default. Adding a branch is adding a row.",
+      "list": "list:workflows",
+      "label": "Workflows",
+      "row_type": "record:workflow-recipe",
+      "holds": "Every workflow is a branch of the tree: each row is one workflow (its id, title and job) and says when it fires on its own row (fires_when: a list of conditions, each the {fields, tree} tool:filter-rows-by-rules takes over one typed part of a seed). Adding a workflow, or installing a kit, adds a branch; no list of branches is kept.",
       "fields": [
         {
-          "id": "branch",
+          "id": "recipe",
           "kind": "text",
-          "label": "Branch",
-          "alike": [
-            "name",
-            "path"
-          ]
-        },
-        {
-          "id": "workflow",
-          "kind": "text",
-          "label": "Workflow",
+          "label": "Recipe id",
           "alike": [
             "playbook",
             "process",
-            "recipe"
+            "workflow"
+          ]
+        },
+        {
+          "id": "title",
+          "kind": "text",
+          "label": "Workflow",
+          "alike": [
+            "name",
+            "title"
+          ]
+        },
+        {
+          "id": "job",
+          "kind": "long-text",
+          "label": "What it gets done",
+          "alike": [
+            "description",
+            "purpose"
           ]
         },
         {
           "id": "fires_when",
           "kind": "long-text",
-          "label": "Fires when",
+          "label": "Fires when (JSON list of conditions)",
           "alike": [
             "trigger",
-            "when"
-          ]
-        },
-        {
-          "id": "agents",
-          "kind": "number",
-          "label": "Agents",
-          "alike": [
-            "workers",
-            "parallel runs"
-          ]
-        },
-        {
-          "id": "visibility_default",
-          "kind": "choice",
-          "label": "Visibility",
-          "alike": [
-            "public or internal",
-            "audience"
-          ]
-        },
-        {
-          "id": "state",
-          "kind": "choice",
-          "label": "State",
-          "alike": [
-            "status",
-            "on/off"
-          ]
-        },
-        {
-          "id": "evidence",
-          "kind": "long-text",
-          "label": "Evidence",
-          "alike": [
-            "why",
-            "notes"
+            "when",
+            "conditions"
           ]
         }
       ],
       "example_rows": [
         {
-          "id": "turn-what-you-said-into-content",
+          "id": "make-the-piece-without-waiting-for-the-person",
           "values": {
-            "agents": 1,
-            "branch": "Turn what was said into content",
-            "evidence": "Default branch of workflow:grow-the-one-tree, 2026-11-12.",
-            "fires_when": "the seed is the person's own words",
-            "state": "On",
-            "visibility_default": "public",
-            "workflow": "workflow:turn-what-you-said-into-content"
+            "recipe": "workflow:make-the-piece-without-waiting-for-the-person",
+            "fires_when": "[{\"label\":\"a waiting step is past its due time\",\"condition\":{\"fields\":[{\"id\":\"kinds\",\"kind\":\"tags\",\"path\":[\"kinds\"]}],\"tree\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"kinds\",\"operator\":\"has_any_of\",\"params\":{\"values\":[\"past-due\"]}}]}},\"made_by\":\"this workflow\",\"state\":\"On\"}]"
           }
         },
         {
-          "id": "research-what-everyone-says",
+          "id": "hand-new-staff-the-filled-in-sheet",
           "values": {
-            "agents": 1,
-            "branch": "Research what everyone says",
-            "evidence": "Default branch of workflow:grow-the-one-tree, 2026-11-12.",
-            "fires_when": "a seed makes a claim or names a subject",
-            "state": "On",
-            "visibility_default": "internal",
-            "workflow": "workflow:research-what-everyone-says"
-          }
-        },
-        {
-          "id": "real-life-cases",
-          "values": {
-            "agents": 1,
-            "branch": "Find real situations and the friction in them",
-            "evidence": "Existing mode workflow chosen as a branch of workflow:grow-the-one-tree, 2026-11-12; the row points at the workflow id, it is no second registry.",
-            "fires_when": "at the start of a pursuit and when new evidence arrives",
-            "state": "On",
-            "visibility_default": "internal",
-            "workflow": "workflow:real-life-cases"
-          }
-        },
-        {
-          "id": "read-the-week",
-          "values": {
-            "agents": 1,
-            "branch": "Read the week and make more of what won",
-            "evidence": "Default branch of workflow:grow-the-one-tree, 2026-11-12.",
-            "fires_when": "weekly, once pieces are published",
-            "state": "On",
-            "visibility_default": "internal",
-            "workflow": "workflow:read-the-week-and-make-more-of-what-won"
+            "recipe": "workflow:hand-new-staff-the-filled-in-sheet",
+            "title": "Hand new staff the filled-in sheet",
+            "job": "When someone new starts, give them three filled-in example rows of the order sheet before the how-to.",
+            "fires_when": "[{\"label\":\"someone new starts\",\"condition\":{\"fields\":[{\"id\":\"kinds\",\"kind\":\"tags\",\"path\":[\"kinds\"]}],\"tree\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"kinds\",\"operator\":\"has_any_of\",\"params\":{\"values\":[\"new-hire\"]}}]}},\"made_by\":\"the person\",\"state\":\"On\"}]"
           }
         }
       ],
@@ -283,14 +225,15 @@
     "tool:draft-a-post",
     "tool:layer-pictures-over-video",
     "tool:say-with-a-voice-model",
-    "tool:voices"
+    "tool:voices",
+    "tool:choose-the-workflows-that-fire"
   ],
   "instructions": [
     "1. Have the piece as a content-pieces row with its script and goes_out date (pour the example rows, or make list:content-pieces from them).",
     "2. Enroll your own voice once so a cloned voiceover is allowed (tool:voices lists it as yours); without it the run chooses another path, such as a recording you already made or text on screen.",
     "3. Say \"Run workflow:make-the-piece-without-waiting-for-the-person\" with piece_row (and due_at, waiting_on when they differ from the row).",
     "4. Until the due time it waits; if your own recording arrives first it hands the piece back, since your own always wins.",
-    "5. After the due time it voices the script in your voice, makes the video, checks it for each place and keeps it as a draft for your approval; it writes the no-wait branch into list:tree-branches."
+    "5. After the due time it voices the script in your voice, makes the video, checks it for each place and keeps it as a draft for your approval; it makes sure this workflow fires by the condition on its own row (a waiting step past its due time), adding it to your row of the workflow when it is missing."
   ],
   "worked_examples": [
     {

@@ -1,5 +1,5 @@
 {
-  "about": "Generated from published workflow views by do-work/rebuild-recipes.mjs; canonical account rows have been read back where synchronized. Pending account workflow rows: refresh-measurement-coverage, reach-companies-with-a-long-open-job-post, reach-local-businesses-by-zip-code, run-a-linkedin-content-system. The account row owner remains the source of truth.",
+  "about": "Generated from published workflow views by do-work/rebuild-recipes.mjs; canonical account rows have been read back where synchronized. Pending account workflow rows: answer-commenters-with-videos, answer-comments-and-messages, find-unexplored-ground, first-win, follow-through, grow-the-one-tree, infinity, keep-a-changelog-from-what-shipped, keep-it-working, make-it-perform, make-the-piece-without-waiting-for-the-person, personalized-reach-out, possibility-to-proof, put-it-in-the-world, quintillion, reach-companies-with-a-long-open-job-post, reach-local-businesses-by-zip-code, real-life-cases, refresh-measurement-coverage, research-what-everyone-says, run-a-linkedin-content-system, turn-what-you-said-into-content. The account row owner remains the source of truth.",
   "records": [
     {
       "payload": {
@@ -59,6 +59,42 @@
           "from": "the person, 2026-11-12 10:40 PM CST: comments under another account's posts are an endless source of video ideas, and replying on the comment with the video puts the answer in front of an audience already known to want it.",
           "note": "Built on tool:watch-my-sources, tool:keep-channels-latest-videos-and-captions (comment_mix), tool:keep-public-posts-by-link, tool:keep-forum-posts-from-a-public-archive and tool:pull-my-instagram-comments. The accounts, the pursuit and the owner list are input, never named here. No reply tool exists for YouTube, X, TikTok, Threads or Reddit: those replies stay drafts, recorded as rows of list:workflow-gaps."
         },
+        "fires_when": [
+          {
+            "label": "a watched account has new posts with comments",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "new-comments"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "fires_when",
+            "state": "On",
+            "evidence": "Moved onto this workflow's own row from list tree-branches row record:tree-branches:answer-commenters and list tree-branch-conditions row record:tree-branch-conditions:answer-commenters--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch)."
+          }
+        ],
         "steps": [
           {
             "id": "set-watched-accounts",
@@ -403,6 +439,42 @@
           "from": "business-on-trillion meta-workflow, generic and public",
           "note": "Top of funnel. Live tools: pull-my-instagram-messages, expand-a-reply-template, check-copy. There is no live tool that sends a direct-message reply; a gap is written each run. OpenReply is not a tool in the live catalog or the Workshop source."
         },
+        "fires_when": [
+          {
+            "label": "a post offers a Workshop kit to anyone who comments a keyword",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "keyword-offer-post"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "fires_when",
+            "state": "On",
+            "evidence": "Moved onto this workflow's own row from list tree-branches row record:tree-branches:comment-keyword-offer and list tree-branch-conditions row record:tree-branch-conditions:comment-keyword-offer--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch)."
+          }
+        ],
         "steps": [
           {
             "id": "read-facts",
@@ -5851,6 +5923,54 @@
           "from": "a method a person repeated across their work",
           "note": "Nothing here names a subject, field or person: a bakery, a clinic, a coaching method and a book run the same steps."
         },
+        "fires_when": [
+          {
+            "label": "a seed names a field or niche",
+            "condition": {
+              "fields": [
+                {
+                  "id": "niches",
+                  "kind": "tags",
+                  "path": [
+                    "niches"
+                  ]
+                },
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "or",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "niches",
+                    "operator": "is_not_empty"
+                  },
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "niche"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "fires_when",
+            "state": "On",
+            "evidence": "Moved onto this workflow's own row from list tree-branches row record:tree-branches:find-unexplored-ground and list tree-branch-conditions row record:tree-branch-conditions:find-unexplored-ground--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch)."
+          }
+        ],
         "steps": [
           {
             "id": "person",
@@ -6606,6 +6726,42 @@
           "restoration": "Original stage instructions and requirement schemas retained. Source references and private quotations remain in the private recovery evidence. Existing runs retain their original identities and definitions.",
           "current_route": "Named legacy operations are resolved through the current account capability owner. Source incorporation is reused for applicable outside/shared material, never forced on unrelated work."
         },
+        "fires_when": [
+          {
+            "label": "when a customer arrives",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "customer-arrived"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "fires_when",
+            "state": "On",
+            "evidence": "Moved onto this workflow's own row from list tree-branches row record:tree-branches:first-win and list tree-branch-conditions row record:tree-branch-conditions:first-win--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch)."
+          }
+        ],
         "steps": [
           {
             "id": "goal",
@@ -7261,6 +7417,42 @@
           "restoration": "Original stage instructions and requirement schemas retained. Source references and private quotations remain in the private recovery evidence. Existing runs retain their original identities and definitions.",
           "current_route": "Named legacy operations are resolved through the current account capability owner. Source incorporation is reused for applicable outside/shared material, never forced on unrelated work."
         },
+        "fires_when": [
+          {
+            "label": "when something is promised",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "promise"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "fires_when",
+            "state": "On",
+            "evidence": "Moved onto this workflow's own row from list tree-branches row record:tree-branches:follow-through and list tree-branch-conditions row record:tree-branch-conditions:follow-through--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch)."
+          }
+        ],
         "steps": [
           {
             "id": "state",
@@ -10651,7 +10843,7 @@
         "kind": "workflow-recipe",
         "id": "workflow:grow-the-one-tree",
         "label": "Grow the one tree",
-        "job": "Take one seed (a thought, a note, an email, a finding), write it as the root task, choose from the person's list of branches those that fire for it, run each branch with as many agents as one number says, keep every output once in its owner list so later branches reuse it, relay the work from branch to branch, write in the person's voice, test for real, package, make the video, answer and log the change publicly or internally, learn and prune, measure cost and watch time, and show all of it as task rows.",
+        "job": "Take one seed (a thought, a note, an email, a finding), write it as the root task, choose, from every workflow the person has and every one the Workshop installs, those whose own conditions fire for it, run each branch with as many agents as one number says, keep every output once in its owner list so later branches reuse it, relay the work from branch to branch, write in the person's voice, test for real, package, make the video, answer and log the change publicly or internally, learn and prune, measure cost and watch time, and show all of it as task rows.",
         "produces": "A tree of task rows under the root (each child done only when its done_when holds), the outputs in their owner lists, one tree-outputs row per output, and measurement rows.",
         "made_from": [
           "workflow:quintillion",
@@ -10748,9 +10940,10 @@
         },
         "source": {
           "from": "the person, 2026-11-12 8:17 PM CST onward: one input is the seed and fires every branch; every output is reused N by N; one number sets how many agents run a step; simulation is the workflow engine used this way; progress shows in table, task and canvas views.",
-          "note": "The branches are rows of list tree-branches, so adding a branch is adding a row and never an edit here. The owner (Trillion, the person, a client such as a school) is input: tasks go under owner.task_list and owner.pursuit, using the task lists and pursuits that already exist. visibility internal keeps work (for example a price experiment) off the public change log.",
+          "note": "Every workflow is a candidate branch: each says when it fires on its own row (fires_when, branches/fires-when.json), and choose-branches reads every workflow the person has and every one the Workshop installs through tool:choose-the-workflows-that-fire, so adding a workflow or installing a kit adds a branch and nothing is listed here. The owner (Trillion, the person, a client such as a school) is input: tasks go under owner.task_list and owner.pursuit, using the task lists and pursuits that already exist. visibility internal keeps work (for example a price experiment) off the public change log.",
           "verdict": "The person's verdict, 2026-11-13 about 5:40 PM CST: \"my verdict is go, there, done, verdict made, no decision needed, pass the decision off as done, it's decided\" (decision source:b25lLXRyZWUtY29udGVudC13b3JrZmxvdy0yMDI2LTExLTEy).",
-          "starts": "Daily by the wake `daily` (the continuation infinity's continue step names), and from whatever arrives: one record wake per arrival source, each a wake-declaration in the person's own records naming this recipe, on {record: {resource: own-records, prefix: <the source's row id prefix>}}, input {start_at: plant-the-seed, owner, visibility, arrival_source: <its row in list arrival-sources>}. The source row holds what counts (a filter, for example messages the person wrote and not the AI's replies) and how a row becomes a seed (paths for words, came_from, at); tool:start-a-recipe-run starts a run only when the filter keeps a changed row. Each wake is off until the person switches it on."
+          "starts": "Daily by the wake `daily` (the continuation infinity's continue step names), and from whatever arrives: one record wake per arrival source, each a wake-declaration in the person's own records naming this recipe, on {record: {resource: own-records, prefix: <the source's row id prefix>}}, input {start_at: plant-the-seed, owner, visibility, arrival_source: <its row in list arrival-sources>}. The source row holds what counts (a filter, for example messages the person wrote and not the AI's replies) and how a row becomes a seed (paths for words, came_from, at); tool:start-a-recipe-run starts a run only when the filter keeps a changed row. Each wake is off until the person switches it on.",
+          "branches": "The person, 2026-11-13 about 8:40 PM CST: \"is our massive tree branches leaves thing with its lists with all the data of workflows and all the stuff in the workshop ... or no and why no\". It was not: the trunk chose only from 18 hand-kept branch rows. Their conditions moved onto their workflows' own rows, and no list of branches is read."
         },
         "wakes": [
           {
@@ -10808,8 +11001,8 @@
           },
           {
             "id": "choose-branches",
-            "title": "Choose the branches that fire",
-            "do": "First take the seed apart: one seed is often a mix (ideas, material for content, journal, instructions to the AI, a question, a claim) and is never judged as one thing. Split its words into the parts it really holds, each part keeping its own words word for word and its position in the seed. Give each part its typed fields: kinds (tags), subjects (tags), people (tags), niches (tags, with input.niches where they fit) and own_words (true when the words are the person's own). Read the rows of list tree-branch-conditions (records:list at @own-records, type record:tree-branch-conditions), each {branch, label, condition, made_by, state}; the tags their conditions name are the words to tag kinds with first, and a part may carry other tags too. Then the engine chooses, not you: for each condition row whose state is On and whose branch row (list tree-branches) has state On, call tool:filter-rows-by-rules with records = the parts and the condition's fields and tree; the branch fires for every part in its matches. A condition whose answer lists incomplete rules or error rows chooses nothing and is named in the answer. Only for a part no condition keeps, read the On branch rows' fires_when (their labels) and judge whether one fits the part's words. When one does, choose it and write your judgment back as a new condition row (record:tree-branch-conditions:<branch slug>--<short slug>, {branch, label: why it fits in one line, condition: the smallest rule over this part's fields that keeps it, made_by: \"ai-judgment\", state: \"On\", evidence: the part's words and this run}); run that condition through tool:filter-rows-by-rules on the part before writing it, so it keeps the part. Each chosen branch runs its row's agents number (1 when left out); input.agents_per_step under the branch's id overrides it, the same rule every step's own agents number follows. Write one child task per chosen branch and part under the root, naming the part and how it was chosen. A part no branch meets is kept as a row in list findings with its words, never dropped.",
+            "title": "Choose the workflows that fire",
+            "do": "First take the seed apart: one seed is often a mix (ideas, material for content, journal, instructions to the AI, a question, a claim) and is never judged as one thing. Split its words into the parts it really holds, each part keeping its own words word for word and its position in the seed. Give each part its typed fields: kinds (tags), subjects (tags), people (tags), niches (tags, with input.niches where they fit) and own_words (true when the words are the person's own); a part may carry other fields too, whatever the conditions read. Then the engine chooses, not you: call tool:choose-the-workflows-that-fire with parts = the typed parts. It reads every workflow the person has and every one the Workshop installs (their own row wins) and evaluates each workflow's own conditions (its fires_when, the {fields, tree} of tool:filter-rows-by-rules) over the parts. Every row of its chosen fires that workflow for that part. Its unfinished conditions choose nothing and are named in the answer. The tags the conditions name are the words to tag kinds with first: when its answer keeps a part nowhere, look whether a kind the conditions use fits the part's words, retag and call it again. Only for a part still unmatched, read the unconditioned workflows (by id and label; tools:list or records:read for a job you need) and the labels of the conditions that exist, and judge which workflow does what the part asks, never workflow:grow-the-one-tree itself. When one does, choose it and write your judgment back onto that workflow's own row: a condition {label: why it fits in one line, condition: the smallest {fields, tree} over this part's fields that keeps it, made_by: \"ai-judgment\", state: \"On\", evidence: the part's words and this run} added to the row's fires_when list (records:write at @own-records of the person's own row record:workflow-recipe:<slug>; when the workflow is only installed from the Workshop, a row with only {recipe, fires_when}, which adds the condition and leaves the installed steps in use). Run the condition through tool:filter-rows-by-rules on the part before writing it, so it keeps the part. Each chosen workflow runs with input.agents_per_step under its id when given, else 1; the agents number of each of its steps holds inside it. Write one child task per chosen workflow and part under the root, naming the part, the workflow and the condition that chose it. A part no workflow meets is kept as a row in list findings with its words, never dropped.",
             "submit": {
               "type": "object",
               "required": [
@@ -10877,7 +11070,6 @@
                   "items": {
                     "type": "object",
                     "required": [
-                      "branch",
                       "workflow",
                       "agents",
                       "task",
@@ -10885,9 +11077,6 @@
                       "by"
                     ],
                     "properties": {
-                      "branch": {
-                        "type": "string"
-                      },
                       "workflow": {
                         "type": "string"
                       },
@@ -10903,7 +11092,7 @@
                       },
                       "by": {
                         "type": "string",
-                        "description": "The condition row that kept the part (or the new one this run wrote)."
+                        "description": "The label of the workflow's condition that kept the part (or the one this run wrote onto its row)."
                       }
                     }
                   }
@@ -10912,7 +11101,8 @@
                   "type": "array",
                   "items": {
                     "type": "string"
-                  }
+                  },
+                  "description": "The workflows whose rows gained a condition this run."
                 },
                 "unfinished_conditions": {
                   "type": "array",
@@ -10934,10 +11124,15 @@
               }
             ],
             "when": "After plant-the-seed.",
-            "done_when": "Every part has typed fields and was routed by a condition row (one the engine evaluated, or one written back this run) or kept as a finding; every chosen branch has a child task naming its part, the condition that chose it and its agents number.",
-            "if_missing": "If tree-branches has no rows, write the default rows first (record:tree-branches:<slug>) for the workflows this recipe names. If a branch has no condition row, its fires_when is judged as above and the judgment written back, so the next seed is chosen by the engine.",
-            "why": "The branches are data, so a new branch needs only a new row. A note is a mix; routing it whole loses the parts (the person, 2026-11-13: the arrival split into request or pursuit is instance-solving).",
-            "good_answer": "The typed parts, and each chosen branch with the condition row that chose it and its agents number.",
+            "done_when": "Every part has typed fields and was routed by a workflow's condition (one the engine evaluated, or one written back onto the workflow's row this run) or kept as a finding; every chosen workflow has a child task naming its part and the condition that chose it.",
+            "if_missing": "If tool:choose-the-workflows-that-fire is refused, read the person's workflow rows (records:list at @own-records, type record:workflow-recipe and workflow-recipe) and the installed recipes, and evaluate each fires_when with tool:filter-rows-by-rules over the parts, the same way. If a workflow has no condition, it is judged as above and the judgment written back onto its row, so the next seed is chosen by the engine.",
+            "why": "Every workflow is a branch, chosen by the conditions it carries, so a workflow added or a kit installed is a branch at once with no list to keep (the person, 2026-11-13 about 8:40 PM CST). A note is a mix; routing it whole loses the parts (the person, 2026-11-13: the arrival split into request or pursuit is instance-solving).",
+            "good_answer": "The typed parts, and each chosen workflow with the condition that chose it and its agents number.",
+            "came_from": [
+              "every workflow's own fires_when (branches/fires-when.json)",
+              "tool:choose-the-workflows-that-fire",
+              "tool:filter-rows-by-rules (the condition form)"
+            ],
             "part_of": [
               "record:workflow-recipe:grow-the-one-tree"
             ]
@@ -10945,7 +11140,7 @@
           {
             "id": "fan-out",
             "title": "Run every chosen branch",
-            "do": "For each chosen branch call tool:start-a-recipe-run with row workflow: the branch's workflow and an input made from the seed, the owner, the visibility and input.agents_per_step (passed on as it is, so its numbers reach the branch's own steps). Start as many runs as the branch's chosen agents number says: each run is one agent and writes its own rows. A larger number is the same step with more runs (this is also how a simulation runs); there is no separate engine. Keep each run id on its child task. A branch whose source tool is refused takes its fallback in the same run, never a wait: for YouTube captions and comments that is the treg route written in workflow:answer-commenters-with-videos step keep-posts-and-comments. A branch that is blocked with no fallback written (a refusal, a missing tool, a step waiting on a person past its due time) heals instead of stopping: find another path to the same output among the workflows and tools that exist, write it as a new row of list tree-branches (record:tree-branches:<slug>, {branch, workflow, fires_when: when it is taken, agents, visibility_default, state: \"On\", evidence: the block it went round, with the run}) and a condition row that chooses it for this kind of part, then run it in this pass. Name the healed branch in the answer.",
+            "do": "For each chosen workflow call tool:start-a-recipe-run with row: that workflow and an input made from the seed, the owner, the visibility and input.agents_per_step (passed on as it is, so its numbers reach the branch's own steps). Start as many runs as its chosen agents number says: each run is one agent and writes its own rows. A larger number is the same step with more runs (this is also how a simulation runs); there is no separate engine. Keep each run id on its child task. A branch whose source tool is refused takes its fallback in the same run, never a wait: for YouTube captions and comments that is the treg route written in workflow:answer-commenters-with-videos step keep-posts-and-comments. A branch that is blocked with no fallback written (a refusal, a missing tool, a step waiting on a person past its due time) heals instead of stopping: find another path to the same output among the workflows and tools that exist; when an existing workflow is that path, add a condition choosing it for this kind of part to its own row's fires_when, and when none is, write the path as a new workflow row (record:workflow-recipe:<slug> with its record:workflow-step rows and a fires_when condition {label: when it is taken, condition, made_by: \"healing\", state: \"On\", evidence: the block it went round, with the run}); then run it in this pass. Name the healed workflow in the answer.",
             "submit": {
               "type": "object",
               "required": [
@@ -10962,7 +11157,8 @@
                     ],
                     "properties": {
                       "branch": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "The chosen workflow id."
                       },
                       "run_id": {
                         "type": "string"
@@ -11014,16 +11210,21 @@
                   "choose-branches",
                   "chosen",
                   "*",
-                  "branch"
+                  "workflow"
                 ],
-                "says": "Every run belongs to a chosen branch."
+                "says": "Every run belongs to a chosen workflow."
               }
             ],
             "when": "After choose-branches.",
-            "done_when": "Every chosen branch has as many runs as its agents number, and every blocked branch either took its fallback or healed into a new branch row that ran.",
+            "done_when": "Every chosen workflow has as many runs as its agents number, and every blocked one either took its fallback or healed into a workflow row with its condition that ran.",
             "if_missing": "If no other path exists, record the block on the child task with what was tried, keep the others going, and leave the child task open.",
             "why": "One number sets the width of the tree.",
             "good_answer": "Run ids per branch.",
+            "came_from": [
+              "tool:start-a-recipe-run",
+              "workflow:make-the-piece-without-waiting-for-the-person (a waiting step becomes a permanent workflow with its condition)",
+              "L227 self-healing."
+            ],
             "part_of": [
               "record:workflow-recipe:grow-the-one-tree"
             ]
@@ -11302,7 +11503,7 @@
           {
             "id": "answer-and-change-log",
             "title": "Answer, and log the change",
-            "do": "Answers: for each part that is a thread waiting for an answer, run the branch choose-branches chose for it (list tree-branches; in the Workshop that is workflow:answer-comments-and-messages). Change log: run workflow:keep-a-changelog-from-what-shipped with the visibility of the seed; a row marked internal is kept for the team and never reaches the public change log (for example a price experiment).",
+            "do": "Answers: for each part that is a thread waiting for an answer, run the workflow choose-branches chose for it. Change log: run workflow:keep-a-changelog-from-what-shipped with the visibility of the seed; a row marked internal is kept for the team and never reaches the public change log (for example a price experiment).",
             "submit": {
               "type": "object",
               "properties": {
@@ -11336,7 +11537,7 @@
           {
             "id": "learn-and-prune",
             "title": "Feed learnings back and prune",
-            "do": "Run workflow:read-the-week-and-make-more-of-what-won. Write what it learned as rows: a new condition row in list tree-branch-conditions when a kind of part should reach a branch it did not, a branch row's agents number when its measured results say it is worth more or less width, and the voice. Prune only by measured outcome rows: a branch or condition whose runs failed three times (their child tasks blocked, or their outputs measured worse in list cost-measurements and the post numbers) is retired: keep the row, set state Off and write the reasons with the run ids. Every day also retrain the writing on real results: read the person's edits to what was written for him with tool:keep-a-voice-edit and tool:find-repeated-voice-edits, save the repeated ones with tool:save-voice, and read the day's numbers with tool:see-how-each-post-did, so the next outline or script starts from what worked.",
+            "do": "Run workflow:read-the-week-and-make-more-of-what-won. Write what it learned as rows, over every workflow, not a chosen few: a new condition on a workflow's own row (its fires_when) when a kind of part should reach it and did not, the agents numbers of its steps when its measured results say it is worth more or less width, and the voice. Prune and weigh only by measured outcome rows: a condition whose runs failed three times (their child tasks blocked, or their outputs measured worse in list cost-measurements and the post numbers) is retired: keep it on the row, set its state Off and write the reasons with the run ids. Every day also retrain the writing on real results: read the person's edits to what was written for him with tool:keep-a-voice-edit and tool:find-repeated-voice-edits, save the repeated ones with tool:save-voice, and read the day's numbers with tool:see-how-each-post-did, so the next outline or script starts from what worked.",
             "submit": {
               "type": "object",
               "properties": {
@@ -11359,7 +11560,7 @@
             },
             "checks": [],
             "when": "Daily, by the wake daily, and at the end of each run.",
-            "done_when": "Learnings are written as rows, and only rows with three measured failures are retired, each with its reasons and run ids.",
+            "done_when": "Learnings are written onto the workflows' rows, and only conditions with three measured failures are retired, each with its reasons and run ids.",
             "if_missing": "If no number is available, retire nothing.",
             "why": "The tree improves from its own results and stays clean.",
             "good_answer": "What changed in which row.",
@@ -11872,6 +12073,42 @@
           "restoration": "Original stage instructions and requirement schemas retained. Source references and private quotations remain in the private recovery evidence. Existing runs retain their original identities and definitions.",
           "current_route": "Named legacy operations are resolved through the current account capability owner. Source incorporation is reused for applicable outside/shared material, never forced on unrelated work."
         },
+        "fires_when": [
+          {
+            "label": "after every pass; its continue step registers the wake",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "pass-finished"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "fires_when",
+            "state": "On",
+            "evidence": "Moved onto this workflow's own row from list tree-branches row record:tree-branches:infinity and list tree-branch-conditions row record:tree-branch-conditions:infinity--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch)."
+          }
+        ],
         "steps": [
           {
             "id": "baseline",
@@ -12037,7 +12274,7 @@
           {
             "id": "bottleneck",
             "title": "Find the highest-value constraint",
-            "do": "This mode adds no permissions. Keep effects within the user's request and the rights, consent, preferences and opt-outs of other people. Use bounded batches and current resource limits; stop or cancel cleanly when the boundary is reached. Apply the exact request and its exclusions. A required but blocked step stays open; record the wall with the run, never submit invented completion. Evidence admission checks structure and references, not the truth of an external observation.\n\nbottleneck: Find the current bottleneck from observed evidence. Search live Marketplace items, tools and workflows for the generative capability and current licensed owner that can remove it; describe and reuse the best fit before extending anything.\n\ncapability-review-bottleneck: At this stage search the current Marketplace, Yours and Everyone's, for useful tools, workflows, data and connected MCP capabilities. Always review REA, 21st.dev and Mobbin alongside other discovered capabilities: keep the must-review set distinct from the open set of useful capabilities. Describe each relevant candidate's actual job, inputs, licence, running place and observed results, then use the capable licensed owner when it fits. Reuse already verified output when the underlying state is unchanged. Record the exact unavailable route, lost evidence and available equivalent; never claim a tool was used without its actual output. Improve a missing generic capability through its owner rather than hardcoding the example. A step that waits on the person is a missing branch, not a stop: workflow:make-the-piece-without-waiting-for-the-person writes the other path as a permanent row of list tree-branches.",
+            "do": "This mode adds no permissions. Keep effects within the user's request and the rights, consent, preferences and opt-outs of other people. Use bounded batches and current resource limits; stop or cancel cleanly when the boundary is reached. Apply the exact request and its exclusions. A required but blocked step stays open; record the wall with the run, never submit invented completion. Evidence admission checks structure and references, not the truth of an external observation.\n\nbottleneck: Find the current bottleneck from observed evidence. Search live Marketplace items, tools and workflows for the generative capability and current licensed owner that can remove it; describe and reuse the best fit before extending anything.\n\ncapability-review-bottleneck: At this stage search the current Marketplace, Yours and Everyone's, for useful tools, workflows, data and connected MCP capabilities. Always review REA, 21st.dev and Mobbin alongside other discovered capabilities: keep the must-review set distinct from the open set of useful capabilities. Describe each relevant candidate's actual job, inputs, licence, running place and observed results, then use the capable licensed owner when it fits. Reuse already verified output when the underlying state is unchanged. Record the exact unavailable route, lost evidence and available equivalent; never claim a tool was used without its actual output. Improve a missing generic capability through its owner rather than hardcoding the example. A step that waits on the person is a missing branch, not a stop: workflow:make-the-piece-without-waiting-for-the-person is the other path, and it fires by the condition on its own row.",
             "submit": {
               "type": "object",
               "additionalProperties": false,
@@ -12654,6 +12891,42 @@
             }
           }
         ],
+        "fires_when": [
+          {
+            "label": "something shipped from the seed",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "shipped"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "fires_when",
+            "state": "On",
+            "evidence": "Moved onto this workflow's own row from list tree-branches row record:tree-branches:keep-a-changelog and list tree-branch-conditions row record:tree-branch-conditions:keep-a-changelog--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch)."
+          }
+        ],
         "steps": [
           {
             "id": "read-release",
@@ -12796,6 +13069,42 @@
           "restoration": "Original stage instructions and requirement schemas retained. Source references and private quotations remain in the private recovery evidence. Existing runs retain their original identities and definitions.",
           "current_route": "Named legacy operations are resolved through the current account capability owner. Source incorporation is reused for applicable outside/shared material, never forced on unrelated work."
         },
+        "fires_when": [
+          {
+            "label": "after a result is proven",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "result-proven"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "fires_when",
+            "state": "On",
+            "evidence": "Moved onto this workflow's own row from list tree-branches row record:tree-branches:keep-it-working and list tree-branch-conditions row record:tree-branch-conditions:keep-it-working--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch)."
+          }
+        ],
         "steps": [
           {
             "id": "health",
@@ -16755,6 +17064,42 @@
           "restoration": "Original stage instructions and requirement schemas retained. Source references and private quotations remain in the private recovery evidence. Existing runs retain their original identities and definitions.",
           "current_route": "Named legacy operations are resolved through the current account capability owner. Source incorporation is reused for applicable outside/shared material, never forced on unrelated work."
         },
+        "fires_when": [
+          {
+            "label": "after publication",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "published"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "fires_when",
+            "state": "On",
+            "evidence": "Moved onto this workflow's own row from list tree-branches row record:tree-branches:make-it-perform and list tree-branch-conditions row record:tree-branch-conditions:make-it-perform--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch)."
+          }
+        ],
         "steps": [
           {
             "id": "discover",
@@ -21108,7 +21453,7 @@
         "id": "workflow:make-the-piece-without-waiting-for-the-person",
         "label": "Make the piece without waiting for the person",
         "job": "When a piece of content is waiting on a step only the person can do (filming, a voiceover), list the other ways to reach the finished piece, and when the due time passes without their step, make it from the written script in the person's own cloned voice with their own assets, check it, draft it, and keep that path as a permanent branch so nobody asks next time.",
-        "produces": "A finished video drafted for approval, and one row of list tree-branches that makes this path part of the tree.",
+        "produces": "A finished video drafted for approval, and this workflow chosen as a branch of the tree by the condition on its own row.",
         "made_from": [
           "workflow:make-short-videos-from-footage",
           "workflow:make-one-piece-of-content-from-audience-to-publish"
@@ -21134,6 +21479,42 @@
           "from": "the person, 2026-11-12: a wait on the person is an artificial bottleneck; after a time, voice-clone the written script so the piece still goes out, and make that path a permanent branch.",
           "note": "Uses only the person's own enrolled or cloned voice (tool:say-with-a-voice-model); a stand-in for anyone else is never made. The waiting step, the time and the piece are input rows."
         },
+        "fires_when": [
+          {
+            "label": "a waiting step is past its due time",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "past-due"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "fires_when",
+            "state": "On",
+            "evidence": "Moved onto this workflow's own row from list tree-branches row record:tree-branches:no-wait-voice-clone and list tree-branch-conditions row record:tree-branch-conditions:no-wait-voice-clone--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch)."
+          }
+        ],
         "steps": [
           {
             "id": "read-the-piece",
@@ -21348,12 +21729,13 @@
           {
             "id": "keep-the-path-as-a-permanent-branch",
             "title": "Make this path part of the tree",
-            "do": "Write one row to list tree-branches (records:write at @own-records) id \"record:tree-branches:no-wait-voice-clone\": {branch: \"Make the piece without waiting\", workflow: \"workflow:make-the-piece-without-waiting-for-the-person\", fires_when: \"a waiting step is past its due time\", agents: 1, visibility_default: \"internal\", state: \"On\"}. If the row exists, keep it and add this piece to its evidence. Say in the answer that the path is now a branch and nobody has to ask next time.",
+            "do": "This workflow is a branch of the tree by the condition on its own row (fires_when). Run tool:choose-the-workflows-that-fire with parts [{words: the waiting step, kinds: [\"past-due\"]}]; when it chooses workflow:make-the-piece-without-waiting-for-the-person, the path is already a branch. When it does not, add this condition to the fires_when of the person's row of this workflow (records:write at @own-records, record:workflow-recipe:make-the-piece-without-waiting-for-the-person; a row with only {recipe, fires_when} when they hold none): {\"label\": \"a waiting step is past its due time\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"past-due\"]}}]}}, \"made_by\": \"this workflow\", \"state\": \"On\", \"evidence\": \"this piece and run\"}. Say in the answer that the path is a branch and nobody has to ask next time.",
             "submit": {
               "type": "object",
               "properties": {
                 "branch_row": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "The workflow row that carries the condition."
                 }
               },
               "required": [
@@ -21372,10 +21754,10 @@
               }
             ],
             "when": "After check-and-draft.",
-            "done_when": "The tree-branches row reads back.",
-            "if_missing": "If the row exists, keep it; do not write a second copy.",
+            "done_when": "tool:choose-the-workflows-that-fire chooses this workflow for a part whose kinds hold past-due.",
+            "if_missing": "If the condition is there, keep it; do not write a second copy.",
             "why": "A path found once must not have to be found again.",
-            "good_answer": "The branch row id.",
+            "good_answer": "The workflow row that carries the condition.",
             "part_of": [
               "record:workflow-recipe:make-the-piece-without-waiting-for-the-person"
             ]
@@ -28043,6 +28425,54 @@
           "restoration": "Original stage instructions and requirement schemas retained. Source references and private quotations remain in the private recovery evidence. Existing runs retain their original identities and definitions.",
           "current_route": "Named legacy operations are resolved through the current account capability owner. Source incorporation is reused for applicable outside/shared material, never forced on unrelated work."
         },
+        "fires_when": [
+          {
+            "label": "when a piece answers a named person's question",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                },
+                {
+                  "id": "people",
+                  "kind": "tags",
+                  "path": [
+                    "people"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "answer"
+                      ]
+                    }
+                  },
+                  {
+                    "kind": "rule",
+                    "field": "people",
+                    "operator": "is_not_empty"
+                  }
+                ]
+              }
+            },
+            "made_by": "fires_when",
+            "state": "On",
+            "evidence": "Moved onto this workflow's own row from list tree-branches row record:tree-branches:personalized-reach-out and list tree-branch-conditions row record:tree-branch-conditions:personalized-reach-out--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch)."
+          }
+        ],
         "steps": [
           {
             "id": "fit",
@@ -29633,6 +30063,42 @@
           "from": "a method a person repeated across their work",
           "note": "Test against real data and real outcomes, with test cost driven toward zero and depth kept. Nothing here names a subject, field or person."
         },
+        "fires_when": [
+          {
+            "label": "a finding describes a tool, app or service worth making",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "tool-idea"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "fires_when",
+            "state": "On",
+            "evidence": "Moved onto this workflow's own row from list tree-branches row record:tree-branches:possibility-to-proof and list tree-branch-conditions row record:tree-branch-conditions:possibility-to-proof--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch)."
+          }
+        ],
         "steps": [
           {
             "id": "first-principles",
@@ -32120,6 +32586,42 @@
           "restoration": "Original stage instructions and requirement schemas retained. Source references and private quotations remain in the private recovery evidence. Existing runs retain their original identities and definitions.",
           "current_route": "Named legacy operations are resolved through the current account capability owner. Source incorporation is reused for applicable outside/shared material, never forced on unrelated work."
         },
+        "fires_when": [
+          {
+            "label": "when something worth releasing is ready",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "ready-to-release"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "fires_when",
+            "state": "On",
+            "evidence": "Moved onto this workflow's own row from list tree-branches row record:tree-branches:put-it-in-the-world and list tree-branch-conditions row record:tree-branch-conditions:put-it-in-the-world--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch)."
+          }
+        ],
         "steps": [
           {
             "id": "reuse",
@@ -33415,7 +33917,7 @@
           {
             "id": "compose",
             "title": "Find and compose current capabilities",
-            "do": "This mode adds no permissions. Each composed workflow retains its own authority, licensed owner, recipient rights, opt-outs, finite resource limits and stop conditions. A stage advances only on actual workflow run readback and outcome evidence. Apply the exact request and its exclusions. A required but blocked step stays open; record the wall with the run, never submit invented completion. Evidence admission checks structure and references, not the truth of an external observation.\n\nfind-composition: Search live Marketplace listings, find tools and find_workflow for the job at hand. Describe the current licensed capable owners, reuse their existing workflow runs, and compose only the modes and actions that resolve this customer's observed bottleneck. Do not create fake IDs or a second engine.\n\nexecution-standard-each-stage: Require workflow:trillion-x-mode through the actual workflow:trillion-x-mode run at every applicable stage and read back each real run result. Preserve run identity, outputs, checks, failures and continuation state; a mode record or queued run is not proof that the workflow ran.\n\nmode-research: Always review whether REA, 21st.dev, Mobbin and other research/design capabilities apply at each stage. Use the actually available declared route when relevant; record attempted failures, their evidential loss and a current equivalent. Never claim use without observed output.\n\ninfinity-child: When continued multidimensional improvement applies, find and describe the current Infinity Mode workflow, workflow:infinity, run it through the existing workflow engine, then read back its actual run. Keep quality, depth, breadth, scale, granularity across nested levels, reliability, continuity, energy, user effort, cost, latency, setup and resource consumption as independent dimensions. Keep chosen improvement directions separately observable rather than combining them into one ratio. Investigate apparent conflicts and recursively question the dimensions, measures, hierarchy, objectives and method itself against actual outcomes. Preserve the person's actual per-level settings and configurable conditions, including choices to tune or disable behavior; per-pass resource bounds do not cap the aspiration.\n\ncapability-review-compose: At this stage search the current Marketplace, Yours and Everyone's, for useful tools, workflows, data and connected MCP capabilities. Always review REA, 21st.dev and Mobbin alongside other discovered capabilities: keep the must-review set distinct from the open set of useful capabilities. Describe each relevant candidate's actual job, inputs, licence, running place and observed results, then use the capable licensed owner when it fits. Reuse already verified output when the underlying state is unchanged. Record the exact unavailable route, lost evidence and available equivalent; never claim a tool was used without its actual output. Improve a missing generic capability through its owner rather than hardcoding the example. For content, compose workflow:grow-the-one-tree: the rows of list tree-branches name the workflows it composes, and a new branch is a new row.",
+            "do": "This mode adds no permissions. Each composed workflow retains its own authority, licensed owner, recipient rights, opt-outs, finite resource limits and stop conditions. A stage advances only on actual workflow run readback and outcome evidence. Apply the exact request and its exclusions. A required but blocked step stays open; record the wall with the run, never submit invented completion. Evidence admission checks structure and references, not the truth of an external observation.\n\nfind-composition: Search live Marketplace listings, find tools and find_workflow for the job at hand. Describe the current licensed capable owners, reuse their existing workflow runs, and compose only the modes and actions that resolve this customer's observed bottleneck. Do not create fake IDs or a second engine.\n\nexecution-standard-each-stage: Require workflow:trillion-x-mode through the actual workflow:trillion-x-mode run at every applicable stage and read back each real run result. Preserve run identity, outputs, checks, failures and continuation state; a mode record or queued run is not proof that the workflow ran.\n\nmode-research: Always review whether REA, 21st.dev, Mobbin and other research/design capabilities apply at each stage. Use the actually available declared route when relevant; record attempted failures, their evidential loss and a current equivalent. Never claim use without observed output.\n\ninfinity-child: When continued multidimensional improvement applies, find and describe the current Infinity Mode workflow, workflow:infinity, run it through the existing workflow engine, then read back its actual run. Keep quality, depth, breadth, scale, granularity across nested levels, reliability, continuity, energy, user effort, cost, latency, setup and resource consumption as independent dimensions. Keep chosen improvement directions separately observable rather than combining them into one ratio. Investigate apparent conflicts and recursively question the dimensions, measures, hierarchy, objectives and method itself against actual outcomes. Preserve the person's actual per-level settings and configurable conditions, including choices to tune or disable behavior; per-pass resource bounds do not cap the aspiration.\n\ncapability-review-compose: At this stage search the current Marketplace, Yours and Everyone's, for useful tools, workflows, data and connected MCP capabilities. Always review REA, 21st.dev and Mobbin alongside other discovered capabilities: keep the must-review set distinct from the open set of useful capabilities. Describe each relevant candidate's actual job, inputs, licence, running place and observed results, then use the capable licensed owner when it fits. Reuse already verified output when the underlying state is unchanged. Record the exact unavailable route, lost evidence and available equivalent; never claim a tool was used without its actual output. Improve a missing generic capability through its owner rather than hardcoding the example. For content, compose workflow:grow-the-one-tree: every workflow is a branch it may compose, chosen by the conditions on its own row, and a new branch is a new workflow.",
             "submit": {
               "type": "object",
               "additionalProperties": false,
@@ -37697,6 +38199,43 @@
           "restoration": "Original stage instructions and requirement schemas retained. Source references and private quotations remain in the private recovery evidence. Existing runs retain their original identities and definitions.",
           "current_route": "Named legacy operations are resolved through the current account capability owner. Source incorporation is reused for applicable outside/shared material, never forced on unrelated work."
         },
+        "fires_when": [
+          {
+            "label": "at the start of a pursuit and when new evidence arrives",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "pursuit-start",
+                        "new-evidence"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "fires_when",
+            "state": "On",
+            "evidence": "Moved onto this workflow's own row from list tree-branches row record:tree-branches:real-life-cases and list tree-branch-conditions row record:tree-branch-conditions:real-life-cases--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch)."
+          }
+        ],
         "steps": [
           {
             "id": "case",
@@ -38998,6 +39537,54 @@
           "from": "a method a person repeated across their work",
           "note": "Nothing here names a subject, field or person: a bakery, a clinic, a coaching method and a book run the same steps."
         },
+        "fires_when": [
+          {
+            "label": "a seed makes a claim or names a subject",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                },
+                {
+                  "id": "subjects",
+                  "kind": "tags",
+                  "path": [
+                    "subjects"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "or",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "claim"
+                      ]
+                    }
+                  },
+                  {
+                    "kind": "rule",
+                    "field": "subjects",
+                    "operator": "is_not_empty"
+                  }
+                ]
+              }
+            },
+            "made_by": "fires_when",
+            "state": "On",
+            "evidence": "Moved onto this workflow's own row from list tree-branches row record:tree-branches:research-what-everyone-says and list tree-branch-conditions row record:tree-branch-conditions:research-what-everyone-says--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch)."
+          }
+        ],
         "steps": [
           {
             "id": "people",
@@ -58687,6 +59274,37 @@
           "from": "a method a person repeated across their work",
           "note": "Nothing here names a person, pursuit, platform or product: a coach's voice note, a founder's chat message and a teacher's lecture run the same steps."
         },
+        "fires_when": [
+          {
+            "label": "the seed is the person's own words",
+            "condition": {
+              "fields": [
+                {
+                  "id": "own_words",
+                  "kind": "boolean",
+                  "path": [
+                    "own_words"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "own_words",
+                    "operator": "is_true"
+                  }
+                ]
+              }
+            },
+            "made_by": "fires_when",
+            "state": "On",
+            "evidence": "Moved onto this workflow's own row from list tree-branches row record:tree-branches:turn-what-you-said-into-content and list tree-branch-conditions row record:tree-branch-conditions:turn-what-you-said-into-content--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch)."
+          }
+        ],
         "steps": [
           {
             "id": "worth",

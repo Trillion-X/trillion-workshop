@@ -1,0 +1,48 @@
+{
+ "start_here": "Say to your AI: \"Which of my workflows fire for this: 'A finding: most small teams never write their plan down.'?\" It splits the words into parts, tags each (kinds finding, subjects planning), runs tool:choose-the-workflows-that-fire with those parts and tells you each workflow whose own conditions keep a part, the ones that have no condition yet and the parts nothing kept.",
+ "lists": [],
+ "no_lists_because": "It names no list of yours to fill: it reads your own workflow rows (record:workflow-recipe and the older workflow-recipe) and the Workshop's installed recipes, and writes nothing.",
+ "workflows": [
+  "workflow:grow-the-one-tree"
+ ],
+ "tools": [
+  "tool:choose-the-workflows-that-fire",
+  "tool:filter-rows-by-rules"
+ ],
+ "instructions": [
+  "1. Give a workflow of yours its conditions: on its row (records:write at @own-records, record:workflow-recipe:<slug>) set fires_when to a JSON list of {label, condition: {fields, tree}, made_by, state: \"On\"}; the condition is what tool:filter-rows-by-rules takes. For a workflow you only installed from the Workshop, a row with only {recipe, fires_when} adds yours.",
+  "2. Split what arrived into parts and give each part its typed fields (kinds, subjects, people, niches, own_words, or whatever your conditions read).",
+  "3. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:choose-the-workflows-that-fire and input {parts}.",
+  "4. Read chosen (workflow, part, the condition that kept it), unfinished (conditions to fix), unconditioned (workflows to give a condition) and unmatched_parts; start each chosen workflow with tool:start-a-recipe-run."
+ ],
+ "worked_examples": [
+  {
+   "title": "A research finding reaches the workflow whose condition keeps findings",
+   "ask": "Which of my workflows fire for: 'A finding: most small teams never write their plan down.'?",
+   "mcp": {
+    "server": "trillion",
+    "tool": "run_resource_operation",
+    "input": {
+     "address": "@workshop-tools",
+     "method": "tools:run",
+     "input": {
+      "tool": "tool:choose-the-workflows-that-fire",
+      "input": {
+       "parts": [
+        {
+         "words": "A finding: most small teams never write their plan down.",
+         "kinds": ["finding", "claim"],
+         "subjects": ["planning"]
+        }
+       ]
+      }
+     }
+    }
+   },
+   "workflow": "workflow:grow-the-one-tree",
+   "step": "choose-branches",
+   "given": "One part tagged finding and claim with the subject planning, on an account whose own row record:workflow-recipe:research-to-plan carries the condition \"a research finding arrives\" (kinds has any of finding).",
+   "hands_back": "chosen holds workflow:research-to-plan (from own, condition \"a research finding arrives\") and workflow:research-what-everyone-says (from catalog, condition \"a seed makes a claim or names a subject\"), both for part 0; unconditioned lists the workflows with no condition yet; unmatched_parts is empty."
+  }
+ ]
+}

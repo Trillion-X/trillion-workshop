@@ -40,6 +40,9 @@ async function ownRecipe(id, door) {
     for (const stepType of ROW_TYPES.step.types) {
       for await (const step of door.list({ type: stepType, prefix: `${ROW_TYPES.step.id_prefix}${slug}--` })) if (step.value?.recipe?.[0] === slug && !steps.has(step.id)) steps.set(step.id, step);
     }
+    // A row with no steps and no definition only adds to an installed recipe (for example its own fires_when), so the
+    // installed recipe runs.
+    if (!steps.size && (row.definition === undefined || row.definition === '')) return null;
     return recipeFromRows({ value: row }, [...steps.values()]);
   }
   return null;
