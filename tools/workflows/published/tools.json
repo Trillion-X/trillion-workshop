@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:bd680a0e0dabfc6c7781d9ce4a06ba24691e5c18302a52362c6f4ffe414b9581"
+  "blake3": "1f:a80e9f2738a179345477fce57e687c7f32b7efe9701c5fd629b9feb93480e7b0"
  },
  "fields": [
   {
@@ -1644,7 +1644,10 @@
     "placements": [
      "placement:small-container"
     ],
-    "folder": "social-posts"
+    "folder": "social-posts",
+    "flags": [
+     "has-a-screen"
+    ]
    }
   },
   {
@@ -5713,6 +5716,21 @@
      "placement:your-computer"
     ],
     "folder": "tell-ais-how-to-act"
+   }
+  },
+  {
+   "id": "tool:keep-what-i-said-to-an-ai",
+   "values": {
+    "title": "Keep what I said to an AI and what it answered",
+    "job": "Keep the messages of a turn with an AI that keeps its chats on its own service (Muse, Grok Bot), my words and its replies, as my messages",
+    "description": "Takes one conversation's messages from an AI that keeps its chats on its own service and has no store on this computer (Muse, Grok Bot: set-up-my-account harnesses.json turns.roads mcp-record), as old Trillion's record_messages did: app (the AI as it calls itself), conversation_id (its own name for the conversation), title?, and messages [{id, speaker: person | ai, text word for word, at?, model?}]. Each is kept as the person's message record through the same message owner every other place uses, with its original time, so sending a turn again adds nothing; the conversation's row of the AI conversations list is kept. Answers conversation_id, messages, added and already_kept.",
+    "status": "active",
+    "maker": "maker:conversations",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "conversations"
    }
   },
   {
@@ -10084,7 +10102,7 @@
    "values": {
     "title": "Read what I pulled from a connected account",
     "job": "Read the conversations, messages and saved items I pulled from a connected account such as Discord, Slack, Telegram, Signal, Instagram, Messenger, X bookmarks or Pinterest",
-    "description": "Give source (discord, slack, telegram, signal, instagram-messages, messenger-messages, x-bookmarks or pinterest-pins) and optionally account (the name it was pulled under, default \"default\"). Without thread it answers the conversations (id, title, message count), the collections (name, count), who the account is, the cursor and when it was last pulled. With thread (a conversation id from that list) it answers that conversation's messages exactly as the service sent them, the last limit of them (default 100, at most 500). It reads your records and changes nothing; it never reaches the service.",
+    "description": "Give source (discord, slack, telegram, signal, instagram-messages, instagram-comments, messenger-messages, x-bookmarks or pinterest-pins) and optionally account (the name it was pulled under, default \"default\"). Without thread it answers the conversations (id, title, message count), the collections (name, count), who the account is, the cursor and when it was last pulled. With thread (a conversation id from that list) it answers that conversation's messages exactly as the service sent them, the last limit of them (default 100, at most 500). It reads your records and changes nothing; it never reaches the service.",
     "status": "active",
     "maker": "maker:pull-from-connected-accounts",
     "licence_class": "licence:maker-own",
@@ -11233,6 +11251,22 @@
      "placement:your-computer"
     ],
     "folder": "better-auth"
+   }
+  },
+  {
+   "id": "tool:run-official-better-auth",
+   "values": {
+    "title": "Run the official Better Auth sign-in server (runs on your computer)",
+    "job": "Start official Better Auth: email and password, passkeys, two factor, email codes, magic links, API keys, JWTs, and the OAuth server MCP clients sign in through",
+    "description": "Starts official Better Auth (the TypeScript library, set up as https://www.better-auth.com/docs shows) on node with the built-in node:sqlite database. Plugins: email and password with password reset, passkey, two factor (TOTP and backup codes), email OTP, magic link, multi session, API keys, JWT (EdDSA, keys at {base_path}/jwks), MCP (the OAuth 2.1 authorization server for MCP clients, with Client ID Metadata Documents; discovery at /.well-known/oauth-authorization-server and /.well-known/oauth-protected-resource) device authorization, and bearer (so a device's session token works as Authorization: Bearer, as the device docs require). MCP access tokens are EdDSA JWTs with header typ at+jwt, the JWKS kid, and aud naming settings.json mcp.resource (the MCP door's address). As the JWT docs require with MCP, settings.json disabled_paths turns off the session /token route by default; OAuth clients get tokens from {base_path}/oauth2/token. Port, base URL, issuer, audience, passkey relying party, trusted origins, MCP resource and pages, the SQLite file, the session cookie name (__Host-trillion_session) and where email goes are all in settings.json; the secret comes from BETTER_AUTH_SECRET and is never printed.",
+    "status": "active",
+    "maker": "maker:better-auth",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer",
+     "placement:caller-sandbox"
+    ],
+    "folder": "better-auth-official"
    }
   },
   {
@@ -13005,7 +13039,7 @@
    "values": {
     "title": "Start a run of a recipe: leave its steps as a job for my AI",
     "job": "When a recipe of mine is started, by a wake I switched on or by a call, put its steps and its input in my own records as one job waiting for my AI, once per firing",
-    "description": "Every recipe row runs as this tool (the recipes' row source names it in invoke_with), with the recipe's id in input.row. It reads that recipe from the person's own list of workflows and the rows of its steps, or else from the public recipes folder (the person's own row wins when both hold the id), and writes one record of kind ai-job, id ai-job:<recipe id>:<request key>, holding status waiting, the recipe id and label, its steps, the input it was started with and the wake cause that started it. It does no step itself, schedules nothing and keeps nothing else. The AI that next connects to the person's records lists ai-job records with status waiting, does the oldest, and writes status done with its result. A firing or a call that comes again with the same request key finds its job and writes nothing.",
+    "description": "Every recipe row runs as this tool (the recipes' row source names it in invoke_with), with the recipe's id in input.row. It reads that recipe from the person's own list of workflows and the rows of its steps, or else from the public recipes folder (the person's own row wins when both hold the id; their rows may be typed record:workflow-recipe or workflow-recipe, arrivals/recipe-row-types.json), and, when a record wake names an arrival source, starts only from the changed rows that source's filter keeps, each a seed in the run's input, writing nothing when none is kept (arrivals/arrival-sources.json); it writes one record of kind ai-job, id ai-job:<recipe id>:<request key>, holding status waiting, the recipe id and label, its steps, the input it was started with and the wake cause that started it. It does no step itself, schedules nothing and keeps nothing else. The AI that next connects to the person's records lists ai-job records with status waiting, does the oldest, and writes status done with its result. A firing or a call that comes again with the same request key finds its job and writes nothing.",
     "status": "active",
     "maker": "maker:workflows",
     "licence_class": "licence:maker-own",
@@ -14210,7 +14244,8 @@
     ],
     "folder": "know-who-is-in-this",
     "flags": [
-     "keeps-records"
+     "keeps-records",
+     "has-a-screen"
     ]
    }
   },
