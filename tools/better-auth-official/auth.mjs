@@ -7,6 +7,7 @@ import { readFileSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { betterAuth } from 'better-auth';
+import { createAuthMiddleware, getSessionFromCtx } from 'better-auth/api';
 import {
   bearer, deviceAuthorization, emailOTP, jwt, magicLink, multiSession, twoFactor,
 } from 'better-auth/plugins';
@@ -18,6 +19,7 @@ import { fetchClientMetadataResource } from '@better-auth/cimd/node';
 import { emailHook } from './send-email.mjs';
 import { cookieOptions } from './cookie-options.mjs';
 import { trustedOriginsFor } from './attached-origins.mjs';
+import { accountFields, accessTokenClaims, keyAccount, sessionPayload } from './account-claim.mjs';
 
 const settingsPath = resolve(process.env.BETTER_AUTH_SETTINGS ?? new URL('./settings.json', import.meta.url).pathname);
 export const settings = JSON.parse(readFileSync(settingsPath, 'utf8'));
@@ -34,11 +36,27 @@ export const auth = betterAuth({
   trustedOrigins: trustedOriginsFor(settings),
   disabledPaths: settings.disabled_paths,
   advanced: cookieOptions(settings),
+  // The account a person signed in to, which every pass carries (account-claim.mjs); the person cannot set it.
+  user: { additionalFields: accountFields(settings) },
   emailAndPassword: {
     enabled: true,
     sendResetPassword: async ({ user, url, token }) => {
       void sendEmail({ kind: 'reset-password', to: user.email, url, token });
     },
+  },
+  hooks: {
+    // An API key carries the account of the party making or changing it (account-claim.mjs), never one the request names,
+    // and a new key the settings prefix, never one the request asks for (the plugin lets a client choose its own). The body
+    // is changed in place: a hook's returned context is merged over the request (defu), which never takes a key away.
+    before: createAuthMiddleware(async ctx => {
+      if (!['/api-key/create', '/api-key/update'].includes(ctx.path) || !ctx.body) return;
+      if (ctx.path === '/api-key/create') delete ctx.body.prefix;
+      if (!settings.account_claim || (ctx.path === '/api-key/update' && ctx.body.metadata === undefined)) return;
+      const metadata = { ...(ctx.body.metadata ?? {}) };
+      delete metadata[settings.account_claim.claim];
+      Object.assign(metadata, keyAccount(settings, (await getSessionFromCtx(ctx))?.user));
+      ctx.body.metadata = metadata;
+    }),
   },
   plugins: [
     // No fixed `origin`: the passkey plugin then expects the base URL's origin, and an attached origin when trustedOrigins
@@ -56,16 +74,17 @@ export const auth = betterAuth({
       },
     }),
     multiSession(),
-    apiKey(),
+    apiKey({ defaultPrefix: settings.api_key?.prefix, enableMetadata: true, rateLimit: settings.api_key?.rate_limit }),
     jwt({
       disableSettingJwtHeader: settings.disabled_paths.includes('/token'),
       jwks: { keyPairConfig: { alg: 'EdDSA', crv: 'Ed25519' } },
-      jwt: { issuer: settings.issuer, audience: settings.audience },
+      jwt: { issuer: settings.issuer, audience: settings.audience, definePayload: sessionPayload(settings) },
     }),
     mcp({
       loginPage: settings.mcp.login_page,
       consentPage: settings.mcp.consent_page,
       resource: settings.mcp.resource,
+      customAccessTokenClaims: accessTokenClaims(settings),
     }),
     cimd({ fetchClientMetadataResource, metadataProfile: 'mcp-2026-07-28' }),
     deviceAuthorization({ verificationUri: settings.device.verification_uri }),

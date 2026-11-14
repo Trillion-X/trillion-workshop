@@ -38,6 +38,10 @@ async function submit(form) {
   const way = field(form, 'way');
   const reset = field(form, 'reset') === '1';
   if (action === '/sign-in') return go('/sign-in', { email: field(form, 'email') });
+  if (action === '/sign-out') {
+    const { error } = await client.signOut();
+    return error ? refusal(error) : location.assign('/sign-in');
+  }
   if (action === '/sign-up/password') {
     const name = [field(form, 'given_name'), field(form, 'family_name')].filter(Boolean).join(' ');
     const { error } = await client.signUp.email({ name, email: field(form, 'email'), password: form.querySelector('[name="password"]').value });

@@ -45,3 +45,11 @@ test('no page or the client names the old sign-in tool', () => {
     assert.doesNotMatch(readFileSync(new URL(name, dir), 'utf8'), /from-trillion-rust|tools\/sign-in\//, name);
   }
 });
+
+test('/sign-out answers a page whose one form signs out through Better Auth and goes to /sign-in', () => {
+  const page = pageAnswer('/sign-out')?.body.toString();
+  assert.match(page ?? '', /<form class="page-choices" method="post" action="\/sign-out">/);
+  const client = readFileSync(new URL('../pages/sign-in-client.mjs', import.meta.url), 'utf8');
+  assert.match(client, /if \(action === '\/sign-out'\) \{\n    const \{ error \} = await client\.signOut\(\);\n    return error \? refusal\(error\) : location\.assign\('\/sign-in'\);/);
+  assert.match(readFileSync(new URL('../pages/assets/sign-in.js', import.meta.url), 'utf8'), /\/sign-out/, 'the bundle is built from the client');
+});

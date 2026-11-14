@@ -7,12 +7,15 @@ import { toNodeHandler } from 'better-auth/node';
 import { auth, settings } from './auth.mjs';
 import { pageAnswer } from './pages.mjs';
 import { relatedOrigins } from './attached-origins.mjs';
+import { computerKeyCheck, serveInternal } from './internal-verify.mjs';
 
 const handler = toNodeHandler(auth);
+const keyCheck = computerKeyCheck(auth, settings);
 const ours = url => url.startsWith(`${settings.base_path}/`) || url.startsWith('/.well-known/');
 
-createServer((request, response) => {
+createServer(async (request, response) => {
   const url = request.url ?? '';
+  if (await keyCheck(request, response)) return;
   if (url === '/.well-known/webauthn' && request.method === 'GET') {
     return relatedOrigins(settings).then(body => response.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'max-age=300' }).end(JSON.stringify(body)));
   }
@@ -23,3 +26,8 @@ createServer((request, response) => {
 }).listen(settings.port, '127.0.0.1', () => {
   console.log(`better-auth listening on ${settings.base_url}${settings.base_path}`);
 });
+
+// The computer's own side: the engine's API key check (internal-verify.mjs), on a listener Caddy never reaches.
+if (settings.internal) {
+  serveInternal(auth, settings.internal).on('listening', () => console.log(`better-auth internal on ${settings.internal.host}:${settings.internal.port}`));
+}

@@ -84,6 +84,10 @@
     {
       "path": "/sign-in/add-passkey",
       "file": "add-passkey.html"
+    },
+    {
+      "path": "/sign-out",
+      "file": "sign-out.html"
     }
   ]
 }

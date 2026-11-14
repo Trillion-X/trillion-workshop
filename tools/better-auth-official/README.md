@@ -18,7 +18,7 @@ session token works as `Authorization: Bearer`). The session cookie is `__Host-t
 
 ## settings.json
 
-`port`, `base_url`, `base_path`, `issuer`, `audience`, `database_path`, `session_cookie_name`, `passkey` (`rp_id`, `rp_name`),
+`port`, `base_url`, `base_path`, `issuer`, `audience`, `database_path`, `session_cookie_name`, `account_claim` (`field`, `claim`), `api_key` (`prefix`, `rate_limit` in the plugin's own `rateLimit` shape), `internal` (`host`, `port`, `verify_path`), `key_check` (`path`, `use`), `computer_proof` (the proof domains, window, row domain and address context, the same values as trillion-rust computers/settings.json), `passkey` (`rp_id`, `rp_name`),
 `trusted_origins`, `attached_origins` (`ask_url`, `cache_ms`, `related_url`), `two_factor_issuer`, `mcp` (`login_page`, `consent_page`, `resource`), `disabled_paths`, `device` (`verification_uri`) and
 `email` (`command`, an argv that gets each message as JSON on stdin, or `outbox`, a file each message is appended to).
 
@@ -26,6 +26,33 @@ session token works as `Authorization: Bearer`). The session cookie is `__Host-t
 because session JWTs share the access tokens' signing key. OAuth and MCP clients get tokens from `/api/auth/oauth2/token`.
 Empty `disabled_paths` and `GET /api/auth/token` hands back a session JWT (EdDSA; `kid` names the JWKS key; claims `sub`,
 `iss`, `aud`, `exp`, `iat`, `email`, `name`).
+
+## The account in every pass
+
+`account_claim` names the user field that holds the account a person signed in to (`trillionAccount`, a user additional
+field with `input: false`, so no sign-up or update sets it) and the claim it goes out as (`trillion_account`, a 64-hex
+account address). The session JWT is its default payload plus that claim (the jwt plugin's `definePayload`), and MCP
+access tokens (`at+jwt`, `aud` holding `mcp.resource`) carry it through the OAuth provider's `customAccessTokenClaims`
+(account-claim.mjs). A user with no account gets no claim.
+
+## The engine's API key check
+
+A personal API key starts with `api_key.prefix` (`tr_`) and its metadata carries `trillion_account`, the account of the
+party that created it: a `hooks.before` on `/api-key/create` sets it from the creator's own user row and drops any the
+request named. Better Auth's `verifyApiKey` is server-only, so the engine calls it on the computer's own listener,
+`internal` (`127.0.0.1:8793`, which Caddy never routes to): `POST /api-key/verify {"key": "tr_..."}` answers
+`{"valid": true, "key": {"id", "userId", "metadata": {"trillion_account"}}}` or `{"valid": false, "key": null}`, and 400
+for a body with no key. `api_key.rate_limit` is `{"enabled": false}`: the plugin's default (10 checks a key a day) would
+make a key invalid after the engine's tenth request.
+
+A computer elsewhere asks over the public origin, `POST /api/auth/computer/key-check {"key", "kept"}` with
+`authorization: Bearer trp_<computer id>_<blake3 of the key>_<at ms>_<signature>`: its own Ed25519 proof for the
+`key-check` use (trillion-rust `ComputerSigner::sign_use("key-check", [blake3(key)], at)`, so one proof is good for one key
+and `computer_proof.window_ms`), and `kept`, its account's own computers row with the account's public key (`KeptAccount`,
+what it tells a forwarder). It is admitted when the proof checks, the key is the one it binds, the address is the one the
+public key names and that key signed the row, and the row lists the computer among the computers that keep a copy
+(computer-proof.mjs, byte for byte as computers.rs). It gets the same answer as `internal`, and `{"valid": false}` for a
+key of another account. No shared credential is involved; a 401 says the computer was not admitted.
 
 ## Attached names
 
@@ -42,7 +69,7 @@ sends each attached name's `/api/auth/*` here.
 
 `pages/` holds the sign-in pages as this tool's own files, in Trillion's sign-in design: `/sign-in` (email, then the
 account's ways), `/sign-up`, `/sign-in/way?way=password|email-code|text-code|authenticator|backup-codes`, `/sign-in/email`,
-`/sign-in/forgot-password` and `/sign-in/add-passkey`. `pages/routes.json` says which file answers each address. What the
+`/sign-in/forgot-password`, `/sign-in/add-passkey` and `/sign-out` (one button: Better Auth's sign-out, then `/sign-in`). `pages/routes.json` says which file answers each address. What the
 pages' forms and buttons do is `pages/sign-in-client.mjs`: each calls Better Auth through `better-auth/client` with the
 passkey, email OTP and two-factor client plugins, and its words are `pages/words.json`. `npm run build-pages` bundles it
 to `pages/assets/sign-in.js`, served at `/sign-in/assets/sign-in.js`. The pages load the fonts, mark and icons at the
