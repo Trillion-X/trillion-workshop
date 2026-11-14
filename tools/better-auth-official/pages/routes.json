@@ -1,0 +1,89 @@
+{
+  "_what": "Which page file answers each sign-in address (GET only), first match wins: `path` is the address, `query` the values its query must hold (\"*\": any value). The addresses are the ones the sign-in pages link and post to. `assets` is the folder served under `assets_path`. `headers` go on every page answer: the content security policy the engine's sign-in pages were served with (its inline scripts by their sha256, this tool's own script by 'self'), and its referrer and frame rules.",
+  "assets_path": "/sign-in/assets/",
+  "assets": "assets",
+  "headers": {
+    "content-security-policy": "default-src 'none'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self'; script-src 'self' 'sha256-XV2pMwAtCff/nRAcbczcBlGODh3xhUUvIEttBnTNlCA=' 'sha256-ogzy1g3cpL1fjXr/EFquCneJwIYbBLAsqgM1GuUlkYA='; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'",
+    "referrer-policy": "same-origin",
+    "x-frame-options": "DENY"
+  },
+  "routes": [
+    {
+      "path": "/sign-in",
+      "query": {
+        "email": "*"
+      },
+      "file": "sign-in-account.html"
+    },
+    {
+      "path": "/sign-in",
+      "file": "sign-in.html"
+    },
+    {
+      "path": "/sign-up",
+      "file": "sign-up.html"
+    },
+    {
+      "path": "/sign-in/way",
+      "query": {
+        "way": "email-code",
+        "sent": "1"
+      },
+      "file": "way-email-code-sent.html"
+    },
+    {
+      "path": "/sign-in/way",
+      "query": {
+        "way": "email-code"
+      },
+      "file": "way-email-code.html"
+    },
+    {
+      "path": "/sign-in/way",
+      "query": {
+        "way": "password"
+      },
+      "file": "way-password.html"
+    },
+    {
+      "path": "/sign-in/way",
+      "query": {
+        "way": "text-code"
+      },
+      "file": "way-text-code.html"
+    },
+    {
+      "path": "/sign-in/way",
+      "query": {
+        "way": "authenticator"
+      },
+      "file": "way-authenticator.html"
+    },
+    {
+      "path": "/sign-in/way",
+      "query": {
+        "way": "backup-codes"
+      },
+      "file": "way-backup-codes.html"
+    },
+    {
+      "path": "/sign-in/email",
+      "file": "way-email-code.html"
+    },
+    {
+      "path": "/sign-in/forgot-password",
+      "query": {
+        "sent": "1"
+      },
+      "file": "forgot-password-sent.html"
+    },
+    {
+      "path": "/sign-in/forgot-password",
+      "file": "forgot-password.html"
+    },
+    {
+      "path": "/sign-in/add-passkey",
+      "file": "add-passkey.html"
+    }
+  ]
+}

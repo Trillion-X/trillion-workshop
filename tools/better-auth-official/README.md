@@ -27,6 +27,16 @@ because session JWTs share the access tokens' signing key. OAuth and MCP clients
 Empty `disabled_paths` and `GET /api/auth/token` hands back a session JWT (EdDSA; `kid` names the JWKS key; claims `sub`,
 `iss`, `aud`, `exp`, `iat`, `email`, `name`).
 
+## Sign-in pages
+
+`pages/` holds the sign-in pages as this tool's own files, in Trillion's sign-in design: `/sign-in` (email, then the
+account's ways), `/sign-up`, `/sign-in/way?way=password|email-code|text-code|authenticator|backup-codes`, `/sign-in/email`,
+`/sign-in/forgot-password` and `/sign-in/add-passkey`. `pages/routes.json` says which file answers each address. What the
+pages' forms and buttons do is `pages/sign-in-client.mjs`: each calls Better Auth through `better-auth/client` with the
+passkey, email OTP and two-factor client plugins, and its words are `pages/words.json`. `npm run build-pages` bundles it
+to `pages/assets/sign-in.js`, served at `/sign-in/assets/sign-in.js`. The pages load the fonts, mark and icons at the
+addresses the product already serves them from (`/workspace/fonts.css`, `/brand/current/mark.svg`, `/favicon.ico`).
+
 ## MCP access tokens
 
 From `/api/auth/oauth2/token` with `resource` set to `mcp.resource`: EdDSA JWTs, header `typ` `at+jwt` and the JWKS `kid`,

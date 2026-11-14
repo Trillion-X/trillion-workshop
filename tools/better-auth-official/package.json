@@ -11,6 +11,10 @@
     "better-auth": "1.7.23"
   },
   "devDependencies": {
-    "auth": "1.7.23"
+    "auth": "1.7.23",
+    "esbuild": "0.28.2"
+  },
+  "scripts": {
+    "build-pages": "esbuild pages/sign-in-client.mjs --bundle --minify --format=iife --target=es2020 --outfile=pages/assets/sign-in.js"
   }
 }
