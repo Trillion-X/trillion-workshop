@@ -57,9 +57,16 @@ function negated(binding) {
   return {...binding, transform: [...(binding.transform || []), {op: 'op:core.not'}]};
 }
 
+// A text with * as the wildcard, matched whole, as the regular expression the engine's pattern match reads.
+const globPattern = text => `^${text.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*')}$`;
+
 function normalizedParams(operator, params) {
   const lower = operator.param_case === 'lower';
-  const shape = value => (lower && typeof value === 'string' ? value.toLocaleLowerCase() : value);
+  const glob = operator.param_form === 'glob';
+  const shape = value => {
+    const cased = lower && typeof value === 'string' ? value.toLocaleLowerCase() : value;
+    return glob && typeof cased === 'string' ? globPattern(cased) : cased;
+  };
   return Object.fromEntries(Object.entries(params || {}).map(([key, value]) => [
     key, Array.isArray(value) ? value.map(shape) : shape(value),
   ]));

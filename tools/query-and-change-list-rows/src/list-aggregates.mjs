@@ -15,6 +15,11 @@
 //      limits.aggregate_groups groups, then `groups_more: true`.
 //   4. Rows are read through the owner (any store the list lives in) and a view the same way the app reads it, so what is
 //      counted is what the person sees.
+//   5. A measure's own settings (the share of a quantile, the period of a streak) are `params` the aggregate row declares
+//      (kind number, text, choice, map, field or now) and its transform names with { "$param": name }; this file fills them
+//      in and checks their kind, it never names a measure. A row that says `pairs: <param>` hands the engine each value
+//      with the value of the field that param names ({ value, <param> }, the row's place when none), which is how
+//      "the latest" is a sort and a last element and nothing more.
 //
 import data from '../../keep-and-wake-ai-sessions-on-this-computer/src/lists.json' with { type: 'json' };
 import { listSay as say } from './list-refusals.mjs';
@@ -29,13 +34,49 @@ const asNumber = value => (typeof value === 'number' ? value : typeof value === 
 // The engine answers decimals as text ("8"); a number is a number to the asker.
 const answered = value => (typeof value === 'string' && /^-?\d+(\.\d+)?$/.test(value) ? Number(value) : value);
 
+
+const PARAM_KINDS = {
+  number: value => typeof value === 'number' && Number.isFinite(value),
+  text: value => typeof value === 'string' && value !== '',
+  map: value => isObject(value) && Object.values(value).every(item => typeof item === 'number' && Number.isFinite(item)),
+};
+
+/** The measure's params, each checked against the kind its aggregate row declares, defaults filled in. */
+export function paramsOf(op, given, fieldOf, now, refuse) {
+  const declared = op.params ?? {};
+  if (given !== undefined && (!isObject(given) || Object.keys(given).some(key => !Object.hasOwn(declared, key)))) throw refuse(`params ${JSON.stringify(given)} here (it takes: ${Object.keys(declared).join(', ') || 'none'})`);
+  const out = {};
+  for (const [name, spec] of Object.entries(declared)) {
+    const value = given?.[name] ?? spec.default;
+    if (spec.kind === 'now') out[name] = value ?? now();
+    else if (value === undefined) { if (spec.required) throw refuse(`${op.label} without ${name}`); }
+    else if (spec.kind === 'field') {
+      const field = fieldOf(value);
+      if (!field || KINDS.get(field.kind)?.value === 'computed') throw refuse(`${JSON.stringify(value)} for ${name}`);
+      out[name] = field.id;
+    } else if (spec.kind === 'choice') {
+      if (!spec.choices?.includes(value)) throw refuse(`${JSON.stringify(value)} for ${name} (one of ${spec.choices?.join(', ')})`);
+      out[name] = value;
+    } else {
+      if (!PARAM_KINDS[spec.kind]?.(value)) throw refuse(`${JSON.stringify(value)} for ${name} (a ${spec.kind})`);
+      out[name] = value;
+    }
+  }
+  return out;
+}
+
+/** A transform with each { "$param": name } replaced by the measure's value of it. */
+export const filled = (template, params) => Array.isArray(template) ? template.map(item => filled(item, params))
+  : isObject(template) ? (Object.hasOwn(template, '$param') ? params[template.$param] : Object.fromEntries(Object.entries(template).map(([key, value]) => [key, filled(value, params)])))
+    : template;
+
 /**
  * { list_id, view_id, rows_counted, complete, measures: [{ field, op, label, value }], groups?: [{ key, rows, measures }] }.
  * `readView({ list_id, view_id, limit, cursor })` reads a saved view's page; `readSnapshot({ list_id, snapshot_id, limit, cursor })`
  * a held snapshot's page (src/list-snapshots.mjs), so totals over a snapshot are the rows it held; `evaluateBinding(binding,
  * input)` is the formula engine.
  */
-export async function aggregateRows(lists, id, input, { readView, readSnapshot, evaluateBinding } = {}) {
+export async function aggregateRows(lists, id, input, { readView, readSnapshot, evaluateBinding, now = () => new Date().toISOString() } = {}) {
   const slug = String(id).replace(/^list:/, '');
   const names = Object.keys(ops).join(', ');
   const refuse = what => say('bad_aggregate', { measures: limits.aggregate_measures, ops: names, kinds: 'the kind', what });
@@ -49,11 +90,12 @@ export async function aggregateRows(lists, id, input, { readView, readSnapshot, 
   const measures = input.measures.map(measure => {
     const op = isObject(measure) && Object.hasOwn(ops, measure.op) ? ops[measure.op] : null;
     if (!op) throw refuse(JSON.stringify(measure?.op ?? null));
-    if (op.rows) return { op: measure.op, ...op, field: null };
+    if (op.rows) return { op: measure.op, ...op, field: null, params: {} };
     const field = fieldOf(measure.field);
     if (!field || KINDS.get(field.kind)?.value === 'computed' || (op.kinds?.length && !op.kinds.includes(KINDS.get(field.kind)?.ruleKind)))
       throw say('bad_aggregate', { measures: limits.aggregate_measures, ops: names, kinds: (op.kinds ?? []).join(' or '), what: `${JSON.stringify(measure.field)} for ${measure.op}` });
-    return { op: measure.op, ...op, field: field.id };
+    const params = paramsOf(op, measure.params, fieldOf, now, what => refuse(`${what} for ${measure.op}`));
+    return { op: measure.op, ...op, field: field.id, params, transform: filled(op.transform, params) };
   });
   const groupField = input.group_by === undefined ? null : fieldOf(input.group_by);
   if (input.group_by !== undefined && !groupField) throw refuse(JSON.stringify(input.group_by));
@@ -69,7 +111,9 @@ export async function aggregateRows(lists, id, input, { readView, readSnapshot, 
       if (measure.rows) return;
       const value = row.values[measure.field];
       if (empty(value)) return;
-      bucket.values[index].push(measure.numeric ? asNumber(value) : Array.isArray(value) ? JSON.stringify(value) : value);
+      const held = measure.numeric ? asNumber(value) : Array.isArray(value) ? JSON.stringify(value) : value;
+      // `pairs`: the value travels with the value the param names, or with the row's place when none is named.
+      bucket.values[index].push(measure.pairs ? { value: held, [measure.pairs]: (measure.params[measure.pairs] ? row.values[measure.params[measure.pairs]] : null) ?? bucket.rows } : held);
     });
   };
   let cursor;

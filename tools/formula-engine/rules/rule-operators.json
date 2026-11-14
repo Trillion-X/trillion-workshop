@@ -1,6 +1,6 @@
 {
   "schema": "formula-engine.rule-operators",
-  "description": "Every comparison a person can put in a filter rule, as DATA. A rule names a field, one operator id from this file and its params; compile-rules.mjs turns it into a composition-ast binding by filling the operator's template, and the formula engine evaluates that binding. Adding a comparison is one row here. `applies_to` lists the field kinds (a field descriptor's `kind`) that offer it, in menu order. `input` says what the person supplies: none, value (one), values (a list), text, or range (min and/or max). Template markers are objects: {\"$field\":\"path\"} is the field's path, {\"$param\":\"name\"} is a param. `each` repeats `binding` once per entry of a list param (bound to `as`) and joins the copies with `combine`; `parts` keeps only the parts whose `when` param is present and joins them with `combine`. `negate` appends op:core.not. `param_case: lower` lower-cases text params, matching a template that lower-cases the field.",
+  "description": "Every comparison a person can put in a filter rule, as DATA. A rule names a field, one operator id from this file and its params; compile-rules.mjs turns it into a composition-ast binding by filling the operator's template, and the formula engine evaluates that binding. Adding a comparison is one row here. `applies_to` lists the field kinds (a field descriptor's `kind`) that offer it, in menu order. `input` says what the person supplies: none, value (one), values (a list), text, or range (min and/or max). `param_form: glob` turns each text param (after param_case) from a pattern with * as the wildcard into the whole-text regular expression the template's pattern match reads. Template markers are objects: {\"$field\":\"path\"} is the field's path, {\"$param\":\"name\"} is a param. `each` repeats `binding` once per entry of a list param (bound to `as`) and joins the copies with `combine`; `parts` keeps only the parts whose `when` param is present and joins them with `combine`. `negate` appends op:core.not. `param_case: lower` lower-cases text params, matching a template that lower-cases the field.",
   "combinators": [
     {"id": "and", "label": "All", "sentence": "and", "op": "op:core.and"},
     {"id": "or", "label": "Any", "sentence": "or", "op": "op:core.or"}
@@ -176,6 +176,43 @@
       "id": "before", "label": "is before", "chip": "before", "icon": "calendar-arrow-down", "input": "value",
       "applies_to": ["date"],
       "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.lt", "args": {"value": {"$param": "value"}}}]}
+    },
+    {
+      "id": "in_date_bucket", "label": "is in the year, month or day", "chip": "in", "icon": "calendar-range", "input": "text",
+      "applies_to": ["date"],
+      "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.starts_with", "args": {"prefix": {"$param": "text"}}}]}
+    },
+    {
+      "id": "in_iso_week", "label": "is in the week", "chip": "in week", "icon": "calendar-days", "input": "text",
+      "applies_to": ["date"],
+      "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [
+        {"op": "op:core.text_concat", "args": {"values": [
+          {"$kind": "binding", "select": {"from": "self"}, "transform": [{"op": "op:core.dt_iso_week_year"}, {"op": "op:core.add", "args": {"value": 0}}]},
+          "-W",
+          {"$kind": "binding", "select": {"from": "self"}, "transform": [
+            {"op": "op:core.text_concat", "args": {"values": ["0", {"$kind": "binding", "select": {"from": "self"}, "transform": [{"op": "op:core.dt_iso_week"}, {"op": "op:core.add", "args": {"value": 0}}]}]}},
+            {"op": "op:core.text_right", "args": {"count": 2}}
+          ]}
+        ]}},
+        {"op": "op:core.eq", "args": {"value": {"$param": "text"}}}
+      ]}
+    },
+    {
+      "id": "matches_glob", "label": "matches the pattern", "chip": "matches", "icon": "asterisk", "input": "text", "param_case": "lower", "param_form": "glob",
+      "applies_to": ["text"],
+      "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.lower"}, {"op": "op:core.text_regex_match", "args": {"pattern": {"$param": "text"}}}]}
+    },
+    {
+      "id": "matches_any_glob", "label": "matches any of these patterns", "chip": "matches any of", "icon": "asterisk", "input": "words", "param_case": "lower", "param_form": "glob",
+      "applies_to": ["text"],
+      "each": {"param": "values", "as": "value", "combine": "op:core.or"},
+      "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.lower"}, {"op": "op:core.text_regex_match", "args": {"pattern": {"$param": "value"}}}]}
+    },
+    {
+      "id": "matches_no_glob", "label": "matches none of these patterns", "chip": "matches none of", "icon": "asterisk", "input": "words", "param_case": "lower", "param_form": "glob", "negate": true,
+      "applies_to": ["text"],
+      "each": {"param": "values", "as": "value", "combine": "op:core.or"},
+      "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.lower"}, {"op": "op:core.text_regex_match", "args": {"pattern": {"$param": "value"}}}]}
     },
     {
       "id": "is_known", "label": "is known", "chip": "is known", "icon": "circle-dot", "input": "none", "negate": true,

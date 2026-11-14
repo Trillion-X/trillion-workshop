@@ -25,6 +25,7 @@ import data from '../../keep-and-wake-ai-sessions-on-this-computer/src/lists.jso
 import operators from '../../formula-engine/rules/rule-operators.json' with { type: 'json' };
 import { compileRules, ruleVocabulary } from '../../formula-engine/rules/compile-rules.mjs';
 import { listSay as say } from './list-refusals.mjs';
+import { paramsOf, filled } from './list-aggregates.mjs';
 
 const { limits } = data;
 const KINDS = new Map(data.field_kinds.map(kind => [kind.id, kind]));
@@ -54,6 +55,8 @@ export function checkRollups(fields, listOf) {
     if (!ops[rollup.op].rows && typeof rollup.field !== 'string') throw refuse('field');
     if (rollup.where !== undefined && (!isObject(rollup.where) || rollup.where.kind !== 'group')) throw refuse('where');
     const target = self ? { fields } : listOf(through.links_to);
+    // The measure's own settings (a quantile's share, a streak's period), each of the kind its aggregate row declares.
+    paramsOf(ops[rollup.op], rollup.params, id => target?.fields?.find(item => item.id === id) ?? (target ? undefined : { id, kind: 'text' }), () => new Date().toISOString(), what => refuse(`params: ${what}`));
     const leaf = target?.fields?.find(item => item.id === rollup.field);
     if (target && !ops[rollup.op].rows && (!leaf
       || (ops[rollup.op].kinds?.length && !isComputed(leaf) && !ops[rollup.op].kinds.includes(KINDS.get(leaf.kind)?.ruleKind)))) throw refuse(`field ${JSON.stringify(rollup.field)}`);
@@ -76,23 +79,30 @@ function rowTest(rollup, target, evaluateBinding) {
   return binding ? async values => (await evaluateBinding(binding, values)) === true : null;
 }
 
-/** A measure over the values a rollup reached. */
-async function measured(values, op, evaluateBinding) {
-  values = values.filter(value => !empty(value)).flatMap(value => (Array.isArray(value) ? value : [value])).map(value => (op.numeric ? Number(value) : value)).filter(value => !(op.numeric && Number.isNaN(value)));
+/**
+ * A measure over the values a rollup reached (`reached`: the linked rows' values). `params` are the measure's settings; a measure that says
+ * `pairs` reads each value with the value of the field its param names (or the row's place), which orders it.
+ */
+async function measured(reached, leafId, op, params, evaluateBinding) {
+  const paired = op.pairs ? params[op.pairs] ?? null : null;
+  const values = reached.flatMap((row, place) => (empty(row[leafId]) ? [] : (Array.isArray(row[leafId]) ? row[leafId] : [row[leafId]]).map(held => ({ held, by: (paired ? row[paired] : null) ?? place + 1 }))))
+    .map(({ held, by }) => ({ held: op.numeric ? Number(held) : held, by })).filter(({ held }) => !(op.numeric && Number.isNaN(held)))
+    .map(({ held, by }) => (op.pairs ? { value: held, [op.pairs]: by } : held));
   if (!values.length && op.numeric) return undefined;
-  return answered(await evaluateBinding({ $kind: 'binding', select: { from: 'self', path: ['values'] }, transform: op.transform }, { values }));
+  return answered(await evaluateBinding({ $kind: 'binding', select: { from: 'self', path: ['values'] }, transform: filled(op.transform, params) }, { values }));
 }
 
 /**
  * Works out one rollup field of `out` (rows being read, { id, values }, changed in place). `compute(list, rows, parents)` (parents: Map(linked row id -> ids of the rows that reached it)) answers
  * rows of another list (or this one) with their computed fields worked out, for a rollup that reads one; Without `evaluateBinding` only a measure that counts rows works.
  */
-export async function rollupField(lists, list, out, field, { evaluateBinding, compute, shared = new Map(), budget = null }) {
+export async function rollupField(lists, list, out, field, { evaluateBinding, compute, shared = new Map(), budget = null, now = () => new Date().toISOString() }) {
   const { through, field: leafId, op: opId } = field.rollup;
   const op = ops[opId];
   const link = through === undefined ? null : list.fields.find(item => item.id === through);
   if (!op || (link && !link.links_to) || ((!op.rows || field.rollup.where) && !evaluateBinding)) return;
   const reachedOf = new Map();
+  const pairedField = op.pairs && typeof field.rollup.params?.[op.pairs] === 'string' ? [field.rollup.params[op.pairs]] : [];
   let target = link ? null : list;
   if (link) {
     const wanted = [...new Set(out.flatMap(row => idsOf(row.values[through])))];
@@ -108,7 +118,7 @@ export async function rollupField(lists, list, out, field, { evaluateBinding, co
       // The reader's own time budget (its call deadline): a rollup that cannot finish inside it answers nothing, as one past the
       // link bound does, so a slow machine does fewer rows rather than holding the call past its deadline.
       if (budget && Date.now() > budget.until) return;
-      let read = await lists.read(link.links_to, { row_ids: group, ...(restricted ? { only: op.rows ? [] : [leafId] } : {}) });
+      let read = await lists.read(link.links_to, { row_ids: group, ...(restricted ? { only: op.rows ? [] : [leafId, ...pairedField] } : {}) });
       target ??= read.list;
       let rows = read.rows;
       if (field.rollup.where || isComputed(target?.fields?.find(item => item.id === leafId))) {
@@ -120,6 +130,9 @@ export async function rollupField(lists, list, out, field, { evaluateBinding, co
     }
     for (const row of out) reachedOf.set(row.id, idsOf(row.values[through]).filter(id => linked.has(id)).map(id => linked.get(id)));
   } else for (const row of out) reachedOf.set(row.id, [row.values]);
+  // The settings, each checked against the linked list's fields; a setting that cannot be read leaves the field without a value, as a formula that fails does.
+  let params;
+  try { params = paramsOf(op, field.rollup.params, id => target?.fields?.find(item => item.id === id), now, what => new Error(what)); } catch { return; }
   const test = rowTest(field.rollup, target, evaluateBinding);
   for (const row of out) {
     let reached = reachedOf.get(row.id);
@@ -128,7 +141,7 @@ export async function rollupField(lists, list, out, field, { evaluateBinding, co
     // A measure the engine cannot work out (a value past what it can hold) leaves this field without a value, as a formula that
     // fails does; it never fails the whole read.
     let value;
-    try { value = await measured(reached.map(values => values[leafId]), op, evaluateBinding); } catch { value = undefined; }
+    try { value = await measured(reached, leafId, op, params, evaluateBinding); } catch { value = undefined; }
     if (value !== undefined) row.values[field.id] = value;
   }
 }

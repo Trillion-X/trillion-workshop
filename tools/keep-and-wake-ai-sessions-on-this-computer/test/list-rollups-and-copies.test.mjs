@@ -144,3 +144,111 @@ test('links that return to a row cost the rows read once: a ring is cut where it
   assert.equal(read.a.sum, 7, 'a chain adds up to its end');
   assert.deepEqual([read.x.sum, read.y.sum], [2, 2], 'a ring counts each row once and stops where it returns to the row being worked out');
 });
+
+// ---- quantile, latest, weighted and streak: each proven against the code it replaces, on a blank account's own rows. ----
+// The retired measure ops (old trillion src/community-logic/measure-ops.ts at tag old-trillion-before-worker-retire: quantileOp, latestOp,
+// weighted_count in src/progression.mjs) and the retired cadence streak (src/community-logic/board-habit-cadence.ts cadenceStreak), kept here as the reference.
+const DAY_MS = 86_400_000;
+const oldQuantile = (numbers, q) => {
+  const sorted = numbers.slice().sort((a, b) => a - b);
+  if (!sorted.length) return null;
+  const position = Math.min(1, Math.max(0, Number.isFinite(q) ? q : 0.5)) * (sorted.length - 1);
+  const low = Math.floor(position);
+  const high = Math.ceil(position);
+  return sorted[low] + (position - low) * (sorted[high] - sorted[low]);
+};
+const oldLatest = (facts, sortBy, field) => {
+  const compare = (a, b) => {
+    const na = typeof a === 'number' ? a : Number(a);
+    const nb = typeof b === 'number' ? b : Number(b);
+    if (Number.isFinite(na) && Number.isFinite(nb)) return na === nb ? 0 : na < nb ? -1 : 1;
+    const sa = a == null ? '' : String(a);
+    const sb = b == null ? '' : String(b);
+    return sa === sb ? 0 : sa < sb ? -1 : 1;
+  };
+  let best = facts[0];
+  for (const fact of facts.slice(1)) if (compare(fact[sortBy], best[sortBy]) >= 0) best = fact;
+  return best?.[field] ?? null;
+};
+const dayStart = ms => Math.floor(ms / DAY_MS) * DAY_MS;
+const periodStartOf = (ms, period) => {
+  if (period === 'week') return dayStart(ms) - ((new Date(dayStart(ms)).getUTCDay() + 6) % 7) * DAY_MS;
+  if (period === 'month') { const d = new Date(ms); return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1); }
+  return dayStart(ms);
+};
+const prevPeriodStart = (start, period) => (period === 'week' ? start - 7 * DAY_MS : period === 'month' ? Date.UTC(new Date(start).getUTCFullYear(), new Date(start).getUTCMonth() - 1, 1) : start - DAY_MS);
+const oldCadenceStreak = (entries, { period, times }, now) => {
+  const log = [...new Set(entries.map(dayStart))].sort((a, b) => a - b);
+  const met = start => log.filter(day => periodStartOf(day, period) === start).length >= times;
+  const current = periodStartOf(now, period);
+  const anchor = met(current) ? current : prevPeriodStart(current, period);
+  if (!met(anchor)) return 0;
+  let streak = 0;
+  for (let p = anchor; met(p); p = prevPeriodStart(p, period)) streak += 1;
+  return streak;
+};
+// A fixed pseudo-random sequence, so the rows are the same on every run.
+const sequence = seed => () => { seed = (seed * 1664525 + 1013904223) % 4294967296; return seed / 4294967296; };
+
+test('quantile, latest, weighted and streak answer what the retired measure ops and cadence streak answered', async t => {
+  const { lists, ask } = fresh(t);
+  const random = sequence(20261114);
+  await lists.save({ id: 'readings', label: 'Readings', fields: [{ id: 'name', label: 'Name' }, { id: 'score', label: 'Score', kind: 'number' }, { id: 'at', label: 'At', kind: 'date' },
+    { id: 'event', label: 'Event', kind: 'choice', choices: ['goal', 'assist', 'pass'] }, { id: 'mood', label: 'Mood' }] });
+  const facts = Array.from({ length: 130 }, (_, index) => {
+    const at = Date.UTC(2026, 5, 1) + Math.floor(random() * 160) * DAY_MS + Math.floor(random() * DAY_MS);
+    return { id: `r${index}`, score: Math.round(random() * 1000) / 10, at, event: ['goal', 'assist', 'pass'][Math.floor(random() * 3)], mood: ['calm', 'tense', 'happy'][Math.floor(random() * 3)] };
+  });
+  await lists.putRows('readings', { rows: facts.map(fact => ({ id: fact.id, values: { name: fact.id, score: fact.score, at: new Date(fact.at).toISOString(), event: fact.event, mood: fact.mood } })) });
+  const measure = async spec => (await ask('/lists/readings/aggregate', { measures: [spec] })).body.measures[0].value;
+  for (const q of [0, 0.1, 0.25, 0.5, 0.9, 0.99, 1]) assert.ok(Math.abs(await measure({ op: 'quantile', field: 'score', params: { q } }) - oldQuantile(facts.map(fact => fact.score), q)) < 1e-9, `quantile ${q}`);
+  assert.ok(Math.abs(await measure({ op: 'quantile', field: 'score' }) - oldQuantile(facts.map(fact => fact.score), 0.5)) < 1e-9, 'the share defaults to the median, which the median measure also answers');
+  assert.ok(Math.abs(await measure({ op: 'quantile', field: 'score', params: { q: 0.5 } }) - await measure({ op: 'median', field: 'score' })) < 1e-9, 'the median measure and the 0.5 quantile agree');
+  assert.equal(await measure({ op: 'latest', field: 'mood', params: { by: 'at' } }), oldLatest(facts.map(fact => ({ ...fact, at: new Date(fact.at).toISOString() })), 'at', 'mood'), 'latest by a date');
+  assert.equal(await measure({ op: 'latest', field: 'mood', params: { by: 'score' } }), oldLatest(facts, 'score', 'mood'), 'latest by a number');
+  const weights = { goal: 3, assist: 2 };
+  assert.equal(await measure({ op: 'weighted', field: 'event', params: { weights } }), facts.reduce((total, fact) => total + (weights[fact.event] ?? 1), 0), 'a weight for each value, 1 for the rest');
+  assert.equal(await measure({ op: 'weighted', field: 'event', params: { weights, default: 0 } }), facts.filter(fact => weights[fact.event]).reduce((total, fact) => total + weights[fact.event], 0));
+  for (const [period, times] of [['day', 1], ['week', 1], ['week', 3], ['month', 1], ['month', 8]]) {
+    for (const now of [Date.UTC(2026, 5, 20, 8), Date.UTC(2026, 6, 31, 23), Date.UTC(2026, 7, 9), Date.UTC(2026, 8, 6, 12), Date.UTC(2026, 10, 14, 6), Date.UTC(2027, 0, 3)]) {
+      assert.equal(await measure({ op: 'streak', field: 'at', params: { period, times, now: new Date(now).toISOString() } }), oldCadenceStreak(facts.map(fact => fact.at), { period, times }, now), `streak ${times}/${period} at ${new Date(now).toISOString()}`);
+    }
+  }
+  // A run of consecutive days, so the daily streak is more than 0 somewhere in the proof.
+  await lists.save({ id: 'habit', label: 'Habit', fields: [{ id: 'at', label: 'At', kind: 'date' }] });
+  await lists.putRows('habit', { rows: [8, 9, 10, 11, 12, 13].map(day => ({ id: `h${day}`, values: { at: `2026-11-${String(day).padStart(2, '0')}T07:00:00Z` } })).concat([{ id: 'h4', values: { at: '2026-11-04' } }]) });
+  const habit = async params => (await ask('/lists/habit/aggregate', { measures: [{ op: 'streak', field: 'at', params }] })).body.measures[0].value;
+  assert.equal(await habit({ now: '2026-11-13T20:00:00Z' }), 6);
+  assert.equal(await habit({ now: '2026-11-14T06:00:00Z' }), 6, 'today not yet logged: the run that ended yesterday still stands');
+  assert.equal(await habit({ now: '2026-11-15T06:00:00Z' }), 0);
+  assert.equal(await habit({ now: '2026-11-13T20:00:00Z', period: 'week' }), 2, 'the weeks of 11-02 and 11-09 each hold a day');
+  const refusals = [{ op: 'quantile', field: 'score', params: { q: 'high' } }, { op: 'quantile', field: 'score', params: { share: 1 } }, { op: 'streak', field: 'at', params: { period: 'year' } },
+    { op: 'weighted', field: 'event' }, { op: 'latest', field: 'mood', params: { by: 'nope' } }, { op: 'quantile', field: 'name' }];
+  for (const spec of refusals) assert.equal((await ask('/lists/readings/aggregate', { measures: [spec] })).body.refused?.code, 'bad_aggregate', JSON.stringify(spec));
+  const grouped = (await ask('/lists/readings/aggregate', { group_by: 'event', measures: [{ op: 'quantile', field: 'score', params: { q: 0.9 } }, { op: 'latest', field: 'mood', params: { by: 'at' } }] })).body;
+  for (const group of grouped.groups) {
+    const rows = facts.filter(fact => fact.event === group.key);
+    assert.ok(Math.abs(group.measures[0].value - oldQuantile(rows.map(fact => fact.score), 0.9)) < 1e-9, `grouped quantile ${group.key}`);
+    assert.equal(group.measures[1].value, oldLatest(rows.map(fact => ({ ...fact, at: new Date(fact.at).toISOString() })), 'at', 'mood'), `grouped latest ${group.key}`);
+  }
+});
+
+test('a rollup column takes the same measures with their settings: the latest status, a streak and a quantile of its linked rows', async t => {
+  const { lists, ask } = fresh(t);
+  await lists.save({ id: 'logs', label: 'Logs', fields: [{ id: 'at', label: 'At', kind: 'date' }, { id: 'score', label: 'Score', kind: 'number' }, { id: 'status', label: 'Status' }] });
+  await lists.save({ id: 'habits', label: 'Habits', fields: [{ id: 'name', label: 'Name' }, { id: 'logs', label: 'Logs', kind: 'link', links_to: 'logs' },
+    { id: 'now_at', label: 'Latest status', kind: 'rollup', rollup: { through: 'logs', field: 'status', op: 'latest', params: { by: 'at' } } },
+    { id: 'run', label: 'Streak', kind: 'rollup', rollup: { through: 'logs', field: 'at', op: 'streak', params: { now: '2026-11-13T20:00:00Z' } } },
+    { id: 'p90', label: 'p90', kind: 'rollup', rollup: { through: 'logs', field: 'score', op: 'quantile', params: { q: 0.9 } } }] });
+  await lists.putRows('logs', { rows: [
+    { id: 'a', values: { at: '2026-11-11', score: 10, status: 'tense' } }, { id: 'b', values: { at: '2026-11-13', score: 30, status: 'calm' } },
+    { id: 'c', values: { at: '2026-11-12', score: 20, status: 'happy' } }, { id: 'd', values: { at: '2026-11-01', score: 40, status: 'old' } }] });
+  await lists.putRows('habits', { rows: [{ id: 'run', values: { name: 'Run', logs: ['b', 'a', 'c', 'd'] } }, { id: 'none', values: { name: 'None', logs: [] } }] });
+  const read = (await ask('/lists/habits')).body.rows.find(row => row.id === 'run').values;
+  assert.equal(read.now_at, 'calm', 'ordered by the date it names, not by the order of the links');
+  assert.equal(read.run, 3);
+  assert.ok(Math.abs(read.p90 - oldQuantile([10, 30, 20, 40], 0.9)) < 1e-9);
+  const refused = (await ask('/lists', { id: 'bad', label: 'Bad', fields: [{ id: 'logs', label: 'Logs', kind: 'link', links_to: 'logs' },
+    { id: 'x', label: 'X', kind: 'rollup', rollup: { through: 'logs', field: 'score', op: 'quantile', params: { q: 'high' } } }] })).body;
+  assert.equal(refused.refused.code, 'bad_rollup', 'a setting of the wrong kind is refused when the list is saved');
+});
