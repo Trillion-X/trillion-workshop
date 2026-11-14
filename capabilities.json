@@ -1646,6 +1646,7 @@
         }
       ]
     },
+    {"capability": "let a person join a shared space by a join row that holds for them now, leave it, show a name in it, and say whether anyone is a member now, worked out on every ask from the space and what the person holds", "owner": ["tools/space-members/"], "entry": "tools/space-members/tool-rows.json", "evidence": "tools/space-members/README.md: old Trillion src/community.mjs (mayJoin, activeMember, join and leave, member names) and src/space-member-types.mjs at tag old-trillion-before-worker-retire, moved from SQL tables to record:space and record:space-member rows over the records door; lapse and restore are computed at read time", "source_still_in": {"repo_kind": "old Trillion repository tag old-trillion-before-worker-retire", "paths": ["src/community.mjs", "src/space-member-types.mjs", "src/space-membership-kinds.mjs"]}},
     {
       "capability": "pull a person's messages and saved items from connected accounts (Discord, Slack, Telegram, Signal, Instagram, Messenger, X bookmarks, Pinterest) into snapshot records",
       "owner": ["tools/pull-from-connected-accounts/"],

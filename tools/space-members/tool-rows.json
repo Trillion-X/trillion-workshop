@@ -1,0 +1,1288 @@
+{
+  "kind": "tool-rows",
+  "record_set": "space-members-tool-rows",
+  "what_this_is": "The Workshop rows for tools/space-members: a person joins a shared space by a join row that holds for them now, leaves it, shows a name in it, and anyone asks whether a person is a member now. Whether a member still counts is worked out on every ask from the space's join rows and what the person holds, never stored.",
+  "records": [
+    {
+      "id": "package::space-members::tool::join-a-space",
+      "address": "package::space-members::tool::join-a-space",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:join-a-space",
+        "label": "Join a space",
+        "status": "active",
+        "job": "Let a person join a shared space by the way its join rows allow: free, or by holding the access a row names",
+        "description": "Reads the space's record:space row and the person's record:space-member row. A person already in is answered with their type and how they came in, and nothing is written. Otherwise the space's config.join rows decide, as data: a row {free:true} lets anyone in, a row {access:\"<ref>\"} lets in a person who holds that access now (worked out by the paid-access reader over your payment events, offers and grants), and a space with no join rows is joined only by invitation (a person gets in by accepting one). A person who left may join again; a person a host put out stays out. The new member gets the type the space's label starts joiners with (or config.joins_as) and may give the name they will show with name. Answers whether they joined, their type and which row let them in; a refusal says how the space is joined, in the space's own words (config.words) or the standard ones.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "space",
+            "subject"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "space": {
+              "type": "string",
+              "description": "The space's id, the last part of its record:space row id"
+            },
+            "subject": {
+              "type": "string",
+              "description": "The person, the way the space and your access rules name them"
+            },
+            "name": {
+              "type": "string",
+              "description": "The name other members read for this person in this space (at most 80 characters)"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "space",
+            "subject",
+            "joined",
+            "state"
+          ],
+          "properties": {
+            "space": {
+              "type": "string"
+            },
+            "subject": {
+              "type": "string"
+            },
+            "joined": {
+              "type": "boolean"
+            },
+            "state": {
+              "type": "string"
+            },
+            "member_type": {
+              "type": "string"
+            },
+            "how": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "space-members",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/space-members"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "paid-access",
+                "paths": [
+                  "read-data/who-holds-access.mjs",
+                  "read-data/payment-effects.mjs",
+                  "read-data/effect-lifecycle.mjs",
+                  "read-data/read-granted-access-refs.ts",
+                  "read-data/take-payments-events.json"
+                ],
+                "at": "/opt/paid-access"
+              },
+              {
+                "package": "formulas",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/formulas"
+              },
+              {
+                "package": "space-member-types",
+                "paths": [
+                  "src"
+                ],
+                "at": "/opt/space-member-types"
+              }
+            ]
+          },
+          "workdir": "/opt/space-members",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/space-members/do-work/space-members.mjs",
+            "joinASpace"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "record:space",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "record:space-member",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "payment-event",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "record:commercial-offer",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "access-grant",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "access-effect-rule",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "effect-lifecycle",
+                "operations": [
+                  "records:list"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:space-members",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "old Trillion tag old-trillion-before-worker-retire src/community.mjs (mayJoin, activeMember, join, leave, member names), src/space-member-types.mjs, src/space-membership-kinds.mjs: Durable Object SQL replaced by record:space and record:space-member rows over the records door"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "space": "sample-club",
+              "subject": "ana@example.com"
+            },
+            "records": [
+              {
+                "type": "record:space",
+                "id": "record:space:sample-club",
+                "value": {
+                  "title": "Sample club",
+                  "owner": "owner@example.com",
+                  "config": {
+                    "join": [
+                      {
+                        "free": true
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "record:space-member",
+                "id": "record:space-member:sample-club:owner%40example.com",
+                "value": {
+                  "space": "sample-club",
+                  "subject": "owner@example.com",
+                  "member_type": "owner",
+                  "state": "member",
+                  "how": "owner",
+                  "joined_at": "2026-01-01T00:00:00.000Z"
+                }
+              }
+            ],
+            "output_selector": "$.result.joined",
+            "contains": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::space-members::tool::leave-a-space",
+      "address": "package::space-members::tool::leave-a-space",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:leave-a-space",
+        "label": "Leave a space",
+        "status": "active",
+        "job": "Let a member leave a shared space; what they put there stays",
+        "description": "Marks the person's record:space-member row left and stamps when. Leaving a space the person is not in changes nothing. The person who runs the space cannot leave it: hand it over first. They may join again later by the space's join rows.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "space",
+            "subject"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "space": {
+              "type": "string",
+              "description": "The space's id, the last part of its record:space row id"
+            },
+            "subject": {
+              "type": "string",
+              "description": "The person, the way the space and your access rules name them"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "space",
+            "subject",
+            "left",
+            "state"
+          ],
+          "properties": {
+            "space": {
+              "type": "string"
+            },
+            "subject": {
+              "type": "string"
+            },
+            "left": {
+              "type": "boolean"
+            },
+            "state": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "space-members",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/space-members"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "paid-access",
+                "paths": [
+                  "read-data/who-holds-access.mjs",
+                  "read-data/payment-effects.mjs",
+                  "read-data/effect-lifecycle.mjs",
+                  "read-data/read-granted-access-refs.ts",
+                  "read-data/take-payments-events.json"
+                ],
+                "at": "/opt/paid-access"
+              },
+              {
+                "package": "formulas",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/formulas"
+              },
+              {
+                "package": "space-member-types",
+                "paths": [
+                  "src"
+                ],
+                "at": "/opt/space-member-types"
+              }
+            ]
+          },
+          "workdir": "/opt/space-members",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/space-members/do-work/space-members.mjs",
+            "leaveASpace"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "record:space",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "record:space-member",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 3,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:space-members",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "old Trillion tag old-trillion-before-worker-retire src/community.mjs (mayJoin, activeMember, join, leave, member names), src/space-member-types.mjs, src/space-membership-kinds.mjs: Durable Object SQL replaced by record:space and record:space-member rows over the records door"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "space": "sample-club",
+              "subject": "ana@example.com"
+            },
+            "records": [
+              {
+                "type": "record:space",
+                "id": "record:space:sample-club",
+                "value": {
+                  "title": "Sample club",
+                  "owner": "owner@example.com",
+                  "config": {
+                    "join": [
+                      {
+                        "free": true
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "record:space-member",
+                "id": "record:space-member:sample-club:owner%40example.com",
+                "value": {
+                  "space": "sample-club",
+                  "subject": "owner@example.com",
+                  "member_type": "owner",
+                  "state": "member",
+                  "how": "owner",
+                  "joined_at": "2026-01-01T00:00:00.000Z"
+                }
+              }
+            ],
+            "output_selector": "$.result.left",
+            "contains": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::space-members::tool::check-someone-is-in-a-space",
+      "address": "package::space-members::tool::check-someone-is-in-a-space",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:check-someone-is-in-a-space",
+        "label": "Check someone is in a space",
+        "status": "active",
+        "job": "Say whether a person is a member of a shared space right now, and why not when they are not",
+        "description": "The one answer to whether a person is a member now. It reads the space's join rows, the person's member row and what they hold now (paid-access), and answers member true or false with a state: member, lapsed (their access ended; they are members again the moment it holds), left, removed or none, plus the reason in words and their type and how they came in. A person who holds the access again after a refund is a member again with nothing written in between.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "space",
+            "subject"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "space": {
+              "type": "string",
+              "description": "The space's id, the last part of its record:space row id"
+            },
+            "subject": {
+              "type": "string",
+              "description": "The person, the way the space and your access rules name them"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "space",
+            "subject",
+            "member",
+            "state"
+          ],
+          "properties": {
+            "space": {
+              "type": "string"
+            },
+            "subject": {
+              "type": "string"
+            },
+            "member": {
+              "type": "boolean"
+            },
+            "state": {
+              "type": "string"
+            },
+            "reason": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "member_type": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "how": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "space-members",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/space-members"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "paid-access",
+                "paths": [
+                  "read-data/who-holds-access.mjs",
+                  "read-data/payment-effects.mjs",
+                  "read-data/effect-lifecycle.mjs",
+                  "read-data/read-granted-access-refs.ts",
+                  "read-data/take-payments-events.json"
+                ],
+                "at": "/opt/paid-access"
+              },
+              {
+                "package": "formulas",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/formulas"
+              },
+              {
+                "package": "space-member-types",
+                "paths": [
+                  "src"
+                ],
+                "at": "/opt/space-member-types"
+              }
+            ]
+          },
+          "workdir": "/opt/space-members",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/space-members/do-work/space-members.mjs",
+            "checkSomeoneIsInASpace"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "record:space",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "record:space-member",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "payment-event",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "record:commercial-offer",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "access-grant",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "access-effect-rule",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "effect-lifecycle",
+                "operations": [
+                  "records:list"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:space-members",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "old Trillion tag old-trillion-before-worker-retire src/community.mjs (mayJoin, activeMember, join, leave, member names), src/space-member-types.mjs, src/space-membership-kinds.mjs: Durable Object SQL replaced by record:space and record:space-member rows over the records door"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "space": "sample-club",
+              "subject": "owner@example.com"
+            },
+            "records": [
+              {
+                "type": "record:space",
+                "id": "record:space:sample-club",
+                "value": {
+                  "title": "Sample club",
+                  "owner": "owner@example.com",
+                  "config": {
+                    "join": [
+                      {
+                        "free": true
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "record:space-member",
+                "id": "record:space-member:sample-club:owner%40example.com",
+                "value": {
+                  "space": "sample-club",
+                  "subject": "owner@example.com",
+                  "member_type": "owner",
+                  "state": "member",
+                  "how": "owner",
+                  "joined_at": "2026-01-01T00:00:00.000Z"
+                }
+              }
+            ],
+            "output_selector": "$.result.state",
+            "contains": "member"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::space-members::tool::list-a-spaces-members",
+      "address": "package::space-members::tool::list-a-spaces-members",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:list-a-spaces-members",
+        "label": "List a space's members",
+        "status": "active",
+        "job": "List who is in a shared space, by the name each chose to show, with their type; only members may ask",
+        "description": "Lists the space's record:space-member rows: each person's id, the name they chose to show (never a contact), their member type and its label, and whether they count now (the same reader as tool:check-someone-is-in-a-space, over one read of what people hold). Only a current member may ask; anyone else is refused in the space's words. include_ended true also lists people who left, were put out or lapsed.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "space",
+            "subject"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "space": {
+              "type": "string",
+              "description": "The space's id, the last part of its record:space row id"
+            },
+            "subject": {
+              "type": "string",
+              "description": "The person, the way the space and your access rules name them"
+            },
+            "include_ended": {
+              "type": "boolean",
+              "description": "Also list people who left, were put out or lapsed"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "space",
+            "members"
+          ],
+          "properties": {
+            "space": {
+              "type": "string"
+            },
+            "members": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "space-members",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/space-members"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "paid-access",
+                "paths": [
+                  "read-data/who-holds-access.mjs",
+                  "read-data/payment-effects.mjs",
+                  "read-data/effect-lifecycle.mjs",
+                  "read-data/read-granted-access-refs.ts",
+                  "read-data/take-payments-events.json"
+                ],
+                "at": "/opt/paid-access"
+              },
+              {
+                "package": "formulas",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/formulas"
+              },
+              {
+                "package": "space-member-types",
+                "paths": [
+                  "src"
+                ],
+                "at": "/opt/space-member-types"
+              }
+            ]
+          },
+          "workdir": "/opt/space-members",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/space-members/do-work/space-members.mjs",
+            "listASpacesMembers"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "record:space",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "record:space-member",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "payment-event",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "record:commercial-offer",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "access-grant",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "access-effect-rule",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "effect-lifecycle",
+                "operations": [
+                  "records:list"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 8,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:space-members",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "old Trillion tag old-trillion-before-worker-retire src/community.mjs (mayJoin, activeMember, join, leave, member names), src/space-member-types.mjs, src/space-membership-kinds.mjs: Durable Object SQL replaced by record:space and record:space-member rows over the records door"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "space": "sample-club",
+              "subject": "owner@example.com"
+            },
+            "records": [
+              {
+                "type": "record:space",
+                "id": "record:space:sample-club",
+                "value": {
+                  "title": "Sample club",
+                  "owner": "owner@example.com",
+                  "config": {
+                    "join": [
+                      {
+                        "free": true
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "record:space-member",
+                "id": "record:space-member:sample-club:owner%40example.com",
+                "value": {
+                  "space": "sample-club",
+                  "subject": "owner@example.com",
+                  "member_type": "owner",
+                  "state": "member",
+                  "how": "owner",
+                  "joined_at": "2026-01-01T00:00:00.000Z"
+                }
+              }
+            ],
+            "output_selector": "$.result.members[0].member_type",
+            "contains": "owner"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::space-members::tool::choose-the-name-i-show-in-a-space",
+      "address": "package::space-members::tool::choose-the-name-i-show-in-a-space",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:choose-the-name-i-show-in-a-space",
+        "label": "Choose the name I show in a space",
+        "status": "active",
+        "job": "Let a member choose the name other members read for them in one shared space",
+        "description": "Sets the name on the person's own member row, at most 80 characters. Only a current member may. Members read this name and nothing else about them; their contact is never shown.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "space",
+            "subject",
+            "name"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "space": {
+              "type": "string",
+              "description": "The space's id, the last part of its record:space row id"
+            },
+            "subject": {
+              "type": "string",
+              "description": "The person, the way the space and your access rules name them"
+            },
+            "name": {
+              "type": "string",
+              "description": "The name to show, 1 to 80 characters"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "space",
+            "subject",
+            "name"
+          ],
+          "properties": {
+            "space": {
+              "type": "string"
+            },
+            "subject": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "space-members",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/space-members"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "paid-access",
+                "paths": [
+                  "read-data/who-holds-access.mjs",
+                  "read-data/payment-effects.mjs",
+                  "read-data/effect-lifecycle.mjs",
+                  "read-data/read-granted-access-refs.ts",
+                  "read-data/take-payments-events.json"
+                ],
+                "at": "/opt/paid-access"
+              },
+              {
+                "package": "formulas",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/formulas"
+              },
+              {
+                "package": "space-member-types",
+                "paths": [
+                  "src"
+                ],
+                "at": "/opt/space-member-types"
+              }
+            ]
+          },
+          "workdir": "/opt/space-members",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/space-members/do-work/space-members.mjs",
+            "chooseTheNameIShowInASpace"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "record:space",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "record:space-member",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "payment-event",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "record:commercial-offer",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "access-grant",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "access-effect-rule",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "effect-lifecycle",
+                "operations": [
+                  "records:list"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:space-members",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "old Trillion tag old-trillion-before-worker-retire src/community.mjs (mayJoin, activeMember, join, leave, member names), src/space-member-types.mjs, src/space-membership-kinds.mjs: Durable Object SQL replaced by record:space and record:space-member rows over the records door"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "space": "sample-club",
+              "subject": "owner@example.com",
+              "name": "Sample Owner"
+            },
+            "records": [
+              {
+                "type": "record:space",
+                "id": "record:space:sample-club",
+                "value": {
+                  "title": "Sample club",
+                  "owner": "owner@example.com",
+                  "config": {
+                    "join": [
+                      {
+                        "free": true
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "record:space-member",
+                "id": "record:space-member:sample-club:owner%40example.com",
+                "value": {
+                  "space": "sample-club",
+                  "subject": "owner@example.com",
+                  "member_type": "owner",
+                  "state": "member",
+                  "how": "owner",
+                  "joined_at": "2026-01-01T00:00:00.000Z"
+                }
+              }
+            ],
+            "output_selector": "$.result.name",
+            "contains": "Sample Owner"
+          }
+        ]
+      }
+    }
+  ]
+}

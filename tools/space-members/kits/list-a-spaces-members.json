@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "tool:list-a-spaces-members's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"List who is in a shared space, by the name each chose to show, with their type; only members may ask\", with {\"space\":\"sample-club\",\"subject\":\"owner@example.com\"}. It runs tool:list-a-spaces-members and answers {\"space\":\"sample-club\",\"members\":[{\"member_id\":\"owner@example.com\",\"name\":null,\"member_type\":\"owner\",\"member_type_label\":\"Owner\",\"state\":\"member\",\"joined_at\":\"2026-01-01T00:00:00.000Z\"}]}",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:space, record:space-member, payment-event, record:commercial-offer, access-grant, access-effect-rule, effect-lifecycle) through the records door.",
+  "workflows": [],
+  "tools": [
+    "tool:list-a-spaces-members",
+    "tool:check-someone-is-in-a-space"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"List who is in a shared space, by the name each chose to show, with their type; only members may ask\", and give it space (The space's id, the last part of its record:space row id); subject (The person, the way the space and your access rules name them).",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-a-spaces-members and its input (the worked example shows one).",
+    "3. Read what comes back: Lists the space's record:space-member rows: each person's id, the name they chose to show (never a contact), their member type and its label, and whether they count now (the same reader as tool:check-someone-is-in-a-space, over one read of what people hold).",
+    "4. It reads and writes only its own rows through the records door: record:space (records:read); record:space-member (records:read, records:list); payment-event (records:list); record:commercial-offer (records:list); access-grant (records:list); access-effect-rule (records:list); effect-lifecycle (records:list)."
+  ],
+  "worked_examples": [
+    {
+      "title": "List a space's members on its own sample",
+      "ask": "List who is in a shared space, by the name each chose to show, with their type; only members may ask",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:list-a-spaces-members",
+            "input": {
+              "space": "sample-club",
+              "subject": "owner@example.com"
+            }
+          }
+        }
+      },
+      "given": "The input {\"space\":\"sample-club\",\"subject\":\"owner@example.com\"}, with 2 example rows (record:space, record:space-member) already kept.",
+      "hands_back": "It answered {\"space\":\"sample-club\",\"members\":[{\"member_id\":\"owner@example.com\",\"name\":null,\"member_type\":\"owner\",\"member_type_label\":\"Owner\",\"state\":\"member\",\"joined_at\":\"2026-01-01T00:00:00.000Z\"}]}."
+    }
+  ]
+}

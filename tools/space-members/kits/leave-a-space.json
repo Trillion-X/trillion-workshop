@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:leave-a-space's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Let a member leave a shared space; what they put there stays\", with {\"space\":\"sample-club\",\"subject\":\"ana@example.com\"}. It runs tool:leave-a-space and answers {\"space\":\"sample-club\",\"subject\":\"ana@example.com\",\"left\":false,\"state\":\"none\"}",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:space, record:space-member) through the records door.",
+  "workflows": [],
+  "tools": [
+    "tool:leave-a-space"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Let a member leave a shared space; what they put there stays\", and give it space (The space's id, the last part of its record:space row id); subject (The person, the way the space and your access rules name them).",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:leave-a-space and its input (the worked example shows one).",
+    "3. Read what comes back: Marks the person's record:space-member row left and stamps when.",
+    "4. It reads and writes only its own rows through the records door: record:space (records:read); record:space-member (records:read, records:list, records:write)."
+  ],
+  "worked_examples": [
+    {
+      "title": "Leave a space on its own sample",
+      "ask": "Let a member leave a shared space; what they put there stays",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:leave-a-space",
+            "input": {
+              "space": "sample-club",
+              "subject": "ana@example.com"
+            }
+          }
+        }
+      },
+      "given": "The input {\"space\":\"sample-club\",\"subject\":\"ana@example.com\"}, with 2 example rows (record:space, record:space-member) already kept.",
+      "hands_back": "It answered {\"space\":\"sample-club\",\"subject\":\"ana@example.com\",\"left\":false,\"state\":\"none\"}."
+    }
+  ]
+}

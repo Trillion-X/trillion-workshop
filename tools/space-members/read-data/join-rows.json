@@ -1,0 +1,25 @@
+{
+  "schema": "trillion.space-join-rows",
+  "about": "How a space's join rows are read, as DATA. A space's `config.join` is a list of rows; any row that holds lets a person in. A row names one key from `rows` here, and the key says which fact about the person it reads and with which comparison (comparisons are rows of tools/formulas/read-data/rule-operators.json). `value` says what the comparison is made with: `true` (the fact must be yes) or `row` (the value the row itself carries, such as the access ref). A space with no join rows is joined only by invitation (`invited_only`), whatever else it has turned on. The facts are what the one reader hands in for a person: `free` (always yes), `invited` (they came in by an invitation they accepted) and `held_access` (the access refs they hold now, from tools/paid-access).",
+  "facts": [
+    { "id": "free", "kind": "choice" },
+    { "id": "invited", "kind": "choice" },
+    { "id": "held_access", "kind": "tags" }
+  ],
+  "rows": {
+    "free": { "fact": "free", "operator": "is_any_of", "value": "true" },
+    "invited": { "fact": "invited", "operator": "is_any_of", "value": "true" },
+    "access": { "fact": "held_access", "operator": "has_any_of", "value": "row" }
+  },
+  "invited_only": [{ "invited": true }],
+  "words": {
+    "free": "Anyone may join.",
+    "invited": "Join with an invitation from a member.",
+    "access": "Join by holding the access {access}.",
+    "joined_by_invitation_only": "{space} is joined by invitation only.",
+    "refused": "Only members of {space} can do this. {how}",
+    "lapsed": "Your access to {space} has ended. {how}",
+    "removed": "You were put out of {space}.",
+    "left": "You left {space}."
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "tool:choose-the-name-i-show-in-a-space's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Let a member choose the name other members read for them in one shared space\", with {\"space\":\"sample-club\",\"subject\":\"owner@example.com\",\"name\":\"Sample Owner\"}. It runs tool:choose-the-name-i-show-in-a-space and answers {\"space\":\"sample-club\",\"subject\":\"owner@example.com\",\"name\":\"Sample Owner\"}",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:space, record:space-member, payment-event, record:commercial-offer, access-grant, access-effect-rule, effect-lifecycle) through the records door.",
+  "workflows": [],
+  "tools": [
+    "tool:choose-the-name-i-show-in-a-space"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Let a member choose the name other members read for them in one shared space\", and give it space (The space's id, the last part of its record:space row id); subject (The person, the way the space and your access rules name them); name (The name to show, 1 to 80 characters).",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:choose-the-name-i-show-in-a-space and its input (the worked example shows one).",
+    "3. Read what comes back: Sets the name on the person's own member row, at most 80 characters.",
+    "4. It reads and writes only its own rows through the records door: record:space (records:read); record:space-member (records:read, records:list, records:write); payment-event (records:list); record:commercial-offer (records:list); access-grant (records:list); access-effect-rule (records:list); effect-lifecycle (records:list)."
+  ],
+  "worked_examples": [
+    {
+      "title": "Choose the name I show in a space on its own sample",
+      "ask": "Let a member choose the name other members read for them in one shared space",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:choose-the-name-i-show-in-a-space",
+            "input": {
+              "space": "sample-club",
+              "subject": "owner@example.com",
+              "name": "Sample Owner"
+            }
+          }
+        }
+      },
+      "given": "The input {\"space\":\"sample-club\",\"subject\":\"owner@example.com\",\"name\":\"Sample Owner\"}, with 2 example rows (record:space, record:space-member) already kept.",
+      "hands_back": "It answered {\"space\":\"sample-club\",\"subject\":\"owner@example.com\",\"name\":\"Sample Owner\"}."
+    }
+  ]
+}
