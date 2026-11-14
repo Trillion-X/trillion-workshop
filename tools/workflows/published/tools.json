@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:902de118fe4c690e31d97b0063484a08811bbf4e4deee536aea4b581c1d21796"
+  "blake3": "1f:bd680a0e0dabfc6c7781d9ce4a06ba24691e5c18302a52362c6f4ffe414b9581"
  },
  "fields": [
   {
@@ -499,6 +499,21 @@
     ],
     "listed_on": "2026-11-05T00:00:00Z",
     "folder": "show-the-media-library-and-search-what-was"
+   }
+  },
+  {
+   "id": "tool:answer-the-message-page-routes",
+   "values": {
+    "title": "Answer the web chat message routes",
+    "job": "Answer the web chat's message routes (GET /work/api/messages, /messages/threads and /messages/thread, POST /work/api/messages/send and /messages/send-all) and keep each message the person sends as a message row in my own records, and wake the AI it is for",
+    "description": "The web chat's message routes, run by the engine for the page's account (workshop-routes): the request's { path, method, query, body } in, { status, body } out. GET /messages and /messages/threads answer the person's conversations newest first ({conversations, next_before}); GET /messages/thread answers one conversation's messages (app and conversation_id). POST /messages/send keeps the person's words to one AI (app, conversation_id, text, client_id?) and POST /messages/send-all keeps them once in the shared Trillion conversation, each as one `message` row in the person's own records, written through the records door only, conditional on what was read. The same client_id sent again is the message already kept. Files ride by reference (each must be one of the person's own, linked in the message). An AI is woken the way the person's AIs take work: a waiting ai-job row kept in the same write (send with agent_id: for that AI; send-all: for any AI, or for the AIs @-mentioned). The answer says the message is kept and read on the AI's next connection; it never says delivered.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "show-the-signed-in-persons-message-inbox-and-tell"
    }
   },
   {
