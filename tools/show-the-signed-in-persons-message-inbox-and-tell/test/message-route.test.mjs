@@ -11,9 +11,13 @@ import rows from '../tool-rows.json' with { type: 'json' };
 
 // The person's records as the door keeps them: read, list (greatest id first when reversed, in pages of two, below an id)
 // and conditional writes.
-function personDoor(records = []) {
+function personDoor(records = [], files = ['1f:' + 'a'.repeat(64)]) {
   const kept = new Map(records.map(record => [record.id, structuredClone(record)]));
   const door = recordsDoorFromCall(async (method, input) => {
+    if (method === 'find_file') {
+      if (!files.includes(input.name_or_identity)) throw new Error('No such file.');
+      return { identity: input.name_or_identity };
+    }
     if (method === 'records:read') {
       const one = kept.get(input.id);
       return { id: input.id, type: input.type, value: one?.type === input.type ? structuredClone(one.value) : null };
@@ -36,12 +40,13 @@ function personDoor(records = []) {
       return { changed: input.records.length, write_count: input.records.length };
     }
     throw new Error(`unexpected ${method}`);
-  }, { resource: '@own-records' });
+  }, { resource: '@own-records', filesResource: '@own-files' });
   return { door, kept };
 }
 
 let clock = Date.parse('2026-11-13T18:00:00.000Z');
 const route = (door, path, method = 'GET', query = {}, body = {}) => answerTheMessageRoute({ path, method, query, body, browser: {} }, { door, now: () => (clock += 1000) });
+const jobsOf = kept => [...kept.values()].filter(one => one.type === 'ai-job');
 const messageIds = kept => [...kept.values()].filter(one => one.type === 'message').map(one => one.id);
 
 test('a message sent through POST /messages/send is a message row and shows in GET /messages and /messages/thread', async () => {
@@ -99,6 +104,51 @@ test('refusals come in the old words and keep nothing', async () => {
   assert.equal((await route(door, '/messages/thread', 'GET', {})).body.error, 'Choose a conversation to read.');
   assert.equal((await route(door, '/messages/nothing')).status, 404);
   assert.equal(kept.size, 0);
+});
+
+test('a send to one AI hands it that AI as a waiting job, once, and a send with no AI makes no job', async () => {
+  const { door, kept } = personDoor();
+  await route(door, '/messages/send', 'POST', {}, { app: 'Claude', conversation_id: 'c', text: 'hello', client_id: 'n1' });
+  assert.equal(jobsOf(kept).length, 0);
+  const body = { app: 'Claude', conversation_id: 'c', text: 'please look', client_id: 'n2', agent_id: 'agent:sample' };
+  const sent = await route(door, '/messages/send', 'POST', {}, body);
+  const [job] = jobsOf(kept);
+  assert.equal(job.id, `ai-job:message:${sent.body.message_id}:agent:sample`);
+  assert.equal(sent.body.delivery.event_id, job.id);
+  assert.deepEqual([job.value.status, job.value.to_agent, job.value.input.arrived.message_id, job.value.next_call.arguments.conversation_id], ['waiting', 'agent:sample', sent.body.message_id, 'c']);
+  const again = await route(door, '/messages/send', 'POST', {}, body);
+  assert.equal(again.body.delivery.event_id, job.id);
+  assert.equal(jobsOf(kept).length, 1, 'a retry makes no second job');
+});
+
+test('files ride by reference: each is one of the person\'s own, linked in the message and the job; another is refused', async () => {
+  const mine = '1f:' + 'a'.repeat(64);
+  const { door, kept } = personDoor();
+  const sent = await route(door, '/messages/send-all', 'POST', {}, { text: 'see this', files: [{ identity: mine }], client_id: 'f1' });
+  assert.equal(sent.status, 200, JSON.stringify(sent.body));
+  assert.deepEqual(sent.body.files, [mine]);
+  assert.deepEqual(kept.get(sent.body.message_id).value.about, [{ kind: 'file', id: mine }]);
+  const [job] = jobsOf(kept);
+  assert.equal(job.id, `ai-job:message:${sent.body.message_id}`);
+  assert.equal(job.value.refs.file_1, mine);
+  assert.equal(job.value.to_agent, undefined, 'no AI is named, so any AI may take it');
+  const other = await route(door, '/messages/send', 'POST', {}, { app: 'Claude', conversation_id: 'c', text: 'x', files: [{ identity: '1f:' + 'b'.repeat(64) }] });
+  assert.equal(other.status, 403);
+  assert.match(other.body.error, /is not one of your files\./);
+  assert.equal((await route(door, '/messages/send', 'POST', {}, { app: 'Claude', conversation_id: 'c', files: [{}] })).status, 400);
+  assert.equal(messageIds(kept).length, 1, 'a refused send keeps nothing');
+});
+
+test('send-all links an anchor and a reply, and a mentioned AI gets the job alone', async () => {
+  const { door, kept } = personDoor();
+  const sent = await route(door, '/messages/send-all', 'POST', {}, { text: 'about this', client_id: 'm1', anchor: { record: 'record:sample:1', part: { kind: 'words', from: 1, to: 4 } },
+    reply_to: 'message:earlier', mentions: [{ kind: 'ai', value: 'agent:sample', label: 'Sample' }] });
+  assert.equal(sent.status, 200, JSON.stringify(sent.body));
+  assert.deepEqual(kept.get(sent.body.message_id).value.about, [
+    { kind: 'record', id: 'record:sample:1', part: { kind: 'words', from: 1, to: 4 } }, { kind: 'message', id: 'message:earlier' }, { kind: 'agent', id: 'agent:sample' }]);
+  assert.deepEqual(jobsOf(kept).map(job => [job.id, job.value.to_agent]), [[`ai-job:message:${sent.body.message_id}:agent:sample`, 'agent:sample']]);
+  assert.deepEqual(sent.body.delivery, [{ agent_id: 'agent:sample', state: 'next_connection' }]);
+  assert.equal((await route(door, '/messages/send-all', 'POST', {}, { text: 'x', mentions: [{ kind: 'NOT A KIND', value: 'v', label: 'l' }] })).status, 400);
 });
 
 test('the route row runs as the engine runs it, against the stand-in door with exactly its rights', async () => {

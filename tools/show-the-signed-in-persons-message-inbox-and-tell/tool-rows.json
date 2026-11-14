@@ -9,8 +9,8 @@
         "id": "tool:answer-the-message-page-routes",
         "label": "Answer the web chat message routes",
         "status": "active",
-        "job": "Answer the web chat's message routes (GET /work/api/messages, /messages/threads and /messages/thread, POST /work/api/messages/send and /messages/send-all) and keep each message the person sends as a message row in my own records",
-        "description": "The web chat's message routes, run by the engine for the page's account (workshop-routes): the request's { path, method, query, body } in, { status, body } out. GET /messages and /messages/threads answer the person's conversations newest first ({conversations, next_before}); GET /messages/thread answers one conversation's messages (app and conversation_id). POST /messages/send keeps the person's words to one AI (app, conversation_id, text, client_id?) and POST /messages/send-all keeps them once in the shared Trillion conversation, each as one `message` row in the person's own records, written through the records door only, conditional on what was read. The same client_id sent again is the message already kept. A run reaches no AI's event inbox, so the answer says the message is kept and the AI reads it on its next connection; it never says delivered.",
+        "job": "Answer the web chat's message routes (GET /work/api/messages, /messages/threads and /messages/thread, POST /work/api/messages/send and /messages/send-all) and keep each message the person sends as a message row in my own records, and wake the AI it is for",
+        "description": "The web chat's message routes, run by the engine for the page's account (workshop-routes): the request's { path, method, query, body } in, { status, body } out. GET /messages and /messages/threads answer the person's conversations newest first ({conversations, next_before}); GET /messages/thread answers one conversation's messages (app and conversation_id). POST /messages/send keeps the person's words to one AI (app, conversation_id, text, client_id?) and POST /messages/send-all keeps them once in the shared Trillion conversation, each as one `message` row in the person's own records, written through the records door only, conditional on what was read. The same client_id sent again is the message already kept. Files ride by reference (each must be one of the person's own, linked in the message). An AI is woken the way the person's AIs take work: a waiting ai-job row kept in the same write (send with agent_id: for that AI; send-all: for any AI, or for the AIs @-mentioned). The answer says the message is kept and read on the AI's next connection; it never says delivered.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -63,6 +63,29 @@
                 "at": "/opt/content-identity"
               },
               {
+                "package": "send-one-message-to-all-of-my-ais-at-once",
+                "paths": [
+                  "src/work-mentions.mjs",
+                  "src/mention-sources.json"
+                ],
+                "at": "/opt/send-one-message-to-all-of-my-ais-at-once"
+              },
+              {
+                "package": "keep-and-wake-ai-sessions-on-this-computer",
+                "paths": [
+                  "src/responses.mjs",
+                  "src/reactions.json"
+                ],
+                "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+              },
+              {
+                "package": "screen-look",
+                "paths": [
+                  "show/record-kind-appearance.json"
+                ],
+                "at": "/opt/screen-look"
+              },
+              {
                 "package": "show-the-signed-in-persons-message-inbox-and-tell",
                 "paths": [
                   "src/message-route.mjs"
@@ -93,6 +116,20 @@
                   "utils.js"
                 ],
                 "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           },
@@ -126,6 +163,19 @@
                 "operations": [
                   "records:read",
                   "records:write"
+                ]
+              },
+              {
+                "kind": "ai-job",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "files": "/",
+                "operations": [
+                  "find_file"
                 ]
               }
             ]

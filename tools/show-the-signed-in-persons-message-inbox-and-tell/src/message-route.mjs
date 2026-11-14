@@ -19,9 +19,14 @@
 //   2. Every write goes through the records door, conditional on what was read (the door refuses a changed record).
 //   3. A read looks through at most SCAN messages, newest first, and answers what it found with `next_before`; no read
 //      walks the whole history.
-//   4. A run reaches no AI's event inbox and no hand-off, so nothing here wakes an AI: the answer says the message is
-//      kept and the AI reads it on its next connection, never that it was delivered.
+//   4. An AI is woken the way the person's AIs take work (a waiting ai-job row, which an AI lists when it connects), kept
+//      in the same write as the message: send with an agent_id hands it to that AI, send-all to any AI or to the AIs
+//      @-mentioned. Nothing here reaches an AI's live session, so the answer says the message is kept and read on the AI's
+//      next connection, never that it was delivered. Files ride by reference: each is one of the person's own (find_file),
+//      linked in the message's `about` and in the job's refs.
 //
+import { mentionKind } from '../../send-one-message-to-all-of-my-ais-at-once/src/work-mentions.mjs';
+import { partFrom } from '../../keep-and-wake-ai-sessions-on-this-computer/src/responses.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
 const TYPE = 'message';
@@ -31,6 +36,10 @@ const MAX_TEXT = 200_000;
 const SCAN = 1000;
 const PAGE = { default: 20, max: 100 };
 const SENT_VIA = 'Trillion';
+const JOB_TYPE = 'ai-job';
+// An event's refs hold at most 20 ids, one of them the message's own (old src/send-to-all-ais.mjs).
+const MOST_FILES = 19;
+const MOST_MENTIONS = 20;
 
 const nonempty = value => typeof value === 'string' && value.trim().length > 0;
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -45,8 +54,9 @@ class Refused extends Error {
   constructor(message, status = 400) { super(message); this.status = status; }
 }
 
-// The one message the person sent, kept once (invariant 1). Answers { id, recorded }.
-async function keep(door, { app, conversation_id, text, about, client_id }, now) {
+// The one message the person sent, kept once (invariant 1) with the jobs that hand it to the AIs it is for, in the same
+// write, so a message is never kept without its jobs. Answers { id, recorded }.
+async function keep(door, { app, conversation_id, text, about, client_id }, now, jobsOf = () => []) {
   const at = new Date(now).toISOString();
   const source_ref = client_id ? `client:${client_id.trim()}` : undefined;
   const message = { conversation_id, app, speaker: 'person', at, text, ...(about?.length ? { about } : {}), ...(source_ref ? { source_ref } : {}) };
@@ -58,8 +68,55 @@ async function keep(door, { app, conversation_id, text, about, client_id }, now)
   const id = idOf(message);
   const rows = [{ id, type: TYPE, value: { ...message, recorded_at: at, captured_road: 'signed-in screen', recorded_app: SENT_VIA }, expected: null }];
   if (sourceKey) rows.push({ id: sourceKey, type: SOURCE_KEY_TYPE, value: { message_id: id }, expected: null });
+  for (const job of jobsOf(id)) rows.push({ id: job.id, type: JOB_TYPE, value: job.value, expected: null });
   await door.write(rows, { key: id });
   return { id, recorded: 1 };
+}
+
+// The job that is an AI's wake (old trillion's `message.created` event and hand-off): a waiting ai-job row, which an AI
+// takes when it connects (its bootstrap lists waiting ai-jobs). `agent_id` names the one AI it is for; none, any AI may take it.
+const jobFor = ({ message_id, label, job, said, conversation_id, files, agent_id }) => ({
+  id: `${JOB_TYPE}:message:${message_id}${agent_id ? `:${agent_id}` : ''}`,
+  value: {
+    kind: JOB_TYPE, status: 'waiting', label, job, ...(said ? { said: said.slice(0, 300) } : {}),
+    input: { arrived: { message_id } }, once_per: message_id, ...(agent_id ? { to_agent: agent_id } : {}),
+    refs: { message_id, ...Object.fromEntries(files.map((identity, index) => [`file_${index + 1}`, identity])) },
+    next_call: { tool: 'read_messages', arguments: { conversation_id } },
+  },
+});
+
+// The files a message names, each checked to be one of the person's own (old src/send-to-all-ais.mjs ownFiles); throws the first that is not.
+async function ownFiles(door, files) {
+  if (files === undefined || files === null) return [];
+  if (!Array.isArray(files) || files.some(file => typeof file?.identity !== 'string' || !file.identity.trim())) throw new Refused('files is a list of { identity }, each one of your files.');
+  if (files.length > MOST_FILES) throw new Refused(`Send at most ${MOST_FILES} files in one message.`);
+  const identities = [...new Set(files.map(file => file.identity.trim()))];
+  for (const identity of identities) {
+    try { await door.files('find_file', { name_or_identity: identity }); }
+    catch (error) {
+      if (error?.code === 'no_files') throw new Refused('Files cannot be sent from here.');
+      throw new Refused(`${identity} is not one of your files.`, 403);
+    }
+  }
+  return identities;
+}
+
+// What `@` put in the message: each { kind, value, label } of a kind src/work-mentions.mjs admits, at most 20.
+function mentionsOf(mentions) {
+  if (mentions === undefined || mentions === null) return [];
+  const shaped = Array.isArray(mentions) && mentions.every(one => mentionKind(one?.kind) && typeof one.value === 'string' && one.value.trim() && typeof one.label === 'string');
+  if (!shaped) throw new Refused('mentions is a list of { kind, value, label }, each kind one @ offers.');
+  if (mentions.length > MOST_MENTIONS) throw new Refused(`Mention at most ${MOST_MENTIONS} things in one message.`);
+  return mentions.map(({ kind, value, label }) => ({ kind, value: value.trim(), label }));
+}
+
+// The thing a message is about and the piece of it, as kept in its `about`; none when the message names none.
+function anchorOf(anchor) {
+  if (anchor === undefined || anchor === null) return [];
+  if (typeof anchor?.record !== 'string' || !anchor.record.trim() || anchor.record.length > 500) throw new Refused('anchor names the thing the words are about: { record, part? }.');
+  let part;
+  try { part = partFrom(anchor.part); } catch (error) { throw new Refused(error.message); }
+  return [{ kind: 'record', id: anchor.record.trim(), ...(part ? { part } : {}) }];
 }
 
 function checked(body) {
@@ -68,7 +125,6 @@ function checked(body) {
   if (text.length > MAX_TEXT) throw new Refused(`A message holds at most ${MAX_TEXT} characters; send a longer one in parts.`);
   if (body.client_id !== undefined && (typeof body.client_id !== 'string' || !body.client_id.trim() || body.client_id.length > 200))
     throw new Refused('client_id is the id the sender gave this message, so sending it again is the same message.');
-  if (body.files !== undefined && body.files !== null) throw new Refused('Files cannot be sent from here yet.');
   return { text, client_id: body.client_id };
 }
 
@@ -76,17 +132,42 @@ async function send(door, body, now) {
   const { text, client_id } = checked(body);
   const app = nonempty(body.app) ? body.app.trim() : '';
   const conversation_id = nonempty(body.conversation_id) ? body.conversation_id.trim() : '';
-  if (!app || !conversation_id || !text.length) throw new Refused('Choose an AI and write a message.');
-  const kept = await keep(door, { app, conversation_id, text, client_id }, now);
-  return answer({ message_id: kept.id, recorded: kept.recorded, delivery: { state: 'next_connection', message: `Saved. ${app} reads it the next time it connects to your Trillion.` } });
+  const agent_id = nonempty(body.agent_id) ? body.agent_id.trim() : '';
+  const files = await ownFiles(door, body.files);
+  if (!app || !conversation_id || (!text.length && !files.length)) throw new Refused('Choose an AI and write a message.');
+  const about = files.map(identity => ({ kind: 'file', id: identity }));
+  const summary = `New message from you in ${app}.`;
+  let job = null;
+  const kept = await keep(door, { app, conversation_id, text, about, client_id }, now, message_id => {
+    if (!agent_id) return [];
+    job = jobFor({ message_id, label: summary, job: summary, said: text, conversation_id, files, agent_id });
+    return [job];
+  });
+  const delivery = { state: 'next_connection', message: `Saved. ${app} reads it the next time it connects to your Trillion.`,
+    ...(agent_id ? { event_id: kept.recorded ? job.id : `${JOB_TYPE}:message:${kept.id}:${agent_id}` } : {}) };
+  return answer({ message_id: kept.id, recorded: kept.recorded, delivery });
 }
 
 async function sendAll(door, body, now) {
   const { text, client_id } = checked(body);
-  if (!text.trim()) throw new Refused('Write a message for your AIs.');
-  const kept = await keep(door, { ...SHARED, text, client_id }, now);
-  return answer({ message_id: kept.id, handoff_id: null, recorded: kept.recorded, conversation_id: SHARED.conversation_id, files: [], delivery: [],
-    message: 'Saved. Your AIs read it the next time they connect to your Trillion.' });
+  const files = await ownFiles(door, body.files);
+  const named = mentionsOf(body.mentions);
+  const pointed = anchorOf(body.anchor);
+  const replyTo = body.reply_to;
+  if (replyTo !== undefined && (typeof replyTo !== 'string' || !replyTo.trim() || replyTo.length > 500)) throw new Refused('Choose a comment to reply to.');
+  if (!text.trim() && !files.length) throw new Refused('Write a message for your AIs.');
+  const about = [...pointed, ...(replyTo ? [{ kind: 'message', id: replyTo.trim() }] : []), ...files.map(identity => ({ kind: 'file', id: identity })),
+    ...named.map(one => ({ kind: mentionKind(one.kind).about, id: one.value }))];
+  // Mentioning some of the person's AIs sends the message to those AIs only; otherwise any AI may take it.
+  const addressed = [...new Set(named.filter(one => mentionKind(one.kind).wakes).map(one => one.value))];
+  const summary = files.length ? `New message from you in Trillion, with ${files.length} ${files.length === 1 ? 'file' : 'files'}.` : 'New message from you in Trillion.';
+  const jobs = message_id => (addressed.length ? addressed : [null]).map(agent_id => jobFor({
+    message_id, label: summary, job: text.trim() ? text : files.join('\n'), said: text.trim() ? text : '', conversation_id: SHARED.conversation_id, files, agent_id }));
+  const kept = await keep(door, { ...SHARED, text, about, client_id }, now, jobs);
+  const handoff_id = jobs(kept.id)[0].id;
+  return answer({ message_id: kept.id, handoff_id, recorded: kept.recorded, conversation_id: SHARED.conversation_id, files,
+    delivery: addressed.map(agent_id => ({ agent_id, state: 'next_connection' })),
+    message: `Saved for ${addressed.length ? `${addressed.length} of your ${addressed.length === 1 ? 'AI' : 'AIs'}` : 'your AIs'}. They read it the next time they connect to your Trillion.` });
 }
 
 // The newest messages, at most SCAN of them, older than `before` (a message id), as the door lists them.
