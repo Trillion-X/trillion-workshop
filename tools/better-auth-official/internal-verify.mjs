@@ -25,8 +25,8 @@ const keyOf = async request => { const { key } = (await bodyOf(request, 4096)) ?
 async function verified(auth, key) {
   const answer = await auth.api.verifyApiKey({ body: { key } });
   if (!answer.valid || !answer.key) return { valid: false, key: null };
-  const { id, referenceId: userId, metadata = null } = answer.key;
-  return { valid: true, key: { id, userId, metadata } };
+  const { id, referenceId: userId, metadata = null, permissions = null } = answer.key;
+  return { valid: true, key: { id, userId, metadata, permissions } };
 }
 
 /** The public key check for a computer elsewhere: true when it answered the request (its path), false otherwise. */

@@ -79,7 +79,12 @@ export const auth = betterAuth({
       },
     }),
     multiSession(),
-    apiKey({ defaultPrefix: settings.api_key?.prefix, enableMetadata: true, rateLimit: settings.api_key?.rate_limit }),
+    apiKey({
+      defaultPrefix: settings.api_key?.prefix, enableMetadata: true, rateLimit: settings.api_key?.rate_limit,
+      // The scope names a key reaches when it is made, as the plugin's permissions ({"trillion": [names]}); none by default,
+      // so a key nobody granted reaches nothing.
+      ...(settings.api_key?.default_permissions ? { permissions: { defaultPermissions: settings.api_key.default_permissions } } : {}),
+    }),
     jwt({
       disableSettingJwtHeader: settings.disabled_paths.includes('/token'),
       jwks: { keyPairConfig: { alg: 'EdDSA', crv: 'Ed25519' } },
@@ -89,6 +94,9 @@ export const auth = betterAuth({
       loginPage: settings.mcp.login_page,
       consentPage: settings.mcp.consent_page,
       resource: settings.mcp.resource,
+      // The scopes a client may ask for and the /mcp resource allows (settings DATA); the resource row follows the settings.
+      ...(settings.mcp.scopes ? { scopes: settings.mcp.scopes } : {}),
+      ...(settings.mcp.resource_scopes ? { resources: [{ identifier: settings.mcp.resource, allowedScopes: settings.mcp.resource_scopes }], resourceSeedMode: 'merge' } : {}),
       customAccessTokenClaims: accessTokenClaims(settings),
     }),
     cimd({ fetchClientMetadataResource, metadataProfile: 'mcp-2026-07-28' }),

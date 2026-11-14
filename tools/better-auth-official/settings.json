@@ -21,7 +21,8 @@
     "prefix": "tr_",
     "rate_limit": {
       "enabled": false
-    }
+    },
+    "default_permissions": null
   },
   "internal": {
     "host": "127.0.0.1",
@@ -45,7 +46,25 @@
   "mcp": {
     "login_page": "/sign-in",
     "consent_page": "/consent",
-    "resource": "https://app.gettrillion.ai/mcp"
+    "resource": "https://app.gettrillion.ai/mcp",
+    "scopes": [
+      "openid",
+      "profile",
+      "email",
+      "offline_access",
+      "records",
+      "tools",
+      "account",
+      "vault",
+      "namespace-read"
+    ],
+    "resource_scopes": [
+      "records",
+      "tools",
+      "account",
+      "vault",
+      "namespace-read"
+    ]
   },
   "disabled_paths": [
     "/token"

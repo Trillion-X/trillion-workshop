@@ -18,8 +18,8 @@ session token works as `Authorization: Bearer`). The session cookie is `__Host-t
 
 ## settings.json
 
-`port`, `base_url`, `base_path`, `issuer`, `audience`, `database_path`, `session_cookie_name`, `account_claim` (`field`, `claim`, `create`), `api_key` (`prefix`, `rate_limit` in the plugin's own `rateLimit` shape), `internal` (`host`, `port`, `verify_path`), `key_check` (`path`, `use`), `computer_proof` (the proof domains, window, row domain and address context, the same values as trillion-rust computers/settings.json), `passkey` (`rp_id`, `rp_name`),
-`trusted_origins`, `attached_origins` (`ask_url`, `cache_ms`, `related_url`), `two_factor_issuer`, `mcp` (`login_page`, `consent_page`, `resource`), `disabled_paths`, `device` (`verification_uri`) and
+`port`, `base_url`, `base_path`, `issuer`, `audience`, `database_path`, `session_cookie_name`, `account_claim` (`field`, `claim`, `create`), `api_key` (`prefix`, `rate_limit` in the plugin's own `rateLimit` shape, `default_permissions`: the scope names a new key reaches, `{"trillion": [names]}`, none by default), `internal` (`host`, `port`, `verify_path`), `key_check` (`path`, `use`), `computer_proof` (the proof domains, window, row domain and address context, the same values as trillion-rust computers/settings.json), `passkey` (`rp_id`, `rp_name`),
+`trusted_origins`, `attached_origins` (`ask_url`, `cache_ms`, `related_url`), `two_factor_issuer`, `mcp` (`login_page`, `consent_page`, `resource`, `scopes`: what a client may ask for, `resource_scopes`: what the MCP resource allows), `disabled_paths`, `device` (`verification_uri`) and
 `email` (`command`, an argv that gets each message as JSON on stdin, or `outbox`, a file each message is appended to).
 
 `disabled_paths` is `["/token"]`: the JWT docs' OAuth Provider Mode says to turn off the session JWT route when MCP is on,
@@ -33,7 +33,7 @@ Empty `disabled_paths` and `GET /api/auth/token` hands back a session JWT (EdDSA
 field with `input: false`, so no sign-up or update sets it) and the claim it goes out as (`trillion_account`, a 64-hex
 account address). The session JWT is its default payload plus that claim (the jwt plugin's `definePayload`), and MCP
 access tokens (`at+jwt`, `aud` holding `mcp.resource`) carry it through the OAuth provider's `customAccessTokenClaims`
-(account-claim.mjs). A user with no account gets no claim. With `account_claim.create` (`url`, the engine's loopback `POST /accounts/create` on the same computer, such as `http://127.0.0.1:7199/accounts/create`, and `timeout_ms`) a new person's account is made there by the `databaseHooks.user.create.before` hook (`accountCreate`): the engine answers `{"address"}` and the user row is written with it, so the first pass carries the account; a computer that refuses or does not answer refuses the sign-up and no user row is written (trillion-rust src/native_entry/computer/account_create.rs, c0539be7e). No `create`: no account is made here. test/account-create.test.mjs runs against a stand-in computer, or against a scratch engine when `ACCOUNT_CREATE_URL` names its operation.
+(account-claim.mjs), with the user's `email` and `email_verified`, so a door can tell a proven inbox from a typed one. The access token's `scope` names the Trillion scopes (`records`, `tools`, `account`, `vault`, `namespace-read`) the client was granted. A user with no account gets no claim. With `account_claim.create` (`url`, the engine's loopback `POST /accounts/create` on the same computer, such as `http://127.0.0.1:7199/accounts/create`, and `timeout_ms`) a new person's account is made there by the `databaseHooks.user.create.before` hook (`accountCreate`): the engine answers `{"address"}` and the user row is written with it, so the first pass carries the account; a computer that refuses or does not answer refuses the sign-up and no user row is written (trillion-rust src/native_entry/computer/account_create.rs, c0539be7e). No `create`: no account is made here. test/account-create.test.mjs runs against a stand-in computer, or against a scratch engine when `ACCOUNT_CREATE_URL` names its operation.
 
 ## The engine's API key check
 
@@ -41,7 +41,7 @@ A personal API key starts with `api_key.prefix` (`tr_`) and its metadata carries
 party that created it: a `hooks.before` on `/api-key/create` sets it from the creator's own user row and drops any the
 request named. Better Auth's `verifyApiKey` is server-only, so the engine calls it on the computer's own listener,
 `internal` (`127.0.0.1:8793`, which Caddy never routes to): `POST /api-key/verify {"key": "tr_..."}` answers
-`{"valid": true, "key": {"id", "userId", "metadata": {"trillion_account"}}}` or `{"valid": false, "key": null}`, and 400
+`{"valid": true, "key": {"id", "userId", "metadata": {"trillion_account"}, "permissions": {"trillion": [scope names]}}}` or `{"valid": false, "key": null}`, and 400
 for a body with no key. `api_key.rate_limit` is `{"enabled": false}`: the plugin's default (10 checks a key a day) would
 make a key invalid after the engine's tenth request.
 

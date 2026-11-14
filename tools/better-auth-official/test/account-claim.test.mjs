@@ -57,7 +57,7 @@ test('an MCP access token (at+jwt for the MCP resource) carries trillion_account
   const redirect = 'http://127.0.0.1:9/callback';
   const client = await (await call('/oauth2/create-client', { cookie, body: { redirect_uris: [redirect], token_endpoint_auth_method: 'none', application_type: 'native', client_name: 'scratch' } })).json();
   const verifier = randomBytes(32).toString('base64url');
-  const query = new URLSearchParams({ response_type: 'code', client_id: client.client_id, redirect_uri: redirect, scope: 'openid profile email offline_access', state: 's', code_challenge: createHash('sha256').update(verifier).digest('base64url'), code_challenge_method: 'S256', resource: settings.mcp.resource });
+  const query = new URLSearchParams({ response_type: 'code', client_id: client.client_id, redirect_uri: redirect, scope: 'openid profile email offline_access records tools', state: 's', code_challenge: createHash('sha256').update(verifier).digest('base64url'), code_challenge_method: 'S256', resource: settings.mcp.resource });
   const step = await call(`/oauth2/authorize?${query}`, { cookie });
   let location = step.headers.get('location') ?? (await step.json().catch(() => ({}))).url ?? '';
   if (/consent/.test(location)) {
@@ -72,6 +72,17 @@ test('an MCP access token (at+jwt for the MCP resource) carries trillion_account
   assert.equal(header.typ, 'at+jwt');
   assert.ok([claims.aud].flat().includes(settings.mcp.resource));
   assert.equal(claims.trillion_account, ACCOUNT);
+  assert.deepEqual(claims.scope.split(' ').filter(word => settings.mcp.resource_scopes.includes(word)).sort(), ['records', 'tools'], 'the scope claim carries the Trillion scopes asked for');
+  assert.equal(claims.email, 'mcp@example.test');
+  assert.equal(claims.email_verified, false, 'the email and whether it is verified, as OIDC names them');
+});
+
+test('the provider and the MCP resource offer every Trillion scope', async () => {
+  const server = await (await auth.handler(new Request(`${ORIGIN}/.well-known/oauth-authorization-server`))).json();
+  for (const scope of settings.mcp.resource_scopes) assert.ok(server.scopes_supported.includes(scope), `scopes_supported names ${scope}`);
+  const resource = await (await auth.handler(new Request(`${ORIGIN}/.well-known/oauth-protected-resource${new URL(settings.mcp.resource).pathname}`))).json();
+  assert.equal(resource.resource, settings.mcp.resource);
+  assert.deepEqual([...resource.scopes_supported].sort(), [...settings.mcp.resource_scopes].sort(), 'the MCP resource allows exactly the Trillion scopes');
 });
 
 test('the claim comes only from the user a token is for, and an absent account gives none', async () => {

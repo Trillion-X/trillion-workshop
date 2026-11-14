@@ -16,7 +16,7 @@ const freePort = () => new Promise(done => { const s = createServer().listen(0, 
 const dir = mkdtempSync(join(tmpdir(), 'internal-verify-'));
 const [port, internal] = [await freePort(), await freePort()];
 const base = JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8'));
-const settings = { ...base, port, base_url: `http://localhost:${port}`, issuer: `http://localhost:${port}`, audience: `http://localhost:${port}`, trusted_origins: [`http://localhost:${port}`], database_path: 'auth.db', email: { outbox: 'outbox.jsonl', command: null }, internal: { ...base.internal, port: internal } };
+const settings = { ...base, port, base_url: `http://localhost:${port}`, issuer: `http://localhost:${port}`, audience: `http://localhost:${port}`, trusted_origins: [`http://localhost:${port}`], database_path: 'auth.db', email: { outbox: 'outbox.jsonl', command: null }, internal: { ...base.internal, port: internal }, api_key: { ...base.api_key, default_permissions: { trillion: ['records', 'tools'] } } };
 writeFileSync(join(dir, 'settings.json'), JSON.stringify(settings));
 const env = { ...process.env, BETTER_AUTH_SETTINGS: join(dir, 'settings.json'), BETTER_AUTH_SECRET: 'a-scratch-secret-for-this-test-only-0123456789' };
 const tool = new URL('..', import.meta.url).pathname;
@@ -46,7 +46,7 @@ test('a new key is the settings prefix and 64 letters, whatever prefix the reque
 
 test('the internal listener verifies a key: valid, its id, its user and the creating party\'s account', async () => {
   const answer = await (await verify(made.key)).json();
-  assert.deepEqual(answer, { valid: true, key: { id: made.id, userId: user.id, metadata: { trillion_account: ACCOUNT } } });
+  assert.deepEqual(answer, { valid: true, key: { id: made.id, userId: user.id, metadata: { trillion_account: ACCOUNT }, permissions: settings.api_key.default_permissions } });
 });
 
 test('an altered key, or no key, is not valid', async () => {
@@ -94,7 +94,7 @@ const theirs = await (await post(`${ORIGIN}/api/auth/api-key/create`, { name: 'e
 test('a computer its account\'s row enrolls checks a key of that account over the public origin with its own proof', async () => {
   const answer = await elsewhere(theirs.key);
   assert.equal(answer.status, 200);
-  assert.deepEqual(await answer.json(), { valid: true, key: { id: theirs.id, userId: secondUser.id, metadata: { trillion_account: address } } });
+  assert.deepEqual(await answer.json(), { valid: true, key: { id: theirs.id, userId: secondUser.id, metadata: { trillion_account: address }, permissions: settings.api_key.default_permissions } });
 });
 
 test('a computer the row does not list, a proof for another key, an old proof or no proof is not admitted', async () => {

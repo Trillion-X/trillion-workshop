@@ -18,8 +18,12 @@ export const accountFields = settings => {
 /** The jwt plugin's definePayload: the default payload (the user) with the account claim. */
 export const sessionPayload = settings => ({ user }) => ({ ...user, ...claimFor(of(settings), user) });
 
-/** The OAuth provider's customAccessTokenClaims: the account claim of the user a token is for. */
-export const accessTokenClaims = settings => ({ user }) => claimFor(of(settings), user);
+/** The OAuth provider's customAccessTokenClaims: the account claim of the user a token is for, and their email with whether
+ * it is verified (OIDC's `email`, `email_verified`), so a door can tell a proven inbox from a typed one. */
+export const accessTokenClaims = settings => ({ user }) => ({
+  ...claimFor(of(settings), user),
+  ...(user?.email ? { email: user.email, email_verified: user.emailVerified === true } : {}),
+});
 
 /** An API key's metadata entry for the account of the party creating it (empty when it has none). */
 export const keyAccount = (settings, user) => claimFor(of(settings), user);
