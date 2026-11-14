@@ -16,6 +16,7 @@ import { mcp } from '@better-auth/mcp';
 import { cimd } from '@better-auth/cimd';
 import { fetchClientMetadataResource } from '@better-auth/cimd/node';
 import { emailHook } from './send-email.mjs';
+import { cookieOptions } from './cookie-options.mjs';
 
 const settingsPath = resolve(process.env.BETTER_AUTH_SETTINGS ?? new URL('./settings.json', import.meta.url).pathname);
 export const settings = JSON.parse(readFileSync(settingsPath, 'utf8'));
@@ -30,9 +31,7 @@ export const auth = betterAuth({
   database: new DatabaseSync(databasePath),
   trustedOrigins: settings.trusted_origins,
   disabledPaths: settings.disabled_paths,
-  advanced: {
-    cookies: { session_token: { name: settings.session_cookie_name } },
-  },
+  advanced: cookieOptions(settings),
   emailAndPassword: {
     enabled: true,
     sendResetPassword: async ({ user, url, token }) => {

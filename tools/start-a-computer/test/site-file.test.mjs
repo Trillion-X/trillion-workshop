@@ -51,3 +51,24 @@ test('applying a site file validates it with the row\'s Caddy and storage enviro
   assert.ok(commands.includes("set -a && . '/etc/caddy/storage.env' && set +a && '/opt/caddy/current/caddy' validate --config '/etc/caddy/Caddyfile.new' --adapter caddyfile >/dev/null && mv '/etc/caddy/Caddyfile.new' '/etc/caddy/Caddyfile'"));
   assert.ok(commands.includes('systemctl reload caddy'));
 });
+
+test('a computer whose row names no site host asks its restarted unit\'s health with no Host header of its own', async () => {
+  const commands = [];
+  const run = async (_machine, command) => {
+    commands.push(command);
+    if (command.startsWith('if [ -f ') || command.startsWith('test -s ')) throw Object.assign(new Error('absent'), { code: 3 });
+    if (command.includes('curl')) return '200';
+    return '';
+  };
+  const unit = {
+    unit: 'example-sign-in.service', template: 'serve-better-auth', description: 'Example sign-in', user: 'example-sign-in',
+    state: '/var/lib/example-sign-in', workshop: '/opt/example-workshop', repository: 'https://example.test/workshop.git',
+    tool_folder: 'tools/better-auth-official', node_bin: '/opt/node/bin', settings_file: '/etc/example/settings.json', settings: { port: 8792 },
+    secret_vault_key: 'example-secret', secret_name: 'example-secret', secret_file: '/etc/credstore.encrypted/example-secret', writable: '/var/lib/example-sign-in',
+  };
+  const layout = { caddy, units: [unit], unmanaged: [], health: { path: '/api/auth/ok', status: 200, where: 'machine' }, health_listen: '127.0.0.1:8792' };
+  const answer = await applyHostLayout({ address: '192.0.2.9', ssh: { known_hosts: '/dev/null' } }, layout, run, undefined, { 'example-secret': 'made-up' });
+  assert.deepEqual(answer.booted, ['example-sign-in.service']);
+  const health = commands.find(command => command.startsWith('curl '));
+  assert.equal(health, "curl -s -o /dev/null -w '%{http_code}' 'http://127.0.0.1:8792/api/auth/ok' || true");
+});

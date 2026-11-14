@@ -355,7 +355,7 @@ async function healthStatus(machine, config, host, health, { fetchImpl, wait, tr
   for (let i = 1; i <= tries; i++) {
     try {
       status = health.where === 'machine'
-        ? Number((await run(machine, `curl -s -o /dev/null -w '%{http_code}' -H ${q(`Host: ${host}`)} ${q(`http://${config.listen}${health.path}`)} || true`)).trim()) || null
+        ? Number((await run(machine, `curl -s -o /dev/null -w '%{http_code}' ${host ? `-H ${q(`Host: ${host}`)} ` : ''}${q(`http://${config.listen}${health.path}`)} || true`)).trim()) || null
         : (await fetchImpl(`https://${host}${health.path}`, { redirect: 'manual', signal: AbortSignal.timeout(10000) })).status;
     } catch { status = null; }
     if (status === health.status) return status;
