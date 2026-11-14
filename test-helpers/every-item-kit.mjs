@@ -6,13 +6,18 @@
 // file the copy of the list at the tip the push lands on). Read by test/every-item-has-its-kit.test.mjs and run by the push
 // gate push-time-workshop-every-item-ships-its-kit.py, so a push that adds an item with no kit stops.
 //
-//   node test-helpers/every-item-kit.mjs [--before FILE]    prints every problem and exits 1, or exits 0 in silence
-//     --before FILE  the allowance list as it stood before this change; an id in the current list but not in FILE is refused
+//   node test-helpers/every-item-kit.mjs [--before FILE] [--changed FILE] [--before-recipes FILE]
+//     prints every problem and exits 1, or exits 0 in silence
+//     --before FILE          the allowance list as it stood before this change; an id in the current list but not in FILE is refused
+//     --changed FILE         the paths this change touches, one per line
+//     --before-recipes FILE  tools/workflows/recipes/workflows.json as it stood before this change
+//   With rules.refuse_changed_items true (tools/workflows/kit-template.json), an item still on the allowance list that this
+//   change touches (a file in its tool folder outside kits/, or its workflow recipe) is refused until it has its kit.
 
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { root, rows } from './tool-rows.mjs';
-import { kitProblems } from '../tools/workflows/read-data/kit-problems.mjs';
+import { KIT_TEMPLATE, kitProblems } from '../tools/workflows/read-data/kit-problems.mjs';
 
 export const OWED_FILE = resolve(root, 'test/items-without-a-kit.json');
 const RECIPES = resolve(root, 'tools/workflows/recipes/workflows.json');
@@ -35,11 +40,26 @@ export function items() {
   ];
 }
 
+/** The ids of the items this change touches: a tool whose folder has a changed file outside kits/, a workflow whose recipe is new or differs from `beforeRecipes`. */
+export function touchedIds({ changed = [], beforeRecipes = null } = {}) {
+  const touched = new Set();
+  const inFolder = new Map(rows().map(({ folder, payload }) => [payload.id, folder]));
+  for (const [id, folder] of inFolder) {
+    if (changed.some(path => path.startsWith(`tools/${folder}/`) && !path.startsWith(`tools/${folder}/kits/`))) touched.add(id);
+  }
+  if (beforeRecipes) {
+    const was = new Map(beforeRecipes.records.map(record => [record.payload.id, JSON.stringify(record.payload)]));
+    const now = JSON.parse(readFileSync(RECIPES, 'utf8')).records.map(record => record.payload);
+    for (const recipe of now) if (was.get(recipe.id) !== JSON.stringify(recipe)) touched.add(recipe.id);
+  }
+  return touched;
+}
+
 const idsOf = owed => new Set([...(owed.workflows ?? []), ...(owed.tools ?? [])]);
 
 /** Every problem across the Workshop, as plain lines; none when every item ships its kit or is owed one from before.
  *  `before` is the allowance list as it stood at the commit or push this is compared with (none: no comparison). */
-export function kitGateProblems({ owed = JSON.parse(readFileSync(OWED_FILE, 'utf8')), before = null } = {}) {
+export function kitGateProblems({ owed = JSON.parse(readFileSync(OWED_FILE, 'utf8')), before = null, touched = new Set(), rules = KIT_TEMPLATE.rules } = {}) {
   const problems = [];
   const owedIds = idsOf(owed);
   const all = items();
@@ -55,6 +75,11 @@ export function kitGateProblems({ owed = JSON.parse(readFileSync(OWED_FILE, 'utf
       else if (item.problems !== null) problems.push(`test/items-without-a-kit.json names ${id}, which now has its kit: take it out.`);
     }
   }
+  if (rules.refuse_changed_items) {
+    for (const item of all) {
+      if (item.problems === null && owedIds.has(item.id) && touched.has(item.id)) problems.push(`${item.id} is changed here and still has no kit: touching an item from before kits ends its exemption, so add ${item.file.slice(root.length + 1)}.`);
+    }
+  }
   if (before) {
     const was = idsOf(before);
     for (const id of owedIds) if (!was.has(id)) problems.push(`test/items-without-a-kit.json gained ${id}: the list only shrinks, so give ${id} its kit instead.`);
@@ -63,9 +88,10 @@ export function kitGateProblems({ owed = JSON.parse(readFileSync(OWED_FILE, 'utf
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const at = process.argv.indexOf('--before');
-  const before = at > 0 && existsSync(process.argv[at + 1]) ? JSON.parse(readFileSync(process.argv[at + 1], 'utf8')) : null;
-  const problems = kitGateProblems({ before });
+  const given = flag => { const at = process.argv.indexOf(flag); return at > 0 && existsSync(process.argv[at + 1]) ? readFileSync(process.argv[at + 1], 'utf8') : null; };
+  const [beforeText, changedText, recipesText] = [given('--before'), given('--changed'), given('--before-recipes')];
+  const touched = touchedIds({ changed: changedText ? changedText.split('\n').filter(Boolean) : [], beforeRecipes: recipesText ? JSON.parse(recipesText) : null });
+  const problems = kitGateProblems({ before: beforeText ? JSON.parse(beforeText) : null, touched });
   if (problems.length) {
     console.error(`Every Workshop item ships with its kit (L082). ${problems.length} problem${problems.length === 1 ? '' : 's'}:\n${problems.map(line => `- ${line}`).join('\n')}`);
     process.exit(1);

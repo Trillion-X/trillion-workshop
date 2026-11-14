@@ -7,9 +7,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
-import { OWED_FILE, items, kitFileOf, kitGateProblems } from '../test-helpers/every-item-kit.mjs';
+import { OWED_FILE, items, kitFileOf, kitGateProblems, touchedIds } from '../test-helpers/every-item-kit.mjs';
 import { HOST_TOOLS } from '../tools/workflows/read-data/recipe-problems.mjs';
-import { kitBundleInput } from '../tools/workflows/read-data/kit-problems.mjs';
+import { KIT_TEMPLATE, kitBundleInput } from '../tools/workflows/read-data/kit-problems.mjs';
 
 const owed = JSON.parse(readFileSync(OWED_FILE, 'utf8'));
 const withKits = () => items().filter(item => item.problems !== null);
@@ -83,4 +83,23 @@ test('every kit installs as one marketplace set of items that are all here (the 
     const set = kitBundleInput(JSON.parse(readFileSync(item.file, 'utf8')), { id: item.id, title: item.id });
     for (const { kind, id } of set.components) assert.ok(all.has(`${kind}:${id}`), `${item.id}: the set names ${kind}:${id}, which is here`);
   }
+});
+
+test('when changed items are refused, an item still on the list that a change touches is refused until it has its kit', () => {
+  const folderOf = id => items().find(item => item.id === id).file.replace(/^.*\/tools\/([^/]+)\/kits\/.*$/, '$1');
+  const [tool] = owed.tools;
+  const touched = touchedIds({ changed: [`tools/${folderOf(tool)}/do-work/anything.mjs`] });
+  assert.ok(touched.has(tool), 'a file in the tool folder touches the tool');
+  assert.equal(touchedIds({ changed: [`tools/${folderOf(tool)}/kits/${tool.slice(5)}.json`] }).has(tool), false, 'a kit file is not a change to the item');
+  const rules = { ...KIT_TEMPLATE.rules, refuse_changed_items: true };
+  assert.deepEqual(kitGateProblems({ owed, touched, rules }).map(line => line.split(' ')[0]), [...touched].filter(id => owed.tools.includes(id) || owed.workflows.includes(id)));
+  assert.deepEqual(kitGateProblems({ owed, touched, rules: { ...rules, refuse_changed_items: false } }), []);
+});
+
+test('a workflow whose recipe differs from the one before is touched, an unchanged one is not', () => {
+  const now = JSON.parse(readFileSync(new URL('../tools/workflows/recipes/workflows.json', import.meta.url), 'utf8'));
+  const [first, ...rest] = now.records;
+  const before = { records: [{ payload: { ...first.payload, job: `${first.payload.job} (earlier)` } }, ...rest] };
+  const touched = touchedIds({ beforeRecipes: before });
+  assert.deepEqual([...touched].filter(id => id.startsWith('workflow:')), [first.payload.id]);
 });

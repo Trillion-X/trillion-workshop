@@ -1,5 +1,5 @@
 {
-  "what_this_is": "The kit every Workshop item ships with (L082): it is one file beside the item, `<the item's folder>/kits/<the item's id without tool: or workflow:>.json` (a workflow's in tools/workflows/kits/), so it needs no field on an account row and packs straight into one marketplace set (kitBundleInput). It extends the step anatomy every step already carries (when, do, done_when, if_missing, why, good_answer, came_from, part_of) from one step to the whole item, so a person starts running the item instead of being told how. read-data/kit-problems.mjs reads `rules` below; test/every-item-has-its-kit.test.mjs and the push gate (`npm run check-kits` runs the same check) refuse an item with no kit, or with a kit that misses a part. test/items-without-a-kit.json names the items that shipped before kits; it may only shrink.",
+  "what_this_is": "The kit every Workshop item ships with (L082): it is one file beside the item, `<the item's folder>/kits/<the item's id without tool: or workflow:>.json` (a workflow's in tools/workflows/kits/), so it needs no field on an account row and packs straight into one marketplace set (kitBundleInput). It extends the step anatomy every step already carries (when, do, done_when, if_missing, why, good_answer, came_from, part_of) from one step to the whole item, so a person starts running the item instead of being told how. read-data/kit-problems.mjs reads `rules` below; test/every-item-has-its-kit.test.mjs and the push gate (`npm run check-kits` runs the same check) refuse an item with no kit, or with a kit that misses a part. test/items-without-a-kit.json names the items that shipped before kits; it may only shrink. rules.refuse_changed_items, when true, also refuses a push that changes an item still on that list (a tool folder's files, a workflow's recipe) until the item has its kit, so touching an old item ends its exemption; it is false until the people who run the landings turn it on.",
   "parts": [
     { "part": "start_here", "holds": "One paragraph: the first thing the person says to their AI to run this item now, with real values, not a description of the item." },
     { "part": "lists", "holds": "Every list the item reads or writes (every list:<id> its steps name), each with its row type, what it holds, its fields, at least two example rows filled in, and the names of lists people already keep that do 80-100% of the same job (alike)." },
@@ -10,6 +10,7 @@
     { "part": "pour", "holds": "How the example rows go into a list the person already has that does 80-100% of the same job: the pour tool, the least share of fields that must match, and one filled-in example." }
   ],
   "rules": {
+    "refuse_changed_items": false,
     "least_example_rows": 2,
     "least_instructions": 3,
     "least_worked_examples": 1,
