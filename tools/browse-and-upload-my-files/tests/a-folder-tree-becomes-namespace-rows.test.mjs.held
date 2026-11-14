@@ -1,0 +1,100 @@
+// packages/live-namespace/tests/a-folder-tree-becomes-namespace-rows.test.mjs
+//
+// The end-to-end claim this lane rests on: bytes sitting under a root become addressable namespace
+// records with no step in between that a human performs. Every existing proof starts from a
+// tab-separated table someone already produced, so the half where a real tree becomes rows had
+// never been exercised against the real publisher.
+//
+// Nothing is mocked between the two owners. A temporary directory is written, walked and hashed by
+// `local-files`, and the rows are handed to `live-namespace`'s publisher exactly as a card or a
+// drive would be. The point is that the seam needs no adapter: the reader's row IS the shaper's
+// row, and if either side renames a field this fails rather than publishing rows that address
+// nothing.
+
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import test from "node:test";
+
+import { namesAndContentIdentitiesFromAFolderTree } from "../../local-files/read-data/names-and-content-identities-from-a-folder-tree.mjs";
+import { publishNamespaceRecords } from "../do-work/publish-namespace-records.mjs";
+
+const sha256Of = (text) => createHash("sha256").update(text).digest("hex");
+
+function cardWith(files) {
+  const root = mkdtempSync(path.join(tmpdir(), "attached-volume-"));
+  for (const [relative, contents] of Object.entries(files)) {
+    const absolute = path.join(root, relative);
+    mkdirSync(path.dirname(absolute), { recursive: true });
+    writeFileSync(absolute, contents);
+  }
+  return root;
+}
+
+test("A FOLDER TREE BECOMES ADDRESSABLE NAMESPACE ROWS with no hand-made table in between", async () => {
+  // Shaped like what a camera actually leaves: a media folder, a sidecar, and one noise entry the
+  // caller chooses to leave out. No part of either owner knows it is a camera.
+  const root = cardWith({
+    "DCIM/100/A0001.MP4": "first clip",
+    "DCIM/100/A0002.MP4": "second clip",
+    "DCIM/100/A0001.XML": "sidecar",
+    ".DS_Store": "noise",
+  });
+
+  const written = [];
+  await publishNamespaceRecords({
+    openRows: () => namesAndContentIdentitiesFromAFolderTree(root, {
+      skipEntry: ({ name }) => name === ".DS_Store",
+    }),
+    partitionLabel: "trillion",
+    nameRootAbsolutePath: root,
+    readTargetName: "local.files",
+    buildReadRequest: (row) => ({ operation: "read_file_range", path: row.storedPath }),
+    readReplyContract: { response_bytes_pointer: "/files/0/bytes_base64", response_encoding: "base64" },
+    writeBatch: async (batch) => { written.push(...batch); },
+  });
+
+  const locators = written.filter((entry) => entry.payload?.kind === "live-namespace.locator");
+  const names = written.filter((entry) => entry.payload?.kind === "live-namespace.name");
+
+  // Three files, three identities, three names. The noise entry the caller excluded is absent, and
+  // its absence is the caller's decision rather than either owner's opinion.
+  assert.equal(names.length, 3);
+  assert.equal(locators.length, 3);
+  assert.ok(!written.some((entry) => JSON.stringify(entry).includes("DS_Store")));
+
+  // The locator points at the bytes that are actually there, by the identity actually computed.
+  const first = locators.find((entry) => entry.payload.request.path.endsWith("A0001.MP4"));
+  assert.ok(first, "no locator addressed the first clip");
+  assert.equal(first.payload.target, "local.files");
+  assert.ok(
+    first.address_label.includes(sha256Of("first clip")),
+    "the locator is not addressed by the bytes' own identity",
+  );
+});
+
+test("TWO NAMES FOR IDENTICAL BYTES PUBLISH ONE IDENTITY, because identity to bytes is one to one", async () => {
+  // A card routinely carries the same clip twice, and the Expansion corpus had 19,177 duplicate
+  // contents across distinct names. The walk yields both names; the shaper must not write the
+  // locator twice, because a second locator for the same identity is a second answer to a question
+  // that has one.
+  const root = cardWith({ "DCIM/a.mp4": "same bytes", "BACKUP/b.mp4": "same bytes" });
+
+  const written = [];
+  await publishNamespaceRecords({
+    openRows: () => namesAndContentIdentitiesFromAFolderTree(root),
+    partitionLabel: "trillion",
+    nameRootAbsolutePath: root,
+    readTargetName: "local.files",
+    buildReadRequest: (row) => ({ operation: "read_file_range", path: row.storedPath }),
+    readReplyContract: { response_bytes_pointer: "/files/0/bytes_base64", response_encoding: "base64" },
+    writeBatch: async (batch) => { written.push(...batch); },
+  });
+
+  const locators = written.filter((entry) => entry.payload?.kind === "live-namespace.locator");
+  const names = written.filter((entry) => entry.payload?.kind === "live-namespace.name");
+  assert.equal(names.length, 2, "both names must be addressable");
+  assert.equal(locators.length, 1, "one identity, one locator");
+});

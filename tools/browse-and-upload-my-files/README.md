@@ -16,3 +16,7 @@ the person browses, searches and uploads them.
 | `show/files-mount.tsx` | The screen's module entry, the file its row names: `mount` is the screen's own mount function. |
 | `moved-from.json` | Where each moved file came from, with the identity of its bytes there and here |
 | `README.md` | This file |
+
+## The original package files (prepared restore)
+
+`from-bitfield-packages/moved-from.json`: from bitfield-packages `packages/live-namespace`, the ten pure modules under `read-data/` (locator and name records from a table of names and identities, materialization facts from verified pages, capability edges, operation-pair cases and outcomes, the identical-snapshot A/B plan, the corpus reconcile, residual read demand, identity-to-bytes, expected-current from a content hash), their tests, the publish and reconcile runners under `do-work/`, and the package README (`from-bitfield-packages/live-namespace-README.md`: the locator and name record shapes). The package's own copies of `namespace-client.mjs`, `send-a-file-to-a-namespace.mjs`, `send-a-folder-to-a-namespace.mjs` and `upload-a-folder.mjs` are not carried: this folder holds newer evolved copies. Held: the five key-handling scripts (`vault-control`, `attach-a-store-key-to-a-namespace`, `copy-identities-to-a-namespace-origin`, `free-drive-copies-kept-in-a-namespace`, `move-files-between-namespace-origins`) use the retired vault door; eight tests read the package boundary file, which is not carried.

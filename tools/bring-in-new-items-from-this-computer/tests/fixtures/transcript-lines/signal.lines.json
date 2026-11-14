@@ -1,0 +1,16 @@
+[
+  {
+    "type": "assistant",
+    "role": "assistant",
+    "timestamp": "2023-07-22T04:26:40Z",
+    "content": "who is cooking dinner?",
+    "atomRef": "atom:1f:d37d1203f8c26d3f37d1908d6c67d2cc90bda603d4035482ceb9244b6157daaf"
+  },
+  {
+    "type": "user",
+    "role": "human",
+    "timestamp": "2023-07-22T04:26:45Z",
+    "content": "i got it",
+    "atomRef": "atom:1f:0ab9d62e004b33a6da8a5a69d51e60936c29eceb8175fb59814201e4bd7338aa"
+  }
+]

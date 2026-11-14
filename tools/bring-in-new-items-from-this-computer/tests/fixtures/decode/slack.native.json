@@ -1,0 +1,13 @@
+{
+  "self_id": "UME",
+  "channels": [
+    {
+      "id": "C1",
+      "name": "general",
+      "messages": [
+        {"user": "U2", "text": "hey team, standup in 5", "ts": "1690000000.000100", "user_profile": {"real_name": "Alice"}},
+        {"user": "UME", "text": "on my way", "ts": "1690000005.000100"}
+      ]
+    }
+  ]
+}

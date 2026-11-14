@@ -1,0 +1,153 @@
+import { describe, expect, it, vi } from 'vitest';
+
+vi.mock('@bitfield/runtime-kit', async (importOriginal) => ({
+  // The trusted partition reader is the code under test's real owner, never a stub.
+  ...await importOriginal<typeof import('@bitfield/runtime-kit')>(),
+  sendRequestToBitfieldTarget: vi.fn(),
+}));
+vi.mock('@bitfield/runtime-kit/protocol', () => ({
+  buildEngineReadCurrentRequestFromLabels: (_partition: string, address: string) => ({ target: 'test.read-current', payload: { address } }),
+  decodeEngineReadCurrentReply: (reply: unknown) => reply,
+}));
+
+import { migrateStaticProjectionItemsTarget } from './migrate-static-projection-items';
+
+const encoder = new TextEncoder();
+const canonicalChildBinding = { $kind: 'binding', select: { from: 'literal', value: true } };
+const context = { runtime: { partition_label: 'trillion-community' } };
+const sourceAddress = 'tenant::trillion-community::published-record::placeable-surface::community';
+const declaredMigrationConstraint = {
+  source_address_label: sourceAddress,
+  allowed_scope_refs: ['community:trillion-community', 'community:introductions'],
+  historical_created_at: true,
+  child_admission: {
+    predicate_ref: 'predicate:privileged-server-capability',
+    predicate_binding: canonicalChildBinding,
+    context: { transport_capability_verified: true },
+  },
+};
+const sourceBasis = 'AQID';
+const projection = {
+  kind: 'placeable-surface',
+  surface_input: {
+    scoped_group_pages: [{ group_ref: 'community:trillion-community' }],
+    scoped_group_page_items: [
+      { item_ref: 'post:welcome', target_ref: 'community:trillion-community', created_at: '2026-08-18T16:00:00.000Z', fields: { kind: 'post', body: 'Welcome' } },
+    ],
+    scoped_subject_surfaces: [{ payload: {
+      kind: 'placeable-surface',
+      surface_input: {
+        scoped_group_pages: [{ group_ref: 'community:introductions' }],
+        scoped_group_page_items: [
+          { item_ref: 'post:intro', target_ref: 'community:introductions', created_at: '2026-08-23T15:00:00.000Z', fields: { kind: 'post', body: 'Introduce yourself' } },
+        ],
+      },
+    } }],
+  },
+};
+const decision = {
+  kind: 'access-decision',
+  decision: 'allow', decision_proof: 'decision:migration', actor_ref: 'actor:operator', session_ref: 'session:operator',
+  subject_ref: 'community:trillion-community', action_ref: 'group-page.migrate-static-projection-items',
+  authorized_action_refs: ['group-page.migrate-static-projection-items'], predicate_ref: 'predicate:operator',
+  revisions: { session_revision: 'session:1', policy_revision: 'policy:1', membership_revision: 'membership:1', resource_revision: sourceBasis },
+  constraints: { static_projection_migration: structuredClone(declaredMigrationConstraint) },
+};
+const request = {
+  payload: { source_basis: sourceBasis, idempotency_ref: 'migration:commercial-community' },
+  ambient_actor: { actor_ref: decision.actor_ref, session_ref: decision.session_ref, session_revision: decision.revisions.session_revision },
+  access_decision: decision,
+};
+
+function sourceReply(value = projection, basis = new Uint8Array([1, 2, 3])) {
+  return Object.assign(new Uint8Array(), { found: true, payload: encoder.encode(JSON.stringify(value)), payloadHash: basis });
+}
+
+function migrationSender(options: { source?: unknown; conflict?: boolean; race?: boolean; durableDecision?: any } = {}) {
+  const rows = new Map<string, any>();
+  rows.set('community:trillion-community|community:trillion-community|post:existing', {
+    item_ref: 'post:existing', scope_ref: 'community:trillion-community', target_ref: 'community:trillion-community', created_at: '2026-08-01T00:00:00.000Z', fields: { kind: 'post', body: 'Existing' }, revision: 1,
+  });
+  const receipts = new Set<string>();
+  let sourceReads = 0;
+  const sender = vi.fn(async (raw: any) => {
+    if (raw.target === 'access-rule.verify-decision') return { verified: true, decision: options.durableDecision ?? decision };
+    if (raw.target === 'test.read-current') {
+      sourceReads += 1;
+      return sourceReply(options.source ?? projection, options.race && sourceReads > 1 ? new Uint8Array([9]) : new Uint8Array([1, 2, 3]));
+    }
+    if (raw.target === 'access-rule.evaluate') {
+      const bindingIsCanonical = JSON.stringify(raw.payload.predicate_binding) === JSON.stringify(canonicalChildBinding);
+      return { ...decision, decision: bindingIsCanonical ? 'allow' : 'deny', decision_proof: `decision:${raw.payload.subject_ref}`, subject_ref: raw.payload.subject_ref, action_ref: raw.payload.action_ref, authorized_action_refs: raw.payload.authorized_action_refs, constraints: raw.payload.constraints, revisions: raw.payload.revisions };
+    }
+    const envelope = raw.payload; const payload = envelope.payload; const scopeRef = payload.scope_ref;
+    if (raw.target === 'item-record.read-space-items') return { status: 'accepted', rows: [...rows.values()].filter((row) => row.scope_ref === scopeRef) };
+    if (raw.target === 'item-record.record-space-items') {
+      if (options.conflict) return { status: 'conflict', conflict: true, receipts: [], rows: [] };
+      const ownerReceipts = payload.mutations.map((mutation: any) => {
+        const key = `${scopeRef}|${mutation.target_ref}|${mutation.item_ref}`;
+        const replay = receipts.has(mutation.idempotency_ref);
+        const row = rows.get(key) ?? { item_ref: mutation.item_ref, scope_ref: scopeRef, target_ref: mutation.target_ref, created_at: mutation.created_at, fields: mutation.fields, revision: 1 };
+        rows.set(key, row); receipts.add(mutation.idempotency_ref);
+        return { status: 'accepted', item_ref: mutation.item_ref, target_ref: mutation.target_ref, idempotency_ref: mutation.idempotency_ref, replay, row };
+      });
+      return { status: 'accepted', conflict: false, receipts: ownerReceipts, rows: [...rows.values()].filter((row) => row.scope_ref === scopeRef) };
+    }
+    throw new Error(`unexpected target ${raw.target}`);
+  });
+  return { sender, rows };
+}
+
+describe('group-page static projection migration owner', () => {
+  it('preserves identity, historical time, receipts, replay, and existing index members', async () => {
+    const { sender, rows } = migrationSender();
+    const result = await migrateStaticProjectionItemsTarget(request, context, sender);
+    expect(result).toMatchObject({ status: 'accepted', source_basis: sourceBasis, replay_no_duplicate: true, destination_verified: true });
+    expect(result.source_census).toEqual(result.destination_census);
+    expect(result.removal).toMatchObject({ source_address_label: sourceAddress, expected_payload_hash_base64: sourceBasis });
+    expect(JSON.stringify(result.removal.replacement_projection)).not.toContain('scoped_group_page_items');
+    expect(rows.get('community:trillion-community|community:trillion-community|post:welcome')).toMatchObject({ created_at: '2026-08-18T16:00:00.000Z', fields: { body: 'Welcome' } });
+    expect(rows.has('community:trillion-community|community:trillion-community|post:existing')).toBe(true);
+    expect(sender.mock.calls.filter(([call]) => call.target === 'item-record.record-space-items')).toHaveLength(4);
+    const childRequests = sender.mock.calls.filter(([call]) => call.target === 'access-rule.evaluate').map(([call]) => call.payload);
+    expect(childRequests).toHaveLength(2);
+    expect(childRequests.every((child) => JSON.stringify(child.predicate_binding) === JSON.stringify(canonicalChildBinding))).toBe(true);
+  });
+
+  it('rejects an empty protected source before any owner mutation', async () => {
+    const { sender } = migrationSender({ source: { kind: 'placeable-surface', surface_input: {} } });
+    await expect(migrateStaticProjectionItemsTarget(request, context, sender)).rejects.toThrow('must be non-empty');
+    expect(sender.mock.calls.some(([call]) => call.target === 'item-record.record-space-items')).toBe(false);
+  });
+
+  it('rejects item-owner conflict and never returns removal authority', async () => {
+    const { sender } = migrationSender({ conflict: true });
+    await expect(migrateStaticProjectionItemsTarget(request, context, sender)).rejects.toThrow('incomplete or conflicted');
+  });
+
+  it('rejects a source-basis race after destination verification', async () => {
+    const { sender } = migrationSender({ race: true });
+    await expect(migrateStaticProjectionItemsTarget(request, context, sender)).rejects.toThrow('basis changed before removal');
+  });
+
+  it('rejects any protected child scope outside the admitted constraint', async () => {
+    const hostile = structuredClone(projection);
+    hostile.surface_input.scoped_subject_surfaces[0].payload.surface_input.scoped_group_pages[0].group_ref = 'community:other';
+    const { sender } = migrationSender({ source: hostile });
+    await expect(migrateStaticProjectionItemsTarget(request, context, sender)).rejects.toThrow('unexpected scope');
+  });
+
+  it('is owner-to-owner only and rejects an ordinary community decision before source read', async () => {
+    const { sender } = migrationSender();
+    await expect(migrateStaticProjectionItemsTarget({ ...request, access_decision: { ...decision, action_ref: 'group-page.read-projection' } }, context, sender)).rejects.toThrow('current server migration admission');
+    expect(sender).not.toHaveBeenCalled();
+  });
+
+  it('rejects an untyped child binding before any item owner mutation', async () => {
+    const malformedDecision = structuredClone(decision);
+    delete malformedDecision.constraints.static_projection_migration.child_admission.predicate_binding.$kind;
+    const { sender } = migrationSender({ durableDecision: malformedDecision });
+    await expect(migrateStaticProjectionItemsTarget(request, context, sender)).rejects.toThrow('current child-scope migration decision is required');
+    expect(sender.mock.calls.some(([call]) => call.target === 'item-record.record-space-items')).toBe(false);
+  });
+});

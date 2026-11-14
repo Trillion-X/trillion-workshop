@@ -1,0 +1,60 @@
+import { describe, expect, it, vi } from 'vitest';
+
+vi.mock('@bitfield/runtime-kit', () => ({ sendRequestToBitfieldTarget: vi.fn() }));
+import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
+import { readGroupPosts, shareGroupItemTarget } from './create-group-post';
+
+const context = { runtime: { partition_label: 'tribes' } };
+const decision = { kind: 'access-decision/v1', decision: 'allow', decision_proof: 'decision:share', actor_ref: 'actor:a', session_ref: 'session:a', subject_ref: 'group:one', action_ref: 'group-page.share-item', authorized_action_refs: ['group-page.share-item', 'subject-participant.read-subject-participants', 'item-record.record-space-items', 'item-record.read-space-items'], predicate_ref: 'predicate:authenticated-session', revisions: { membership_revision: 'm1', policy_revision: 'p1', resource_revision: '0', session_revision: 's1' } };
+const request = { payload: { subject_ref: 'group:one', fields: { kind: 'comment', body: 'Hello', future: { opaque: true } }, expected_revision: 0, idempotency_ref: 'share:one' }, ambient_actor: { actor_ref: 'actor:a', session_ref: 'session:a', session_revision: 's1' }, access_decision: decision };
+
+describe('share group item doorway', () => {
+  it('binds returning-member reads to a stable scalar resource revision', async () => {
+    vi.mocked(sendRequestToBitfieldTarget).mockResolvedValueOnce({ status: 'accepted', rows: [] });
+    await readGroupPosts('group:one');
+    expect(sendRequestToBitfieldTarget).toHaveBeenCalledWith({
+      target: 'group-page.share-item',
+      payload: { subject_ref: 'group:one', operation: 'read-items', expected_revision: 0, idempotency_ref: 'read-items:group:one' },
+    });
+  });
+
+  it('writes opaque fields through the item owner, reads back, and admits an accepted event', async () => {
+    const calls: Array<{ target: string; payload: any }> = []; const row = { kind: 'item-record.row/v1', item_ref: 'group-item:share:one', target_ref: 'group:one', actor_ref: 'actor:a', revision: 1, fields: request.payload.fields, updated_at: '2026-07-31T00:00:00.000Z' };
+    const send = async (raw: unknown) => { const value = raw as { target: string; payload: any }; calls.push(value); if (value.target === 'access-rule.verify-decision') return { verified: true, decision }; if (value.target === 'subject-participant.read-subject-participants') return { status: 'accepted', rows: [{ participation_ref: 'participant:actor:a', actor_ref: 'actor:a', removed: false }] }; if (value.target === 'item-record.record-space-items') return { status: 'accepted', replay: false, rows: [row] }; if (value.target === 'item-record.read-space-items') return { status: 'accepted', rows: [row] }; if (value.target === 'signed-event-author.sign-event') return { payload: value.payload.payload, proof: { signature_hex: 'proof' } }; if (value.target === 'signed-event-authority.admit-event') { const event = value.payload.body.events[0]; return { evaluation: { event_hashes: { [event.payload.event_id]: 'hash:share' } } }; } if (value.target === 'slot::workflow') return { output: { status: 'accepted' } }; throw new Error(`unexpected ${value.target}`); };
+    const result = await shareGroupItemTarget(request, context, send);
+    expect(result).toMatchObject({ status: 'accepted', item_ref: 'group-item:share:one', revision: 1, event_hash: 'hash:share' });
+    const write = calls.find((call) => call.target === 'item-record.record-space-items')!;
+    expect(write.payload.payload.mutations[0]).toMatchObject({ item_ref: 'group-item:share:one', target_ref: 'group:one', fields: request.payload.fields });
+    for (const target of ['subject-participant.read-subject-participants', 'item-record.record-space-items', 'item-record.read-space-items']) {
+      expect(calls.find((call) => call.target === target)?.payload).toMatchObject({
+        ambient_actor: { actor_ref: 'actor:a', session_ref: 'session:a', session_revision: 's1' },
+        access_decision: decision,
+      });
+    }
+    expect(JSON.stringify(write)).not.toContain('actor:local');
+    expect(calls.find((call) => call.target === 'slot::workflow')?.payload).toMatchObject({ definition_id: 'action:owner-action-event-log.record-owner-action-event', input: { canonical_hash: 'hash:share' } });
+  });
+
+  it('rejects caller-selected identity, owner target, event, actor, and time', async () => {
+    const send = async (raw: unknown) => (raw as { target: string }).target === 'access-rule.verify-decision' ? { verified: true, decision } : (() => { throw new Error('mutation must not run'); })();
+    for (const forbidden of [{ actor_ref: 'spoof' }, { item_ref: 'spoof' }, { target_ref: 'spoof' }, { owner_target: 'spoof' }, { event: {} }, { created_at: 'spoof' }]) {
+      await expect(shareGroupItemTarget({ ...request, payload: { ...request.payload, ...forbidden } }, context, send)).rejects.toThrow(/derives actor/);
+    }
+  });
+
+  it('does not write when the admitted actor has no current subject participation', async () => {
+    const calls: string[] = [];
+    const send = async (raw: unknown) => { const value = raw as { target: string }; calls.push(value.target); if (value.target === 'access-rule.verify-decision') return { verified: true, decision }; if (value.target === 'subject-participant.read-subject-participants') return { status: 'accepted', rows: [] }; throw new Error('mutation must not run'); };
+    await expect(shareGroupItemTarget(request, context, send)).rejects.toThrow(/participation is required/);
+    expect(calls).not.toContain('item-record.record-space-items');
+  });
+
+  it('reads the durable owner scope index for a returning member without writing', async () => {
+    const calls: Array<{ target: string; payload: any }> = []; const rows = [{ item_ref: 'group-item:one', target_ref: 'group:one', fields: { body: 'Still here' } }];
+    const send = async (raw: unknown) => { const value = raw as { target: string; payload: any }; calls.push(value); if (value.target === 'access-rule.verify-decision') return { verified: true, decision }; if (value.target === 'subject-participant.read-subject-participants') return { status: 'accepted', rows: [{ participation_ref: 'participant:actor:a', actor_ref: 'actor:a', removed: false }] }; if (value.target === 'item-record.read-space-items') return { status: 'accepted', rows }; throw new Error(`unexpected ${value.target}`); };
+    const result = await shareGroupItemTarget({ ...request, payload: { subject_ref: 'group:one', operation: 'read-items' } }, context, send);
+    expect(result).toEqual({ status: 'accepted', rows });
+    expect(calls.find((call) => call.target === 'item-record.read-space-items')?.payload.payload).toEqual({ scope_ref: 'group:one', list_scope: true });
+    expect(calls.some((call) => call.target === 'item-record.record-space-items')).toBe(false);
+  });
+});

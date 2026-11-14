@@ -1,0 +1,110 @@
+import { describe, expect, it, vi } from 'vitest';
+
+vi.mock('@bitfield/runtime-kit', () => ({ sendRequestToBitfieldTarget: vi.fn() }));
+vi.mock('@bitfield/slot-protocol', () => ({
+  makeMultihashEncodedBytesFromCodeHex: () => new Uint8Array([1, 2, 3]),
+}));
+vi.mock('@bitfield/runtime-kit/protocol', () => ({
+  buildEngineReadCurrentRequestFromLabels: (_partition: string, address: string) => ({ target: 'read', payload: { address } }),
+  buildEngineWriteBatchRequestFromLabels: (writes: unknown[]) => ({ target: 'write', payload: writes }),
+  makeHashCodeHexFromBytes: () => `1f:${'00'.repeat(32)}`,
+  decodeEngineReadCurrentReply: (bytes: Uint8Array) => {
+    const value = JSON.parse(new TextDecoder().decode(bytes));
+    return value.found
+      ? { found: true, payload: new TextEncoder().encode(JSON.stringify(value.record)) }
+      : { found: false };
+  },
+}));
+
+import { acceptEvaluationTarget } from '@/packages/learning-progress/do-work/accept-evaluation-target';
+import type { ProgressEvaluationReceiptRecord } from '@/packages/learning-progress/read-data/learning-progress-types';
+
+const encoder = new TextEncoder();
+
+function receipt(overrides: Partial<ProgressEvaluationReceiptRecord> = {}): ProgressEvaluationReceiptRecord {
+  return {
+    kind: 'progress-evaluation-receipt',
+    evaluationId: 'evaluation:1',
+    learnerId: 'learner:1',
+    trackId: 'track:1',
+    stepId: 'step:1',
+    evidenceRefs: ['evidence:1'],
+    measureFactRef: 'measure-fact:1',
+    measureDefinitionRef: 'measure-definition:1',
+    decisionKey: 'complete',
+    decision: { completed: true, nextStepId: 'step:2' },
+    score: 0.8,
+    confidence: 0.9,
+    provenance: { evaluator: 'progression-evaluator', revision: 2 },
+    evaluatedAt: '2026-07-31T12:00:00.000Z',
+    ...overrides,
+  };
+}
+
+function engine() {
+  const store = new Map<string, unknown>();
+  const sender = vi.fn(async (request: { target: string; payload: unknown }) => {
+    if (request.target === 'read') {
+      const address = (request.payload as { address: string }).address;
+      const found = store.has(address);
+      return { payload: encoder.encode(JSON.stringify(found ? { found, record: store.get(address) } : { found })) };
+    }
+    for (const write of request.payload as Array<{ addressLabel: string; payloadBytes: Uint8Array }>) {
+      store.set(write.addressLabel, JSON.parse(new TextDecoder().decode(write.payloadBytes)));
+    }
+    return { payload: new Uint8Array() };
+  });
+  return { sender, store };
+}
+
+describe('acceptEvaluationTarget', () => {
+  it('writes an immutable receipt and derives completed progress with readback', async () => {
+    const { sender, store } = engine();
+    const result = await acceptEvaluationTarget({ partition_label: 'tribes', expected_state_revision: 0, receipt: receipt() }, undefined, sender as never);
+
+    expect(result).toMatchObject({ accepted: true, revision: 1, decision_key: 'complete' });
+    expect(store.get(result.receipt_ref)).toMatchObject({ kind: 'progress-evaluation-receipt', evaluationId: 'evaluation:1' });
+    expect(store.get(result.state_ref)).toMatchObject({
+      kind: 'progress-state',
+      revision: 1,
+      currentStepId: 'step:2',
+      completedStepIds: ['step:1'],
+      evaluationReceiptRefs: [result.receipt_ref],
+    });
+  });
+
+  it('does not complete a step when the evaluator decision is false', async () => {
+    const { sender, store } = engine();
+    const result = await acceptEvaluationTarget({
+      partition_label: 'tribes',
+      expected_state_revision: 0,
+      receipt: receipt({ decisionKey: 'mastered-label-cannot-unlock', decision: { completed: false } }),
+    }, undefined, sender as never);
+
+    expect(store.get(result.state_ref)).toMatchObject({ completedStepIds: [] });
+  });
+
+  it('is idempotent for identical receipts and fails closed for conflicts', async () => {
+    const { sender } = engine();
+    const request = { partition_label: 'tribes', expected_state_revision: 0, receipt: receipt() };
+    const first = await acceptEvaluationTarget(request, undefined, sender as never);
+    const writeCount = sender.mock.calls.filter(([call]) => (call as { target: string }).target === 'write').length;
+    await expect(acceptEvaluationTarget(request, undefined, sender as never)).resolves.toMatchObject({
+      receipt_ref: first.receipt_ref,
+      idempotent: true,
+    });
+    await expect(acceptEvaluationTarget({ ...request, receipt: receipt({ score: 0.7 }) }, undefined, sender as never))
+      .rejects.toThrow(/receipt conflict/);
+    expect(sender.mock.calls.filter(([call]) => (call as { target: string }).target === 'write')).toHaveLength(writeCount);
+  });
+
+  it('rejects stale revisions and invalid confidence before any write', async () => {
+    const { sender } = engine();
+    await acceptEvaluationTarget({ partition_label: 'tribes', expected_state_revision: 0, receipt: receipt() }, undefined, sender as never);
+    const second = receipt({ evaluationId: 'evaluation:2' });
+    await expect(acceptEvaluationTarget({ partition_label: 'tribes', expected_state_revision: 0, receipt: second }, undefined, sender as never))
+      .rejects.toThrow(/revision conflict/);
+    await expect(acceptEvaluationTarget({ partition_label: 'tribes', expected_state_revision: 1, receipt: receipt({ evaluationId: 'evaluation:3', confidence: 2 }) }, undefined, sender as never))
+      .rejects.toThrow(/confidence/);
+  });
+});

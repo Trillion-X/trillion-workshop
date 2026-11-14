@@ -27,6 +27,13 @@
       "source_identity": "1f:bd04219165f8e26b7f2d85147d3599a4498b300dd189a44610ed6da62b2b6df6",
       "identity_at_move": "1f:bd04219165f8e26b7f2d85147d3599a4498b300dd189a44610ed6da62b2b6df6",
       "byte_copy_commit": "28ec870754eb4753750752d4c5497cc4a4a6c24f"
+    },
+    {
+      "from": "packages/file-classification/source/src/slot_work/classify_file.rs",
+      "commit": "448207c36a1326217a1ba0b2e0228e4baec6620d",
+      "to": "tools/show-any-file-as-itself/classify-file/src/classify_file.rs",
+      "source_identity": "1f:7ec408246de352365ac2be9415a6b3d2ce52834e44e2cec1ff333c943a93653a",
+      "identity": "1f:7ec408246de352365ac2be9415a6b3d2ce52834e44e2cec1ff333c943a93653a"
     }
   ],
   "not_carried": {

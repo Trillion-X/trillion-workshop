@@ -1,0 +1,198 @@
+// packages/live-namespace/tests/a-locator-can-name-a-remote-origin.test.mjs
+//
+// The package's whole claim is that bytes living somewhere other than this machine are ONE DATA
+// ROW, not new engine code. Every locator published so far names `local.files` and points at a
+// drive attached to this Mac, so the claim had never been exercised: an unexercised claim and a
+// false one look identical until someone writes the row.
+//
+// These tests build a locator for a REMOTE origin through the same shaper the local rows use, and
+// pin it against the two real contracts it must satisfy: the package's own locator record contract
+// and the wire shape `http-client` actually replies with. Nothing here reaches the network.
+//
+// ⛔ AN EARLIER DRAFT CLAIMED THE SHAPER "NEEDS NO CHANGE" AND THAT ONLY A PROVIDER CHOICE REMAINED.
+// That was false and the plan had already disproved it by attempting it (§11.7, 2026-09-03). The
+// shaper hardcodes the LOCAL range form, so it cannot express an HTTP origin's window at all. What
+// these tests actually establish is narrower and more useful: which parts genuinely are one
+// configuration (target, request, reply pointer, refusals, durability word) and exactly which part
+// is not (the range form). The last test holds that gap open rather than papering over it.
+
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import test from "node:test";
+import { fileURLToPath } from "node:url";
+
+import { namespaceRecordsFrom } from "../read-data/namespace-records-from-a-name-and-identity-table.mjs";
+import { publishNamespaceRecords } from "../do-work/publish-namespace-records.mjs";
+
+const HASH_A = "3300f2037090fbc433ce4f405d016aa949de441b1d7791c8aa0128361db7fedd";
+const packageRoot = fileURLToPath(new URL("..", import.meta.url));
+const LOCATOR_CONTRACT = JSON.parse(readFileSync(join(packageRoot, "things-to-store-and-run.json"), "utf8"))
+  .things.find((thing) => thing.address === "package::live-namespace::contract::locator").payload;
+
+// The reply shape is read off what http-client's OWN decoder accepts
+// (`do-work/process-scripts/decode-http-response.py`): a reply is `{status_code, body}`, and body
+// may arrive as `{base64: "..."}`. Writing the pointer from the consumer's source rather than
+// guessing is the difference between a locator that resolves and one that publishes cleanly and
+// answers 500 forever.
+const REMOTE_ORIGIN = "https://example-origin.invalid/objects";
+const remoteOptions = (overrides = {}) => ({
+  partitionLabel: "trillion",
+  nameRootAbsolutePath: "/Volumes/Expansion",
+  readTargetName: "http-client",
+  buildReadRequest: (row) => ({
+    operation: "query",
+    url: `${REMOTE_ORIGIN}/${row.sha256Hex}`,
+    method: "GET",
+    grant: "live-namespace-object-origin",
+  }),
+  readReplyContract: { response_bytes_pointer: "/body/base64", response_encoding: "base64" },
+  ...overrides,
+});
+
+const rows = [{ name: "a.mp4", sha256Hex: HASH_A, storedPath: "/All Files/33/00/a.mp4" }];
+
+test("EVERYTHING EXCEPT THE RANGE FORM IS ALREADY ONE CONFIGURATION for a remote origin", () => {
+  const [locator] = namespaceRecordsFrom(rows, remoteOptions()).locators.map((entry) => entry.payload);
+
+  // Same contract the local rows are held to, read off the contract row rather than remembered.
+  for (const field of LOCATOR_CONTRACT.required_fields) {
+    if (field === "byte_length") continue; // absent by design when the bytes were not measured
+    assert.ok(Object.hasOwn(locator, field), `remote locator is missing required field ${field}`);
+  }
+
+  assert.equal(locator.target, "http-client");
+  assert.equal(locator.request.url, `${REMOTE_ORIGIN}/${HASH_A}`);
+});
+
+const RANGE_RENDER = { target_path: ["headers", "Range"], template: "bytes={offset}-{end_inclusive}" };
+
+test("THE SHAPER SPELLS A REMOTE RANGE THE WAY THE PROTOCOL DOES, carrying the spelling without reading it", () => {
+  // A locator states its window in exactly ONE form. `range_keys` is `local.files`' two loose
+  // numeric keys; a source carrying its window as one formatted value declares `range_render`.
+  // The runner refuses at parse a row with neither or both, so the shaper emits one by
+  // construction rather than being checked afterwards for having emitted one.
+  const [locator] = namespaceRecordsFrom(
+    rows,
+    remoteOptions({ rangeRender: RANGE_RENDER, durability: "durable-at-origin" }),
+  ).locators.map((entry) => entry.payload);
+
+  assert.deepEqual(locator.range_render, RANGE_RENDER);
+  assert.equal(locator.range_keys, undefined);
+  assert.equal(locator.durability, "durable-at-origin");
+
+  // The split this rests on: the resolver owns the QUANTITIES a byte range has, the row owns how a
+  // protocol spells them. If `bytes=` ever appears in the shaper, that split has been lost and the
+  // next source spelling its window differently becomes a code change instead of a DATA row.
+  const shaperSource = readFileSync(
+    join(packageRoot, "read-data/namespace-records-from-a-name-and-identity-table.mjs"),
+    "utf8",
+  );
+  assert.ok(!shaperSource.includes("bytes="), "the shaper has learned a protocol's spelling; it must only carry one");
+});
+
+test("THE PUBLISHER FORWARDS THE REMOTE SPELLING, because a shaper option no publisher passes is unreachable", async () => {
+  // The shaper gaining an option is half a change. `publishNamespaceRecords` is what a real run
+  // calls, it names its options explicitly, and it REFUSES an option it does not recognise, so an
+  // unforwarded `rangeRender` would not have failed quietly here, it would have thrown. Both facts
+  // are worth pinning: the forwarding works, and the refusal that makes forwarding checkable works.
+  const written = [];
+  const emitted = await (async () => {
+    await publishNamespaceRecords({
+      openRows: () => (async function* () { yield* rows; })(),
+      partitionLabel: "p",
+      nameRootAbsolutePath: "/root",
+      readTargetName: "http-client",
+      buildReadRequest: (row) => ({ operation: "query", url: `${REMOTE_ORIGIN}/${row.sha256Hex}`, method: "GET" }),
+      readReplyContract: { response_bytes_pointer: "/body/base64", response_encoding: "base64" },
+      rangeRender: RANGE_RENDER,
+      durability: "durable-at-origin",
+      writeBatch: async (batch) => { written.push(...batch); },
+    });
+    return written.find((entry) => entry.payload?.kind === "live-namespace.locator");
+  })();
+
+  assert.ok(emitted, "the publisher wrote no locator at all");
+  assert.deepEqual(emitted.payload.range_render, RANGE_RENDER, "the remote spelling did not reach the record");
+  assert.equal(emitted.payload.range_keys, undefined);
+  assert.equal(emitted.payload.durability, "durable-at-origin");
+});
+
+test("A REMOTE ROW CANNOT SILENTLY CLAIM local-only, because survival is not a value to default", () => {
+  // `local-only` is true for a file on this machine and false about an origin. Defaulting it on the
+  // remote path would publish that false claim at exactly the moment it matters, so the remote
+  // caller states durability or is refused.
+  assert.throws(
+    () => namespaceRecordsFrom(rows, remoteOptions({ rangeRender: RANGE_RENDER })),
+    /durability is required when rangeRender is supplied/,
+  );
+});
+
+test("A MALFORMED RANGE SPELLING IS REFUSED HERE, not at parse time far from its cause", () => {
+  assert.throws(
+    () => namespaceRecordsFrom(rows, remoteOptions({ rangeRender: { target_path: [], template: "bytes={offset}-{end_inclusive}" }, durability: "durable-at-origin" })),
+    /target_path must be a non-empty array/,
+  );
+  assert.throws(
+    () => namespaceRecordsFrom(rows, remoteOptions({ rangeRender: { target_path: ["headers", "Range"] }, durability: "durable-at-origin" })),
+    /template is required/,
+  );
+});
+
+test("THE LOCAL PATH IS BYTE-IDENTICAL, because this change is additive to a live 75,869-row population", () => {
+  // 75,869 locators are already published against this shaper. Adding the remote spelling must not
+  // move a single byte of the form they were written in, so a caller that asks for nothing still
+  // gets exactly the local shape: `range_keys`, no `range_render`, and `local-only`.
+  //
+  // Held here rather than assumed, because the change that added the remote form is also the change
+  // that could have made every existing row's spelling optional. Making `range_keys` optional is
+  // precisely what once created the unbounded-read hole the runner now refuses at parse.
+  const [locator] = namespaceRecordsFrom(rows, remoteOptions()).locators.map((entry) => entry.payload);
+
+  assert.deepEqual(locator.range_keys, { offset: "offset", length: "length" });
+  assert.equal(locator.range_render, undefined);
+  assert.equal(locator.durability, "local-only");
+});
+
+test("THE REPLY CONTRACT IS READ OFF THE TARGET THAT ANSWERS, not off the target that was replaced", () => {
+  const [locator] = namespaceRecordsFrom(rows, remoteOptions()).locators.map((entry) => entry.payload);
+
+  // The local rows point at `/files/0/bytes_base64`, which is `local.files`' reply shape. Carrying
+  // that pointer onto an http-client row would publish cleanly and resolve to nothing, because the
+  // pointer describes a DIFFERENT target's envelope. Two targets, two pointers, one field.
+  assert.equal(locator.response_bytes_pointer, "/body/base64");
+  assert.equal(locator.response_encoding, "base64");
+  assert.notEqual(locator.response_bytes_pointer, "/files/0/bytes_base64");
+});
+
+test("THE 75,869-LOCATOR REFUSAL COVERS REMOTE TARGETS TOO, so the expensive lesson is not local-only", () => {
+  // The shaper refuses a locator that names a target without saying how it replies. That guard was
+  // written after 75,869 local rows published with 0 rejected and every read answering 500. A
+  // remote target is exactly where the same mistake would be most expensive, since the bytes are
+  // then unreachable rather than merely mis-addressed.
+  assert.throws(
+    () => namespaceRecordsFrom(rows, remoteOptions({ readReplyContract: undefined })),
+    /response_encoding is required/,
+  );
+  assert.throws(
+    () => namespaceRecordsFrom(rows, remoteOptions({ readReplyContract: { response_encoding: "base64" } })),
+    /response_bytes_pointer is required/,
+  );
+});
+
+test("A REMOTE ORIGIN HAS AN HONEST DURABILITY WORD ALREADY, so a cloud row never has to claim local-only", () => {
+  // `durable-at-origin` is in the contract's vocabulary and has never been used by any published
+  // row. Pinning it here means a cloud locator has a truthful state to write on the day one is
+  // published, rather than inheriting `local-only` from the shaper's local default and asserting
+  // something false about where the bytes survive.
+  assert.ok(
+    LOCATOR_CONTRACT.durability_vocabulary.includes("durable-at-origin"),
+    "the locator contract has no word for bytes that survive at a remote origin",
+  );
+
+  const [locator] = namespaceRecordsFrom(rows, remoteOptions()).locators.map((entry) => entry.payload);
+  // Stated rather than asserted-away: the shaper still writes the local default, because durability
+  // is a fact about the ORIGIN and no origin has been chosen. This test pins the gap so it is
+  // visible, and it is the one thing here that a provider decision changes.
+  assert.equal(locator.durability, "local-only");
+});

@@ -1,0 +1,86 @@
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const manifestPath = path.resolve(__dirname, "../things-to-store-and-run.json");
+
+let pass = 0;
+let fail = 0;
+
+function check(name, fn) {
+  try {
+    fn();
+    pass += 1;
+  } catch (error) {
+    fail += 1;
+    console.error(`FAIL ${name}: ${error.message}`);
+  }
+}
+
+const raw = fs.readFileSync(manifestPath, "utf8");
+let manifest;
+check("manifest parses as JSON", () => {
+  manifest = JSON.parse(raw);
+  assert.equal(manifest.package, "motion-comparison");
+  assert.ok(Array.isArray(manifest.things));
+});
+
+const actionThing = manifest?.things?.find(
+  (thing) => thing?.payload?.id === "action:motion-comparison.run-comparison",
+);
+const action = actionThing?.payload;
+
+check("run-comparison action exists", () => {
+  assert.ok(actionThing);
+  assert.equal(action.kind, "action");
+  assert.equal(action.name, "motion-comparison-run-comparison");
+});
+
+check("action has write, two compute asks, and loop", () => {
+  const steps = action.steps;
+  assert.ok(Array.isArray(steps));
+  assert.ok(steps.some((step) => step.kind === "write"));
+  assert.ok(steps.some((step) => step.kind === "loop"));
+  const computeAsks = steps.filter(
+    (step) => step.kind === "ask" && step.config?.name === "compute.process",
+  );
+  assert.equal(computeAsks.length, 2);
+});
+
+const computeAsks = action?.steps?.filter(
+  (step) => step.kind === "ask" && step.config?.name === "compute.process",
+) ?? [];
+const firstCompute = computeAsks[0]?.config?.input;
+const secondCompute = computeAsks[1]?.config?.input;
+
+check("first compute process invokes orchestrate.sh", () => {
+  assert.match(JSON.stringify(firstCompute?.argv ?? firstCompute), /orchestrate\.sh/);
+});
+
+check("second compute process invokes make-motion-comparison-records", () => {
+  assert.match(JSON.stringify(secondCompute?.argv ?? secondCompute), /make-motion-comparison-records/);
+});
+
+check("first compute process carries required env", () => {
+  const serialized = JSON.stringify(firstCompute);
+  // The DATA sets MATCH_VENDOR_ROOT and has for a while. This asserted JOINTBDOE_VENDOR, which the
+  // executed script mentions only in two COMMENTS and never reads, so the runtime was correct the
+  // whole time and only the check was behind. Worth the extra look before changing it: a test
+  // disagreeing with DATA is equally consistent with the DATA having drifted, and the way to tell
+  // them apart is to read what the script actually EXECUTES rather than what any file mentions.
+  assert.match(serialized, /MATCH_VENDOR_ROOT/);
+  assert.match(serialized, /PYTHONPATH/);
+});
+
+check("loop writes produced records", () => {
+  const loop = action.steps.find((step) => step.kind === "loop");
+  assert.equal(loop.config?.definition_id, "action:motion-comparison.publish-result");
+  assert.match(JSON.stringify(loop.config?.source), /records/);
+});
+
+console.log(`PASS=${pass} FAIL=${fail}`);
+if (fail > 0) {
+  process.exitCode = 1;
+}

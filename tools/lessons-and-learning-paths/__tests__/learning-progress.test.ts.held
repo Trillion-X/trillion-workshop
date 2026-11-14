@@ -1,0 +1,118 @@
+import React from 'react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
+import { useBitfieldData } from '@bitfield/runtime-kit/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { learningProgressViews, readLearningProgressState } from '@/packages/learning-progress/read-data/read-learning-progress';
+import { LearningProgressSurface } from '@/packages/learning-progress/show/LearningProgressSurface';
+
+vi.mock('@bitfield/runtime-kit', () => ({
+  sendRequestToBitfieldTarget: vi.fn(async () => ({ ok: true })),
+}));
+
+vi.mock('@bitfield/runtime-kit/react', () => ({
+  useBitfieldData: vi.fn(),
+}));
+
+const now = new Date('2026-06-20T12:00:00.000Z');
+
+function seededRows() {
+  return [
+    { payload: { kind: 'progress-track', trackId: 'track:decision', label: 'Decision Making', summary: 'Build better choices.' } },
+    { payload: { kind: 'progress-step', stepId: 'step:read', trackId: 'track:decision', label: 'Read the case', cue: 'Study the evidence first.', sortOrder: 1 } },
+    { payload: { kind: 'progress-step', stepId: 'step:choose', trackId: 'track:decision', label: 'Choose the move', cue: 'Pick the next action.', sortOrder: 2 } },
+    {
+      address: 'package::learning-progress::state::learner%3A1::track%3Adecision',
+      payload: {
+        kind: 'progress-state',
+        stateId: 'state:1',
+        trackId: 'track:decision',
+        learnerId: 'learner:1',
+        revision: 1,
+        currentStepId: 'step:choose',
+        completedStepIds: ['step:read'],
+        evaluationReceiptRefs: ['package::learning-progress::evaluation::evaluation%3A1'],
+        percent: 100,
+        status: 'mastered',
+        updatedAt: now.toISOString(),
+      },
+    },
+    {
+      address: 'package::learning-progress::evaluation::evaluation%3A1',
+      payload: {
+        kind: 'progress-evaluation-receipt',
+        evaluationId: 'evaluation:1',
+        learnerId: 'learner:1',
+        trackId: 'track:decision',
+        stepId: 'step:read',
+        evidenceRefs: ['evidence:1'],
+        measureFactRef: 'measure-fact:1',
+        measureDefinitionRef: 'measure-definition:1',
+        decisionKey: 'continue',
+        decision: { completed: true, nextStepId: 'step:choose' },
+        score: 0.8,
+        confidence: 0.9,
+        provenance: { evaluator: 'evaluator:1' },
+        evaluatedAt: now.toISOString(),
+      },
+    },
+    { payload: { kind: 'progress-presentation', key: 'continue', label: 'Keep building' } },
+    { payload: { kind: 'progress-evidence', evidenceId: 'evidence:1', learnerId: 'learner:1', trackId: 'track:decision', stepId: 'step:read', label: 'Practice result saved', createdAt: now.toISOString() } },
+  ];
+}
+
+describe('learning-progress', () => {
+  beforeEach(() => {
+    vi.mocked(sendRequestToBitfieldTarget).mockClear();
+    vi.mocked(useBitfieldData).mockReset();
+  });
+
+  afterEach(() => {
+    cleanup();
+  });
+
+  it('projects a generic current focus without domain-specific code', () => {
+    const view = learningProgressViews(readLearningProgressState(seededRows()), 'learner:1')[0];
+
+    expect(view?.currentStep?.label).toBe('Choose the move');
+    expect(view?.percent).toBe(50);
+    expect(view?.statusLabel).toBe('Keep building');
+    expect(view?.recentEvidence).toHaveLength(1);
+  });
+
+  it('ignores forged percent and status fields', () => {
+    const view = learningProgressViews(readLearningProgressState(seededRows()), 'learner:1')[0];
+
+    expect(view?.percent).toBe(50);
+    expect(view?.statusLabel).not.toBe('Mastered');
+  });
+
+  it('renders the next practice action through the package owner action', async () => {
+    vi.mocked(useBitfieldData).mockReturnValue(seededRows());
+
+    render(React.createElement(LearningProgressSurface, {
+      learnerId: 'learner:1',
+      practiceAction: { target: 'practice-owner.start', payload: { protocol_ref: 'protocol:1' } },
+    }));
+
+    expect(screen.getAllByText('Choose the move')).toHaveLength(2);
+    fireEvent.click(screen.getByRole('button', { name: 'Start next practice' }));
+
+    await waitFor(() => expect(sendRequestToBitfieldTarget).toHaveBeenCalledTimes(1));
+    expect(vi.mocked(sendRequestToBitfieldTarget).mock.calls[0]?.[0]).toMatchObject({
+      target: 'practice-owner.start',
+      payload: {
+        protocol_ref: 'protocol:1',
+        learner_id: 'learner:1',
+        track_id: 'track:decision',
+        step_id: 'step:choose',
+      },
+    });
+  });
+
+  it('keeps the source package generic', () => {
+    const text = JSON.stringify(seededRows());
+
+    expect(text).not.toMatch(/tennis|zz-name-one|forehand|tennis|zz-name-one|forehand|tennis|zz-name-one|forehand|duolingo|strategy tennis|zz-name-one|forehand/i);
+  });
+});

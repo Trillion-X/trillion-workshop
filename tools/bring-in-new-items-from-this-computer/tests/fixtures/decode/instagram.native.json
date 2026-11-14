@@ -1,0 +1,13 @@
+{
+  "self_pk": "9",
+  "threads": [
+    {
+      "thread_id": "t1",
+      "users": [{"pk": "5", "username": "cara"}, {"pk": "9", "username": "me"}],
+      "messages": [
+        {"item_id": "i1", "user_id": "5", "text": "did you see the reel?", "timestamp": 1690000000000000},
+        {"item_id": "i2", "user_id": "9", "text": "just watched it", "timestamp": 1690000005000000}
+      ]
+    }
+  ]
+}

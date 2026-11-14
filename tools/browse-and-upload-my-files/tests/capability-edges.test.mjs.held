@@ -1,0 +1,531 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import test from "node:test";
+import { fileURLToPath } from "node:url";
+
+import {
+  CAPABILITY_EDGE_SHAPE,
+  CapabilityEdgesError,
+  capabilityEdgesFromData,
+} from "../read-data/capability-edges.mjs";
+
+const packageRoot = fileURLToPath(new URL("..", import.meta.url));
+const RESOURCE_COUNTERS = [
+  "payload_bytes",
+  "cpu_time",
+  "resident_memory_bytes",
+  "page_cache",
+  "network_counters",
+  "wall_time",
+  "cancellations",
+];
+
+function immutableEdge(overrides = {}) {
+  return {
+    kind: "live-namespace.capability-edge",
+    edge_id: "direct-exact-read",
+    summary: "Read an exact immutable window.",
+    demand: {
+      subjectKind: "immutable-bytes",
+      range: "bounded-demand-window",
+    },
+    prerequisites: [
+      {
+        kind: "authorized-demand",
+        owner: "capability/access owners",
+        description: "Exact transfer authority exists.",
+      },
+    ],
+    execution: {
+      owner: "live-namespace.locator",
+      workflow_target: "engine.operation.read-cas-range",
+      mode: "on-demand",
+    },
+    outputs: [
+      { kind: "immutable-bytes", equality: "sha256-exact" },
+    ],
+    authority: {
+      required: ["exact-byte-transfer"],
+      prohibited: ["semantic-substitution"],
+    },
+    resources: {
+      measurement_method: "identical-snapshot-ab",
+      execution_admitted: false,
+      counters: RESOURCE_COUNTERS,
+    },
+    failure: {
+      mode: "fail-closed",
+      fallback_edge: null,
+      success_states: ["exact-window-or-explicit-unavailable"],
+    },
+    ...overrides,
+  };
+}
+
+function optimizedEdge(overrides = {}) {
+  return immutableEdge({
+    edge_id: "missing-range-read",
+    resources: {
+      measurement_method: "identical-snapshot-ab",
+      execution_admitted: false,
+      counters: RESOURCE_COUNTERS,
+      dispatch_budget: {
+        owner: "workflow admission",
+        required: RESOURCE_COUNTERS,
+        value_rule: "finite nonnegative upper bounds for every required counter are supplied per dispatch before work; absent, non-finite, or negative values refuse dispatch",
+      },
+    },
+    failure: {
+      mode: "fail-closed",
+      fallback_edge: "direct-exact-read",
+      success_states: ["exact-holes-and-complete-demand"],
+    },
+    ...overrides,
+  });
+}
+
+function input(edges) {
+  return {
+    schemaVersion: CAPABILITY_EDGE_SHAPE,
+    edges,
+  };
+}
+
+function manifest() {
+  return JSON.parse(readFileSync(join(packageRoot, "things-to-store-and-run.json"), "utf8"));
+}
+
+function dispatchBudget(overrides = {}) {
+  return {
+    owner: "workflow admission",
+    required: RESOURCE_COUNTERS,
+    value_rule: "finite nonnegative upper bounds for every required counter are supplied per dispatch before work; absent, non-finite, or negative values refuse dispatch",
+    ...overrides,
+  };
+}
+
+test("package DATA carries the generic contract and six executable alternatives", () => {
+  const data = manifest();
+  const contract = data.things.filter(
+    (thing) => thing.address === "package::live-namespace::contract::capability-edge",
+  );
+  assert.equal(contract.length, 1);
+  assert.equal(contract[0].payload.record_kind, "live-namespace.capability-edge");
+
+  const edges = data.things.filter((thing) => thing.address?.startsWith("package::live-namespace::capability-edge::"));
+  assert.deepEqual(
+    edges.map((edge) => edge.payload.edge_id).sort(),
+    [
+      "direct-exact-read",
+      "exact-delta-reconstruct",
+      "existing-exact-result",
+      "missing-range-read",
+      "receiver-cache-read",
+      "remote-compute-result",
+    ],
+  );
+  const result = capabilityEdgesFromData({
+    schemaVersion: CAPABILITY_EDGE_SHAPE,
+    edges: edges.map((edge) => edge.payload),
+  });
+  assert.equal(result.summary.normalized, 6);
+  assert.equal(result.summary.executionAdmitted, false);
+  assert.equal(result.directFallbackEdgeId, "direct-exact-read");
+  for (const edge of result.edges) {
+    assert.equal(edge.resources.measurementMethod, "identical-snapshot-ab");
+    assert.equal(edge.resources.executionAdmitted, false);
+    if (edge.edgeId === "direct-exact-read") {
+      assert.equal(edge.resources.dispatchBudget, null);
+    } else {
+      assert.equal(edge.resources.dispatchBudget.owner, "workflow admission");
+      assert.deepEqual(edge.resources.dispatchBudget.required, RESOURCE_COUNTERS);
+    }
+  }
+  assert.equal(
+    result.edges.find((edge) => edge.edgeId === "existing-exact-result").failure.fallbackEdge,
+    null,
+  );
+  assert.equal(
+    result.edges.find((edge) => edge.edgeId === "remote-compute-result").failure.fallbackEdge,
+    "existing-exact-result",
+  );
+});
+
+test("immutable-byte alternatives must output sha256-exact bytes and retain direct fallback", () => {
+  const result = capabilityEdgesFromData(input([
+    immutableEdge(),
+    optimizedEdge(),
+    optimizedEdge({ edge_id: "receiver-cache-read" }),
+  ]));
+  assert.deepEqual(result.edges.map((edge) => edge.edgeId), [
+    "direct-exact-read",
+    "missing-range-read",
+    "receiver-cache-read",
+  ]);
+  for (const edge of result.edges) {
+    if (edge.edgeId === "direct-exact-read") continue;
+    assert.equal(edge.failure.fallbackEdge, "direct-exact-read");
+  }
+});
+
+test("exact-result alternatives satisfy only the relation role observable", () => {
+  const resultEdge = {
+    kind: "live-namespace.capability-edge",
+    edge_id: "existing-exact-result",
+    summary: "Read a materialized result.",
+    demand: {
+      subjectKind: "exact-result",
+      observable: { source: "content-media.relation.record", field: "role_ref" },
+    },
+    prerequisites: [
+      { kind: "inventory", owner: "content-media-evidence", description: "Complete relation chain." },
+    ],
+    execution: {
+      owner: "content-media-evidence",
+      workflow_target: "content-media-evidence.read-guarded-artifact",
+      mode: "on-demand",
+    },
+    outputs: [
+      {
+        kind: "exact-result",
+        equality: "declared-observable-only",
+        observable: { source: "content-media.relation.record", field: "role_ref" },
+      },
+    ],
+    authority: {
+      required: ["artifact-read"],
+      prohibited: ["original-byte-substitution"],
+    },
+    resources: {
+      measurement_method: "identical-snapshot-ab",
+      execution_admitted: false,
+      counters: RESOURCE_COUNTERS,
+      dispatch_budget: dispatchBudget(),
+    },
+    failure: {
+      mode: "fail-closed",
+      fallback_edge: null,
+      success_states: ["declared-observable-only"],
+    },
+  };
+  const result = capabilityEdgesFromData(input([immutableEdge(), resultEdge]));
+  assert.equal(result.edges[1].outputs[0].equality, "declared-observable-only");
+
+  const hostileOutputs = [
+    [{ kind: "immutable-bytes", equality: "sha256-exact" }],
+    [{ kind: "exact-result", equality: "sha256-exact", observable: resultEdge.outputs[0].observable }],
+    [{ kind: "exact-result", equality: "declared-observable-only", observable: { source: "file.name", field: "name" } }],
+  ];
+  for (const outputs of hostileOutputs) {
+    assert.throws(
+      () => capabilityEdgesFromData(input([immutableEdge(), { ...resultEdge, outputs }])),
+      CapabilityEdgesError,
+    );
+  }
+});
+
+test("the direct edge is immutable and exact-result fallbacks stay type-compatible", () => {
+  const exactDemand = {
+    subjectKind: "exact-result",
+    observable: { source: "content-media.relation.record", field: "role_ref" },
+  };
+  const exactOutputs = [{
+    kind: "exact-result",
+    equality: "declared-observable-only",
+    observable: { source: "content-media.relation.record", field: "role_ref" },
+  }];
+  const malformedDirect = immutableEdge({
+    demand: exactDemand,
+    outputs: exactOutputs,
+  });
+  assert.throws(
+    () => capabilityEdgesFromData(input([malformedDirect])),
+    /direct-exact-read must remain an immutable-byte edge/,
+  );
+
+  const remoteResult = {
+    ...immutableEdge(),
+    edge_id: "remote-compute-result",
+    demand: exactDemand,
+    outputs: exactOutputs,
+    authority: {
+      required: ["artifact-read"],
+      prohibited: ["original-byte-substitution"],
+    },
+    resources: {
+      measurement_method: "identical-snapshot-ab",
+      execution_admitted: false,
+      counters: RESOURCE_COUNTERS,
+      dispatch_budget: dispatchBudget(),
+    },
+    failure: {
+      mode: "fail-closed",
+      fallback_edge: "direct-exact-read",
+      success_states: ["declared-observable-only"],
+    },
+  };
+  assert.throws(
+    () => capabilityEdgesFromData(input([immutableEdge(), remoteResult])),
+    /exact-result edge may fall back only/,
+  );
+
+  assert.throws(
+    () => capabilityEdgesFromData(input([
+      immutableEdge(),
+      {
+        ...remoteResult,
+        authority: { required: ["remote-compute"], prohibited: ["original-byte-substitution"] },
+        failure: { mode: "fail-closed", fallback_edge: null, success_states: ["declared-observable-only"] },
+      },
+    ])),
+    /exact-result edges require artifact-read authority/,
+  );
+
+  const existingResult = {
+    ...remoteResult,
+    edge_id: "existing-exact-result",
+    failure: {
+      mode: "fail-closed",
+      fallback_edge: null,
+      success_states: ["declared-observable-only"],
+    },
+  };
+  const admitted = capabilityEdgesFromData(input([
+    immutableEdge(),
+    existingResult,
+    { ...remoteResult, failure: { mode: "fail-closed", fallback_edge: "existing-exact-result", success_states: ["declared-observable-only"] } },
+  ]));
+  assert.equal(admitted.edges.at(-1).failure.fallbackEdge, "existing-exact-result");
+
+  const reorderedExisting = {
+    ...existingResult,
+    demand: {
+      subjectKind: "exact-result",
+      observable: { field: "role_ref", source: "content-media.relation.record" },
+    },
+    outputs: [{
+      observable: { field: "role_ref", source: "content-media.relation.record" },
+      equality: "declared-observable-only",
+      kind: "exact-result",
+    }],
+  };
+  assert.equal(
+    capabilityEdgesFromData(input([
+      immutableEdge(),
+      reorderedExisting,
+      { ...remoteResult, failure: { mode: "fail-closed", fallback_edge: "existing-exact-result", success_states: ["declared-observable-only"] } },
+    ])).edges.at(-1).failure.fallbackEdge,
+    "existing-exact-result",
+  );
+
+  const cyclicB = { ...existingResult, edge_id: "result-edge-b" };
+  cyclicB.failure = { mode: "fail-closed", fallback_edge: "result-edge-a", success_states: ["declared-observable-only"] };
+  const cyclicA = {
+    ...remoteResult,
+    edge_id: "result-edge-a",
+    failure: { mode: "fail-closed", fallback_edge: "result-edge-b", success_states: ["declared-observable-only"] },
+  };
+  assert.throws(
+    () => capabilityEdgesFromData(input([immutableEdge(), cyclicA, cyclicB])),
+    /fallback cycle/,
+  );
+});
+
+test("semantic or range substitution cannot satisfy the other subject kind", () => {
+  const immutableSubstitutions = [
+    { subjectKind: "immutable-bytes", observable: { source: "content-media.relation.record", field: "role_ref" }, range: "bounded-demand-window" },
+    { subjectKind: "immutable-bytes", range: "whole-object" },
+  ];
+  for (const demand of immutableSubstitutions) {
+    assert.throws(
+      () => capabilityEdgesFromData(input([immutableEdge({ demand })])),
+      CapabilityEdgesError,
+    );
+  }
+
+  assert.throws(() => capabilityEdgesFromData(input([
+    immutableEdge(),
+    {
+      ...immutableEdge(),
+      edge_id: "existing-exact-result",
+      demand: {
+        subjectKind: "exact-result",
+        observable: { source: "content-media.relation.record", field: "role_ref" },
+        range: "bounded-demand-window",
+      },
+    },
+  ])), CapabilityEdgesError);
+});
+
+test("unmeasured, incomplete, or duplicated resource accounting fails closed", () => {
+  const missingCounter = RESOURCE_COUNTERS.slice(1);
+  const cases = [
+    { measurement_method: "published-ratio", execution_admitted: false, counters: RESOURCE_COUNTERS },
+    { measurement_method: "identical-snapshot-ab",
+      execution_admitted: false, counters: missingCounter },
+    { measurement_method: "identical-snapshot-ab",
+      execution_admitted: false, counters: [...RESOURCE_COUNTERS, "payload_bytes"] },
+    { measurement_method: "identical-snapshot-ab",
+      execution_admitted: false, counters: [...RESOURCE_COUNTERS, "vendor-invoice-dollars"] },
+  ];
+  for (const resources of cases) {
+    assert.throws(
+      () => capabilityEdgesFromData(input([immutableEdge({ resources })])),
+      CapabilityEdgesError,
+    );
+  }
+});
+
+test("optimized edges need a complete per-dispatch budget before execution admission", () => {
+  const cases = [
+    undefined,
+    dispatchBudget({ owner: "benchmark script" }),
+    dispatchBudget({ required: RESOURCE_COUNTERS.slice(1) }),
+    dispatchBudget({ required: [...RESOURCE_COUNTERS, "vendor-invoice-dollars"] }),
+    dispatchBudget({ value_rule: "publish a local ratio instead of bounded per-dispatch ceilings" }),
+    dispatchBudget({ payload_bytes_max: 1 }),
+  ];
+  for (const dispatch_budget of cases) {
+    assert.throws(
+      () => capabilityEdgesFromData(input([
+        immutableEdge(),
+        optimizedEdge({
+          resources: { measurement_method: "identical-snapshot-ab",
+      execution_admitted: false, counters: RESOURCE_COUNTERS, dispatch_budget },
+        }),
+      ])),
+      CapabilityEdgesError,
+    );
+  }
+
+  assert.throws(
+    () => capabilityEdgesFromData(input([optimizedEdge({
+      resources: {
+        measurement_method: "identical-snapshot-ab",
+        execution_admitted: true,
+        counters: RESOURCE_COUNTERS,
+        dispatch_budget: dispatchBudget(),
+      },
+    })])),
+    /cannot admit optimized execution/,
+  );
+});
+
+test("unknown fields, malformed owners, control text, and duplicates are refused", () => {
+  const hostileEdges = [
+    immutableEdge({ provider: "kimsufi" }),
+    immutableEdge({ edge_id: " padded-exact-read" }),
+    immutableEdge({ execution: { owner: "live-namespace.locator", workflow_target: "engine.operation.read-cas-range", mode: "whenever" } }),
+    immutableEdge({ execution: { owner: "bad\u0000owner", workflow_target: "engine.operation.read-cas-range", mode: "on-demand" } }),
+    immutableEdge({ execution: { owner: "https://user@origin", workflow_target: "engine.operation.read-cas-range", mode: "on-demand" } }),
+    immutableEdge({ execution: { owner: "live-namespace.locator", workflow_target: "credential-ref", mode: "on-demand" } }),
+    immutableEdge({ summary: "bad\u0000summary" }),
+    immutableEdge({ prerequisites: [] }),
+    immutableEdge({ authority: { required: [], prohibited: [] } }),
+    immutableEdge({ authority: { required: ["exact-byte-transfer"], prohibited: ["exact-byte-transfer"] } }),
+    immutableEdge({ failure: { mode: "best-effort", fallback_edge: null, success_states: ["maybe"] } }),
+  ];
+  for (const edge of hostileEdges) {
+    assert.throws(
+      () => capabilityEdgesFromData(input([edge])),
+      CapabilityEdgesError,
+    );
+  }
+  assert.throws(
+    () => capabilityEdgesFromData(input([immutableEdge(), immutableEdge()])),
+    /duplicate edge_id/,
+  );
+});
+
+test("prototype fields are not exact DATA", () => {
+  const request = Object.create({
+    schemaVersion: CAPABILITY_EDGE_SHAPE,
+    edges: [immutableEdge()],
+  });
+  assert.throws(
+    () => capabilityEdgesFromData(request),
+    /must be a plain object/,
+  );
+});
+
+test("non-enumerable and symbol fields are not exact DATA", () => {
+  const hiddenEdge = immutableEdge();
+  Object.defineProperty(hiddenEdge, "provider", {
+    value: "kimsufi",
+    enumerable: false,
+  });
+  assert.throws(
+    () => capabilityEdgesFromData(input([hiddenEdge])),
+    /fields outside this exact contract/,
+  );
+
+  const symbolEdge = immutableEdge();
+  Object.defineProperty(symbolEdge, Symbol("recipe"), {
+    value: "recipe",
+    enumerable: false,
+  });
+  assert.throws(
+    () => capabilityEdgesFromData(input([symbolEdge])),
+    /fields outside this exact contract/,
+  );
+
+  const hiddenArray = [immutableEdge()];
+  hiddenArray.provider = "kimsufi";
+  assert.throws(
+    () => capabilityEdgesFromData(input(hiddenArray)),
+    /fields outside this exact array contract/,
+  );
+
+  const sparseEdges = [immutableEdge(), ,];
+  assert.throws(
+    () => capabilityEdgesFromData(input(sparseEdges)),
+    /contains a sparse hole/,
+  );
+
+  const aliasedIndex = [immutableEdge()];
+  Object.defineProperty(aliasedIndex, "01", { value: "hidden", enumerable: false });
+  assert.throws(
+    () => capabilityEdgesFromData(input(aliasedIndex)),
+    /fields outside this exact array contract/,
+  );
+});
+
+test("the direct exact edge is mandatory and cannot be its own fallback", () => {
+  assert.throws(
+    () => capabilityEdgesFromData(input([optimizedEdge()])),
+    /direct exact fallback edge is required/,
+  );
+  assert.throws(
+    () => capabilityEdgesFromData(input([optimizedEdge(), optimizedEdge({ edge_id: "receiver-cache-read" })])),
+    /direct exact fallback/,
+  );
+  assert.throws(
+    () => capabilityEdgesFromData(input([
+      immutableEdge({ failure: { mode: "fail-closed", fallback_edge: "direct-exact-read", success_states: ["x"] } }),
+    ])),
+    /direct exact edge cannot fall back to itself/,
+  );
+});
+
+test("package DATA stays source-neutral and keeps recipes out of locator payloads", () => {
+  const raw = readFileSync(join(packageRoot, "things-to-store-and-run.json"), "utf8");
+  for (const banned of ["kimsufi", "interserver", "idrive", "aws", "r2", "credential_ref", "password"]) {
+    assert.equal(raw.toLowerCase().includes(banned), false, `unexpected provider/secret token: ${banned}`);
+  }
+  const data = JSON.parse(raw);
+  for (const thing of data.things) {
+    if (thing.payload?.kind === "live-namespace.locator") {
+      assert.equal("derivation" in thing.payload, false);
+      assert.equal("recipe" in thing.payload, false);
+      assert.equal("capability_edge" in thing.payload, false);
+    }
+  }
+});
+
+test("normalization does not mutate edge DATA", () => {
+  const original = input([immutableEdge(), optimizedEdge()]);
+  const copy = structuredClone(original);
+  capabilityEdgesFromData(original);
+  assert.deepEqual(original, copy);
+});

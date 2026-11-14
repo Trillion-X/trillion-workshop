@@ -1,0 +1,55 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+vi.mock('@bitfield/runtime-kit', async (importOriginal) => ({
+  // The trusted partition reader is the code under test's real owner, never a stub.
+  ...await importOriginal<typeof import('@bitfield/runtime-kit')>(),
+  sendRequestToBitfieldTarget: vi.fn(),
+}));
+vi.mock('@bitfield/runtime-kit/protocol', () => ({
+  buildEngineReadCurrentRequestFromLabels: (_partition: string, address: string) => ({ target: 'test.read', payload: { address } }),
+  buildEngineWriteBatchRequestFromLabels: (writes: unknown[]) => ({ target: 'test.write', payload: writes }),
+  decodeEngineReadCurrentReply: (reply: unknown) => reply,
+}));
+
+import { createGroupPageTarget } from './create-group-page';
+
+const context = { runtime: { partition_label: 'tribes' } };
+const decision = { kind: 'access-decision/v1', decision: 'allow', decision_proof: 'decision:one', actor_ref: 'actor:a', session_ref: 'session:a', subject_ref: 'scope:root', action_ref: 'group-page.create-group-page', authorized_action_refs: ['group-page.create-group-page'], predicate_ref: 'predicate:authenticated-session', revisions: { membership_revision: 'm1', policy_revision: 'p1', resource_revision: '0', session_revision: 's1' } };
+const request = { payload: { group_ref: 'group:one', scope_ref: 'scope:root', join_policy_ref: 'predicate:open', descriptor: { title: 'One', future: { opaque: true } }, expected_revision: 0, idempotency_ref: 'create:one' }, ambient_actor: { actor_ref: 'actor:a', session_ref: 'session:a', session_revision: 's1' }, access_decision: decision };
+
+describe('create group-page target', () => {
+  let records: Map<string, { payload: Uint8Array; payloadHash: Uint8Array }>;
+  let calls: Array<Record<string, unknown>>;
+  let send: (request: unknown) => Promise<unknown>;
+
+  beforeEach(() => {
+    records = new Map(); calls = [];
+    send = async (raw) => {
+      const value = raw as { target: string; payload: any }; calls.push(value);
+      if (value.target === 'access-rule.verify-decision') return { verified: true, decision };
+      if (value.target === 'test.read') { const stored = records.get(value.payload.address); return Object.assign(new Uint8Array(), stored ? { found: true, payload: stored.payload, payloadHash: stored.payloadHash } : { found: false, payload: null, payloadHash: null }); }
+      if (value.target === 'test.write') { for (const write of value.payload) { const hash = new Uint8Array([records.size + 1]); records.set(write.addressLabel, { payload: write.payloadBytes, payloadHash: hash }); } return new Uint8Array(); }
+      if (value.target === 'signed-event-author.sign-event') return { payload: value.payload.payload, proof: { signature_hex: 'proof' } };
+      if (value.target === 'signed-event-authority.admit-event') { const event = value.payload.body.events[0]; return { evaluation: { event_hashes: { [event.payload.event_id]: 'hash:accepted' } } }; }
+      if (value.target === 'slot::workflow') return { output: { status: 'accepted' } };
+      throw new Error(`unexpected target ${value.target}`);
+    };
+  });
+
+  it('basis-writes, reads back, emits one deterministic accepted event, and replays', async () => {
+    const first = await createGroupPageTarget(request, context, send); const replay = await createGroupPageTarget(request, context, send);
+    expect(first).toMatchObject({ status: 'accepted', replay: false, revision: 1, event_hash: 'hash:accepted' });
+    expect(replay).toMatchObject({ status: 'accepted', replay: true, revision: 1, event_ref: first.event_ref });
+    expect(first.descriptor.descriptor).toEqual({ title: 'One', future: { opaque: true } });
+    expect(calls.filter((call) => call.target === 'test.write')).toHaveLength(1);
+    expect(calls.filter((call) => call.target === 'slot::workflow')).toHaveLength(2);
+    expect(calls.find((call) => call.target === 'slot::workflow')?.payload).toMatchObject({ definition_id: 'action:owner-action-event-log.record-owner-action-event', input: { canonical_hash: 'hash:accepted' } });
+  });
+
+  it('rejects caller-selected owner targets and stale admission before mutation', async () => {
+    await expect(createGroupPageTarget({ ...request, payload: { ...request.payload, descriptor: { owner_target: 'spoof' } } }, context, send)).rejects.toThrow(/cannot select owner targets/);
+    const stale = { ...request, ambient_actor: { ...request.ambient_actor, session_revision: 'stale' } };
+    await expect(createGroupPageTarget(stale, context, send)).rejects.toThrow(/server admission/);
+    expect(calls.some((call) => call.target === 'test.write')).toBe(false);
+  });
+});

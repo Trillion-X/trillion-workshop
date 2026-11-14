@@ -1,0 +1,13 @@
+{
+  "contacts": {"1222@example.com": "Alice"},
+  "chats": [
+    {
+      "id": "1222@example.com",
+      "name": "Alice",
+      "messages": [
+        {"key": {"remoteJid": "1222@example.com", "fromMe": false}, "pushName": "Alice", "message": {"conversation": "are we still on for tomorrow?"}, "messageTimestamp": 1690000000},
+        {"key": {"remoteJid": "1222@example.com", "fromMe": true}, "message": {"conversation": "yep see you then"}, "messageTimestamp": 1690000005}
+      ]
+    }
+  ]
+}

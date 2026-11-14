@@ -52,3 +52,6 @@ Each file below is the package's own, byte for byte; `from-bitfield-packages/mov
 - 1 file: the package boundary file: record contracts, actions and surfaces for the retired package runtime (slot workflows, owner targets); not carried
 
 The receipt's `not_carried` names each path.
+## The file-classification rule table (prepared restore)
+
+`classify-file/src/classify_file.rs` is the original rule table of bitfield-packages `packages/file-classification`, byte for byte (65 rules: language, renderer hint, icon, label and MIME type from a path, no file read; three tests). `classify-file/Cargo.toml` and `src/lib.rs` are new and only make it a crate (`cargo test --offline --manifest-path classify-file/Cargo.toml`: 3 pass). `show/classify-file-content.ts` here is a smaller fallback of about two dozen extensions that asks the `file-classification` target first; the Rust table is what answered it. Nothing calls the crate yet.

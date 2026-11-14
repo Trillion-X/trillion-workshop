@@ -1,0 +1,267 @@
+import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import test from 'node:test';
+import { fileURLToPath } from 'node:url';
+
+const packageRoot = fileURLToPath(new URL('..', import.meta.url));
+const manifestPath = join(packageRoot, 'things-to-store-and-run.json');
+const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+
+function row(address) {
+  const found = manifest.things.filter((thing) => thing.address === address);
+  assert.equal(found.length, 1, `expected exactly one ${address}`);
+  return found[0];
+}
+
+function binding(from, path, key) {
+  return { $kind: 'binding', select: { from, path, ...(key ? { key } : {}) } };
+}
+
+function transformOp(op, args) {
+  return { op, args };
+}
+
+test('fresh package data is blank: it installs no machine locator or mounted-volume literal', () => {
+  const locators = manifest.things.filter((thing) => thing.payload?.kind === 'live-namespace.locator');
+  assert.equal(locators.length, 0);
+  assert.equal(JSON.stringify(manifest).includes('/Volumes/'), false);
+  assert.equal(JSON.stringify(manifest).includes('volume-uuid:'), false);
+});
+
+test('handed-over bytes can create a locator only from its caller-provided file reference', () => {
+  const action = row('package::live-namespace::workflow-action::name-a-handed-over-file').payload;
+  const locator = action.steps.find((step) => step.kind === 'write').config.items
+    .find((item) => item.payload?.kind === 'live-namespace.locator').payload;
+
+  assert.equal(locator.target, 'local.files');
+  assert.deepEqual(locator.request.path, binding('input', 'relative_name'));
+});
+
+test('locator payloads declare only fields the locator contract admits', () => {
+  const contract = row('package::live-namespace::contract::locator').payload;
+  assert.equal(contract.record_kind, 'live-namespace.locator');
+  const admitted = new Set([...contract.required_fields, ...contract.optional_fields]);
+
+  const locators = manifest.things.filter((thing) => thing.payload?.kind === 'live-namespace.locator');
+  assert.equal(locators.length, 0);
+  for (const thing of locators) {
+    for (const field of Object.keys(thing.payload)) {
+      assert.ok(
+        admitted.has(field),
+        `${thing.address}: undeclared locator field "${field}" must not ride the record contract; provenance belongs to its owning package`,
+      );
+    }
+  }
+
+});
+
+test('range action reads exactly through the bounded CAS operation', () => {
+  const action = row('package::live-namespace::workflow-action::verify-locator-range').payload;
+  assert.equal(action.id, 'action:verify-locator-range');
+  assert.deepEqual(action.input_schema.properties.content_hash, {
+    type: 'string',
+    description: 'Canonical multihash code:hex identity addressed by /cas/<hash>.',
+  });
+  assert.deepEqual(action.input_schema.properties.offset, { type: 'integer', minimum: 0 });
+  assert.deepEqual(action.input_schema.properties.length, { type: 'integer', minimum: 1, maximum: 16777216 });
+  assert.deepEqual(action.input_schema.properties.byte_length, { type: 'integer', minimum: 1 });
+  assert.match(action.input_schema.properties.expected_sha256.pattern, /^\^\[0-9a-f\]\{64\}\$$/);
+
+  const read = action.steps.find((step) => step.id === 'read_range');
+  assert.equal(read.config.name, 'engine.operation.label-addressed');
+  assert.equal(read.config.input.operation_label, 'engine.operation.read-cas-range');
+  assert.deepEqual(read.config.input.content_hash, binding('input', 'content_hash'));
+  assert.deepEqual(read.config.input.offset, binding('input', 'offset'));
+  assert.deepEqual(read.config.input.length, binding('input', 'length'));
+  assert.equal(Object.keys(read.config.input).length, 4);
+});
+
+test('checksum action mounts only returned binary bytes and the exact checksum line', () => {
+  const action = row('package::live-namespace::workflow-action::verify-locator-range').payload;
+  const hash = action.steps.find((step) => step.id === 'hash_range');
+  const input = hash.config.input;
+
+  assert.equal(hash.config.name, 'compute.process');
+  assert.deepEqual(input.argv, ['/usr/bin/shasum', '-a', '256', '-c', 'expected.sha256']);
+  assert.equal(input.cwd, null);
+  assert.deepEqual(input.env, {});
+  assert.deepEqual(input.outputs, []);
+  assert.deepEqual(input.input_trees, []);
+  assert.deepEqual(input.collected_files, []);
+  assert.deepEqual(input.containment, { kind: 'leaf' });
+
+  const [range, expected] = input.inputs;
+  assert.equal(range.mount_path, 'range.bin');
+  assert.equal(range.content_type, 'application/octet-stream');
+  assert.equal(range.source.kind, 'inline');
+  assert.deepEqual(range.source.bytes, binding('steps', 'output.bytes_base64', 'read_range'));
+
+  assert.equal(expected.mount_path, 'expected.sha256');
+  assert.equal(expected.source.kind, 'inline');
+  assert.deepEqual(expected.source.bytes, {
+    ...binding('input', 'expected_sha256'),
+    transform: [
+      transformOp('op:core.concat', {
+        values: [
+          binding('input', 'expected_sha256'),
+          '  ',
+          'range.bin',
+          '\n',
+        ],
+      }),
+    ],
+  });
+});
+
+test('no pass record is reachable unless found, whole length, exact byte count, and checksum exit zero all pass', () => {
+  const action = row('package::live-namespace::workflow-action::verify-locator-range').payload;
+  const writer = action.steps.find((step) => step.id === 'write_pass_record');
+  const intoWriter = action.edges.filter((edge) => edge.to === 'write_pass_record');
+  assert.equal(writer.join, 'all');
+  assert.equal(intoWriter.length, 3);
+  assert.equal(writer.config.input.operation_label, 'engine.operation.write-batch');
+  const record = writer.config.input.writes[0].payload;
+  assert.equal(record.status, 'pass');
+  assert.deepEqual(record.expected_byte_length, binding('input', 'byte_length'));
+  assert.deepEqual(record.actual_byte_count, binding('steps', 'output.byte_count', 'read_range'));
+  assert.deepEqual(record.total_len, binding('steps', 'output.total_len', 'read_range'));
+
+  for (const edge of intoWriter) {
+    assert.equal(edge.kind, 'on_result');
+    assert.equal(edge.config.$kind, 'binding');
+  }
+
+  const byteGate = intoWriter.find((edge) => edge.from === 'read_range' && edge.config.select.path === 'output.byte_count');
+  assert.deepEqual(byteGate.config, {
+    $kind: 'binding',
+    select: { from: 'input', path: 'output.byte_count' },
+    transform: [
+      transformOp('op:core.equals', {
+        value: binding('input', 'output.length'),
+      }),
+    ],
+  });
+
+  const totalLengthGate = intoWriter.find((edge) => edge.from === 'read_range' && edge.config.select.path === 'output.total_len');
+  assert.deepEqual(totalLengthGate.config, {
+    $kind: 'binding',
+    select: { from: 'input', path: 'output.total_len' },
+    transform: [
+      transformOp('op:core.equals', {
+        value: binding('input', 'byte_length'),
+      }),
+    ],
+  });
+
+  const checksumGate = intoWriter.find((edge) => edge.from === 'hash_range');
+  assert.deepEqual(checksumGate.config, {
+    $kind: 'binding',
+    select: { from: 'input', path: 'output.termination.code' },
+    transform: [transformOp('op:core.equals', { value: 0 })],
+  });
+
+  const foundGate = action.edges.find((edge) => edge.from === 'read_range' && edge.to === 'hash_range');
+  assert.deepEqual(foundGate.config.select, { from: 'input', path: 'output.found' });
+  assert.deepEqual(foundGate.config.transform, [transformOp('op:core.equals', { value: true })]);
+
+  const done = action.steps.find((step) => step.id === 'done');
+  assert.deepEqual(Object.keys(done.config.value).sort(), ['content_hash', 'length', 'offset', 'status']);
+  assert.equal('record_address' in done.config.value, false, 'write-batch returns write_count, not an address');
+});
+
+test('the whole-locator action is only a bounded serial loop over verification DATA', () => {
+  const action = row('package::live-namespace::workflow-action::verify-locator').payload;
+  const loop = action.steps.find((step) => step.id === 'verify_ranges');
+  assert.equal(action.id, 'action:verify-locator');
+  assert.equal(action.input_schema.properties.verification.minItems, 1);
+  assert.equal(action.input_schema.properties.verification.maxItems, 256);
+  assert.deepEqual(loop.config.source, binding('input', 'verification'));
+  assert.equal(loop.config.item_var, 'range');
+  assert.equal(loop.config.parallel, false);
+  assert.equal(loop.config.max_iterations, 256);
+  assert.equal(loop.config.definition_id, 'action:verify-locator-range');
+  assert.deepEqual(loop.config.inputs.content_hash, binding('input', 'content_hash'));
+  assert.deepEqual(loop.config.inputs.offset, binding('loop', 'range.offset'));
+  assert.deepEqual(loop.config.inputs.length, binding('loop', 'range.length'));
+  assert.deepEqual(loop.config.inputs.byte_length, binding('input', 'byte_length'));
+  assert.deepEqual(loop.config.inputs.expected_sha256, binding('loop', 'range.sha256'));
+  assert.equal(Object.keys(loop.config.inputs).length, 5);
+});
+
+test('trigger matches only non-retracted locators carrying verification and derives action input', () => {
+  const property = (name) => JSON.parse(
+    row(`attribute_fact|trigger:verify-locator-on-change|prop:trigger:${name}|type:trigger`).payload.value_json,
+  );
+
+  assert.equal(property('dispatch_target'), 'slot::workflow');
+  assert.equal(property('is_active'), true);
+  const match = property('match_condition');
+  assert.deepEqual(match.conditions[0], {
+    $bind: {
+      select: { from: 'envelope', path: 'address_text' },
+      transform: [transformOp('op:core.starts_with', { prefix: 'live-namespace::locator::' })],
+    },
+  });
+  assert.deepEqual(match.conditions[1], {
+    $bind: {
+      select: { from: 'envelope', path: 'is_retraction' },
+      transform: [transformOp('op:core.equals', { value: false })],
+    },
+  });
+  assert.deepEqual(match.conditions[2], {
+    $bind: {
+      select: { from: 'change', path: 'kind' },
+      transform: [transformOp('op:core.equals', { value: 'live-namespace.locator' })],
+    },
+  });
+  assert.deepEqual(match.conditions[3], {
+    $bind: {
+      select: { from: 'change', path: 'verification' },
+      transform: [transformOp('op:core.not_equals', { value: null })],
+    },
+  });
+  assert.deepEqual(match.conditions[4], {
+    $bind: {
+      select: { from: 'change', path: 'verification' },
+      transform: [transformOp('op:core.not_equals', { value: [] })],
+    },
+  });
+
+  const output = property('output_template');
+  assert.equal(output.operation, 'execute_definition');
+  assert.equal(output.definition_id, 'action:verify-locator');
+  assert.deepEqual(output.input.content_hash, {
+    ...binding('envelope', 'address_text'),
+    transform: [transformOp('op:core.replace', { from: 'live-namespace::locator::', to: '' })],
+  });
+  assert.deepEqual(output.input.byte_length, binding('change', 'byte_length'));
+  assert.deepEqual(output.input.verification, binding('change', 'verification'));
+});
+
+test('the system checksum utility proves arbitrary binary bytes and fails closed on corruption', () => {
+  const bytes = Buffer.from(Array.from({ length: 1024 }, (_, index) => (index * 37 + 11) & 0xff));
+  const digest = createHash('sha256').update(bytes).digest('hex');
+  const root = mkdtempSync(join(tmpdir(), 'live-namespace-shasum-'));
+  const invoke = ({ range = bytes, expected = digest } = {}) => {
+    writeFileSync(join(root, 'range.bin'), range);
+    writeFileSync(join(root, 'expected.sha256'), `${expected}  range.bin\n`);
+    try {
+      execFileSync('/usr/bin/shasum', ['-a', '256', '-c', 'expected.sha256'], { cwd: root });
+      return { status: 0 };
+    } catch (error) {
+      return { status: error.status };
+    }
+  };
+
+  try {
+    assert.equal(invoke().status, 0);
+    assert.notEqual(invoke({ range: Buffer.concat([bytes, Buffer.from([0])]) }).status, 0);
+    assert.notEqual(invoke({ expected: '0'.repeat(64) }).status, 0);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});

@@ -1,0 +1,83 @@
+#!/usr/bin/env python3
+"""BUNDLE-PARITY DRIFT GUARD (SSOT enforcement, L063 — makes "match bundle diverges from source" impossible).
+
+The motion-comparison MATCH bundle is a DEPLOYMENT PROJECTION of the crown-jewel matcher whose SSOT lives
+in the show-up-video-tennis source repo. The package ships without that repo, so the files are COPIED — but
+a silent copy is the classic two-sources-that-diverge bug. This guard asserts every bundled file is
+BYTE-IDENTICAL to its source original, so any edit-without-resync fails loudly on the authoring machine
+(where drift is introduced). Mirrors the perception bundle's parity guard.
+
+ENV `MOTION_SOURCE_REPO` overrides the source-repo path (L089). If the source repo is absent (a deploy host
+without it checked out), the guard SKIPS — it can only compare where the SSOT is present, which is exactly the
+authoring machine that introduces drift. Run: python3 test_bundle_parity.py"""
+import filecmp
+import os
+import sys
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+SRC = Path(os.environ.get("MOTION_SOURCE_REPO", str(Path.home() / "dev" / "show-up-video-tennis")))
+
+# bundle filename -> path within the source repo (the SSOT home). The 17-file MATCH closure: run_match
+# (the entrypoint) + the AST transitive import closure of select_partner/motion_certify/correspondence.
+SOURCE_OF = {
+    "run_match.py": "tools/match/run_match.py",
+    "select_partner.py": "tools/match/select_partner.py",
+    "motion_certify.py": "tools/match/motion_certify.py",
+    "correspondence.py": "tools/match/correspondence.py",
+    "match_clips.py": "tools/match/match_clips.py",
+    "motion_encoder.py": "tools/match/motion_encoder.py",
+    "tcc_encoder.py": "tools/match/tcc_encoder.py",
+    "view_encoder.py": "tools/match/view_encoder.py",
+    "viewpoint_index.py": "tools/match/viewpoint_index.py",
+    "describe_clip.py": "tools/match/describe_clip.py",
+    "swing_state.py": "tools/match/swing_state.py",
+    "pose_schema.py": "tools/match/pose_schema.py",
+    "gate_thresholds.py": "tools/match/gate_thresholds.py",
+    "body_orientation.py": "tools/match/body_orientation.py",
+    "orientation.py": "tools/match/orientation.py",
+    "finite_json.py": "tools/match/finite_json.py",
+    "source_group.py": "tools/match/source_group.py",
+    # learned correspondence weights — ship as bundle siblings so the TCC phase-sync warp (sync/pairs) works
+    # from the flat deployment (correspondence._load resolves them co-located, L089). Without these the match
+    # still certifies correctly but the render-sync warp silently returns None (the L095-caught bundle bug).
+    "view.pt": "tools/match/view.pt",
+    "tcc.pt": "tools/match/tcc.pt",
+    "motion.pt": "tools/match/motion.pt",
+}
+
+if not SRC.exists():
+    print(f"SKIP bundle-parity — source repo absent at {SRC} (set MOTION_SOURCE_REPO). "
+          "Guard runs on the authoring machine where the SSOT lives.")
+    sys.exit(0)
+
+fails = []
+for name, rel in SOURCE_OF.items():
+    bundled = HERE / name
+    origin = SRC / rel
+    if not bundled.exists():
+        fails.append(f"{name}: MISSING from bundle (re-sync from {rel})")
+    elif not origin.exists():
+        fails.append(f"{name}: source SSOT MISSING at {rel} (did the engine move?)")
+    elif not filecmp.cmp(bundled, origin, shallow=False):
+        fails.append(f"{name}: DRIFTED from source SSOT ({rel}) — re-copy the source file into the bundle")
+    else:
+        print(f"PASS {name} == {rel} (byte-identical)")
+
+# the bundle must contain EXACTLY the declared closure — no stray/forgotten files masquerading as engine
+stray = sorted(
+    p.name for p in HERE.glob("*.py")
+    if p.name not in SOURCE_OF and p.name != "test_bundle_parity.py"
+)
+if stray:
+    fails.append(f"stray .py in bundle not in the declared closure: {stray}")
+else:
+    print("PASS no stray .py files in the bundle (closure is exactly the 17 declared)")
+
+print()
+if fails:
+    print(f"{len(fails)} DRIFT FAILURE(S):")
+    for f in fails:
+        print("  -", f)
+    sys.exit(1)
+print("ALL PASS — match bundle is byte-identical to the source SSOT")

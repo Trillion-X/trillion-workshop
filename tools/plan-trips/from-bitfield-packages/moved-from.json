@@ -26,6 +26,22 @@
       "to": "tools/plan-trips/packing-list/things-to-store-and-run.json",
       "source_identity": "1f:b325d53cceafd08d707b64fb2011deb5bd544f5c48ef0a561fdf95edba5f0fe6",
       "identity": "1f:b325d53cceafd08d707b64fb2011deb5bd544f5c48ef0a561fdf95edba5f0fe6"
+    },
+    {
+      "from": "packages/itinerary/read-data/itinerary.test.ts",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/plan-trips/read-data/itinerary.test.ts",
+      "source_identity": "1f:56d04667f11e764428c9c8818a54a886a815afcbbfcd1f01a7149a5713198093",
+      "identity_at_move": "1f:56d04667f11e764428c9c8818a54a886a815afcbbfcd1f01a7149a5713198093",
+      "byte_copy_commit": "63e148b1ae911999699eb33a36728e1c2d5b8ce3"
+    },
+    {
+      "from": "packages/itinerary/read-data/itinerary.ts",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/plan-trips/read-data/itinerary.ts",
+      "source_identity": "1f:7b3215c9e9120f8517cf058dd8bec689507ad7ccbfb0471861270385a78ebb97",
+      "identity_at_move": "1f:7b3215c9e9120f8517cf058dd8bec689507ad7ccbfb0471861270385a78ebb97",
+      "byte_copy_commit": "63e148b1ae911999699eb33a36728e1c2d5b8ce3"
     }
   ]
 }

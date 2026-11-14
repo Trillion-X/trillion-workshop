@@ -1,0 +1,2 @@
+User: What did I eat today?
+Assistant: Please review your food log.

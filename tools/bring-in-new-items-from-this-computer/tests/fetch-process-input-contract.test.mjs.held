@@ -1,0 +1,23 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+
+const manifest = JSON.parse(readFileSync(new URL('../things-to-store-and-run.json', import.meta.url)));
+const action = manifest.things.find(row => row.payload?.id === 'action:fetch-source-items').payload;
+
+test('nullable and numeric fetch inputs are admitted as process argument strings', () => {
+  const process = action.steps.find(step => step.id === 'decode').config.input;
+  for (const value of process.argv.filter(value => typeof value === 'object')) {
+    const field = value.select.path;
+    const schema = action.input_schema.properties[field];
+    assert.ok(schema, `argv field ${field} must exist in the declared API`);
+    if (!action.input_schema.required.includes(field)) {
+      assert.ok(value.transform?.some(op => op.op === 'op:core.if_null' && op.args.fallback != null), `${field} can otherwise emit null into argv`);
+    }
+    if (schema.type === 'integer') {
+      assert.equal(value.transform.at(-1).op, 'op:core.stringify', `${field} must become a string before process admission`);
+    }
+  }
+  assert.equal(process.argv.length, 7, 'dispatcher file contract requires five arguments after its script');
+  assert.equal(process.argv[6].select.path, 'collection_key');
+});

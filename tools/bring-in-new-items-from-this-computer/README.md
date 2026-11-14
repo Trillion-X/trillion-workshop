@@ -101,3 +101,7 @@ try here is skipped (no preview, no pane, the host name for the computer's name)
 - `tool:look-for-the-places-on-this-computer` run at a real computer's local door, and the `programs` rows on a Mac
   (`sips`, `open`, `plutil`, `scutil`): the sample run and the stand-in programs prove them here; three of the moved
   tests (`computer-sources-on-a-computer`, `read-new-photos-video`) still need macOS's own look tools to pass.
+
+## The original package files (prepared restore)
+
+`from-bitfield-packages/moved-from.json`: the original `packages/observed-content` pipeline, byte for byte: the observation planner (`observe-content-sources.py`), the Apple Notes store decoder (`decode-apple-notes-sqlite.py`), the Apple Notes folder writer, the JSON items decoder, the fetch dispatcher, the media source binder, the decoded-content materializer, the ledger text materializer, the local conversation import preparer, their tests and fixtures. They speak the retired workflow engine's process descriptors, so none is wired to a row here. Not carried: `write-notion-api.py` (a bearer token read from a credential blob). Ten tests are held. `prepare-local-conversation-import.py` and its test have uncommitted edits in the package that are not carried.

@@ -38,3 +38,7 @@ See and commit the changes in a project folder on the person's own computer: whi
 ## Capability this folder needs
 
 `use-git-in-a-folder` is not yet a row in the engine's `product/computer-capabilities.json`. It is a folder-parameter capability like `change-a-folder`: it grants the files in the one folder (read and write, since staging and committing write `.git`) and the right to start git. Until that row exists a run that names it is refused before anything starts.
+
+## The original package files (prepared restore)
+
+`from-bitfield-packages/moved-from.json` names the files moved here byte for byte from bitfield-packages `packages/git-worktree`: the Git changes screen (`show/GitChangesPanel.tsx`, `mount-git-worktree.tsx`), the read side (`read-data/read-git-worktree-records.ts`, `read-git-current-project.ts`, `read-git-worktree-saved-records.ts`, `use-git-worktree-read.tsx`), the five action request builders (`do-work/*.ts`) and the two process scripts (`do-work/process-scripts/*.py`). `read-data/git-changes.mjs` above is a port of those two scripts into one module; it stays because the rows run it. What is held: the screen, the readers and the request builders import the retired package runtime (`@bitfield/runtime-kit`) and `git-worktree-types` (never committed in the package), so none of them runs until the records door replaces that runtime; one test is held (`.held`).

@@ -1,0 +1,213 @@
+{
+  "about": "Files moved here byte for byte from bitfield-packages (packages/group-page): each names its source path and commit, the identity of its source bytes and of its bytes here. The first commit that holds them is the byte copy; later commits change import paths only. A file named .held is the same bytes with its test name taken off so the repository test does not run it; the reason is under `held`. `not_carried` names package files that were left in the package and why.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/group-page/do-work/create-group-page.test.ts",
+      "commit": "7ee1b76995ac4b9f4a5c52d974d132ab8a0541aa",
+      "to": "tools/group-pages/do-work/create-group-page.test.ts.held",
+      "source_identity": "1f:5c7b61618d6adf2c26a112b74ef1f638c50dd830f786fe44093242fb3f6b1101",
+      "identity": "1f:5c7b61618d6adf2c26a112b74ef1f638c50dd830f786fe44093242fb3f6b1101"
+    },
+    {
+      "from": "packages/group-page/do-work/create-group-page.ts",
+      "commit": "ff2853a51089342eecf8a183991498c4507de459",
+      "to": "tools/group-pages/do-work/create-group-page.ts",
+      "source_identity": "1f:65eda7e86fa4992675a4db77667a38db8a9a70f585ad978c1f8146154a8e3e87",
+      "identity": "1f:65eda7e86fa4992675a4db77667a38db8a9a70f585ad978c1f8146154a8e3e87"
+    },
+    {
+      "from": "packages/group-page/do-work/create-group-post.test.ts",
+      "commit": "e0022dc3e90dd7760015c7086613f85219d54324",
+      "to": "tools/group-pages/do-work/create-group-post.test.ts.held",
+      "source_identity": "1f:c6163855b6be01dc514dfbc69cb98933cba849212fcf90f51373d0579784d164",
+      "identity": "1f:c6163855b6be01dc514dfbc69cb98933cba849212fcf90f51373d0579784d164"
+    },
+    {
+      "from": "packages/group-page/do-work/create-group-post.ts",
+      "commit": "7ee1b76995ac4b9f4a5c52d974d132ab8a0541aa",
+      "to": "tools/group-pages/do-work/create-group-post.ts",
+      "source_identity": "1f:26bbb69e267191a687a29e05f898d1263ef247c342d5c7e4af35c14cbe3cbe8c",
+      "identity": "1f:26bbb69e267191a687a29e05f898d1263ef247c342d5c7e4af35c14cbe3cbe8c"
+    },
+    {
+      "from": "packages/group-page/do-work/invoke-owner-action.ts",
+      "commit": "cf505a116fc14449e6d359278a60ca8827cdb97b",
+      "to": "tools/group-pages/do-work/invoke-owner-action.ts",
+      "source_identity": "1f:776b2a828eeb5b4d8123a545de3b97d67aa6df8202ae32a3b7387317a23d948d",
+      "identity_at_move": "1f:776b2a828eeb5b4d8123a545de3b97d67aa6df8202ae32a3b7387317a23d948d",
+      "byte_copy_commit": "63e148b1ae911999699eb33a36728e1c2d5b8ce3"
+    },
+    {
+      "from": "packages/group-page/do-work/join-group.ts",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/group-pages/do-work/join-group.ts",
+      "source_identity": "1f:af32927692a6ad60c3ea6b547cbb400b0d513d493add85cfabb269551acef6ce",
+      "identity": "1f:af32927692a6ad60c3ea6b547cbb400b0d513d493add85cfabb269551acef6ce"
+    },
+    {
+      "from": "packages/group-page/do-work/migrate-static-projection-items.test.ts",
+      "commit": "94971228173d9dbdf60ab072aab83f9d93dd4b7b",
+      "to": "tools/group-pages/do-work/migrate-static-projection-items.test.ts.held",
+      "source_identity": "1f:48f8bcd2791e934900b7c86c4cf8eccdf31bd6000af5ff0dc1704f575dc3b887",
+      "identity": "1f:48f8bcd2791e934900b7c86c4cf8eccdf31bd6000af5ff0dc1704f575dc3b887"
+    },
+    {
+      "from": "packages/group-page/do-work/migrate-static-projection-items.ts",
+      "commit": "aa9386d06368c5f0504f0cb10d8253493e126c6d",
+      "to": "tools/group-pages/do-work/migrate-static-projection-items.ts",
+      "source_identity": "1f:f2fb404d8a0d398be3a03f10ecd2944a65088cc0a7fe8a29e2e3a9f4dc42bd9e",
+      "identity": "1f:f2fb404d8a0d398be3a03f10ecd2944a65088cc0a7fe8a29e2e3a9f4dc42bd9e"
+    },
+    {
+      "from": "packages/group-page/do-work/owner-action-descriptors.test.ts",
+      "commit": "cf505a116fc14449e6d359278a60ca8827cdb97b",
+      "to": "tools/group-pages/do-work/owner-action-descriptors.test.ts.held",
+      "source_identity": "1f:7cc8f39bcbcb27f9db10546e4455f4473e05c6decbcb6fe858c7ca8689b0ee07",
+      "identity": "1f:7cc8f39bcbcb27f9db10546e4455f4473e05c6decbcb6fe858c7ca8689b0ee07"
+    },
+    {
+      "from": "packages/group-page/do-work/read-group-page-projection.test.ts",
+      "commit": "94971228173d9dbdf60ab072aab83f9d93dd4b7b",
+      "to": "tools/group-pages/do-work/read-group-page-projection.test.ts.held",
+      "source_identity": "1f:552aecef8622e09fcd92110b599d57ece36749024c8223cdc146151daf66ad47",
+      "identity": "1f:552aecef8622e09fcd92110b599d57ece36749024c8223cdc146151daf66ad47"
+    },
+    {
+      "from": "packages/group-page/do-work/read-group-page-projection.ts",
+      "commit": "aa9386d06368c5f0504f0cb10d8253493e126c6d",
+      "to": "tools/group-pages/do-work/read-group-page-projection.ts",
+      "source_identity": "1f:e8eafa381c88858303f456198b0f5db534c4609121a9be6c1d8226cc55495d62",
+      "identity": "1f:e8eafa381c88858303f456198b0f5db534c4609121a9be6c1d8226cc55495d62"
+    },
+    {
+      "from": "packages/group-page/do-work/refresh-group-pages.ts",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/group-pages/do-work/refresh-group-pages.ts",
+      "source_identity": "1f:0e55f5fb711dc45b3c22d726765a5d119fcf28e484f67a5a987df6f0071f2e92",
+      "identity": "1f:0e55f5fb711dc45b3c22d726765a5d119fcf28e484f67a5a987df6f0071f2e92"
+    },
+    {
+      "from": "packages/group-page/read-data/generic-record-projection.test.ts",
+      "commit": "cf505a116fc14449e6d359278a60ca8827cdb97b",
+      "to": "tools/group-pages/read-data/generic-record-projection.test.ts",
+      "source_identity": "1f:30d0971886074ee91efc7d7a3926753d27b72fa65a82cc3d6dfcb3c744cf15e1",
+      "identity_at_move": "1f:30d0971886074ee91efc7d7a3926753d27b72fa65a82cc3d6dfcb3c744cf15e1",
+      "byte_copy_commit": "63e148b1ae911999699eb33a36728e1c2d5b8ce3"
+    },
+    {
+      "from": "packages/group-page/read-data/generic-record-projection.ts",
+      "commit": "cf505a116fc14449e6d359278a60ca8827cdb97b",
+      "to": "tools/group-pages/read-data/generic-record-projection.ts",
+      "source_identity": "1f:2577843587ad80463c1d1781d7c58e7d925d754770f22759dd2af32f98c089a4",
+      "identity": "1f:2577843587ad80463c1d1781d7c58e7d925d754770f22759dd2af32f98c089a4"
+    },
+    {
+      "from": "packages/group-page/read-data/group-page-surface.js",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/group-pages/read-data/group-page-surface.js",
+      "source_identity": "1f:e39a589ac9ff50238c403725c5bd0815ed6d8c500a958b2484e82998f54dbe3f",
+      "identity": "1f:e39a589ac9ff50238c403725c5bd0815ed6d8c500a958b2484e82998f54dbe3f"
+    },
+    {
+      "from": "packages/group-page/read-data/read-group-page-items.test.ts",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/group-pages/read-data/read-group-page-items.test.ts",
+      "source_identity": "1f:3f6db43ed1a12941359a37e34418432726188c1cf370af40ff14001b244e1203",
+      "identity_at_move": "1f:3f6db43ed1a12941359a37e34418432726188c1cf370af40ff14001b244e1203",
+      "byte_copy_commit": "63e148b1ae911999699eb33a36728e1c2d5b8ce3"
+    },
+    {
+      "from": "packages/group-page/read-data/read-group-page-items.ts",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/group-pages/read-data/read-group-page-items.ts",
+      "source_identity": "1f:a886b858c76bc68cc5b35079e577d56ef005b553c39fad93ec9f08e5fd92f96d",
+      "identity_at_move": "1f:a886b858c76bc68cc5b35079e577d56ef005b553c39fad93ec9f08e5fd92f96d",
+      "byte_copy_commit": "63e148b1ae911999699eb33a36728e1c2d5b8ce3"
+    },
+    {
+      "from": "packages/group-page/read-data/read-group-page.ts",
+      "commit": "e0022dc3e90dd7760015c7086613f85219d54324",
+      "to": "tools/group-pages/read-data/read-group-page.ts",
+      "source_identity": "1f:5482243aad4de585ec1b67f4e50bc23a30f0d7262386991b5f5ce511a4ac27ca",
+      "identity": "1f:5482243aad4de585ec1b67f4e50bc23a30f0d7262386991b5f5ce511a4ac27ca"
+    },
+    {
+      "from": "packages/group-page/read-data/read-subject-surfaces.test.ts",
+      "commit": "e0022dc3e90dd7760015c7086613f85219d54324",
+      "to": "tools/group-pages/read-data/read-subject-surfaces.test.ts",
+      "source_identity": "1f:cd423e8b551298ed098ca5afa68b10f55ff92d7ec4933fa1eb78135dcdb9de08",
+      "identity_at_move": "1f:cd423e8b551298ed098ca5afa68b10f55ff92d7ec4933fa1eb78135dcdb9de08",
+      "byte_copy_commit": "63e148b1ae911999699eb33a36728e1c2d5b8ce3"
+    },
+    {
+      "from": "packages/group-page/read-data/read-subject-surfaces.ts",
+      "commit": "e0022dc3e90dd7760015c7086613f85219d54324",
+      "to": "tools/group-pages/read-data/read-subject-surfaces.ts",
+      "source_identity": "1f:ae6a030d903670e4024c5c3f095df2c195a86a6473ace44f96b1a791c98cdb5f",
+      "identity_at_move": "1f:ae6a030d903670e4024c5c3f095df2c195a86a6473ace44f96b1a791c98cdb5f",
+      "byte_copy_commit": "63e148b1ae911999699eb33a36728e1c2d5b8ce3"
+    },
+    {
+      "from": "packages/group-page/read-data/use-member-names.ts",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/group-pages/read-data/use-member-names.ts",
+      "source_identity": "1f:13d8ef6069d33b1fef1e91ea5b4508fb58a62cfb344946da3ca26c8e1531fcba",
+      "identity_at_move": "1f:13d8ef6069d33b1fef1e91ea5b4508fb58a62cfb344946da3ca26c8e1531fcba",
+      "byte_copy_commit": "63e148b1ae911999699eb33a36728e1c2d5b8ce3"
+    },
+    {
+      "from": "packages/group-page/show/GroupPageView.tsx",
+      "commit": "3997518db03f1c240b1da52a2e6303b7cd7e497b",
+      "to": "tools/group-pages/show/GroupPageView.tsx",
+      "source_identity": "1f:6f5abf911e466be051becaf34df1d00231e55c5a7a59022297c353e8ac7b0643",
+      "identity_at_move": "1f:6f5abf911e466be051becaf34df1d00231e55c5a7a59022297c353e8ac7b0643",
+      "byte_copy_commit": "63e148b1ae911999699eb33a36728e1c2d5b8ce3"
+    },
+    {
+      "from": "packages/group-page/show/mount-group-page.tsx",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/group-pages/show/mount-group-page.tsx",
+      "source_identity": "1f:150e76ddfad82fec946a69f29cc621a28f458345de7af5626660c95b6f98e7b4",
+      "identity": "1f:150e76ddfad82fec946a69f29cc621a28f458345de7af5626660c95b6f98e7b4"
+    },
+    {
+      "from": "packages/group-page/tests/community-loop-conformance.test.mjs",
+      "commit": "7229c0c1d5311ff11cc55bb6ccf31843fe305b83",
+      "to": "tools/group-pages/tests/community-loop-conformance.test.mjs.held",
+      "source_identity": "1f:dad12993d7b8767ccedbd4c0aae738208fe7d46c44dd0d40e9a1de4a1f544a7f",
+      "identity": "1f:dad12993d7b8767ccedbd4c0aae738208fe7d46c44dd0d40e9a1de4a1f544a7f"
+    },
+    {
+      "from": "packages/group-page/tests/fixtures/generic-record-contracts.json",
+      "commit": "cf505a116fc14449e6d359278a60ca8827cdb97b",
+      "to": "tools/group-pages/tests/fixtures/generic-record-contracts.json",
+      "source_identity": "1f:a238d3c06bacdbb585152a72766dabf73d0cd4298ffb95744d5f43b803630be2",
+      "identity": "1f:a238d3c06bacdbb585152a72766dabf73d0cd4298ffb95744d5f43b803630be2"
+    },
+    {
+      "from": "packages/group-page/tests/generic-record-composition.test.mjs",
+      "commit": "cf505a116fc14449e6d359278a60ca8827cdb97b",
+      "to": "tools/group-pages/tests/generic-record-composition.test.mjs",
+      "source_identity": "1f:ab948242e049b7d7df7578a4ee61230f91b3a63ff8ae860f74b421a1ab1492f2",
+      "identity": "1f:ab948242e049b7d7df7578a4ee61230f91b3a63ff8ae860f74b421a1ab1492f2"
+    },
+    {
+      "from": "packages/group-page/tests/group-page-surface.test.mjs",
+      "commit": "e0022dc3e90dd7760015c7086613f85219d54324",
+      "to": "tools/group-pages/tests/group-page-surface.test.mjs",
+      "source_identity": "1f:500908b8f3bbf74e19f490227175b01cda50c07242e18640d5fb26b7484418c6",
+      "identity": "1f:500908b8f3bbf74e19f490227175b01cda50c07242e18640d5fb26b7484418c6"
+    }
+  ],
+  "held": {
+    "tools/group-pages/do-work/create-group-page.test.ts.held": "imports @bitfield/runtime-kit (the retired package runtime); needs the records door in its place",
+    "tools/group-pages/do-work/create-group-post.test.ts.held": "imports @bitfield/runtime-kit (the retired package runtime); needs the records door in its place",
+    "tools/group-pages/do-work/migrate-static-projection-items.test.ts.held": "imports @bitfield/runtime-kit (the retired package runtime); needs the records door in its place",
+    "tools/group-pages/do-work/owner-action-descriptors.test.ts.held": "imports @bitfield/runtime-kit (the retired package runtime); needs the records door in its place",
+    "tools/group-pages/do-work/read-group-page-projection.test.ts.held": "imports @bitfield/runtime-kit (the retired package runtime); needs the records door in its place",
+    "tools/group-pages/tests/community-loop-conformance.test.mjs.held": "reads the package boundary file (things-to-store-and-run.json) or built bytes, which are not carried"
+  }
+}

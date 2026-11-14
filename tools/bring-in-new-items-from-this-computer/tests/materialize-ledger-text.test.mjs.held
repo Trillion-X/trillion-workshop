@@ -1,0 +1,153 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { prepareLedgerTextAtom, verifyLedgerTextAtom } from '../do-work/materialize-ledger-text.mjs';
+import { prepareObservedQuestion } from '../../content-generation/do-work/prepare-observed-question.mjs';
+
+function input(venture) {
+  const sourceRef = `source:${venture}:audience`;
+  const nativeRef = `comment:${venture}:one`;
+  const partitionLabel = `partition:${venture}`;
+  const revision = `1f:${'a'.repeat(64)}`;
+  const observation = {
+    source_ref: sourceRef, native_ref: nativeRef, observed_at: '2026-09-24T00:00:00Z',
+    source_identity_ref: `source-identity:${venture}:one`, source_revision_ref: revision,
+    content_multihash: revision, correlation_ref: `batch:${venture}:one`,
+    source_authorization: { status: 'authorized', authorization_scope_ref: `scope:${venture}`,
+      partition_label: partitionLabel },
+    source_provenance: { source_ref: sourceRef, native_ref: nativeRef },
+    payload: { text: `How does ${venture} work?`,
+      atom_ref: `atom:1f:${(venture === 'tennis' ? 'a' : 'b').repeat(64)}` },
+  };
+  return { sourceRef, nativeRef, partitionLabel, ledger: { accepted: [observation] } };
+}
+
+test('two venture DATA identities make different current atoms without shared-source branches', () => {
+  const tennis = prepareLedgerTextAtom(input('tennis'));
+  const longevity = prepareLedgerTextAtom(input('longevity'));
+  assert.equal(tennis.accepted, true);
+  assert.equal(longevity.accepted, true);
+  assert.notEqual(tennis.atom.atom_ref, longevity.atom.atom_ref);
+  assert.equal(tennis.writes[0].partition_label, 'partition:tennis');
+  assert.equal(longevity.writes[0].partition_label, 'partition:longevity');
+  assert.deepEqual(verifyLedgerTextAtom(tennis, { found: true, payload: tennis.atom }),
+    { accepted: true, atom: tennis.atom });
+  assert.throws(() => verifyLedgerTextAtom(tennis, { found: false, payload: null }),
+    /Current text atom/);
+  const alteredText = structuredClone(tennis.atom);
+  alteredText.content.text = 'A different question';
+  assert.throws(() => verifyLedgerTextAtom(tennis, { found: true, payload: alteredText }),
+    /Current text atom/);
+  const alteredAuthorization = structuredClone(tennis.atom);
+  alteredAuthorization.source_authorization.partition_label = 'partition:longevity';
+  assert.throws(() => verifyLedgerTextAtom(tennis, { found: true, payload: alteredAuthorization }),
+    /Current text atom/);
+});
+
+test('a declared, foreign-partition, or misattributed source cannot materialize', () => {
+  const current = input('tennis');
+  const declared = structuredClone(current);
+  declared.ledger.accepted[0].source_authorization.status = 'declared';
+  assert.equal(prepareLedgerTextAtom(declared).reason, 'source_not_authorized_for_partition');
+  assert.equal(prepareLedgerTextAtom({ ...current, partitionLabel: 'partition:longevity' }).reason,
+    'source_not_authorized_for_partition');
+  const foreign = structuredClone(current);
+  foreign.ledger.accepted[0].source_provenance.native_ref = 'comment:other';
+  assert.equal(prepareLedgerTextAtom(foreign).reason, 'source_provenance_mismatch');
+});
+
+test('missing, duplicate, and non-text observations produce no atom or write', () => {
+  const current = input('tennis');
+  assert.deepEqual(prepareLedgerTextAtom({ ...current, ledger: { accepted: [] } }),
+    { accepted: false, reason: 'source_observation_not_unique' });
+  const duplicate = structuredClone(current);
+  duplicate.ledger.accepted.push(structuredClone(duplicate.ledger.accepted[0]));
+  assert.equal(prepareLedgerTextAtom(duplicate).reason, 'source_observation_not_unique');
+  const missingText = structuredClone(current);
+  delete missingText.ledger.accepted[0].payload.text;
+  assert.equal(prepareLedgerTextAtom(missingText).reason, 'text_or_observation_time_invalid');
+});
+
+test('selected-app action reads the ledger and conditionally writes owner atoms', async () => {
+  const manifest = JSON.parse(await readFile(new URL('../things-to-store-and-run.json', import.meta.url), 'utf8'));
+  const action = manifest.things.find((thing) => thing.address ===
+    'package::observed-content::workflow-action::materialize-ledger-text')?.payload;
+  assert.ok(action?.is_active);
+  assert.deepEqual(action.input_schema.required, ['source_ref', 'native_ref', 'partition_label']);
+  assert.equal(action.steps.find((step) => step.id === 'ledger').config.name,
+    'engine.operation.label-addressed');
+  assert.equal(action.steps.find((step) => step.id === 'write').config.input.operation_label,
+    'engine.operation.write-batch');
+  assert.equal(action.steps.find((step) => step.id === 'readback').config.input.operation_label,
+    'engine.operation.read-current');
+  assert.equal(action.steps.find((step) => step.id === 'verify').config.input.inputs[1]
+    .source.bytes.select.path, 'output');
+  assert.ok(action.edges.some((edge) => edge.from === 'prepare' && edge.to === 'decision'));
+  assert.equal(action.steps.find((step) => step.id === 'decision').config.value.select.path,
+    'output.captured_fds.0.bytes.base64');
+  assert.equal(action.edges.some((edge) => edge.from === 'decision' && edge.to === 'write'), false);
+  assert.ok(action.edges.some((edge) => edge.from === 'decision' && edge.to === 'existing'
+    && edge.config.select.from === 'input' && edge.config.select.path === 'output.accepted'));
+  assert.ok(action.edges.some((edge) => edge.from === 'decision' && edge.to === 'rejected'
+    && edge.config.select.from === 'input' && edge.config.select.path === 'output.accepted'));
+  assert.equal(action.steps.find((step) => step.id === 'existing').config.input.operation_label,
+    'engine.operation.read-current');
+  assert.equal(action.steps.find((step) => step.id === 'verify').join, 'any');
+  assert.ok(action.edges.some((edge) => edge.from === 'existing' && edge.to === 'write'
+    && edge.config.select.path === 'output.found'));
+  assert.ok(action.edges.some((edge) => edge.from === 'existing' && edge.to === 'verify'
+    && edge.config.select.path === 'output.found'));
+  assert.equal(action.steps.find((step) => step.id === 'done').join, 'any');
+  assert.ok(action.edges.some((edge) => edge.from === 'rejected' && edge.to === 'done'));
+  assert.ok(action.edges.some((edge) => edge.from === 'readback' && edge.to === 'verify'));
+});
+
+test('two distinct route DATA sets admit only their own exact observed question', () => {
+  for (const venture of ['tennis', 'longevity']) {
+    const source = input(venture);
+    const atom = prepareLedgerTextAtom(source).atom;
+    const question = source.ledger.accepted[0].payload.text;
+    const route = {
+      kind: 'content-generation.question-source-route', id: `route:${venture}:audience`,
+      source_ref: source.sourceRef, partition_label: source.partitionLabel,
+      venture_ref: `venture:${venture}`, audience_ref: `audience:${venture}:learners`,
+      locale: 'en-US', offer_ref: `offer:${venture}:next-step`, recipe_ref: `recipe:${venture}:draft`,
+      question_use_status: 'cleared', evidence_kind: 'customer_language',
+    };
+    const result = prepareObservedQuestion({ observation: atom, route, question });
+    assert.equal(result.accepted, true);
+    assert.equal(result.candidate.venture_ref, route.venture_ref);
+    assert.equal(result.candidate.offer_ref, route.offer_ref);
+    assert.equal(result.candidate.source_observation_ref, atom.atom_ref);
+    assert.equal(result.evidence.supports_answer, false);
+    assert.equal(result.evidence.rights_status, 'not_cleared');
+    assert.equal(prepareObservedQuestion({ observation: atom,
+      route: { ...route, source_ref: 'source:other:audience' }, question }).accepted, false);
+  }
+});
+
+test('the mounted process entry emits a decision and verifies current readback', async () => {
+  const source = input('tennis');
+  const directory = await mkdtemp(join(tmpdir(), 'observed-text-'));
+  try {
+    const ledgerPath = join(directory, 'ledger.json');
+    const readbackPath = join(directory, 'readback.json');
+    await writeFile(ledgerPath, JSON.stringify(source.ledger));
+    const script = new URL('../do-work/materialize-ledger-text.mjs', import.meta.url).pathname;
+    const prepare = spawnSync('node', [script, '--prepare', source.sourceRef, source.nativeRef,
+      source.partitionLabel, ledgerPath], { encoding: 'utf8' });
+    assert.equal(prepare.status, 0, prepare.stderr);
+    const decision = JSON.parse(prepare.stdout);
+    assert.equal(decision.accepted, true);
+    await writeFile(readbackPath, JSON.stringify({ found: true, payload: decision.atom }));
+    const verify = spawnSync('node', [script, '--verify', JSON.stringify(decision), readbackPath],
+      { encoding: 'utf8' });
+    assert.equal(verify.status, 0, verify.stderr);
+    assert.equal(JSON.parse(verify.stdout).atom.atom_ref, decision.atom.atom_ref);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});

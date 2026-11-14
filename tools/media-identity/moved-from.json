@@ -1,0 +1,45 @@
+{
+  "about": "Files moved here byte for byte from bitfield-packages (packages/media-identity): each names its source path and commit, the identity of its source bytes and of its bytes here. The first commit that holds them is the byte copy; later commits change import paths only. A file named .held is the same bytes with its test name taken off so the repository test does not run it; the reason is under `held`. `not_carried` names package files that were left in the package and why.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/media-identity/do-work/process-scripts/make-media-identity-records-from-command-output.py",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/media-identity/do-work/process-scripts/make-media-identity-records-from-command-output.py",
+      "source_identity": "1f:e491d30ee8aeba69400562a73ed54b28d780bdf71ea6a89f72e27d72aafe2d81",
+      "identity": "1f:e491d30ee8aeba69400562a73ed54b28d780bdf71ea6a89f72e27d72aafe2d81"
+    },
+    {
+      "from": "packages/media-identity/do-work/submit-media-identity.ts",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/media-identity/do-work/submit-media-identity.ts",
+      "source_identity": "1f:5eb470e5dd709e08f63cdd57e8574a30b70e7c1fb480a0452a4079babd0269aa",
+      "identity": "1f:5eb470e5dd709e08f63cdd57e8574a30b70e7c1fb480a0452a4079babd0269aa"
+    },
+    {
+      "from": "packages/media-identity/read-data/read-media-identity.ts",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/media-identity/read-data/read-media-identity.ts",
+      "source_identity": "1f:570fca958df8c65afe822726ad433b1aa0d6ad48da0359193c2c39f8029f200c",
+      "identity": "1f:570fca958df8c65afe822726ad433b1aa0d6ad48da0359193c2c39f8029f200c"
+    },
+    {
+      "from": "packages/media-identity/show/MediaIdentityPanel.tsx",
+      "commit": "4e74bd225ba91ee92939009fd9e6cb83d0543f78",
+      "to": "tools/media-identity/show/MediaIdentityPanel.tsx",
+      "source_identity": "1f:efeb8e6526db254e8dd37bdf9466a696a1de8d53183e3069ee46438855411b1b",
+      "identity_at_move": "1f:efeb8e6526db254e8dd37bdf9466a696a1de8d53183e3069ee46438855411b1b",
+      "byte_copy_commit": "63e148b1ae911999699eb33a36728e1c2d5b8ce3"
+    },
+    {
+      "from": "packages/media-identity/show/mount-media-identity.tsx",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/media-identity/show/mount-media-identity.tsx",
+      "source_identity": "1f:26778a5c5f396eebb6d58a19f247451f8f9664f5b352ed255cb2b9c3bcb3c892",
+      "identity_at_move": "1f:26778a5c5f396eebb6d58a19f247451f8f9664f5b352ed255cb2b9c3bcb3c892",
+      "byte_copy_commit": "63e148b1ae911999699eb33a36728e1c2d5b8ce3"
+    }
+  ]
+}

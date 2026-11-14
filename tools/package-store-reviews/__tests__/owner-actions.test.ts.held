@@ -1,0 +1,99 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { describe, expect, it } from 'vitest';
+
+import { buildOwnerActionRequest } from '../do-work/build-owner-action-request';
+import type { GenericRecordContracts } from '../read-data/descriptor-contracts';
+
+const root = join(process.cwd(), 'packages/package-store-reviews');
+const contracts = JSON.parse(readFileSync(join(root, 'data/generic-record-contracts.json'), 'utf8')) as GenericRecordContracts;
+
+describe('owner action request builder', () => {
+  it('builds generic write-batch requests from descriptor data', () => {
+    const result = buildOwnerActionRequest(contracts, {
+      action_id: 'append-statement',
+      operation_id: 'op-1',
+      input: {
+        'score-value': 5,
+        'headline-text': 'Works',
+        'body-text': 'It works.',
+        'subject-ref': 'package-alpha',
+        'actor-ref': 'person-1',
+        'created-at': '2026-06-22T10:00:00Z',
+        'visibility-state': 'public',
+        'version-context': '1.0.0',
+      },
+    });
+    expect(result.errors).toEqual([]);
+    expect(result.request?.request_kind).toBe('write-batch');
+    expect(result.trace).toMatchObject({ action_id: 'append-statement', request_kind: 'write-batch' });
+    if (result.request?.request_kind !== 'write-batch') throw new Error('expected write-batch');
+    expect(result.request.payload.writes).toHaveLength(1);
+    expect(result.request.payload.writes[0]).toMatchObject({
+      path: ['current-item', 'published-record'],
+      payload: {
+        kind: 'generic-record-event',
+        operation: 'append-record',
+        action_id: 'append-statement',
+        record_kind: 'user-statement',
+      },
+    });
+  });
+
+  it('rejects malformed descriptor fields before building a request', () => {
+    const result = buildOwnerActionRequest(contracts, {
+      action_id: 'append-statement',
+      operation_id: 'op-2',
+      input: {
+        'score-value': 99,
+        'visibility-state': 'public',
+      },
+    });
+    expect(result.request).toBeNull();
+    expect(result.errors).toContainEqual({ code: 'number-above-range', detail: 'score-value' });
+  });
+
+  it('builds relationship writes and process-session requests from the same primitive', () => {
+    const relationship = buildOwnerActionRequest(contracts, {
+      action_id: 'append-concern',
+      operation_id: 'op-3',
+      source_record_ref: 'entry-1',
+      input: {
+        'reason-key': 'off-topic',
+        'actor-ref': 'person-2',
+        'created-at': '2026-06-22T11:00:00Z',
+      },
+    });
+    expect(relationship.request?.request_kind).toBe('write-batch');
+    if (relationship.request?.request_kind !== 'write-batch') throw new Error('expected write-batch');
+    expect(relationship.request.payload.writes[0]).toMatchObject({
+      payload: {
+        kind: 'generic-relationship-event',
+        operation: 'append-relationship',
+        relationship_id: 'concern-about-statement',
+        source_record_ref: 'entry-1',
+      },
+    });
+
+    const process = buildOwnerActionRequest(contracts, {
+      action_id: 'run-external-check',
+      operation_id: 'op-4',
+      input: {},
+    });
+    expect(process.errors).toEqual([]);
+    expect(process.request).toMatchObject({
+      request_kind: 'process-session',
+      payload: { method: 'start_process_session', action_id: 'run-external-check' },
+    });
+  });
+
+  it('fails closed for unknown descriptors', () => {
+    const result = buildOwnerActionRequest(contracts, {
+      action_id: 'missing',
+      operation_id: 'op-5',
+      input: {},
+    });
+    expect(result.request).toBeNull();
+    expect(result.errors).toContainEqual({ code: 'missing-action-descriptor', detail: 'missing' });
+  });
+});

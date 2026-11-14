@@ -1,0 +1,403 @@
+// packages/live-namespace/tests/namespace-records-from-a-name-and-identity-table.test.mjs
+//
+// These pin the renderings where a mistake is SILENT and TOTAL: every record is written, every
+// write succeeds, and nothing resolves. A green suite that did not assert these would be
+// worthless, which is why each test names the failure it prevents. Four of them exist because
+// that exact failure already happened against the real corpus.
+
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import test from "node:test";
+import { fileURLToPath } from "node:url";
+
+import {
+  absolutePathFrom,
+  groupsOfRows,
+  identityFromSha256Hex,
+  locatorAddressFor,
+  nameAddressFor,
+  namePathLabelsFor,
+  namespaceRecordsFrom,
+  OLDER_WAYS_A_NAME_BECAME_AN_ADDRESS,
+  rowsFromTabSeparatedText,
+} from "../read-data/namespace-records-from-a-name-and-identity-table.mjs";
+import { publishNamespaceRecords } from "../do-work/publish-namespace-records.mjs";
+
+const HASH_A = "3300f2037090fbc433ce4f405d016aa949de441b1d7791c8aa0128361db7fedd";
+const HASH_B = "5ec4d3cbc9374276b83b5333f5251c28518c6749a924a93a044a614975e165f0";
+const GLUED = OLDER_WAYS_A_NAME_BECAME_AN_ADDRESS["glued-the-parts-and-left-the-dots-in"];
+
+function options(overrides = {}) {
+  return {
+    partitionLabel: "trillion",
+    nameRootAbsolutePath: "/Volumes/Expansion",
+    readTargetName: "local.files",
+    buildReadRequest: (row) => ({ operation: "read_file_range", path: row.storedPath }),
+    readReplyContract: { response_bytes_pointer: "/files/0/bytes_base64", response_encoding: "base64" },
+    ...overrides,
+  };
+}
+
+const packageRoot = fileURLToPath(new URL("..", import.meta.url));
+const LOCATOR_CONTRACT = JSON.parse(readFileSync(join(packageRoot, "things-to-store-and-run.json"), "utf8"))
+  .things.find((thing) => thing.address === "package::live-namespace::contract::locator").payload;
+
+test("A LOCATOR CARRIES EVERY FIELD THE RESOLVER REQUIRES, read off the contract, not remembered", () => {
+  // 75,869 locators once published without response_bytes_pointer and response_encoding. The
+  // run reported 0 rejected and every /cas read answered 500 `missing field response_bytes_pointer`.
+  // The contract row names the required fields; this test reads them from there, so the shaper
+  // and the contract cannot drift apart silently again.
+  const rows = [{ name: "a.mp4", sha256Hex: HASH_A, storedPath: "/All Files/33/00/a.mp4" }];
+  const [locator] = namespaceRecordsFrom(rows, options()).locators.map((entry) => entry.payload);
+  for (const field of LOCATOR_CONTRACT.required_fields) {
+    if (field === "byte_length") continue; // absent by design when the bytes were not measured
+    assert.ok(Object.hasOwn(locator, field), `locator is missing required field ${field}`);
+  }
+  assert.equal(locator.response_bytes_pointer, "/files/0/bytes_base64");
+  assert.equal(locator.response_encoding, "base64");
+  // Naming a target without saying how it replies is refused, not defaulted.
+  assert.throws(() => namespaceRecordsFrom(rows, options({ readReplyContract: undefined })), /response_encoding is required/);
+  // The durability the shaper writes is a member of the contract's DATA vocabulary. The
+  // vocabulary had no owner anywhere until 2026-09-05; this reads it off the contract row so
+  // the shaper cannot invent a state the contract does not list.
+  assert.ok(Array.isArray(LOCATOR_CONTRACT.durability_vocabulary) && LOCATOR_CONTRACT.durability_vocabulary.length > 0);
+  assert.ok(
+    LOCATOR_CONTRACT.durability_vocabulary.includes(locator.durability),
+    `locator durability ${locator.durability} is outside the contract vocabulary`,
+  );
+  // A fresh locator over a single local copy can claim nothing better than local-only.
+  assert.equal(locator.durability, "local-only");
+  assert.throws(() => namespaceRecordsFrom(rows, options({ readReplyContract: { response_encoding: "base64" } })), /response_bytes_pointer is required/);
+});
+
+async function collect(asyncIterable) {
+  const out = [];
+  for await (const item of asyncIterable) out.push(item);
+  return out;
+}
+
+test("an identity carries its multihash code, because the bare hex addresses nothing", () => {
+  assert.equal(identityFromSha256Hex(HASH_A), `12:${HASH_A}`);
+  assert.equal(locatorAddressFor(identityFromSha256Hex(HASH_A)), `live-namespace::locator::12:${HASH_A}`);
+  // The failure this prevents: writing the raw hex produces rows that resolve to no bytes.
+  assert.notEqual(locatorAddressFor(HASH_A), locatorAddressFor(identityFromSha256Hex(HASH_A)));
+});
+
+test("a malformed identity is REFUSED rather than encoded into a dead address", () => {
+  for (const bad of [undefined, null, "", "not-hex", HASH_A.toUpperCase(), `${HASH_A}0`, HASH_A.slice(0, 63)]) {
+    assert.throws(() => identityFromSha256Hex(bad), /64 lowercase hex/);
+  }
+});
+
+test("a name collection is ONE label holding the whole parent path, never one per level", () => {
+  assert.deepEqual(
+    namePathLabelsFor("/Volumes/Expansion/YouTube Channels/Channels/clip.mp4"),
+    ["live-namespace", "name", "/Volumes/Expansion/YouTube Channels/Channels"],
+  );
+  // The failure this prevents: per-level labels make a prefix scan of a shallow collection
+  // return its entire descendant subtree, so listing the root costs everything.
+  const labels = namePathLabelsFor("/a/b/c/d/e.txt");
+  assert.equal(labels.length, 3);
+  assert.equal(labels[2], "/a/b/c/d");
+});
+
+test("the root collection is '/' and never an empty string", () => {
+  assert.deepEqual(namePathLabelsFor("/top.txt"), ["live-namespace", "name", "/"]);
+});
+
+test("a root-relative name becomes absolute without inventing or doubling a separator", () => {
+  assert.equal(absolutePathFrom("/Volumes/Expansion", "a/b.mp4"), "/Volumes/Expansion/a/b.mp4");
+  assert.equal(absolutePathFrom("/Volumes/Expansion/", "a/b.mp4"), "/Volumes/Expansion/a/b.mp4");
+  assert.equal(absolutePathFrom("/Volumes/Expansion", "/a/b.mp4"), "/Volumes/Expansion/a/b.mp4");
+  assert.equal(nameAddressFor("/Volumes/Expansion/a/b.mp4"), "live-namespace::name::/Volumes/Expansion/a/b.mp4");
+});
+
+test("EVERY SPELLING OF ONE NAME PRODUCES ONE ADDRESS, including the './' the real producer emits", () => {
+  // This is the shape 88,163 of the first 95,047 real rows actually carried. The earlier
+  // fixtures were INVENTED, so they only proved the spellings I had already thought of, and
+  // `./` went straight into the address as a `/./` step. Sample the producer, do not guess.
+  const canonical = "/Volumes/Expansion/All Files/YouTube Channels/clip.mp4";
+  for (const spelling of [
+    "All Files/YouTube Channels/clip.mp4",
+    "./All Files/YouTube Channels/clip.mp4",
+    "/All Files/YouTube Channels/clip.mp4",
+    "All Files//YouTube Channels/clip.mp4",
+    "./All Files/./YouTube Channels/clip.mp4",
+    "All Files/YouTube Channels/./clip.mp4",
+  ]) {
+    assert.equal(absolutePathFrom("/Volumes/Expansion", spelling), canonical, `spelling: ${spelling}`);
+  }
+  // And the collection label follows, so no phantom "." folder appears in a listing.
+  assert.equal(
+    namePathLabelsFor(absolutePathFrom("/Volumes/Expansion", "./All Files/clip.mp4"))[2],
+    "/Volumes/Expansion/All Files",
+  );
+});
+
+test("a name that escapes its root or cleans up to nothing is REFUSED, not silently rerooted", () => {
+  assert.throws(() => absolutePathFrom("/Volumes/Expansion", "../outside.mp4"), /escapes its root/);
+  assert.throws(() => absolutePathFrom("/Volumes/Expansion", "./"), /empty after cleanup/);
+  assert.equal(absolutePathFrom("/Volumes/Expansion", "a/../b.mp4"), "/Volumes/Expansion/b.mp4");
+});
+
+test("MANY NAMES SHARE ONE IDENTITY: one locator, two names, and that is not an error", () => {
+  const rows = [
+    { name: "one.mp4", sha256Hex: HASH_A, storedPath: "/All Files/33/00/a.mp4" },
+    { name: "nested/two.mp4", sha256Hex: HASH_A, storedPath: "/All Files/33/00/a.mp4" },
+    { name: "three.mp4", sha256Hex: HASH_B, storedPath: "/All Files/5e/c4/b.mp4" },
+  ];
+  const { locators, names, rejected } = namespaceRecordsFrom(rows, options());
+  assert.equal(locators.length, 2, "one locator per DISTINCT identity");
+  assert.equal(names.length, 3, "one name per row");
+  assert.equal(rejected.length, 0);
+  assert.deepEqual(
+    names.map((entry) => entry.payload.identity),
+    [`12:${HASH_A}`, `12:${HASH_A}`, `12:${HASH_B}`],
+  );
+});
+
+test("A NAME PAYLOAD USES THE READER'S FIELD NAMES, or it is silently served as an empty folder", () => {
+  // `background-runner-shell` decodes a name into `NamespaceName {name, identity, byte_length,
+  // modified_at_ms}` and treats an ABSENT `identity` as "this is a collection". So a synonym
+  // like `content_hash` publishes 95,047 records that all read back fine, list as folders, and
+  // serve zero bytes. This pins the contract to the reader rather than to my vocabulary.
+  const rows = [{ name: "a.mp4", sha256Hex: HASH_A, storedPath: "/s/a.mp4" }];
+  const [name] = namespaceRecordsFrom(rows, options({
+    fileFactsFor: () => ({ exists: true, byteLength: 235413564, modifiedAtMs: 1756000000000 }),
+  })).names;
+
+  assert.equal(name.payload.identity, `12:${HASH_A}`, "the field is `identity`, not a synonym");
+  assert.equal(name.payload.name, "a.mp4");
+  // Absent byte_length is reported to the mount as getcontentlength 0, which Finder shows as an
+  // empty file and Premiere refuses to open.
+  assert.equal(name.payload.byte_length, 235413564);
+  assert.equal(name.payload.modified_at_ms, 1756000000000);
+  // The path is the address. Carrying it in the payload too is a second place one truth lives.
+  assert.equal(name.payload.path, undefined);
+  assert.equal(name.payload.content_hash, undefined);
+});
+
+test("bytes are measured ONCE PER IDENTITY, not once per name", () => {
+  let calls = 0;
+  const rows = [
+    { name: "one.mp4", sha256Hex: HASH_A, storedPath: "/s/a.mp4" },
+    { name: "copy.mp4", sha256Hex: HASH_A, storedPath: "/s/a.mp4" },
+    { name: "other.mp4", sha256Hex: HASH_B, storedPath: "/s/b.mp4" },
+  ];
+  const { names } = namespaceRecordsFrom(rows, options({
+    fileFactsFor: () => { calls += 1; return { exists: true, byteLength: 10 + calls }; },
+  }));
+  assert.equal(calls, 2, "two distinct identities, two measurements, not three");
+  // Duplicate content still gets the size, because it is read from the identity's facts.
+  assert.deepEqual(names.map((entry) => entry.payload.byte_length), [11, 11, 12]);
+});
+
+test("a file the table names but the disk does not have is published UNAVAILABLE, not asserted present", () => {
+  const rows = [{ name: "gone.mp4", sha256Hex: HASH_A, storedPath: "/s/gone.mp4" }];
+  const { locators } = namespaceRecordsFrom(rows, options({ fileFactsFor: () => ({ exists: false }) }));
+  assert.equal(locators[0].payload.available, false);
+  assert.equal(locators[0].payload.byte_length, undefined);
+});
+
+test("a bad row FAILS CLOSED into rejected and never disappears", () => {
+  const rows = [
+    { name: "good.mp4", sha256Hex: HASH_A, storedPath: "/All Files/33/00/a.mp4" },
+    { name: "bad-hash.mp4", sha256Hex: "oops", storedPath: "/All Files/x.mp4" },
+    { name: "", sha256Hex: HASH_B, storedPath: "/All Files/y.mp4" },
+    { name: "relative-store.mp4", sha256Hex: HASH_B, storedPath: "All Files/z.mp4" },
+  ];
+  const { locators, names, rejected } = namespaceRecordsFrom(rows, options());
+  assert.equal(names.length, 1);
+  assert.equal(locators.length, 1);
+  assert.equal(rejected.length, 3, "every unusable row is REPORTED, never skipped");
+  assert.equal(rejected.length + names.length, rows.length, "no row vanishes");
+});
+
+test("the locator states how the source receives its window, or the source is asked for everything", () => {
+  const rows = [{ name: "a.mp4", sha256Hex: HASH_A, storedPath: "/All Files/33/00/a.mp4" }];
+  const [locator] = namespaceRecordsFrom(rows, options()).locators.map((entry) => entry.payload);
+  // The resolver REFUSES a locator declaring neither range_keys nor range_render, because it
+  // would hand the source no window and receive a whole 54 GB representation.
+  assert.deepEqual(locator.range_keys, { offset: "offset", length: "length" });
+  assert.equal(locator.range_render, undefined, "exactly one of the two spellings, never both");
+  assert.equal(locator.target, "local.files");
+  assert.equal(locator.request.path, "/All Files/33/00/a.mp4");
+});
+
+test("column meaning is caller DATA, so another producer's order is a parameter not an edit", () => {
+  const text = ["old_path\tsha256\tall_files_path", `a/b.mp4\t${HASH_A}\t/All Files/33/00/a.mp4`, ""].join("\n");
+  const rows = rowsFromTabSeparatedText(text, { nameColumn: 0, identityColumn: 1, storedPathColumn: 2 });
+  assert.equal(rows.length, 1, "the header is skipped and the trailing blank line is not a row");
+  assert.equal(rows[0].name, "a/b.mp4");
+  assert.equal(rows[0].sha256Hex, HASH_A);
+
+  const reordered = ["h", `${HASH_A}\t/All Files/33/00/a.mp4\ta/b.mp4`].join("\n");
+  const swapped = rowsFromTabSeparatedText(reordered, { nameColumn: 2, identityColumn: 0, storedPathColumn: 1 });
+  assert.deepEqual(
+    { name: swapped[0].name, sha256Hex: swapped[0].sha256Hex },
+    { name: "a/b.mp4", sha256Hex: HASH_A },
+  );
+});
+
+test("taking back an older way of writing a name OMITS payload entirely, or it is a tombstone", () => {
+  const rows = [
+    { name: "./All Files/a.mp4", sha256Hex: HASH_A, storedPath: "/All Files/33/00/a.mp4" },
+    { name: "All Files/b.mp4", sha256Hex: HASH_B, storedPath: "/All Files/5e/c4/b.mp4" },
+  ];
+  const { names, retractions } = namespaceRecordsFrom(rows, options({ olderAbsolutePathFrom: GLUED }));
+
+  // Only the row whose address actually CHANGED is taken back, so re-running against a clean
+  // corpus churns nothing.
+  assert.equal(retractions.length, 1);
+  assert.equal(retractions[0].address_label, "live-namespace::name::/Volumes/Expansion/./All Files/a.mp4");
+  assert.equal(names[0].address_label, "live-namespace::name::/Volumes/Expansion/All Files/a.mp4");
+
+  // The failure this prevents (L137): `payload: null` writes the four bytes `null`, so the
+  // address stays in the index AND in the reclaim reachable set, which is a tombstone rather
+  // than a real removal. Absence of the key is the only real one.
+  assert.equal(Object.hasOwn(retractions[0], "payload"), false, "no payload key at all");
+  assert.equal(JSON.stringify(retractions[0]).includes("payload"), false);
+});
+
+test("THE OLDER WAY IS A ROOT AND A SPELLING, because both went wrong at once", () => {
+  const rows = [{ name: "./YouTube Channels/clip.mp4", sha256Hex: HASH_A, storedPath: "/All Files/33/00/a.mp4" }];
+  const { names, retractions } = namespaceRecordsFrom(rows, options({
+    nameRootAbsolutePath: "/Volumes/Expansion",
+    olderAbsolutePathFrom: GLUED,
+    olderNameRootAbsolutePath: "/Volumes/Expansion/All Files",
+  }));
+  assert.equal(names[0].address_label, "live-namespace::name::/Volumes/Expansion/YouTube Channels/clip.mp4");
+  // Reproducing only the spelling would leave every wrongly-rooted address behind while
+  // reporting a clean run, which is the quietest way for a cleanup to do nothing.
+  assert.equal(retractions[0].address_label, "live-namespace::name::/Volumes/Expansion/All Files/./YouTube Channels/clip.mp4");
+});
+
+test("no older way named means nothing is taken back, so publishing never deletes by accident", () => {
+  const rows = [{ name: "./a.mp4", sha256Hex: HASH_A, storedPath: "/All Files/33/00/a.mp4" }];
+  assert.equal(namespaceRecordsFrom(rows, options()).retractions.length, 0);
+});
+
+test("groups are exact, the final short group is not dropped, and rows are never all held at once", async () => {
+  assert.deepEqual(await collect(groupsOfRows([1, 2, 3, 4, 5], 2)), [[1, 2], [3, 4], [5]]);
+  assert.deepEqual(await collect(groupsOfRows([], 2)), []);
+  await assert.rejects(async () => collect(groupsOfRows([1], 0)), /positive integer/);
+
+  // The point of the seam: a 200,000-row stream is walked with at most `size` rows alive. If
+  // this ever buffers, memory grows with the drive and the namespace stops being able to cover
+  // everything someone owns, which is the entire job.
+  let alive = 0;
+  let mostAliveAtOnce = 0;
+  const endless = (async function* () {
+    for (let index = 0; index < 200000; index += 1) {
+      alive += 1;
+      mostAliveAtOnce = Math.max(mostAliveAtOnce, alive);
+      yield { index };
+    }
+  })();
+  let groups = 0;
+  for await (const group of groupsOfRows(endless, 500)) {
+    groups += 1;
+    alive -= group.length;
+  }
+  assert.equal(groups, 400);
+  assert.ok(mostAliveAtOnce <= 500, `at most one group alive, saw ${mostAliveAtOnce}`);
+});
+
+test("THE PUBLISHER FORWARDS WHAT IT IS GIVEN, and REFUSES what it does not recognise", async () => {
+  // A pass-through that quietly swallows an option it does not forward is the most expensive
+  // shape of bug available here: the caller measured every file, the record builder used its
+  // own default, all 170,916 writes succeeded, and the corpus published with no sizes while the
+  // run printed zero problems. Both halves are pinned.
+  const written = [];
+  const rows = [{ name: "a.mp4", sha256Hex: HASH_A, storedPath: "/s/a.mp4" }];
+  const common = {
+    openRows: () => (async function* () { yield* rows; })(),
+    partitionLabel: "p",
+    nameRootAbsolutePath: "/root",
+    readTargetName: "local.files",
+    buildReadRequest: (row) => ({ operation: "read_file_range", path: row.storedPath }),
+    readReplyContract: { response_bytes_pointer: "/files/0/bytes_base64", response_encoding: "base64" },
+    writeBatch: async (batch) => { written.push(...batch); },
+  };
+
+  await publishNamespaceRecords({ ...common, fileFactsFor: () => ({ exists: true, byteLength: 4242 }) });
+  const name = written.find((entry) => entry.payload?.kind === "live-namespace.name");
+  assert.equal(name.payload.byte_length, 4242, "the measurement must reach the record");
+
+  await assert.rejects(
+    publishNamespaceRecords({ ...common, fileFctsFor: () => ({}) }),
+    /unknown option/,
+    "a misspelled or unwired option must fail, not publish a sizeless corpus",
+  );
+});
+
+test("ONE NAME GIVEN TWO IDENTITIES IS REPORTED, not silently resolved to whichever came last", async () => {
+  // The quietest data loss available here. Both rows write the same address, the later wins,
+  // and the earlier file becomes unreachable by name with nothing reported. Found in the first
+  // real corpus: 224 names carried two identities, and a tennis clip ended up resolving to a
+  // 1,067-byte zero-filled stub because the stub's row came second. The two rows are 600 apart
+  // here, so a per-group check would miss it.
+  const rows = [{ name: "clip.mp4", sha256Hex: HASH_A, storedPath: "/s/a.mp4" }];
+  for (let index = 0; index < 600; index += 1) {
+    rows.push({ name: `filler-${index}.mp4`, sha256Hex: HASH_B, storedPath: "/s/b.mp4" });
+  }
+  rows.push({ name: "clip.mp4", sha256Hex: HASH_B, storedPath: "/s/b.mp4" });
+  // An EXACT repeat is harmless and must not be reported, or the signal drowns: the first real
+  // corpus had 1,468 duplicate names of which only 224 actually conflicted.
+  rows.push({ name: "clip.mp4", sha256Hex: HASH_B, storedPath: "/s/b.mp4" });
+
+  const result = await publishNamespaceRecords({
+    openRows: () => (async function* () { yield* rows; })(),
+    partitionLabel: "p",
+    nameRootAbsolutePath: "/x",
+    readTargetName: "local.files",
+    buildReadRequest: (row) => ({ operation: "read_file_range", path: row.storedPath }),
+    readReplyContract: { response_bytes_pointer: "/files/0/bytes_base64", response_encoding: "base64" },
+    writeBatch: async () => {},
+    batchSize: 100,
+  });
+
+  assert.equal(result.names_given_more_than_one_identity, 1, "the conflict, and not the exact repeat");
+  assert.deepEqual(result.names_given_more_than_one_identity_sample[0], {
+    address_label: "live-namespace::name::/x/clip.mp4",
+    resolves_to: `12:${HASH_B}`,
+    no_longer_reachable_by_this_name: `12:${HASH_A}`,
+  });
+});
+
+test("A RETRACTION NEVER DELETES A NAME THE SAME RUN PUBLISHED, even across groups", async () => {
+  // Under root "/x" the row "All Files/a.mp4" spells the same address the older way (root
+  // "/x/All Files") gives the row "a.mp4". They are 600 rows apart, so a per-group check would
+  // miss it: the guard has to see every name the whole run publishes, which is why taking back
+  // an older addressing is a SECOND pass over the table rather than a filter inside the builder.
+  const rows = [{ name: "a.mp4", sha256Hex: HASH_A, storedPath: "/s/a.mp4" }];
+  for (let index = 0; index < 600; index += 1) {
+    rows.push({ name: `filler-${index}.mp4`, sha256Hex: HASH_B, storedPath: "/s/b.mp4" });
+  }
+  rows.push({ name: "All Files/a.mp4", sha256Hex: HASH_A, storedPath: "/s/a.mp4" });
+
+  const written = [];
+  const result = await publishNamespaceRecords({
+    openRows: () => (async function* () { yield* rows; })(),
+    partitionLabel: "p",
+    nameRootAbsolutePath: "/x",
+    readTargetName: "local.files",
+    buildReadRequest: (row) => ({ operation: "read_file_range", path: row.storedPath }),
+    readReplyContract: { response_bytes_pointer: "/files/0/bytes_base64", response_encoding: "base64" },
+    writeBatch: async (batch) => { written.push(...batch); },
+    batchSize: 100,
+    olderAbsolutePathFrom: GLUED,
+    olderNameRootAbsolutePath: "/x/All Files",
+  });
+
+  const published = new Set(
+    written.filter((entry) => entry.payload?.kind === "live-namespace.name").map((entry) => entry.address_label),
+  );
+  const takenBack = written.filter((entry) => !Object.hasOwn(entry, "payload")).map((entry) => entry.address_label);
+  for (const address of takenBack) {
+    assert.equal(published.has(address), false, `taking back ${address} would unname a published file`);
+  }
+  assert.equal(result.retractions_withheld_to_avoid_deleting_a_new_name, 1);
+  assert.equal(result.rejected_count, 0);
+});

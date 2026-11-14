@@ -1,0 +1,116 @@
+#!/usr/bin/env python3
+# packages/observed-content/tests/test_channel_descriptor_decoder_wiring.py
+#
+# CATEGORY GUARD (L095/L130/L127) for agnostic-chat: every connected channel's
+# `conversation_source_descriptor` must resolve the full pull chain that the
+# observed-content fetch dispatcher traverses at click time:
+#
+#   descriptor.decoder_process_module.script_address
+#     -> package::<owner>::stored-bytes::<NAME>
+#     -> a {type:stored_bytes, name:<NAME>, source_path:...} declaration in <owner>
+#     -> a real decoder .py file on disk
+#
+# A dangling script_address (renamed script, moved file, missing stored_bytes
+# declaration) silently breaks that channel's live thread load even when the
+# decoder itself is perfect — this catches it offline, no engine required.
+import json, pathlib, base64, re, sys
+
+PKGS = pathlib.Path(__file__).resolve().parents[2]
+# source_ref -> package that OWNS the conversation_source_descriptor
+DESC_HOMES = {
+    "telegram": "telegram-bot-connector", "slack": "slack-bot-connector",
+    "signal": "signal-bot-connector", "gmail": "gmail-mailbox-decoder",
+    "imessage": "imessage-chatdb-decoder", "instagram": "instagram-dm-connector",
+    "messenger": "instagram-dm-connector",
+}
+
+
+def _things(pkg):
+    doc = json.loads((PKGS / pkg / "things-to-store-and-run.json").read_text())
+    return doc if isinstance(doc, list) else doc.get("things", [])
+
+
+def _deep_script_address(value):
+    """Find a decoder script_address anywhere in the descriptor value."""
+    if isinstance(value, dict):
+        dpm = value.get("decoder_process_module")
+        if isinstance(dpm, dict) and isinstance(dpm.get("script_address"), str):
+            return dpm["script_address"]
+        for v in value.values():
+            got = _deep_script_address(v)
+            if got:
+                return got
+    elif isinstance(value, list):
+        for v in value:
+            got = _deep_script_address(v)
+            if got:
+                return got
+    return None
+
+
+def _descriptor_value(home, src):
+    for t in _things(home):
+        addr = t.get("address", "")
+        payload = t.get("payload")
+        is_descriptor = "conversation_source_descriptor" in addr or (
+            isinstance(payload, dict) and payload.get("property_id") ==
+            "prop:observed_content:conversation_source_descriptor"
+        )
+        if f"source:{src}" in addr and is_descriptor:
+            if isinstance(t.get("payload"), dict):
+                if isinstance(payload.get("value_json"), str):
+                    values = json.loads(payload["value_json"])
+                    return values[0] if isinstance(values, list) and values else values
+                return payload
+            b64 = t.get("payload_base64")
+            if b64:
+                vj = json.loads(base64.b64decode(b64)).get("value_json", "[]")
+                v = json.loads(vj)
+                return v[0] if isinstance(v, list) and v else v
+    # A connector may ship an inert connection template instead of an active
+    # customer source fact. The generic service-connections owner materializes
+    # it only after that customer has connected the service.
+    vendor = "facebook-messenger" if src == "messenger" else src
+    for t in _things(home):
+        p = t.get("payload")
+        if not isinstance(p, dict):
+            continue
+        if p.get("kind") != "service-connection-conversation-source-template-set":
+            continue
+        if p.get("vendor") != vendor:
+            continue
+        for template in p.get("templates", []):
+            if isinstance(template, dict) and template.get("source_ref") == f"source:{src}":
+                return template.get("descriptor")
+    return None
+
+
+def _resolve(script_address):
+    m = re.match(r"package::([^:]+)::stored-bytes::(.+)$", script_address or "")
+    if not m:
+        return f"BAD-ADDR:{script_address}"
+    owner, name = m.group(1), m.group(2)
+    for t in _things(owner):
+        if t.get("type") in ("stored_bytes", "stored-bytes") and t.get("name") == name:
+            sp = t.get("source_path", "")
+            return "FILE-OK" if (PKGS / owner / sp).exists() else f"FILE-MISSING:{sp}"
+    return f"NO-STORED-BYTES-DECL:{owner}::{name}"
+
+
+def test_every_channel_descriptor_resolves_a_real_decoder_file():
+    for src, home in DESC_HOMES.items():
+        v = _descriptor_value(home, src)
+        assert v is not None, f"{src}: no conversation_source_descriptor in {home}"
+        sa = _deep_script_address(v)
+        assert sa, f"{src}: descriptor has no decoder script_address"
+        status = _resolve(sa)
+        assert status == "FILE-OK", f"{src}: script_address does not resolve to a real decoder file -> {status} (addr={sa})"
+
+
+if __name__ == "__main__":
+    try:
+        test_every_channel_descriptor_resolves_a_real_decoder_file()
+        print("PASS test_every_channel_descriptor_resolves_a_real_decoder_file (7/7 channels)")
+        sys.exit(0)
+    except AssertionError as e:
+        print(f"FAIL: {e}"); sys.exit(1)

@@ -1,0 +1,16 @@
+[
+  {
+    "type": "assistant",
+    "role": "assistant",
+    "timestamp": "2023-07-22T04:26:40.000100Z",
+    "content": "hey team, standup in 5",
+    "atomRef": "atom:1f:2b3d9af8f8947fd74f8f5347084c5ea1a99e33a8c5c0ad4464f536b161868840"
+  },
+  {
+    "type": "user",
+    "role": "human",
+    "timestamp": "2023-07-22T04:26:45.000100Z",
+    "content": "on my way",
+    "atomRef": "atom:1f:91bfccb35bd5427b7d0c26643de98eb044d7507febb15707dc84cb971fc285b9"
+  }
+]

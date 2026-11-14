@@ -1,0 +1,39 @@
+import assert from 'node:assert/strict';
+import { existsSync, readFileSync } from 'node:fs';
+import test from 'node:test';
+
+const root = new URL('../', import.meta.url);
+const source = (path) => readFileSync(new URL(path, root), 'utf8');
+
+test('browser join uses the hosted owner and no client effect writer survives', () => {
+  assert.equal(existsSync(new URL('do-work/record-activity-effect.ts', root)), false);
+  assert.match(source('do-work/join-group.ts'), /target: 'subject-participant\.join-subject'/);
+  assert.match(source('do-work/create-group-post.ts'), /target: 'group-page\.share-item'/);
+  assert.doesNotMatch(source('do-work/join-group.ts'), /slot::workflow|ambient_actor|access_decision|actor:local/);
+  assert.doesNotMatch(source('do-work/create-group-post.ts').split('async function admitted')[0], /slot::workflow|ambient_actor|access_decision|actor:local|requestedAt/);
+  const forbidden = new RegExp([
+    ['record', 'Activity', 'Effect'].join(''),
+    ['signed', 'event', 'effects'].join('-'),
+    ['destination', 'surface'].join('-'),
+  ].join('|'));
+  assert.doesNotMatch(source('show/GroupPageView.tsx'), forbidden);
+});
+
+test('subject surfaces are canonical placeable intents, never destination descriptors', () => {
+  const reader = source('read-data/read-subject-surfaces.ts');
+  assert.match(reader, /payload\.kind !== 'placeable-surface'/);
+  assert.doesNotMatch(reader, /destination-descriptor/);
+  assert.match(source('show/GroupPageView.tsx'), /emitPlaceableSurfaceIntent/);
+});
+
+test('community sign-in stays in a modal and never creates a replacement workspace tab', () => {
+  const view = source('show/GroupPageView.tsx');
+  const deployedEntryBytes = source('built-stored-bytes/entry-bytes-group-page');
+  assert.match(view, /<Modal/);
+  assert.match(view, /<PlaceableSurfaceHost/);
+  assert.match(view, /props\.sign_in_surface/);
+  assert.doesNotMatch(view, /trillion-community-sign-in/);
+  assert.doesNotMatch(view, /materialTarget:\s*'component:account-session\.magic-link-login'/);
+  assert.match(deployedEntryBytes, /Sign in to join the conversation/);
+  assert.doesNotMatch(deployedEntryBytes, /trillion-community-sign-in/);
+});

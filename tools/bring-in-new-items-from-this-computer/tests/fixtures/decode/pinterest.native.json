@@ -1,0 +1,16 @@
+{
+  "account_id": "acct.me",
+  "categories": {
+    "pins": {
+      "items": [
+        {"id": "p1", "title": "Sunset over the bay", "description": "long exposure", "created_at": "2026-07-30T00:00:00Z"},
+        {"id": "p2", "title": "Trail map", "description": "north loop", "created_at": "2026-07-30T00:00:05Z"}
+      ]
+    },
+    "boards": {
+      "items": [
+        {"id": "b1", "name": "Travel", "description": "places to go", "created_at": "2026-07-29T00:00:00Z"}
+      ]
+    }
+  }
+}

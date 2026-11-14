@@ -56,6 +56,44 @@
       "to": "tools/poker/things-to-store-and-run.json",
       "source_identity": "1f:389d40b01856f9d8b426ee2884619bc00f877fcdc93a9587bf5d23841838bb6b",
       "identity": "1f:389d40b01856f9d8b426ee2884619bc00f877fcdc93a9587bf5d23841838bb6b"
+    },
+    {
+      "from": "packages/poker-rules/do-work/poker-rule-requests.ts",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/poker/do-work/poker-rule-requests.ts",
+      "source_identity": "1f:afcd403a59b9476d651e165f404b332f923e404882851c84a4fb11e1c9177e90",
+      "identity_at_move": "1f:afcd403a59b9476d651e165f404b332f923e404882851c84a4fb11e1c9177e90",
+      "byte_copy_commit": "63e148b1ae911999699eb33a36728e1c2d5b8ce3"
+    },
+    {
+      "from": "packages/poker-rules/read-data/poker-rules.test.ts",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/poker/read-data/poker-rules.test.ts.held",
+      "source_identity": "1f:a347896833a483d267ae9983c8339018c171d5ca3a62bc525f12bdeb9b97c933",
+      "identity": "1f:a347896833a483d267ae9983c8339018c171d5ca3a62bc525f12bdeb9b97c933"
+    },
+    {
+      "from": "packages/poker-rules/read-data/poker-rules.ts",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/poker/read-data/poker-rules.ts",
+      "source_identity": "1f:ff70a8c45269e619511b8746698a123f0d4807cd61642698b22c8bd67e375d77",
+      "identity": "1f:ff70a8c45269e619511b8746698a123f0d4807cd61642698b22c8bd67e375d77"
+    },
+    {
+      "from": "packages/poker-rules/show/PokerRuleSummary.tsx",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/poker/show/PokerRuleSummary.tsx",
+      "source_identity": "1f:1061c712b530d3ef541aa21bfabbc6ab4a4ae0357f0715312e9da5df50f2ed47",
+      "identity_at_move": "1f:1061c712b530d3ef541aa21bfabbc6ab4a4ae0357f0715312e9da5df50f2ed47",
+      "byte_copy_commit": "63e148b1ae911999699eb33a36728e1c2d5b8ce3"
+    },
+    {
+      "from": "packages/poker-rules/show/mount-poker-rules.tsx",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/poker/show/mount-poker-rules.tsx",
+      "source_identity": "1f:735c9034de3664b7cd2bf7a5c17c739dfb7847d7fd5c65255b1824e5428e14c8",
+      "identity_at_move": "1f:735c9034de3664b7cd2bf7a5c17c739dfb7847d7fd5c65255b1824e5428e14c8",
+      "byte_copy_commit": "63e148b1ae911999699eb33a36728e1c2d5b8ce3"
     }
   ]
 }

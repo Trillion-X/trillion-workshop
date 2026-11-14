@@ -1,0 +1,71 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-TRACK-AND-COMPARE-MOVEMENT-DO-WORK-PROCESS-SCRIPTS-RENDER-POSE-SCHEMA-FROM-BITFIELD-PACKAGES",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "census-and-restore lane 10, 2026-11-13: no rewrites from scratch; originals move wholesale",
+    "message_multihash": "1f:31cfaef8fe1b095bcdda0c309aeb261d0b928f36c81425a5d444f4f86483ec45",
+    "quote": "standing order: NO rewrites from scratch. Originals move wholesale (byte for byte, with moved-from receipts)"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "bitfield-packages",
+      "commit": "13c4e92e617330b805003e167797097deb518343",
+      "path": "packages/motion-comparison/do-work/process-scripts/render/pose_schema.py",
+      "multihash": "1f:2ea8c71598857a533055f06b6497181efef921ad3db466e931ad2baf174f8ef2",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-17T06:00:58Z",
+        "deleted_with": "the change that lands this move: the package file leaves bitfield-packages in the same change"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/track-and-compare-movement/do-work/process-scripts/render/pose_schema.py"
+    }
+  ],
+  "preserve": [
+    "the file is the original package file, moved with its import paths changed to this tree and nothing else",
+    "what the file did in the package: its exports, its rules and its edge cases are not rewritten here"
+  ],
+  "allowed_deltas": [
+    "import paths and the file header name the file's new place",
+    "a real name or a path in one person's home folder is replaced by a made-up one (baseline.redactions)"
+  ],
+  "banned_substitutions": [
+    "a second implementation of the same job beside this file",
+    "a rewrite from scratch of what the package file does"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:2ea8c71598857a533055f06b6497181efef921ad3db466e931ad2baf174f8ef2",
+    "target_multihash_at_baseline": "1f:f554f6fc4d19bf3ed9117ef086736ed5190d535a2a4470b0a90be479a43dbfcb",
+    "redactions": [
+      {
+        "from": "Federer",
+        "to": "Reference Player"
+      }
+    ],
+    "recorded_at": "2026-11-14T06:01:58Z",
+    "rows": [
+      {
+        "path": "tools/track-and-compare-movement/do-work/process-scripts/render/pose_schema.py",
+        "source_multihash": "1f:2ea8c71598857a533055f06b6497181efef921ad3db466e931ad2baf174f8ef2",
+        "target_multihash_at_baseline": "1f:f554f6fc4d19bf3ed9117ef086736ed5190d535a2a4470b0a90be479a43dbfcb"
+      }
+    ],
+    "commit": "63e148b1ae911999699eb33a36728e1c2d5b8ce3"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "class ComparisonSpec:",
+      "def __init__(self, channels, mirror, min_reliable=8, epsilon=0.55,"
+    ],
+    "test_refs": [],
+    "render_refs": [],
+    "originality_ref": null
+  }
+}

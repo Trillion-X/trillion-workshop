@@ -1,0 +1,126 @@
+import { describe, expect, it } from 'vitest';
+import { buildOwnerActionRequest, type OwnerActionRequest } from './invoke-owner-action';
+import type { GenericRecordProjectionActionContract } from '../read-data/generic-record-projection';
+
+const CONTRACT: GenericRecordProjectionActionContract = {
+  kind: 'generic-record-projection-action-contract',
+  package: 'group-page',
+  version: 1,
+  record_sources: [],
+  field_descriptors: [],
+  relationship_descriptors: [],
+  projection_descriptors: [],
+  status_descriptors: [],
+  action_descriptors: [
+    {
+      id: 'record-change',
+      label: 'Record',
+      owner_invoke: {
+        target: 'slot::workflow',
+        operation: 'execute_definition',
+        action_definition_id: 'action:any-record.record-change',
+        include_steps: false,
+        include_output: false,
+      },
+      input_bindings: [
+        { key: 'subject_ref', label: 'Subject', required: true },
+        { key: 'state_ref', label: 'State', required: true },
+      ],
+      payload_template: { request_family: 'owner-action' },
+      metadata: { origin: 'descriptor' },
+    },
+    {
+      id: 'future-action',
+      label: 'Future action',
+      owner_invoke: {
+        target: 'slot::workflow',
+        action_definition_id: 'action:any-record.future',
+      },
+      input_bindings: [{ key: 'future_value', label: 'Future', required: true }],
+    },
+    {
+      id: 'copy-visible-value',
+      label: 'Copy',
+      local_acknowledgement: true,
+      input_bindings: [{ key: 'visible_value', label: 'Visible value', required: true }],
+    },
+  ],
+};
+
+describe('buildOwnerActionRequest', () => {
+  it('builds workflow-slot owner-action requests from data descriptors', () => {
+    const request = buildOwnerActionRequest({
+      contract: CONTRACT,
+      action_id: 'record-change',
+      input_facts: { subject_ref: 'record:1', state_ref: 'any-open-state-string' },
+      idempotency_key: 'idem-1',
+      requested_at: '2026-06-22T12:00:00.000Z',
+      metadata: { proof: 'test' },
+    }) as OwnerActionRequest;
+
+    expect(request).toMatchObject({
+      kind: 'owner-action-request',
+      actionId: 'record-change',
+      ownerInvoke: {
+        target: 'slot::workflow',
+        action_definition_id: 'action:any-record.record-change',
+      },
+      payload: {
+        request_family: 'owner-action',
+        action_id: 'record-change',
+        input_facts: {
+          subject_ref: 'record:1',
+          state_ref: 'any-open-state-string',
+        },
+      },
+      metadata: { origin: 'descriptor', proof: 'test' },
+    });
+  });
+
+  it('accepts newly added actions and open status values without source edits', () => {
+    const request = buildOwnerActionRequest({
+      contract: CONTRACT,
+      action_id: 'future-action',
+      input_facts: { future_value: { state_ref: 'invented-after-ship' } },
+      idempotency_key: 'idem-2',
+      requested_at: '2026-06-22T12:01:00.000Z',
+    }) as OwnerActionRequest;
+
+    expect(request.ownerInvoke.action_definition_id).toBe('action:any-record.future');
+    expect(request.payload.input_facts).toEqual({
+      future_value: { state_ref: 'invented-after-ship' },
+    });
+  });
+
+  it('returns machine-readable errors for missing descriptor or required request facts', () => {
+    expect(buildOwnerActionRequest({ contract: CONTRACT })).toMatchObject({
+      error: { code: 'missing-action' },
+    });
+    expect(buildOwnerActionRequest({
+      contract: CONTRACT,
+      action_id: 'record-change',
+      input_facts: { subject_ref: 'record:1' },
+    })).toMatchObject({
+      error: {
+        code: 'missing-input',
+        details: expect.arrayContaining([
+          'Missing required input binding: state_ref',
+          'idempotency_key is required',
+          'requested_at is required',
+        ]),
+      },
+    });
+  });
+
+  it('keeps local acknowledgement actions side-effect free', () => {
+    expect(buildOwnerActionRequest({
+      contract: CONTRACT,
+      action_id: 'copy-visible-value',
+      input_facts: { visible_value: 'COPY' },
+    })).toEqual({
+      kind: 'local-presentation-acknowledgement',
+      actionId: 'copy-visible-value',
+      inputFacts: { visible_value: 'COPY' },
+    });
+  });
+});

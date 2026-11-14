@@ -1,0 +1,150 @@
+#!/usr/bin/env python3
+# packages/observed-content/tests/test_decode_to_transcript_seam.py
+#
+# L062 WIRING SEAM guard: prove the HANDOFF between the two halves of the
+# "channel renders real threads in the unified Chat stream" pipeline that were
+# previously proven only in isolation:
+#
+#   (A) test_channel_decode_transform.py  — each channel decoder emits canonical
+#       {threads, atoms} from a native snapshot.
+#   (B) chat/.../__tests__/test_materialize_*  — materialize-transcript.build_lines
+#       turns atoms into renderable TranscriptLines.
+#
+# A + B each passed against their OWN hand-authored atoms — nothing proved a
+# REAL decoder's output is actually consumable by the REAL materializer. Built-
+# but-not-connected is not built (L062). This connects them: run each channel's
+# actual decoder on its fixture, take the atoms it really produces, and feed
+# them through the actual chat materializer `build_lines`, asserting the result
+# is a valid TranscriptLine stream the Chat reader (read-session-transcripts.ts:
+# {type, content, timestamp, role, atomRef}) can render — with BOTH speaker
+# roles present (proves speaker_ref -> role survives the real handoff).
+#
+# GENERIC (L069/L090): one loop, per-channel fixture as DATA (shared with the
+# decode-transform harness). No channel named in logic. No live engine, no
+# network, no credentials, no personal data.
+#
+# Run: python3 test_decode_to_transcript_seam.py   (exit 0 = pass)
+
+import importlib.util
+import json
+import os
+import pathlib
+import subprocess
+import sys
+import tempfile
+
+HERE = pathlib.Path(__file__).resolve().parent
+FIXTURES = HERE / "fixtures" / "decode"
+PACKAGES = HERE.parent.parent  # .../bitfield-packages/packages
+MAPPER_DIR = PACKAGES / "transcript-mapper" / "do-work" / "process-scripts"
+MATERIALIZE = PACKAGES / "chat" / "do-work" / "process-scripts" / "materialize-transcript.py"
+
+# Same per-channel DATA as the decode-transform harness (fixtures are the shared
+# source of truth). Deletion test holds: drop a row+fixture -> loop unchanged.
+#
+# `two_party`: whether the channel is a two-sided conversation (both a "me" and
+# an "other" speaker) vs a single-author feed. This is a DATA property of the
+# channel, NOT a universal invariant (L090) — pinterest pins/boards are the
+# account owner's OWN content, so every atom is role "human"; asserting "both
+# sides" there would be a false invariant. The seam proof surfaced this.
+CHANNELS = [
+    {"channel": "slack",     "package": "slack-messages-decoder",   "fixture": "slack.native.json",     "two_party": True},
+    {"channel": "signal",    "package": "signal-messages-decoder",  "fixture": "signal.native.json",    "two_party": True},
+    {"channel": "discord",   "package": "discord-messages-decoder", "fixture": "discord.native.json",   "two_party": True},
+    {"channel": "whatsapp",  "package": "whatsapp-web-decoder",     "fixture": "whatsapp.native.json",  "two_party": True},
+    {"channel": "instagram", "package": "instagram-dm-decoder",     "fixture": "instagram.native.json", "two_party": True},
+    {"channel": "pinterest", "package": "pinterest-pins-decoder",   "fixture": "pinterest.native.json", "two_party": False},
+]
+
+FAILURES = []
+
+
+def check(name, ok, detail=""):
+    print(f"{'PASS' if ok else 'FAIL'}  {name}" + (f"  ({detail})" if detail and not ok else ""))
+    if not ok:
+        FAILURES.append(name)
+
+
+def _load_build_lines():
+    """Import build_lines from the hyphenated materialize-transcript.py by path.
+    build_lines/atom_to_line have no transcript_mapper dependency (only the
+    optimistic-send overlay path does), so this imports standalone."""
+    spec = importlib.util.spec_from_file_location("materialize_transcript", MATERIALIZE)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.build_lines
+
+
+def _decoder_for(package):
+    hits = sorted((PACKAGES / package).glob("do-work/**/decode-*.py"))
+    return hits[0] if hits else None
+
+
+def _decode_atoms(decoder, native_ref):
+    with tempfile.TemporaryDirectory() as td:
+        work = pathlib.Path(td)
+        req, out = work / "request.json", work / "out.json"
+        req.write_text(json.dumps({
+            "observation": {"source_ref": "source:seamproof", "native_ref": str(native_ref),
+                            "batch_ref": "batch:seamproof", "observed_at": "2026-07-30T00:00:00Z"},
+            "descriptor": {"display_mark_ref": "mark:seamproof"},
+        }), encoding="utf-8")
+        env = dict(os.environ)
+        env["PYTHONPATH"] = str(MAPPER_DIR) + os.pathsep + env.get("PYTHONPATH", "")
+        subprocess.run([sys.executable, str(decoder), str(req), str(out)],
+                       capture_output=True, timeout=60, env=env)
+        if out.exists():
+            try:
+                return (json.loads(out.read_text(encoding="utf-8")) or {}).get("atoms") or []
+            except ValueError:
+                return []
+        return []
+
+
+def main():
+    build_lines = _load_build_lines()
+    for row in CHANNELS:
+        ch = row["channel"]
+        decoder = _decoder_for(row["package"])
+        fixture = FIXTURES / row["fixture"]
+        if decoder is None or not fixture.exists():
+            check(f"{ch}: decoder + fixture present", False, f"{row['package']} / {row['fixture']}")
+            continue
+
+        atoms = _decode_atoms(decoder, fixture)
+        check(f"{ch}: real decoder produced atoms", len(atoms) >= 2, f"atoms={len(atoms)}")
+        if len(atoms) < 2:
+            continue
+
+        # THE SEAM: real decoder atoms -> real chat materializer.
+        lines = build_lines(atoms)
+        check(f"{ch}: materializer built lines from real atoms", len(lines) >= 2,
+              f"lines={len(lines)}")
+        renderable = [ln for ln in lines
+                      if isinstance(ln.get("content"), str) and ln["content"].strip()
+                      and ln.get("role") in ("human", "assistant")
+                      and ln.get("timestamp")]
+        check(f"{ch}: every line is Chat-renderable (role+content+timestamp)",
+              len(renderable) == len(lines) and len(renderable) >= 2,
+              f"renderable={len(renderable)}/{len(lines)}")
+        roles = {ln.get("role") for ln in lines}
+        if row["two_party"]:
+            # Conversation channels: both a "me" and an "other" must survive the
+            # speaker_ref -> role mapping through the real handoff.
+            check(f"{ch}: BOTH speaker sides survive the handoff (human+assistant)",
+                  "human" in roles and "assistant" in roles, f"roles={sorted(roles)}")
+        else:
+            # Single-author feed (pinterest): every atom is the owner's own -> one
+            # role. Assert it still resolves to a valid role, not two sides.
+            check(f"{ch}: single-author feed resolves a valid role",
+                  roles and roles.issubset({"human", "assistant"}), f"roles={sorted(roles)}")
+        # atomRef must survive so the reader can pair state-events / reactions.
+        check(f"{ch}: atomRef preserved through materialize",
+              all(ln.get("atomRef") for ln in lines), "some line missing atomRef")
+
+    print(f"\n{'ALL PASS' if not FAILURES else f'{len(FAILURES)} FAILURES: ' + ', '.join(FAILURES)}")
+    sys.exit(1 if FAILURES else 0)
+
+
+if __name__ == "__main__":
+    main()

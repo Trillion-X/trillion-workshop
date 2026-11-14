@@ -66,3 +66,6 @@ The package drew a live market feed: the instrument board (`read-data/instrument
 | `from-bitfield-packages-market-data-feed/moved-from.json` | Source path and commit of each file, identities, call rows, held tests, files that still call the retired runtime. |
 
 Still on the retired runtime (original bytes, import paths changed): `read-data/agent-cycle-surface.ts`, `show/MarketDataFeedPanel.tsx`.
+## The original package files (prepared restore)
+
+`from-bitfield-packages/moved-from.json`: from bitfield-packages `packages/polymarket`, the Polymarket panel (`show/PolymarketPanel.tsx`, `mount-polymarket.tsx`), the readers (`read-data/polymarket-live.ts`, `polymarket-inputs.ts`) and `do-work/build-l2-auth-message.py`, the secret-free half of the order-signing request (it builds the message to sign and never emits the API secret). Not carried: `sign-poly-hmac.py`, the reference signer, which takes the secret as an argument. The order-write side of the package (CLOB `POST /order`, its connector and order-config records, and the two workflow definitions) lives only in the package boundary file, which is not carried; nothing here places an order.

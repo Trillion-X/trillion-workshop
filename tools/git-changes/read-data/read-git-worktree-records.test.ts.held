@@ -1,0 +1,99 @@
+import { describe, expect, it, vi } from 'vitest';
+
+vi.mock('@bitfield/runtime-kit', () => ({
+  sendRequestToBitfieldTarget: vi.fn(),
+}));
+
+import {
+  decodeGitChangeCurrentItems,
+  decodeGitWorktreeCurrentItems,
+} from './read-git-worktree-saved-records';
+import {
+  projectKnowledgeGitChanges,
+  projectKnowledgeGitWorktrees,
+} from './read-git-worktree-records';
+
+describe('git-worktree current-item readers', () => {
+  it('decodes worktree rows from current-item replies', () => {
+    const reply = {
+      items: [
+        {
+          record_id: 'record:worktree:alpha',
+          project_id: 'project:alpha',
+          project_name: 'Alpha',
+          latest_scan_id: 'scan:1',
+          branch: 'main',
+          ahead: '2',
+          behind: 1,
+          refreshed_at: '2026-06-14T12:00:00Z',
+        },
+        {
+          record_id: '',
+          project_id: 'project:ignored',
+          project_name: 'Ignored',
+          latest_scan_id: 'scan:ignored',
+        },
+      ],
+    };
+
+    expect(projectKnowledgeGitWorktrees(decodeGitWorktreeCurrentItems(reply))).toEqual([
+      {
+        recordId: 'record:worktree:alpha',
+        projectId: 'project:alpha',
+        projectName: 'Alpha',
+        latestScanId: 'scan:1',
+        branch: 'main',
+        ahead: 2,
+        behind: 1,
+        refreshedAt: '2026-06-14T12:00:00Z',
+      },
+    ]);
+  });
+
+  it('decodes change rows from byte payload replies and keeps bucket ordering stable', () => {
+    const replyBody = {
+      items: [
+        {
+          record_id: 'record:change:2',
+          scan_id: 'scan:1',
+          project_id: 'project:alpha',
+          project_name: 'Alpha',
+          file_path: 'src/b.ts',
+          bucket: 'unstaged',
+          status: 'M',
+        },
+        {
+          record_id: 'record:change:1',
+          scan_id: 'scan:1',
+          project_id: 'project:alpha',
+          project_name: 'Alpha',
+          file_path: 'src/a.ts',
+          bucket: 'staged',
+          status: 'A',
+        },
+      ],
+    };
+    const reply = { payload: new TextEncoder().encode(JSON.stringify(replyBody)) };
+
+    expect(projectKnowledgeGitChanges(decodeGitChangeCurrentItems(reply))).toEqual([
+      {
+        recordId: 'record:change:1',
+        scanId: 'scan:1',
+        projectId: 'project:alpha',
+        projectName: 'Alpha',
+        filePath: 'src/a.ts',
+        bucket: 'staged',
+        status: 'A',
+      },
+      {
+        recordId: 'record:change:2',
+        scanId: 'scan:1',
+        projectId: 'project:alpha',
+        projectName: 'Alpha',
+        filePath: 'src/b.ts',
+        bucket: 'unstaged',
+        status: 'M',
+      },
+    ]);
+  });
+});

@@ -66,3 +66,7 @@ The four scripts at the top of this folder were written fresh from the package's
 **Depends on:** Python 3.10 or later; numpy for the aligner; numpy, opencv-python and ultralytics for the pose reader; numpy, pillow, torch and transformers (with `Sam2VideoModel`) plus ffmpeg for the tracker.
 
 **Depended on by:** nothing in this repository.
+
+## The original package files (prepared restore)
+
+The four scripts above are a reduced port of two packages; the `Left behind` list names what they dropped. `from-bitfield-packages/moved-from.json` carries the original `packages/motion-comparison` back, byte for byte, with real names made up through `calls`: the matcher (`do-work/process-scripts/match/`: clip describing, phase and view and orientation work, motion certification, partner selection, the encoders), the renderer (`render/dtw_align.py`, `render_side_by_side_v2.py`, `pose_schema.py`), `author-comparison-edl.py`, the records writer, the screen (`show/MotionComparisonSurface.tsx`), the readers and the request builders. `author_comparison_edl.py`, `align_dtw.py` and `pose_schema.py` above are rewrites of originals now beside them. Not carried: the three trained models (`motion.pt`, `tcc.pt`, `view.pt`, trained on one person's clips). Held: the screen and the request builders import the retired package runtime; four tests are held. `render_side_by_side_v2.py` has uncommitted edits in the package that are not carried.

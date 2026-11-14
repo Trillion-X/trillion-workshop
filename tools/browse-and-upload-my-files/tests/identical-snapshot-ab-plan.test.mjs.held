@@ -1,0 +1,499 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import test from "node:test";
+import { fileURLToPath } from "node:url";
+
+import {
+  IDENTICAL_SNAPSHOT_AB_SHAPE,
+  IdenticalSnapshotAbError,
+  identicalSnapshotAbPlanFromData,
+} from "../read-data/identical-snapshot-ab-plan.mjs";
+
+const IDENTITY = "12:3300f2037090fbc433ce4f405d016aa949de441b1d7791c8aa0128361db7fedd";
+const OTHER_IDENTITY = "12:5ec4d3cbc9374276b83b5333f5251c28518c6749a924a93a044a614975e165f0";
+const SHA_A = "1".repeat(64);
+const SHA_B = "2".repeat(64);
+const RESULT_OBSERVABLE = {
+  source: "content-media.relation.record",
+  field: "role_ref",
+};
+const REQUIRED_PROOFS = [
+  "cold_setup",
+  "payload_bytes",
+  "cpu_time",
+  "resident_memory_bytes",
+  "page_cache",
+  "network_counters",
+  "wall_time_p50_p95_p99",
+  "cancellations",
+  "exact_equality",
+];
+const ALTERNATIVES = [
+  ["direct-exact-transfer", "direct-exact-read", "immutable-bytes"],
+  ["missing-range-read", "missing-range-read", "immutable-bytes"],
+  ["receiver-cache-read", "receiver-cache-read", "immutable-bytes"],
+  ["exact-delta-reconstruct", "exact-delta-reconstruct", "immutable-bytes"],
+  ["existing-exact-result", "existing-exact-result", "exact-result"],
+  ["remote-compute-result", "remote-compute-result", "exact-result"],
+];
+const packageRoot = fileURLToPath(new URL("..", import.meta.url));
+
+function snapshot() {
+  return {
+    snapshotId: "receiver-a-state-17",
+    receiverId: "receiver-a",
+    receiverStateVersion: "state-17",
+    immutableSubject: { kind: "immutable-bytes", identity: IDENTITY },
+    resultSubject: {
+      kind: "exact-result",
+      identity: OTHER_IDENTITY,
+      observable: RESULT_OBSERVABLE,
+    },
+  };
+}
+
+function subject(track, overrides = {}) {
+  if (track === "immutable-bytes") {
+    return { kind: track, identity: IDENTITY, ...overrides };
+  }
+  return {
+    kind: track,
+    identity: OTHER_IDENTITY,
+    observable: RESULT_OBSERVABLE,
+    ...overrides,
+  };
+}
+
+function proof(overrides = {}) {
+  return { measured: true, source: "host-measurement", ...overrides };
+}
+
+function proofs(track) {
+  return {
+    cold_setup: proof({ method: "monotonic-clock" }),
+    payload_bytes: proof({ method: "byte-counter" }),
+    cpu_time: proof({ method: "process-cpu-counter" }),
+    resident_memory_bytes: proof({ method: "process-rss-counter" }),
+    page_cache: proof({ method: "page-cache-counter" }),
+    network_counters: proof({ method: "socket-counter" }),
+    wall_time_p50_p95_p99: proof({ method: "monotonic-clock" }),
+    cancellations: proof({ method: "run-ledger" }),
+    exact_equality: proof({
+      method: track === "immutable-bytes" ? "byte-digest-comparison" : "declared-observable-comparison",
+    }),
+  };
+}
+
+function values(track, seed = 0) {
+  const base = {
+    cold_setup: {
+      setupCount: 1,
+      basis: "fresh-process",
+      interpreter: { kind: "node", version: process.version, coldStart: true },
+      cachePlacement: { instructionCache: "cold", dataCache: "cold", translationCache: "cold" },
+      durationNanoseconds: 10 + seed,
+      bytesRead: 20,
+      bytesWritten: 3,
+    },
+    payload_bytes: {
+      payload: { sent: 10 + seed, received: 30, total: 40 + seed },
+      metadata: { sent: 4, received: 6, total: 10 },
+    },
+    cpu_time: { userNanoseconds: 20, systemNanoseconds: 5, totalNanoseconds: 25 },
+    resident_memory_bytes: { peakBytes: 4096 + seed },
+    page_cache: { hits: 8, misses: 2 },
+    network_counters: {
+      origin: { bytesSent: 10 + seed, bytesReceived: 20, requests: 1 },
+      relay_or_peer: { bytesSent: 3, bytesReceived: 5, requests: 1 },
+      receiver: { bytesSent: 1, bytesReceived: 5, requests: 1 },
+    },
+    wall_time_p50_p95_p99: {
+      p50Nanoseconds: 100 + seed,
+      p95Nanoseconds: 180 + seed,
+      p99Nanoseconds: 220 + seed,
+    },
+    cancellations: { count: 0, retries: 0, deadlineMisses: 0, failedProofs: 0 },
+  };
+  base.exact_equality = track === "immutable-bytes"
+    ? {
+        isEqual: true,
+        equalityKind: "sha256-exact",
+        observed: SHA_A,
+        expected: SHA_A,
+      }
+    : {
+        isEqual: true,
+        equalityKind: "declared-observable-only",
+        observed: "role-ref-current",
+        expected: "role-ref-current",
+        observable: RESULT_OBSERVABLE,
+      };
+  return base;
+}
+
+function input() {
+  return {
+    schemaVersion: IDENTICAL_SNAPSHOT_AB_SHAPE,
+    snapshot: snapshot(),
+    alternatives: ALTERNATIVES.map(([alternativeId, edgeId, track], index) => ({
+      alternativeId,
+      capabilityEdgeId: edgeId,
+      snapshotId: "receiver-a-state-17",
+      subject: subject(track),
+      records: [{
+        recordId: `record-${index}`,
+        alternativeId,
+        snapshotId: "receiver-a-state-17",
+        method: "identical-snapshot-ab",
+        sampleCount: 9,
+        proofs: proofs(track),
+        values: values(track, index),
+      }],
+    })),
+  };
+}
+
+test("one snapshot normalizes six candidates into two non-interchangeable tracks", () => {
+  const result = identicalSnapshotAbPlanFromData(input());
+  assert.equal(result.summary.normalized, 6);
+  assert.equal(result.summary.measurementCompleteAlternatives, 6);
+  assert.equal(result.summary.candidateMeasurementAdmitted, true);
+  assert.equal(result.summary.executionAdmitted, false);
+  assert.equal(result.summary.execution_admitted, false);
+  assert.equal(result.summary.admissionTransition, "external-review-required");
+  assert.equal(result.summary.executionAuthorityGranted, false);
+  assert.equal(result.summary.runtimeWorkDispatched, false);
+  assert.deepEqual(result.plan.groups.map((group) => group.subjectKind), [
+    "immutable-bytes",
+    "exact-result",
+  ]);
+  assert.equal(result.plan.groups[0].alternatives.length, 4);
+  assert.equal(result.plan.groups[1].alternatives.length, 2);
+  assert.equal(result.plan.crossTrackSubstitutionAdmitted, false);
+  for (const alternative of result.alternatives) {
+    assert.equal(alternative.candidateMeasurementAdmitted, true);
+    assert.equal(alternative.executionAdmitted, false);
+    assert.equal(alternative.execution_admitted, false);
+    assert.equal(alternative.records[0].candidateMeasurementAdmitted, true);
+    assert.equal(alternative.records[0].execution_admitted, false);
+    assert.equal(Object.hasOwn(alternative.records[0], "proofComplete"), true);
+    assert.deepEqual(alternative.records[0].missingProofs, []);
+    assert.deepEqual(alternative.records[0].missingValues, []);
+  }
+  assert.equal(
+    result.plan.groups[0].candidateSelectedAlternativeId,
+    result.plan.groups[0].alternatives.find((item) => item.candidateMeasurementAdmitted).alternativeId,
+  );
+  for (const group of result.plan.groups) {
+    assert.equal(group.executionSelectedAlternativeId, null);
+  }
+});
+
+test("a missing required counter is measurement-incomplete and cannot admit execution", () => {
+  const hostile = input();
+  const first = hostile.alternatives[0];
+  delete first.records[0].proofs.cold_setup;
+  delete first.records[0].values.cold_setup;
+  const result = identicalSnapshotAbPlanFromData(hostile);
+
+  assert.equal(result.summary.measurementCompleteAlternatives, 5);
+  assert.equal(result.summary.candidateMeasurementAdmitted, false);
+  assert.equal(result.summary.executionAdmitted, false);
+  const direct = result.alternatives.find((item) => item.alternativeId === "direct-exact-transfer");
+  assert.equal(direct.proofComplete, false);
+  assert.equal(direct.valueComplete, false);
+  assert.deepEqual(direct.records[0].missingProofs, ["cold_setup"]);
+  assert.deepEqual(direct.records[0].missingValues, ["cold_setup"]);
+  assert.equal(direct.candidateMeasurementAdmitted, false);
+  assert.equal(direct.execution_admitted, false);
+  assert.deepEqual(result.plan.groups[0].alternatives.at(-1).alternativeId, "direct-exact-transfer");
+});
+
+test("divergent record snapshots and duplicate/missing candidates are refused", () => {
+  const divergent = input();
+  divergent.alternatives[2].records[0].snapshotId = "receiver-a-state-16";
+  assert.throws(
+    () => identicalSnapshotAbPlanFromData(divergent),
+    (error) => error instanceof IdenticalSnapshotAbError && /divergent initial snapshot/.test(error.message),
+  );
+
+  const alternativeDivergent = input();
+  alternativeDivergent.alternatives[2].snapshotId = "receiver-a-state-16";
+  assert.throws(
+    () => identicalSnapshotAbPlanFromData(alternativeDivergent),
+    (error) => error instanceof IdenticalSnapshotAbError && /divergent initial snapshot/.test(error.message),
+  );
+
+  const missing = input();
+  missing.alternatives = missing.alternatives.slice(0, 5);
+  assert.throws(() => identicalSnapshotAbPlanFromData(missing), /all six required alternatives/);
+
+  const duplicated = input();
+  duplicated.alternatives[5] = structuredClone(duplicated.alternatives[4]);
+  assert.throws(() => identicalSnapshotAbPlanFromData(duplicated), /duplicate alternativeId/);
+});
+
+test("immutable bytes and exact results cannot change subject kind or identity", () => {
+  const wrongDirect = input();
+  wrongDirect.alternatives[0].subject = { kind: "exact-result", identity: OTHER_IDENTITY };
+  assert.throws(
+    () => identicalSnapshotAbPlanFromData(wrongDirect),
+    (error) => error instanceof IdenticalSnapshotAbError && /incompatible with this comparison track/.test(error.message),
+  );
+
+  const wrongResult = input();
+  wrongResult.alternatives[5].subject = subject("immutable-bytes");
+  assert.throws(
+    () => identicalSnapshotAbPlanFromData(wrongResult),
+    (error) => error instanceof IdenticalSnapshotAbError && /incompatible with this comparison track/.test(error.message),
+  );
+
+  const otherIdentity = input();
+  otherIdentity.alternatives[1].subject.identity = "12:" + "f".repeat(64);
+  assert.throws(() => identicalSnapshotAbPlanFromData(otherIdentity), /differs from the declared snapshot subject/);
+});
+
+test("semantic substitution cannot satisfy exact equality", () => {
+  const semanticBytes = input();
+  semanticBytes.alternatives[0].records[0].values.exact_equality = {
+    isEqual: false,
+    equalityKind: "sha256-exact",
+    observed: "semantically-similar-media",
+    expected: "different-media",
+  };
+  assert.throws(
+    () => identicalSnapshotAbPlanFromData(semanticBytes),
+    /two 64-character lowercase sha256 values/,
+  );
+
+  const unequalBytes = input();
+  unequalBytes.alternatives[0].records[0].values.exact_equality.observed = SHA_B;
+  unequalBytes.alternatives[0].records[0].values.exact_equality.isEqual = false;
+  const unequalResult = identicalSnapshotAbPlanFromData(unequalBytes);
+  assert.equal(unequalResult.summary.candidateMeasurementAdmitted, false);
+  assert.equal(unequalResult.summary.executionAdmitted, false);
+  assert.equal(unequalResult.alternatives[0].candidateMeasurementAdmitted, false);
+
+  const substitutedObservable = input();
+  substitutedObservable.alternatives[5].records[0].values.exact_equality.observable = {
+    source: "media.name",
+    field: "name",
+  };
+  assert.throws(
+    () => identicalSnapshotAbPlanFromData(substitutedObservable),
+    /differs from the declared result observable/,
+  );
+
+  const substitutedKind = input();
+  substitutedKind.alternatives[5].records[0].values.exact_equality.equalityKind = "sha256-exact";
+  assert.throws(
+    () => identicalSnapshotAbPlanFromData(substitutedKind),
+    /cannot substitute the subject kind/,
+  );
+});
+
+test("non-finite and mathematically inconsistent measurements are refused", () => {
+  const cases = [
+    (record) => {
+      record.values.payload_bytes.payload.total = Number.POSITIVE_INFINITY;
+    },
+    (record) => {
+      record.values.cpu_time.totalNanoseconds = Number.NaN;
+    },
+    (record) => {
+      record.values.resident_memory_bytes.peakBytes = -1;
+    },
+    (record) => {
+      record.values.payload_bytes.payload.total = 999;
+    },
+    (record) => {
+      record.values.cpu_time.totalNanoseconds = 999;
+    },
+    (record) => {
+      record.values.wall_time_p50_p95_p99.p95Nanoseconds = 999;
+    },
+    (record) => {
+      record.values.exact_equality.isEqual = "yes";
+    },
+  ];
+  for (const mutate of cases) {
+    const hostile = input();
+    mutate(hostile.alternatives[1].records[0]);
+    assert.throws(() => identicalSnapshotAbPlanFromData(hostile), IdenticalSnapshotAbError);
+  }
+});
+
+test("claimed-but-unmeasured counters are not proof", () => {
+  const cases = [
+    (proofMap) => {
+      proofMap.cpu_time.measured = false;
+    },
+    (proofMap) => {
+      proofMap.cpu_time.method = "assertion";
+    },
+    (proofMap) => {
+      proofMap.exact_equality.method = "byte-digest-comparison";
+    },
+  ];
+  for (const mutate of cases) {
+    const hostile = input();
+    mutate(hostile.alternatives[5].records[0].proofs);
+    assert.throws(() => identicalSnapshotAbPlanFromData(hostile), IdenticalSnapshotAbError);
+  }
+});
+
+test("cancellation and exact-equality failures keep execution unadmitted", () => {
+  const cancelled = input();
+  cancelled.alternatives[4].records[0].values.cancellations.count = 1;
+  const cancelledResult = identicalSnapshotAbPlanFromData(cancelled);
+  const cancelledCandidate = cancelledResult.alternatives.find(
+    (item) => item.alternativeId === "existing-exact-result",
+  );
+  assert.equal(cancelledResult.summary.executionAdmitted, false);
+  assert.equal(cancelledCandidate.candidateMeasurementAdmitted, false);
+  assert.equal(cancelledCandidate.execution_admitted, false);
+  assert.equal(cancelledCandidate.proofComplete, true);
+  assert.equal(cancelledCandidate.exactEquality, true);
+  assert.equal(cancelledCandidate.cancellations.count, 1);
+
+  const unequal = input();
+  unequal.alternatives[4].records[0].values.exact_equality.isEqual = false;
+  unequal.alternatives[4].records[0].values.exact_equality.observed = "role-ref-prior";
+  const unequalResult = identicalSnapshotAbPlanFromData(unequal);
+  assert.equal(unequalResult.summary.executionAdmitted, false);
+  assert.equal(
+    unequalResult.alternatives.find((item) => item.alternativeId === "existing-exact-result").exactEquality,
+    false,
+  );
+});
+
+test("prototype, symbol, sparse, and noncanonical array DATA is rejected", () => {
+  const prototypeHostile = input();
+  prototypeHostile.alternatives[0] = Object.create(prototypeHostile.alternatives[0]);
+  assert.throws(() => identicalSnapshotAbPlanFromData(prototypeHostile), /must be a plain object/);
+
+  const symbolHostile = input();
+  const symbol = Symbol("hidden-recipe");
+  Object.defineProperty(symbolHostile, symbol, {
+    value: "not data",
+    enumerable: false,
+    configurable: true,
+  });
+  assert.throws(() => identicalSnapshotAbPlanFromData(symbolHostile), /outside this exact contract/);
+
+  const sparseHostile = input();
+  delete sparseHostile.alternatives[2];
+  assert.throws(() => identicalSnapshotAbPlanFromData(sparseHostile), /contains a sparse hole/);
+
+  const noncanonicalHostile = input();
+  noncanonicalHostile.alternatives.extra = "not an element";
+  assert.throws(
+    () => identicalSnapshotAbPlanFromData(noncanonicalHostile),
+    /has fields outside this exact array contract/,
+  );
+});
+
+test("normalization does not mutate the supplied DATA", () => {
+  const before = structuredClone(input());
+  const supplied = input();
+  identicalSnapshotAbPlanFromData(supplied);
+  assert.deepEqual(supplied, before);
+  assert.equal(supplied.alternatives.length, 6);
+  assert.deepEqual(Object.keys(supplied.alternatives[0].records[0].proofs), REQUIRED_PROOFS);
+});
+
+test("an alternative carried with NO proofs and NO values stays in the plan, sorted last, never crashes it", () => {
+  // The first real receiver run (2026-09-05) carried two alternatives with no executing owner
+  // as bare `{recordId, alternativeId, snapshotId, method, sampleCount}` records, which invariant
+  // 3 admits as unmeasured. The comparison plan then dereferenced null while sorting them.
+  const bare = input();
+  for (const index of [3, 5]) {
+    const record = bare.alternatives[index].records[0];
+    delete record.proofs;
+    delete record.values;
+  }
+  const result = identicalSnapshotAbPlanFromData(bare);
+  assert.equal(result.summary.normalized, 6);
+  assert.equal(result.summary.measurementCompleteAlternatives, 4);
+  assert.equal(result.summary.candidateMeasurementAdmitted, false);
+  for (const group of result.plan.groups) {
+    const last = group.alternatives[group.alternatives.length - 1];
+    assert.equal(last.candidateMeasurementAdmitted, false);
+    assert.equal(last.wallTime, null);
+    assert.equal(last.exactEquality, null);
+  }
+  const carried = result.alternatives.find((item) => item.alternativeId === bare.alternatives[3].alternativeId);
+  assert.deepEqual(carried.records[0].missingProofs, [...REQUIRED_PROOFS].sort());
+  assert.equal(carried.records[0].proofs, null);
+});
+
+test("network cuts, payload/metadata bytes, setup basis, and failure modes stay explicit", () => {
+  const complete = identicalSnapshotAbPlanFromData(input());
+  const candidate = complete.alternatives[0].records[0].values;
+  assert.deepEqual(Object.keys(candidate.payload_bytes), ["payload", "metadata"]);
+  assert.deepEqual(Object.keys(candidate.network_counters), [
+    "origin",
+    "relay_or_peer",
+    "receiver",
+  ]);
+  assert.deepEqual(Object.keys(candidate.cold_setup.cachePlacement), [
+    "instructionCache",
+    "dataCache",
+    "translationCache",
+  ]);
+  assert.deepEqual(Object.keys(candidate.cancellations), [
+    "count",
+    "retries",
+    "deadlineMisses",
+    "failedProofs",
+  ]);
+
+  const hostileValues = [
+    (values) => {
+      delete values.network_counters.receiver;
+    },
+    (values) => {
+      delete values.payload_bytes.metadata;
+    },
+    (values) => {
+      values.cold_setup.basis = "warm-process";
+    },
+    (values) => {
+      values.cold_setup.cachePlacement.translationCache = "warm";
+    },
+    (values) => {
+      values.payload_bytes.payload = {
+        sent: Number.MAX_SAFE_INTEGER,
+        received: Number.MAX_SAFE_INTEGER,
+        total: Number.MAX_SAFE_INTEGER,
+      };
+    },
+  ];
+  for (const mutate of hostileValues) {
+    const hostile = input();
+    mutate(hostile.alternatives[0].records[0].values);
+    assert.throws(() => identicalSnapshotAbPlanFromData(hostile), IdenticalSnapshotAbError);
+  }
+
+  const retried = input();
+  retried.alternatives[0].records[0].values.cancellations.retries = 1;
+  const retriedResult = identicalSnapshotAbPlanFromData(retried);
+  assert.equal(retriedResult.summary.candidateMeasurementAdmitted, false);
+  assert.equal(retriedResult.summary.executionAdmitted, false);
+});
+
+test("package DATA declares the pure harness contract and reserved authority boundary", () => {
+  const manifest = JSON.parse(
+    readFileSync(join(packageRoot, "things-to-store-and-run.json"), "utf8"),
+  );
+  const contracts = manifest.things.filter(
+    (thing) => thing.address === "package::live-namespace::contract::identical-snapshot-ab",
+  );
+  assert.equal(contracts.length, 1);
+  const contract = contracts[0].payload;
+  assert.equal(contract.record_kind, "live-namespace.identical-snapshot-ab");
+  assert.match(contract.resource_rule, /origin, relay\/peer, and receiver/);
+  assert.match(contract.admission_rule, /execution_admitted remains false/);
+  assert.match(contract.runtime_rule, /dispatches no work/);
+});

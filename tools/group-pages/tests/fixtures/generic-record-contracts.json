@@ -1,0 +1,132 @@
+{
+  "communityLike": {
+    "kind": "generic-record-projection-action-contract",
+    "package": "group-page",
+    "version": 1,
+    "record_sources": [
+      {
+        "role": "primary-records",
+        "address_label": "community.primary"
+      },
+      {
+        "role": "related-records",
+        "address_label": "community.related"
+      }
+    ],
+    "field_descriptors": [
+      {
+        "id": "name",
+        "label": "Name",
+        "paths": [["name"], ["label"]]
+      },
+      {
+        "id": "summary",
+        "label": "Summary",
+        "paths": [["summary"], ["body"]]
+      },
+      {
+        "id": "state",
+        "label": "State",
+        "paths": [["state", "label"], ["state"]]
+      }
+    ],
+    "relationship_descriptors": [
+      {
+        "id": "record-to-parent",
+        "label": "Parent",
+        "source_path": ["id"],
+        "target_path": ["parent_ref"]
+      }
+    ],
+    "projection_descriptors": [
+      {
+        "id": "main",
+        "label": "Main",
+        "record_sources": [{"role": "primary-records"}, {"role": "related-records"}],
+        "title_field": "name",
+        "columns": ["name", "summary", "state"],
+        "relationship_refs": ["record-to-parent"],
+        "actions": ["record-change"],
+        "empty": {"title": "Empty"}
+      }
+    ],
+    "status_descriptors": [
+      {
+        "id": "future-state",
+        "label": "Future state",
+        "tone": "neutral"
+      }
+    ],
+    "action_descriptors": [
+      {
+        "id": "record-change",
+        "label": "Record"
+      }
+    ]
+  },
+  "caseWorkLike": {
+    "kind": "generic-record-projection-action-contract",
+    "package": "group-page",
+    "version": 1,
+    "record_sources": [
+      {
+        "role": "cases",
+        "address_label": "case-work.cases"
+      },
+      {
+        "role": "notes",
+        "address_label": "case-work.notes"
+      }
+    ],
+    "field_descriptors": [
+      {
+        "id": "case-title",
+        "label": "Case title",
+        "paths": [["case_title"], ["name"]]
+      },
+      {
+        "id": "risk",
+        "label": "Risk",
+        "paths": [["risk", "label"], ["risk"]]
+      },
+      {
+        "id": "next-step",
+        "label": "Next step",
+        "paths": [["next_step"], ["summary"]]
+      }
+    ],
+    "relationship_descriptors": [
+      {
+        "id": "note-to-case",
+        "label": "Case",
+        "source_path": ["id"],
+        "target_path": ["case_ref"]
+      }
+    ],
+    "projection_descriptors": [
+      {
+        "id": "case-list",
+        "label": "Case list",
+        "record_sources": [{"role": "cases"}, {"role": "notes"}],
+        "title_field": "case-title",
+        "columns": ["case-title", "risk", "next-step"],
+        "relationship_refs": ["note-to-case"],
+        "actions": ["record-case-work"],
+        "empty": {"title": "No case work"}
+      }
+    ],
+    "status_descriptors": [
+      {
+        "id": "escalated",
+        "label": "Escalated",
+        "tone": "attention"
+      }
+    ],
+    "action_descriptors": [
+      {
+        "id": "record-case-work",
+        "label": "Record case work"
+      }
+    ]
+  }
+}

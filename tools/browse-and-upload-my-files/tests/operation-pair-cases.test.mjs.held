@@ -1,0 +1,286 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import test from "node:test";
+import { fileURLToPath } from "node:url";
+
+import {
+  OperationPairCasesError,
+  operationPairCasesFromCensus,
+} from "../read-data/operation-pair-cases.mjs";
+
+const packageRoot = fileURLToPath(new URL("..", import.meta.url));
+const EXECUTABLE_IDS = [
+  "P101", "P103", "P151", "P152", "P207", "P252", "P377", "P422", "P312",
+];
+const DEFERRED_IDS = ["P519", "P521"];
+const SELECTED_IDS = [...EXECUTABLE_IDS, ...DEFERRED_IDS];
+const SCHEDULES = Object.freeze([
+  "sequential-a-b",
+  "sequential-b-a",
+  "concurrent-overlap",
+  "retry-replay",
+  "injected-partition",
+]);
+
+function manifest() {
+  return JSON.parse(readFileSync(join(packageRoot, "things-to-store-and-run.json"), "utf8"));
+}
+
+function packagePairs() {
+  return manifest().things
+    .filter((thing) => thing.address?.startsWith("package::live-namespace::operation-pair-case::"))
+    .map((thing) => thing.payload);
+}
+
+function packageInput() {
+  return {
+    schemaVersion: "live-namespace.operation-pair-census-with-five-schedules",
+    selectedCaseIds: SELECTED_IDS,
+    pairs: packagePairs(),
+  };
+}
+
+function validPair(pairId = "P101", overrides = {}) {
+  const source = manifest().things
+    .map((thing) => thing.payload)
+    .find((payload) => payload.pairId === pairId);
+  if (source === undefined) throw new Error(`missing test pair ${pairId}`);
+  return { ...structuredClone(source), ...overrides };
+}
+
+function input(pairs, overrides = {}) {
+  return {
+    schemaVersion: "live-namespace.operation-pair-census-with-five-schedules",
+    selectedCaseIds: ["P101"],
+    pairs,
+    ...overrides,
+  };
+}
+
+function assertThrows(action, match) {
+  assert.throws(action, (error) => {
+    assert.ok(error instanceof OperationPairCasesError);
+    if (match !== undefined) assert.match(error.message, match);
+    return true;
+  });
+}
+
+test("package DATA carries the contract and the exact eleven-row T12.8 census", () => {
+  const data = manifest();
+  const contract = data.things.filter(
+    (thing) => thing.address === "package::live-namespace::contract::operation-pair-case",
+  );
+  assert.equal(contract.length, 1);
+  assert.equal(contract[0].payload.record_kind, "live-namespace.operation-pair-case");
+
+  const pairs = packagePairs();
+  assert.deepEqual(pairs.map((pair) => pair.pairId).sort(), [...SELECTED_IDS].sort());
+  const byId = new Map(pairs.map((pair) => [pair.pairId, pair]));
+  assert.equal(byId.get("P101").executableOwner, "engine-operation-target");
+  assert.equal(byId.get("P422").executableOwner, "access-rule");
+  assert.equal(byId.get("P312").executableOwner, "mesh-sync");
+  assert.equal(byId.get("P519").executableOwner, "deferred");
+  assert.equal(byId.get("P521").executableOwner, "deferred");
+  for (const pair of pairs) {
+    assert.deepEqual(pair.schedules, SCHEDULES);
+  }
+});
+
+test("nine executable rows normalize into forty-five schedule cases plus two deferrals", () => {
+  const result = operationPairCasesFromCensus(packageInput());
+  assert.equal(result.kind, "live-namespace.operation-pair-case-set");
+  assert.equal(result.cases.length, 45);
+  assert.equal(result.summary.supplied, 11);
+  assert.equal(result.summary.selected, 11);
+  assert.equal(result.summary.normalizedCases, 45);
+  assert.deepEqual(result.summary.duplicateCaseIds, []);
+  assert.deepEqual(result.summary.deferred.map((deferral) => deferral.censusId).sort(), DEFERRED_IDS);
+
+  const byCensus = new Map(result.cases.map((testCase) => [testCase.censusId, []]));
+  for (const testCase of result.cases) byCensus.get(testCase.censusId).push(testCase.schedule);
+  assert.equal(byCensus.size, EXECUTABLE_IDS.length);
+  for (const schedules of byCensus.values()) assert.deepEqual(schedules, SCHEDULES);
+  for (const testCase of result.cases) {
+    assert.equal(testCase.owner, "live-namespace");
+    assert.ok(testCase.caseId.includes(testCase.schedule));
+  }
+});
+
+test("the first wave names its existing owner and preserves the exact safe denial oracles", () => {
+  const result = operationPairCasesFromCensus(packageInput());
+  const owners = new Set(result.cases.map((testCase) => testCase.executableOwner));
+  assert.deepEqual([...owners].sort(), ["access-rule", "engine-operation-target", "mesh-sync"]);
+
+  // Every schedule is a conflict, but the REAL engine (T12.9, 2026-09-04) showed the count of
+  // mismatches is a property of the schedule, not the pair: replaying a guarded write is a
+  // second refusal, because the first attempt already moved current off what the replay expects.
+  // That is why a row may carry `expectedBySchedule`, and why this test no longer asserts one
+  // count for all five.
+  const writeConflict = result.cases.filter((testCase) => testCase.censusId === "P151");
+  assert.equal(writeConflict.length, 5);
+  for (const testCase of writeConflict) {
+    assert.equal(testCase.expected.outcome, "conflict");
+    assert.ok(testCase.expected.statePredicates.includes("no-partial-mutation"));
+    const mismatches = testCase.expected.errorPredicates.find((e) => e.code === "ExpectedCurrentMismatch");
+    assert.equal(mismatches.count, testCase.schedule === "retry-replay" ? 2 : 1, testCase.caseId);
+  }
+
+  const revoked = result.cases.filter((testCase) => testCase.censusId === "P422");
+  for (const testCase of revoked) {
+    assert.equal(testCase.expected.outcome, "denied");
+    assert.deepEqual(testCase.expected.errorPredicates, [{ code: "AccessDenied", count: 1 }]);
+    assert.ok(testCase.expected.statePredicates.includes("possession-is-not-transfer-authority"));
+  }
+});
+
+test("renames stay atomic, forks never merge semantically, and restore never reclaims", () => {
+  const result = operationPairCasesFromCensus(packageInput());
+  const rename = result.cases.filter((testCase) => testCase.censusId === "P207");
+  for (const testCase of rename) {
+    assert.deepEqual(testCase.a, { censusOperation: "rename", executableOperation: "write-batch" });
+    assert.ok(testCase.expected.statePredicates.includes("guarded-old-name-retracted"));
+    assert.ok(testCase.expected.statePredicates.includes("pinned-locator-readable"));
+  }
+
+  const fork = result.cases.filter((testCase) => testCase.censusId === "P252");
+  for (const testCase of fork) {
+    assert.ok(testCase.expected.statePredicates.includes("no-semantic-merge-record"));
+  }
+
+  const restore = result.cases.filter((testCase) => testCase.censusId === "P377");
+  for (const testCase of restore) {
+    assert.ok(testCase.expected.statePredicates.includes("reclaim-not-admitted"));
+  }
+});
+
+test("partial replica adoption requires durable cursor and rejection predicates", () => {
+  const result = operationPairCasesFromCensus(packageInput());
+  for (const testCase of result.cases.filter((testCase) => testCase.censusId === "P312")) {
+    assert.equal(testCase.executableOwner, "mesh-sync");
+    assert.equal(testCase.executableTarget, "mesh-sync.cursor-restore");
+    assert.equal(testCase.expected.outcome, "conflict");
+    assert.ok(testCase.expected.statePredicates.includes("cursor-not-advanced"));
+    assert.ok(testCase.expected.statePredicates.includes("restart-uses-acknowledged-cursor"));
+  }
+});
+
+test("unknown fields, malformed selections, and incomplete schedules fail closed", () => {
+  assertThrows(() => operationPairCasesFromCensus(input([validPair()], {
+    schemaVersion: "live-namespace.operation-pair-census-with-one-schedule",
+  })), /schemaVersion/);
+
+  const unknown = validPair("P101", { hostile: true });
+  assertThrows(() => operationPairCasesFromCensus(input([unknown])), /outside this exact contract/);
+
+  const duplicateSelected = packageInput();
+  duplicateSelected.selectedCaseIds = [...SELECTED_IDS, "P101"];
+  assertThrows(() => operationPairCasesFromCensus(duplicateSelected), /duplicate/);
+
+  assertThrows(() => operationPairCasesFromCensus({
+    schemaVersion: "live-namespace.operation-pair-census-with-five-schedules",
+    selectedCaseIds: ["P576"],
+    pairs: packagePairs(),
+  }), /no supplied pair/);
+
+  const missingSchedule = validPair();
+  missingSchedule.schedules = SCHEDULES.slice(1);
+  assertThrows(() => operationPairCasesFromCensus(input([missingSchedule])), /canonical five-schedule/);
+});
+
+test("unsafe outcomes and vague predicates cannot become executable test DATA", () => {
+  const badOutcome = validPair();
+  badOutcome.expected.outcome = "success";
+  assertThrows(() => operationPairCasesFromCensus(input([badOutcome])), /outcome/);
+
+  const vague = validPair();
+  vague.expected.statePredicates = ["works!"];
+  assertThrows(() => operationPairCasesFromCensus(input([vague])), /unsafe predicate/);
+
+  const noPredicate = validPair();
+  noPredicate.expected.statePredicates = [];
+  assertThrows(() => operationPairCasesFromCensus(input([noPredicate])), /state predicate/);
+
+  const badCount = validPair();
+  badCount.expected.errorPredicates = [{ code: "ExpectedCurrentMismatch", count: 0 }];
+  assertThrows(() => operationPairCasesFromCensus(input([badCount])), /count/);
+});
+
+test("deferred migration and reclaim rows never acquire execution authority", () => {
+  const result = operationPairCasesFromCensus(packageInput());
+  assert.equal(result.cases.some((testCase) => testCase.executableOwner === "deferred"), false);
+  for (const deferral of result.summary.deferred) {
+    assert.equal(deferral.kind, "live-namespace.operation-pair-deferral");
+    assert.match(deferral.reason, /authority|pin/);
+  }
+
+  const executingDeferred = validPair("P519", { deferredReason: null });
+  assertThrows(() => operationPairCasesFromCensus(input([executingDeferred])), /deferredReason/);
+
+  const wrongTarget = validPair("P519", { executableTarget: "engine.operation.read-current" });
+  assertThrows(() => operationPairCasesFromCensus(input([wrongTarget])), /runtime.not-admitted/);
+});
+
+test("semantic merge, source coupling, provider spelling, and secrets are refused", () => {
+  const semanticMerge = validPair();
+  semanticMerge.b.executableOperation = "semantic-merge";
+  assertThrows(() => operationPairCasesFromCensus(input([semanticMerge])), /admitted generic descriptor/);
+
+  const source = validPair();
+  source.fixture.partitionLabel = "https://example.test/partition";
+  assertThrows(() => operationPairCasesFromCensus(input([source])), /safe bounded text/);
+
+  const provider = validPair();
+  provider.category = "aws-migration";
+  assertThrows(() => operationPairCasesFromCensus(input([provider])), /safe bounded text/);
+
+  const secret = validPair();
+  secret.deferredReason = null;
+  secret.executableOwner = "engine-operation-target";
+  secret.executableTarget = "engine-operation.read-secret";
+  secret.deferredReason = "not-applicable-because-this-is-executable";
+  assertThrows(() => operationPairCasesFromCensus(input([secret])), /bounded owner target/);
+});
+
+test("prototype, symbol, sparse-array, and null-payload attacks fail closed", () => {
+  const prototype = validPair();
+  Object.setPrototypeOf(prototype, { hostile() {} });
+  assertThrows(() => operationPairCasesFromCensus(input([prototype])), /plain object/);
+
+  const symbol = validPair();
+  symbol[Symbol("hostile")] = true;
+  assertThrows(() => operationPairCasesFromCensus(input([symbol])), /outside this exact contract/);
+
+  const sparse = [validPair()];
+  sparse.length = 2;
+  assertThrows(() => operationPairCasesFromCensus(input(sparse)), /sparse/);
+
+  const tombstone = validPair();
+  tombstone.fixture.initialWrites = [{
+    addressLabel: "unsafe-address",
+    payload: null,
+    remove: false,
+    expectedCurrent: null,
+  }];
+  assertThrows(() => operationPairCasesFromCensus(input([tombstone])), /tombstone trap/);
+});
+
+test("unselected duplicate IDs are visible and selected duplicate IDs are ambiguous", () => {
+  const result = operationPairCasesFromCensus({
+    schemaVersion: "live-namespace.operation-pair-census-with-five-schedules",
+    selectedCaseIds: ["P101"],
+    pairs: [validPair(), validPair()],
+  });
+  assert.deepEqual(result.summary.duplicateCaseIds, ["P101"]);
+
+  const duplicateSelected = packageInput();
+  duplicateSelected.selectedCaseIds = ["P101", "P101"];
+  assertThrows(() => operationPairCasesFromCensus(duplicateSelected), /duplicate/);
+});
+
+test("normalization does not mutate package DATA", () => {
+  const supplied = packageInput();
+  const snapshot = structuredClone(supplied);
+  operationPairCasesFromCensus(supplied);
+  assert.deepEqual(supplied, snapshot);
+});

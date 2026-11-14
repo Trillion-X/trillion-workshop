@@ -1,0 +1,140 @@
+{
+  "about": "Files moved here byte for byte from bitfield-packages (packages/package-store-reviews): each names its source path and commit, the identity of its source bytes and of its bytes here. The first commit that holds them is the byte copy; later commits change import paths only. A file named .held is the same bytes with its test name taken off so the repository test does not run it; the reason is under `held`. `not_carried` names package files that were left in the package and why.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/package-store-reviews/__tests__/fixtures/generic-record-events.json",
+      "commit": "f368ab3a566b7ede0ebae5e133c90daa72b0d86e",
+      "to": "tools/package-store-reviews/__tests__/fixtures/generic-record-events.json",
+      "source_identity": "1f:5368010d3c1ef91d341cb62a4372420660665cc6bee2c759cdc4e286331b322d",
+      "identity": "1f:5368010d3c1ef91d341cb62a4372420660665cc6bee2c759cdc4e286331b322d"
+    },
+    {
+      "from": "packages/package-store-reviews/__tests__/fixtures/reader-contract-expected.json",
+      "commit": "f368ab3a566b7ede0ebae5e133c90daa72b0d86e",
+      "to": "tools/package-store-reviews/__tests__/fixtures/reader-contract-expected.json",
+      "source_identity": "1f:a32b402c288e39468013def3e119ad1816923161d9832966da84441acdad39d4",
+      "identity": "1f:a32b402c288e39468013def3e119ad1816923161d9832966da84441acdad39d4"
+    },
+    {
+      "from": "packages/package-store-reviews/__tests__/generic-projection.test.ts",
+      "commit": "f368ab3a566b7ede0ebae5e133c90daa72b0d86e",
+      "to": "tools/package-store-reviews/__tests__/generic-projection.test.ts.held",
+      "source_identity": "1f:b54fdb47f1df8ad4b2e4515f19eaafcfa4deb43559993a9698009c702e92f291",
+      "identity": "1f:b54fdb47f1df8ad4b2e4515f19eaafcfa4deb43559993a9698009c702e92f291"
+    },
+    {
+      "from": "packages/package-store-reviews/__tests__/generic-record-contracts.test.ts",
+      "commit": "f368ab3a566b7ede0ebae5e133c90daa72b0d86e",
+      "to": "tools/package-store-reviews/__tests__/generic-record-contracts.test.ts.held",
+      "source_identity": "1f:0d3c524cf5faa924c523c3aea9908a2ddccb8030f12f1dbc42c2762903effe22",
+      "identity": "1f:0d3c524cf5faa924c523c3aea9908a2ddccb8030f12f1dbc42c2762903effe22"
+    },
+    {
+      "from": "packages/package-store-reviews/__tests__/owner-actions.test.ts",
+      "commit": "f368ab3a566b7ede0ebae5e133c90daa72b0d86e",
+      "to": "tools/package-store-reviews/__tests__/owner-actions.test.ts.held",
+      "source_identity": "1f:6f63fd2e17a7d911254da8a67d3bdc557387c1ec5e4ebe9c4af0a4d682fc9a74",
+      "identity": "1f:6f63fd2e17a7d911254da8a67d3bdc557387c1ec5e4ebe9c4af0a4d682fc9a74"
+    },
+    {
+      "from": "packages/package-store-reviews/data/consumer-reader-contracts.json",
+      "commit": "f368ab3a566b7ede0ebae5e133c90daa72b0d86e",
+      "to": "tools/package-store-reviews/data/consumer-reader-contracts.json",
+      "source_identity": "1f:2856efe677a03fd9497b3e53892726559fac630d519f99379ecf1e29e4e125cf",
+      "identity": "1f:2856efe677a03fd9497b3e53892726559fac630d519f99379ecf1e29e4e125cf"
+    },
+    {
+      "from": "packages/package-store-reviews/data/generic-record-contracts.json",
+      "commit": "f368ab3a566b7ede0ebae5e133c90daa72b0d86e",
+      "to": "tools/package-store-reviews/data/generic-record-contracts.json",
+      "source_identity": "1f:a6520ca6b33dd0df2dddd6ee97e1656fb9133307377a70b37701454d723d52e2",
+      "identity": "1f:a6520ca6b33dd0df2dddd6ee97e1656fb9133307377a70b37701454d723d52e2"
+    },
+    {
+      "from": "packages/package-store-reviews/data/render-state-matrix.json",
+      "commit": "f368ab3a566b7ede0ebae5e133c90daa72b0d86e",
+      "to": "tools/package-store-reviews/data/render-state-matrix.json",
+      "source_identity": "1f:9b0a23b51e6671a503e05128b99dabca848b53cda1a28b1123bd0a65d3b47e7f",
+      "identity": "1f:9b0a23b51e6671a503e05128b99dabca848b53cda1a28b1123bd0a65d3b47e7f"
+    },
+    {
+      "from": "packages/package-store-reviews/do-work/build-owner-action-request.ts",
+      "commit": "f368ab3a566b7ede0ebae5e133c90daa72b0d86e",
+      "to": "tools/package-store-reviews/do-work/build-owner-action-request.ts",
+      "source_identity": "1f:7dfa29294eca3dab3699db985d2ae5bd7ad6f5322d7f5d1e29fdf3d9a73054b8",
+      "identity_at_move": "1f:7dfa29294eca3dab3699db985d2ae5bd7ad6f5322d7f5d1e29fdf3d9a73054b8",
+      "byte_copy_commit": "63e148b1ae911999699eb33a36728e1c2d5b8ce3"
+    },
+    {
+      "from": "packages/package-store-reviews/do-work/validate-action-input.ts",
+      "commit": "f368ab3a566b7ede0ebae5e133c90daa72b0d86e",
+      "to": "tools/package-store-reviews/do-work/validate-action-input.ts",
+      "source_identity": "1f:4cc1281dcc963f77fbd618a0eec7881271abaf4e19eab397c701a1a3fec4363e",
+      "identity_at_move": "1f:4cc1281dcc963f77fbd618a0eec7881271abaf4e19eab397c701a1a3fec4363e",
+      "byte_copy_commit": "63e148b1ae911999699eb33a36728e1c2d5b8ce3"
+    },
+    {
+      "from": "packages/package-store-reviews/do-work/write-generic-record-event.ts",
+      "commit": "f368ab3a566b7ede0ebae5e133c90daa72b0d86e",
+      "to": "tools/package-store-reviews/do-work/write-generic-record-event.ts",
+      "source_identity": "1f:93eb78a65820fee77d30aa97f08b4762277867a5f299d168a59335eba2a849a5",
+      "identity_at_move": "1f:93eb78a65820fee77d30aa97f08b4762277867a5f299d168a59335eba2a849a5",
+      "byte_copy_commit": "63e148b1ae911999699eb33a36728e1c2d5b8ce3"
+    },
+    {
+      "from": "packages/package-store-reviews/read-data/descriptor-contracts.ts",
+      "commit": "f368ab3a566b7ede0ebae5e133c90daa72b0d86e",
+      "to": "tools/package-store-reviews/read-data/descriptor-contracts.ts",
+      "source_identity": "1f:fa6b6aae1f36e0d58655bdaac5f11b5b4e8f141c248156d4caf01e7b7ae8fa02",
+      "identity": "1f:fa6b6aae1f36e0d58655bdaac5f11b5b4e8f141c248156d4caf01e7b7ae8fa02"
+    },
+    {
+      "from": "packages/package-store-reviews/read-data/fold-generic-record-events.ts",
+      "commit": "f368ab3a566b7ede0ebae5e133c90daa72b0d86e",
+      "to": "tools/package-store-reviews/read-data/fold-generic-record-events.ts",
+      "source_identity": "1f:6e07c02327acce34b2c174bfba7088b8735f51446f803c3713f9c7c03deda207",
+      "identity_at_move": "1f:6e07c02327acce34b2c174bfba7088b8735f51446f803c3713f9c7c03deda207",
+      "byte_copy_commit": "63e148b1ae911999699eb33a36728e1c2d5b8ce3"
+    },
+    {
+      "from": "packages/package-store-reviews/read-data/read-generic-record-projection.ts",
+      "commit": "f368ab3a566b7ede0ebae5e133c90daa72b0d86e",
+      "to": "tools/package-store-reviews/read-data/read-generic-record-projection.ts",
+      "source_identity": "1f:a3d41162f1a3f5dcf518baa93360c53c998e47811f5bb4d1b2fc2d5db38cd4bc",
+      "identity_at_move": "1f:a3d41162f1a3f5dcf518baa93360c53c998e47811f5bb4d1b2fc2d5db38cd4bc",
+      "byte_copy_commit": "63e148b1ae911999699eb33a36728e1c2d5b8ce3"
+    },
+    {
+      "from": "packages/package-store-reviews/show-ios-jscore/package-store-reviews-jscore-contract.test.ts",
+      "commit": "f368ab3a566b7ede0ebae5e133c90daa72b0d86e",
+      "to": "tools/package-store-reviews/show-ios-jscore/package-store-reviews-jscore-contract.test.ts.held",
+      "source_identity": "1f:9d2140cf492419412f78a0a4b54a6bd31020d58225043eeb73a12cf3dd2eb88b",
+      "identity": "1f:9d2140cf492419412f78a0a4b54a6bd31020d58225043eeb73a12cf3dd2eb88b"
+    },
+    {
+      "from": "packages/package-store-reviews/show/package-store-reviews-consumer-contract.test.tsx",
+      "commit": "f368ab3a566b7ede0ebae5e133c90daa72b0d86e",
+      "to": "tools/package-store-reviews/show/package-store-reviews-consumer-contract.test.tsx.held",
+      "source_identity": "1f:ae796dfc271f131b997aaade00392f05089ee9f8f0a15928a16bd9853718c558",
+      "identity": "1f:ae796dfc271f131b997aaade00392f05089ee9f8f0a15928a16bd9853718c558"
+    },
+    {
+      "from": "packages/package-store-reviews/tests/consumer-boundary.test.ts",
+      "commit": "f368ab3a566b7ede0ebae5e133c90daa72b0d86e",
+      "to": "tools/package-store-reviews/tests/consumer-boundary.test.ts.held",
+      "source_identity": "1f:4c2337e60bf7a50caf36ffaeb3708604b2f73253fc1b02b2a13e9457b2565a7d",
+      "identity": "1f:4c2337e60bf7a50caf36ffaeb3708604b2f73253fc1b02b2a13e9457b2565a7d"
+    }
+  ],
+  "held": {
+    "tools/package-store-reviews/__tests__/generic-projection.test.ts.held": "reads the package boundary file (things-to-store-and-run.json) or built bytes, which are not carried",
+    "tools/package-store-reviews/__tests__/generic-record-contracts.test.ts.held": "reads the package boundary file (things-to-store-and-run.json) or built bytes, which are not carried",
+    "tools/package-store-reviews/__tests__/owner-actions.test.ts.held": "reads the package boundary file (things-to-store-and-run.json) or built bytes, which are not carried",
+    "tools/package-store-reviews/show-ios-jscore/package-store-reviews-jscore-contract.test.ts.held": "reads the package boundary file (things-to-store-and-run.json) or built bytes, which are not carried",
+    "tools/package-store-reviews/show/package-store-reviews-consumer-contract.test.tsx.held": "a .tsx test; needs a DOM and react, not installed",
+    "tools/package-store-reviews/tests/consumer-boundary.test.ts.held": "reads the package boundary file (things-to-store-and-run.json) or built bytes, which are not carried"
+  }
+}

@@ -1,0 +1,73 @@
+#!/usr/bin/env python3
+# packages/observed-content/tests/test_channel_offer_fetch_routing.py
+#
+# CATEGORY GUARD (L130/L127) for agnostic-chat: EVERY connected channel's
+# `source.offer` records must route a source-item fetch to the ONE generic
+# dispatcher `action:fetch-source-items` with a non-empty `source_ref`. That is
+# the invariant the observed-content fetch dispatcher depends on to load real
+# threads when a channel source is clicked in the unified Chat picker.
+#
+# SCHEMA-AGNOSTIC by design: the `source.offer` payload is mid-migration from a
+# flat shape (`fetch.static_input`) to a nested one (`selection_schema.query.
+# payload_template.static_input`). This guard accepts EITHER, so it is green at
+# HEAD (flat) and in the working tree (nested) — it guards the ROUTE, not the
+# schema. If a future edit drops the fetch route or the source_ref from ANY
+# channel offer, this fails immediately (which is exactly the class of drift
+# that removed `vendor` from the messenger offers).
+#
+# Offline: reads package DATA only. No engine, no network, no personal data.
+import json
+import pathlib
+import sys
+
+PKGS = pathlib.Path(__file__).resolve().parents[2]
+CHANNELS = [
+    "slack-bot-connector", "signal-bot-connector", "gmail-mailbox-decoder",
+    "telegram-bot-connector", "imessage-chatdb-decoder", "instagram-dm-connector",
+]
+FETCH_DEF = "action:fetch-source-items"
+
+
+def _things(pkg):
+    doc = json.loads((PKGS / pkg / "things-to-store-and-run.json").read_text())
+    return doc if isinstance(doc, list) else doc.get("things", [])
+
+
+def _resolve_route(payload):
+    """Return (definition_id, source_ref) from either schema, or (None, None)."""
+    for pt in (
+        (payload.get("fetch") or {}),                                      # flat
+        (((payload.get("selection_schema") or {}).get("query") or {})       # nested
+         .get("payload_template") or {}),
+    ):
+        did = pt.get("definition_id")
+        if did:
+            si = pt.get("static_input") or {}
+            return did, si.get("source_ref")
+    return None, None
+
+
+def test_every_channel_offer_routes_to_fetch_dispatcher():
+    seen_offers = 0
+    for pkg in CHANNELS:
+        offers = [t["payload"] for t in _things(pkg)
+                  if isinstance(t.get("payload"), dict)
+                  and t["payload"].get("kind") == "source.offer"]
+        assert offers, f"{pkg}: no source.offer records found"
+        for p in offers:
+            seen_offers += 1
+            oid = p.get("id", "<no-id>")
+            did, src = _resolve_route(p)
+            assert did and FETCH_DEF in did, f"{pkg} {oid}: offer does not route to {FETCH_DEF} (got {did!r})"
+            assert isinstance(src, str) and src.strip(), f"{pkg} {oid}: fetch route missing source_ref"
+    # 6 channels, 2 offers each; instagram-dm-connector carries instagram + messenger = 4
+    assert seen_offers >= 12, f"expected >=12 channel offers, saw {seen_offers}"
+
+
+if __name__ == "__main__":
+    try:
+        test_every_channel_offer_routes_to_fetch_dispatcher()
+        print("PASS test_every_channel_offer_routes_to_fetch_dispatcher")
+        sys.exit(0)
+    except AssertionError as e:
+        print(f"FAIL: {e}"); sys.exit(1)

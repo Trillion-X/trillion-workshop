@@ -1,0 +1,6 @@
+[
+  {"sessionId":"s-1","messageId":1,"type":"user","message":"first turn","timestamp":"2026-07-24T10:00:00Z"},
+  {"sessionId":"s-1","messageId":2,"type":"assistant","message":"first reply","timestamp":"2026-07-24T10:01:00Z"},
+  {"sessionId":"s-1","messageId":2,"type":"assistant","message":"edited reply","timestamp":"2026-07-24T10:02:00Z","attachments":[{"name":"proof.txt"}]},
+  {"sessionId":"s-2","messageId":1,"type":"user","message":"second session","timestamp":"2026-07-24T11:00:00Z"}
+]

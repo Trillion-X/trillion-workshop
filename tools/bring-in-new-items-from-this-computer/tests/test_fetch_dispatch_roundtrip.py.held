@@ -1,0 +1,243 @@
+#!/usr/bin/env python3
+# packages/observed-content/tests/test_fetch_dispatch_roundtrip.py
+#
+# L127 guard for the action:fetch-source-items pipeline (the Chat "click a
+# source -> see threads" path). Locks the 3 bugs fixed 2026-07-30 (bitfield-
+# packages 92ea581d + f0403ec1) so they cannot silently regress:
+#
+#   bug 3  decoder.py must be invocable as a co-mounted sibling of dispatcher.py
+#   bug 4  the dispatcher must emit its result on STDOUT (no phantom file
+#          artifact contract — the workflow decode step declares outputs:[])
+#   bug 5  the dispatcher must speak the canonical decoder FILE contract:
+#          python3 decoder.py <request.json> <out.json>, request carries
+#          {observation:{source_ref, native_ref, ...}, descriptor}, decoder
+#          writes {threads, atoms, rejections} to out.json
+#
+# Plus the L130 category guard: EVERY channel decoder in the repo must expose
+# the file-contract entry (`def main` + `__main__`) — the telegram/slack/signal
+# decoders shipped without one and silently wrote nothing.
+#
+# No live engine, no network, no credentials, no personal data: a synthetic
+# telegram-shaped snapshot in a temp dir stands in for a capture; the
+# descriptor's `location` file-glob points at the temp dir. Generic: the
+# dispatcher never names a channel — everything channel-shaped here arrives as
+# descriptor DATA (deletion test: swap the snapshot/decoder for any other
+# channel's and the contract still holds).
+#
+# Run: python3 test_fetch_dispatch_roundtrip.py   (exit 0 = pass, non-zero = fail)
+
+import json
+import os
+import pathlib
+import shutil
+import subprocess
+import sys
+import tempfile
+
+HERE = pathlib.Path(__file__).resolve().parent
+PACKAGES = HERE.parent.parent  # .../bitfield-packages/packages
+DISPATCHER = (
+    PACKAGES / "observed-content" / "do-work" / "process-scripts"
+    / "fetch-source-items-dispatcher.py"
+)
+TRANSCRIPT_MAPPER = next(
+    p for p in (PACKAGES / "transcript-mapper").rglob("transcript_mapper*.py")
+    if "test" not in p.name
+)
+BITFIELD_CRYPTO = PACKAGES / "transcript-mapper" / "do-work" / "process-scripts" / "bitfield_crypto.py"
+TELEGRAM_DECODER = (
+    PACKAGES / "telegram-messages-decoder" / "do-work" / "process-scripts"
+    / "decode-telegram-messages.py"
+)
+
+FAILURES = []
+
+
+def check(name, ok, detail=""):
+    print(f"{'PASS' if ok else 'FAIL'}  {name}" + (f"  ({detail})" if detail and not ok else ""))
+    if not ok:
+        FAILURES.append(name)
+
+
+def run_dispatcher(workdir, descriptor, source_ref, category_key="threads", limit="5", collection_key=None, capture_record=None, cursor=""):
+    # collection_key (argv[5]) is a REQUIRED source-offer DATA field in the current
+    # dispatcher contract (explicit decoder-output collection selector, L090 — no
+    # category_key overload). Defaults to the category here; harmless extra arg for
+    # any older dispatcher that reads only argv[1..4].
+    collection_key = collection_key or category_key
+    env = dict(os.environ)
+    env["DESCRIPTOR_JSON"] = json.dumps(descriptor)
+    env.pop("CAPTURE_RECORD_PATH", None)
+    if capture_record is not None:
+        env["CAPTURE_RECORD_PATH"] = str(capture_record)
+    return subprocess.run(
+        [sys.executable, *(["-I", "-S"] if sys.flags.isolated else []), "dispatcher.py", source_ref, category_key, cursor, limit, collection_key],
+        capture_output=True, timeout=60, cwd=workdir, env=env,
+    )
+
+
+def main():
+    with tempfile.TemporaryDirectory() as td:
+        work = pathlib.Path(td)
+        shutil.copy(DISPATCHER, work / "dispatcher.py")
+        shutil.copy(TRANSCRIPT_MAPPER, work / "transcript_mapper.py")
+        shutil.copy(BITFIELD_CRYPTO, work / "bitfield_crypto.py")
+        shutil.copy(TELEGRAM_DECODER, work / "decoder.py")
+
+        # Synthetic telegram-shaped snapshot (no personal data) in a temp
+        # capture dir the descriptor's location glob resolves to.
+        captures = work / "captures"
+        captures.mkdir()
+        snapshot = {
+            "account_ref": "test", "self_id": "0", "offset": 0,
+            "threads": [{
+                "id": "42", "title": "Test Chat",
+                "messages": [{
+                    "id": "1", "from_id": "7", "date": "2026-07-30T00:00:00Z",
+                    "text": "hello from the guard test",
+                }],
+            }],
+        }
+        (captures / "test.json").write_text(json.dumps(snapshot), encoding="utf-8")
+
+        descriptor = {
+            "source_ref": "source:guardtest",
+            "decoder_process_module": {"script_address": "package::x::stored-bytes::y"},
+            "location": {"kind": "file-glob",
+                         "data": {"base": [str(captures)], "glob": "*.json"}},
+        }
+
+        # ---- bug 3+4+5: full round-trip, result on STDOUT ----
+        proc = run_dispatcher(work, descriptor, "source:guardtest")
+        check("dispatcher exits 0", proc.returncode == 0, proc.stderr.decode()[:200])
+        try:
+            out = json.loads(proc.stdout.decode())
+        except ValueError as e:
+            out = {}
+            check("dispatcher stdout is JSON", False, str(e))
+        check("no dispatcher error", not out.get("error"), str(out.get("error"))[:200])
+        check("items returned from synthetic capture", len(out.get("items", [])) >= 1,
+              f"items={len(out.get('items', []))}")
+        # bug 4: the contract is stdout-only — the dispatcher must not depend on
+        # the workflow collecting a file artifact (its temp files are internal).
+        check("result carried on stdout (bug 4 contract)", bool(proc.stdout.strip()))
+
+        # Opaque pagination is carried to the decoder unchanged. The dispatcher
+        # owns neither cursor interpretation nor provider-specific paging.
+        (work / "decoder.py").write_text(
+            "import json, pathlib, sys\n"
+            "request=json.loads(pathlib.Path(sys.argv[1]).read_text())\n"
+            "pathlib.Path(sys.argv[2]).write_text(json.dumps({"
+            "'threads':[{'cursor':request.get('cursor'),'limit':request.get('limit')}],"
+            "'atoms':[],'rejections':[],'next_cursor':'opaque-next'}))\n",
+            encoding="utf-8",
+        )
+        paged = run_dispatcher(work, descriptor, "source:guardtest", limit="7")
+        paged_out = json.loads(paged.stdout)
+        check("dispatcher carries bounded limit to decoder",
+              paged_out.get("items", [{}])[0].get("limit") == 7, str(paged_out))
+        # The helper's empty cursor argument becomes JSON null rather than a
+        # fabricated provider cursor.
+        check("dispatcher carries absent cursor as null",
+              paged_out.get("items", [{}])[0].get("cursor") is None, str(paged_out))
+        check("dispatcher returns decoder-owned opaque next cursor",
+              paged_out.get("next_cursor") == "opaque-next", str(paged_out))
+        resumed = run_dispatcher(work, descriptor, "source:guardtest", limit="7", cursor="provider:opaque:2")
+        resumed_out = json.loads(resumed.stdout)
+        check("dispatcher carries opaque cursor without interpretation",
+              resumed_out.get("items", [{}])[0].get("cursor") == "provider:opaque:2", str(resumed_out))
+
+        (work / "decoder.py").write_text(
+            "import json, pathlib, sys\n"
+            "pathlib.Path(sys.argv[2]).write_text(json.dumps({"
+            "'threads':[{'id':'one'},{'id':'two'}],'atoms':[],'rejections':[],"
+            "'next_cursor':'after-two'}))\n",
+            encoding="utf-8",
+        )
+        oversized = run_dispatcher(work, descriptor, "source:guardtest", limit="1")
+        oversized_out = json.loads(oversized.stdout)
+        check("dispatcher refuses decoder pages that would be silently truncated",
+              oversized.returncode != 0 and "refusing silent truncation" in oversized_out.get("error", ""),
+              str(oversized_out))
+
+        (work / "decoder.py").write_text(
+            "import json, pathlib, sys\n"
+            "pathlib.Path(sys.argv[2]).write_text(json.dumps({"
+            "'threads':[],'atoms':[],'next_cursor':None,"
+            "'rejections':[{'reason_ref':'reason:rate-limited',"
+            "'retry_cursor':'same-page','retry_after':'later'}]}))\n",
+            encoding="utf-8",
+        )
+        retryable = run_dispatcher(work, descriptor, "source:guardtest", limit="1")
+        retryable_out = json.loads(retryable.stdout)
+        rejection = retryable_out.get("rejections", [{}])[0]
+        check("dispatcher preserves typed decoder retry details",
+              retryable.returncode == 0 and rejection.get("retry_cursor") == "same-page"
+              and rejection.get("retry_after") == "later", str(retryable_out))
+
+        shutil.copy(TELEGRAM_DECODER, work / "decoder.py")
+
+        # ---- honest-empty when no captures (L117) ----
+        empty = work / "empty"
+        empty.mkdir()
+        desc_empty = dict(descriptor)
+        desc_empty["location"] = {"kind": "file-glob",
+                                  "data": {"base": [str(empty)], "glob": "*.json"}}
+        proc2 = run_dispatcher(work, desc_empty, "source:guardtest")
+        out2 = json.loads(proc2.stdout.decode()) if proc2.returncode == 0 else {}
+        check("honest-empty on zero captures", proc2.returncode == 0
+              and out2.get("items") == [] and not out2.get("error"),
+              proc2.stdout.decode()[:150])
+
+        # ---- fail-closed on missing decoder ref ----
+        proc3 = run_dispatcher(work, {"location": descriptor["location"]}, "source:guardtest")
+        # Contract failure emits the structured error on STDOUT (the _fail path). The
+        # exit code is contract-version-dependent (older _fail returned 0, current
+        # returns nonzero), so assert on the error string alone — the fail-closed
+        # invariant that survives both contracts.
+        out3 = json.loads(proc3.stdout.decode()) if proc3.stdout.strip() else {}
+        check("fail-closed on missing script_address", "script_address" in str(out3.get("error")))
+
+        # The same dispatcher consumes owner-mounted records, without a provider
+        # request or a child Python interpreter. Exercise two real adapters.
+        record_descriptor = dict(descriptor, location={
+            "kind": "envelope-record", "data": {"address": "fixture:snapshot"}})
+        capture = work / "capture.json"
+        capture.write_text(json.dumps(snapshot), encoding="utf-8")
+        mounted = run_dispatcher(work, record_descriptor, "source:guardtest", capture_record=capture)
+        mounted_out = json.loads(mounted.stdout)
+        check("mounted Telegram record produces items", mounted.returncode == 0 and bool(mounted_out.get("items")), str(mounted_out))
+
+        shutil.copy(PACKAGES / "x-bookmarks-decoder/do-work/process-scripts/decode_x_bookmarks.py", work / "decoder.py")
+        capture.write_text(json.dumps({"user_id": "7", "bookmarks": [{
+            "id": "fixture-tweet", "text": "bounded record fixture", "author_id": "7",
+            "created_at": "2026-09-10T00:00:00Z"}]}), encoding="utf-8")
+        mounted = run_dispatcher(work, record_descriptor, "source:guardtest", category_key="bookmarks", collection_key="atoms", capture_record=capture)
+        mounted_out = json.loads(mounted.stdout)
+        check("mounted X record produces atoms", mounted.returncode == 0 and bool(mounted_out.get("items")), str(mounted_out))
+        absent = run_dispatcher(work, record_descriptor, "source:guardtest")
+        check("unmounted record fails closed", absent.returncode != 0 and "not mounted" in json.loads(absent.stdout).get("error", ""))
+
+        (work / "decoder.py").write_text('import sys\nprint("x" * 1000000, file=sys.stderr)\nprint("causal-tail", file=sys.stderr)\nsys.exit(7)\n')
+        failed = run_dispatcher(work, record_descriptor, "source:guardtest", capture_record=capture)
+        error = json.loads(failed.stdout).get("error", "")
+        check("decoder exit preserves bounded causal diagnostics", failed.returncode != 0 and "exit 7" in error and "causal-tail" in error and len(error) < 2200)
+
+    # ---- L130 category guard: every channel decoder has the file-contract main ----
+    decoders = sorted(
+        p for p in PACKAGES.glob("*/do-work/**/decode-*.py")
+        if "test" not in p.name and "__tests__" not in str(p)
+    )
+    check("found channel decoders to audit", len(decoders) >= 5, f"found={len(decoders)}")
+    for dec in decoders:
+        pkg = dec.relative_to(PACKAGES).parts[0]
+        src = dec.read_text(encoding="utf-8")
+        check(f"{pkg}/{dec.name} has file-contract main",
+              "def main" in src and "__main__" in src)
+
+    print(f"\n{'ALL PASS' if not FAILURES else f'{len(FAILURES)} FAILURES: ' + ', '.join(FAILURES)}")
+    sys.exit(1 if FAILURES else 0)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,16 @@
+[
+  {
+    "type": "assistant",
+    "role": "assistant",
+    "timestamp": "2023-07-22T04:26:40Z",
+    "content": "are we still on for tomorrow?",
+    "atomRef": "atom:1f:1d60fc0401696454ab2254e37a67407f2628f4d954cc4d1a7b667a02085dea7e"
+  },
+  {
+    "type": "user",
+    "role": "human",
+    "timestamp": "2023-07-22T04:26:45Z",
+    "content": "yep see you then",
+    "atomRef": "atom:1f:b3321ea7d4b2e02220e02dd959e1099ace9372061a162757677f7dd28d6577f5"
+  }
+]

@@ -1,0 +1,290 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import test from "node:test";
+import { fileURLToPath } from "node:url";
+
+import {
+  RECEIVER_MATERIALIZATION_SHAPE,
+  MaterializationFactsError,
+  materializationFactsFromVerifiedPages,
+} from "../read-data/materialization-facts-from-verified-pages.mjs";
+
+const IDENTITY = "12:3300f2037090fbc433ce4f405d016aa949de441b1d7791c8aa0128361db7fedd";
+const OTHER_IDENTITY = "12:5ec4d3cbc9374276b83b5333f5251c28518c6749a924a93a044a614975e165f0";
+const DIGEST_A = "1".repeat(64);
+const DIGEST_B = "2".repeat(64);
+
+function demand(overrides = {}) {
+  return {
+    schemaVersion: RECEIVER_MATERIALIZATION_SHAPE,
+    receiverId: "receiver-a",
+    subject: { kind: "immutable-bytes", identity: IDENTITY },
+    receiverStateVersion: "state-17",
+    observationAuthorization: { subject: "observer-a", grantId: "observe-9", version: 3 },
+    transferAuthorization: { subject: "read-plan-a", grantId: "read-9", version: 4 },
+    range: { offset: 100, length: 100 },
+    ...overrides,
+  };
+}
+
+function page(overrides = {}) {
+  return {
+    schemaVersion: RECEIVER_MATERIALIZATION_SHAPE,
+    cursor: null,
+    nextCursor: null,
+    receiverId: "receiver-a",
+    subject: { kind: "immutable-bytes", identity: IDENTITY },
+    receiverStateVersion: "state-17",
+    observationAuthorization: { subject: "observer-a", grantId: "observe-9", version: 3 },
+    intervals: [{ offset: 100, length: 40, sha256: DIGEST_A }],
+    verified: true,
+    ...overrides,
+  };
+}
+
+test("a complete cursor chain becomes exact, digest-bound materialization facts", () => {
+  const result = materializationFactsFromVerifiedPages({
+    demand: demand(),
+    pages: [
+      page({ nextCursor: "page-2", intervals: [{ offset: 100, length: 20, sha256: DIGEST_A }] }),
+      page({
+        cursor: "page-2",
+        intervals: [{ offset: 120, length: 20, sha256: DIGEST_B }],
+      }),
+    ],
+  });
+
+  assert.equal(result.facts.length, 2);
+  assert.deepEqual(result.facts.map(({ interval, intervalSha256 }) => ({ ...interval, intervalSha256 })), [
+    { offset: 100, length: 20, intervalSha256: DIGEST_A },
+    { offset: 120, length: 20, intervalSha256: DIGEST_B },
+  ]);
+  assert.equal("pageCursor" in result.facts[0], false);
+  assert.deepEqual(result.paging, { pagesSupplied: 2, intervalsSupplied: 2, complete: true });
+  assert.deepEqual(result.observationAuthorization, demand().observationAuthorization);
+  assert.deepEqual(result.transferAuthorization, demand().transferAuthorization);
+});
+
+test("exact duplicate facts merge, while one exact interval cannot carry two digests", () => {
+  const result = materializationFactsFromVerifiedPages({
+    demand: demand(),
+    pages: [
+      page({
+        intervals: [
+          { offset: 100, length: 20, sha256: DIGEST_A },
+          { offset: 100, length: 20, sha256: DIGEST_A },
+        ],
+      }),
+    ],
+  });
+  assert.equal(result.facts.length, 1);
+  assert.deepEqual(result.facts[0].interval, { offset: 100, length: 20 });
+
+  assert.throws(() => materializationFactsFromVerifiedPages({
+    demand: demand(),
+    pages: [
+      page({
+        intervals: [
+          { offset: 100, length: 20, sha256: DIGEST_A },
+          { offset: 100, length: 20, sha256: DIGEST_B },
+        ],
+      }),
+    ],
+  }), (error) => error instanceof MaterializationFactsError && /one exact interval has two digests/.test(error.message));
+});
+
+test("partial or outside intervals are refused instead of cloning their digest onto a narrower claim", () => {
+  const cases = [
+    [{ offset: 80, length: 40, sha256: DIGEST_A }],
+    [{ offset: 180, length: 40, sha256: DIGEST_A }],
+    [{ offset: 0, length: 20, sha256: DIGEST_A }],
+    [{ offset: 220, length: 20, sha256: DIGEST_A }],
+  ];
+  for (const intervals of cases) {
+    assert.throws(
+      () => materializationFactsFromVerifiedPages({ demand: demand(), pages: [page({ intervals })] }),
+      (error) => error instanceof MaterializationFactsError && /not wholly inside/.test(error.message),
+    );
+  }
+});
+
+test("immutable bytes and an exact result are different subjects even with one identity", () => {
+  assert.throws(() => materializationFactsFromVerifiedPages({
+    demand: demand(),
+    pages: [page({ subject: { kind: "exact-result", identity: IDENTITY } })],
+  }), MaterializationFactsError);
+
+  const result = materializationFactsFromVerifiedPages({
+    demand: demand({ subject: { kind: "exact-result", identity: OTHER_IDENTITY } }),
+    pages: [page({ subject: { kind: "exact-result", identity: OTHER_IDENTITY } })],
+  });
+  assert.equal(result.subject.kind, "exact-result");
+  assert.equal(result.subject.identity, OTHER_IDENTITY);
+});
+
+test("stale receiver state or subject/root pages fail closed", () => {
+  const stale = [
+    page({ receiverStateVersion: "state-16" }),
+    page({ receiverId: "receiver-b" }),
+    page({ subject: { kind: "immutable-bytes", identity: OTHER_IDENTITY } }),
+    page({ schemaVersion: "live-namespace.receiver-materialization-from-unverified-pages" }),
+  ];
+  for (const stalePage of stale) {
+    assert.throws(
+      () => materializationFactsFromVerifiedPages({ demand: demand(), pages: [stalePage] }),
+      MaterializationFactsError,
+    );
+  }
+});
+
+test("truncated, discontinuous, and duplicated cursor chains are incomplete evidence", () => {
+  const cases = [
+    [page({ nextCursor: "page-2" })],
+    [page({ cursor: "not-start", nextCursor: null })],
+    [page({ nextCursor: "expected" }), page({ cursor: "different" })],
+    [
+      page({ nextCursor: "same-cursor" }),
+      page({ cursor: "same-cursor", nextCursor: "same-cursor" }),
+      page({ cursor: "same-cursor" }),
+    ],
+  ];
+  for (const brokenPages of cases) {
+    assert.throws(
+      () => materializationFactsFromVerifiedPages({ demand: demand(), pages: brokenPages }),
+      MaterializationFactsError,
+    );
+  }
+});
+
+test("independently verified overlapping windows remain separate exact facts", () => {
+  const result = materializationFactsFromVerifiedPages({
+    demand: demand(),
+    pages: [
+      page({
+        intervals: [
+          { offset: 100, length: 40, sha256: DIGEST_A },
+          { offset: 110, length: 20, sha256: DIGEST_B },
+        ],
+      }),
+    ],
+  });
+  assert.deepEqual(result.facts.map(({ interval, intervalSha256 }) => ({ ...interval, intervalSha256 })), [
+    { offset: 100, length: 40, intervalSha256: DIGEST_A },
+    { offset: 110, length: 20, intervalSha256: DIGEST_B },
+  ]);
+});
+
+test("one exact interval with two digests refuses the whole batch", () => {
+  assert.throws(() => materializationFactsFromVerifiedPages({
+    demand: demand(),
+    pages: [
+      page({
+        intervals: [
+          { offset: 100, length: 20, sha256: DIGEST_A },
+          { offset: 100, length: 20, sha256: DIGEST_B },
+        ],
+      }),
+    ],
+  }), (error) => error instanceof MaterializationFactsError && /one exact interval has two digests/.test(error.message));
+});
+
+test("observation authority is separate from transfer authority", () => {
+  assert.throws(() => materializationFactsFromVerifiedPages({
+    demand: demand(),
+    pages: [
+      page({
+        observationAuthorization: {
+          subject: "observer-a",
+          grantId: "observe-10",
+          version: 3,
+        },
+      }),
+    ],
+  }), MaterializationFactsError);
+
+  assert.throws(() => materializationFactsFromVerifiedPages({
+    demand: demand(),
+    pages: [page({ transferAuthorization: demand().transferAuthorization })],
+  }), (error) => error instanceof MaterializationFactsError && /unknownFields|outside this exact contract/.test(error.message));
+
+  const result = materializationFactsFromVerifiedPages({ demand: demand(), pages: [page()] });
+  assert.equal("transferAuthorization" in result.facts[0], false);
+  assert.deepEqual(result.transferAuthorization, demand().transferAuthorization);
+});
+
+test("names, semantic proxies, and undeclared fields are not possession facts", () => {
+  const rejected = [
+    page({ sourcePath: "/Volumes/Expansion/movie.mp4" }),
+    page({ semanticKey: "same-movie" }),
+    page({ subject: { kind: "immutable-bytes", identity: "holiday movie final" } }),
+    page({ subject: { kind: "immutable-bytes", identity: IDENTITY, name: "holiday" } }),
+  ];
+  for (const hostilePage of rejected) {
+    assert.throws(
+      () => materializationFactsFromVerifiedPages({ demand: demand(), pages: [hostilePage] }),
+      MaterializationFactsError,
+    );
+  }
+});
+
+test("malformed ranges, digests, authorization, and unverified pages fail closed", () => {
+  const cases = [
+    [demand({ range: { offset: -1, length: 10 } }), [page()]],
+    [demand({ range: { offset: 0, length: 0 } }), [page()]],
+    [demand(), [page({ intervals: [{ offset: 0, length: 10, sha256: "abc" }] })]],
+    [demand(), [page({ intervals: [{ offset: 1, length: Number.MAX_SAFE_INTEGER, sha256: DIGEST_A }] })]],
+    [demand({ transferAuthorization: {} }), [page()]],
+    [demand({ observationAuthorization: { version: 1n } }), [page()]],
+    [demand(), [page({ verified: false })]],
+    [demand(), []],
+  ];
+  for (const [inputDemand, inputPages] of cases) {
+    assert.throws(
+      () => materializationFactsFromVerifiedPages({ demand: inputDemand, pages: inputPages }),
+      MaterializationFactsError,
+    );
+  }
+});
+
+test("normalization never mutates demand or page inputs", () => {
+  const inputDemand = demand();
+  const inputPage = page({
+    nextCursor: null,
+    observationAuthorization: { version: 3, grantId: "observe-9", subject: "observer-a" },
+  });
+  const demandCopy = structuredClone(inputDemand);
+  const pageCopy = structuredClone(inputPage);
+
+  materializationFactsFromVerifiedPages({ demand: inputDemand, pages: [inputPage] });
+
+  assert.deepEqual(inputDemand, demandCopy);
+  assert.deepEqual(inputPage, pageCopy);
+});
+
+test("package DATA declares exactly the generic materialization-fact contract", () => {
+  const packageRoot = fileURLToPath(new URL("..", import.meta.url));
+  const manifest = JSON.parse(readFileSync(join(packageRoot, "things-to-store-and-run.json"), "utf8"));
+  const contracts = manifest.things.filter(
+    (thing) => thing.address === "package::live-namespace::contract::receiver-materialization-fact",
+  );
+  assert.equal(contracts.length, 1);
+  const contract = contracts[0].payload;
+  assert.equal(contract.record_kind, "live-namespace.receiver-materialization-fact");
+  assert.deepEqual(contract.required_fields, [
+    "kind",
+    "schemaVersion",
+    "receiverId",
+    "subject",
+    "receiverStateVersion",
+    "observationAuthorization",
+    "interval",
+    "intervalSha256",
+    "verified",
+  ]);
+  assert.deepEqual(contract.optional_fields, ["pageCursor"]);
+  assert.match(contract.address_rule, /two different digests/);
+  assert.match(contract.verification_rule, /wholly inside the exact demand/);
+  assert.match(contract.conflict_rule, /Distinct independently verified windows may overlap/);
+  assert.match(contract.authorization_rule, /transferAuthorization/);
+});

@@ -1,0 +1,136 @@
+#!/usr/bin/env python3
+# packages/observed-content/tests/test_channel_decode_transform.py
+#
+# L116 / L134 guard: prove the DECODE TRANSFORM of every mandate channel, not
+# just that a `main` function exists. The sibling guard test_fetch_dispatch_
+# roundtrip.py proves the telegram decoder end-to-end, and the imessage decoder
+# is proven against real chat.db offline; every OTHER channel decoder previously
+# had only a "has a def main" check — pieces-exist, transform-unproven (exactly
+# the L116 gap). This closes it: each channel decoder must turn a minimal native
+# snapshot into canonical {threads>=1, atoms>=min, rejections==[]}.
+#
+# GENERIC (L069/L090): the harness names NO channel. Every channel arrives as a
+# DATA row in CHANNELS below (decoder package + fixture file + min_atoms) and a
+# native fixture under fixtures/decode/<channel>.native.json. Deletion test:
+# drop any row + its fixture and the loop is unchanged; add a brand-new channel
+# by adding a row + a fixture, ZERO harness-code change. The uniform decoder
+# file contract (python3 decoder.py request.json out.json; request carries
+# {observation:{source_ref,native_ref,...}, descriptor}; out is
+# {threads,atoms,rejections}) is what makes one loop cover all of them.
+#
+# No live engine, no network, no credentials, no personal data — synthetic
+# snapshots shaped to each channel's native adapter contract. transcript_mapper
+# is co-mounted on PYTHONPATH exactly as the live fetch dispatcher co-mounts it.
+#
+# Run: python3 test_channel_decode_transform.py   (exit 0 = pass, non-zero = fail)
+
+import json
+import os
+import pathlib
+import subprocess
+import sys
+import tempfile
+
+HERE = pathlib.Path(__file__).resolve().parent
+FIXTURES = HERE / "fixtures" / "decode"
+PACKAGES = HERE.parent.parent  # .../bitfield-packages/packages
+MAPPER_DIR = PACKAGES / "transcript-mapper" / "do-work" / "process-scripts"
+
+# DATA — the ONLY per-channel knowledge. Each row: the decoder package, its
+# decode script (globbed, so a rename inside the package does not break this),
+# the native fixture, and the minimum transcript atoms a correct decode yields.
+CHANNELS = [
+    {"channel": "slack",     "package": "slack-messages-decoder",   "fixture": "slack.native.json",     "min_atoms": 2},
+    {"channel": "signal",    "package": "signal-messages-decoder",  "fixture": "signal.native.json",    "min_atoms": 2},
+    {"channel": "discord",   "package": "discord-messages-decoder", "fixture": "discord.native.json",   "min_atoms": 2},
+    {"channel": "whatsapp",  "package": "whatsapp-web-decoder",     "fixture": "whatsapp.native.json",  "min_atoms": 2},
+    {"channel": "instagram", "package": "instagram-dm-decoder",     "fixture": "instagram.native.json", "min_atoms": 2},
+    {"channel": "pinterest", "package": "pinterest-pins-decoder",   "fixture": "pinterest.native.json", "min_atoms": 2},
+]
+
+FAILURES = []
+
+
+def check(name, ok, detail=""):
+    print(f"{'PASS' if ok else 'FAIL'}  {name}" + (f"  ({detail})" if detail and not ok else ""))
+    if not ok:
+        FAILURES.append(name)
+
+
+def _decoder_for(package):
+    hits = sorted((PACKAGES / package).glob("do-work/**/decode-*.py"))
+    return hits[0] if hits else None
+
+
+def _run_decode(decoder, native_ref):
+    with tempfile.TemporaryDirectory() as td:
+        work = pathlib.Path(td)
+        req = work / "request.json"
+        out = work / "out.json"
+        req.write_text(json.dumps({
+            "observation": {
+                "source_ref": "source:decodeproof",
+                "native_ref": str(native_ref),
+                "batch_ref": "batch:decodeproof",
+                "observed_at": "2026-07-30T00:00:00Z",
+            },
+            "descriptor": {"display_mark_ref": "mark:decodeproof"},
+        }), encoding="utf-8")
+        env = dict(os.environ)
+        # Co-mount the shared mapper exactly like the live dispatcher does.
+        env["PYTHONPATH"] = str(MAPPER_DIR) + os.pathsep + env.get("PYTHONPATH", "")
+        proc = subprocess.run(
+            [sys.executable, str(decoder), str(req), str(out)],
+            capture_output=True, timeout=60, env=env,
+        )
+        result = None
+        if out.exists():
+            try:
+                result = json.loads(out.read_text(encoding="utf-8"))
+            except ValueError:
+                result = None
+        return proc, result
+
+
+def main():
+    for row in CHANNELS:
+        ch = row["channel"]
+        decoder = _decoder_for(row["package"])
+        check(f"{ch}: decoder script exists", decoder is not None, row["package"])
+        if decoder is None:
+            continue
+        fixture = FIXTURES / row["fixture"]
+        check(f"{ch}: fixture exists", fixture.exists(), str(fixture))
+        if not fixture.exists():
+            continue
+
+        proc, result = _run_decode(decoder, fixture)
+        check(f"{ch}: decoder exits 0", proc.returncode == 0, proc.stderr.decode()[:300])
+        check(f"{ch}: wrote canonical out.json", isinstance(result, dict)
+              and all(k in result for k in ("threads", "atoms", "rejections")),
+              proc.stdout.decode()[:200])
+        if not isinstance(result, dict):
+            continue
+        threads = result.get("threads") or []
+        atoms = result.get("atoms") or []
+        rejections = result.get("rejections") or []
+        check(f"{ch}: >=1 thread from native snapshot", len(threads) >= 1,
+              f"threads={len(threads)}")
+        check(f"{ch}: >={row['min_atoms']} transcript atoms", len(atoms) >= row["min_atoms"],
+              f"atoms={len(atoms)}")
+        check(f"{ch}: zero rejections on clean snapshot", rejections == [],
+              json.dumps(rejections)[:300])
+        # Canonical atom shape (L098 translation-boundary contract): the mapper
+        # must hand back atoms the Chat reader can render without re-parsing.
+        if atoms:
+            a = atoms[0]
+            check(f"{ch}: atom carries thread_ref+content+speaker_ref",
+                  isinstance(a, dict) and "thread_ref" in a and "content" in a
+                  and "speaker_ref" in a, json.dumps(a)[:200])
+
+    print(f"\n{'ALL PASS' if not FAILURES else f'{len(FAILURES)} FAILURES: ' + ', '.join(FAILURES)}")
+    sys.exit(1 if FAILURES else 0)
+
+
+if __name__ == "__main__":
+    main()

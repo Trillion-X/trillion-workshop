@@ -1,0 +1,13 @@
+{
+  "self_id": "+1000",
+  "threads": [
+    {
+      "id": "group.family",
+      "name": "Family",
+      "messages": [
+        {"id": "m1", "from": "+1222", "body": "who is cooking dinner?", "timestamp": 1690000000000},
+        {"id": "m2", "from": "+1000", "body": "i got it", "timestamp": 1690000005000}
+      ]
+    }
+  ]
+}

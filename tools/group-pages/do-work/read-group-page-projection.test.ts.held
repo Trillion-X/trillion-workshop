@@ -1,0 +1,72 @@
+import { describe, expect, it, vi } from 'vitest';
+import { readGroupPageProjectionTarget } from './read-group-page-projection';
+
+const decision = {
+  kind: 'access-decision',
+  decision: 'allow',
+  decision_proof: 'decision:paid-reader',
+  actor_ref: 'actor:paid',
+  session_ref: 'session:paid',
+  subject_ref: 'community:trillion-community',
+  action_ref: 'group-page.read-projection',
+  authorized_action_refs: ['group-page.read-projection', 'item-record.read-space-items'],
+  revisions: {
+    session_revision: 'session:1',
+    policy_revision: 'policy:1',
+    membership_revision: 'membership:1',
+    resource_revision: 'resource:1',
+  },
+};
+
+const admitted = (payload: Record<string, unknown> = {}) => ({
+  payload,
+  ambient_actor: { actor_ref: 'actor:paid', session_ref: 'session:paid', session_revision: 'session:1' },
+  access_decision: decision,
+});
+
+describe('group-page.read-projection', () => {
+  it('re-verifies admission and returns only admitted scope plus item-owner-authorized rows', async () => {
+    const sender = vi.fn(async (request: any) => {
+      if (request.target === 'access-rule.verify-decision') return { verified: true, decision };
+      if (request.target === 'item-record.read-space-items') return {
+        status: 'accepted',
+        rows: [
+          { item_ref: 'group', scope_ref: decision.subject_ref, target_ref: decision.subject_ref, fields: { kind: 'group-page', group_ref: decision.subject_ref, name: 'Trillion Community' } },
+          { item_ref: 'canary', scope_ref: decision.subject_ref, target_ref: decision.subject_ref, fields: { kind: 'post', body: 'PROTECTED_CANARY_ROW' } },
+          { item_ref: 'introductions', scope_ref: decision.subject_ref, target_ref: decision.subject_ref, fields: { kind: 'placeable-surface', label: 'Introductions', material_target: 'component:group-page' } },
+        ],
+      };
+      throw new Error(`unexpected target ${request.target}`);
+    });
+    const result = await readGroupPageProjectionTarget(admitted(), undefined, sender);
+    expect(Object.keys(result).sort()).toEqual(['admitted_scope', 'scoped_group_page_items', 'scoped_group_pages', 'scoped_subject_surfaces']);
+    expect(result.admitted_scope).toEqual({
+      action_ref: decision.action_ref,
+      actor_ref: decision.actor_ref,
+      decision_proof: decision.decision_proof,
+      revisions: decision.revisions,
+      session_ref: decision.session_ref,
+      subject_ref: decision.subject_ref,
+    });
+    expect(result.scoped_group_page_items).toEqual([expect.objectContaining({ body: 'PROTECTED_CANARY_ROW' })]);
+    expect(result.scoped_subject_surfaces).toEqual([expect.objectContaining({ address: 'introductions' })]);
+    expect(sender.mock.calls.map(([request]) => request.target)).toEqual(['access-rule.verify-decision', 'item-record.read-space-items']);
+    expect(sender.mock.calls[1][0].payload.payload).toEqual({ scope_ref: decision.subject_ref, list_scope: true });
+  });
+
+  it('rejects browser-selected subjects and stale decisions before the item owner', async () => {
+    const sender = vi.fn();
+    await expect(readGroupPageProjectionTarget(admitted({ subject_ref: 'community:other' }), undefined, sender)).rejects.toThrow('current server admission');
+    await expect(readGroupPageProjectionTarget({ ...admitted(), access_decision: { ...decision, action_ref: 'group-page.share-item' } }, undefined, sender)).rejects.toThrow('current server admission');
+    expect(sender).not.toHaveBeenCalled();
+  });
+
+  it('stops when the current decision owner rejects any admitted revision', async () => {
+    const sender = vi.fn(async (request: any) => {
+      if (request.target === 'access-rule.verify-decision') return { verified: false, reason: 'stale-or-unauthorized-decision' };
+      throw new Error('protected row owner must not run');
+    });
+    await expect(readGroupPageProjectionTarget(admitted(), undefined, sender)).rejects.toThrow('projection admission is not durable');
+    expect(sender.mock.calls.map(([request]) => request.target)).toEqual(['access-rule.verify-decision']);
+  });
+});

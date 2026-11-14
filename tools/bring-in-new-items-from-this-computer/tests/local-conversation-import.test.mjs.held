@@ -1,0 +1,409 @@
+import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import test from 'node:test';
+
+const root = new URL('../../../', import.meta.url).pathname;
+const packageRoot = join(root, 'packages', 'observed-content');
+const fixture = (name) => readFileSync(join(packageRoot, 'tests', 'fixtures', name));
+const script = join(packageRoot, 'do-work', 'process-scripts', 'prepare-local-conversation-import.py');
+// Ported from Python to Node; the test kept shelling `python3` at the old `.py` path, which had
+// stopped existing, so this failed with a bare ENOENT that reads like a missing capability rather
+// than a completed port. The argument contract is unchanged: the module takes the same three
+// positional paths (`process.argv.slice(2)` -> request, evidence, receipt), which is why only the
+// interpreter and the extension move here.
+const custodyScript = join(root, 'packages', 'local-files', 'do-work', 'verify-selected-addressed-evidence.mjs');
+const packageManifest = JSON.parse(readFileSync(join(packageRoot, 'things-to-store-and-run.json'), 'utf8'));
+const localFilesManifest = JSON.parse(readFileSync(join(root, 'packages', 'local-files', 'things-to-store-and-run.json'), 'utf8'));
+const geminiDecoder = join(root, 'packages', 'gemini-logs-decoder', 'do-work', 'process-scripts', 'decode-gemini-logs.py');
+const geminiDescriptor = {
+  descriptor_ref: 'descriptor:gemini-cli-logs', revision: '2',
+  decoder_capability_ref: 'capability:decode-gemini-logs',
+  decoder_process_module: {
+    script_address: 'package::gemini-logs-decoder::stored-bytes::decode-gemini-logs-script',
+    module_name: 'decode_gemini_logs',
+  },
+  input_shape: { media_types: ['application/json'], extensions: ['.json'], required_json_keys: ['sessionId', 'messageId', 'type', 'message'] },
+};
+
+function run(request) {
+  const dir = mkdtempSync(join(tmpdir(), 'local-conversation-import-'));
+  const input = join(dir, 'input.json'); const output = join(dir, 'output.json');
+  try {
+    const { __staged_bytes_base64: staged, __custody_payload: custodyOverride, ...safeRequest } = request;
+    const evidence = join(dir, 'evidence.bin'); const custody = join(dir, 'custody.json'); const decoderProof = join(dir, 'decoder-proof.json');
+    if (staged) writeFileSync(evidence, Buffer.from(staged, 'base64'));
+    writeFileSync(custody, JSON.stringify({ items: [{ payload: custodyOverride ?? { kind: 'local-files.selected-addressed-evidence', evidence_ref: safeRequest.evidence_ref, artifact_ref: safeRequest.artifact_ref, content_digest: safeRequest.content_digest, media_type_ref: safeRequest.media_type_ref } }] }));
+    writeFileSync(decoderProof, JSON.stringify({ content_hash: 'sha256:mounted-decoder-fixture' }));
+    if (safeRequest.execute_decoder === true && !safeRequest.decoder_process_module) {
+      safeRequest.decoder_process_module = safeRequest.decoder_descriptors?.[0]?.decoder_process_module;
+    }
+    writeFileSync(input, JSON.stringify(safeRequest));
+    const args = [script, input, output, '--custody-file', custody];
+    if (safeRequest.execute_decoder === true) args.push('--decoder-proof-file', decoderProof);
+    args.push('--evidence-file', evidence);
+    execFileSync('python3', args, { stdio: 'pipe' });
+    return JSON.parse(readFileSync(output, 'utf8'));
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+}
+function runWithCurrentDescriptorRows(request, rows) {
+  const dir = mkdtempSync(join(tmpdir(), 'local-conversation-import-'));
+  const input = join(dir, 'input.json'); const output = join(dir, 'output.json'); const descriptors = join(dir, 'descriptors.json');
+  try {
+    const { __staged_bytes_base64: staged, ...safeRequest } = request; const evidence = join(dir, 'evidence.bin'); const custody = join(dir, 'custody.json');
+    if (staged) writeFileSync(evidence, Buffer.from(staged, 'base64'));
+    writeFileSync(custody, JSON.stringify({ items: [{ payload: { kind: 'local-files.selected-addressed-evidence', evidence_ref: safeRequest.evidence_ref, artifact_ref: safeRequest.artifact_ref, content_digest: safeRequest.content_digest, media_type_ref: safeRequest.media_type_ref } }] }));
+    writeFileSync(input, JSON.stringify(safeRequest)); writeFileSync(descriptors, JSON.stringify({ items: rows }));
+    execFileSync('python3', [script, input, output, descriptors, '--custody-file', custody, '--evidence-file', evidence], { stdio: 'pipe' });
+    return JSON.parse(readFileSync(output, 'utf8'));
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+}
+function runWithCurrentRows(request, descriptorRows, mappingRows) {
+  const dir = mkdtempSync(join(tmpdir(), 'local-conversation-import-'));
+  const input = join(dir, 'input.json'); const output = join(dir, 'output.json');
+  const descriptors = join(dir, 'descriptors.json'); const mappings = join(dir, 'mappings.json');
+  try {
+    const { __staged_bytes_base64: staged, ...safeRequest } = request; const evidence = join(dir, 'evidence.bin'); const custody = join(dir, 'custody.json');
+    if (staged) writeFileSync(evidence, Buffer.from(staged, 'base64'));
+    writeFileSync(custody, JSON.stringify({ items: [{ payload: { kind: 'local-files.selected-addressed-evidence', evidence_ref: safeRequest.evidence_ref, artifact_ref: safeRequest.artifact_ref, content_digest: safeRequest.content_digest, media_type_ref: safeRequest.media_type_ref } }] }));
+    writeFileSync(input, JSON.stringify(safeRequest));
+    writeFileSync(descriptors, JSON.stringify({ items: descriptorRows }));
+    writeFileSync(mappings, JSON.stringify({ items: mappingRows }));
+    execFileSync('python3', [script, input, output, descriptors, mappings, '--custody-file', custody, '--evidence-file', evidence], { stdio: 'pipe' });
+    return JSON.parse(readFileSync(output, 'utf8'));
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+}
+function runFinalize(prepared, workflowReply) {
+  const dir = mkdtempSync(join(tmpdir(), 'local-conversation-finalize-'));
+  const input = join(dir, 'prepared.json'); const output = join(dir, 'output.json'); const reply = join(dir, 'reply.json');
+  try {
+    writeFileSync(input, JSON.stringify(prepared)); writeFileSync(reply, JSON.stringify(workflowReply));
+    execFileSync('python3', [script, input, output, '--finalize', reply], { stdio: 'pipe' });
+    return JSON.parse(readFileSync(output, 'utf8'));
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+}
+function canonicalProducerResult(prepared, items, overrides = {}) {
+  const selected = prepared.accepted[0];
+  return {
+    found: true,
+    payload: {
+      kind: 'ai-records-producer.result',
+      request_id: selected.dedupe_identity,
+      target_group_ref: `package::observed-content::conversation-import-review::${selected.dedupe_identity}`,
+      output_kind: 'canonical-conversation-mapping-candidate',
+      model_id: 'model:fixture',
+      cli_id: 'cli:fixture',
+      status: 'completed',
+      items: items.map((item) => ({ model_provenance_ref: 'ai-agent-profile:fixture', ...item })),
+      completed_at: '2026-07-25T12:00:00Z',
+      ...overrides,
+    },
+  };
+}
+function request(bytes, mediaType, name) {
+  const contentDigest = `sha256:${createHash('sha256').update(bytes).digest('hex')}`;
+  return {
+    evidence_ref: 'evidence:fixture:1', source_ref: 'source:local-file:fixture',
+    media_type_ref: mediaType, display_name: name, descriptor_revision: '3',
+    mapping_descriptor_ref: 'descriptor:canonical-conversation-mapping', mapping_descriptor_revision: '1',
+    producer_ref: 'action:run-ai-records-production',
+    artifact_ref: { cas_address: `cas:${contentDigest}`, multihash: `cas:${contentDigest}` }, content_digest: contentDigest,
+    __staged_bytes_base64: bytes.toString('base64'), decoder_descriptors: [geminiDescriptor],
+  };
+}
+function finalizeMappingAtoms(atoms, resultOverrides = {}) {
+  const prepared = run(request(fixture('generic-conversation.txt'), 'text/plain', 'generic-conversation.txt'));
+  const items = atoms.map(({ kind, ...atom }) => ({ ...atom, atom_kind: kind }));
+  return runFinalize(prepared, canonicalProducerResult(prepared, items, resultOverrides));
+}
+function workflow(id) {
+  return packageManifest.things.find((thing) => thing?.payload?.id === id)?.payload;
+}
+function localFilesWorkflow(id) {
+  return localFilesManifest.things.find((thing) => thing?.payload?.id === id)?.payload;
+}
+
+test('prepare action executes the selected subdefinition inside Workflow and finalizes the reply', () => {
+  const action = workflow('action:prepare-local-conversation-import');
+  assert.ok(action);
+  assert.deepEqual(action.steps.map((step) => step.id), [
+    'script', 'custody', 'descriptors', 'mappings', 'run', 'rejected_result',
+    'decode', 'produce', 'producer_result', 'finalize_decode', 'finalize_mapping', 'decoded_result', 'mapped_result',
+  ].flatMap((id) => id === 'decoded_result' ? ['persist_decoded_pending', id] : id === 'mapped_result' ? ['persist_mapped_pending', id] : [id]));
+  const mappings = action.steps.find((step) => step.id === 'mappings');
+  assert.equal(mappings.config.name, 'slot::find-current-items');
+  assert.equal(mappings.config.input.where.all.at(-1).value ?? mappings.config.input.where.all.at(-1).eq, 'descriptor:canonical-conversation-mapping');
+  const decode = action.steps.find((step) => step.id === 'decode');
+  const produce = action.steps.find((step) => step.id === 'produce');
+  assert.equal(decode.kind, 'action');
+  assert.equal(decode.config.definition_id, 'action:decode-local-conversation-evidence');
+  assert.equal(produce.kind, 'action');
+  assert.equal(produce.config.definition_id, 'action:run-ai-records-production');
+  const producerResult = action.steps.find((step) => step.id === 'producer_result');
+  assert.equal(producerResult.kind, 'read');
+  assert.equal(producerResult.config.from.transform.at(-1).args.values[0], 'package::ai-records-producer::result::');
+  assert.equal(decode.config.inputs.transform.at(-1).args.key, 'input');
+  assert.equal(produce.config.inputs.transform.at(-1).args.key, 'input');
+  for (const id of ['finalize_decode', 'finalize_mapping']) {
+    const finalize = action.steps.find((step) => step.id === id);
+    assert.equal(finalize.config.name, 'compute.process');
+    assert.deepEqual(finalize.config.input.argv.slice(-3), ['result.json', '--finalize', 'workflow-reply.json']);
+  }
+  assert.ok(action.edges.some((edge) => edge.from === 'run' && edge.to === 'decode'));
+  assert.ok(action.edges.some((edge) => edge.from === 'run' && edge.to === 'produce'));
+  assert.equal(action.steps.some((step) => step.kind === 'write'), false);
+  assert.equal(action.steps.some((step) => step.kind === 'ask' && step.config.name === 'slot::workflow'), false);
+  assert.deepEqual(action.input_schema.required.includes('bytes_base64'), false);
+  assert.ok(action.input_schema.required.includes('artifact_ref'));
+  assert.ok(action.input_schema.required.includes('content_digest'));
+  assert.ok(action.steps.find((step) => step.id === 'run').config.input.inputs.some((item) => item.mount_path === 'evidence.bin' && item.source.kind === 'blob_ref'));
+  assert.ok(action.steps.find((step) => step.id === 'run').config.input.inputs.some((item) => item.mount_path === 'custody.json'));
+});
+
+test('declared decoder action executes only the descriptor-mounted module through Process Engine', () => {
+  const action = workflow('action:decode-local-conversation-evidence');
+  assert.ok(action);
+  const decoderRead = action.steps.find((step) => step.id === 'decoder');
+  assert.equal(decoderRead.config.from.select.path, 'decoder_process_module.script_address');
+  const run = action.steps.find((step) => step.id === 'run');
+  assert.equal(run.config.name, 'compute.process');
+  assert.ok(run.config.input.inputs.some((input) => input.mount_path === 'decoder.py'));
+  assert.ok(run.config.input.inputs.some((input) => input.mount_path === 'evidence.bin' && input.source.kind === 'blob_ref'));
+  assert.equal(action.steps.some((step) => step.kind === 'write'), false);
+});
+
+test('declared Gemini decoder wins and provenance/dedupe are stable', () => {
+  const one = run(request(fixture('gemini-cli-logs.json'), 'application/json', 'logs.json'));
+  const two = run(request(fixture('gemini-cli-logs.json'), 'application/json', 'logs.json'));
+  assert.equal(one.status, 'deterministic_decoder');
+  assert.equal(one.accepted[0].decoder_capability_ref, 'capability:decode-gemini-logs');
+  assert.equal(one.accepted[0].dedupe_identity, two.accepted[0].dedupe_identity);
+  assert.equal(one.events[0].event, 'observed_content.file_staged');
+  assert.equal(one.events[1].event, 'observed_content.decoder_selected');
+  assert.match(one.accepted[0].provenance.byte_digest, /^sha256:/);
+  assert.equal(one.workflow_request.definition_id, 'action:decode-local-conversation-evidence');
+  assert.equal(one.workflow_request.input.execute_decoder, true);
+  assert.equal(one.workflow_request.input.decoder_module_path, 'decoder.py');
+});
+
+test('current attribute-fact descriptor rows are the selection input', () => {
+  const out = runWithCurrentDescriptorRows(
+    { ...request(fixture('gemini-cli-logs.json'), 'application/json', 'logs.json'), decoder_descriptors: [] },
+    [{ value_json: JSON.stringify([geminiDescriptor]) }],
+  );
+  assert.equal(out.status, 'deterministic_decoder');
+  assert.equal(out.accepted[0].decoder_descriptor_ref, 'descriptor:gemini-cli-logs');
+  assert.equal(out.accepted[0].decoder_capability_ref, 'capability:decode-gemini-logs');
+});
+
+test('unknown evidence discovers the one current AI mapping descriptor instead of caller routing', () => {
+  const input = request(fixture('generic-conversation.txt'), 'text/plain', 'generic-conversation.txt');
+  delete input.mapping_descriptor_ref; delete input.mapping_descriptor_revision; delete input.producer_ref;
+  const mappingDescriptor = {
+    kind: 'ai-records-producer.mapping-descriptor',
+    id: 'descriptor:canonical-conversation-mapping',
+    revision: '7',
+    producer_ref: 'action:run-ai-records-production',
+  };
+  const out = runWithCurrentRows(input, [], [{ payload: mappingDescriptor }]);
+  assert.equal(out.status, 'review_required_mapping');
+  assert.equal(out.accepted[0].mapping_descriptor_revision, '7');
+  assert.equal(out.workflow_request.definition_id, 'action:run-ai-records-production');
+});
+
+test('ambiguous current AI mapping descriptors reject before model dispatch', () => {
+  const input = request(fixture('generic-conversation.txt'), 'text/plain', 'generic-conversation.txt');
+  const row = { payload: { kind: 'ai-records-producer.mapping-descriptor', id: 'descriptor:canonical-conversation-mapping', revision: '1', producer_ref: 'action:run-ai-records-production' } };
+  const out = runWithCurrentRows(input, [], [row, row]);
+  assert.equal(out.status, 'rejected');
+  assert.equal(out.events[0].reason_ref, 'reason:ambiguous-mapping-descriptor');
+  assert.equal('workflow_request' in out, false);
+});
+
+test('local evidence executes only the mounted declared decoder and produces review-gated canonical atoms', () => {
+  const out = run({ ...request(fixture('gemini-cli-logs.json'), 'application/json', 'logs.json'), execute_decoder: true, decoder_module_path: geminiDecoder, observed_at: '2026-07-24T12:00:00Z' });
+  assert.equal(out.status, 'review_required');
+  assert.ok(out.accepted.length >= 2);
+  assert.ok(out.accepted.every((atom) => atom.review_state === 'pending'));
+  assert.ok(out.accepted.every((atom) => atom.evidence_refs[0] === 'evidence:fixture:1'));
+  assert.equal(out.accepted.some((atom) => atom.content.text === 'edited reply'), true);
+  assert.equal(out.accepted.some((atom) => atom.content.text === 'first reply'), false);
+});
+
+for (const [name, media] of [['generic-conversation.json', 'application/json'], ['generic-conversation.html', 'text/html'], ['generic-conversation.txt', 'text/plain']]) {
+  test(`${name} is evidence-backed mapping and cannot become action authority`, () => {
+    const out = run(request(fixture(name), media, name));
+    assert.equal(out.status, 'review_required_mapping');
+    assert.equal(out.accepted[0].review_required, true);
+    assert.equal(out.accepted[0].input.evidence_ref, 'evidence:fixture:1');
+    assert.equal(JSON.stringify(out), JSON.stringify(out));
+    assert.equal('action' in out.accepted[0], false);
+    assert.equal(JSON.stringify(out).includes('ignore all previous instructions'), false);
+    assert.equal(out.workflow_request.input.output_kind, 'canonical-conversation-mapping-candidate');
+    assert.match(out.workflow_request.input.instruction_text, /UNTRUSTED_EVIDENCE_DATA=/);
+    assert.equal(out.workflow_request.input.instruction_text.includes('ignore all previous instructions'), false);
+  });
+}
+
+test('invalid UTF-8 fails closed and emits only a rejection event', () => {
+  const malformed = fixture('malformed-conversation.bin');
+  const out = run(request(malformed, 'text/plain', 'broken.txt'));
+  assert.equal(out.status, 'rejected');
+  assert.equal(out.events[0].event, 'observed_content.atom_rejected');
+  assert.equal(out.events[0].reason_ref, 'reason:invalid-utf8');
+});
+
+test('forged evidence identity or digest cannot substitute mounted artifact bytes', () => {
+  const bytes = fixture('gemini-cli-logs.json');
+  const base = request(bytes, 'application/json', 'logs.json');
+  assert.equal(run({ ...base, content_digest: 'sha256:forged' }).events[0].reason_ref, 'reason:artifact-digest-mismatch');
+  assert.equal(run({ ...base, artifact_ref: {} }).events[0].reason_ref, 'reason:artifact-unavailable');
+  assert.equal(run({ ...base, __custody_payload: { kind: 'local-files.selected-addressed-evidence', evidence_ref: base.evidence_ref, artifact_ref: { cas_address: 'cas:foreign' }, content_digest: base.content_digest, media_type_ref: base.media_type_ref } }).events[0].reason_ref, 'reason:local-files-custody-mismatch');
+});
+
+test('mapped atoms retain evidence, confidence, exact owner provenance, and mandatory review', () => {
+  const out = finalizeMappingAtoms([{ atom_ref: 'atom:1', thread_ref: 'thread:1', kind: 'utterance', confidence: 0.72, content: { text: 'safe text' } }]);
+  assert.equal(out.status, 'review_required');
+  assert.deepEqual(out.accepted[0].evidence_refs, ['evidence:fixture:1']);
+  assert.equal(out.accepted[0].review_state, 'pending');
+  assert.equal(out.accepted[0].mapping_descriptor_revision, '1');
+  assert.equal(out.accepted[0].production_provenance.kind, 'ai_records_producer_result');
+  assert.match(out.accepted[0].production_provenance.result_digest, /^sha256:/);
+  assert.equal(out.accepted[0].production_provenance.agent_profile_ref, 'ai-agent-profile:fixture');
+  assert.equal('model_provenance_ref' in out.accepted[0], false);
+  assert.equal(out.events[0].event, 'observed_content.ai_mapping_completed');
+});
+
+test('partial/invalid mapped atom rejects entire mapping atomically', () => {
+  const out = finalizeMappingAtoms([{ atom_ref: 'atom:1', confidence: 0.9 }, { atom_ref: 'atom:2' }]);
+  assert.equal(out.status, 'rejected');
+  assert.equal(out.accepted.length, 0);
+});
+
+test('ambiguous matching decoders reject rather than falling into AI mapping', () => {
+  const out = run({ ...request(fixture('gemini-cli-logs.json'), 'application/json', 'logs.json'), decoder_descriptors: [geminiDescriptor, { ...geminiDescriptor, descriptor_ref: 'descriptor:second' }] });
+  assert.equal(out.status, 'rejected');
+  assert.equal(out.events[0].reason_ref, 'reason:ambiguous-decoder');
+});
+
+test('extension predicate requires an exact normalized display-name suffix', () => {
+  const out = run({ ...request(fixture('gemini-cli-logs.json'), 'application/json', undefined), decoder_descriptors: [geminiDescriptor] });
+  assert.equal(out.status, 'review_required_mapping');
+});
+
+for (const confidence of [true, -0.01, 1.01, '0.5', null]) {
+  test(`invalid mapping confidence ${String(confidence)} rejects atomically`, () => {
+    const out = finalizeMappingAtoms([{ atom_ref: 'atom:1', thread_ref: 'thread:1', kind: 'utterance', content: { text: 'x' }, confidence }]);
+    assert.equal(out.status, 'rejected');
+  });
+}
+
+test('duplicate atom identity or foreign evidence link rejects whole AI mapping', () => {
+  for (const atoms of [
+    [{ atom_ref: 'atom:1', thread_ref: 'thread:1', kind: 'utterance', content: {}, confidence: 0.5 }, { atom_ref: 'atom:1', thread_ref: 'thread:1', kind: 'utterance', content: {}, confidence: 0.5 }],
+    [{ atom_ref: 'atom:1', thread_ref: 'thread:1', kind: 'utterance', content: {}, confidence: 0.5, evidence_refs: ['evidence:other'] }],
+  ]) assert.equal(finalizeMappingAtoms(atoms).status, 'rejected');
+});
+
+test('canonical producer result becomes pending only after the generic producer executes', () => {
+  const prepared = run(request(fixture('generic-conversation.json'), 'application/json', 'generic-conversation.json'));
+  const out = runFinalize(prepared, canonicalProducerResult(prepared, [{
+    atom_ref: 'atom:from-ai',
+    thread_ref: 'thread:from-ai',
+    atom_kind: 'utterance',
+    content: { text: 'mapped turn' },
+    confidence: 0.81,
+    evidence_refs: ['evidence:fixture:1'],
+    model_provenance_ref: 'agent:configured',
+  }]));
+  assert.equal(out.status, 'review_required');
+  assert.equal(out.accepted[0].kind, 'utterance');
+  assert.equal(out.accepted[0].producer_ref, 'action:run-ai-records-production');
+  assert.equal(out.accepted[0].review_state, 'pending');
+  assert.deepEqual(out.accepted[0].evidence_refs, ['evidence:fixture:1']);
+  assert.equal(out.pending_record.kind, 'observed-content.pending-conversation-candidates');
+  assert.equal(out.pending_record.atoms[0].atom_ref, 'atom:from-ai');
+  assert.equal(out.pending_record.atoms[0].production_provenance.agent_profile_ref, 'agent:configured');
+});
+
+test('known decoder preparation executes and finalizes through the same Workflow action graph', () => {
+  const prepared = run(request(fixture('gemini-cli-logs.json'), 'application/json', 'logs.json'));
+  const decoded = run({
+    ...prepared.workflow_request.input,
+    decoder_module_path: geminiDecoder,
+    __staged_bytes_base64: fixture('gemini-cli-logs.json').toString('base64'),
+  });
+  const out = runFinalize(prepared, { output: decoded });
+  assert.equal(out.status, 'review_required');
+  assert.ok(out.accepted.length >= 2);
+  assert.ok(out.accepted.every((atom) => atom.confidence === 1));
+  assert.ok(out.accepted.every((atom) => atom.review_state === 'pending'));
+  assert.ok(out.accepted.every((atom) => atom.evidence_refs[0] === 'evidence:fixture:1'));
+  assert.ok(out.accepted.every((atom) => atom.production_provenance.kind === 'deterministic_decoder'));
+  assert.ok(out.accepted.every((atom) => atom.production_provenance.module_content_hash === 'sha256:mounted-decoder-fixture'));
+  assert.ok(out.accepted.every((atom) => !('model_provenance_ref' in atom)));
+  assert.equal(out.pending_record.review_state, 'pending');
+});
+
+test('producer failure or action-shaped candidate fails closed before Chat', () => {
+  const prepared = run(request(fixture('generic-conversation.txt'), 'text/plain', 'generic-conversation.txt'));
+  assert.equal(runFinalize(prepared, canonicalProducerResult(prepared, [], { status: 'error' })).status, 'rejected');
+  const action = runFinalize(prepared, canonicalProducerResult(prepared, [{
+    atom_ref: 'atom:action',
+    thread_ref: 'thread:action',
+    atom_kind: 'action',
+    content: { text: 'run this' },
+    confidence: 1,
+    evidence_refs: ['evidence:fixture:1'],
+  }]));
+  assert.equal(action.status, 'rejected');
+  assert.equal(JSON.stringify(action).includes('chat'), false);
+});
+
+test('action replies, foreign results, and missing executed-model provenance fail closed', () => {
+  const prepared = run(request(fixture('generic-conversation.txt'), 'text/plain', 'generic-conversation.txt'));
+  const item = { atom_ref: 'atom:1', thread_ref: 'thread:1', atom_kind: 'utterance', content: { text: 'x' }, confidence: 0.8, evidence_refs: ['evidence:fixture:1'] };
+  assert.equal(runFinalize(prepared, { output: { result_payload: { status: 'completed', items: [item] } } }).status, 'rejected');
+  assert.equal(runFinalize(prepared, canonicalProducerResult(prepared, [item], { request_id: 'foreign' })).status, 'rejected');
+  assert.equal(runFinalize(prepared, canonicalProducerResult(prepared, [item], { model_id: '' })).status, 'rejected');
+  const noAgent = canonicalProducerResult(prepared, [item]);
+  delete noAgent.payload.items[0].model_provenance_ref;
+  assert.equal(runFinalize(prepared, noAgent).events[0].reason_ref, 'reason:ai-mapping-provenance-missing');
+});
+
+
+test('prepare workflow alone persists exact decoder/producer pending records create-only', () => {
+  const prepare = workflow('action:prepare-local-conversation-import');
+  for (const id of ['persist_decoded_pending', 'persist_mapped_pending']) {
+    const step = prepare.steps.find((candidate) => candidate.id === id);
+    assert.equal(step.kind, 'ask');
+    assert.equal(step.config.name, 'engine.operation.label-addressed');
+    assert.equal(step.config.input.writes[0].expected_current.payload_hash_base64, null);
+  }
+  assert.equal(workflow('action:record-pending-conversation-candidates'), undefined);
+});
+
+test('Local Files custody receipt is durable and create-only', () => {
+  const action = localFilesWorkflow('action:record-selected-addressed-evidence');
+  assert.deepEqual(action.steps.map((step) => step.id), ['script', 'verify', 'record', 'done']);
+  assert.equal(action.steps.find((step) => step.id === 'verify').config.name, 'compute.process');
+  assert.ok(action.steps.find((step) => step.id === 'verify').config.input.inputs.some((input) => input.mount_path === 'evidence.bin' && input.source.kind === 'blob_ref'));
+  assert.equal(action.steps.find((step) => step.id === 'record').config.name, 'engine.operation.label-addressed');
+  assert.equal(action.steps.find((step) => step.id === 'record').config.input.writes[0].expected_current.payload_hash_base64, null);
+});
+
+test('Local Files custody verifier derives digest and length from mounted artifact bytes', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'local-files-custody-')); const bytes = Buffer.from('owner bytes');
+  const requestPath = join(dir, 'request.json'); const evidencePath = join(dir, 'evidence.bin'); const outputPath = join(dir, 'receipt.json');
+  try {
+    writeFileSync(evidencePath, bytes);
+    writeFileSync(requestPath, JSON.stringify({ evidence_ref: 'evidence:1', source_ref: 'source:fixture', artifact_ref: { cas_address: 'cas:1' }, content_digest: `sha256:${createHash('sha256').update(bytes).digest('hex')}`, byte_length: bytes.length, media_type_ref: 'text/plain' }));
+    execFileSync('node', [custodyScript, requestPath, evidencePath, outputPath], { stdio: 'pipe' });
+    const receipt = JSON.parse(readFileSync(outputPath, 'utf8'));
+    assert.equal(receipt.kind, 'local-files.selected-addressed-evidence');
+    assert.equal(receipt.byte_length, bytes.length);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});

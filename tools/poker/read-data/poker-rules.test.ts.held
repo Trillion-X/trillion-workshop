@@ -1,0 +1,274 @@
+// package-set://bitfield-studio/packages/poker-rules/read-data/poker-rules.test.ts
+
+import { describe, expect, it } from 'vitest';
+import {
+  advancePokerRoomStreet,
+  applyPokerRoomPlayerAction,
+  applyPokerPlayerAction,
+  createPokerLobbyRoomState,
+  createPokerHandState,
+  createPokerPlayers,
+  kickPokerRoomPlayer,
+  makePokerDeck,
+  nextPokerBlinds,
+  POKER_RULES_STATE_MACHINE,
+  readPokerRulesStateMachine,
+  readPokerRulesVocabulary,
+  normalizePokerTableConfig,
+  startPokerRoomGame,
+  upsertPokerRoomPlayer,
+  type PokerCard,
+  type PokerRoomState,
+} from '@/packages/poker-rules/read-data/poker-rules';
+
+function deckCard(rank: string, suit: string): PokerCard {
+  const card = makePokerDeck().find((candidate) => candidate.rank === rank && candidate.suit === suit);
+  if (!card) throw new Error(`Missing poker card ${rank}${suit}`);
+  return card;
+}
+
+function roomAtRiverShowdown(input: { pot?: number; tiedBoard?: boolean } = {}): PokerRoomState {
+  const players = createPokerPlayers(['Ada', 'Ben'], 100);
+  const room = startPokerRoomGame(createPokerLobbyRoomState({
+    roomId: 'room:showdown',
+    players,
+    config: { smallBlind: 5, bigBlind: 10, startingChips: 100 },
+    hostPlayerId: players[0].id,
+  }), () => 0);
+  const board = input.tiedBoard
+    ? [
+      deckCard('2', 'S'),
+      deckCard('3', 'H'),
+      deckCard('4', 'D'),
+      deckCard('5', 'C'),
+      deckCard('6', 'S'),
+    ]
+    : [
+      deckCard('2', 'S'),
+      deckCard('7', 'D'),
+      deckCard('9', 'C'),
+      deckCard('J', 'S'),
+      deckCard('3', 'H'),
+    ];
+  const playersReady = room.state.players.map((player) => ({
+    ...player,
+    currentBet: 0,
+    hasActed: true,
+    folded: false,
+    allIn: false,
+    eliminated: false,
+  }));
+  return {
+    ...room,
+    board,
+    holeCards: {
+      [playersReady[0].id]: input.tiedBoard
+        ? [deckCard('A', 'H'), deckCard('K', 'D')]
+        : [deckCard('A', 'H'), deckCard('A', 'C')],
+      [playersReady[1].id]: input.tiedBoard
+        ? [deckCard('Q', 'H'), deckCard('J', 'C')]
+        : [deckCard('K', 'H'), deckCard('Q', 'C')],
+    },
+    state: {
+      ...room.state,
+      players: playersReady,
+      phase: POKER_RULES_STATE_MACHINE.phaseRoles.active,
+      street: POKER_RULES_STATE_MACHINE.streetFlow.at(-1)!.street,
+      communityCards: board,
+      activeIndex: 0,
+      currentBet: 0,
+      pot: input.pot ?? 100,
+      pots: [{ amount: input.pot ?? 100, eligibleIds: playersReady.map((player) => player.id) }],
+      result: null,
+    },
+  };
+}
+
+describe('poker-rules package code', () => {
+  it('creates a full deck with stable rank/suit codes', () => {
+    const vocabulary = readPokerRulesVocabulary();
+    const deck = makePokerDeck();
+    const firstRank = vocabulary.ranks[0]!;
+    const firstSuit = vocabulary.suits[0]!;
+    const lastRank = vocabulary.ranks.at(-1)!;
+    const lastSuit = vocabulary.suits.at(-1)!;
+
+    expect(deck).toHaveLength(vocabulary.ranks.length * vocabulary.suits.length);
+    expect(deck[0]).toEqual({
+      rank: firstRank.label,
+      suit: firstSuit,
+      value: firstRank.value,
+      code: `${firstRank.label}${firstSuit}`,
+    });
+    expect(deck.at(-1)).toEqual({
+      rank: lastRank.label,
+      suit: lastSuit,
+      value: lastRank.value,
+      code: `${lastRank.label}${lastSuit}`,
+    });
+    expect(vocabulary.playerActions).toContain(POKER_RULES_STATE_MACHINE.playerActionRoles.checkCall);
+  });
+
+  it('reads phase, street, blind, action, and event roles from package data', () => {
+    const vocabulary = readPokerRulesVocabulary();
+    const machine = readPokerRulesStateMachine();
+
+    expect(vocabulary.phases).toContain(machine.phaseRoles.active);
+    expect(vocabulary.blindModes).toContain(machine.blindModes.multiplier);
+    expect(vocabulary.playerActions).toContain(machine.playerActionRoles.allIn);
+    expect(vocabulary.events).toContain(machine.eventRoles.warning);
+    expect(machine.seatRoles.dealer).toBeTruthy();
+    expect(machine.suitAppearance.map((appearance) => appearance.suit)).toEqual(vocabulary.suits);
+    expect(machine.streetFlow.map((flow) => flow.street)).toEqual(vocabulary.streets);
+  });
+
+  it('posts blinds and assigns heads-up dealer as small blind', () => {
+    const players = createPokerPlayers(['Ada', 'Ben'], 100);
+    const state = createPokerHandState(players, { smallBlind: 5, bigBlind: 10 });
+
+    expect(state.dealerIndex).toBe(0);
+    expect(state.smallBlindIndex).toBe(0);
+    expect(state.bigBlindIndex).toBe(1);
+    expect(state.players[0].chips).toBe(95);
+    expect(state.players[1].chips).toBe(90);
+    expect(state.pot).toBe(15);
+  });
+
+  it('applies calls and advances active player without owning rendering', () => {
+    const players = createPokerPlayers(['Ada', 'Ben', 'Cy'], 100);
+    const state = createPokerHandState(players, { smallBlind: 5, bigBlind: 10 });
+    const result = applyPokerPlayerAction(
+      state,
+      state.players[state.activeIndex].id,
+      POKER_RULES_STATE_MACHINE.playerActionRoles.checkCall,
+    );
+
+    expect(result.event.kind).toBe(POKER_RULES_STATE_MACHINE.eventRoles.call);
+    expect(result.state.pot).toBeGreaterThan(state.pot);
+    expect(result.state.activeIndex).not.toBe(state.activeIndex);
+  });
+
+  it('normalizes config and advances blinds generically', () => {
+    const fixed = normalizePokerTableConfig({ smallBlind: -1, bigBlind: 2, blindIncrease: 5 });
+    expect(fixed.smallBlind).toBe(1);
+    expect(nextPokerBlinds(fixed, 5, 10)).toEqual({ smallBlind: 10, bigBlind: 20 });
+
+    const multiplier = normalizePokerTableConfig({
+      blindMode: POKER_RULES_STATE_MACHINE.blindModes.multiplier,
+      blindIncrease: 2,
+    });
+    expect(nextPokerBlinds(multiplier, 5, 10)).toEqual({ smallBlind: 10, bigBlind: 20 });
+  });
+
+  it('opens a lobby, accepts joined players, and starts the first real hand', () => {
+    const host = createPokerPlayers(['Ada'], 1000);
+    const lobby = createPokerLobbyRoomState({
+      roomId: 'room:family',
+      players: host,
+      config: { smallBlind: 5, bigBlind: 10, startingChips: 1000 },
+      hostPlayerId: host[0].id,
+    });
+    const joined = upsertPokerRoomPlayer(lobby, { name: 'Ben' });
+    const room = startPokerRoomGame(joined.room, () => 0);
+
+    expect(joined.playerId).toBe('player-2');
+    expect(room.state.phase).toBe(POKER_RULES_STATE_MACHINE.phaseRoles.active);
+    expect(room.state.players.map((player) => player.name)).toEqual(['Ada', 'Ben']);
+    expect(room.holeCards['player-1']).toHaveLength(2);
+    expect(room.holeCards['player-2']).toHaveLength(2);
+  });
+
+  it('transfers host authority to the next seated player when the host leaves', () => {
+    const players = createPokerPlayers(['Ada', 'Ben', 'Cy'], 1000);
+    const lobby = createPokerLobbyRoomState({
+      roomId: 'room:host-transfer',
+      players,
+      config: { smallBlind: 5, bigBlind: 10, startingChips: 1000 },
+      hostPlayerId: players[0].id,
+    });
+
+    const afterHostLeaves = kickPokerRoomPlayer(lobby, players[0].id);
+
+    expect(afterHostLeaves.hostPlayerId).toBe(players[1].id);
+    expect(afterHostLeaves.state.players.map((player) => player.name)).toEqual(['Ben', 'Cy']);
+    expect(afterHostLeaves.state.players[0].connected).toBe(true);
+  });
+
+  it('marks acted players and advances a completed betting round without UI policy', () => {
+    const players = createPokerPlayers(['Ada', 'Ben'], 100);
+    const room = startPokerRoomGame(createPokerLobbyRoomState({
+      roomId: 'room:heads-up',
+      players,
+      config: { smallBlind: 5, bigBlind: 10, startingChips: 100 },
+      hostPlayerId: players[0].id,
+    }), () => 0);
+
+    const action = POKER_RULES_STATE_MACHINE.playerActionRoles.checkCall;
+    const afterSmallBlindCalls = applyPokerRoomPlayerAction(room, action);
+    const afterBigBlindChecks = applyPokerRoomPlayerAction(afterSmallBlindCalls, action);
+
+    expect(afterSmallBlindCalls.state.street).toBe(POKER_RULES_STATE_MACHINE.streetFlow[0].street);
+    expect(afterBigBlindChecks.state.street).toBe(POKER_RULES_STATE_MACHINE.streetFlow[1].street);
+    expect(afterBigBlindChecks.state.currentBet).toBe(0);
+    expect(afterBigBlindChecks.state.players.every((player) => !player.hasActed)).toBe(true);
+  });
+
+  it('settles river showdown and emits the rule-owned winner result', () => {
+    const room = roomAtRiverShowdown();
+    const winnerChips = room.state.players[0].chips;
+    const settled = advancePokerRoomStreet(room);
+
+    expect(settled.state.phase).toBe(POKER_RULES_STATE_MACHINE.phaseRoles.finished);
+    expect(settled.state.result).toEqual({
+      source: 'showdown',
+      winnerIds: [room.state.players[0].id],
+      pot: 100,
+      handNumber: room.state.handNumber,
+    });
+    expect(settled.state.players[0].chips).toBe(winnerChips + 100);
+    expect(settled.state.communityCards).toHaveLength(5);
+  });
+
+  it('splits tied showdown pots through the rule owner', () => {
+    const room = roomAtRiverShowdown({ pot: 101, tiedBoard: true });
+    const firstChips = room.state.players[0].chips;
+    const secondChips = room.state.players[1].chips;
+    const settled = advancePokerRoomStreet(room);
+
+    expect(settled.state.result?.winnerIds).toEqual(room.state.players.map((player) => player.id));
+    expect(settled.state.players[0].chips).toBe(firstChips + 51);
+    expect(settled.state.players[1].chips).toBe(secondChips + 50);
+  });
+
+  it('runs out all-in hands to a finished result without waiting for impossible actions', () => {
+    const players = createPokerPlayers(['Ada', 'Ben'], 100);
+    const baseRoom = startPokerRoomGame(createPokerLobbyRoomState({
+      roomId: 'room:all-in',
+      players,
+      config: { smallBlind: 5, bigBlind: 10, startingChips: 100 },
+      hostPlayerId: players[0].id,
+    }), () => 0);
+    const room = {
+      ...baseRoom,
+      board: [
+        deckCard('2', 'S'),
+        deckCard('7', 'D'),
+        deckCard('9', 'C'),
+        deckCard('J', 'S'),
+        deckCard('3', 'H'),
+      ],
+      holeCards: {
+        [baseRoom.state.players[0].id]: [deckCard('A', 'H'), deckCard('A', 'C')],
+        [baseRoom.state.players[1].id]: [deckCard('K', 'H'), deckCard('Q', 'C')],
+      },
+    };
+
+    const afterSmallBlindJam = applyPokerRoomPlayerAction(room, POKER_RULES_STATE_MACHINE.playerActionRoles.allIn);
+    const settled = applyPokerRoomPlayerAction(afterSmallBlindJam, POKER_RULES_STATE_MACHINE.playerActionRoles.allIn);
+
+    expect(settled.state.phase).toBe(POKER_RULES_STATE_MACHINE.phaseRoles.finished);
+    expect(settled.state.result?.source).toBe('showdown');
+    expect(settled.state.result?.winnerIds).toEqual([room.state.players[0].id]);
+    expect(settled.state.activeIndex).toBe(-1);
+  });
+});

@@ -1,0 +1,13 @@
+{
+  "self_id": "111",
+  "threads": [
+    {
+      "id": "chan.dev",
+      "title": "dev",
+      "messages": [
+        {"id": "1", "content": "deploy finished cleanly", "timestamp": "2026-07-30T00:00:00Z", "author": {"id": "222", "username": "bob", "global_name": "Bob"}},
+        {"id": "2", "content": "nice work", "timestamp": "2026-07-30T00:00:05Z", "author": {"id": "111", "username": "me"}}
+      ]
+    }
+  ]
+}
