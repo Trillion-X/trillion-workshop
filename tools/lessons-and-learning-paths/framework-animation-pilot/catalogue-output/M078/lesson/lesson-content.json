@@ -1,0 +1,90 @@
+{
+  "title": "Values-to-Action Mapping",
+  "opening": "A value is what matters to you. An activity is one way it might show up. The same value can take different forms, and those forms can ask different things of you.",
+  "labels": {
+    "example": "Compare two ways to follow curiosity",
+    "exampleContext": "These are possible routes, not predictions. Connection asks how the activity expresses curiosity. Possible impact asks what it might change. Personal fit includes your preferences and real constraints.",
+    "comparison": "The same value, two activities",
+    "connection": "Connection to curiosity",
+    "impact": "Possible impact",
+    "fit": "Personal fit",
+    "difficulty": "Likely difficulty",
+    "examineReading": "Examine reading",
+    "examineObservation": "Examine observation",
+    "selectedTrial": "A bounded experience to consider",
+    "mapHeading": "Map five values to activities",
+    "mapIntro": "Write a value in each row, then list more than one activity that could express it. You can save a partial draft; the rows do not submit an assessment.",
+    "value": "Value",
+    "activities": "Possible activities",
+    "row": "Value and activities",
+    "comparisonHeading": "Compare one promising activity",
+    "comparisonIntro": "Choose an activity from your map. Note its connection to the value, the effect it could have, whether it fits your circumstances, and what may be difficult. Then name a small, bounded experience that could teach you more. A good fit on paper is a candidate, not a reason to commit a year.",
+    "comparisonField": "Comparison and bounded experience",
+    "comparisonPlaceholder": "Value → activity → connection → possible impact → personal fit → likely difficulty → bounded experience",
+    "save": "Save private draft",
+    "retry": "Retry the same save",
+    "private": "This draft is private to you. It does not mark the course assessment complete.",
+    "busy": "Saving private draft",
+    "overlimit": "This complete draft is over the 2,000-character limit. Shorten it to save. Your full draft stays on screen.",
+    "sourceTitle": "Manuscript, page 42",
+    "sourceExcerpt": "Values-to-Action Mapping begins with values. Choose five, generate activities that could express each and compare connection, impact and personal fit. For a promising activity, name its likely difficulty. You now have a particular value–difficulty relationship to test.\n\nThe following Passion Crucible passage adds a bounded test: state what an attempt should reveal, set its limits, make the attempt and review what happened. It is a related practice, not a promise that any activity will fit."
+  },
+  "activities": {
+    "reading": {
+      "title": "Read a short guide about a question you already have",
+      "connection": "You follow curiosity by gathering existing explanations and terms.",
+      "impact": "It could add background for your next question. Reading alone may not show what you can notice in a nearby setting.",
+      "fit": "It can be done alone and paused at any point, if a readable source is available.",
+      "difficulty": "A long or jargon-heavy source can make it hard to find the part that answers your question.",
+      "trial": "Choose one question, read for up to 10 minutes, then write one detail that sharpened or changed the question. Stop there; no ongoing commitment is implied."
+    },
+    "observation": {
+      "title": "Observe birds from a safe, accessible place",
+      "connection": "You follow curiosity by noticing details before looking for an explanation.",
+      "impact": "A few notes could make a more specific question visible. They cannot establish a cause or a general pattern.",
+      "fit": "It can be brief, but it depends on having a safe, accessible place and conditions that work for you.",
+      "difficulty": "Weather, distance, access or seeing little may interrupt the attempt.",
+      "trial": "If a safe, accessible place is available, observe for up to 10 minutes. Write three details and one question, then stop. Reading a local guide or looking at a permitted image can be another format if going outside does not fit."
+    }
+  },
+  "feedback": {
+    "unavailable": "Private practice saving is unavailable. Your work remains on screen.",
+    "missing": "Add a value, an activity or a comparison before saving a private draft.",
+    "length": "Shorten the complete draft to fit the 2,000-character limit. Your text stays here.",
+    "readFailure": "The saved draft could not be loaded. Your current work remains on screen.",
+    "saved": "Your private draft is saved.",
+    "conflict": "This draft changed elsewhere. Your work remains here; review the saved version before saving again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same draft before changing it."
+  },
+  "source": {
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/4/lessons/33/body",
+    "canonicalBodyIdentity": "1f:21ddd1a1eaf97ee9c7644b3761f715176d570aff28ffc187ec329953e270c82c",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/77",
+    "assessmentIdentity": "1f:f713fd73b75e29aaa97fd475749fe5d82bfc81acbb840facd15c7ed472cfb601",
+    "assessmentBodyPath": "content-drafts/framework-library-2026-10-24/community-config.json#/courses/3/lessons/31/body",
+    "assessmentBodyIdentity": "1f:21ddd1a1eaf97ee9c7644b3761f715176d570aff28ffc187ec329953e270c82c",
+    "reconciliationPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/reconciliation.json#/library_entries/M078",
+    "manuscriptPath": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscriptIdentity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPage": 42,
+    "assessmentBoundary": "The open-ended assessment has no stored gold answer. This optional private draft is unscored and does not complete the assessment; it cannot prove understanding, transfer, or learner outcomes.",
+    "attribution": "The supplied manuscript is the source. Authorship or adoption of every wording is not independently established.",
+    "exampleBoundary": "The bird-reading and observation comparison is an authored instructional example, not an observed outcome. Each possible effect is conditional and should be revised against the learner's actual constraints.",
+    "designSources": {
+      "twentyFirstDev": {
+        "query": "editable value to activity mapping comparison table with two activity options",
+        "componentId": 7796,
+        "componentName": "Card — Activity Card",
+        "url": "https://21st.dev/@ravikatiyar162/components/card-25",
+        "use": "The title/details grouping was inspected as a possible activity-card reference. Its travel stats, image stack, hover animation and styling do not fit this text-led comparison. No code or assets were copied; the consumer uses Trillion's existing licensed Container, Text, Textarea, Button, Screen Look and Anatomy owners."
+      },
+      "mobbin": {
+        "query": "mobile learning activity mapping with editable values and qualitative comparison",
+        "status": "unavailable",
+        "reason": "No Mobbin screen-search tool was exposed in this session."
+      }
+    }
+  }
+}

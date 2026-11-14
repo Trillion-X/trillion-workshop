@@ -1,0 +1,64 @@
+{
+  "title": "First Principles of Tennis: developmental pathway",
+  "opening": "A missed ball does not tell you by itself what to practice. Check the point, test one possible cause, then return to play.",
+  "capacities": [
+    {"name":"Technique","description":"Produce the intended stroke and contact."},
+    {"name":"Athleticism","description":"Reach balls from different positions and place the shot where intended while retaining the technique."},
+    {"name":"Intellect","description":"Combine the shots you can actually play into patterns."},
+    {"name":"Reading","description":"Choose and adapt patterns for the opponent and situation across this point, match and later encounters."}
+  ],
+  "loop": ["Play and notice where the point fails.", "Name the Current Most Limiting Factor (CMLF): the capacity that may be limiting the intended result right now.", "Predict what a focused practice change should alter.", "Try it, then return to a point and check.", "If the same problem remains, revise the diagnosis."],
+  "prompt": "Before the adjustment: what do you expect to change, and what would count as evidence?",
+  "scenarios": [
+    {"id":"movement","label":"Movement","description":"The ball follows the same path. Change where the player stands and how far they reach. Check whether the racket meets the ball at its fixed contact point."},
+    {"id":"technique","label":"Technique","description":"The ball follows a manageable feed. Keep the player in place and change swing timing. Compare racket and ball at contact."},
+    {"id":"reading","label":"Reading","description":"Follow the three connected shots in this exchange. Move the opponent while keeping the ball path the same, then compare which shots still fit that position."}
+  ],
+  "examples": [
+    {"title":"Movement comparison","description":"At the fixed contact moment, the player begins short of the ball. Move to the contact position and see whether the displayed separation changes."},
+    {"title":"Technique comparison","description":"On a manageable feed, compare the intended stroke and contact. A miss during a point does not diagnose this cause by itself."}
+  ],
+  "feedback": {
+    "separation":"The gap shows how far the racket is from the ball at the selected moment. To tell whether the player arrived late, you also need to see how they moved.",
+    "movementBaseline":"In this drawing, the gap at the fixed contact moment is {distance}.",
+    "film":"Watch how the wide ball passes before the player reaches it.",
+    "readFailure":"The saved practice could not be read. Your answers remain on this screen.",
+    "saveFailure":"The save was not confirmed. Your answers remain here. Try again.",
+    "conflict":"This practice changed in another window. Your answers are still here. Save again to keep your answers.",
+    "readbackFailure":"The save could not be confirmed. Your answers are still here.",
+    "retryPending":"The earlier save is still unresolved. Retry the same answers.",
+    "saved":"Your answers are saved.",
+    "missing":"Enter a prediction, what you observed, and a revised diagnosis before saving.",
+    "unavailable":"Private practice is not available in this lesson context. Your answers stay in this session."
+  },
+  "labels": {
+    "capacities":"Four capacities",
+    "practice":"Predict, try, check",
+    "scenario":"Choose a comparison",
+    "position":"Receiver court position",
+    "reach":"Receiver reach",
+    "timing":"Swing timing adjustment",
+    "opponent":"Opponent position",
+    "distance":"Gap in drawing",
+    "distanceUnit":"pixels",
+    "exchange":"Point progress",
+    "prediction":"Your prediction",
+    "observation":"What happened when you tried it?",
+    "revision":"What is your revised diagnosis?",
+    "keep":"Save this practice",
+    "busy":"Saving practice",
+    "film":"Show the court example",
+    "loop":"The practice loop",
+    "reading":"Reading over time"
+  },
+  "accessibility": {
+    "scenario":"Practice comparison",
+    "figure":"Tennis court with the incoming ball and receiver",
+    "prediction":"Prediction and diagnosis",
+    "save":"Save answers to this private lesson practice"
+  },
+  "options": {
+    "predictions":["The racket will reach the ball","The ball will pass the racket","I need more evidence"]
+  },
+  "readingCopy":"A pattern can help you win this point and also teach an opponent what to expect next time. Reading includes both. Keeping a tactic hidden is not automatically worth more than winning the point you are playing. Weigh what you get now against what the other person learns for later."
+}

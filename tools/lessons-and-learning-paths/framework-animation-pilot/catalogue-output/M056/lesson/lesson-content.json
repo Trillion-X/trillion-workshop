@@ -1,0 +1,62 @@
+{
+  "title": "Worth Mentoring",
+  "opening": "Ask what support someone wants before you offer an interpretation.",
+  "labels": {
+    "scenario": "Practice case",
+    "question": "What could you ask before offering an interpretation?",
+    "supportKind": "Support path",
+    "reflection": "Talk through the change",
+    "practical": "Help with something practical",
+    "company": "Company",
+    "other": "Something else or nothing",
+    "choiceHelp": "Ask the person before acting.",
+    "specificQuality": "What specific quality have you actually seen beyond this achievement?",
+    "roleQuestion": "What open question could invite their view of what changed when the role changed?",
+    "practicalHelp": "What concrete help could you offer with the bill, if they want it and you can?",
+    "companyOffer": "How could you offer company without requiring a conversation?",
+    "otherRequest": "What else might they ask for, or how could you make room for no?",
+    "response": "What would you say or do on this path?",
+    "continuation": "What reply would lead you to continue, pause or change your offer?",
+    "billExample": "A colleague asks for help paying a bill. Respond to the practical request. Do not replace it with reassurance or a diagnosis.",
+    "source": "Manuscript excerpt",
+    "privateLimit": "Each private note is limited to 2,000 characters. A longer draft stays here until you shorten it.",
+    "save": "Save private notes",
+    "busy": "Saving private notes",
+    "retry": "Retry the same save",
+    "tooLong": "Shorten this draft to fit the 2,000-character private practice limit. Your text stays here.",
+    "sourceNotes": "Source"
+  },
+  "feedback": {
+    "unavailable": "Private practice saving is unavailable. Your work remains on screen.",
+    "missing": "Write a question or select a support path before saving.",
+    "length": "Keep each practice answer within 2,000 characters.",
+    "readFailure": "The saved record could not be loaded. Your current work remains on screen.",
+    "saved": "Your private practice record is saved.",
+    "conflict": "This record changed elsewhere. Your answers remain here; compare the saved record before saving again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same answers before changing them."
+  },
+  "practice": {
+    "result": "Your support question, chosen practice path and response",
+    "transfer": "Specific appreciation, role-change question and continuation cue"
+  },
+  "source": {
+    "sourceRecord": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/4/lessons/10/body",
+    "manuscriptArchiveMember": "Trillion_X_Framework_Library/sources/Manuscript.pdf, p. 38 (82-page source edition)",
+    "manuscriptTextMember": "Trillion_X_Framework_Library/entries/M056.md",
+    "distinctions": "The manuscript names a welcome conversation and appreciation beyond achievement or usefulness. The current lesson expansion requires consent, specific actual knowledge, and space for practical help or company. These do not authorize diagnosis or invented outcomes.",
+    "limits": "The supplied 82-page manuscript is the source. The friend and bill scenarios are authored instructional examples from the recovered lesson entry, not observed outcomes. This local fixture records private synthetic practice only; it does not establish independent learner effectiveness or author acceptance."
+  },
+  "teaching": {
+    "sourceSummary": "In a welcome conversation, appreciate qualities beyond achievement or usefulness. Explore what remains when a role or result changes.",
+    "sourceLocator": "Manuscript, p. 38.",
+    "scenario": "A friend loses a position and says they are nobody now.",
+    "openingQuestion": "Would it help to talk about what changed, work on something practical, or have company? It is fine to want something else or nothing right now.",
+    "example": {
+      "scenario": "A friend loses a position and says they are nobody now.",
+      "question": "Would it help to talk about what changed, work on something practical, or have company? It is fine to want something else or nothing right now.",
+      "practical": "A colleague asks for help paying a bill. Respond to the practical request. Do not replace it with reassurance or a diagnosis."
+    }
+  }
+}

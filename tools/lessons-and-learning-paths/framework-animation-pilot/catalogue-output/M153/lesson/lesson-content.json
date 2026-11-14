@@ -1,0 +1,176 @@
+{
+  "title": "Atomic Unit Breakdown",
+  "opening": "You want to investigate a question, but the next thing you can do is small: open the source and write down what it leaves unanswered. That action takes a few minutes and gives you something to continue from.",
+  "labels": {
+    "sequence": "Build a repeatable start",
+    "sequenceIntro": "Move through the five source actions. A small start matters only when it remains connected to the outcome.",
+    "stepCount": "Step {n} of 5",
+    "previous": "Previous action",
+    "next": "Next action",
+    "case": "Compare two starts",
+    "caseIntro": "Both starts are small. Check whether each one leads toward the outcome.",
+    "outcomeCase": "Find an unresolved question in a research source",
+    "connectedAction": "Open the chosen source and write one unresolved question.",
+    "symbolicAction": "Open a browser.",
+    "connectedResult": "The source and question create a next point to investigate. The action stays connected to the stated outcome.",
+    "symbolicResult": "Opening a browser has no defined link to the question yet. Choose a source and a useful next action, or change the outcome.",
+    "connectedChoice": "Source and question",
+    "symbolicChoice": "Browser only",
+    "plan": "Shape your own start",
+    "planIntro": "Write only what helps you choose and begin. The private note is optional.",
+    "outcome": "What outcome does this action serve?",
+    "action": "What is the smallest useful action that takes five minutes or less?",
+    "minutes": "Estimated minutes",
+    "trigger": "When, where, or what will trigger the action?",
+    "environment": "What can you arrange to make beginning easier?",
+    "scheduleFit": "Does doing this every day suit the activity?",
+    "fitYes": "Yes, daily fits",
+    "fitNo": "No, another schedule",
+    "fitUnsure": "I am not sure yet",
+    "observation": "Two-week observation",
+    "observationIntro": "The source suggests repeating daily for two weeks when that schedule suits the activity. Mark the days you observe; this is a record, not a score.",
+    "day": "Day {n}",
+    "tried": "observed",
+    "notTried": "not marked",
+    "notDaily": "Skip the daily two-week schedule. Decide how often to repeat this activity and when to review what happened.",
+    "unsureDaily": "Decide whether doing this every day suits the activity before using the two-week observation.",
+    "expand": "After you can repeat the action consistently, expand it gradually and check that you can still continue.",
+    "private": "This note is private practice. The six required course questions are separate.",
+    "save": "Save private note",
+    "saving": "Saving private note",
+    "retry": "Retry the same save",
+    "done": "Private note saved",
+    "missing": "Add an outcome or a useful action before saving.",
+    "length": "This full note is over 2,000 characters. Shorten it to save; your text stays here.",
+    "source": "Source passage",
+    "sourceQuote": "Atomic Unit Breakdown\nUse this when a larger goal needs a next action you can begin and repeat.\n1. Choose one outcome goal. Ask for the smallest action toward it that takes five minutes or less. Break it down further if possible.\n2. Specify its time, place or trigger.\n3. Arrange the environment so the action is easy to begin.\n4. Repeat the action daily for two weeks. Observe whether the arrangement supports consistency.\n5. Once it is consistent, gradually expand it while preserving the ability to continue.",
+    "sourceLocator": "Manuscript, page 75 (82-page source edition)."
+  },
+  "feedback": {
+    "saved": "Your private note is saved.",
+    "unavailable": "Private saving is unavailable. Your note stays on screen.",
+    "missing": "Add an outcome or a useful action before saving.",
+    "length": "Shorten the full note to fit the 2,000-character limit. Your text stays here.",
+    "conflict": "This note changed elsewhere. Your answers remain here; compare the saved version before saving again.",
+    "readFailure": "The saved note could not be loaded.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same note before changing it."
+  },
+  "actions": [
+    {
+      "id": "outcome",
+      "stepLabel": "Outcome and action",
+      "title": "Choose the outcome and ask for the smallest useful action taking five minutes or less; break it down further where meaningful.",
+      "detail": "Keep the first action connected to the result it serves."
+    },
+    {
+      "id": "trigger",
+      "stepLabel": "Trigger",
+      "title": "Specify time, place or trigger.",
+      "detail": "Name when, where, or what starts the action."
+    },
+    {
+      "id": "environment",
+      "stepLabel": "Environment",
+      "title": "Arrange the environment to make beginning easy.",
+      "detail": "Name a change in the surroundings that helps this action begin."
+    },
+    {
+      "id": "observe",
+      "stepLabel": "Repeat and observe",
+      "title": "Repeat daily for the source’s two-week observation period when that schedule suits the activity.",
+      "detail": "This schedule is conditional. Observe whether the arrangement supports consistency; the day marks are not an outcome score."
+    },
+    {
+      "id": "expand",
+      "stepLabel": "Expand after consistency",
+      "title": "After consistency, expand gradually while preserving continuation.",
+      "detail": "The module does not infer consistency or expand the action for you."
+    }
+  ],
+  "fields": [
+    {
+      "id": "outcome",
+      "label": "What outcome does this action serve?"
+    },
+    {
+      "id": "action",
+      "label": "What useful action will you begin?"
+    },
+    {
+      "id": "trigger",
+      "label": "When, where, or what will trigger it?"
+    },
+    {
+      "id": "environment",
+      "label": "What can you arrange to make beginning easier?"
+    }
+  ],
+  "example": {
+    "outcome": "Find an unresolved question in a research source.",
+    "action": "Open the chosen source and write one unresolved question.",
+    "trigger": "After breakfast, at the desk.",
+    "environment": "Leave the source link and a blank note open."
+  },
+  "source": {
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/candidate137/course-input.json#/courses/9/lessons/9/body",
+    "canonicalBodyIdentity": "1f:f97bcc19daa621f4ff4728faed308e30cc20bb97e1b24a46704c5bb0e0bd98ee",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/157",
+    "assessmentIdentity": "1f:88f44b34929752b773e44c0656e67af260d175644a4bee0f418281d810b73bb6",
+    "assessmentBoundary": "Six required open-ended course questions remain separate from optional private practice. The course questions are not stored by this local practice card.",
+    "manuscriptPdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscriptPdfIdentity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPage": "Manuscript, page 75",
+    "manuscriptPageText": ".local/curriculum-continuation-20261028/M118-M120-next-unbuilt-source-mappings/source-pages-71-76.txt",
+    "manuscriptPageTextIdentity": "1f:f72a092d5042b70ec7e8570ac5f3eadb5300bdeb3d7f8738658747b8668a957b"
+  },
+  "assessment": {
+    "formId": "framework-m153-88f44b34929752b773e44c0656e67af260d175644a4bee0f418281d810b73bb6",
+    "title": "Recall and apply: Atomic Unit Breakdown",
+    "presentation": {
+      "mode": "one-prompt-at-a-time",
+      "backLabel": "Back",
+      "nextLabel": "Next",
+      "submitLabel": "Save answers"
+    },
+    "questions": [
+      {
+        "questionId": "m153-recall",
+        "questionTypeId": "long-text",
+        "label": "Without reopening M153 (Atomic Unit Breakdown), explain what it does and how its parts work together.",
+        "required": true
+      },
+      {
+        "questionId": "m153-application",
+        "questionTypeId": "long-text",
+        "label": "Apply the source practice: Write the action, trigger and the larger outcome it serves.",
+        "required": true
+      },
+      {
+        "questionId": "m153-guided-question",
+        "questionTypeId": "long-text",
+        "label": "Answer the source’s guided question: You repeat the atom consistently but make no relevant progress. What should change?",
+        "required": true
+      },
+      {
+        "questionId": "m153-learner-check",
+        "questionTypeId": "long-text",
+        "label": "Self-check against the source: You can distinguish a meaningful atom from a symbolic gesture.",
+        "required": true
+      },
+      {
+        "questionId": "m153-outcome-check",
+        "questionTypeId": "long-text",
+        "label": "Check the outcome using the source criterion: The arrangement makes useful initiation and continuation more reliable.",
+        "required": true
+      },
+      {
+        "questionId": "m153-account-change",
+        "questionTypeId": "long-text",
+        "label": "Consider what would change the source account: If the action stays trivial or prevents necessary adaptation, revise it.",
+        "required": true
+      }
+    ]
+  }
+}

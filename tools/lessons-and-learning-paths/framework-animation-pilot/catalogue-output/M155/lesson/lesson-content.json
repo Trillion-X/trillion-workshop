@@ -1,0 +1,88 @@
+{
+  "title": "Diagnose your own work",
+  "opening": "A message exists as a draft, but no message has arrived. Trace the work from the last event that happened to the next one that did not. The right repair depends on where the work stopped.",
+  "labels": {
+    "diagnosis": "Find the break",
+    "diagnosisIntro": "Choose a distinction to inspect. These questions help locate a break; they do not establish anyone’s motive.",
+    "capacity": "What may be missing at this transition?",
+    "trace": "Trace what happened",
+    "traceIntro": "Record observable events in order. A plan or completion label is not proof that an event occurred.",
+    "sourceActions": "Follow the correction",
+    "back": "Previous distinction",
+    "next": "Next distinction",
+    "current": "{title}",
+    "lastEvent": "What is the last operation that actually happened?",
+    "nextEvent": "What was the next operation that did not happen?",
+    "checkOutcome": "What outcome will you inspect after the correction?",
+    "selectedPrompt": "Inspection question",
+    "private": "This optional note is private practice. The six required course questions are separate.",
+    "practice": "Trace a stalled outcome",
+    "practiceIntro": "Use observable events. Choose a possible break, make a correction at that transition, then inspect the outcome again.",
+    "loadExample": "Load illustration",
+    "sampleLoaded": "Illustration loaded. It is not a report of an observed outcome.",
+    "save": "Save private note",
+    "saving": "Saving private note",
+    "retry": "Retry the same save",
+    "done": "Private note saved",
+    "missing": "Add one note before saving.",
+    "length": "This full note is over 2,000 characters. Shorten it to save; all of your text stays here.",
+    "source": "Manuscript, page 76",
+    "sourceQuote": "Choose one outcome that has stalled. Find the last operation that actually happened and the next one that did not. Then use the capacity table to locate the failure. Do you lack the ability, or have you avoided beginning? Did the work die when someone else took over? Are you repeating the same ineffective move? Did you fail to anticipate the next obstacle? Have you saved a lesson without using it? Make the correction at that point. Then inspect the outcome again. The plan exists. Did reality change?",
+    "sourceLocator": "Manuscript, page 76 (82-page source edition).",
+    "decision": "The distinction is selected for inspection. It is not a conclusion about why the work stopped."
+  },
+  "feedback": {
+    "saved": "Your private note is saved.",
+    "unavailable": "Private saving is unavailable. Your note stays on screen.",
+    "missing": "Add one note before saving.",
+    "length": "Shorten the full note to fit the 2,000-character limit. Your text stays here.",
+    "conflict": "This note changed elsewhere. Your answers remain here; compare the saved version before saving again.",
+    "readFailure": "The saved note could not be loaded.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same note before changing it."
+  },
+  "distinctions": [
+    { "id": "agency", "title": "Agency", "detail": "Check whether the person or system had the ability needed for this operation." },
+    { "id": "initiative", "title": "Initiative", "detail": "Check whether the work began when it could have begun." },
+    { "id": "continuity", "title": "Continuity", "detail": "Check whether the work continued when someone else took over or an interruption happened." },
+    { "id": "durability", "title": "Durability", "detail": "Check whether the result remained usable after the original maker moved on." },
+    { "id": "reliability", "title": "Reliability", "detail": "Check whether the operation happened consistently when needed." },
+    { "id": "effectiveness", "title": "Effectiveness", "detail": "Check whether the operation produced the intended result." },
+    { "id": "adaptation", "title": "Adaptation", "detail": "Check whether the work changed when conditions changed." },
+    { "id": "prediction", "title": "Prediction", "detail": "Check whether a likely next obstacle was anticipated." },
+    { "id": "reuse-learning", "title": "Reuse and learning", "detail": "Check whether a saved finding changed a later attempt." }
+  ],
+  "steps": [
+    { "id": "trace", "title": "Find the last real event", "detail": "Record what happened and the evidence that shows it." },
+    { "id": "locate", "title": "Name the next event that did not happen", "detail": "Describe the missing operation without guessing at motive." },
+    { "id": "correct", "title": "Correct that transition", "detail": "Choose a repair that fits the distinction you inspected." },
+    { "id": "inspect", "title": "Inspect the outcome again", "detail": "Check whether reality changed; if the outcome is still absent, inspect the next break or revise the diagnosis." }
+  ],
+  "fields": [
+    { "id": "outcome", "label": "What outcome has stalled?" },
+    { "id": "last", "label": "What is the last operation that actually happened?" },
+    { "id": "next", "label": "What was the next operation that did not happen?" },
+    { "id": "distinction", "label": "Which capacity distinction will you inspect, and what evidence would help?" },
+    { "id": "correction", "label": "What correction fits that transition, and what outcome will you inspect afterward?" }
+  ],
+  "example": {
+    "outcome": "A message should reach its recipient.",
+    "last": "The message was saved as a draft.",
+    "next": "No authorized send occurred, so the recipient has not received it.",
+    "distinction": "First check whether sending requires approval. If approval is missing, the next action needs that decision; if sending was authorized but skipped, inspect the execution step.",
+    "correction": "Resolve any required approval or complete the authorized send, then inspect delivery evidence."
+  },
+  "source": {
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/candidate137/course-input.json#/courses/9/lessons/11/body",
+    "canonicalBodyIdentity": "1f:ade1bf7786b29a1fab475114fdbc5590e1000962cf73746959d1de817a713216",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/159",
+    "assessmentIdentity": "1f:a56285484752ab8e734bce92a777cc3926338c07fd23477960c145b07b14ed22",
+    "assessmentBoundary": "Six required open-ended course questions remain separate from this optional private note. No qualified semantic grade or learner outcome is supplied.",
+    "manuscriptPdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscriptPdfIdentity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPage": "Manuscript, page 76",
+    "manuscriptPageText": ".local/curriculum-continuation-20261028/M118-M120-next-unbuilt-source-mappings/source-pages-76-82.txt",
+    "manuscriptPageTextIdentity": "1f:21bc4926935b10e4ffec47ceb4a12c30ffc853fbb0be683fe904459e56724cff"
+  }
+}

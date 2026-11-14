@@ -1,0 +1,76 @@
+{
+  "title": "Random Input",
+  "opening": "An arbitrary input can interrupt a familiar filter. Its properties may suggest a connection; the connection still has to fit the actual task.",
+  "example": {
+    "heading": "Generate first. Evaluate second.",
+    "context": "A hypothetical teacher wants a short exercise that helps someone move from stating a definition to applying it to a new case. This is an example need, not a report about a real learner.",
+    "comparisonLabel": "Compare a candidate connection",
+    "options": [
+      {
+        "id": "bridge",
+        "input": "Bridge",
+        "property": "Connects two separate spans.",
+        "connection": "Add one worked step between the definition and the new case.",
+        "fit": "This could fit if the missing move is the transition from knowing the definition to using it.",
+        "limit": "If the learner does not know which feature matters, a transition step alone may miss the issue.",
+        "check": "Ask the learner to name the definition, identify the relevant feature in a case, and apply it. Which move is missing?"
+      },
+      {
+        "id": "lantern",
+        "input": "Lantern",
+        "property": "Makes nearby details easier to see.",
+        "connection": "Mark the feature to notice in each new case.",
+        "fit": "This could fit if the missing move is noticing which feature of the case matters.",
+        "limit": "If the learner identifies the feature but cannot use the definition, more highlighting may not bridge that step.",
+        "check": "Ask the learner to point to the feature that changes the case, then explain how the definition applies. Which move is missing?"
+      }
+    ],
+    "boundary": "Neither object proves what a learner needs. The observed task and a small check can change which candidate is worth exploring."
+  },
+  "practice": {
+    "question": "A current question or task I want another angle on",
+    "input": "An arbitrary word or object (you may use the local draw button)",
+    "property": "One concrete property or relation of that input",
+    "connection": "A candidate connection to the actual task",
+    "evaluation": "What purpose or constraint could it fit? What limit or small check would change your view?"
+  },
+  "labels": {
+    "comparison": "Two possible connections for one hypothetical teaching need",
+    "candidate": "Candidate connection (editable)",
+    "sourceTitle": "Manuscript, page 55",
+    "sourceQuote": "Random Input: take an arbitrary word, image or object and use its properties to generate a new connection.",
+    "sourceLocator": "Supplied manuscript, 82-page source edition, p. 55.",
+    "practiceHeading": "Try one on your own question",
+    "practiceIntro": "Keep the arbitrary input, its property and the proposed connection separate. A surprising idea is only a candidate. Partial drafts are useful, and you do not need to act on or share the idea.",
+    "privacy": "Your writing is saved as private lesson practice. Saving does not grade the idea or mark the lesson complete.",
+    "draw": "Draw an ordinary word",
+    "drawHelp": "A local draw chooses from a short word list; you can replace it or enter another object.",
+    "save": "Save private draft",
+    "retry": "Retry the same private save",
+    "busy": "Saving private draft"
+  },
+  "feedback": {
+    "missing": "Add at least one part of the draft before saving. The other fields can stay blank.",
+    "length": "The combined draft exceeds 2,000 characters. Shorten it to save; your full writing stays on screen.",
+    "unavailable": "Private practice saving is unavailable. Your writing remains on screen.",
+    "saved": "Your private draft was saved and read back.",
+    "conflict": "The saved draft changed elsewhere. Your writing remains here; review the saved version before saving again.",
+    "readFailure": "The saved practice could not be loaded. Your current writing remains on screen.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same draft before changing it."
+  },
+  "source": {
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/delivery-history/93ccacfc335e21eaa9a1652a89d9e324b5af0faa6940ff3f4cb9e45b5982b622/course-input.json#/courses/7/lessons/6/body",
+    "canonicalBodyIdentity": "1f:1de73ff90d45cbaf87096428d51cf635c147b6d2805a93351bfdb19ee1d1d419",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/110",
+    "assessmentBoundary": "Six required source questions remain unchanged. Private lesson practice is separate from the formal assessment; open-ended answers have no stored gold answer and do not establish author acceptance or learner outcome.",
+    "currentBodyIdentity": "1f:1de73ff90d45cbaf87096428d51cf635c147b6d2805a93351bfdb19ee1d1d419",
+    "assessmentRecord": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/110",
+    "assessmentIdentity": "1f:02159ae322f82c0e6878b0afa8e926e5415f245d6a923789308f2ff2a51ef40a",
+    "assessmentPolicy": "All six formal assessment questions remain required and unchanged. Open-ended assessment answers have no stored gold answer; any learner AI practice grade is unqualified. Private practice is separate from the assessment.",
+    "manuscriptPdfIdentity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPageTextIdentity": "1f:87e13224a96cbaf2f167e31b8bc46cbf701fe4badac728b8efb372c52efc3fa2",
+    "limits": "The supplied manuscript is the source; authorship or adoption of every wording is not independently established. All examples are hypothetical, not observed outcomes. The lesson does not claim learner benefit, adoption or author acceptance."
+  }
+}

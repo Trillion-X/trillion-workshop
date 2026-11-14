@@ -1,0 +1,140 @@
+{
+  "title": "AA Alignment Check",
+  "opening": "When attention feels forced, look for the specific mismatch. A missing brief calls for clarification; a known external interruption can be handled directly.",
+  "labels": {
+    "comparisonTitle": "One task, different sources of friction",
+    "comparisonIntro": "Imagine a volunteer writing a one-page guide for new helpers. Change one condition and inspect what would make the next action possible.",
+    "routeGroup": "Choose the condition to examine",
+    "routeClarity": "Unclear brief",
+    "routeAbility": "Missing skill",
+    "routeInterruption": "External interruption",
+    "selectedRoute": "Condition to examine",
+    "testQuestion": "What needs attention",
+    "resourceLimit": "Relevant response",
+    "timeframe": "A possible next action",
+    "successSignal": "What to observe",
+    "failureSignal": "When to reopen the explanation",
+    "resultBoundary": "What this cannot establish",
+    "comparisonTakeaway": "Use the check that addresses the actual friction. A small exploratory action can reveal direction; it does not require a finished life mission or perfect alignment.",
+    "practiceTitle": "Locate one source of friction",
+    "practiceIntro": "Use a task you face. Write the part that is unclear or blocked, the response it calls for and what would make you reconsider. Leave other fields blank when they add nothing.",
+    "sourceTitle": "Manuscript, page 59",
+    "sourceExcerpt": "AA Alignment Check\nUse this when focus feels forced or fragile.\n1. Name the task or opportunity. Is it clear, valuable and connected to what matters\nto you?\n2. Check the skills it needs. Do you have them, or can you develop them?\n3. Check the goal. Does this work lead toward the future you want?\n4. Check the passion. Does the value outweigh the challenges involved?\n5. Notice where tension or uncertainty appears. Investigate that part of the\narrangement before demanding more concentration.",
+    "fields": [
+      {
+        "id": "task",
+        "label": "Task or opportunity, and what makes it worth doing"
+      },
+      {
+        "id": "skills",
+        "label": "Skills the task needs, and what is available or missing"
+      },
+      {
+        "id": "goal",
+        "label": "Desired result or direction this action could advance"
+      },
+      {
+        "id": "challenges",
+        "label": "Challenges or commitments to weigh against its value"
+      },
+      {
+        "id": "tension",
+        "label": "The particular tension or unanswered question"
+      },
+      {
+        "id": "next",
+        "label": "Relevant response, next action and evidence that could change it"
+      }
+    ],
+    "feedback": {
+      "saved": "Your private draft is saved.",
+      "unavailable": "Private saving is unavailable. Your work remains on screen.",
+      "missing": "Add one part of the task or its friction before saving.",
+      "length": "Shorten the full draft to fit the 2,000-character limit. Your text stays here.",
+      "conflict": "This draft changed elsewhere. Your answers remain here; compare the saved version before saving again.",
+      "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+      "saveFailure": "The save is uncertain. Retry to check the same save.",
+      "retryPending": "The earlier save is unresolved. Retry the same draft before changing it."
+    },
+    "save": "Save private draft",
+    "busy": "Saving private draft",
+    "retry": "Retry the same save",
+    "saved": "Your private draft is saved.",
+    "private": "This private draft is separate from the six required assessment questions.",
+    "needAnswer": "Add one part of the task or its friction before saving.",
+    "oversize": "This full draft is over 2,000 characters. Shorten it to save; all of your text remains on screen.",
+    "routeDetails": {
+      "clarity": {
+        "title": "The audience and question are unspecified",
+        "question": "Which helpers need the guide, and what must they be able to do with it?",
+        "resource": "Clarify the audience and the question before demanding more concentration.",
+        "time": "Ask the coordinator which first task the guide should support.",
+        "success": "The volunteer can name the reader, the task and a useful first section.",
+        "failure": "If the brief is clear but work still stalls, examine another cause.",
+        "boundary": "A clear brief does not establish the writer’s skill or that the whole guide will help."
+      },
+      "ability": {
+        "title": "The task is clear, but a needed skill is missing",
+        "question": "Can the volunteer perform and explain the first task accurately?",
+        "resource": "Find the missing knowledge or arrange a small practice with someone who knows the task.",
+        "time": "Try the first task, record the uncertain step and ask for specific help.",
+        "success": "The volunteer can perform that step and explain it in language a new helper understands.",
+        "failure": "If the skill is available but progress still stops, inspect the remaining tension.",
+        "boundary": "One successful step does not establish mastery or settle every part of the guide."
+      },
+      "interruption": {
+        "title": "The task is understood, but the setting keeps interrupting it",
+        "question": "What interruption is preventing the next clear action?",
+        "resource": "Address the known interruption directly rather than requiring the full alignment check.",
+        "time": "Arrange a suitable place or agree on a short interval for the one known task.",
+        "success": "The volunteer can complete the next task without the repeated interruption.",
+        "failure": "If the interruption is removed and work still stalls, examine the task, ability or another cause.",
+        "boundary": "Changing the setting does not show that every focus problem comes from the environment."
+      },
+      "goal": {
+        "title": "The guide is clear, but its goal is uncertain",
+        "question": "What future result would this guide help the volunteer or new helpers reach?",
+        "resource": "Name the result this guide could advance; a direction can be useful without a complete life mission.",
+        "time": "Draft one section for the next known helper task and ask what it enables.",
+        "success": "The section supports a concrete next result the intended reader needs.",
+        "failure": "If the goal stays vague, test one small useful section before committing to a larger guide.",
+        "boundary": "A useful section does not settle the volunteer’s whole future or every goal the group should pursue."
+      },
+      "challenges": {
+        "title": "The value may not warrant the current burden",
+        "question": "Which effort, time or commitment is making the guide hard to continue?",
+        "resource": "Compare the guide’s likely usefulness with its actual costs; reduce or change the work if the balance does not fit.",
+        "time": "Ask one experienced helper to review a short draft before writing the rest.",
+        "success": "The volunteer can describe a useful scope that fits the available time and effort.",
+        "failure": "If the burden remains high, reconsider the scope, audience or whether this guide is worth making now.",
+        "boundary": "A smaller draft does not prove the full guide will help or that every cost has been counted."
+      },
+      "exploration": {
+        "title": "The next useful step is still unknown",
+        "question": "What could one small attempt reveal about the audience, task or missing information?",
+        "resource": "Try a bounded exploratory action before demanding a final direction; perfect alignment is not required.",
+        "time": "Show a rough first section to one new helper and ask what remains unclear.",
+        "success": "The attempt reveals a concrete question or useful adjustment for the next draft.",
+        "failure": "If the attempt cannot answer the important uncertainty, choose a different source or a smaller test.",
+        "boundary": "One exploratory response does not predict broad usefulness or commit anyone to a finished guide."
+      }
+    },
+    "routeGoal": "Weak goal fit",
+    "routeChallenges": "Costs and challenges",
+    "routeExploration": "Exploratory action",
+    "savedAction": "Saved"
+  },
+  "source": {
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/delivery-history/93ccacfc335e21eaa9a1652a89d9e324b5af0faa6940ff3f4cb9e45b5982b622/course-input.json#/courses/7/lessons/20/body",
+    "canonicalBodyIdentity": "1f:000a20c9610698f034bb35a7b874ea256690cd3a700b0f1ff466415d287526b7",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/124",
+    "assessmentIdentity": "1f:6a2bdaa05a79bc9df14eacf426932796f93df7bff4d983b51c309ae06e2179d0",
+    "assessmentBoundary": "Six required open-ended questions remain separate from the private draft. No stored gold answer or qualified semantic grading is supplied; syntactic validity does not establish understanding or an outcome.",
+    "manuscriptPdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscriptPdfIdentity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPage": "p. 59 (82-page source edition)",
+    "manuscriptPageText": ".local/curriculum-continuation-20261028/M118-M120-next-unbuilt-source-mappings/source-pages-58-59.txt",
+    "manuscriptPageTextIdentity": "1f:6c08c8a1ce4ba1dc82ff8a0f72817c78606b564b8109c6c637fd4f9b8b89c738",
+    "attribution": "Supplied manuscript; authorship/adoption of every wording is not independently established."
+  }
+}

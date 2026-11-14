@@ -1,0 +1,88 @@
+{
+  "title": "Eulogy & Epitaph Writing",
+  "opening": "Name a quality or contribution you want your life to express. Then compare it with one present choice and the pattern you want to avoid.",
+  "labels": {
+    "comparison": "From imagined remembrance to present conduct",
+    "comparisonIntro": "Imagine a teacher who wants to help people think independently. They write a moving account of that contribution, but usually answer every question before a learner can try. Examine the connection before deciding what to change.",
+    "adherence": "Desired contribution",
+    "value": "Present conduct",
+    "outcome": "One concrete change",
+    "adherenceText": "Helping people think independently is the desired contribution. Writing that wish does not show that the current teaching method supports it.",
+    "valueText": "Giving an answer before the learner can try may keep them dependent. Look at the actual interaction; desired praise is not evidence of the contribution.",
+    "outcomeText": "For one suitable question, let the learner try, ask what they noticed, and offer help where needed. Check whether the interaction supports more independent thinking; one attempt does not prove a lasting result.",
+    "signalQuestion": "Choose a part of the comparison",
+    "rhythmTitle": "Choose a suitable perspective",
+    "rhythmText": "The source uses imagined remembrance and an ending to avoid. Use that perspective only if it is suitable for you. A review of a valued year or week can reveal the same priorities without a death-related frame. Everyday relationships and present life matter; the exercise does not require a grand legacy.",
+    "practice": "Connect a desired quality with a present choice",
+    "practiceIntro": "Choose the horizon that helps you reflect. Add only the notes that are useful; blank fields are fine. Keep the desired contribution, unwanted pattern and current evidence distinct.",
+    "private": "This optional private reflection is separate from the six required assessment questions.",
+    "save": "Save private reflection",
+    "saving": "Saving private reflection",
+    "retry": "Retry the same save",
+    "done": "Reflection saved",
+    "missing": "Add one reflection before saving.",
+    "length": "This full reflection is over 2,000 characters. Shorten it to save; all of your text stays here.",
+    "source": "Manuscript, page 61",
+    "sourceQuote": "Eulogy & Epitaph Writing\nDescribe the qualities, contribution and impact you would want someone to\nremember; also describe the end you want to avoid. Compare the two with present\nchoices.",
+    "sourceLocator": "Manuscript, p. 61 (82-page source edition)",
+    "loadExample": "Load the teacher example",
+    "sampleLoaded": "Teacher example loaded. Replace its details with your own if useful."
+  },
+  "feedback": {
+    "saved": "Your private reflection is saved.",
+    "unavailable": "Private saving is unavailable. Your reflection stays on screen.",
+    "missing": "Add one reflection before saving.",
+    "length": "Shorten the full draft to fit the 2,000-character limit. Your text stays here.",
+    "conflict": "This reflection changed elsewhere. Your answers remain here; compare the saved version before saving again.",
+    "readFailure": "The saved note could not be loaded.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same reflection before changing it."
+  },
+  "fields": [
+    {
+      "id": "qualities",
+      "label": "Quality you want your conduct to express"
+    },
+    {
+      "id": "contribution",
+      "label": "Contribution or impact that matters to you"
+    },
+    {
+      "id": "avoid",
+      "label": "An ending or pattern you want to avoid"
+    },
+    {
+      "id": "present",
+      "label": "A present choice and the horizon you are using"
+    },
+    {
+      "id": "connection",
+      "label": "Evidence connecting that choice with the desired quality"
+    },
+    {
+      "id": "change",
+      "label": "One current change, question or observation that follows"
+    }
+  ],
+  "example": {
+    "qualities": "Help people think independently.",
+    "contribution": "Support learners in finding and explaining an answer themselves.",
+    "avoid": "Being praised as indispensable while people depend on my answers.",
+    "present": "This week, I often answer before a learner has tried the question.",
+    "connection": "The learner has little chance to show what they can do without me.",
+    "change": "Offer one suitable question, let the learner try, then ask what they noticed before giving help."
+  },
+  "source": {
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/delivery-history/93ccacfc335e21eaa9a1652a89d9e324b5af0faa6940ff3f4cb9e45b5982b622/course-input.json#/courses/7/lessons/24/body",
+    "canonicalBodyIdentity": "1f:8428909ddab860ac098aa9c4cf6b52cc40e6d247eb9adc65c64d7297d1f6170d",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/127",
+    "assessmentIdentity": "1f:cdc74e037b85955f1c74bb2444ce677a030c25ebad1ddd9f1fb8774406778b08",
+    "assessmentBoundary": "Six required open-ended assessment questions remain separate from this optional private reflection. No qualified semantic grade or evidence of learner effectiveness is supplied.",
+    "manuscriptPdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscriptPdfIdentity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPage": "p. 61 (82-page source edition)",
+    "manuscriptPageText": ".local/curriculum-continuation-20261028/M118-M120-next-unbuilt-source-mappings/source-pages-59-61.txt",
+    "manuscriptPageTextIdentity": "1f:f1d9ce4955a55154c4729b632c7de40dd78ed10d5aa776c56027d911f3c41a18"
+  }
+}

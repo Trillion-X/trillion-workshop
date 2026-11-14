@@ -1,0 +1,101 @@
+{
+  "title": "Zero-Person Business",
+  "opening": "A business can own capable tools and still stop whenever its founder steps away. Follow the whole delivery path, then test what really continues.",
+  "labels": {
+    "example": "Illustration: publishing a lesson",
+    "model": "Trace the delivery system",
+    "exampleDisclaimer": "This is a hypothetical example, not a deployed business or an observed result.",
+    "modelPrompt": "Change the assigned owner for each operation. A tool can carry routine work; a named person or system still needs to own decisions and failures.",
+    "activity": "Your attempt",
+    "source": "Source wording and locator",
+    "save": "Save private notes",
+    "retry": "Retry the same save",
+    "busy": "Saving notes"
+  },
+  "operations": [
+    {
+      "id": "initiate",
+      "name": "Begin the recurring work",
+      "detail": "A schedule or event starts a run; someone defines when it should begin and what counts as a valid request.",
+      "owner": "Founder"
+    },
+    {
+      "id": "prepare",
+      "name": "Draft the lesson",
+      "detail": "AI may prepare words, but a person still defines the intended result and checks the material.",
+      "owner": "AI / tool"
+    },
+    {
+      "id": "package",
+      "name": "Prepare delivery files",
+      "detail": "A repeatable process assembles the needed files and checks that the package is readable.",
+      "owner": "Agent / automation"
+    },
+    {
+      "id": "authorize",
+      "name": "Grant access or publish",
+      "detail": "The example keeps an explicit founder authorization step. Permission to draft does not grant permission to publish.",
+      "owner": "Founder"
+    },
+    {
+      "id": "verify",
+      "name": "Check that the recipient can open and use it",
+      "detail": "A sent or published item is not proof that the intended person could use it.",
+      "owner": "Unassigned"
+    },
+    {
+      "id": "recover",
+      "name": "Handle a failed delivery",
+      "detail": "A named owner needs a way to detect the failure, correct it and check the correction.",
+      "owner": "Unassigned"
+    },
+    {
+      "id": "maintain",
+      "name": "Maintain the process",
+      "detail": "Credentials, formats, schedules and tools can change; upkeep consumes effort even when each run is routine.",
+      "owner": "Founder"
+    }
+  ],
+  "owners": [
+    "Founder",
+    "AI / tool",
+    "Agent / automation",
+    "Other person",
+    "Unassigned"
+  ],
+  "states": [
+    "Not yet tested",
+    "Local simulation",
+    "Actual operation observed"
+  ],
+  "practice": {
+    "result": "Name the recurring outcome and every operation needed to deliver and maintain it.",
+    "step": "Which operations continue without founder action? Name the founder's actual approval and exception touchpoints.",
+    "alternative": "Assign routine work to a suitable tool or agent. What evidence would show that it performs the assigned operation?",
+    "prediction": "Name who receives an exception, how they detect it, and how correction and recovery are checked.",
+    "comparison": "Name an authorized real path to test, including routine delivery, a failure, and recovery. Say what the intended recipient could actually use. Then compare current and proposed total effort, including setup, routine work, upkeep and corrections, with the observed result quality. Label estimates clearly; a plan or local simulation is not an actual business test.",
+    "revision": "Choose the evidence state that fits your case and explain what you actually observed. What new evidence would change your conclusion?"
+  },
+  "feedback": {
+    "unavailable": "Private note saving is unavailable here. Your answers remain on this screen.",
+    "missing": "Complete all six fields before saving your private notes.",
+    "length": "This answer exceeds 2,000 characters. Shorten it before saving; no write was sent.",
+    "readFailure": "Saved notes could not be loaded. Your current answers remain on this screen.",
+    "saved": "Your private notes are saved.",
+    "conflict": "The saved notes changed elsewhere. Review your answers, then save again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry the same answers.",
+    "retryPending": "The earlier save is unresolved. Retry the same answers before changing them."
+  },
+  "source": {
+    "manuscript": "Choose one tool you use often. Name the result it serves and the work you would do without it. Compare the total effort, including setup, corrections and upkeep. Then inspect the actual result.",
+    "locator": "Manuscript, pp. 48–49, supplied 82-page edition",
+    "definition": "The Zero-Person Business takes this further: AI and automation carry most routine operation while the founder's daily involvement falls. The useful test is which operations actually continue without them.",
+    "limits": "The manuscript does not establish passive income, a universal staffing target, or that any specific business can run without human effort. This lesson's publishing example is hypothetical.",
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/delivery-history/302205da0020a769b62e1bfa45706ca5193ac0cde1fa0d55c1ac45b07e9a0768/course-input.json#/courses/5/lessons/2/body",
+    "canonicalBodyIdentity": "1f:031139a15650c58c3a6c32f83672c54399aba0e052e5ea9f2aed3016af42acc1",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/96",
+    "assessmentIdentity": "1f:303f59e9f49fe1f46e431014648509736562b03f73c58788103ba67d5055dce6",
+    "assessmentBoundary": "Six required long-text questions with no gold answers. Formal assessment response and private local practice are separate."
+  }
+}

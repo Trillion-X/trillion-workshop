@@ -1,0 +1,99 @@
+{
+  "title": "Constraint field and bottleneck lifecycle",
+  "opening": "If more people can find an exercise, more people may need feedback on their attempts. You could solve the first problem and discover that you don't have enough people to help them. Thinking about that possibility now lets you decide what to prepare before the extra work arrives.",
+  "labels": {
+    "comparison": "Examine how the limit can change",
+    "comparisonIntro": "Suppose a school plans to publish an exercise more widely. People already waiting for feedback are a present problem. More people needing help after publication would be a future problem. That difference affects what the school should do now.",
+    "signalQuestion": "Constraint state to examine",
+    "rhythmTitle": "The timing can change the best response",
+    "rhythmText": "Track the precursor, formation, impact, detection, diagnosis, intervention, result check and what later work learns from it. Prevention or preparation may remove burden that a faster repair leaves intact. A small present repair can also be enough when the future consequence is minor and reversible.",
+    "practice": "Map one constraint and its possible successor",
+    "practiceIntro": "Use an actual outcome and distinguish what is happening from what you predict. Keep only future constraints that can change a decision or a preparation.",
+    "private": "This private note is optional. The six required course questions are separate.",
+    "save": "Save private note",
+    "saving": "Saving private note",
+    "retry": "Retry the same save",
+    "done": "Private note saved",
+    "missing": "Add one note before saving.",
+    "length": "This full note is over 2,000 characters. Shorten it to save; all of your text stays here.",
+    "source": "Manuscript, page 66",
+    "sourceQuote": "Constraint field and bottleneck lifecycle\nFor each consequential constraint, record its evidence, whether it limits the outcome\nnow, who can change it, and the time and resources a change requires. Distinguish a\npresent limit from one that is hidden, still forming or created by the proposed\nsolution. Several coupled limits may require a joint intervention.",
+    "sourceLocator": "Manuscript, page 66 (82-page source edition).",
+    "loadExample": "Load the example",
+    "sampleLoaded": "Example loaded. Replace it with your own observations when useful.",
+    "current": "Current",
+    "currentText": "If learners are already waiting for feedback, inspect the actual queue, the reviewers and the work needed for a useful response. Record who can change the condition and what resources that change needs.",
+    "hidden": "Hidden",
+    "hiddenText": "A queue does not by itself reveal why feedback is delayed. Availability, access, unclear responsibility or missing expertise could matter. Find the observation that distinguishes them before building a larger process.",
+    "forming": "Forming",
+    "formingText": "Wider publication may bring more attempts needing feedback. Preserve that as a conditional forecast. Compare the time needed to prepare with the likelihood and consequence of the demand, rather than treating every possible future problem as certain.",
+    "successor": "Created by a solution",
+    "successorText": "Adding reviewers may change the limit to coordination, consistency or appropriate access to learner work. Reusable examples and suitable reviewers can be investigated without promising unlimited help or assuming that more people solve every problem."
+  },
+  "feedback": {
+    "saved": "Your private note is saved.",
+    "unavailable": "Private saving is unavailable. Your note stays on screen.",
+    "missing": "Add one note before saving.",
+    "length": "Shorten the full note to fit the 2,000-character limit. Your text stays here.",
+    "conflict": "This note changed elsewhere. Your answers remain here; compare the saved version before saving again.",
+    "readFailure": "The saved note could not be loaded.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same note before changing it."
+  },
+  "fields": [
+    {
+      "id": "constraint",
+      "label": "The constraint, evidence, present effect, authority and resources"
+    },
+    {
+      "id": "state",
+      "label": "Is it current, hidden, forming or created by a solution?"
+    },
+    {
+      "id": "timing",
+      "label": "Where do formation, detection, diagnosis and response take time?"
+    },
+    {
+      "id": "choice",
+      "label": "What prevention, preparation or response is justified now?"
+    },
+    {
+      "id": "update",
+      "label": "What changed after the intervention, and what should be revised?"
+    }
+  ],
+  "example": {
+    "constraint": "Hypothetical example: wider publication of an exercise could increase the feedback work. The current amount of demand has not been measured here.",
+    "state": "Possible forming limit. Feedback capacity after wider publication is a forecast, not an observed queue.",
+    "timing": "Investigate how long it would take to prepare reusable examples or suitable additional reviewers before making a support promise.",
+    "choice": "Compare likely demand, consequence, preparation time and cost. Prepare the part that is useful across plausible outcomes instead of building every imagined response.",
+    "update": "After publication, compare actual attempts and feedback needs with the forecast. Revise or retire preparation that the evidence no longer supports."
+  },
+  "source": {
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/candidate134/course-input.json#/courses/8/lessons/10/body",
+    "canonicalBodyIdentity": "1f:4275fc996bd78ed6bc858d39eda2b8cf964276cf2dab2145a94627eede1cb689",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/147",
+    "assessmentIdentity": "1f:f5bb64b0e0e207badaa1775683d2122045ec689d6343b0715c391ffabb2d9a1a",
+    "assessmentBoundary": "Six required open-ended questions remain separate from this optional private note. No qualified semantic grade or actual learner outcome is supplied.",
+    "manuscriptPdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscriptPdfIdentity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPage": "Manuscript, page 66",
+    "manuscriptPageText": ".local/curriculum-continuation-20261028/M118-M120-next-unbuilt-source-mappings/source-pages-64-68.txt",
+    "manuscriptPageTextIdentity": "1f:d18801b6f27dd8211a85e81d2d37999cdec67e0984f09fbd19ca7a8d5e549187"
+  },
+  "modes": [
+    {
+      "id": "current"
+    },
+    {
+      "id": "hidden"
+    },
+    {
+      "id": "forming"
+    },
+    {
+      "id": "successor"
+    }
+  ]
+}

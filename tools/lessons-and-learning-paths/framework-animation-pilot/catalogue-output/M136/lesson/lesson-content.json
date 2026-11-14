@@ -1,0 +1,88 @@
+{
+  "title": "Complete Human Profile",
+  "opening": "Start with a choice you are actually making. Gather the parts of your situation that could change it, and keep what you observed separate from what you have been told, inferred or still do not know.",
+  "labels": {
+    "comparison": "What does this choice depend on?",
+    "comparisonIntro": "Suppose someone can build a prototype but has little time to maintain it. That demonstrated coding skill does not establish that they can run a service every week. Examine the operating work before deciding what commitment to make.",
+    "adherence": "An observation",
+    "value": "A report or inference",
+    "outcome": "An unknown",
+    "adherenceText": "A completed prototype shows a capability under the conditions in which it was built. Keep the date and context with that observation. It does not prove every future capacity.",
+    "valueText": "A stated preference is a report to consider, and a guess about capacity remains an inference. Compare each with later choices or attempts before treating it as settled. Other people’s agreements belong in their own words when available.",
+    "outcomeText": "The time needed for ongoing support may still be unknown. Record the question and what would help answer it. An unknown is not a zero or evidence that the person is incapable.",
+    "signalQuestion": "Explore a part of the explanation",
+    "rhythmTitle": "Bring the relevant parts of life into the same choice",
+    "rhythmText": "Consider current physical capacity, knowledge and skills, feelings or recurring reactions, available tools and resources, and what other people have agreed to. Put values, goals and pursuits beside those conditions. Include effects on sleep, friendship, money and valued activities, then name the commitment you actually intend. A simple choice may need one fact; this is not a demand to collect a complete personal history or score a person.",
+    "practice": "Examine the information this choice needs",
+    "practiceIntro": "Keep only information relevant to your decision. You can leave a question open and return with a dated observation; private information about other people is not required.",
+    "private": "This private note is optional. The six course questions remain separate.",
+    "save": "Save private note",
+    "saving": "Saving private note",
+    "retry": "Retry the same save",
+    "done": "Private note saved",
+    "missing": "Add one note before saving.",
+    "length": "This full reflection is over 2,000 characters. Shorten it to save; all of your text stays here.",
+    "source": "Manuscript, pages 63–64",
+    "sourceQuote": "Populate it from what you do as well as what you say. A completed project shows a\ncapability under particular conditions. A repeated difficulty shows a question to\ninvestigate. A newly stated preference may be worth testing before treating it as a\npermanent value. Keep the date and context with the observation so the profile can\nchange as the person changes.",
+    "sourceLocator": "Manuscript, p. 63, p. 64 (82-page source edition)",
+    "loadExample": "Load the example",
+    "sampleLoaded": "Example loaded. Use your own situation when you are ready."
+  },
+  "feedback": {
+    "saved": "Your private note is saved.",
+    "unavailable": "Private saving is unavailable. Your reflection stays on screen.",
+    "missing": "Add one note before saving.",
+    "length": "Shorten the full draft to fit the 2,000-character limit. Your text stays here.",
+    "conflict": "This reflection changed elsewhere. Your answers remain here; compare the saved version before saving again.",
+    "readFailure": "The saved note could not be loaded.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same reflection before changing it."
+  },
+  "fields": [
+    {
+      "id": "qualities",
+      "label": "The choice and commitment you are considering"
+    },
+    {
+      "id": "contribution",
+      "label": "Relevant conditions you have observed, with date and context"
+    },
+    {
+      "id": "avoid",
+      "label": "Reports or inferences, identified as such"
+    },
+    {
+      "id": "present",
+      "label": "What is unknown and could change the choice"
+    },
+    {
+      "id": "connection",
+      "label": "Values, goals, other agreements and whole-life effects"
+    },
+    {
+      "id": "change",
+      "label": "What to investigate or revise before committing"
+    }
+  ],
+  "example": {
+    "qualities": "Suppose I am deciding whether to test a small service or promise a year of operation.",
+    "contribution": "I completed one prototype in a quiet weekend. That shows what I built under those conditions.",
+    "avoid": "I think I would enjoy supporting users, but that preference has not been tested.",
+    "present": "I do not yet know how much weekly support it would need.",
+    "connection": "I want the project to be useful while keeping existing work and time with friends. Nobody else has agreed to provide support.",
+    "change": "Investigate the operating work and decide whether a small test, reuse or a different arrangement fits."
+  },
+  "source": {
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/candidate134/course-input.json#/courses/7/lessons/40/body",
+    "canonicalBodyIdentity": "1f:65c12e310011b2791494ce8c75607469fff659e4bf724182547bdbc9fa3fb983",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/140",
+    "assessmentIdentity": "1f:05004fb81a6479d65856d9251b604c434ba2e84c11c231ca41eca0d3420f2dc5",
+    "assessmentBoundary": "Six required open-ended assessment questions remain separate from this optional private reflection. No qualified semantic grade or evidence of learner effectiveness is supplied.",
+    "manuscriptPdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscriptPdfIdentity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPage": "p. 63, p. 64 (82-page source edition)",
+    "manuscriptPageText": ".local/curriculum-continuation-20261028/M118-M120-next-unbuilt-source-mappings/source-pages-63-64.txt",
+    "manuscriptPageTextIdentity": "1f:cd3bd40473d7e396499c2949f9110b9fa82da9c579ba3e2faa0cd270835110e1"
+  }
+}

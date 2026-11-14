@@ -1,0 +1,64 @@
+{
+  "title": "Natural Focus Observation",
+  "opening": "Absorption can serve one purpose and pull you away from another. Compare what happened before deciding what to change.",
+  "labels": {
+    "examples": "Two absorbed episodes",
+    "compare": "Compare",
+    "notice": "Record an episode",
+    "choose": "Choose a next step",
+    "purpose": "What were you trying to do?",
+    "useful": "Useful for the chosen purpose",
+    "unclear": "Not sure yet",
+    "save": "Save my private notes",
+    "busy": "Saving notes",
+    "retry": "Retry the same save",
+    "source": "Source actions",
+    "episodeA": "Episode 1",
+    "episodeB": "Episode 2",
+    "comparison": "What differs?",
+    "result": "What did each episode serve or displace?",
+    "revision": "What condition might be worth changing?",
+    "step": "What is a small next action?"
+  },
+  "steps": {
+    "notice": { "label": "Notice", "description": "Start with one recent episode. Note its setting, your physical and emotional state, how it began, what helped it continue, and how it ended. A rough duration is enough if you remember it." },
+    "compare": { "label": "Compare", "description": "Put a second episode beside it when one is available. Compare what the attention served, what it displaced, and the conditions around the beginning, middle and end." },
+    "choose": { "label": "Choose next", "description": "Choose a condition only after comparing what matters. If one clear interruption already warrants action, you can act now; a week of notes is not a waiting rule." }
+  },
+  "examples": [
+    { "id": "design", "title": "Finishing a design detail", "description": "Purpose: Prepare a clear visual for a meeting.\nSetting and start: Quiet room; notes open; began after the question and the needed files were ready.\nWhat happened next: Stayed with the layout while the next change was obvious.\nDuration: About 22 minutes.\nEnding: Stopped when the visual answered the meeting question; the meeting notes were ready." },
+    { "id": "feed", "title": "Following a feed", "description": "Purpose: A quick check between tasks.\nSetting and start: Phone beside the work; opened after a notification; tired and tense.\nWhat happened next: One item led to another, though the original reason for opening it had passed.\nDuration: About 35 minutes.\nEnding: Stopped when a later appointment arrived; the next task started 12 minutes late." }
+  ],
+  "choices": [
+    { "id": "first", "label": "Episode 1 served the stated purpose", "description": "That conclusion uses the purpose and what happened at the end. The amount of absorption alone did not decide it." },
+    { "id": "second", "label": "Episode 2 served the stated purpose", "description": "Check this against what the episode was for and what it displaced. Strong absorption by itself does not establish usefulness." },
+    { "id": "both", "label": "Both served different purposes", "description": "Other purposes may matter too. In this example, the stated quick check had passed, the feed continued, and the next task started 12 minutes late; those details do not show that the feed served another purpose." },
+    { "id": "unclear", "label": "I need more context", "description": "Keep the uncertainty. A description can be useful without forcing a verdict." }
+  ],
+  "practice": {
+    "prediction": "Name the activity and what you hoped it would do. Do not label yourself as focused or unfocused.",
+    "observation": "Episode 1: note the activity, setting, physical and emotional state, how it began, what helped it continue, how it ended, and an approximate duration if known.",
+    "comparison": "Episode 2: describe a naturally absorbing episode for comparison. If none comes to mind, write what detail you would capture next time; do not interrupt an activity to measure it.",
+    "result": "Compare the two: what did each serve, and what did it displace? Which conditions differed around the beginning, persistence or ending? Mark what you do not know.",
+    "revision": "Choose one condition that may be worth changing, or say why no change is warranted yet. Similar episodes suggest a condition to examine; they do not prove a cause.",
+    "step": "Name one small next action and what you would look for afterward. If a clear interruption already calls for a change, act on it now; otherwise gather a few useful examples over time. If recording gets in the way, shorten the notes to details that change a decision."
+  },
+  "feedback": {
+    "unavailable": "Saving is unavailable for this lesson. Your notes remain on screen.",
+    "missing": "Complete each note; for a second episode you cannot recall, say what detail you will capture next time.",
+    "length": "Keep each answer within 2,000 characters.",
+    "readFailure": "Your saved notes could not be loaded. Your current notes remain here.",
+    "saved": "Your notes are saved privately.",
+    "conflict": "These notes changed elsewhere. Your answers remain here. Save again to keep these answers.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is still unresolved. Retry the same answers before changing them."
+  },
+  "source": {
+    "sourceRecord": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/3/lessons/44/body",
+    "retainedAssessmentSource": "content-drafts/framework-library-2026-10-24/community-config.json#/courses/2/lessons/33/body",
+    "sourceSpanBindings": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/source-span-bindings.json#M041",
+    "manuscript": "Recovered manuscript locator: p. 34 in the cited 82-page edition. The manuscript PDF is not present in the inspected Trillion source tree; exact page contents were not independently checked here.",
+    "limits": "Examples are instructional illustrations, not observed outcomes. Comparing episodes suggests conditions, not causes. Duration is a description, not a measure of value or attention."
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "title": "Friction Spotting & Dissolving",
+  "opening": "When a task feels blocked, separate what you feel, what you think it means, and what the task actually requires. Each can point to a different next step.",
+  "labels": {
+    "example": "Fill blank notes with the example",
+    "interpretation": "The thought is the main lead",
+    "obstacle": "A practical condition is missing",
+    "step": "What moment of resistance are you looking at?",
+    "observation": "What bodily sensation did you notice?",
+    "revision": "What thought or distinction came with it?",
+    "zoom": "What does that thought assume?",
+    "comparison": "What does the task actually require, and what is available?",
+    "alternative": "Given both, what could you do, change, check, or stop?",
+    "save": "Save private notes",
+    "retry": "Retry private save",
+    "busy": "Saving notes",
+    "source": "Read the source wording"
+  },
+  "example": {
+    "title": "One task, two possible causes",
+    "task": "A teammate has asked for a short audio update.",
+    "interpretation": {
+      "thought": "If the recording sounds rough, they will think I am careless.",
+      "condition": "A working microphone is available and the update can be recorded.",
+      "response": "Check whether the prediction is supported. You might record a brief draft, ask what format is useful, or decide the task is not worth its cost. Feeling nervous can remain while you act."
+    },
+    "obstacle": {
+      "thought": "I cannot make the update without a microphone.",
+      "condition": "There is no usable microphone in the current setup.",
+      "response": "The resource gap is real. Borrow a microphone, change to a format that works, arrange access, ask for more time, or stop if the requirement cannot be met. Reframing alone does not supply the tool."
+    }
+  },
+  "messages": {
+    "capacity": "Your notes are private to this practice. Each field can hold up to 2,000 characters. Longer writing stays visible here, but cannot be saved until shortened.",
+    "length": "This note is over 2,000 characters. Shorten it to save; the full text is still here.",
+    "missing": "Add one concrete moment above to save. All other notes can stay blank.",
+    "saved": "Private practice notes saved. You can reopen them to review or revise.",
+    "conflict": "These notes changed elsewhere. Your text remains here; review it before saving again.",
+    "saveFailure": "The save is uncertain. Retry the same save to check it.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save."
+  },
+  "sourceQuote": "When resistance appears, notice the bodily sensation and the thought or distinction involved. Examine the thought, then let the response follow what you now see. A practical obstacle may need action.",
+  "sourceLocator": "Manuscript, p. 44. This wording is source text; the example and practice notes above are instructional expansion.",
+  "source": {
+    "courseId": "emotional",
+    "lessonId": "M089",
+    "courseRecord": "/courses/4/lessons/44",
+    "courseBody": "/courses/4/lessons/44/body",
+    "courseIdentity": "1f:327d393153a6a4476ac71f59334341adf7e9ee0ce5a7d53f783ff9ac3e97b88e",
+    "assessmentRecord": "/courses/3/lessons/42",
+    "assessmentBodyIdentity": "1f:327d393153a6a4476ac71f59334341adf7e9ee0ce5a7d53f783ff9ac3e97b88e",
+    "assessmentIdentity": "1f:c31af5acf0bc129fa9990f2499521da834473305de9afe7942b3603d7de7dd5c",
+    "manuscript": {
+      "path": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+      "blake3": "d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+      "page": 44,
+      "editionPages": 82,
+      "pageText": {
+        "path": "framework-animation-pilot/catalogue-output/M089/lesson/proof/source-page-44/page-44.txt",
+        "bytes": 2623,
+        "blake3": "aa73fec606469c9b5f8160e978859a7a2947f386da569eaf109fff6361199022"
+      }
+    },
+    "practiceContract": {
+      "fields": ["step", "observation", "revision", "zoom", "comparison", "alternative"],
+      "required": ["step"],
+      "optional": ["observation", "revision", "zoom", "comparison", "alternative"],
+      "limitCharactersPerField": 2000
+    }
+  }
+}

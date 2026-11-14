@@ -1,0 +1,52 @@
+{
+  "title": "“Because Of” Audit: Daily Actions",
+  "opening": "An action, its expected reward, surrounding pressure and the reason you give can differ. Review them as separate evidence; a motive is a possibility to examine, not a verdict to invent.",
+  "labels": {
+    "example": "Compare an expected result with what you say",
+    "exampleAction": "Example action",
+    "exampleReward": "Possible expected reward",
+    "exampleReason": "An honest explanation",
+    "practice": "Review one day",
+    "practicePrompt": "A complete audit covers three to five significant actions or decisions, including one you avoided. You can save a partial draft and return.",
+    "actions": "What did you do or decide? List each on a new line and mark the action you avoided.",
+    "reasons": "Why might each action have happened? Note the expected outcome, pressure or consequence; keep possible motives separate from what you know.",
+    "ownSake": "Which one will you examine? Would you do it for its own sake? What would change if you did?",
+    "tomorrow": "Which action will you take tomorrow based on this review?",
+    "private": "Saved drafts are private. Leave names and other identifying details out unless you need them.",
+    "save": "Save private audit draft",
+    "saving": "Saving private draft",
+    "retry": "Retry the same save",
+    "source": "Source passage",
+    "sourceHint": "Supplied recovered manuscript, p. 45 (82-page source edition)."
+  },
+  "example": {
+    "action": "Publish a lesson to attract students.",
+    "reward": "Students may find the lesson; paid enrollment could support the work.",
+    "reason": "I want students to find this lesson, and I hope enrollment can support the work.",
+    "reading": "Wanting an external result does not by itself make an action dishonest. Compare the reward you expect with the reason you present. If you are unsure, keep that question open instead of claiming to know a hidden motive.",
+    "nearMiss": "Payment alone does not prove an action was inauthentic. A practical constraint or another consequence may also shape a choice.",
+    "boundary": "This is an editable illustration, not a report about your motives. Changes here are not saved to your private audit."
+  },
+  "source": {
+    "quote": "“Because Of” Audit: Daily Actions\n1. List three to five significant actions or decisions from the day, including an action you avoided.\n2. Ask why you took or avoided each. Identify the expected outcome, pressure or consequence.\n3. Choose one and ask whether you would do it for its own sake, and what would change if you did.\n4. Choose an action for tomorrow from what that examination reveals.",
+    "attribution": "Supplied recovered manuscript; authorship or adoption of every wording is not independently established.",
+    "boundary": "This action audit is distinct from the worth audit, which examines conditions attached to mattering. Do not treat an external reward as proof of dishonesty, infer a hidden motive with certainty, or ignore practical constraints."
+  },
+  "feedback": {
+    "unavailable": "Private audit saving is unavailable. Your draft remains on screen.",
+    "missing": "Add a note before saving, or leave the draft unsaved.",
+    "length": "This saved audit draft exceeds 2,000 characters. Its text is still here; trim details you do not need.",
+    "readFailure": "The saved audit draft could not be loaded. Your current text remains on screen.",
+    "saved": "Your private audit draft is saved.",
+    "conflict": "This audit changed elsewhere. Your draft remains here; review the saved version before saving again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry the same audit draft.",
+    "retryPending": "The earlier save is unresolved. Retry the same draft before changing it."
+  },
+  "practice": {
+    "actions": "",
+    "reasons": "",
+    "ownSake": "",
+    "tomorrow": ""
+  }
+}

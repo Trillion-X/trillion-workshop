@@ -1,0 +1,88 @@
+{
+  "title": "Wholeness Goal Brainstorm",
+  "opening": "Look at the life your goals include and what they leave out. Decide whether an omission is unwanted, then choose a goal, a changed arrangement or protected participation where it helps.",
+  "labels": {
+    "comparison": "Protect friendship without turning it into a score",
+    "comparisonIntro": "A person protects work and training time but leaves no room for ordinary time with friends. Compare that unwanted omission with a deliberate short period of focus before deciding what needs to change.",
+    "adherence": "Current goals",
+    "value": "Omission or focus",
+    "outcome": "Changed arrangement",
+    "adherenceText": "Work and training receive time and attention. A goal list can make sense item by item while collectively leaving out something valued.",
+    "valueText": "Missing friend time may be an unwanted imbalance, or a deliberate temporary focus. Inspect actual experience and values; an empty category alone does not establish a defect.",
+    "outcomeText": "Protect an unstructured evening with friends if that serves the life intended. Participation need not become a friendship performance metric; check whether the new arrangement supports it.",
+    "signalQuestion": "Choose a part of the comparison",
+    "rhythmTitle": "A fuller life does not require a target for everything",
+    "rhythmText": "Consider relevant life dimensions and paired experiences without forcing every category into a goal. Do not manufacture adversity or score your wholeness. A narrow season can be deliberate. If a new target crowds out the experience it was meant to support, change its form.",
+    "practice": "Examine one valued omission",
+    "practiceIntro": "Use only the fields that clarify your question. A partial private note is fine; observations, assumptions and desired outcomes need not be complete before you can keep them.",
+    "private": "This optional private reflection is separate from the six required assessment questions.",
+    "save": "Save private reflection",
+    "saving": "Saving private reflection",
+    "retry": "Retry the same save",
+    "done": "Reflection saved",
+    "missing": "Add one reflection before saving.",
+    "length": "This full reflection is over 2,000 characters. Shorten it to save; all of your text stays here.",
+    "source": "Manuscript, page 61",
+    "sourceQuote": "Wholeness Goal Brainstorm\nExamine which life dimensions and paired experiences your goals include or leave\nout. Choose where a goal could address a real imbalance.",
+    "sourceLocator": "Manuscript, p. 61 (82-page source edition)",
+    "loadExample": "Load the example",
+    "sampleLoaded": "Example loaded. Replace its details with your own if useful."
+  },
+  "feedback": {
+    "saved": "Your private reflection is saved.",
+    "unavailable": "Private saving is unavailable. Your reflection stays on screen.",
+    "missing": "Add one reflection before saving.",
+    "length": "Shorten the full draft to fit the 2,000-character limit. Your text stays here.",
+    "conflict": "This reflection changed elsewhere. Your answers remain here; compare the saved version before saving again.",
+    "readFailure": "The saved note could not be loaded.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same reflection before changing it."
+  },
+  "fields": [
+    {
+      "id": "qualities",
+      "label": "Current goals or commitments"
+    },
+    {
+      "id": "contribution",
+      "label": "Experiences and life dimensions they include"
+    },
+    {
+      "id": "avoid",
+      "label": "Something valued they leave little room for"
+    },
+    {
+      "id": "present",
+      "label": "Why the omission is unwanted, deliberate or still uncertain"
+    },
+    {
+      "id": "connection",
+      "label": "A goal, changed arrangement or participation to protect"
+    },
+    {
+      "id": "change",
+      "label": "A check that would show whether the change helps"
+    }
+  ],
+  "example": {
+    "qualities": "Keep progressing at work and train three evenings each week.",
+    "contribution": "Achievement, skill development and physical activity.",
+    "avoid": "Unstructured time with friends.",
+    "present": "The current pattern has lasted months and I miss ordinary shared time. It is not just a chosen short work season.",
+    "connection": "Protect one evening without a performance target; discuss a suitable time with friends.",
+    "change": "Notice whether we can spend time together without the new arrangement adding pressure or crowding out rest."
+  },
+  "source": {
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/delivery-history/93ccacfc335e21eaa9a1652a89d9e324b5af0faa6940ff3f4cb9e45b5982b622/course-input.json#/courses/7/lessons/27/body",
+    "canonicalBodyIdentity": "1f:2bd70438c5092f883aec0dd2bb05109399e8c2133f81a4b8b5dac3b309fcab95",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/130",
+    "assessmentIdentity": "1f:1863359c1c8898bcca528df3c671f790ea8049f88d3e64d65c9afcec13b552cf",
+    "assessmentBoundary": "Six required open-ended assessment questions remain separate from this optional private reflection. No qualified semantic grade or evidence of learner effectiveness is supplied.",
+    "manuscriptPdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscriptPdfIdentity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPage": "p. 61 (82-page source edition)",
+    "manuscriptPageText": ".local/curriculum-continuation-20261028/M118-M120-next-unbuilt-source-mappings/source-pages-59-61.txt",
+    "manuscriptPageTextIdentity": "1f:f1d9ce4955a55154c4729b632c7de40dd78ed10d5aa776c56027d911f3c41a18"
+  }
+}

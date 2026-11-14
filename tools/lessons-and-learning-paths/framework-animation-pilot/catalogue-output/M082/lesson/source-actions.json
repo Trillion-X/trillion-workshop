@@ -1,0 +1,134 @@
+{
+  "currentCourseInput": {
+    "path": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/4/lessons/37/body",
+    "inputBytes": 1022491,
+    "inputBlake3": "8d96362acb175da7444105aea071c62ab89ecaecb8ec481eb2cf53840d543af4",
+    "resolvedId": "M082",
+    "title": "Amplifying Perceived Value Techniques",
+    "bodyIdentity": "1f:4327b911a19b722c842557b93e17186e143356be5dde2f717f65fa4643ec3e54",
+    "body": "# M082 · Amplifying Perceived Value Techniques\n\n**Practices · Emotional · Practice / tool**\n\nSource status: Recovered manuscript\n\n> The explanation follows the cited sources. Examples, practice questions and application guidance are authored for this expansion unless identified as source material. Illustrations are not observed outcomes.\n\n## 1. See it\n\nYou are absorbed in repetitive corrections and no longer notice who benefits when the explanation becomes usable.\n\n## 2. What it is\n\nA way to reconnect a pursuit with its core value, concrete effects, wider contribution or actual progress when that value has become hard to see.\n\n## 3. Why it exists\n\nIt restores a view of what the work genuinely enables, rather than demanding enthusiasm by force.\n\n## 4. First principles and mechanism\n\nAttention can narrow to immediate cost. Relevant examples or actual progress can restore omitted value, but cannot make an ineffective activity valuable by rhetoric.\n\n## 5. When to use it\n\n**Use:** Use when the pursuit’s value is supported but temporarily obscured.\n\n**Do not use it this way:** Do not fabricate impact, manipulate yourself with grandiose claims or retain a pursuit whose value has genuinely disappeared.\n\n**What you need:** Concrete outcomes, beneficiaries or progress that are actually supported.\n\n## 6. How to use it\n\nSource-informed application guidance. Where the source supplies a sequence, its meaning is retained; additional setup, examples and checks are instructional expansion, not newly attributed original doctrine. Original wording is available in the source panel.\n\n1. Name the core value.\n2. Inspect concrete effects and any wider contribution.\n3. Review real progress and what remains unresolved.\n4. Decide whether the restored view justifies continuing or whether the arrangement still needs change.\n\n## 7. Watch it happen\n\nIllustration: an instructor sees a learner independently use the corrected method. That observation can make the tedious revision’s purpose visible. A projected claim of helping millions cannot substitute for the actual result.\n\n**Comparison or near miss:** Reducing unnecessary difficulty may be more useful than highlighting value when the value is already clear.\n\n## 8. Now you do it\n\n**Try it now:** Find one actual effect that explains why the work matters.\n\n**Guided question:** Is an inspiring hypothetical outcome enough to claim the work already has that value?\n\n**Model answer:** No. Keep possibility and achieved contribution separate.\n\n**Independent transfer:** Apply the practice to maintaining a useful result, not only creating something new.\n\n## 9. How you know\n\n**Learner check:** You can reconnect to value without inflating claims.\n\n**Outcome check:** The clearer view supports a justified action or a justified decision to change.\n\n**What would change the account:** If the claimed benefit is contradicted by actual use, revise the pursuit.\n\n## 10. Connect and multiply\n\n- **supports [Value > Suffering](M070.md)** — Clarifies the value side.\n- **uses [Agency / Meaningful Capability Expansion (MCE)](A04.md)** — Asks what capability matters to the recipient.\n- **requires [Fact or cap](M021.md)** — Checks impact claims.\n\n## 11. Original sources and revisions\n\n**Manuscript locator:** p. 43 (82-page source edition).\n\n**[S01] Manuscript — 82-page edition.** Supplied manuscript; authorship/adoption of every wording is not independently established. File: `sources/Manuscript.pdf`.\n\nExpansion edition: 2026-10-24. These teaching materials have been source-checked and structurally inspected; independent learner effectiveness has not been measured in this production run.\n"
+  },
+  "assessment": {
+    "path": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/81",
+    "identity": "1f:72edd18fd7dbd941c8ed1057c21e09c8c2cc87c4f4a6e10aeb1b84c333ad024f",
+    "sourceBodyIdentity": "1f:4327b911a19b722c842557b93e17186e143356be5dde2f717f65fa4643ec3e54",
+    "sourceBodyLocation": "../community-config.json#/courses/3/lessons/35/body",
+    "practiceAdd": {
+      "operation": "add",
+      "prompt": "Explain M082 (Amplifying Perceived Value Techniques) from memory.",
+      "answer": "A way to reconnect a pursuit with its core value, concrete effects, wider contribution or actual progress when that value has become hard to see.",
+      "why": "It restores a view of what the work genuinely enables, rather than demanding enthusiasm by force.",
+      "deck": "framework-library",
+      "source_ref": "M082"
+    },
+    "questions": [
+      {
+        "questionId": "m082-recall",
+        "questionTypeId": "long-text",
+        "label": "Without reopening M082 (Amplifying Perceived Value Techniques), explain what it does and how its parts work together.",
+        "required": true
+      },
+      {
+        "questionId": "m082-application",
+        "questionTypeId": "long-text",
+        "label": "Apply the source practice: Find one actual effect that explains why the work matters.",
+        "required": true
+      },
+      {
+        "questionId": "m082-guided-question",
+        "questionTypeId": "long-text",
+        "label": "Answer the source’s guided question: Is an inspiring hypothetical outcome enough to claim the work already has that value?",
+        "required": true
+      },
+      {
+        "questionId": "m082-learner-check",
+        "questionTypeId": "long-text",
+        "label": "Self-check against the source: You can reconnect to value without inflating claims.",
+        "required": true
+      },
+      {
+        "questionId": "m082-outcome-check",
+        "questionTypeId": "long-text",
+        "label": "Check the outcome using the source criterion: The clearer view supports a justified action or a justified decision to change.",
+        "required": true
+      },
+      {
+        "questionId": "m082-account-change",
+        "questionTypeId": "long-text",
+        "label": "Consider what would change the source account: If the claimed benefit is contradicted by actual use, revise the pursuit.",
+        "required": true
+      }
+    ],
+    "answerPolicy": "Open-ended responses have no stored gold answer. The practice card answer is the exact source definition reference only. The learner’s own AI supplies any practice grade; its semantic judgment is unqualified. Syntactic validity is not evidence of understanding, transfer, or outcome success."
+  },
+  "reconciliation": {
+    "path": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/reconciliation.json#/library_entries/81",
+    "id": "M082",
+    "title": "Amplifying Perceived Value Techniques",
+    "originalBodyPreserved": true,
+    "sourceRefs": [
+      "M082"
+    ],
+    "prerequisites": [],
+    "prerequisiteStatus": "Source-stated conceptual support is attached; no blanket course-completion prerequisite is imposed.",
+    "conceptualPrerequisites": [
+      {
+        "source_id": "M021",
+        "evidence": "Checks impact claims.",
+        "locator": {
+          "path": "Downloads/Trillion X Framework Library.md",
+          "anchor": "m082",
+          "section": "10. Connect and multiply",
+          "line": 7237,
+          "raw_line": "- **requires [Fact or cap](#m021)** — Checks impact claims."
+        },
+        "use_scope": "Evidence-checking input where concrete impact or progress is asserted.",
+        "status": "explicit_expanded_library_relationship_not_universal_mastery_gate"
+      }
+    ]
+  },
+  "manuscript": {
+    "path": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "page": 43,
+    "edition": "82-page supplied source edition",
+    "bytes": 1151040,
+    "blake3": "d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "excerpt": "Reconnect the pursuit with its core value, concrete effects, wider contribution or recorded progress. Use evidence that restores the view of what matters.",
+    "scopeNote": "Supplied manuscript; authorship/adoption of every wording is not independently established."
+  },
+  "sourceActions": [
+    "Name the core value.",
+    "Inspect concrete effects and any wider contribution.",
+    "Review real progress and what remains unresolved.",
+    "Decide whether the restored view justifies continuing or whether the arrangement still needs change."
+  ],
+  "designReference": {
+    "sharedParts": [
+      "@trillion/ui Button",
+      "@trillion/ui Container",
+      "@trillion/ui DisclosureSection",
+      "@trillion/ui Text",
+      "@trillion/ui Textarea",
+      "useLessonPractice"
+    ],
+    "appearanceOwner": "Existing @trillion/ui and Screen Look bundle; no new appearance source.",
+    "anatomy": "Not used: the source mechanism is an evidence-based comparison, not a spatial mechanism; an Anatomy figure would decorate rather than clarify it.",
+    "registry": {
+      "twentyFirstDev": {
+        "query": "evidence based value progress comparison learner reflection UI",
+        "results": [
+          11889,
+          22025,
+          39916,
+          6186
+        ],
+        "note": "Results were progress and AI diff components, not a fit for this existing text-and-choice lesson; no code was retrieved or copied."
+      },
+      "mobbin": {
+        "query": "mobile lesson comparing evidence of value with unresolved facts",
+        "status": "unavailable",
+        "reason": "No Mobbin screen-search tool was exposed in this session."
+      }
+    }
+  }
+}

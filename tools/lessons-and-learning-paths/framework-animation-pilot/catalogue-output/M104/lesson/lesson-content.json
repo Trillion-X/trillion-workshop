@@ -1,0 +1,53 @@
+{
+  "title": "Novelty Injection / Novelty Challenge",
+  "opening": "An unfamiliar example can reveal a property your usual examples hide. The useful question comes after: what, specifically, does that property change here?",
+  "labels": {
+    "model": "Compare the input, then inspect what changes",
+    "question": "Current question",
+    "input": "Choose an input to examine",
+    "familiar": "Reread a familiar explanation",
+    "unfamiliar": "Examine a tactile puzzle",
+    "property": "Which property do you notice?",
+    "feedbackProperty": "Immediate feedback",
+    "appearanceProperty": "Puzzle color",
+    "result": "What does this change about your question?",
+    "transfer": "A possible lesson test",
+    "practice": "Make your own transfer",
+    "example": "Name a different unfamiliar example and one property it reveals.",
+    "change": "What does that property change about your question? If no useful link appears, say so.",
+    "private": "Optional private practice. It is separate from the six required formal assessment prompts.",
+    "save": "Save private attempt",
+    "saving": "Saving private attempt",
+    "done": "Saved",
+    "retry": "Retry private save",
+    "source": "Source passage",
+    "sourceHint": "Manuscript p. 55, 82-page edition.",
+    "sourceQuote": "Novelty Injection / Novelty Challenge: encounter something unfamiliar, then record what it lets you notice about the question.",
+    "sourceBoundary": "The recovered lesson uses the tactile puzzle to illustrate immediate feedback; it does not report a learner result. This transfer is a possibility to test.",
+    "nearMiss": "Novelty is optional. A familiar source examined deeply may answer the question already; unfamiliar material that is unsafe, irrelevant or delaying the work can be set aside."
+  },
+  "feedback": {
+    "saved": "Your private attempt is saved.",
+    "saveFailure": "The private attempt could not be saved. Your draft is still here; retry when ready.",
+    "conflict": "A newer saved version exists. Your draft is still here; compare it before saving again.",
+    "retryPending": "The earlier save may still be unresolved. Retry it before making another change.",
+    "length": "Shorten this private attempt to 2,000 characters or fewer. Your full draft is still here; nothing was saved.",
+    "missing": "Write at least one part of the attempt before saving. Your draft stays here."
+  },
+  "example": {
+    "question": "How could a lesson reveal what a learner expects to happen?",
+    "familiar": "Rereading may clarify a familiar explanation. If it already answers the question, more novelty is unnecessary.",
+    "puzzle": "In the recovered lesson's illustration, a teacher examines a tactile puzzle. The puzzle's immediate response to a move reveals a misunderstanding.",
+    "feedback": "Immediate feedback connects a choice to its result. A lesson could ask for a prediction, show the result, then ask what the learner noticed. This is a possibility to test, not a proven learning result.",
+    "appearance": "Color may be new, but no link to the learner's expectation has been stated. Novelty alone has not changed this question.",
+    "transfer": "A useful test would make the learner's prediction and the consequence observable, then inspect whether that answers the question."
+  },
+  "source": {
+    "locator": "p. 55 (82-page source edition)",
+    "pdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "pageText": "proof/source-pages/page-55.txt",
+    "manuscript": "Novelty Injection / Novelty Challenge: encounter something unfamiliar, then record what it lets you notice about the question.",
+    "attribution": "Supplied recovered manuscript; authorship/adoption of every wording is not independently established.",
+    "boundary": "The steps are source-informed; the teaching example and possible transfer are authored for this expansion. The illustration is not observed evidence of learner benefit."
+  }
+}

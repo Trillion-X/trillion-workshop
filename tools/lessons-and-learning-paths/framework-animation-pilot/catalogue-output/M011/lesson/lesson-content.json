@@ -1,0 +1,45 @@
+{
+  "title": "Inner/outer balance",
+  "opening": "When you hit a tennis ball, you can see where it goes and remember what you felt or noticed in your body during the swing. Compare those details before deciding what to work on; if one does not matter, leave it out.",
+  "sides": [
+    {
+      "id": "inner",
+      "label": "Within",
+      "description": "What did you feel or think as you played, or what did you notice in your body?"
+    },
+    {
+      "id": "outer",
+      "label": "Around you",
+      "description": "What happened around you at the same time? You can name the ball's path, a player's movement or a court condition."
+    }
+  ],
+  "initialSide": "inner",
+  "labels": {
+    "side": "Shift your attention",
+    "ownPursuit": "Your own situation",
+    "save": "Save reflection",
+    "busy": "Saving reflection"
+  },
+  "feedback": {
+    "missing": "Complete each reflection field before saving.",
+    "length": "Keep each answer within 2,000 characters.",
+    "readFailure": "Your saved reflection could not be loaded.",
+    "saved": "Your reflection is saved.",
+    "conflict": "This reflection changed elsewhere. Review it and save again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check it again.",
+    "saveFailure": "The save is still uncertain. Retry to check it safely.",
+    "retryPending": "Your earlier reflection is still being saved. Wait for its status before retrying.",
+    "unavailable": "Saving is unavailable for this lesson."
+  },
+  "ownPursuit": {
+    "prompt": "Choose a recent situation in your own pursuit. Write what you noticed in yourself and what was happening around you. Which part changes what you do next?",
+    "prediction": "What did you feel or think then, or what did you notice in your body?",
+    "observation": "What was happening around you in that same moment?",
+    "revision": "Do those details change what you think happened or what you would do next? If one part doesn't matter here, leave it out."
+  },
+  "accessibility": {
+    "side": "Shift attention between what you notice in yourself and what happens around you",
+    "ownPursuit": "Write and save a reflection about what you noticed in yourself and what was happening around you in a recent situation in your pursuit",
+    "figure": "Illustrative tennis point with two players, a court and a ball path."
+  }
+}

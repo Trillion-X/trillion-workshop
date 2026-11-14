@@ -1,0 +1,60 @@
+{
+  "title": "“Because Of” Audit",
+  "opening": "List the conditions you connect to mattering. Then inspect what each one does and what remains if it changes.",
+  "labels": {
+    "exampleHeading": "Compare two project outcomes",
+    "example": "Change the project result while keeping the same person in view. Then inspect the proposition below; the illustration does not answer it for you.",
+    "outcomeGroup": "Compare project outcomes",
+    "outcomeReady": "Launch succeeds",
+    "outcomeRepair": "Launch needs repair",
+    "outcomeCaptions": {
+      "ready": "This model shows the project ready to ship. The person figure stays the same.",
+      "repair": "This model shows a displaced project panel that needs repair. The person figure stays the same."
+    },
+    "propositionHeading": "Proposition to inspect",
+    "proposition": "“If this launch fails, I have no right to exist.”",
+    "propositionQuestion": "Does the changed project outcome establish this proposition? You may leave the question open.",
+    "tableHeading": "Your audit",
+    "reasonNumber": "Reason",
+    "addRow": "Add a reason",
+    "removeRow": "Remove this reason",
+    "empty": "No reasons listed. Add one whenever you are ready.",
+    "columnReason": "I matter because…",
+    "columnKind": "Is this conditional or intrinsic?",
+    "columnRemains": "What remains when this condition is removed?",
+    "reasonLabel": "Reason or condition",
+    "kindLabel": "How does it seem to fit?",
+    "kindOptions": {
+      "unmarked": "Undecided",
+      "conditional": "Conditional",
+      "intrinsic": "Intrinsic"
+    },
+    "kindHelp": "Conditional depends on an action or outcome; intrinsic rests on existence.",
+    "remainsLabel": "What remains if it changes or disappears?",
+    "noticeHeading": "Notice before trying to change it",
+    "notice": "Which conditions feel essential? How do they shape your feelings or decisions? You may leave any answer uncertain.",
+    "reflectionLabel": "Optional note about what you noticed",
+    "save": "Save private audit",
+    "retry": "Retry the same save",
+    "capacityNote": "Save limit: 2,000 characters. Longer drafts stay on screen until you shorten or remove text.",
+    "capacity": "This audit is over the 2,000-character save limit. Nothing was shortened; remove a reason or shorten text to save.",
+    "stopBoundary": "If this reflection feels difficult, pause and seek support where that would help."
+  },
+  "feedback": {
+    "unavailable": "Private practice saving is unavailable. Your draft remains on screen.",
+    "missing": "The audit could not be saved. Your draft remains on screen.",
+    "length": "This audit is over the 2,000-character save limit. Nothing was shortened; remove a reason or shorten text to save.",
+    "readFailure": "The saved audit could not be loaded. Your current draft remains on screen.",
+    "saved": "Your private audit is saved.",
+    "conflict": "This audit changed elsewhere. Your draft remains here; compare the saved version before saving again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same audit before changing it."
+  },
+  "source": {
+    "sourceRecord": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/4/lessons/4/body",
+    "manuscriptLocator": "p. 37 (82-page source edition)",
+    "distinctions": "The three source columns and five actions are preserved. Conditions are observations to inspect, not a diagnosis. A project may need repair or accountability; its result does not establish that a person lacks a right to exist.",
+    "limits": "The example is instructional material, not a learner result. The audit does not force a positive feeling, a conclusion, or a changed condition. Local Classroom evidence does not establish effectiveness, author acceptance or live canonical readback."
+  }
+}

@@ -1,0 +1,117 @@
+{
+  "title": "Input → Process → Output",
+  "opening": "The computer changes “hello” to “HELLO” when you ask for capital letters. The word you typed is the input, the instruction is part of the process, and the letters on the screen are the output.",
+  "labels": {
+    "comparison": "Trace the same recording process",
+    "comparisonIntro": "The thought and recording process stay the same. Change whether the input includes a useful example and a reader’s question.",
+    "signalQuestion": "Choose the input to inspect",
+    "practice": "Trace a real result",
+    "practiceIntro": "Describe what entered, what actually happened, and what came out. Then name the intended effect and one condition that could change the result.",
+    "private": "This private note is optional. The six required course questions are separate.",
+    "save": "Save private note",
+    "saving": "Saving private note",
+    "retry": "Retry the same save",
+    "done": "Private note saved",
+    "missing": "Add one note before saving.",
+    "length": "This full note is over 2,000 characters. Shorten it to save; all of your text stays here.",
+    "source": "Manuscript, page 70",
+    "sourceQuote": "To see how an interaction produces a result, separate what goes in, what happens to it and what comes out: Input → Process → Output. A ball arrives, you meet it with your racket, and it leaves on a different path. A thought comes to mind, you explain it through a real example, and you finish a video.\nWhen the result differs from what you wanted, examine the input and the process. What did you start with? What happened to it? What actually came out? Compare that with the result you wanted, change the relevant part and observe what happens on the next attempt. This gives you somewhere to look instead of simply demanding a better output.",
+    "sourceLocator": "Manuscript, page 70 (82-page source edition).",
+    "loadExample": "Load the example",
+    "sampleLoaded": "Example loaded. Replace it with your own observations when useful.",
+    "input": "Input",
+    "process": "Process",
+    "output": "Output",
+    "effect": "Intended effect",
+    "conditions": "Condition to inspect",
+    "incomplete": "Example or question missing",
+    "complete": "Example and question supplied",
+    "incompleteInput": "A thought: “Give a better explanation.” The source excerpt is incomplete, and the reader’s question is unstated. No real example is ready.",
+    "completeInput": "A thought: explain how a process changes an input into an output. The relevant source passage, one real example and the reader’s question are ready.",
+    "sameProcess": "Record an explanation as a video.",
+    "sameOutput": "A video file is produced.",
+    "incompleteEffect": "The video exists, but the missing example may leave it unclear. Whether a reader can use it is not observed.",
+    "completeEffect": "The video exists. Check whether the example answers the stated question; the file alone still does not show that a reader understood it.",
+    "conditionText": "The example and reader’s question are relevant input conditions. A polished recording cannot establish an unresolved thought as true.",
+    "fields": {
+      "input": "What actually went in, including conditions and omissions",
+      "process": "What actually happened to it",
+      "output": "What came out as a file",
+      "effect": "What result you wanted and what evidence would show it",
+      "change": "Which relevant input or process would you change, and what would you inspect next?"
+    },
+    "computer": "The computer",
+    "message": "Message",
+    "computerControls": "Computer controls",
+    "capitals": "Capitals",
+    "power": "Power",
+    "computerOverview": "Computer overview",
+    "screenCloseup": "Screen close-up"
+  },
+  "feedback": {
+    "saved": "Your private note is saved.",
+    "unavailable": "Private saving is unavailable. Your note stays on screen.",
+    "missing": "Add one note before saving.",
+    "length": "Shorten the full note to fit the 2,000-character limit. Your text stays here.",
+    "conflict": "This note changed elsewhere. Your answers remain here; compare the saved version before saving again.",
+    "readFailure": "The saved note could not be loaded.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same note before changing it."
+  },
+  "fields": [
+    {
+      "id": "input",
+      "label": "What actually went in, including relevant conditions or omissions"
+    },
+    {
+      "id": "process",
+      "label": "What actually happened to the input"
+    },
+    {
+      "id": "output",
+      "label": "What came out, and how is it different from the intended effect?"
+    },
+    {
+      "id": "conditions",
+      "label": "What condition might change the result? What is observed and what is still unknown?"
+    },
+    {
+      "id": "next",
+      "label": "What would you change and inspect on the next attempt?"
+    }
+  ],
+  "example": {
+    "input": "A thought: “Give a better explanation.” The source excerpt is incomplete, the reader’s question is unstated, and no real example is ready.",
+    "process": "The explanation is recorded as a video.",
+    "output": "A video file exists. Whether a reader can use the explanation has not been checked.",
+    "conditions": "The missing example may leave the explanation unclear. The thought’s truth is still a separate question; polishing the video cannot settle it.",
+    "next": "Supply the relevant source, one real example and the reader’s question. Record again, then inspect whether the example answers that question. Ask a reader to use the explanation before claiming the effect."
+  },
+  "source": {
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/candidate137/course-input.json#/courses/9/lessons/3/body",
+    "canonicalBodyIdentity": "1f:1df2e673159799df849d79a9a87aaaa383b4dd1ae909db806e8bdd27aa22b9ec",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/153",
+    "assessmentIdentity": "1f:e82a10c9346ff571195eaaefd5601c54bc32a531e46dbd37af4af37f66ead6d3",
+    "assessmentBoundary": "Six required open-ended questions remain separate from this optional private note. No qualified semantic grade or actual learner outcome is supplied.",
+    "manuscriptPdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscriptPdfIdentity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPage": "Manuscript, page 70",
+    "manuscriptPageText": ".local/curriculum-continuation-20261028/M118-M120-next-unbuilt-source-mappings/source-pages-69-70.txt",
+    "manuscriptPageTextIdentity": "1f:7dec9c0b27c0f7e6315123c225ea1b6cb78fa8b76c178c2ca5bcd87c6deb45bb"
+  },
+  "modes": [
+    {
+      "id": "incomplete",
+      "label": "Example or question missing",
+      "input": "A thought: ‘Give a better explanation.’ The source excerpt is incomplete, and the reader’s question is unstated. No real example is ready.",
+      "effect": "The video exists, but the missing example may leave it unclear. Whether a reader can use it is not observed."
+    },
+    {
+      "id": "complete",
+      "label": "Example and question supplied",
+      "input": "A thought: explain how a process changes an input into an output. The relevant source passage, one real example and the reader’s question are ready.",
+      "effect": "The video exists. Check whether the example answers the stated question; the file alone still does not show that a reader understood it."
+    }
+  ]
+}

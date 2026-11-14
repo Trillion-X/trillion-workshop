@@ -1,0 +1,46 @@
+{
+  "title": "Environmental Design for Focus",
+  "opening": "You know the task: revise one paragraph to answer a reviewer’s request for an example. Phone alerts keep appearing, while the draft and pen sit off to the side. Change the desk and inspect what is ready to do.",
+  "labels": {
+    "arrangement": "Change one condition at a time",
+    "materials": "Put the draft and pen within reach",
+    "alerts": "Pause unrelated phone alerts",
+    "scene": "A seated writer revising a paragraph at a desk",
+    "task": "Task card",
+    "feedback": "Reviewer’s note",
+    "reviewerNote": "Could you add one concrete example?",
+    "unrelated": "Unrelated alerts",
+    "alertsOn": "Two unrelated alerts are visible on the phone.",
+    "alertsPaused": "Unrelated alerts are paused. The reviewer’s note remains available.",
+    "materialsReady": "The draft and pen are at the desk.",
+    "materialsAway": "The draft and pen are off to the side.",
+    "consequence": "What can you do from this arrangement?",
+    "skillBoundary": "The task and reviewer’s request are clear here. If the instructions were unclear, ask what the reader needs; if you did not know how to revise, practice that skill. A quieter desk cannot supply either one.",
+    "method": "Use the observations to check the room’s light and sound, tool access, physical boundaries, digital interruptions, and cues that start the task. Change one recurring obstacle or add one needed support, then compare later work and revise.",
+    "practice": "Keep a short private note",
+    "save": "Save my note",
+    "busy": "Saving note",
+    "retry": "Retry the same save"
+  },
+  "practice": {
+    "observation": "What has repeatedly helped or interrupted this task? Note the condition and when it occurs.",
+    "revision": "After changing one condition, what happened in later work? What would you keep or change next?"
+  },
+  "feedback": {
+    "unavailable": "Saving is unavailable for this lesson. Your note remains on screen.",
+    "missing": "Add a short observation and a later comparison, or leave the note on screen.",
+    "length": "Keep each answer within 2,000 characters.",
+    "readFailure": "Your saved note could not be loaded. Your current note remains here.",
+    "saved": "Your note is saved privately.",
+    "conflict": "This note changed elsewhere. Your answers remain here. Save again to keep these answers.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is still unresolved. Retry the same answers before changing them."
+  },
+  "source": {
+    "currentRecord": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/3/lessons/47",
+    "currentBody": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/3/lessons/47/body",
+    "currentBodyIdentity": "1f:114e6074a4e579a8ecf3aca94dd7c6cc40659cb178312d05ba832db78aca1726",
+    "status": "The desk and alert scene is an authored instructional example. It illustrates how materials and unrelated interruptions can change what is within reach; it does not establish a measured focus or task outcome. The reviewer’s feedback remains available."
+  }
+}

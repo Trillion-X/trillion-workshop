@@ -1,0 +1,51 @@
+{
+  "title": "Multi-perspective observation",
+  "opening": "From the player-side view, a shot can look unreachable. The wider view of that same point shows where the player started beside the shot's path, so you can compare the two before judging the play.",
+  "views": [
+    {
+      "id": "player",
+      "label": "Player-side view",
+      "description": "This view stays near the player's side of the court, where the shot can look unreachable."
+    },
+    {
+      "id": "wide",
+      "label": "Wider court view",
+      "description": "This wider view keeps the same point and shows the player's starting position beside the shot path."
+    }
+  ],
+  "initialView": "player",
+  "labels": {
+    "view": "Choose a view of the same point",
+    "ownPursuit": "Reflect on what each view shows",
+    "prediction": "Before you switch views, what do you expect the wider view to reveal?",
+    "observation": "What does the wider view make easier to see about the player's position and the shot?",
+    "revision": "What can you say about the point now, and what remains unknown from these views?",
+    "save": "Save reflection",
+    "busy": "Saving reflection"
+  },
+  "feedback": {
+    "missing": "Complete each reflection field before saving.",
+    "length": "Keep each answer within 2,000 characters.",
+    "readFailure": "Your saved reflection could not be loaded.",
+    "saved": "Your reflection is saved.",
+    "conflict": "This reflection changed elsewhere. Review it and save again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check it again.",
+    "saveFailure": "The save is still uncertain. Retry to check it safely.",
+    "retryPending": "Your earlier reflection is still being saved. Wait for its status before retrying.",
+    "unavailable": "Saving is unavailable for this lesson."
+  },
+  "ownPursuit": {
+    "prompt": "Compare both views of the same tennis point. Write what the wider view adds and what it still does not tell you.",
+    "prediction": "Before you switch views, what do you expect the wider view to reveal?",
+    "observation": "What does the wider view make easier to see about the player's position and the shot?",
+    "revision": "What can you say about the point now, and what remains unknown from these views?"
+  },
+  "accessibility": {
+    "view": "Choose between a player-side and a wider modeled view of the same tennis point",
+    "ownPursuit": "Write and save a reflection comparing what the wider view adds and what remains unknown",
+    "figure": {
+      "player": "Modeled tennis point from the player-side camera position, with both players and the ball path.",
+      "wide": "Modeled wider camera view of the same tennis point, showing the player's starting position beside the ball path."
+    }
+  }
+}

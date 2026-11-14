@@ -1,0 +1,71 @@
+{
+  "title": "Multidimensional Insight Stacking",
+  "opening": "Keep each method beside the examples that produced its finding. Repeated wording can share one origin, and different findings can both matter.",
+  "labels": {
+    "findings": "Candidate findings",
+    "method": "Which method produced this finding?",
+    "candidate": "What value or pattern did it suggest?",
+    "examples": "Which actual choices or memories support it?",
+    "context": "What was happening in this example?",
+    "origin": "Did another method use the same example or memory?",
+    "add": "Add a finding",
+    "remove": "Remove this finding",
+    "groups": "How does this finding fit? Choose every useful description.",
+    "repeated": "Repeated",
+    "specific": "Context-specific",
+    "conflict": "Surprising or conflicting",
+    "investigate": "Investigate the differences",
+    "contextDifference": "Could a difference in context explain the findings?",
+    "wording": "Could the question or wording have shaped the result?",
+    "constraints": "What limits or pressures were present?",
+    "preference": "What preference might explain it? Could both preferences be real?",
+    "account": "Write a qualified account that keeps unresolved differences visible",
+    "action": "What action or question could clarify the difference?",
+    "save": "Save private practice",
+    "busy": "Saving private practice",
+    "retry": "Retry the same save",
+    "private": "This practice is private to you.",
+    "oversize": "This complete answer is over the 2,000-character limit. Shorten it to save. Your full draft stays on screen.",
+    "needFindings": "Add at least one candidate finding before saving.",
+    "exampleTitle": "Illustrative comparison",
+    "sourceTitle": "Manuscript, page 40",
+    "sourceExcerpt": "Multidimensional Insight Stacking compares the methods themselves. Sort candidate values into repeated, context-specific and surprising or conflicting findings. Investigate the differences before merging them into a single account."
+  },
+  "groups": ["repeated", "specific", "conflict"],
+  "groupLabels": {
+    "repeated": "Repeated",
+    "specific": "Context-specific",
+    "conflict": "Surprising or conflicting"
+  },
+  "feedback": {
+    "unavailable": "Private practice saving is unavailable. Your work remains on screen.",
+    "missing": "Add a candidate finding before saving your private practice.",
+    "length": "Shorten the complete answer to fit the 2,000-character practice limit. Your text stays here.",
+    "readFailure": "The saved practice could not be loaded. Your current work remains on screen.",
+    "saved": "Your private practice is saved.",
+    "conflict": "This practice changed elsewhere. Your answers remain here; review the saved version before saving again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same answers before changing them."
+  },
+  "example": {
+    "title": "Example: Two findings, two contexts",
+    "first": "A journal review suggests solitude supports concentrated creation.",
+    "second": "A review of meaningful memories suggests shared work supports learning from others.",
+    "account": "The examples suggest both preferences may matter under different conditions. They do not establish one permanent identity or that these are independent sources.",
+    "action": "Compare a recent solo project with a collaborative one. Record what the task required and what you preferred in each."
+  },
+  "source": {
+    "sourceRecord": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/4/lessons/22/body",
+    "currentBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/4/lessons/22/body",
+    "currentBodyIdentity": "1f:c09a754739474c94976c7a06a599b25c9ef8c6ae479be1278168f9ee36e41b92",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/67",
+    "assessmentIdentity": "1f:8e7862aa5611743b6206453bef4cfe5eb4949124b0f44fed99658ae02b149d11",
+    "assessmentBodyIdentity": "1f:c09a754739474c94976c7a06a599b25c9ef8c6ae479be1278168f9ee36e41b92",
+    "assessmentBoundary": "Open-ended answers have no stored gold answer. Syntactic validity does not establish understanding, transfer or outcome success.",
+    "manuscriptArchiveMember": "Trillion_X_Framework_Library/sources/Manuscript.pdf, p. 40 (82-page source edition)",
+    "manuscriptTextMember": "Trillion_X_Framework_Library/community-config.json#/courses/3/lessons/21/body",
+    "distinctions": "Page 40 describes comparing methods, sorting candidate values as repeated, context-specific or surprising/conflicting, investigating differences, then merging into an account. The practice keeps original examples and shared origin visible so merging does not erase evidence or treat reused material as independent.",
+    "limits": "The supplied manuscript is the source; authorship or adoption of every wording is not independently established. The solitude/shared-work scenario is an authored illustration, not observed learner data. Private practice here does not establish independent learner effectiveness or author acceptance."
+  }
+}

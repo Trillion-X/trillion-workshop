@@ -1,0 +1,89 @@
+{
+  "title": "Question This Book",
+  "opening": "A method deserves the same scrutiny it asks you to use elsewhere. Put one real case beside the exact version you followed, then inspect what the method actually permits.",
+  "actions": [
+    { "id": "case", "title": "1. Find a case the map explains poorly or omits." },
+    { "id": "examine", "title": "2. Choose how to examine it: actual work, another person’s process or logical analysis." },
+    { "id": "assumption", "title": "3. Identify the assumption the mismatch challenges." },
+    { "id": "alternative", "title": "4. Look for another order, route or account that fits better." },
+    { "id": "uncertainty", "title": "5. Keep remaining uncertainty explicit." },
+    { "id": "change", "title": "6. State what survives the comparison and what should change." }
+  ],
+  "examples": [
+    {
+      "title": "Inspect the source before calling it a mismatch",
+      "description": "Suppose an eight-step method seems to call for another experiment, even though a reliable answer may already settle the question. Read the version you are using before calling this a mismatch. It may already let you reuse that answer. If it does, this case does not refute the method. If it requires another experiment, compare that route with checking the answer first. What question would the experiment still need to answer?"
+    }
+  ],
+  "steps": [
+    {
+      "id": "actions-heading",
+      "label": "Six steps for questioning a method",
+      "description": "Follow these steps with one case and the version of the method you are using."
+    },
+    {
+      "id": "source-condition",
+      "label": "What does your version say about existing answers?",
+      "description": "Read the version before you choose. If you have not checked it yet, leave the question open."
+    },
+    {
+      "id": "examination",
+      "label": "Choose one way to examine the case",
+      "description": "Choose actual work, another person’s process or logical analysis. These are alternative ways to investigate, not three required stages."
+    },
+    {
+      "id": "candidate-route",
+      "label": "Compare a candidate route",
+      "description": "Only if this exact version requires repetition, compare it with checking the existing answer first and testing only the question that remains open."
+    }
+  ],
+  "choices": [
+    { "id": "not-checked", "label": "I have not checked the exact version yet" },
+    { "id": "permits-reuse", "label": "It permits a reliable existing answer" },
+    { "id": "requires-repetition", "label": "It requires another experiment" },
+    { "id": "candidate-route", "label": "Check the existing answer first" }
+  ],
+  "practice": {
+    "title": "Question a method you can inspect",
+    "prompt": "Choose a sentence in a method and a specific case that could expose its limit. Use the exact version you can access. If you have not checked a fact, leave it unresolved in your answer.",
+    "step": "Name the case that the exact source version explains poorly or omits. Quote the relevant clause and identify the version.",
+    "result": "Choose actual work, another person’s process or logical analysis. What can that approach show, and what evidence have you actually inspected?",
+    "prediction": "What assumption would make the mismatch occur? Separate the assumption from what the source explicitly says.",
+    "alternative": "What other order, route or account might fit better? Compare it with the strongest version of the original, including its real exceptions.",
+    "observation": "What remains uncertain? Say whether the case applies, whether an exception may have been missed, or what you still need to inspect.",
+    "revision": "What survives the comparison, and what is the smallest change supported so far? Check the failed case and relevant useful cases the original already handled."
+  },
+  "labels": {
+    "save": "Save my practice",
+    "busy": "Saving practice"
+  },
+  "accessibility": {
+    "figure": "Illustration of a learner examining an open method book. The paths change with what the method allows.",
+    "conditions": "Choose what the exact method version says about reusing an existing reliable answer.",
+    "candidate": "Compare a candidate route only when the exact version requires repetition.",
+    "practice": "Six required fields apply the source actions to a case and its exact method version."
+  },
+  "caseStatus": {
+    "not-checked": "Read the exact version and its exceptions before deciding whether this case fits.",
+    "permits-reuse": "This case does not refute a version that already permits a reliable existing answer.",
+    "requires-repetition": "If the exact version requires repeating resolved work, the case challenges that requirement. It does not show that research itself is a problem.",
+    "candidate": "Check whether the existing answer fits this case. If it does, test only what remains unanswered before changing the method."
+  },
+  "feedback": {
+    "missing": "Complete each practice field before saving.",
+    "length": "Keep each answer within 2,000 characters.",
+    "readFailure": "Your saved practice could not be loaded.",
+    "saved": "Your practice is saved.",
+    "conflict": "This practice changed elsewhere. Review it and save again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check it again.",
+    "saveFailure": "The save is still uncertain. Retry to check it safely.",
+    "retryPending": "Your earlier practice is still being saved. Wait for its status before retrying.",
+    "unavailable": "Saving is unavailable for this lesson."
+  },
+  "source": {
+    "libraryBodyPath": "content-drafts/framework-library-2026-10-24/community-config.json#/courses/2/lessons/14/body",
+    "sourceActionsPath": "framework-animation-pilot/catalogue-output/M022/source-evidence/source-actions.json",
+    "sourceStatus": "Current expansion-record source; original-manuscript wording and author adoption are not independently authenticated by this lesson.",
+    "illustrationStatus": "The experiment example is hypothetical teaching material from the current expansion; it is not an observed outcome."
+  }
+}

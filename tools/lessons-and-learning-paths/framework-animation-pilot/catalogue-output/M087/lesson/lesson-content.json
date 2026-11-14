@@ -1,0 +1,49 @@
+{
+  "title": "Passion Integration in Your Awareness Journal",
+  "opening": "Keep a useful observation for the next time a pursuit’s value and difficulty change. You do not need to record every moment.",
+  "labels": {
+    "source": "Source passage",
+    "example": "Compare the context, not just the slogan",
+    "figure": "Comparison of learner-question preparation and schedule-only preparation; the possible value relationship remains uncertain.",
+    "comparisonPrompt": "Edit the two notes if a clearer separation would help. The example is illustrative, not your experience.",
+    "broadLabel": "Too general to guide the next choice",
+    "factsLabel": "Situation and observed details",
+    "meaningLabel": "Possible interpretation",
+    "practice": "Make one journal entry",
+    "practicePrompt": "Choose one situation where the value–difficulty relationship changed. Keep what happened separate from what you think it meant. Include only details you may want to find later; dates and people are optional.",
+    "event": "What happened? Record observed details and relevant conditions",
+    "value": "What value do you think appeared here? This is your interpretation; leave it uncertain if you do not know",
+    "difficulty": "Which particular difficulty did you accept for that value?",
+    "change": "What changed in the relationship between value and difficulty? What else may explain it?",
+    "next": "What will you notice next time?",
+    "patterns": "If this recurs, which earlier entries might you compare? Leave blank if this is a first entry",
+    "save": "Save private journal note",
+    "saving": "Saving journal note",
+    "retry": "Retry the same save",
+    "private": "This note is private to you. Save a partial draft or leave optional details blank; a journal is not a report of every moment.",
+    "sourceHint": "Supplied recovered manuscript, p. 43 (82-page source edition)."
+  },
+  "feedback": {
+    "unavailable": "Private journal saving is unavailable. Your draft remains on screen.",
+    "missing": "Add one note to your journal before saving, or leave the draft unsaved.",
+    "length": "This saved note exceeds 2,000 characters. Your draft is still here; trim details you do not need to find later.",
+    "readFailure": "The saved journal note could not be loaded. Your current draft remains on screen.",
+    "saved": "Your private journal note is saved.",
+    "conflict": "This journal note changed elsewhere. Your draft remains here; review the saved version before saving again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same journal note before changing it."
+  },
+  "source": {
+    "quote": "Passion Integration in Your Awareness Journal retains the learning: where value appeared, which difficulty you accepted for it, where the relationship changed and what to notice next. Review recurring patterns across entries.",
+    "attribution": "Supplied recovered manuscript; authorship/adoption of every wording is not independently established.",
+    "boundary": "Keep the situation with the conclusion. What counts as value is your interpretation; label it as such. If later conditions differ, update the entry instead of reapplying it as a rule. Do not turn the journal into a required log of every moment or treat an abandoned pursuit as a personal failure."
+  },
+  "example": {
+    "broad": "I like teaching.",
+    "facts": "Preparation answered a real learner question. In another case, the work was only to maintain a posting schedule; the teacher felt drained.",
+    "meaning": "The first preparation may have served the value of helping a learner understand. The schedule-only task may not have served that value in the same way.",
+    "reading": "The short slogan loses the conditions. The two editable notes retain an event account and a separate interpretation, so the teacher can find the relevant distinction when choosing the next task."
+  },
+  "connections": "Related practices: Self-Discovery Cycle (M157) captures, reflects, and integrates; Keep the pursuit viable (M160) tracks internal willingness to continue."
+}

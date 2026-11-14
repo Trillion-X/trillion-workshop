@@ -1,0 +1,49 @@
+{
+  "title": "Intrinsic Value Recognition",
+  "opening": "A result can need attention without settling what a person is worth. Comparing how you regard someone you care about with the conditions you apply to yourself can make a difference in standards visible. Use that comparison if it helps, or inspect one condition directly. You can save one useful note and leave the rest open.",
+  "labels": {
+    "step": "One useful note (required to save)",
+    "comparison": "If useful, compare someone or an animal you care about with your own standard",
+    "observation": "What “only if” condition do you notice? (optional)",
+    "revision": "What practical response does the situation still need? (optional)",
+    "example": "Use this comparison",
+    "save": "Save private note",
+    "retry": "Retry the same save",
+    "busy": "Saving private note"
+  },
+  "practice": {
+    "example": {
+      "title": "A missed exam and a missed deadline",
+      "step": "I missed a deadline. That needs a response; it does not by itself prove that I matter only when I meet every deadline.",
+      "comparison": "A friend I care about missed an exam. I would want to understand what happened and help them face the next step; the missed exam would not erase their existence or decide their worth.",
+      "observation": "I matter only if I never miss a deadline.",
+      "revision": "Check whether late work is possible, contact the instructor, and note the next due date."
+    }
+  },
+  "feedback": {
+    "unavailable": "Private saving is unavailable here. Your current note remains on screen.",
+    "missing": "Add one useful note before saving. The other fields can stay blank.",
+    "length": "This note exceeds the 2,000-character limit. Shorten it before saving.",
+    "readFailure": "The saved note could not be loaded. Your current text remains here.",
+    "saved": "Your private note is saved. Reopen it here to review or edit it.",
+    "conflict": "This private note changed elsewhere. Your text remains here; review it before saving again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry that same note before changing it."
+  },
+  "source": {
+    "sourceId": "M052",
+    "sourceRecord": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/4/lessons/6/body",
+    "sourceSpanBindings": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/source-span-bindings.json#M052",
+    "manuscript": "Page 37 of the 82-page manuscript at framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf. This page distinguishes care for a child or animal beyond achievement or usefulness from the “only if” conditions a person may apply to themself. The displayed missed-exam/deadline example and practice wording are authored teaching material, not observed outcomes.",
+    "limits": "The comparison offers one route to inspect standards; it is not mandatory proof, a clinical conclusion, or a guaranteed emotional result. A missed exam or deadline may still need a practical response. The learner can save one useful partial note without completing the optional fields. The local Classroom fixture does not establish author or learner acceptance, canonical adoption, installation, publication or learning effectiveness.",
+    "practiceContract": {
+      "savedRequiredField": "step",
+      "savedOptionalFields": [
+        "comparison",
+        "observation",
+        "revision"
+      ]
+    }
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "title": "Wholeness Reflection",
+  "opening": "One disappointment can become the whole account. Look across the day without making it all good.",
+  "labels": {
+    "example": "A week with one missed milestone",
+    "exampleContext": "At week's end, a person sees that the project milestone was missed and calls the week wasted.",
+    "taskLens": "Review the project result",
+    "wholeLens": "Review the wider week",
+    "taskLensHeading": "The project milestone was missed.",
+    "taskLensBody": "That result is real and may need a change to the plan. This narrow review tells you about the project milestone; it cannot describe everything that mattered in the week.",
+    "wholeLensHeading": "Keep the missed milestone in view, then add other actual moments.",
+    "episodes": [
+      {
+        "title": "A small project step was finished",
+        "kind": "Success beside setback",
+        "contribution": "The step advanced the work. It counts as a success even though the larger milestone remained unfinished.",
+        "resistance": "It does not make the milestone complete or settle whether the project plan needs to change."
+      },
+      {
+        "title": "A quiet afternoon with a friend",
+        "kind": "Connection and comfort",
+        "contribution": "No project task was completed. The time still mattered as lived connection.",
+        "resistance": "The person felt guilty about time away from the project. That feeling can be noticed without treating the afternoon as wasted."
+      },
+      {
+        "title": "A work session that stalled",
+        "kind": "Challenge and setback",
+        "contribution": "The attempt may have revealed that the instructions skipped a prerequisite. If that detail is verified, the next plan can include it.",
+        "resistance": "The session was frustrating and produced no deliverable. A possible correction does not make the frustration good or the milestone complete."
+      },
+      {
+        "title": "Time alone to rest",
+        "kind": "Solitude and comfort",
+        "contribution": "Rest did not need a project output to count as lived time.",
+        "resistance": "If the person wanted more connection, that matters too. The reflection does not have to make this moment fit everyone."
+      }
+    ],
+    "choiceHeading": "What might change",
+    "choiceBody": "Keep the missed milestone visible. If the missing prerequisite is confirmed, add it to the next work plan. Keep the friend time that mattered instead of treating it as time to repay. This does not settle every deadline or make every week successful.",
+    "counterexampleHeading": "A wider view does not cancel a needed change",
+    "counterexampleBody": "A narrow review is right for a narrow task. If a deadline or harmful condition needs action, a broad reflection must not hide it. Some days contain no useful lesson from a setback; leave that unresolved rather than inventing one.",
+    "attempt": "Try a reflection",
+    "attemptIntro": "Choose a day you can discuss comfortably. Name one moment that mattered outside a task list, one other experience you want beside it, and what each contributed or what you resisted. Keep disappointment, cost or uncertainty where it remains. Then say what, if anything, changes about a current choice.",
+    "practiceField": "Your reflection",
+    "practicePlaceholder": "Day or period:\n\nA moment that mattered outside a task list:\nWhat it contributed, if anything; what I resisted:\n\nAnother experience to consider beside it:\nWhat it contributed, if anything; what I resisted:\n\nWhat I still feel, need to change or do not know:\n\nWhat this wider view changes about my current choice, if anything:",
+    "save": "Save private reflection",
+    "retry": "Retry the same save",
+    "private": "Your reflection is private and ungraded.",
+    "busy": "Saving reflection",
+    "oversize": "Shorten the complete reflection to 2,000 characters or fewer. Your full draft stays on screen.",
+    "sourceTitle": "Source passage · page 44",
+    "sourceExcerpt": "“Review moments of comfort and challenge, success and setback, solitude and connection. Examine what each contributed, which you resisted and what you notice when both are considered.”",
+    "sourceLocator": "Supplied manuscript, p. 44 (82-page source edition)."
+  },
+  "feedback": {
+    "unavailable": "Private practice saving is unavailable. Your reflection remains on screen.",
+    "missing": "Write a reflection before saving private practice.",
+    "length": "Shorten the complete reflection to fit the 2,000-character practice limit. Your text stays here.",
+    "readFailure": "The saved reflection could not be loaded. Your current work remains on screen.",
+    "saved": "Your private reflection is saved.",
+    "conflict": "This reflection changed elsewhere. Your draft remains here; review the saved version before saving again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same reflection before changing it."
+  },
+  "source": {
+    "mappingPath": ".local/curriculum-continuation-20261028/M086-M093-next-unbuilt-source-mappings/source-mappings-v2-immutable-course.json",
+    "mappingIdentity": "1f:169b2aa9dec4f0a70040d0b4af1a52b5eb0f9146bc9cd0b37137cdee00845e5e",
+    "mappedBodyPath": ".local/curriculum-continuation-20261028/M086-M093-next-unbuilt-source-mappings/M091-current-body.bin",
+    "mappedBodyIdentity": "1f:06be603cce5da61ccc298f5637622ab1432f8cee3fa092dee870c072470bab3e",
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/delivery-history/302205da0020a769b62e1bfa45706ca5193ac0cde1fa0d55c1ac45b07e9a0768/course-input.json#/courses/4/lessons/46/body",
+    "canonicalBodyIdentity": "1f:06be603cce5da61ccc298f5637622ab1432f8cee3fa092dee870c072470bab3e",
+    "currentBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/delivery-history/302205da0020a769b62e1bfa45706ca5193ac0cde1fa0d55c1ac45b07e9a0768/course-input.json#/courses/4/lessons/46/body",
+    "currentBodyIdentity": "1f:06be603cce5da61ccc298f5637622ab1432f8cee3fa092dee870c072470bab3e",
+    "assessmentRolePath": "content-drafts/framework-library-2026-10-24/community-config.json#/courses/3/lessons/44/body",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/90",
+    "assessmentIdentity": "1f:d5fa8b23ca6be5cc573a5ea324eecb8c89c81e226b0fb9cb518a32b5847dd1d0",
+    "assessmentBodyIdentity": "1f:06be603cce5da61ccc298f5637622ab1432f8cee3fa092dee870c072470bab3e",
+    "assessmentBoundary": "The six source questions are required open-ended assessment prompts with no stored gold answer. This optional private reflection is not a grade or a replacement assessment.",
+    "reconciliationPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/reconciliation.json#/library_entries/90",
+    "manuscriptPdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscriptPdfIdentity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPageTextPath": "framework-animation-pilot/catalogue-output/M091/lesson/proof/source-page-44/page-44.txt",
+    "manuscriptPageTextIdentity": "1f:aa73fec606469c9b5f8160e978859a7a2947f386da569eaf109fff6361199022",
+    "manuscriptLocator": "p. 44 (82-page source edition)",
+    "attribution": "Supplied manuscript; authorship/adoption of every wording is not independently established.",
+    "exampleBoundary": "The missed-milestone week is an authored illustration, not observed data. The possible prerequisite and contributions are hypotheses in that scenario; they are not outcomes attributed to a learner.",
+    "designSources": {
+      "twentyFirstDev": {
+        "query": "daily journal reflection cards for experiences and meaning no ratings",
+        "componentId": 9321,
+        "componentName": "Blog Cards",
+        "use": "Metadata described a minimal, text-focused journal-entry preview. It informed keeping experience text readable as cards; no code or copy was used."
+      },
+      "mobbin": {
+        "query": "mobile daily reflection showing both experience and resistance",
+        "status": "unavailable",
+        "reason": "No Mobbin screen-search tool was exposed in this session."
+      }
+    }
+  },
+  "assessment": {
+    "guidedQuestion": "Does full range require seeking every difficult experience?",
+    "learnerCheck": "Can you distinguish meaning, fulfillment and achievement without collapsing them?",
+    "outcomeCheck": "Does the reflection help preserve worthwhile participation and appropriate choices?",
+    "changeAccount": "If it rationalizes harm or hides a necessary change, revise the interpretation."
+  }
+}

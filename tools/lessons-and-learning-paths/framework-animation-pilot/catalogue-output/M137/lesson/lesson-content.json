@@ -1,0 +1,88 @@
+{
+  "title": "Maintaining Commitment Through Adjustment",
+  "opening": "A failed method can be worth changing while the reason for the work still matters. Separate the purpose, outcome, repeatable process and specific method so you can see which commitment the evidence calls into question.",
+  "labels": {
+    "comparison": "Which level does the evidence challenge?",
+    "comparisonIntro": "Suppose a tutoring format produces completed sessions, but independent use of the material has not been checked. Keeping the same format is not proof of commitment to learning. First examine the result and the reason for the format.",
+    "adherence": "Purpose and outcome",
+    "value": "Repeatable process",
+    "outcome": "Specific method",
+    "adherenceText": "Helping someone use what they learn is a purpose; an outcome says what result would serve it. An outcome can change while the value remains, and a value or direction may also deserve reconsideration.",
+    "valueText": "Regular attempts and feedback form a repeatable process. If that process fails to produce the intended result, examine it rather than treating repetition as sufficient proof.",
+    "outcomeText": "A format, tool or exercise is a method serving the process. Changing it can preserve the goal. If evidence challenges the goal itself, a clever change of method will not settle that question.",
+    "signalQuestion": "Explore a part of the explanation",
+    "rhythmTitle": "Change the level the findings point to",
+    "rhythmText": "Name the value or direction, outcome, process and method. Locate what the observations challenge, then change that level while keeping the others visible or explicitly revisiting them. A higher purpose is not protected from inquiry. Revising an internal goal also does not cancel another person’s actual agreement; discuss any change that affects it.",
+    "practice": "Keep the commitments and proposed change visible",
+    "practiceIntro": "Use the parts of this note that help explain what changed and why. It is possible to retain a purpose, revise an outcome or reconsider the direction itself.",
+    "private": "This private note is optional. The six course questions remain separate.",
+    "save": "Save private note",
+    "saving": "Saving private note",
+    "retry": "Retry the same save",
+    "done": "Private note saved",
+    "missing": "Add one note before saving.",
+    "length": "This full reflection is over 2,000 characters. Shorten it to save; all of your text stays here.",
+    "source": "Manuscript, page 63",
+    "sourceQuote": "Maintaining Commitment Through Adjustment\nKeep the different levels of commitment visible: the value or life direction, the\noutcome, the repeatable process and the specific method. Changing the method can\npreserve the goal. Changing a goal can preserve what made it matter. Examine the\nlevel where the evidence points.",
+    "sourceLocator": "Manuscript, p. 63 (82-page source edition)",
+    "loadExample": "Load the example",
+    "sampleLoaded": "Example loaded. Use your own situation when you are ready."
+  },
+  "feedback": {
+    "saved": "Your private note is saved.",
+    "unavailable": "Private saving is unavailable. Your reflection stays on screen.",
+    "missing": "Add one note before saving.",
+    "length": "Shorten the full draft to fit the 2,000-character limit. Your text stays here.",
+    "conflict": "This reflection changed elsewhere. Your answers remain here; compare the saved version before saving again.",
+    "readFailure": "The saved note could not be loaded.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same reflection before changing it."
+  },
+  "fields": [
+    {
+      "id": "qualities",
+      "label": "The value or life direction at stake"
+    },
+    {
+      "id": "contribution",
+      "label": "The outcome intended to serve it"
+    },
+    {
+      "id": "avoid",
+      "label": "The repeatable process"
+    },
+    {
+      "id": "present",
+      "label": "The specific method being used"
+    },
+    {
+      "id": "connection",
+      "label": "What the observations challenge"
+    },
+    {
+      "id": "change",
+      "label": "What to change, retain or revisit, including actual agreements"
+    }
+  ],
+  "example": {
+    "qualities": "Suppose I want to help beginners use a skill independently.",
+    "contribution": "The intended result is that they can use the skill in a new situation.",
+    "avoid": "They make attempts and receive feedback.",
+    "present": "The current method is the same tutoring exercise each week.",
+    "connection": "Sessions are completed, but independent use has not been checked. That leaves the result unknown.",
+    "change": "Choose an appropriate way to check independent use before deciding whether to change the exercise or the wider arrangement. Keep any real agreements visible."
+  },
+  "source": {
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/candidate134/course-input.json#/courses/7/lessons/42/body",
+    "canonicalBodyIdentity": "1f:3b19c7e8b4f3768c58ad96ed797df6e9c345452e1bf3cbca0d21c7d200837175",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/141",
+    "assessmentIdentity": "1f:0e422a55926d8265857a39e72baac7800df4ee6898b945fdbff8bf634d2e5936",
+    "assessmentBoundary": "Six required open-ended assessment questions remain separate from this optional private reflection. No qualified semantic grade or evidence of learner effectiveness is supplied.",
+    "manuscriptPdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscriptPdfIdentity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPage": "p. 63 (82-page source edition)",
+    "manuscriptPageText": ".local/curriculum-continuation-20261028/M118-M120-next-unbuilt-source-mappings/source-pages-63-64.txt",
+    "manuscriptPageTextIdentity": "1f:cd3bd40473d7e396499c2949f9110b9fa82da9c579ba3e2faa0cd270835110e1"
+  }
+}

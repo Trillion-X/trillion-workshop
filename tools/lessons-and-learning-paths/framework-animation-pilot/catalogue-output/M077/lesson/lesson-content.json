@@ -1,0 +1,46 @@
+{
+  "title": "Passion Identification Questions",
+  "opening": "Look for what you repeatedly return to. A possible passion is a candidate to examine, not a permanent job identity.",
+  "labels": {
+    "source": "Source passage",
+    "practice": "Compare your evidence",
+    "activity": "Activity or candidate",
+    "experience": "What I actually did, and when",
+    "draw": "What held my attention or brought me back through difficulty",
+    "barrier": "What affected access or participation",
+    "interest": "What I imagine would draw me",
+    "next": "A bounded next engagement",
+    "plan": "Plan: one small, feasible try and its limit",
+    "observation": "Observation after the try (leave blank until then)",
+    "reflection": "What the comparison suggests",
+    "save": "Save private reflection",
+    "saving": "Saving reflection",
+    "retry": "Retry the same save",
+    "private": "This reflection is private to you. Save it only if you want a copy.",
+    "example": "A pattern across different settings",
+    "figure": "Three actual experiences at work, at home, and alone lead to a possible shared feature. An untried interest with an access barrier remains a separate unresolved candidate.",
+    "check": "What is repeated evidence, what is still imagined, and what condition affected participation? What bounded try could teach you more without turning this candidate into a permanent identity?",
+    "invalid": "Add an activity and a bounded next engagement before saving.",
+    "sourceHint": "Supplied recovered manuscript, p. 42 (82-page source edition)."
+  },
+  "feedback": {
+    "unavailable": "Private practice saving is unavailable. Your reflection remains on screen.",
+    "missing": "Name an activity and a bounded next engagement before saving.",
+    "length": "Shorten this reflection to 2,000 characters or fewer. Your full draft is still here; nothing was saved.",
+    "readFailure": "The saved reflection could not be loaded. Your current work remains on screen.",
+    "saved": "Your private reflection is saved.",
+    "conflict": "This practice record changed elsewhere. Your reflection remains here; read the saved version before saving again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same reflection before changing it."
+  },
+  "source": {
+    "manuscript": "Passion Identification Questions begins with experience: what absorbs you, returns to mind unprompted, draws you without payment or brings you back through difficulty? Name the compelling feature of each answer and compare patterns across activities.",
+    "attribution": "Supplied recovered manuscript; authorship/adoption of every wording is not independently established.",
+    "boundary": "This inquiry can suggest a candidate; it does not prove a permanent calling. Paid and unpaid experience can both matter. Nonparticipation may reflect access, time, health, obligation or other conditions, so it does not by itself disprove attraction. If a real try repeatedly differs from the imagined appeal, revise the candidate."
+  },
+  "example": {
+    "title": "The repeated feature can travel across settings",
+    "body": "Illustrative case: at work, a person helps a new teammate understand unfamiliar software; at home, they make a confusing recipe easier for a sibling; alone on a commute, they sketch a clearer explanation and return to improve it after a rough first draft. The shared draw may be making difficult ideas clear. The person can test that candidate with one short peer explanation; it does not mean every future job must be teaching. Separately, they imagine enjoying indoor climbing but have not tried it because classes cost too much. That is an imagined interest plus an access barrier, not evidence against attraction. A free introductory session could produce the first actual observation."
+  }
+}

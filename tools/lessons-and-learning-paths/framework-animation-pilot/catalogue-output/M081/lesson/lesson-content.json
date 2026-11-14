@@ -1,0 +1,50 @@
+{
+  "title": "Suffering Reframe Log",
+  "opening": "Record what happened, what it first meant to you, and the value involved. A useful connection must fit the actual event. “None established” is a valid result; a reframe does not require gratitude for harm or replace a needed change.",
+  "example": {
+    "title": "Separate feedback from ridicule",
+    "body": "A reader receives two comments. “The definition of value is unclear; give one concrete example” identifies a changeable issue and may connect to the value of clear communication. “You are hopeless at this” gives no actionable work feedback, so no useful connection is established. The reader can revise the definition and still set a boundary around ridicule."
+  },
+  "labels": {
+    "logTitle": "Difficult event entries",
+    "event": "Event and date",
+    "meaning": "What it first seemed to mean",
+    "observed": "Observed facts",
+    "pending": "Unknown or pending facts",
+    "value": "Value involved",
+    "connection": "Specific useful connection, if one exists",
+    "none": "None established",
+    "possible": "A specific connection may exist",
+    "earlier": "Review earlier entries when this situation recurs",
+    "earlierPrompt": "What earlier entry is relevant, and does it support this connection or point to a change?",
+    "next": "Needed action or boundary",
+    "add": "Add entry",
+    "remove": "Remove entry",
+    "reorder": "Reorder entry",
+    "save": "Save private log",
+    "busy": "Saving private log",
+    "retry": "Retry the same save",
+    "private": "You can write a partial draft and save it. The saved log is private to this practice.",
+    "oversize": "This draft exceeds 2,000 characters in total. Shorten it before saving; your text remains on screen.",
+    "sourceTitle": "Manuscript, page 43",
+    "sourceExcerpt": "Record the event, its initial meaning and the value involved. Write the specific useful connection, if one exists. Review earlier entries when the situation recurs."
+  },
+  "feedback": {
+    "unavailable": "Private log cannot be saved here. Your writing remains on screen.",
+    "missing": "A draft is needed before saving.",
+    "length": "This draft exceeds 2,000 characters. Shorten it before saving.",
+    "readFailure": "Saved log could not be loaded. Your current writing remains here.",
+    "saved": "Your private log is saved.",
+    "conflict": "This log changed elsewhere. Your writing remains here; compare before saving again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry the same log.",
+    "retryPending": "The earlier save is unresolved. Retry the same log before changing it."
+  },
+  "source": {
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/4/lessons/36/body",
+    "canonicalBodyIdentity": "1f:b38f2fa0112e7dd28e8a84f6991b95bbe52c2e25b1df0b94df0dbe58212af218",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/80",
+    "assessmentIdentity": "1f:d3cc2dd41ec69deae8b8785b76ea57e9baabfb116f8466952dd718b5167e677e",
+    "assessmentBoundary": "Open responses have no stored gold answer. The local practice uses no semantic auto-grader and makes no claim of understanding or learner outcome."
+  }
+}

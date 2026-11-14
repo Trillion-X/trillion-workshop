@@ -1,0 +1,60 @@
+{
+  "title": "Creative Expression Without Evaluation",
+  "opening": "Make a small mark, phrase, sound or arrangement for yourself. If a rating appears, notice it and return to the making. No one needs to see or keep the result; you can stop whenever you want.",
+  "labels": {
+    "source": "Manuscript excerpt",
+    "example": "A sketch changes course",
+    "afterward": "Keeping it later is a choice",
+    "boundary": "When a result is for someone else",
+    "practice": "Optional private reflection",
+    "save": "Save private reflection",
+    "busy": "Saving reflection",
+    "retry": "Retry the same save",
+    "observation": "What happened to your attention or next move? If useful, compare it with another time you made something.",
+    "limit": "Save notes are limited to 2,000 characters. If your draft is longer, shorten it here; the full text stays in this field.",
+    "private": "Private practice record"
+  },
+  "examples": {
+    "work": {
+      "title": "A sketch changes course",
+      "description": "While sketching a loose loop, someone thinks, “This should look like a flower.” They notice the rating and extend the curve into another line. It can stay a loop; no one needs to see it."
+    },
+    "keeping": {
+      "title": "Keeping it later is a choice",
+      "description": "Keeping something afterward does not undo the practice. The point is that saving or showing it was not required in order to begin."
+    },
+    "boundary": {
+      "title": "When a result is for someone else",
+      "description": "If someone depends on the result, keep the checks and commitments that protect them."
+    }
+  },
+  "teaching": {
+    "sourceExcerpt": "Make something without a requirement to share, keep or judge it. Notice evaluation when it appears and return to making. Compare the experience with your usual process.",
+    "sourceLimits": "This manuscript passage describes a practice; it does not establish a guaranteed creative or emotional result. No preferred feeling, finished work, audience or saved creation is required."
+  },
+  "practice": {
+    "observation": ""
+  },
+  "feedback": {
+    "unavailable": "Private notes cannot be saved here. You can keep working without them.",
+    "missing": "Add a note before saving, or leave this reflection blank.",
+    "length": "Shorten the note to 2,000 characters or fewer to save. Your full draft stays in this field.",
+    "readFailure": "Saved notes could not be loaded. Your current note stays on this screen.",
+    "saved": "Your private reflection is saved.",
+    "conflict": "The saved note changed elsewhere. Review your note, then save again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry the same note.",
+    "retryPending": "The earlier save is unresolved. Retry it before changing your note."
+  },
+  "source": {
+    "sourceRecord": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/4/lessons/9/body",
+    "sourceSpanRecord": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/source-span-bindings.json#M055",
+    "expandedLibraryIdentity": "1f:bd2628d09ef7d9d0dd0354c768d25173bd5651e91f47bc1960268020831931e0",
+    "courseInputBlake3": "058dc32df58cdc621aa5973bbaf40ae0c85ed2cee107bce313c707fd62e05177",
+    "sourceSpanBindingsBlake3": "3427d70192d90df4fe11ab01cce81ff3b989979c6638059aedfc7c8c89470e1c",
+    "manuscriptPdfBlake3": "d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptLocator": "p. 38 in the supplied 82-page edition",
+    "limits": "This locally authored lesson is source-checked instructional material, not an outcome study. It does not ask learners to feel good, prove spontaneity, finish, preserve or share their work.",
+    "distinctions": "A voluntary private experiment can pause public evaluation without avoiding necessary standards or commitments in work others depend on."
+  }
+}

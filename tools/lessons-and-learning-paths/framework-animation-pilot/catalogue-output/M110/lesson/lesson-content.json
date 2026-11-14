@@ -1,0 +1,59 @@
+{
+  "title": "Skill-Based Resonance Recognition",
+  "opening": "Skills shape what you notice and what you can do. Combining them may open an opportunity in a new setting, but the target field still sets what must be checked.",
+  "labels": {
+    "comparison": "Same pair, different target",
+    "comparisonIntro": "One person has coached beginners and written technical instructions. Those skills could help them improve a software lesson. Do they also let the person judge whether the software is secure?",
+    "pair": "Coaching reveals where learners pause; technical writing can make the next step clear.",
+    "tutorialTitle": "A software lesson",
+    "securityTitle": "A security judgment",
+    "tutorialTransfer": "Coaching may reveal where a learner gets stuck. Technical writing may help explain the next step.",
+    "tutorialBoundary": "A software practitioner still checks that commands, prerequisites and technical facts are correct.",
+    "securityTransfer": "The pair may help explain a procedure or reveal where readers get lost.",
+    "securityBoundary": "Neither skill establishes that a system is secure. A security specialist checks the design.",
+    "targetPrompt": "Which target are you reasoning about?",
+    "tutorialFact": "Tutorial clarity",
+    "securityFact": "Security claim",
+    "unknownFact": "I cannot tell yet",
+    "tutorialPrompt": "The pair may improve the teaching transition. A software practitioner still checks the technical content.",
+    "securityPrompt": "The pair may improve the explanation, but it cannot certify the security design. Ask a security specialist to check it.",
+    "unknownPrompt": "Keep the boundary open until target work shows what the pair can reliably do.",
+    "practiceTitle": "Try a pair of your skills",
+    "practiceIntro": "Choose two skills you actually use and a possible setting outside their familiar application. Keep a useful pattern separate from expertise you have not established.",
+    "save": "Save private draft",
+    "busy": "Saving private draft",
+    "retry": "Retry the same save",
+    "saved": "Your private draft is saved.",
+    "private": "This optional private draft is separate from the six required assessment questions.",
+    "needAnswer": "Add at least one part of your own skill combination before saving.",
+    "oversize": "This full draft is over 2,000 characters. Shorten it to save; all of your text remains on screen.",
+    "sourceTitle": "Manuscript, page 56",
+    "sourceExcerpt": "List a few skills and the patterns each helps you notice. Examine combinations: what might one skill reveal that another lets you act on? Identify an opportunity to investigate outside the skill’s familiar application."
+  },
+  "feedback": {
+    "saved": "Your private draft is saved.",
+    "unavailable": "Private draft saving is unavailable. Your work remains on screen.",
+    "missing": "Add at least one part of your own skill combination before saving.",
+    "length": "Shorten the full draft to fit the 2,000-character limit. Your text stays here.",
+    "conflict": "This draft changed elsewhere. Your answers remain here; compare the saved version before saving again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same draft before changing it."
+  },
+  "fields": [
+    { "id": "skill", "label": "Skill that first reveals a pattern" },
+    { "id": "pattern", "label": "Pattern it helps you notice" },
+    { "id": "combination", "label": "Second skill and what it lets you do" },
+    { "id": "opportunity", "label": "Opportunity outside the familiar setting" },
+    { "id": "boundary", "label": "Target-domain knowledge or specialist check still needed" },
+    { "id": "check", "label": "Small check in the target setting" },
+    { "id": "revision", "label": "Evidence that would narrow the transfer claim" }
+  ],
+  "source": {
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/delivery-history/93ccacfc335e21eaa9a1652a89d9e324b5af0faa6940ff3f4cb9e45b5982b622/course-input.json#/courses/7/lessons/10/body",
+    "canonicalBodyIdentity": "1f:bfd6a9897b4ff86ed7e07777ec0eb58ac9f1e925e34e425e177c542c429c7116",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/114",
+    "assessmentIdentity": "1f:ec1431549b6ff1cb94dd94aa4aa8150c89470542f99ea718d7fb16ae7e6f8e4f",
+    "assessmentBoundary": "Six required open-ended questions remain separate from the optional private draft. No stored gold answer or qualified semantic grading is supplied; syntactic validity does not establish understanding, transfer or outcome success."
+  }
+}

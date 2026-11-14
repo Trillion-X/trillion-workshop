@@ -1,0 +1,47 @@
+{
+  "title": "Worth Separation Mapping",
+  "opening": "A result in one area can feel like a verdict on your worth. This map helps you compare what seems required in different settings and what those beliefs lead you to do.",
+  "labels": {
+    "example": "Cooking and work",
+    "map": "Map the situations",
+    "addArea": "Add an area",
+    "removeArea": "Remove area",
+    "save": "Save my private map",
+    "busy": "Saving map",
+    "retry": "Retry the same save"
+  },
+  "examples": {
+    "context": {
+      "title": "Cooking and work",
+      "description": "A person accepts a mistake while cooking with a friend. At work, the person treats a typo as proof of incompetence. The typo may still need correction and the draft may still need sending; that practical responsibility is separate from the belief about worth. The contrast points to a work-specific condition to inspect. It does not explain every work reaction."
+    }
+  },
+  "practice": {
+    "instructions": "Start with a real situation. Keep practical work or responsibility separate from what you believe you must do or be to count as worthy. Add an area where worth feels less conditional when that comparison helps; you may leave a condition unresolved while you decide what to examine next.",
+    "area": "Area or context",
+    "situation": "What happened?",
+    "responsibility": "What work or responsibility needs attention?",
+    "condition": "What, if anything, feels required for you to count as worthy here?",
+    "effect": "What does that expectation lead you to do, avoid, or accept?",
+    "next": "What question or next action will you follow?"
+  },
+  "feedback": {
+    "unavailable": "Private saving is unavailable. Your map remains here.",
+    "missing": "Add a question or next action before saving this map.",
+    "length": "This map is too large to save. Shorten an answer or remove an area.",
+    "readFailure": "Your saved map could not be loaded. Your current notes remain here.",
+    "saved": "Your private map is saved.",
+    "conflict": "This map changed elsewhere. Your entries remain here; review the saved version before saving again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same map.",
+    "saveFailure": "The save is uncertain. Retry to check the same map.",
+    "retryPending": "The earlier save is unresolved. Retry the same map before changing it."
+  },
+  "source": {
+    "sourceRecord": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/4/lessons/5/body",
+    "retainedAssessmentSource": "content-drafts/framework-library-2026-10-24/community-config.json#/courses/3/lessons/4/body",
+    "sourceSpanBindings": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/source-span-bindings.json#M051",
+    "expandedSource": "Downloads/Trillion X Framework Library.md; BLAKE3 bd2628d09ef7d9d0dd0354c768d25173bd5651e91f47bc1960268020831931e0",
+    "manuscript": "Manuscript p. 37 verified in the 82-page supplied edition. Retained PDF: framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf; 1,151,040 bytes; BLAKE3 d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e.",
+    "limits": "The cooking and work contrast is authored instructional material grounded in manuscript p. 37; it is not a learner result. The map does not diagnose a cause for all work anxiety or establish the effect of this practice. The local Classroom run does not establish author acceptance, publication or learner effectiveness."
+  }
+}

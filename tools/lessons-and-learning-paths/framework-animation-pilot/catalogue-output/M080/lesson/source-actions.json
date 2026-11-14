@@ -1,0 +1,118 @@
+{
+  "currentCourseInput": {
+    "path": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/4/lessons/35/body",
+    "fileBytes": 1022491,
+    "fileIdentity": "1f:8d96362acb175da7444105aea071c62ab89ecaecb8ec481eb2cf53840d543af4",
+    "id": "M080",
+    "title": "Value Integration Ritual",
+    "bodyIdentity": "1f:f2373ba8850b5af12f1f7b87527261166dba3e1740069d945242360a17ac692e",
+    "body": "# M080 · Value Integration Ritual\n\n**Practices · Emotional · Practice / tool**\n\nSource status: Recovered manuscript\n\n> The explanation follows the cited sources. Examples, practice questions and application guidance are authored for this expansion unless identified as source material. Illustrations are not observed outcomes.\n\n## 1. See it\n\nYou repeat a demanding administrative task long after forgetting what it protects.\n\n## 2. What it is\n\nA brief before–during–after check that names a recurring difficulty, the value it serves and whether that connection actually holds.\n\n## 3. Why it exists\n\nIt prevents a value statement from remaining disconnected from the work done in its name.\n\n## 4. First principles and mechanism\n\nThe claimed connection can change as circumstances change. A recurring ritual is useful only if it keeps that relationship open to inspection.\n\n## 5. When to use it\n\n**Use:** Use before a recurring task whose purpose is easy to lose.\n\n**Do not use it this way:** Do not use repeated declarations to justify unnecessary burden.\n\n**What you need:** A specific task, its difficulty and a proposed useful connection.\n\n## 6. How to use it\n\nSource-informed application guidance. Where the source supplies a sequence, its meaning is retained; additional setup, examples and checks are instructional expansion, not newly attributed original doctrine. Original wording is available in the source panel.\n\n1. Before the task, name its difficulty and the value it serves.\n2. During the task, notice whether the actual work still serves that value.\n3. Afterward, compare the connection with the result and revise the arrangement if needed.\n\n## 7. Watch it happen\n\nIllustration: checking a teaching file is meant to prevent learners receiving a broken exercise. If the review only checks typography and misses usability, the ritual is preserving the wrong operation.\n\n**Comparison or near miss:** A clear default may remove the need for repeated reflection. Keep the ritual only where it changes attention or action.\n\n## 8. Now you do it\n\n**Try it now:** Name the value and one observable way this task serves it.\n\n**Guided question:** What should happen when the connection no longer holds?\n\n**Model answer:** Change or remove the task rather than strengthening the slogan.\n\n**Independent transfer:** Use the check before a social commitment without treating another person as a productivity outcome.\n\n## 9. How you know\n\n**Learner check:** You can articulate a concrete relationship, not merely a noble label.\n\n**Outcome check:** The recurring work remains connected to its actual purpose.\n\n**What would change the account:** A repeated mismatch requires changing the task or the claimed purpose.\n\n## 10. Connect and multiply\n\n- **related to [Pre-Focus Alignment Ritual](M045.md)** — Connects a session with purpose.\n- **invokes [Remove, Improve, Zoom](M145.md)** — Questions whether the burden still needs to exist.\n\n## 11. Original sources and revisions\n\n**Manuscript locator:** p. 43 (82-page source edition).\n\n**[S01] Manuscript — 82-page edition.** Supplied manuscript; authorship/adoption of every wording is not independently established. File: `sources/Manuscript.pdf`.\n\nExpansion edition: 2026-10-24. These teaching materials have been source-checked and structurally inspected; independent learner effectiveness has not been measured in this production run.\n"
+  },
+  "assessment": {
+    "path": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/79",
+    "fileBytes": 1184237,
+    "fileIdentity": "1f:e659da27a852a7a380d3483402b2fd5aee01128568ef36f86ef266e32c677315",
+    "identity": "1f:ebf1dc404587f4d49dcb1bd86cf8223137649da8c276fdb80af962c960b051a2",
+    "sourceBodyIdentity": "1f:f2373ba8850b5af12f1f7b87527261166dba3e1740069d945242360a17ac692e",
+    "sourceBodyLocation": "../community-config.json#/courses/3/lessons/33/body",
+    "practiceAdd": {
+      "operation": "add",
+      "prompt": "Explain M080 (Value Integration Ritual) from memory.",
+      "answer": "A brief before–during–after check that names a recurring difficulty, the value it serves and whether that connection actually holds.",
+      "why": "It prevents a value statement from remaining disconnected from the work done in its name.",
+      "deck": "framework-library",
+      "source_ref": "M080"
+    },
+    "questions": [
+      {
+        "questionId": "m080-recall",
+        "questionTypeId": "long-text",
+        "label": "Without reopening M080 (Value Integration Ritual), explain what it does and how its parts work together.",
+        "required": true
+      },
+      {
+        "questionId": "m080-application",
+        "questionTypeId": "long-text",
+        "label": "Apply the source practice: Name the value and one observable way this task serves it.",
+        "required": true
+      },
+      {
+        "questionId": "m080-guided-question",
+        "questionTypeId": "long-text",
+        "label": "Answer the source’s guided question: What should happen when the connection no longer holds?",
+        "required": true
+      },
+      {
+        "questionId": "m080-learner-check",
+        "questionTypeId": "long-text",
+        "label": "Self-check against the source: You can articulate a concrete relationship, not merely a noble label.",
+        "required": true
+      },
+      {
+        "questionId": "m080-outcome-check",
+        "questionTypeId": "long-text",
+        "label": "Check the outcome using the source criterion: The recurring work remains connected to its actual purpose.",
+        "required": true
+      },
+      {
+        "questionId": "m080-account-change",
+        "questionTypeId": "long-text",
+        "label": "Consider what would change the source account: A repeated mismatch requires changing the task or the claimed purpose.",
+        "required": true
+      }
+    ],
+    "answerPolicy": "Open-ended responses have no stored gold answer. The practice card answer is the exact source definition reference only. The learner’s own AI supplies any practice grade; its semantic judgment is unqualified. Syntactic validity is not evidence of understanding, transfer, or outcome success."
+  },
+  "reconciliation": {
+    "path": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/reconciliation.json#/library_entries/79",
+    "fileBytes": 154737,
+    "fileIdentity": "1f:f9b5cde378b1cea76ee45e042d0d87c18f409ae2793f328a5cbba34a5363de48",
+    "id": "M080",
+    "title": "Value Integration Ritual",
+    "originalBodyPreserved": true,
+    "sourceRefs": [
+      "M080"
+    ],
+    "prerequisites": [],
+    "prerequisiteStatus": "No source-stated requires link; other typed relationships remain distinct.",
+    "conceptualPrerequisites": []
+  },
+  "manuscript": {
+    "archivePath": "Downloads/Trillion X Framework Library.zip",
+    "archiveBlake3": "4bab2f2cac694a8cff9adc5c1209ab424867ac7017c77d4f1634e43b2284a350",
+    "path": "framework-animation-pilot/catalogue-output/M080/lesson/proof/source-page-43/Manuscript.pdf",
+    "page": 43,
+    "edition": "82-page supplied source edition",
+    "bytes": 1151040,
+    "blake3": "d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "textPath": "framework-animation-pilot/catalogue-output/M080/lesson/proof/source-page-43/page-43.txt",
+    "textIdentity": "1f:8343ae340edb6fc0f04be711d18b67f472fdfa13c1ce4eb91f0190329f43cb36",
+    "excerpt": "Before a recurring difficult task, name the difficulty and the value it serves. Check during and after the task whether that connection holds.",
+    "scopeNote": "Supplied manuscript; authorship/adoption of every wording is not independently established."
+  },
+  "sourceActions": [
+    "Before a recurring difficult task, name the difficulty and the value it serves.",
+    "Check during the task whether that connection holds.",
+    "After the task, compare the result with the connection and revise the arrangement when needed."
+  ],
+  "designReference": {
+    "sharedParts": [
+      "@trillion/ui Button",
+      "@trillion/ui Container",
+      "@trillion/ui DisclosureSection",
+      "@trillion/ui Text",
+      "@trillion/ui Textarea",
+      "useLessonPractice"
+    ],
+    "appearanceOwner": "Existing @trillion/ui and Screen Look bundle; no new appearance source.",
+    "anatomy": "Not used: the mechanism is a three-phase attention check; no spatial model or spatial outcome needs a shared Anatomy figure.",
+    "registry": {
+      "source": "21st.dev",
+      "query": "stepper tabs phase navigation before during after",
+      "inspectedComponent": 3728,
+      "inspectedName": "Stepper",
+      "decision": "No source code copied. The result is a multi-step progress component, while M080 needs all three phase controls directly reachable; existing shared Buttons meet the interaction need."
+    },
+    "mobbin": "No Mobbin search connector was exposed in this session; no Mobbin lookup or reference is claimed."
+  }
+}

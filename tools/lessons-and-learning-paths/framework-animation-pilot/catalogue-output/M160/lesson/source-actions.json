@@ -1,0 +1,58 @@
+{
+  "source": {
+    "course": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/candidate137/course-input.json",
+    "record": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/candidate137/course-input.json#/courses/10/lessons/5/body",
+    "body": "/courses/10/lessons/5/body",
+    "bodyIdentity": "1f:c82d8ddb245e15fa7953c59f12f0d3044a464948fe3ff4e2879f8a68b773d58c",
+    "assessment": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/167",
+    "assessmentIdentity": "1f:7b98190591d9e9544e85b31c88025e22eee6e6119946f7218e7254582cfeb256",
+    "reconciliation": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/reconciliation.json#/library_entries/167",
+    "mapping": ".local/curriculum-continuation-20261028/M118-M120-next-unbuilt-source-mappings/M155-M162-source-mappings-immutable-course.json",
+    "mappingIdentity": "1f:9cd886c92057a17ab33ac7a8511c3d5630d5c288ccf99e0a26e069a3c0c19dba",
+    "manuscriptPdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscriptPdfIdentity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPageText": ".local/curriculum-continuation-20261028/M118-M120-next-unbuilt-source-mappings/source-pages-76-82.txt",
+    "manuscriptPageTextIdentity": "1f:21bc4926935b10e4ffec47ceb4a12c30ffc853fbb0be683fe904459e56724cff",
+    "manuscriptPage": "Manuscript, pages 79\u201380",
+    "canonicalSourceActions": "\nSource-informed application guidance. Where the source supplies a sequence, its meaning is retained; additional setup, examples and checks are instructional expansion, not newly attributed original doctrine. Original wording is available in the source panel.\n\n1. Time: identify what must happen before available time or real deadlines run out.\n2. External resources: identify required money, tools and support and where they will come from.\n3. Internal will: examine interest, strain and depletion and whether the question still draws you.\n4. Change the work, support, recovery or commitment where needed, then recheck as conditions change.\n\n"
+  },
+  "sourceActions": [
+    {
+      "id": "step1",
+      "text": "Time: identify what must happen before available time or real deadlines run out.",
+      "meaning": "Time: identify what must happen before available time or real deadlines run out.",
+      "implementedBy": "Each source action is preserved as a selectable, editable step; the source guidance remains exact."
+    },
+    {
+      "id": "step2",
+      "text": "External resources: identify required money, tools and support and where they will come from.",
+      "meaning": "External resources: identify required money, tools and support and where they will come from.",
+      "implementedBy": "Each source action is preserved as a selectable, editable step; the source guidance remains exact."
+    },
+    {
+      "id": "step3",
+      "text": "Internal will: examine interest, strain and depletion and whether the question still draws you.",
+      "meaning": "Internal will: examine interest, strain and depletion and whether the question still draws you.",
+      "implementedBy": "Each source action is preserved as a selectable, editable step; the source guidance remains exact."
+    },
+    {
+      "id": "step4",
+      "text": "Change the work, support, recovery or commitment where needed, then recheck as conditions change.",
+      "meaning": "Change the work, support, recovery or commitment where needed, then recheck as conditions change.",
+      "implementedBy": "Each source action is preserved as a selectable, editable step; the source guidance remains exact."
+    }
+  ],
+  "assessmentBoundary": {
+    "path": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json//assessments/167",
+    "requiredFlags": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "scope": "All six required open-ended course questions remain separate from optional private practice. No qualified semantic grade."
+  },
+  "limits": "Local source and synthetic Classroom-fixture evidence only; no canonical course edit, account, publication, learner-outcome, or author-voice claim."
+}

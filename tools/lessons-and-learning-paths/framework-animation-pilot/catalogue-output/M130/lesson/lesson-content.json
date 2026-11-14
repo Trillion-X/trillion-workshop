@@ -1,0 +1,85 @@
+{
+  "title": "Story-Based Decision Making: The Better Story Method",
+  "opening": "An option can sound exciting before you have checked what it would involve. Compare what you would actually do, what it would cost and the commitments you would need to keep. Then ask which experience would be more meaningful to live and remember.",
+  "labels": {
+    "comparison": "A hypothetical crossroads",
+    "comparisonIntro": "Imagine you could take an exciting trip to investigate an idea with a collaborator, or stay home to keep a worthy commitment you already made. The trip is not automatically better because it sounds exciting. Compare the real timing, cost, people affected, and what each ordinary day would involve before asking which experience matters more to you.",
+    "tripTitle": "Take the trip",
+    "tripText": "Possible ordinary days: travel, investigate the idea, and make time for the collaborator. Check the actual cost, dates, preparation, and any people depending on you.",
+    "commitmentTitle": "Keep the commitment",
+    "commitmentText": "Possible ordinary days: stay, do the work you promised, and let the collaborator know what you can realistically offer later. Check what the commitment is, who relies on it, and whether another arrangement is possible.",
+    "decisionTitle": "Use the story after the facts",
+    "decisionText": "When both routes are feasible, ask which experience you would find more meaningful to live and remember, and why. Excitement is one clue about what matters; it does not settle feasibility or consequences. If a clear obligation determines the choice, honor it without forcing a dramatic story exercise.",
+    "practice": "Compare two real paths",
+    "practiceIntro": "Write what each choice would ask of an ordinary day, including its costs and commitments. Your notes are optional and private. You can save a partial note and return later.",
+    "private": "This optional private note stays separate from the six required course questions.",
+    "save": "Save private comparison",
+    "saving": "Saving private comparison",
+    "retry": "Retry the same save",
+    "done": "Comparison saved",
+    "missing": "Add one note before saving.",
+    "length": "This full reflection is over 2,000 characters. Shorten it to save; all of your text stays here.",
+    "source": "Manuscript, page 62",
+    "sourceQuote": "Story-Based Decision Making: The Better Story Method\nAdapted from Amjad Masad’s Better Story approach, this asks which experience you\nwant to live. At a crossroads, compare the actual paths first. Then ask which\nexperience you would find more meaningful to live and remember. Record why the\nanswer matters and what choosing it involves. Use a brief daily story prompt when\nthe same question helps a smaller decision.",
+    "sourceLocator": "Manuscript, p. 62 (82-page source edition)",
+    "loadExample": "Load the hypothetical example",
+    "sampleLoaded": "Hypothetical example loaded. Replace it with your own real options when ready."
+  },
+  "feedback": {
+    "saved": "Your private comparison is saved.",
+    "unavailable": "Private saving is unavailable. Your reflection stays on screen.",
+    "missing": "Add one note before saving.",
+    "length": "Shorten the full draft to fit the 2,000-character limit. Your text stays here.",
+    "conflict": "This reflection changed elsewhere. Your answers remain here; compare the saved version before saving again.",
+    "readFailure": "The saved note could not be loaded.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same reflection before changing it."
+  },
+  "fields": [
+    {
+      "id": "crossroads",
+      "label": "What choice are you facing?"
+    },
+    {
+      "id": "routeA",
+      "label": "Route A: what would the actual path and ordinary days involve?"
+    },
+    {
+      "id": "routeB",
+      "label": "Route B: what would the actual path and ordinary days involve?"
+    },
+    {
+      "id": "costsCommitments",
+      "label": "What costs, preparation, and commitments come with each route?"
+    },
+    {
+      "id": "meaning",
+      "label": "If both routes are feasible, which experience would be more meaningful to live and remember, and why?"
+    },
+    {
+      "id": "nextFact",
+      "label": "What fact, clear obligation, or next decision should guide what happens?"
+    }
+  ],
+  "example": {
+    "crossroads": "Hypothetical only: I could take an exciting trip to investigate an idea with a collaborator, or stay to keep a worthy commitment I already made.",
+    "routeA": "The trip means travel, shared investigation, and time with the collaborator. I would need to confirm dates, cost, preparation, and who else depends on me.",
+    "routeB": "Staying means doing the work I promised and telling the collaborator what I could realistically offer later. I would check whether the commitment is still due and whether any alternative is fair to the people involved.",
+    "costsCommitments": "The trip costs money and time and may affect people relying on my promise. Staying may delay the investigation and also has a real opportunity cost. I would check the actual terms before choosing.",
+    "meaning": "If the commitment can be kept another way and both options are feasible, I would compare the ordinary days and choose the experience I most want to live and remember. The trip sounding exciting by itself would not decide it.",
+    "nextFact": "First confirm the dates and what the commitment requires. If it is a clear obligation, keep it and discuss a later investigation with the collaborator."
+  },
+  "source": {
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/delivery-history/93ccacfc335e21eaa9a1652a89d9e324b5af0faa6940ff3f4cb9e45b5982b622/course-input.json#/courses/7/lessons/32/body",
+    "canonicalBodyIdentity": "1f:5a17a3261335922cee4b4b0909fdf18bbc1d8e73eafe585eb90c4d065ad1ed21",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/134",
+    "assessmentIdentity": "1f:3910a11a69a753d74627df0408abd8a1f83c1e853151beaf9d3d4cda9bbec426",
+    "assessmentBoundary": "Six required open-ended assessment questions remain separate from this optional private reflection. No qualified semantic grade or evidence of learner effectiveness is supplied.",
+    "manuscriptPdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscriptPdfIdentity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPage": "p. 62 (82-page source edition)",
+    "manuscriptPageText": ".local/curriculum-continuation-20261028/M118-M120-next-unbuilt-source-mappings/source-pages-61-62.txt",
+    "manuscriptPageTextIdentity": "1f:aa781da4dadcf887eebb8d8c3410aa1a08546fb5b4af87f45b5e10d368ccf9d7"
+  }
+}

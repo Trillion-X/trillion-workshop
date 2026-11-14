@@ -1,0 +1,97 @@
+{
+  "title": "Always Be Moving",
+  "opening": "Everyday activity can offer useful movement, but the main task sets the limit. A safe walk during a routine call may fit. Walking between heavy sets can get in the way, so rest can be the better choice.",
+  "modes": [
+    {
+      "id": "routine-call",
+      "label": "Routine call",
+      "description": "On a familiar, safe route, walking can fit a call that needs no notes if you can still take part comfortably. It is an opportunity, not a requirement.",
+      "availableStatements": ["routine-fit", "review-conflict", "rest-preserves-work", "move-every-minute"]
+    },
+    {
+      "id": "difficult-review",
+      "label": "Difficult review",
+      "description": "A difficult review that needs close listening and notes may work better seated. Movement fits only when it leaves the main task intact.",
+      "availableStatements": ["routine-fit", "review-conflict", "rest-preserves-work", "move-every-minute"]
+    },
+    {
+      "id": "between-heavy-sets",
+      "label": "Between heavy sets",
+      "description": "Movement between heavy sets can impair the planned set. Rest can preserve the intended work; the framework does not require movement between sets.",
+      "availableStatements": ["routine-fit", "review-conflict", "rest-preserves-work", "move-every-minute"]
+    }
+  ],
+  "choices": [
+    { "id": "possible-fit", "label": "A possible fit to check" },
+    { "id": "main-task-conflict", "label": "A possible conflict with the main task" },
+    { "id": "rest-choice", "label": "Rest can be the right choice" },
+    { "id": "needs-evidence", "label": "A claim that needs evidence" }
+  ],
+  "statements": [
+    {
+      "id": "routine-fit",
+      "kind": "possible-fit",
+      "text": "A safe walk during a routine call may fit if the person can still participate comfortably.",
+      "feedback": "The fit depends on the route being safe and movement leaving the call intact."
+    },
+    {
+      "id": "review-conflict",
+      "kind": "main-task-conflict",
+      "text": "Walking during a difficult review that needs notes can compete with the main task.",
+      "feedback": "When close listening and writing matter, sitting may preserve the task better."
+    },
+    {
+      "id": "rest-preserves-work",
+      "kind": "rest-choice",
+      "text": "Rest between heavy sets can preserve the intended work when extra movement could impair the set.",
+      "feedback": "Rest belongs in the framework. The name does not require movement between sets."
+    },
+    {
+      "id": "move-every-minute",
+      "kind": "needs-evidence",
+      "text": "Always Be Moving means adding movement to every free minute, even when it interrupts another task.",
+      "feedback": "The source calls for compatible movement, not movement at every opportunity. Leave a difficult task, unsafe moment or needed rest alone."
+    }
+  ],
+  "examples": {
+    "summary": ""
+  },
+  "labels": {
+    "mode": "Choose the activity",
+    "statements": "Read the claims",
+    "ownPursuit": "Inspect a day you know",
+    "prediction": "What you expect",
+    "observation": "What you would notice",
+    "revision": "What you would change",
+    "save": "Save reflection",
+    "busy": "Saving…"
+  },
+  "feedback": {
+    "openQuestion": "",
+    "unavailable": "Saving is unavailable for this lesson.",
+    "missing": "Complete each practice field before saving.",
+    "length": "Each practice answer must be no longer than 2,000 characters.",
+    "readFailure": "Your saved reflection could not be loaded.",
+    "saved": "Your reflection was saved.",
+    "conflict": "This reflection changed elsewhere. Review it and save again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check it again.",
+    "saveFailure": "The save is still uncertain. Retry to safely check it again.",
+    "retryPending": "Your earlier reflection is still being saved. Wait for its status before trying again."
+  },
+  "ownPursuit": {
+    "prompt": "Pick a familiar day. Identify one safe interval where appropriate movement might fit and one interval to leave unchanged. Keep the main task and recovery in view.",
+    "prediction": "When do you expect movement to fit without competing with the main activity? What makes you expect that?",
+    "observation": "What would show that movement is safe and the activity remains comfortable, or that it is interfering?",
+    "revision": "If movement worsens the main task or recovery, what would you change or leave unchanged?"
+  },
+  "accessibility": {
+    "figure": {
+      "routine-call": "Illustration of a person walking during a routine call while holding a phone. No measured activity outcome is shown.",
+      "difficult-review": "Illustration of a seated person holding a phone and writing in a notebook during a difficult review. No measured activity outcome is shown.",
+      "between-heavy-sets": "Illustration of a person resting between heavy sets. No measured activity outcome is shown."
+    },
+    "mode": "Choose an activity context to inspect",
+    "statements": "Classify the claims using the reading prompts",
+    "ownPursuit": "Write and save an ungraded reflection about an ordinary day"
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "title": "Self-Authoring Your Capabilities",
+  "opening": "A strength or weakness is a label. To make it useful, describe the actions behind it, how you learned them, and the conditions where they help or hinder. Then choose one small practice that could test your explanation.",
+  "labels": {
+    "workedExample": "One example: a message that stays in drafts",
+    "exampleText": "A person can explain a complex idea carefully, yet spend a long time drafting a short message. That contrast is a question to investigate, not proof of a fixed trait.",
+    "exampleFigure": "A person seated and looking at a phone before replying to a message",
+    "evidence": "Choose the evidence that best matches the situation",
+    "evidencePrompt": "Compare the actions and conditions in each situation. Which account best fits the evidence? What other explanation could still fit?",
+    "caseClarity": "The request is unclear",
+    "caseChecking": "Repeated wording checks",
+    "caseAvoidance": "Uncomfortable reply",
+    "account": "What this evidence may support",
+    "alternatives": "What else could explain it",
+    "trigger": "Find the trigger and what keeps the pattern going",
+    "triggerText": "A trigger is a condition that comes before the response. What happens next may keep the response going, even if it does not solve the original difficulty.",
+    "practice": "Choose one small practice and compare your prediction with what happens",
+    "practiceText": "Choose a manageable practice and write what you expect. After trying it, compare that prediction with what happened. If you have not tried it yet, keep the result marked as not tried.",
+    "write": "Write your own account",
+    "save": "Save this private reflection",
+    "busy": "Saving reflection",
+    "retry": "Retry the same save"
+  },
+  "teaching": {
+    "cases": [
+    {
+      "id": "unclear-request",
+      "label": "Unclear request",
+      "evidence": "The person cannot name the message's recipient or the action they want. Once they write those down, the draft gets shorter.",
+      "account": "A missing skill may be part of the difficulty: the person had not made the recipient and requested action clear. A useful test is to name both before drafting.",
+      "test": "Before one suitable message, write who it is for and what response you are asking for. Compare the draft with a similar message where you did not do this.",
+      "contrary": "One easier draft does not prove a missing skill caused the delay. The message may also have been less important, or the person may have had more time.",
+      "scene": "A person writes the recipient and requested action before drafting a message."
+    },
+    {
+      "id": "overchecking",
+      "label": "Repeated wording checks",
+      "evidence": "The recipient and requested action are clear. The person still rewrites each sentence several times, and the extra checks have not changed the meaning.",
+      "account": "Care with wording may be a strength applied past the point where it helps. A useful test is to set one reasonable review pass, then compare clarity and time with a similar message.",
+      "test": "For one low-stakes message, make one review pass and send when the request is clear. Compare whether the recipient understood it and how long drafting took.",
+      "contrary": "Repeated edits could be useful when the stakes are high or the wording is genuinely unclear. The example alone does not show that carefulness is the cause.",
+      "scene": "A person reviews a message once after its request is clear."
+    },
+    {
+      "id": "uncomfortable-reply",
+      "label": "Uncomfortable reply",
+      "evidence": "The delay happens most when the message may disappoint someone. The person often checks unrelated details, then feels temporary relief when sending is postponed.",
+      "account": "A repeated avoidance pattern may be involved. The temporary relief could help maintain the delay, but one example cannot establish that. A useful test is to notice the trigger and try a small, respectful reply.",
+      "test": "For a suitable low-stakes reply, note the moment delay begins, draft a brief honest response, and record what happened after sending. Do not use this test where a reply could put someone at risk.",
+      "contrary": "The delay may be reasonable if more information is needed or the timing is unsafe. Relief after postponing does not prove avoidance is the only explanation.",
+      "scene": "A person pauses to identify why a reply feels difficult before writing."
+    }
+    ]
+  },
+  "feedback": {
+    "unavailable": "Private practice is unavailable here. Your answers remain in this session.",
+    "missing": "Fill in all four parts before saving. If you have not tried the practice, say so.",
+    "length": "Shorten each answer to 2,000 characters or fewer.",
+    "readFailure": "Your saved reflection could not be loaded. Your current answers remain here.",
+    "saved": "Your private reflection is saved.",
+    "conflict": "This reflection changed elsewhere. Your answers remain here. Save again to keep these answers.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same answers before changing them."
+  },
+  "practice": {
+    "observation": "Describe a strength through actions. How did you learn those actions?",
+    "alternative": "For one difficulty, compare a missing skill, an overused strength and a repeated pattern. What evidence supports each, and what evidence does not fit?",
+    "result": "What conditions tend to trigger the pattern, and what seems to maintain it? Include uncertainty or another possible explanation.",
+    "step": "Choose a relevant practice. What do you predict will happen? What actually happened, or have you not tried it yet?"
+  }
+}

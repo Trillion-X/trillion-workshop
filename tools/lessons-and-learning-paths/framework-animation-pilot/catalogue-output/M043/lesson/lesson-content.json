@@ -1,0 +1,74 @@
+{
+  "title": "Focus Block Design",
+  "opening": "Pick one task you may work on soon. Name the result first; keep every other planning choice tied to that task. Use a current task or load the creek-walk example and edit it. You can save a useful draft after naming the task, while other details are still open.",
+  "labels": {
+    "task": "What task will you work on?",
+    "result": "What should be true when this work is done?",
+    "prerequisites": "What inputs or people does it depend on?",
+    "order": "What must happen first, and what can happen alongside it?",
+    "scope": "What belongs in this piece of work? What can wait?",
+    "period": "What period fits this task and your capacity today?",
+    "materials": "What information, tools and setting do you need?",
+    "inspection": "How will you inspect the result, and what follows?",
+    "example": "Use the creek-walk example",
+    "clear": "Start a new plan",
+    "save": "Save private draft",
+    "retry": "Retry saving this draft",
+    "busy": "Saving private draft"
+  },
+  "practice": {
+    "example": {
+      "task": "Prepare a one-page guide for the three-stop creek walk.",
+      "result": "A printable page with the approved route line, the confirmed names of all three stops, and one sentence for each stop.",
+      "prerequisites": "The volunteer coordinator must provide the approved route map before I draw the route. The walk lead must confirm the three stop names before I label them.",
+      "order": "The map and stop names can be confirmed at the same time. I can set up the page and choose its one-page layout while they arrive. Draw the route after the map is confirmed; add labels after the names are confirmed; then check the whole page.",
+      "scope": "Include the route, three stop names and one sentence per stop. Leave the full species background and extra handout for another piece.",
+      "period": "I can use a short, steady window today to set up the page while I wait. I will plan the route and labels when the map and names are ready. If my energy drops, I can stop after setup; the elapsed time will not mean the guide is finished.",
+      "materials": "Approved route map and stop names from the shared folder; the existing guide template on my laptop; a quiet table where I can compare the page with the map.",
+      "inspection": "Preview the page at print size. Check that the route matches the approved map, all three labels match the confirmed names and the text fits. Send the preview to the volunteer coordinator for a route check; correct any mismatch before the guide is handed out.",
+      "title": "The three-stop creek-walk guide"
+    }
+  },
+  "feedback": {
+    "unavailable": "Private saving is unavailable here. Your current plan remains on screen.",
+    "missing": "Name the task before saving. You can leave other details open.",
+    "length": "Keep each note within 2,000 characters.",
+    "readFailure": "The saved plan could not be loaded. Your current notes remain here.",
+    "saved": "Your private draft is saved. Reopen it here to review or edit it.",
+    "conflict": "This private draft changed elsewhere. Your answers remain here; review them before saving again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry that same draft before changing it."
+  },
+  "source": {
+    "sourceId": "M043",
+    "sourceRecord": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/3/lessons/46/body",
+    "sourceSpanBindings": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/source-span-bindings.json#M043",
+    "limits": "A period is chosen for the task and current capacity; minutes spent are not success. A small spontaneous action may need no block. The local draft does not reserve calendar time or contact anyone. The creek-walk case is authored teaching material, not an observed learner result.",
+    "practiceContract": {
+      "savedTaskField": "step",
+      "savedExtrasField": "transfer",
+      "editableFields": [
+        "result",
+        "prerequisites",
+        "order",
+        "scope",
+        "period",
+        "materials",
+        "inspection"
+      ]
+    }
+  },
+  "teaching": {
+    "hints": {
+      "task": "Keep it concrete enough that you could recognize the work when you return.",
+      "result": "Name the thing or change you expect to produce. If it is uncertain, write what you can inspect.",
+      "prerequisites": "Name the needed file, decision, information or person. Mark what blocks the task and how you will know the input is ready.",
+      "order": "Separate the required order from work that can proceed independently. Two prerequisites may also be handled in parallel.",
+      "scope": "Include only what serves this result. Name a tempting extra that can wait.",
+      "period": "Choose an amount of protected time that fits the work and your energy. If an input is missing, note a useful independent task or a sensible stopping point. Time passing by itself is not completion.",
+      "materials": "Name the actual source, tool and setting. Include access or setup you need before starting.",
+      "inspection": "Check the result against the intended outcome. Name who or what can confirm it and the next action if it needs revision."
+    }
+  }
+}

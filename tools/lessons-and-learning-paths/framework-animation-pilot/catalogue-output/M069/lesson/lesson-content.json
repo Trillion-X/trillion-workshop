@@ -1,0 +1,58 @@
+{
+  "title": "Calculate “The Number”: Finding Your Financial Freedom Point",
+  "opening": "Estimate a resource target, then compare the assumptions that produce it. What would “enough” make possible in your life?",
+  "labels": {
+    "monthly": "Monthly expenses to cover",
+    "dependents": "Number of dependents",
+    "dependentCost": "Additional monthly cost per dependent",
+    "scenarios": "Compare assumptions",
+    "addScenario": "Add another scenario",
+    "removeScenario": "Remove scenario",
+    "scenarioName": "Scenario name",
+    "omitted": "Omitted monthly costs",
+    "taxMultiplier": "Tax gross-up multiplier",
+    "realReturn": "Assumed return after inflation (%)",
+    "annualNet": "Annual spending to cover, before tax assumption",
+    "annualGross": "Annual amount after tax gross-up assumption",
+    "target": "Invested-assets scenario",
+    "invalidReturn": "Enter a return above 0% to calculate a finite scenario. Zero or negative returns do not produce this target.",
+    "invalidTaxMultiplier": "Use a gross-up multiplier of 1 or more: 1 adds no amount; 2 doubles annual spending. It is not a tax rate.",
+    "invalidInput": "Enter a non-negative amount using digits and an optional decimal point.",
+    "countInput": "Enter a whole number of dependents (0 or more).",
+    "assumptionNote": "The multiplier is an explicit scenario input, not a tax rate. A multiplier of 2 doubles the annual spending estimate. The real return is after inflation; enter the return you want to compare.",
+    "outcome": "What would reaching this amount let you do?",
+    "reflection": "Reflect on what this estimate is for",
+    "check": "A spreadsheet gives a precise number. Does that establish a reliable future income? Explain what the calculation shows and what it leaves uncertain.",
+    "save": "Save private scenario",
+    "saving": "Saving scenario",
+    "retry": "Retry the same save",
+    "private": "This practice is private to you. Save it only if you want a copy.",
+    "source": "Source passage",
+    "example": "Illustrative comparison"
+  },
+  "feedback": {
+    "unavailable": "Private practice saving is unavailable. Your scenario remains on screen.",
+    "missing": "Add what you want this scenario to make possible and what its arithmetic cannot establish before saving.",
+    "length": "Shorten this scenario to 2,000 characters or fewer. Your full draft is still here; nothing was saved.",
+    "readFailure": "The saved scenario could not be loaded. Your current work remains on screen.",
+    "saved": "Your private scenario is saved.",
+    "conflict": "This practice record changed elsewhere. Your scenario remains here; read the saved version before saving again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same scenario before changing it."
+  },
+  "source": {
+    "record": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/4/lessons/23/body",
+    "recordIdentity": "1f:5909c7db3477a4055d908028b83410687070c4e82224c2b04bc5629bef778da9",
+    "reconciliation": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/reconciliation.json#/library_entries/68",
+    "assessment": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/68",
+    "assessmentIdentity": "1f:66f9ba1414423126eefcc39b9e89b408567a47ef4af21a316afdb111a3efa995",
+    "manuscript": "Supplied recovered manuscript, p. 40 (82-page edition).",
+    "excerpt": "Estimate monthly expenses, add omitted costs and account for dependents. Multiply by twelve to obtain annual expenses. State a tax assumption separately. Divide by a chosen return after inflation to create an invested-assets scenario. Compare different expense, tax and return assumptions. Then examine what “enough” would make possible in your life.",
+    "boundary": "This arithmetic is a scenario, not a promise, safe withdrawal rule, investment recommendation or financial plan. The inputs do not establish future returns, taxes, volatility, duration or financial adequacy."
+  },
+  "example": {
+    "title": "Same spending, different return assumptions",
+    "body": "At $2,000 monthly net spending, with no omitted costs, dependents or tax gross-up, annual spending is $24,000. Dividing by assumed real returns of 2%, 3% and 6% gives $1,200,000, $800,000 and $400,000. This is arithmetic from stated inputs; none of the figures is certified as enough or safe."
+  }
+}

@@ -1,0 +1,163 @@
+{
+  "title": "The Adaptive Outcome Steward",
+  "opening": "A player can return a serve in a drill and still lack proof under match conditions. The next move depends on the current evidence, what remains uncertain, and who can act.",
+  "labels": {
+    "loop": "Explore the outcome loop",
+    "loopIntro": "Choose a point in the loop, then follow the new evidence back to the decision it changes. The source gives an order for work, not a rigid one-pass chronology.",
+    "progress": "Current source step",
+    "back": "Previous step",
+    "next": "Next step",
+    "active": "Current step",
+    "current": "{title} ({n} of 13)",
+    "branch": "New evidence changes the route",
+    "branchIntro": "These are illustrative branches. They show where a changed condition reopens work; they do not report a learner outcome.",
+    "predictionFailed": "The prediction failed",
+    "authorityMissing": "Authority is missing",
+    "resultUnresolved": "The result is unresolved",
+    "resultSupported": "The agreed result is supported",
+    "reconsider": "Reconsider the outcome",
+    "branchPrediction": "Keep the earlier account, add the new observation, then revisit the versioned state model at step 3.",
+    "branchAuthority": "Return to ownership at step 7 before choosing or performing an intervention.",
+    "branchUnresolved": "Keep the result open at step 11 and name evidence that could resolve it.",
+    "branchSupported": "At step 13, decide whether to continue, revise, preserve, or stop.",
+    "performed": "Record the intervention as performed",
+    "pending": "Select Act at step 9 before recording an intervention.",
+    "doneAction": "The intervention is marked performed. Its effect still needs observation.",
+    "outcome": "Observed result",
+    "outcomeUnknown": "Choose what the evidence supports",
+    "private": "This private note is optional. The six required course questions are separate.",
+    "practice": "Apply the loop to a real ongoing task",
+    "practiceIntro": "Record the actual outcome, what you observed, the current uncertainty, who can act, and the next bounded intervention. Do not mark a plan as an action.",
+    "loadExample": "Load example",
+    "sampleLoaded": "Example loaded.",
+    "save": "Save private note",
+    "saving": "Saving private note",
+    "retry": "Retry the same save",
+    "done": "Private note saved",
+    "missing": "Add one note before saving.",
+    "length": "This full note is over 2,000 characters. Shorten it to save; all of your text stays here.",
+    "source": "Manuscript, pages 71–74",
+    "sourceQuote": "Use this loop when there is an outcome to achieve or preserve. In open exploration, steward the question, the conditions that let you investigate and the observations you retain. Let discoveries shape the next question. When a result is chosen, use the outcome loop to work toward it and test what happens.",
+    "sourceLocator": "Manuscript, pages 71–74 (82-page source edition).",
+    "actionAtStep9": "This action records performance only. The result still needs observation."
+  },
+  "feedback": {
+    "saved": "Your private note is saved.",
+    "unavailable": "Private saving is unavailable. Your note stays on screen.",
+    "missing": "Add one note before saving.",
+    "length": "Shorten the full note to fit the 2,000-character limit. Your text stays here.",
+    "conflict": "This note changed elsewhere. Your answers remain here; compare the saved version before saving again.",
+    "readFailure": "The saved note could not be loaded.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same note before changing it."
+  },
+  "steps": [
+    {
+      "id": "1",
+      "title": "Define the desired outcome and proof",
+      "detail": "Name the change, preservation, or prevention; who benefits; the period; protected conditions; and evidence."
+    },
+    {
+      "id": "2",
+      "title": "Observe current reality",
+      "detail": "Inspect what is happening and what existing evidence already answers."
+    },
+    {
+      "id": "3",
+      "title": "Build a versioned state model",
+      "detail": "Keep observations, explanations, assumptions, unknowns, and conditions distinct; retain earlier accounts."
+    },
+    {
+      "id": "4",
+      "title": "Predict likely branches and intervention effects",
+      "detail": "Record expected effects, conditions, timeframe, and signs that could change the view."
+    },
+    {
+      "id": "5",
+      "title": "Find current and future bottlenecks",
+      "detail": "Name what limits the outcome now and what may limit it after improvement."
+    },
+    {
+      "id": "6",
+      "title": "Identify the deepest controllable constraint",
+      "detail": "Change an accessible cause rather than repeatedly compensating for its effects."
+    },
+    {
+      "id": "7",
+      "title": "Determine authority and ownership",
+      "detail": "Identify who can act, who accepted responsibility, and which decisions remain with someone else."
+    },
+    {
+      "id": "8",
+      "title": "Choose a bounded intervention",
+      "detail": "Set the move, scope, resources, expected effect, and stopping conditions."
+    },
+    {
+      "id": "9",
+      "title": "Act",
+      "detail": "Perform the selected work. Preparation is not execution."
+    },
+    {
+      "id": "10",
+      "title": "Observe adaptation and side effects",
+      "detail": "Inspect how people and surrounding conditions respond beyond the first favorable result."
+    },
+    {
+      "id": "11",
+      "title": "Resolve the result",
+      "detail": "Compare evidence with the expectation; mark successful, unsuccessful, or unresolved."
+    },
+    {
+      "id": "12",
+      "title": "Compile the lesson",
+      "detail": "Change an explanation, tool, environment, or default so a later attempt can use what was learned."
+    },
+    {
+      "id": "13",
+      "title": "Reconsider the outcome and repeat",
+      "detail": "Continue, revise, preserve, or stop. New evidence may also change the outcome itself."
+    }
+  ],
+  "fields": [
+    {
+      "id": "outcome",
+      "label": "What result or open question are you responsible for?"
+    },
+    {
+      "id": "observed",
+      "label": "What happened, and under which conditions?"
+    },
+    {
+      "id": "unknown",
+      "label": "What is still assumed or unknown?"
+    },
+    {
+      "id": "owner",
+      "label": "Who has authority and accepted responsibility for the next action?"
+    },
+    {
+      "id": "return",
+      "label": "What bounded action would you take, and what evidence would you inspect after it?"
+    }
+  ],
+  "example": {
+    "outcome": "A player returns this type of serve into the chosen area under match conditions.",
+    "observed": "The practice drill is repeatable. Match-condition evidence has not yet been observed.",
+    "unknown": "The controlled drill may not transfer to match conditions; the reason is not established.",
+    "owner": "The coach can propose a bounded practice change; the player retains choice over participation and conditions.",
+    "return": "Run a short practice that tests one proposed adjustment, stop if it creates another difficulty, then inspect match-condition evidence before claiming success."
+  },
+  "source": {
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/candidate137/course-input.json#/courses/9/lessons/6/body",
+    "canonicalBodyIdentity": "1f:ce26e8a456615d576316b1d679c9250175cbaebbd76edb4d846113376cea41c6",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/155",
+    "assessmentIdentity": "1f:44d47d03b20c0a9ce5463f6a413f71cb1214be58cbe642616e22dafd64efa768",
+    "assessmentBoundary": "Six required open-ended course questions remain separate from this optional private note. No qualified semantic grade or learner outcome is supplied.",
+    "manuscriptPdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscriptPdfIdentity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPage": "Manuscript, pages 71–74",
+    "manuscriptPageText": ".local/curriculum-continuation-20261028/M118-M120-next-unbuilt-source-mappings/source-pages-71-76.txt",
+    "manuscriptPageTextIdentity": "1f:f72a092d5042b70ec7e8570ac5f3eadb5300bdeb3d7f8738658747b8668a957b"
+  }
+}

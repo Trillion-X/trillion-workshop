@@ -1,0 +1,77 @@
+{
+  "title": "Stop Looking, Start Seeing",
+  "opening": "Separate what happened, what you felt, what you concluded and what still needs attention.",
+  "labels": {
+    "source": "Manuscript excerpt",
+    "guided": "Read the statement",
+    "guidedText": "They did not reply, so I have nothing valuable to offer. Which part is directly observed?",
+    "classify": "Choose the directly observed part",
+    "classifyGroup": "Choose the directly observed part of the statement",
+    "result": "What this shows",
+    "next": "Choose a response that fits the situation",
+    "nextGroup": "Choose a practical next response",
+    "practice": "Reflect on a manageable event",
+    "save": "Save private practice notes",
+    "busy": "Saving notes",
+    "retry": "Retry the same save",
+    "event": "What happened that someone could observe?",
+    "sensation": "What sensations, feelings, thoughts or images were present?",
+    "meaning": "What did you conclude the event meant?",
+    "evidence": "What does the event establish, and what remains unknown?",
+    "need": "What practical need, risk or obligation remains?",
+    "step": "What fitting action, boundary, inquiry or rest comes next?",
+    "private": "Private practice record"
+  },
+  "examples": {
+    "summary": "The manuscript distinguishes the feeling from the explanation for postponing.",
+    "work": {
+      "title": "A moment before sharing work",
+      "description": "You are about to show someone your work. Your chest tightens, you imagine criticism and decide the work needs another week. The feeling is present; whether another week is needed remains a question."
+    }
+  },
+  "teaching": {
+    "sourceExcerpt": "Those are different explanations, and the feeling alone cannot decide between them. Observe what is present: the bodily sensation, the thought, the image of what might happen and the urge to postpone.",
+    "guidedExplanation": "The absent reply is observable within the period you checked. It does not, by itself, establish why there was no reply or what you have to offer overall. A refusal can matter practically without measuring a person's right to exist."
+  },
+  "choices": {
+    "classify-no-reply": { "label": "They did not reply during the period checked", "description": "That is the event described. The absent reply is observable within the period you checked; it does not establish the reason or your overall value." },
+    "classify-worth": { "label": "I have nothing valuable to offer", "description": "That is an interpretation about your whole value. It is a broad conclusion added to the event." },
+    "classify-meaning": { "label": "I know why they did not reply", "description": "The reason is not established here. Timing, the offer, the relationship or something else may matter; check available information." },
+    "classify-sensation": { "label": "My chest tightened", "description": "That is a sensation to notice, not an explanation for the silence. The practical question may still need attention." },
+    "respond-check": { "label": "Check the period and available information", "description": "Confirm whether a reply arrived in the period you mean. If the reason matters, seek relevant information instead of treating one explanation as settled." },
+    "respond-review": { "label": "Review the offer or work for specific feedback", "description": "A refusal may say something about the offer, timing, relationship or work. Look for specific evidence that could guide a revision." },
+    "respond-obligation": { "label": "Address a concrete deadline, bill or risk", "description": "Reflection does not remove material needs. If a bill, deadline, safety concern or other obligation is present, choose a practical response or suitable support." },
+    "respond-pause": { "label": "Pause or rest before deciding", "description": "You do not have to make the feeling disappear first. A pause can be one choice; return to the practical question when you are ready." }
+  },
+  "practice": {
+    "prediction": "Describe the event in observable terms, including the period or context.",
+    "observation": "What sensations, feelings, thoughts, images or urges did you notice?",
+    "comparison": "What interpretation did you add, and what does the event actually establish?",
+    "result": "What practical need, risk or obligation remains?",
+    "revision": "What information could change your interpretation?",
+    "step": "What fitting action, boundary, inquiry or rest will you choose?"
+  },
+  "feedback": {
+    "unavailable": "Private practice saving is unavailable here. Your answers remain on this screen.",
+    "missing": "Answer all six prompts before saving your private notes.",
+    "length": "Keep each answer within 2,000 characters.",
+    "readFailure": "Saved notes could not be loaded. Your current answers remain on this screen.",
+    "saved": "Your private practice notes are saved.",
+    "conflict": "The saved notes changed elsewhere. Review your answers, then save again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry the same answers.",
+    "retryPending": "The earlier save is unresolved. Retry the same answers before changing them."
+  },
+  "source": {
+    "sourceRecord": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/4/lessons/0",
+    "sourceSpanRecord": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/source-span-bindings.json#M047",
+    "expandedLibraryIdentity": "1f:bd2628d09ef7d9d0dd0354c768d25173bd5651e91f47bc1960268020831931e0",
+    "manuscriptLocator": "pp. 35–37 in the supplied 82-page edition",
+    "courseInputBlake3": "058dc32df58cdc621aa5973bbaf40ae0c85ed2cee107bce313c707fd62e05177",
+    "sourceSpanBindingsBlake3": "3427d70192d90df4fe11ab01cce81ff3b989979c6638059aedfc7c8c89470e1c",
+    "manuscriptPdfBlake3": "d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPageExtractBlake3": "bfda488b60d290a5d45db0aa33e34e36511128fdf4eecab7fda797c90957dd6b",
+    "distinctions": "Keep the event, sensation, interpretation and practical response distinct. A refusal or absent reply does not establish global worth; material risks and obligations still call for an appropriate response.",
+    "limits": "The manuscript's position about a person's right to exist is a philosophical commitment, not a measured result. The lesson is reflective instruction, not a diagnosis or evidence that an outcome will improve. Serious distress may call for appropriate support."
+  }
+}

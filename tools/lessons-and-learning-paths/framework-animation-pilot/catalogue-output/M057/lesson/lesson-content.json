@@ -1,0 +1,46 @@
+{
+  "title": "Post-Utility Life Design",
+  "opening": "Some commitments can start to feel like proof that you deserve your place. Test a modest change in one area before drawing a conclusion about your whole life.",
+  "example": {
+    "title": "One optional task",
+    "body": "A person stops volunteering for one future optional task while keeping current promises or renegotiating any change that affects someone else. They notice the practical effects and what the time serves. If the task is a real responsibility, they redesign the trial."
+  },
+  "labels": {
+    "area": "Choose one area",
+    "areaPrompt": "Where does performance feel tied to your worth? Name one recurring situation; you do not need to explain more than you want to.",
+    "change": "Draft a modest change",
+    "changePrompt": "What could you change for a short trial, without breaking a promise?",
+    "commitments": "Keep people and promises in view",
+    "commitmentsPrompt": "What needs to stay covered, or who would need to agree to a change? You can leave this blank if no one else is affected.",
+    "reviewWindow": "The manuscript suggests two weeks. Use that window when it fits; choose another period, review after one attempt, or skip a timed trial if it would create risk or burden.",
+    "review": "Review what happened",
+    "reviewPrompt": "What changed in daily life? How did the trial feel? Record a benefit, a neutral result, or a problem, even if it differs from what you expected.",
+    "decision": "Decide what to do next",
+    "decisionPrompt": "Keep, revise, or stop the change? If it caused a real cost or left a responsibility uncovered, what will you repair or renegotiate?",
+    "save": "Save private notes",
+    "saving": "Saving private notes",
+    "retry": "Retry the same save",
+    "loading": "Loading your saved notes."
+  },
+  "feedback": {
+    "unavailable": "Private notes cannot be saved here. Your writing remains on screen.",
+    "missing": "Add an area before saving. You can use or leave the practice without saving.",
+    "length": "This field is over 2,000 characters. Shorten it before saving; your text remains here.",
+    "readFailure": "Saved notes could not be loaded. Your current writing remains here.",
+    "saved": "Your private notes are saved.",
+    "conflict": "These notes changed elsewhere. Your writing remains here; compare before saving again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry the same notes.",
+    "retryPending": "The earlier save is unresolved. Retry the same notes before changing them."
+  },
+  "practice": {
+    "fields": ["area", "change", "commitments", "review", "decision"]
+  },
+  "source": {
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/4/lessons/11/body",
+    "canonicalBodyIdentity": "1f:c26e9443b44553d24a6f572694f0849003306d2375309406a929e09060758bc2",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/56",
+    "assessmentIdentity": "1f:d8b6882c6fca75f31d2c3f4335fe150ae9a425404777fb4331bbc48b28cc3e4f",
+    "assessmentBoundary": "The local module is source-qualified against the current course body and assessment record. It does not establish canonical adoption, author acceptance, publication, or a learner outcome."
+  }
+}

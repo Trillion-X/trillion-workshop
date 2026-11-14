@@ -1,0 +1,63 @@
+{
+  "title": "Cultivating clear seeing",
+  "opening": "Before you share a draft, “This will fail” may come up. You can notice the thought and the effort to push it away, then inspect what the draft needs.",
+  "steps": [
+    {
+      "id": "notice",
+      "label": "Notice",
+      "description": "If you catch yourself trying to make the thought disappear or thinking “I'm doing this wrong,” include that effort in what you notice."
+    },
+    {
+      "id": "receive",
+      "label": "Receive",
+      "description": "A sensation, perception, thought or emotion may already be here. Give it your attention without waiting to feel calmer or have a special insight."
+    },
+    {
+      "id": "observe",
+      "label": "Observe",
+      "description": "A sensation may change, a thought may come and go, and a feeling may intensify or fade. The thought “This will fail” predicts the whole draft will fail. Inspect the example sentence before deciding whether that prediction fits."
+    },
+    {
+      "id": "return",
+      "label": "Return",
+      "description": "If “This will fail” feels less convincing, notice that. If it still feels convincing, do not force yourself to disbelieve it or replace it with reassurance. Check what the draft actually needs, then do what the situation calls for."
+    }
+  ],
+  "initialStep": "notice",
+  "labels": {
+    "step": "Move through the practice",
+    "draftSentence": "A sentence in the draft",
+    "ownPursuit": "Your own situation",
+    "save": "Save reflection",
+    "busy": "Saving reflection"
+  },
+  "feedback": {
+    "missing": "Complete each reflection field before saving.",
+    "length": "Keep each answer within 2,000 characters.",
+    "readFailure": "Your saved reflection could not be loaded.",
+    "saved": "Your reflection is saved.",
+    "conflict": "This reflection changed elsewhere. Review it and save again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check it again.",
+    "saveFailure": "The save is still uncertain. Retry to check it safely.",
+    "retryPending": "Your earlier reflection is still being saved. Wait for its status before retrying.",
+    "unavailable": "Saving is unavailable for this lesson."
+  },
+  "statements": [
+    {
+      "id": "draft-sentence",
+      "text": "“Every learner will understand this after one lesson.”",
+      "feedback": "This example sentence has no source. Check what supports the claim, then ask whether one unsupported sentence means the whole draft will fail."
+    }
+  ],
+  "ownPursuit": {
+    "prompt": "Choose a recent, ordinary moment in your pursuit that feels comfortable to think about.",
+    "prediction": "What did you tell yourself would happen, or what were you trying to make yourself think or feel?",
+    "observation": "What sensation, perception, thought or feeling did you notice at the time?",
+    "revision": "What does the situation call for now, whether or not the belief loosens?"
+  },
+  "accessibility": {
+    "step": "Four steps for noticing a thought and returning to what the situation calls for",
+    "ownPursuit": "Write and save a reflection about one thought, what you noticed and what the situation calls for",
+    "figure": "Illustrative draft represented by a dimensional open book."
+  }
+}

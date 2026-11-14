@@ -1,0 +1,48 @@
+{
+  "title": "Life Journey Documentation",
+  "opening": "A tidy account can hide changes. Choose a life period or question you want to understand. Record what mattered then, the conditions around it, and what changed. You can leave parts out; you do not need to tell your whole life story.",
+  "source": {
+    "sourceRecord": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/4/lessons/18/body",
+    "reconciliationId": "M064",
+    "manuscriptLocator": "p. 39 (82-page source edition)",
+    "distinctions": "A sequence of life chapters can show what continued and what changed. A possible cause stays a possibility when the evidence does not settle it.",
+    "limits": "This is a voluntary recollection, not a complete timeline or a diagnosis. It does not establish effectiveness, author acceptance, publication or a customer's outcome."
+  },
+  "labels": {
+    "exampleHeading": "Compare two periods",
+    "exampleIntro": "One person compares team soccer with a later preference for hiking alone.",
+    "exampleFirstTitle": "Playing soccer",
+    "exampleFirstWhen": "Earlier, for several seasons",
+    "exampleFirstDetails": "Learning plays with teammates mattered. Weekends were open and the field was nearby.",
+    "exampleLaterTitle": "After moving",
+    "exampleLaterWhen": "Later, across a few years",
+    "exampleLaterDetails": "The person stopped team soccer and preferred hiking alone, even after weekends opened up again.",
+    "exampleCompare": "Enjoying the improvement of a physical skill continued; wanting team competition reversed. The move may have contributed, but the chapters do not settle why. Keep both the real change and the unanswered cause.",
+    "chaptersHeading": "Your chapters",
+    "chapterNumber": "Chapter",
+    "chapterName": "Name this period in your own words",
+    "chapterWhen": "When was it? A rough range or “not sure” is enough.",
+    "chapterMattered": "What mattered to you, and what were the conditions around it?",
+    "chapterChange": "What changed? What might have contributed to it?",
+    "chapterPattern": "What preference continued or reversed? What is still unclear?",
+    "addChapter": "Add a chapter",
+    "removeChapter": "Remove chapter",
+    "moveEarlier": "Move chapter earlier",
+    "moveLater": "Move chapter later",
+    "empty": "No chapters yet. Add one when you are ready.",
+    "privacy": "Use only the details you want to keep here. Save what is useful and leave the rest blank.",
+    "capacityNote": "You can save up to 2,000 characters at a time. If the draft is longer, shorten or remove part of it; the full draft will stay here until you do.",
+    "capacity": "This draft is over 2,000 characters. Shorten or remove part of it before saving.",
+    "save": "Save chapters",
+    "retry": "Retry save",
+    "stopBoundary": "A possible explanation is not a fact just because it makes the story tidy. Keep a genuine reversal or an unanswered question in the record."
+  },
+  "feedback": {
+    "loading": "Loading your saved chapters…",
+    "saved": "Chapters saved.",
+    "saveFailure": "The save did not finish. Your draft is still here; retry when ready.",
+    "readbackFailure": "The saved chapters could not be confirmed. Your draft is still here; retry when ready.",
+    "retryPending": "The last save may still be finishing. Retry to check the same draft.",
+    "conflict": "Another change was saved first. Your draft is still here. Review both versions, then save again if you want to keep yours."
+  }
+}

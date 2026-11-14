@@ -1,0 +1,103 @@
+{
+  "title": "The Perfect System",
+  "opening": "A free school plan can leave learners waiting for the founder. A reusable lesson may reduce that delay, but it can also leave someone without the help they need. To compare them, start with the result the system should produce and count the time and resources of everyone involved.",
+  "modes": [
+    {
+      "id": "founder-queue",
+      "label": "Founder-led queue",
+      "description": "The founder explains the lesson to one learner at a time. Other learners may wait.",
+      "availableStatements": ["system-direction", "reuse-may-help", "universal-winner"]
+    },
+    {
+      "id": "shared-lesson",
+      "label": "Reusable lesson",
+      "description": "One lesson can be read by several learners without repeating the same explanation. Reading access does not guarantee that every learner can use it without support, and a price may add a barrier.",
+      "availableStatements": ["system-direction", "reuse-may-help", "universal-winner"]
+    }
+  ],
+  "options": {
+    "learnerCases": [
+      {
+        "id": "can-use-lesson",
+        "label": "Can use the lesson",
+        "description": "This learner can use the written lesson without added help."
+      },
+      {
+        "id": "needs-human-support",
+        "label": "Needs a person for feedback and continued support",
+        "description": "This example learner needs a person to help. A skilled teacher may improve the result when their feedback changes what the learner can do."
+      }
+    ],
+    "learnerCount": {
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "initial": 3
+    }
+  },
+  "choices": [
+    { "id": "direction", "label": "A direction to improve toward" },
+    { "id": "possible-effect", "label": "A possible effect to check" },
+    { "id": "needs-evidence", "label": "A claim that needs evidence" }
+  ],
+  "statements": [
+    {
+      "id": "system-direction",
+      "kind": "direction",
+      "text": "The system aims for greater depth, quality and breadth with less time, energy and total resource burden, while improving its ability to improve again.",
+      "feedback": "This is a direction for improvement, not a number to calculate or a result already achieved."
+    },
+    {
+      "id": "reuse-may-help",
+      "kind": "possible-effect",
+      "text": "A reusable lesson may reduce repeated explanations, while some learners may still need human support.",
+      "feedback": "Reuse can change where work happens; check what it saves and what support remains."
+    },
+    {
+      "id": "universal-winner",
+      "kind": "needs-evidence",
+      "text": "A paid reusable lesson always serves every learner better than a free founder-led queue.",
+      "feedback": "The example does not establish a winner. Compare the actual purpose, access, support and total burden in the situation."
+    }
+  ],
+  "examples": {
+    "summary": "A reusable lesson may reduce repeated explanations, but access, learner capability, human support, tools, time and funding still matter. A price may fund the work or add a barrier. A skilled teacher can be a stronger option when their feedback improves the result."
+  },
+  "labels": {
+    "arrangement": "Compare arrangements",
+    "learnerCase": "Learner support in this example",
+    "learnerCount": "Illustrated learners",
+    "statements": "Read the claims",
+    "ownPursuit": "Apply it to your own decision",
+    "prediction": "Your prediction",
+    "observation": "What evidence would you look for?",
+    "revision": "What would you change after seeing the result?",
+    "save": "Save reflection",
+    "busy": "Saving…"
+  },
+  "feedback": {
+    "openQuestion": "What would you need to know before choosing between these arrangements?",
+    "unavailable": "Saving is unavailable for this lesson.",
+    "missing": "Complete each practice field before saving.",
+    "length": "Each practice answer must be no longer than 2,000 characters.",
+    "readFailure": "Your saved reflection could not be loaded.",
+    "saved": "Your reflection was saved.",
+    "conflict": "This reflection changed elsewhere. Review it and save again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check it again.",
+    "saveFailure": "The save is still uncertain. Retry to safely check it again.",
+    "retryPending": "Your earlier reflection is still being saved. Wait for its status before trying again."
+  },
+  "ownPursuit": {
+    "prompt": "Choose a decision you can inspect. Keep the purpose in view, include the people who carry the work, and leave room to revise the arrangement when you learn more.",
+    "prediction": "Before you compare, what do you expect each arrangement to improve or make harder?",
+    "observation": "What could you observe that would show whether the intended result occurred, including who spent time or needed support?",
+    "revision": "Given that evidence, what would you keep, change or investigate next?"
+  },
+  "accessibility": {
+    "figure": "A founder-led learner queue and a reusable lesson, with an optional person providing support.",
+    "arrangement": "Choose which school arrangement to view",
+    "learnerCase": "Choose the learner's support needs",
+    "statements": "Classify the statements using the reading prompts",
+    "ownPursuit": "Write and save an ungraded reflection about a decision of your own"
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "title": "Momentary Awareness Check-in",
+  "opening": "At a suitable transition, briefly notice what is present, identify anything that matters to the next activity, and continue.",
+  "labels": {
+    "example": "Illustrative message transition",
+    "phases": "Check-in sequence",
+    "phaseBefore": "Pause",
+    "phaseNotice": "Notice",
+    "phaseContinue": "Continue",
+    "beforeHeading": "A pause between conversations",
+    "before": "You have just left a tense call. Before replying to a colleague, notice what you carry into the next conversation.",
+    "noticeHeading": "What is present now?",
+    "sensation": "Sensation",
+    "sensationValue": "Your shoulders are raised.",
+    "thought": "Thought",
+    "thoughtValue": "A line from the earlier call is still repeating in your mind.",
+    "feeling": "Feeling",
+    "feelingValue": "You feel irritated.",
+    "surroundings": "Surroundings",
+    "surroundingsValue": "The colleague's message asks for the draft by noon.",
+    "storyHeading": "Observation and interpretation",
+    "observation": "What you can observe: the message asks for the draft by noon.",
+    "interpretation": "A possible story: “They think I am unreliable.” The message does not establish that meaning.",
+    "continueHeading": "Carry forward what matters",
+    "continue": "The noon deadline affects the next action. The irritation is also present, but it does not tell you what the colleague intended.",
+    "nextAction": "Check whether the draft can be sent by noon, then reply with the actual timing. You could choose differently if the deadline is unsafe or impossible.",
+    "notRequired": "Noticing does not require changing the feeling or analyzing every thought. A clear next step, a safety demand or no useful pause can be a reason to continue without this check-in.",
+    "practiceHeading": "Try a brief check-in",
+    "practiceIntro": "At one suitable transition, name one internal condition and one external condition. Then note what, if anything, affects the next activity.",
+    "internalPrompt": "One internal condition I notice",
+    "externalPrompt": "One external condition I notice",
+    "nextPrompt": "What matters to the next activity, and what will you continue with? If nothing changes, write “No change.”",
+    "save": "Save private reflection",
+    "retry": "Retry the same private save",
+    "busy": "Saving private reflection",
+    "privacy": "This reflection is private to you. Saving it does not mark the lesson complete or assess what you noticed.",
+    "sourceTitle": "Manuscript, page 44",
+    "sourceQuote": "At a transition, pause and ask, “What is awareness noticing right now?” Include sensations, thoughts, feelings and surroundings, then continue the activity.",
+    "sourceLocator": "Supplied manuscript, 82-page source edition, p. 44."
+  },
+  "feedback": {
+    "unavailable": "Private reflection saving is unavailable. Your writing remains on screen.",
+    "missing": "Add one internal condition, one external condition and what you will do next before saving.",
+    "length": "This field is over 2,000 characters. Shorten it to save; the full draft stays on screen.",
+    "readFailure": "The saved reflection could not be loaded. Your current writing remains on screen.",
+    "saved": "Your private reflection was saved and read back.",
+    "conflict": "The saved reflection changed elsewhere. Your writing remains here; review the saved version before saving again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same reflection before changing it."
+  },
+  "practice": {
+    "internal": "One internal condition I notice",
+    "external": "One external condition I notice",
+    "next": "What matters to the next activity, and what will you continue with? If nothing changes, write “No change.”"
+  },
+  "example": {
+    "observations": [
+      { "label": "Sensation", "value": "Your shoulders are raised." },
+      { "label": "Thought", "value": "A line from the earlier call is still repeating in your mind." },
+      { "label": "Feeling", "value": "You feel irritated." },
+      { "label": "Surroundings", "value": "The colleague's message asks for the draft by noon." }
+    ],
+    "story": "A possible story: “They think I am unreliable.” The message does not establish that meaning.",
+    "relevant": "The noon deadline affects the next action. The irritation is also present, but it does not tell you what the colleague intended.",
+    "action": "Check whether the draft can be sent by noon, then reply with the actual timing. You could choose differently if the deadline is unsafe or impossible."
+  },
+  "source": {
+    "record": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/delivery-history/302205da0020a769b62e1bfa45706ca5193ac0cde1fa0d55c1ac45b07e9a0768/course-input.json#/courses/4/lessons/43/body",
+    "bodyIdentity": "1f:5f8452a96d8e8db6d156eed396184e67ea2b7c9649f0edfb46ba5f8293b65965",
+    "assessmentRecord": "content-drafts/framework-library-2026-10-24/community-config.json#/courses/3/lessons/41/body",
+    "assessmentBodyIdentity": "1f:5f8452a96d8e8db6d156eed396184e67ea2b7c9649f0edfb46ba5f8293b65965",
+    "assessment": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/87",
+    "assessmentIdentity": "1f:168467e01848eef591330af0235d027b858885076bbf1cb14433e4be939e619d",
+    "assessmentPolicy": "Open-ended responses have no stored gold answer. The exact source definition is the practice-card answer only. The learner's own AI supplies any practice grade; its semantic judgment is unqualified. Syntactic validity is not evidence of understanding, transfer, or outcome success.",
+    "manuscriptPdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscriptPdfIdentity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPageText": "proof/source-page-44/page-44.txt",
+    "manuscriptPageTextIdentity": "1f:5bc0dbbda9eeb8f90fbd26473d9f70be7e82711deb5f34239c806d5b18bb6d00",
+    "limits": "The supplied manuscript is the source; authorship or adoption of every wording is not independently established. The message scenario is an authored illustration, not an observed outcome. Private practice does not establish author acceptance, course adoption or learner effectiveness."
+  }
+}

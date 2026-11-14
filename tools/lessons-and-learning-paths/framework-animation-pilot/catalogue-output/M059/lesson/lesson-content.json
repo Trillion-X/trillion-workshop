@@ -1,0 +1,54 @@
+{
+  "title": "Shadow Work: The Distinction Detector",
+  "opening": "A strong reaction can raise a question about what you value. Separate what happened from the quality you assigned, then look for examples and counterexamples before you draw an inference.",
+  "labels": {
+    "example": "A reaction to credit",
+    "map": "Separate the event from your interpretation",
+    "addCase": "Add another reaction",
+    "removeCase": "Remove reaction",
+    "save": "Save my private reflection",
+    "busy": "Saving reflection",
+    "retry": "Retry the same save"
+  },
+  "examples": {
+    "context": {
+      "description": "During a project meeting, a colleague says, “I completed the project,” without naming the people who worked on it. I judge the comment as unfair and wonder whether fair credit matters to me. That is a possible value to examine, not proof of the colleague’s motive. I may not know who was asked to present or what others said earlier. Other examples and counterexamples can change the interpretation."
+    }
+  },
+  "practice": {
+    "instructions": "Describe one event without naming the other person. Record the behavior you observed, the quality you assigned, and a value the reaction might point to. Add other examples and counterexamples before you treat the value as an explanation. Leave unknowns blank. This reflection does not diagnose another person or promise a therapeutic result.",
+    "reaction": "Reaction",
+    "reactionPlaceholder": "Choose admiration or criticism",
+    "admiration": "Admiration",
+    "criticism": "Criticism",
+    "event": "What happened, and where?",
+    "behavior": "What specific behavior did you observe?",
+    "quality": "What quality did you assign to that behavior?",
+    "value": "What value might your reaction point to?",
+    "examples": "What other examples fit this interpretation?",
+    "counterexamples": "What counterexamples or missing facts weaken it?",
+    "next": "What fact or next action will you check before acting?"
+  },
+  "feedback": {
+    "unavailable": "Private saving is unavailable. Your reflection remains here.",
+    "missing": "Add a fact to check or a next action before saving this reflection.",
+    "fieldLength": "Each answer has a 2,000-character limit. Shorten it to save; your full text remains here.",
+    "length": "This reflection is too large to save. Shorten an answer or remove a reaction.",
+    "readFailure": "Your saved reflection could not be loaded. Your current notes remain here.",
+    "saved": "Your private reflection is saved.",
+    "conflict": "This reflection changed elsewhere. Your entries remain here; review the saved version before saving again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same reflection.",
+    "saveFailure": "The save is uncertain. Retry to check the same reflection.",
+    "retryPending": "The earlier save is unresolved. Retry the same reflection before changing it."
+  },
+  "source": {
+    "sourceRecord": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/4/lessons/13/body",
+    "retainedAssessmentSource": "content-drafts/framework-library-2026-10-24/community-config.json#/courses/3/lessons/12/body",
+    "reconciliation": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/reconciliation.json#M059",
+    "sourceSpanBindings": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/source-span-bindings.json#M059",
+    "conceptualSupport": "M008 supplies the event-versus-interpretation distinction. This is conceptual support, not a requirement to complete M008 first.",
+    "expandedSource": "Downloads/Trillion X Framework Library.md; BLAKE3 bd2628d09ef7d9d0dd0354c768d25173bd5651e91f47bc1960268020831931e0",
+    "manuscript": "Manuscript p. 39 verified in the 82-page supplied edition. The retained PDF from the genuine M040 proof is proof/source-page-34/Manuscript.pdf; 1,151,040 bytes; BLAKE3 d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e.",
+    "limits": "The credit example is authored instructional material. A reaction can suggest a value but cannot establish another person’s motive, a diagnosis, or a therapeutic result. The local Classroom run does not establish author acceptance, publication or learner effectiveness."
+  }
+}

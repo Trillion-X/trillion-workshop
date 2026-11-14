@@ -1,0 +1,94 @@
+{
+  "title": "Performance Engineering",
+  "opening": "A useful session begins with the ability you want, the part currently limiting it, and an attempt that can show what to work on next.",
+  "labels": {
+    "task": "Make one performance attempt",
+    "taskIntro": "A packing line needs to assemble complete field packs. Work out the session target from the stock and per-pack requirements. The material with the fewest possible complete packs limits the run.",
+    "conditions": "Set up the attempt",
+    "objective": "Choose the capability to inspect",
+    "objectivePrompt": "Which answer will you practice producing accurately?",
+    "preparation": "Choose preparation",
+    "challenge": "Choose a task",
+    "feedback": "Choose feedback",
+    "feedbackMode": "Feedback style",
+    "attempt": "Your answer",
+    "attemptPrompt": "Select the answer for the chosen capability, then check it.",
+    "checkAttempt": "Check this attempt",
+    "nextAttempt": "Try another task",
+    "diagnostic": "Attempt feedback",
+    "sourceSequence": "The session sequence",
+    "sourceSequenceIntro": "Preparation changes the conditions for the work; it does not replace the attempt or its feedback. Use the result to choose an adjustment, then check later whether the ability still holds in the setting where it matters.",
+    "savePlan": "Keep your next-session plan",
+    "save": "Save session plan",
+    "busy": "Saving plan",
+    "retry": "Retry the same save"
+  },
+  "messages": {
+      "unavailable": "Saving is unavailable for this lesson. Your answers remain here.",
+      "missing": "Answer all six plan prompts before saving.",
+      "length": "Keep each answer within 2,000 characters.",
+      "readFailure": "The saved plan could not be loaded. Your current answers remain here.",
+      "saved": "Your session plan is saved.",
+      "conflict": "The saved plan changed elsewhere. Your answers remain here; save again to keep them.",
+      "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+      "saveFailure": "The save is uncertain. Retry the same answers.",
+      "retryPending": "The earlier save is unresolved. Retry the same answers before changing them.",
+      "attemptFirst": "Make and check the performance attempt before saving the plan."
+  },
+  "scenarios": {
+    "field-pack": {
+      "title": "Field packs",
+      "prompt": "Each pack needs 3 cards, 2 tags, and 4 clips.",
+      "materials": [
+        { "id": "cards", "name": "Cards", "perPack": 3, "stock": 22 },
+        { "id": "tags", "name": "Tags", "perPack": 2, "stock": 18 },
+        { "id": "clips", "name": "Clips", "perPack": 4, "stock": 27 }
+      ]
+    },
+    "workshop-kit": {
+      "title": "Workshop kits",
+      "prompt": "Each kit needs 4 cloths, 3 buckles, and 2 tags.",
+      "materials": [
+        { "id": "cloths", "name": "Cloths", "perPack": 4, "stock": 30 },
+        { "id": "buckles", "name": "Buckles", "perPack": 3, "stock": 17 },
+        { "id": "tags", "name": "Tags", "perPack": 2, "stock": 12 }
+      ]
+    }
+  },
+  "choices": {
+    "objective": [
+      { "id": "capacity", "title": "Find the number of complete packs", "description": "Practice the maximum whole-number output." },
+      { "id": "limiter", "title": "Find the limiting material", "description": "Practice identifying which stock sets that output." }
+    ],
+    "preparation": [
+      { "id": "ratio-card", "title": "Write stock ÷ per pack", "description": "Use the ratio prompt before choosing an answer." },
+      { "id": "no-card", "title": "Start without the ratio prompt", "description": "Choose an answer without the formula being shown." }
+    ],
+    "scenario": [
+      { "id": "field-pack", "title": "Field packs", "description": "Use cards, tags, and clips." },
+      { "id": "workshop-kit", "title": "Workshop kits", "description": "Use cloths, buckles, and tags." }
+    ],
+    "feedback": [
+      { "id": "diagnostic", "title": "Show the component calculations", "description": "Inspect each material's complete-pack capacity and the limiting row." },
+      { "id": "verdict", "title": "Show the result first", "description": "See whether the answer works, then decide what to adjust." }
+    ]
+  },
+  "practice": {
+    "prediction": "What single capability will your next session develop, and what result will let you inspect an attempt at it?",
+    "observation": "If your preparation is ready but you have not tried the skill, what can the first performance attempt show you that preparation cannot? Use the attempt above in your answer.",
+    "comparison": "Why does each part of your session exist? Connect the target, limiter, preparation, attempt, feedback, adjustment, and later check to the result you want.",
+    "result": "What would a later task need to show before you could say the ability improved and remained available? What did this checked attempt show, and what remains untested?",
+    "revision": "If the session gets more elaborate but performance or retention does not improve, what would you simplify or change? What observation would lead you to that change?",
+    "step": "Plan a session for a movement skill using the same target, attempt, and feedback logic. What task conditions matter, and where will you later check the ability?"
+  },
+  "source": {
+    "currentCourseInput": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/3/lessons/23",
+    "recoveredLibraryEntry": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/reconciliation.json#/library_entries/30",
+    "assessmentSourceBody": "content-drafts/framework-library-2026-10-24/community-config.json#/courses/2/lessons/23/body",
+    "assessmentSourceBodyIdentity": "1f:019bea57f8ac90c3ff6ad2d37b72d12e7be019c39acc0396a37dd366d86a9fc0",
+    "assessmentData": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/30",
+    "sourceActions": "source-actions.json",
+    "sourceIdentityNote": "The course input supplies current Classroom copy. Assessment provenance intentionally binds to the retained community-config source body; those records have different roles.",
+    "status": "The five action meanings are retained. This packing task and its options are instructional examples, not observations or measured learning outcomes."
+  }
+}

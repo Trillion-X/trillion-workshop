@@ -1,0 +1,77 @@
+{
+  "title": "Inversion / Assumption Reversal",
+  "opening": "You want contact to feel less rushed. Instead of guessing at a fix, ask what would make contact more rushed, then inspect whether those conditions appear in your case.",
+  "labels": {
+    "candidates": "Change one possible condition",
+    "evidence": "Inspect the supplied example",
+    "presence": "Is this condition present?",
+    "relevance": "Does the evidence show that it matters?",
+    "sourceSteps": "The four steps",
+    "ownPursuit": "Use the method on your own question",
+    "save": "Save reflection",
+    "busy": "Saving reflection"
+  },
+  "causes": [
+    {
+      "id": "incoming",
+      "label": "The feed changes",
+      "description": "A higher, wider incoming path changes where the ball reaches the player while the player and camera stay fixed."
+    },
+    {
+      "id": "reach",
+      "label": "The player reaches farther",
+      "description": "The receiving player extends farther toward the same feed. The ball path and camera stay fixed."
+    },
+    {
+      "id": "late",
+      "label": "The swing arrives later",
+      "description": "The receiving player swings later against the same incoming path. The court and camera stay fixed."
+    }
+  ],
+  "evidenceStatuses": [
+    { "id": "present", "label": "Present" },
+    { "id": "absent", "label": "Absent" },
+    { "id": "unknown", "label": "Unknown" }
+  ],
+  "examples": [
+    {
+      "id": "coach-note",
+      "title": "A hypothetical coach note",
+      "description": "In this example, the same feed and starting position are described in two attempts. Contact happens later in the second, but the note does not compare swing timing closely enough to show why. It does not say whether the player reached farther."
+    }
+  ],
+  "exampleSummary": "The note gives you a reason to inspect timing. It does not establish that timing caused the difference. Mark what it says, then decide whether it shows that the condition matters.",
+  "accessibility": {
+    "candidates": "Change one candidate condition in a fixed-camera tennis scene. Each choice changes the modeled player or incoming ball path.",
+    "figure": "Illustrative tennis court with two players, a ball and its incoming path. The selected candidate changes the receiving player or incoming path.",
+    "evidence": "Read the hypothetical note about two tennis attempts, then classify the presence and relevance of each candidate condition. These choices are an unscored reading of the example.",
+    "ownPursuit": "Write a reflection about a real question. Your answers are not scored by this lesson.",
+    "cause": "Select one candidate condition to change the court model."
+  },
+  "ownPursuit": {
+    "prompt": "Choose one real result you want or one assumption you are using. Work backward from its opposite, then return to the actual case before you decide what to change.",
+    "prediction": "What result do you want, or what assumption are you using?",
+    "observation": "What is the opposite result, stated plainly?",
+    "comparison": "What plausible conditions could produce that opposite result?",
+    "revision": "For each condition, what evidence says it is present, absent or still unknown in your actual case?",
+    "step": "Which present and relevant condition would you change, or what is the next check that could establish its relevance?",
+    "result": "What did that check show, or what remains unknown? What would make you revise the explanation?"
+  },
+  "feedback": {
+    "unavailable": "Saving is unavailable for this lesson.",
+    "missing": "Answer each question before saving.",
+    "length": "Keep each answer within 2,000 characters.",
+    "readFailure": "Your saved reflection could not be loaded.",
+    "saved": "Your reflection is saved.",
+    "conflict": "This reflection changed elsewhere. Review it and save again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check it again.",
+    "saveFailure": "The save is still uncertain. Retry to check it safely.",
+    "retryPending": "Your earlier reflection is still being saved. Wait for its status before retrying."
+  },
+  "steps": [
+    { "id": "desired", "label": "State the desired result or current assumption." },
+    { "id": "opposite", "label": "Describe the opposite result or reverse that assumption explicitly." },
+    { "id": "conditions", "label": "Derive the conditions that would make it happen." },
+    { "id": "inspect", "label": "Inspect which conditions actually exist and what changing them would do." }
+  ]
+}

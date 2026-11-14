@@ -1,0 +1,136 @@
+{
+  "title": "Palm Cooling",
+  "opening": "Feeling refreshed and answering the task correctly are two different results.",
+  "labels": {
+    "case": "Cooling and the next task",
+    "caseIntro": "In this example, a person reports feeling refreshed after brief palm cooling. Their answer to the task below is the same before and after.",
+    "taskExample": "Example task",
+    "checkTaskAnswer": "Check the task answer",
+    "action": "Source action",
+    "sensation": "Reported sensation",
+    "claim": "Claim to examine",
+    "task": "Task answer",
+    "decision": "What does this support?",
+    "decisionGroup": "Interpret the task result",
+    "conclusion": "Your reading",
+    "sourceOption": "Source option",
+    "optional": "Optional",
+    "taskEvidence": "Task evidence",
+    "nextMove": "Choose a next move",
+    "nextMoveGroup": "Choose a next move",
+    "practice": "Write your analysis",
+    "save": "Save private notes",
+    "busy": "Saving notes",
+    "retry": "Retry the same save",
+    "source": "Source and limits"
+  },
+  "taskExample": {
+    "prompt": "Choose the book with a blue cover and fewer than 200 pages.",
+    "options": [
+      { "id": "A", "detail": "Blue cover; 220 pages" },
+      { "id": "B", "detail": "Red cover; 120 pages" },
+      { "id": "C", "detail": "Blue cover; 180 pages" }
+    ],
+    "beforeCooling": "A: blue cover, 220 pages",
+    "afterCooling": "A: blue cover, 220 pages",
+    "correctAnswer": "C: blue cover, 180 pages",
+    "reading": "A meets the cover requirement but exceeds the page limit. C meets both requirements.",
+    "interaction": {
+      "groupLabel": "Choose a book to inspect",
+      "figure": "{state} book {id}, {cover} cover, {pages} pages",
+      "open": "Open book",
+      "close": "Close book",
+      "inspect": "Inspect book {id}",
+      "status": "{state} book {id}: {cover} cover, {pages} pages. It {result}.",
+      "openState": "Open",
+      "closedState": "Closed",
+      "result": {
+        "both": "meets both conditions",
+        "coverOnly": "matches the blue cover but exceeds the page limit",
+        "pagesOnly": "is under 200 pages but has a red cover",
+        "neither": "meets neither condition"
+      }
+    }
+  },
+  "interpretations": [
+    {
+      "id": "sensation-only",
+      "label": "Feeling changed; answer did not",
+      "status": "Feeling changed; answer did not",
+      "explanation": "The person reports feeling refreshed, but still picks the 220-page book. The answer misses the page limit; this example does not show that cooling caused the result."
+    },
+    {
+      "id": "stronger-cold",
+      "label": "Stronger cold should help more",
+      "status": "More cold would not meet the page limit",
+      "explanation": "A stronger feeling does not make a 220-page book meet a limit of fewer than 200 pages."
+    },
+    {
+      "id": "mechanism-proved",
+      "label": "The focus mechanism is proved",
+      "status": "Focus is not established",
+      "explanation": "The task shows the page limit was missed. Feeling refreshed does not show what caused the answer or whether focus changed."
+    },
+    {
+      "id": "learning-proved",
+      "label": "Learning improved",
+      "status": "The answer still misses the page limit",
+      "explanation": "The after-cooling answer is still the 220-page book, so this example provides no sign of an improved task result."
+    }
+  ],
+  "nextMoves": [
+    {
+      "id": "address-task",
+      "label": "Review the page limit",
+      "plan": "The answer notices the blue cover but misses the 200-page limit. Practice checking both requirements."
+    },
+    {
+      "id": "keep-optional",
+      "label": "Keep cooling optional; check the task",
+      "plan": "If someone chooses brief, comfortable palm cooling, compare their feeling report with the task result. This answer still exceeds the page limit."
+    },
+    {
+      "id": "make-required",
+      "label": "Require it before learning",
+      "plan": "The answer still exceeds the page limit. That gives no reason to require palm cooling."
+    }
+  ],
+  "practice": {
+    "prediction": "What would a correct answer have to satisfy?",
+    "observation": "Which part of answer A meets the prompt, and which requirement does it miss?",
+    "comparison": "Would a stronger refreshed feeling show improved learning? What answer on the book task would?",
+    "result": "What changes in the answer before and after cooling? What remains unknown about cause or focus?",
+    "revision": "If cooling feels unpleasant or the answer still misses the page limit, what would you change about offering it?",
+    "step": "For another preparation ritual, what does the person do, how do they feel, what benefit is expected, and what task result would help judge it?"
+  },
+  "feedback": {
+    "unavailable": "Private note saving is unavailable here. Your answers remain on this screen.",
+    "missing": "Answer all six prompts before saving your private notes.",
+    "length": "Keep each answer within 2,000 characters.",
+    "readFailure": "Saved notes could not be loaded. Your current answers remain on this screen.",
+    "saved": "Your private notes are saved.",
+    "conflict": "The saved notes changed elsewhere. Review your answers, then save again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry the same answers.",
+    "retryPending": "The earlier save is unresolved. Retry the same answers before changing them."
+  },
+  "source": {
+    "currentCourseInput": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/3/lessons/38",
+    "assessmentSourceBody": "content-drafts/framework-library-2026-10-24/community-config.json#/courses/2/lessons/29/body",
+    "assessmentData": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/36",
+    "currentBodyIdentity": "1f:687e406316c483fd6d92afc98b209474456fb68f8e4740973c7b3ddec94bc86f",
+    "assessmentBodyIdentity": "1f:4566d9c0bfb8b1dcd9cc27fc76885df9aced3b3ffe56008b928cc73d92fa6bd3",
+    "assessmentIdentity": "1f:2d4b143028297c0f19c3e5d3c7f63ac5d9f2cc738a49d5d6b196e02646d0a216",
+    "archiveIdentity": "1f:4bab2f2cac694a8cff9adc5c1209ab424867ac7017c77d4f1634e43b2284a350",
+    "sourceViewIdentity": "1f:db356e50a472ab73811c646d4d83a6fc4770b7e4ad775c598f32a3a7c418377b",
+    "manuscriptLocator": "p. 31 in the supplied 82-page edition",
+    "boundaries": [
+      "The current course body and retained assessment source body are separate records; the retained body is not treated as stale.",
+      "The source action is optional brief palm cooling with comfortably cool water or a suitable surface. No exact temperature or alertness mechanism is established.",
+      "The refreshed sensation and unchanged task in the example are instructional illustration, not observed learner outcomes or causal evidence.",
+      "No bodily exercise is required to complete this lesson. Stop any actual use if uncomfortable; painful cold and ice exposure are outside the source guidance.",
+      "The cited NCCIH page is external context, not source doctrine. No independent learner effectiveness or author adoption is established here."
+    ],
+    "externalContext": "https://www.nccih.nih.gov/health/meditation-and-mindfulness-effectiveness-and-safety"
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "title":"Guild Co-Op Model",
+  "opening":"A shared pool changes when members can use resources. It does not create funds. This editable illustration follows the source order and is not a funded arrangement.",
+  "example":{
+    "title":"Follow the pool in order",
+    "note":"All amounts are editable teaching figures. They are not payments, commitments, or a claim that any safety net is adequate.",
+    "members":[
+      {"id":"member-1","label":"Member 1","contribution":"100"},
+      {"id":"member-2","label":"Member 2","contribution":"100"},
+      {"id":"member-3","label":"Member 3","contribution":"100"},
+      {"id":"member-4","label":"Member 4","contribution":"100"}
+    ],
+    "safetyNeed":"240",
+    "operations":[
+      {"title":"1. Pool agreed contributions","detail":"Count only contributions agreed for this example. Promised future sales are not current spendable funds."},
+      {"title":"2. Top up safety nets first","detail":"Use the pool for the identified safety-net needs before calculating a dividend. A real guild must define who qualifies and the amount needed."},
+      {"title":"3. Divide the remainder equally","detail":"If a remainder exists, divide it by all members, including members who did not need a top-up."}
+    ],
+    "limits":"This calculation leaves out operating costs. Real contribution rates, eligible needs, decision authority, operating costs, and legal and financial design must be agreed. It does not establish that a pool can meet anyone’s needs."
+  },
+  "labels":{
+    "example":"Illustrative amounts",
+    "contribution":"Agreed contribution ($)",
+    "pool":"Total pool",
+    "safetyNeed":"Total identified safety-net top-ups needed ($)",
+    "needHint":"An aggregate teaching amount only. This calculator does not decide who qualifies or how to allocate a shortfall.",
+    "equalShare":"Equal dividend per member",
+    "memberCount":"Members in the example",
+    "remainder":"Amount after modeled top-ups",
+    "poolShort":"Pool shortfall",
+    "result":"Calculation result",
+    "attempt":"Check a real need before proposing a pool",
+    "attemptPrompt":"Name the exact need this pool would meet and who has agreed to contribute. Do not count expected sales as funds already available.",
+    "need":"What specific need would the pool meet?",
+    "contributors":"Who has agreed to contribute? Write “No one yet” if there is no commitment.",
+    "conditions":"What costs, eligibility rules, decision authority, or funding facts still need agreement?",
+    "save":"Save private practice",
+    "busy":"Saving private practice",
+    "retry":"Retry the same save",
+    "private":"Only you can read this saved practice. It does not make a commitment or move money.",
+    "sourceTitle":"Manuscript, page 52",
+    "oversize":"This complete draft is over the 2,000-character limit. Shorten it to save. Your full text stays on screen.",
+    "missing":"Name a need and identify who has agreed to contribute. “No one yet” is a valid answer.",
+    "feedback":{
+      "unavailable":"Private practice saving is unavailable. Your work remains on screen.",
+      "missing":"Name a need and identify who has agreed to contribute.",
+      "length":"Shorten the complete answer to fit the 2,000-character practice limit. Your text stays here.",
+      "readFailure":"The saved practice could not be loaded. Your current work remains on screen.",
+      "saved":"Your private practice is saved.",
+      "conflict":"This practice changed elsewhere. Your answers remain here; review the saved version before saving again.",
+      "readbackFailure":"The save could not be confirmed. Retry to check the same save.",
+      "saveFailure":"The save is uncertain. Retry to check the same save.",
+      "retryPending":"The earlier save is unresolved. Retry the same answers before changing them."
+    }
+  },
+  "source":{
+    "excerpt":"Members contribute a fee to the shared pool. The pool first tops up the safety net of members who need it. The remainder is divided equally among all members as a dividend.",
+    "attribution":"Supplied recovered manuscript. Authorship and adoption of every wording are not independently established.",
+    "boundary":"This is an institutional proposal. It does not establish a live funded guild, contribution rate, guaranteed safety net, or operating legal structure."
+  }
+}

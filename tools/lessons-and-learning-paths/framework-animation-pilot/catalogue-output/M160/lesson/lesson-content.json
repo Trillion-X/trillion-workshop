@@ -1,0 +1,78 @@
+{
+  "title": "Keep the pursuit viable",
+  "opening": "A project may have a distant payoff and still lack the time, tools or support for its next stage. Check the conditions that let you continue, and change the route when one of them needs attention.",
+  "labels": {
+    "journey": "Check what keeps the pursuit viable",
+    "journeyIntro": "The three health bars are a metaphor. Describe actual conditions; they are not numeric diagnoses.",
+    "practice": "Plan the next viable stage",
+    "practiceIntro": "Name one next stage, what it needs, and how you will respond if conditions change.",
+    "source": "Manuscript, pages 79\u201380",
+    "bars": [
+      "Time",
+      "External resources",
+      "Internal will"
+    ],
+    "choices": [
+      "Supported for next stage",
+      "Needs a change",
+      "Not sure yet"
+    ],
+    "fields": [
+      "Pursuit and next stage",
+      "Time: what must happen before available time or a real deadline?",
+      "External resources: what is needed, and where will it come from?",
+      "Internal will: what supports interest, and what signals strain or depletion?",
+      "What change will you make, and when will you recheck?"
+    ],
+    "private": "This private note is optional. The six required course questions are separate.",
+    "save": "Save private note",
+    "saving": "Saving private note",
+    "retry": "Retry the same save",
+    "done": "Private note saved",
+    "missing": "Add one note before saving.",
+    "length": "This full note is over 2,000 characters. Shorten it to save; all of your text stays here.",
+    "sourceQuote": "The health bars are a metaphor: they do not establish that lost motivation is literally irreversible, or that curiosity removes your need for rest and support.",
+    "sourceLocator": "Manuscript, pages 79\u201380"
+  },
+  "fields": [
+    {
+      "id": "step1",
+      "label": "Step 1: Time: identify what must happen before available time or real deadlines run out."
+    },
+    {
+      "id": "step2",
+      "label": "Step 2: External resources: identify required money, tools and support and where they will come from."
+    },
+    {
+      "id": "step3",
+      "label": "Step 3: Internal will: examine interest, strain and depletion and whether the question still draws you."
+    },
+    {
+      "id": "step4",
+      "label": "Step 4: Change the work, support, recovery or commitment where needed, then recheck as conditions change."
+    }
+  ],
+  "feedback": {
+    "saved": "Your private note is saved.",
+    "unavailable": "Private saving is unavailable. Your note stays on screen.",
+    "missing": "Add one note before saving.",
+    "length": "Shorten the full note to fit the 2,000-character limit. Your text stays here.",
+    "conflict": "This note changed elsewhere. Your answers remain here; compare the saved version before saving again.",
+    "readFailure": "The saved note could not be loaded.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "retryPending": "The same save can be retried.",
+    "saveFailure": "The note could not be saved. Your text stays here."
+  },
+  "source": {
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/candidate137/course-input.json#/courses/10/lessons/5/body",
+    "canonicalBodyIdentity": "1f:c82d8ddb245e15fa7953c59f12f0d3044a464948fe3ff4e2879f8a68b773d58c",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/167",
+    "assessmentIdentity": "1f:7b98190591d9e9544e85b31c88025e22eee6e6119946f7218e7254582cfeb256",
+    "assessmentBoundary": "Six required open-ended course questions remain separate from this optional private note. No qualified semantic grade is supplied.",
+    "manuscriptPdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscriptPdfIdentity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPage": "Manuscript, pages 79\u201380",
+    "manuscriptPageText": ".local/curriculum-continuation-20261028/M118-M120-next-unbuilt-source-mappings/source-pages-76-82.txt",
+    "manuscriptPageTextIdentity": "1f:21bc4926935b10e4ffec47ceb4a12c30ffc853fbb0be683fe904459e56724cff"
+  }
+}

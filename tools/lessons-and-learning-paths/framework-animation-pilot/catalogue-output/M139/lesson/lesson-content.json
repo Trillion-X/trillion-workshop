@@ -1,0 +1,83 @@
+{
+  "title": "Standard Escalation Ladder",
+  "opening": "A lesson that works for one learner is a different result from a method that people can use on their own in different situations. A school that improves its teaching needs a way to find what learners miss, change the lessons and check the changes. A higher target helps you identify those requirements; it does not establish that they are met.",
+  "labels": {
+    "comparison": "What would meet this standard?",
+    "comparisonIntro": "In this example, one learner has used a method successfully during a lesson. Compare what that result establishes with the requirements of each larger target.",
+    "minimum": "One successful use",
+    "working": "Independent use",
+    "aspiration": "Improving the teaching",
+    "minimumText": "The immediate target is one learner using the method on a problem. The example supplies that result. Record the success at that scope; it gives you something concrete to develop further.",
+    "workingText": "For independent use, the learner needs to recognize when the method applies and use it without someone guiding every step. Different suitable situations can reveal whether the method was understood or whether the learner was following the original example.",
+    "aspirationText": "A school that improves its teaching needs feedback that reveals where learners get stuck, a way to change the lessons, and later checks of what those changes did. A successful first lesson can contribute to this work without proving that the whole process works.",
+    "signalQuestion": "Standard to examine",
+    "rhythmTitle": "The missing condition has to change the work",
+    "rhythmText": "Moving from the first target to independent use might require a different kind of practice or a new assessment. Improving the teaching might require collecting results and testing a revision. If a higher target changes no action or design, naming another level has added little. A routine task may need one clear standard.",
+    "practice": "Set the standards for your own work",
+    "practiceIntro": "Choose a real objective. Keep the result you need now, the standard for your present work and the larger ambition separate. Then identify what would have to change and what you have actually checked.",
+    "private": "This private note is optional. The six required course questions are separate.",
+    "save": "Save private standards",
+    "saving": "Saving private standards",
+    "retry": "Retry the same save",
+    "done": "Standards saved",
+    "missing": "Add one note before saving.",
+    "length": "This full note is over 2,000 characters. Shorten it to save; all of your text stays here.",
+    "source": "Manuscript, pages 64–65",
+    "sourceQuote": "Standard Escalation Ladder\nSeparate the minimum result you need now, the standard governing the work and\nthe highest meaningful aspiration.",
+    "sourceLocator": "Manuscript, p. 64; the tennis example and explanation continue on p. 65 (82-page source edition).",
+    "loadExample": "Load the teaching example",
+    "sampleLoaded": "Teaching example loaded. Replace it with your own objective when useful."
+  },
+  "feedback": {
+    "saved": "Your private standards are saved.",
+    "unavailable": "Private saving is unavailable. Your note stays on screen.",
+    "missing": "Add one note before saving.",
+    "length": "Shorten the full note to fit the 2,000-character limit. Your text stays here.",
+    "conflict": "This note changed elsewhere. Your answers remain here; compare the saved version before saving again.",
+    "readFailure": "The saved note could not be loaded.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same note before changing it."
+  },
+  "fields": [
+    {
+      "id": "minimum",
+      "label": "The result you need now"
+    },
+    {
+      "id": "standard",
+      "label": "The standard for the work you are doing"
+    },
+    {
+      "id": "aspiration",
+      "label": "What you ultimately want to achieve"
+    },
+    {
+      "id": "missing",
+      "label": "What would have to change to reach a higher standard?"
+    },
+    {
+      "id": "observed",
+      "label": "What have you actually checked, and what remains unknown?"
+    }
+  ],
+  "example": {
+    "minimum": "One learner uses the method to work through a real problem during the lesson.",
+    "standard": "Learners recognize when the method applies and use it without step-by-step guidance in different suitable situations.",
+    "aspiration": "The school finds where its teaching is weak, changes the lessons and checks whether the changes improve learning.",
+    "missing": "Independent use needs a different task without the original guidance. Improving the lesson needs a way to collect and compare learner results.",
+    "observed": "In this example, one successful use during the lesson was observed. Independent use and the effect of future teaching changes have not been checked."
+  },
+  "source": {
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/candidate134/course-input.json#/courses/8/lessons/2/body",
+    "canonicalBodyIdentity": "1f:088e834e6a2b007b0cfbb0433ee2d2b0b691ee60e5f231cd321f3146c2476b8f",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/143",
+    "assessmentIdentity": "1f:d284c13acbed9de5a1eaaece0ec3fc361e40956050a2dfd6d17f75025d8ce54f",
+    "assessmentBoundary": "Six required open-ended questions remain separate from this optional private note. No qualified semantic grade or actual learner outcome is supplied.",
+    "manuscriptPdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscriptPdfIdentity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPage": "p. 64; continuation p. 65 (82-page source edition)",
+    "manuscriptPageText": ".local/curriculum-continuation-20261028/M118-M120-next-unbuilt-source-mappings/source-pages-64-68.txt",
+    "manuscriptPageTextIdentity": "1f:d18801b6f27dd8211a85e81d2d37999cdec67e0984f09fbd19ca7a8d5e549187"
+  }
+}

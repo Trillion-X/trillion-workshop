@@ -1,0 +1,75 @@
+{
+  "title": "A goal's evidence timeline",
+  "opening": "Suppose a learner scores 6 of 10 on a usual task, then 8 of 10 on easier questions. Put the events and their conditions in order before deciding whether performance changed.",
+  "labels": {
+    "timeline": "Events in order",
+    "goal": "Goal and current evidence",
+    "desired": "Desired level",
+    "current": "Current comparable result",
+    "rate": "Observed rate",
+    "target": "Target date",
+    "interpretation": "What does the later score establish?",
+    "interpretationGroup": "Interpret the score change",
+    "nextCheck": "Choose a next comparison",
+    "nextCheckGroup": "Choose conditions for the next attempt",
+    "future": "Planned next check",
+    "yourEntries": "Your dated events",
+    "eventDate": "Date (YYYY-MM-DD)",
+    "eventDetails": "Event details and conditions",
+    "addEvent": "Add event to your timeline",
+    "practice": "Apply it to one of your saved results",
+    "save": "Save my timeline notes",
+    "busy": "Saving notes",
+    "retry": "Retry the same save",
+    "source": "Source actions"
+  },
+  "goal": {
+    "desired": "8 of 10 on the usual difficulty",
+    "current": "6 of 10 on the earlier usual-difficulty attempt",
+    "rate": "Unknown: the example has only one result on the usual difficulty.",
+    "target": "Not supplied. A target date is not a forecast."
+  },
+  "events": [
+    {"id":"goal-set","date":"Day 1","kind":"Goal","title":"Desired level recorded","detail":"Aim for 8 of 10 on the usual difficulty. This is a target, not a prediction that it will happen by a particular date."},
+    {"id":"earlier-attempt","date":"Day 2","kind":"Observed attempt","title":"6 of 10 correct","detail":"Usual difficulty. This is the one comparable result in this scenario."},
+    {"id":"practice","date":"Day 3","kind":"Practice","title":"Practice recorded","detail":"Practice precedes the later attempt. Order alone does not show that practice caused a change."},
+    {"id":"instruction","date":"Day 4","kind":"Instruction","title":"Instruction recorded","detail":"Instruction precedes the later attempt. The timeline does not isolate its effect."},
+    {"id":"later-attempt","date":"Day 5","kind":"Observed attempt","title":"8 of 10 correct","detail":"The questions were easier. Record the score and the changed condition together; this result is not comparable to the earlier one."}
+  ],
+  "eventKinds": ["Practice", "Instruction", "Stage change", "Comparison artifact"],
+  "interpretations": [
+    {"id":"mastery","label":"Mastery proven","claim":"Claim: the 8 of 10 proves rapid mastery.","status":"Not established","feedback":"The later score is observed in this scenario, but the questions were easier. The changed condition makes the scores incomparable; the timeline does not establish rapid mastery or which event caused the result."},
+    {"id":"separate","label":"Comparable progress unknown","claim":"Claim: the score rose, but progress on comparable tasks is unknown.","status":"Score recorded; comparable progress unknown","feedback":"This keeps the observed score, the easier questions and the conclusion separate. A later comparable task could clarify whether performance changed on the same scale."}
+  ],
+  "nextChecks": [
+    {"id":"comparable","label":"Usual conditions","plan":"Planned comparison: usual difficulty, same scoring rule. No result is recorded yet."},
+    {"id":"easier","label":"Easier set again","plan":"Planned attempt: easier set. No result is recorded yet, so this would not settle the comparison with the usual-difficulty result."}
+  ],
+  "practice": {
+    "prediction": "What goal are you tracking? Record its desired level, current level, observed rate and target date. Mark any value you do not know; a target date is not a forecast.",
+    "observation": "Add the date and conditions to one result you have already saved. If you have no result yet, say what you will record first.",
+    "comparison": "Which other goals or workloads compete for attention? What conditions must stay the same for the results to share a scale? Mark any causal link you cannot establish.",
+    "result": "Place actual practice, instruction, stage changes and comparison artifacts on the same timeline. Keep observed events separate from interpretations and planned future checks.",
+    "revision": "What does the timeline support? Revise the goal, forecast or practice conditions only where the dated evidence gives you a reason; keep unknowns unknown.",
+    "step": "Choose the next useful comparison. If a video or message would help, include it only with permission. State what result would change your account or simplify the timeline if it does not change a decision."
+  },
+  "feedback": {
+    "unavailable": "Saving is unavailable for this lesson. Your notes remain on screen.",
+    "missing": "Complete the goal, a saved result or first observation, comparison conditions, timeline evidence, revision and next step before saving.",
+    "length": "Keep each answer within 2,000 characters.",
+    "readFailure": "Your saved notes could not be loaded. Your current notes remain here.",
+    "saved": "Your timeline notes are saved.",
+    "conflict": "These notes changed elsewhere. Your answers remain here. Save again to keep these answers.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is still unresolved. Retry the same answers before changing them."
+  },
+  "source": {
+    "currentRecord": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/M032",
+    "currentBody": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/M032/body",
+    "reconciliationRecord": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/reconciliation.json#/library_entries/M032",
+    "assessmentRecord": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/M032",
+    "assessmentRole": "The assessment record points to the retained community-config source body and has a different identity by design; it remains assessment-role evidence, not the current lesson body.",
+    "status": "The four application actions and all listed limits/examples are preserved in source-actions.json. The timeline scenario and interaction are instructional illustrations, not observed learner outcomes. The recovered manuscript locator is p. 30; authorship/adoption of every wording is not independently established."
+  }
+}

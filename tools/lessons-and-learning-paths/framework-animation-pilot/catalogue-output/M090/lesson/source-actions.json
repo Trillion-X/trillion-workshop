@@ -1,0 +1,183 @@
+{
+  "schema": "framework-animation-pilot.lesson-source-actions/v1",
+  "mapping": {
+    "path": ".local/curriculum-continuation-20261028/M086-M093-next-unbuilt-source-mappings/source-mappings-v2-immutable-course.json",
+    "bytes": 48635,
+    "identity": "1f:169b2aa9dec4f0a70040d0b4af1a52b5eb0f9146bc9cd0b37137cdee00845e5e",
+    "selectedRow": "modules[M090]",
+    "state": "next8-unbuilt-canonical-source-mappings-for-existing-writers",
+    "courseContainer": {
+      "path": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/delivery-history/302205da0020a769b62e1bfa45706ca5193ac0cde1fa0d55c1ac45b07e9a0768/course-input.json",
+      "bytes": 1022491,
+      "identity": "1f:8d96362acb175da7444105aea071c62ab89ecaecb8ec481eb2cf53840d543af4"
+    },
+    "recordPointer": "/courses/4/lessons/45",
+    "bodyPointer": "/courses/4/lessons/45/body",
+    "rawBody": {
+      "path": ".local/curriculum-continuation-20261028/M086-M093-next-unbuilt-source-mappings/M090-current-body.bin",
+      "bytes": 3557,
+      "identity": "1f:9413e9f26492a02123ef178cd0f11bf722d7b3300c0991dfcd95f534aac9c4bf"
+    }
+  },
+  "currentCourseInput": {
+    "id": "M090",
+    "title": "Ecosystem Resonance Mapping",
+    "courseId": "emotional",
+    "bodyIdentity": "1f:9413e9f26492a02123ef178cd0f11bf722d7b3300c0991dfcd95f534aac9c4bf",
+    "body": "# M090 · Ecosystem Resonance Mapping\n\n**Practices · Emotional · Practice / tool**\n\nSource status: Recovered manuscript\n\n> The explanation follows the cited sources. Examples, practice questions and application guidance are authored for this expansion unless identified as source material. Illustrations are not observed outcomes.\n\n## 1. See it\n\nYou think you are always guarded, yet feel open in some settings and closed in others.\n\n## 2. What it is\n\nA comparison of relationships and settings through the clarity, emotion, openness, friction and ease actually experienced in them.\n\n## 3. Why it exists\n\nIt makes contextual differences visible before assigning a fixed trait or blaming one person.\n\n## 4. First principles and mechanism\n\nInteraction depends on participants and conditions. Your experience is one perspective that can guide inquiry, not proof of another person’s motives.\n\n## 5. When to use it\n\n**Use:** Use when choosing or improving settings for honest interaction.\n\n**Do not use it this way:** Do not score another person’s worth or treat discomfort as proof that they are harmful.\n\n**What you need:** Actual interactions, context and appropriate conversations where needed.\n\n## 6. How to use it\n\nSource-informed application guidance. Where the source supplies a sequence, its meaning is retained; additional setup, examples and checks are instructional expansion, not newly attributed original doctrine. Original wording is available in the source panel.\n\n1. Map relevant relationships and settings.\n2. Record clarity, emotion, openness, friction and ease in concrete episodes.\n3. Compare recurring patterns and exceptions.\n4. Choose something to investigate in yourself or the arrangement.\n\n## 7. Watch it happen\n\nIllustration: you speak freely in a small discussion but not in a noisy group. The difference may concern hearing, turn-taking, judgment or topic fit. The map creates questions instead of declaring that the group dislikes you.\n\n**Comparison or near miss:** Asking the other person directly can resolve a specific uncertainty faster than mapping many relationships.\n\n## 8. Now you do it\n\n**Try it now:** Compare two interactions that differed in openness.\n\n**Guided question:** You feel judged. Is actual judgment established?\n\n**Model answer:** No. Keep the feeling, the observed response and the inferred motive distinct.\n\n**Independent transfer:** Compare collaborative work settings without reducing them to friendship preferences.\n\n## 9. How you know\n\n**Learner check:** You can identify a context-sensitive question and avoid mind-reading.\n\n**Outcome check:** The inquiry supports a mutually workable interaction or clearer boundary.\n\n**What would change the account:** Contrary reports or observations should revise the explanation.\n\n## 10. Connect and multiply\n\n- **uses [Human Dynamics](M098.md)** — Distinguishes gamut, safety and flow.\n- **related to [Relationship Matrix](A05.md)** — Shares attention to mind/body range without inventing its missing grid.\n- **feeds [Complete Human Profile](M136.md)** — Adds contextual relationship information.\n\n## 11. Original sources and revisions\n\n**Manuscript locator:** p. 44 (82-page source edition).\n\n**[S01] Manuscript — 82-page edition.** Supplied manuscript; authorship/adoption of every wording is not independently established. File: `sources/Manuscript.pdf`.\n\nExpansion edition: 2026-10-24. These teaching materials have been source-checked and structurally inspected; independent learner effectiveness has not been measured in this production run.\n"
+  },
+  "retainedAssessmentSource": {
+    "container": {
+      "path": "content-drafts/framework-library-2026-10-24/community-config.json",
+      "bytes": 743097,
+      "identity": "1f:db356e50a472ab73811c646d4d83a6fc4770b7e4ad775c598f32a3a7c418377b"
+    },
+    "recordPointer": "/courses/3/lessons/43",
+    "bodyPointer": "/courses/3/lessons/43/body",
+    "bodyIdentity": "1f:9413e9f26492a02123ef178cd0f11bf722d7b3300c0991dfcd95f534aac9c4bf"
+  },
+  "assessment": {
+    "container": {
+      "path": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json",
+      "bytes": 1184237,
+      "identity": "1f:e659da27a852a7a380d3483402b2fd5aee01128568ef36f86ef266e32c677315"
+    },
+    "pointer": "/assessments/89",
+    "identity": "1f:51d37b3bdd525d0384f5b354a26b8c748825251dd3a90e215b81f7cbb91a6b05",
+    "sourceBodyIdentity": "1f:9413e9f26492a02123ef178cd0f11bf722d7b3300c0991dfcd95f534aac9c4bf",
+    "sourceBodyLocation": "../community-config.json#/courses/3/lessons/43/body",
+    "questionCount": 6,
+    "requiredQuestionIds": [
+      "m090-recall",
+      "m090-application",
+      "m090-guided-question",
+      "m090-learner-check",
+      "m090-outcome-check",
+      "m090-account-change"
+    ],
+    "questionSequence": {
+      "formId": "framework-m090-51d37b3bdd525d0384f5b354a26b8c748825251dd3a90e215b81f7cbb91a6b05",
+      "title": "Recall and apply: Ecosystem Resonance Mapping",
+      "presentation": {
+        "mode": "one-prompt-at-a-time",
+        "backLabel": "Back",
+        "nextLabel": "Next",
+        "submitLabel": "Save answers"
+      },
+      "questions": [
+        {
+          "questionId": "m090-recall",
+          "questionTypeId": "long-text",
+          "label": "Without reopening M090 (Ecosystem Resonance Mapping), explain what it does and how its parts work together.",
+          "required": true
+        },
+        {
+          "questionId": "m090-application",
+          "questionTypeId": "long-text",
+          "label": "Apply the source practice: Compare two interactions that differed in openness.",
+          "required": true
+        },
+        {
+          "questionId": "m090-guided-question",
+          "questionTypeId": "long-text",
+          "label": "Answer the source’s guided question: You feel judged. Is actual judgment established?",
+          "required": true
+        },
+        {
+          "questionId": "m090-learner-check",
+          "questionTypeId": "long-text",
+          "label": "Self-check against the source: You can identify a context-sensitive question and avoid mind-reading.",
+          "required": true
+        },
+        {
+          "questionId": "m090-outcome-check",
+          "questionTypeId": "long-text",
+          "label": "Check the outcome using the source criterion: The inquiry supports a mutually workable interaction or clearer boundary.",
+          "required": true
+        },
+        {
+          "questionId": "m090-account-change",
+          "questionTypeId": "long-text",
+          "label": "Consider what would change the source account: Contrary reports or observations should revise the explanation.",
+          "required": true
+        }
+      ]
+    },
+    "answerPolicy": "Open-ended responses have no stored gold answer. The practice card answer is the exact source definition reference only. The learner’s own AI supplies any practice grade; its semantic judgment is unqualified. Syntactic validity is not evidence of understanding, transfer, or outcome success.",
+    "practiceAdd": {
+      "operation": "add",
+      "prompt": "Explain M090 (Ecosystem Resonance Mapping) from memory.",
+      "answer": "A comparison of relationships and settings through the clarity, emotion, openness, friction and ease actually experienced in them.",
+      "why": "It makes contextual differences visible before assigning a fixed trait or blaming one person.",
+      "deck": "framework-library",
+      "source_ref": "M090"
+    }
+  },
+  "reconciliation": {
+    "container": {
+      "path": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/reconciliation.json",
+      "bytes": 154737,
+      "identity": "1f:f9b5cde378b1cea76ee45e042d0d87c18f409ae2793f328a5cbba34a5363de48"
+    },
+    "pointer": "/library_entries/89",
+    "id": "M090",
+    "title": "Ecosystem Resonance Mapping",
+    "originalBodyPreserved": true,
+    "sourceRefs": [
+      "M090"
+    ],
+    "prerequisites": [],
+    "prerequisiteStatus": "No source-stated requires link; other typed relationships remain distinct.",
+    "conceptualPrerequisites": []
+  },
+  "manuscript": {
+    "path": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "identity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "bytes": 1151040,
+    "page": 44,
+    "edition": "82-page supplied source edition",
+    "pageText": {
+      "path": "framework-animation-pilot/catalogue-output/M090/lesson/proof/source-page-44/page-44.txt",
+      "bytes": 1983,
+      "identity": "1f:5bc0dbbda9eeb8f90fbd26473d9f70be7e82711deb5f34239c806d5b18bb6d00"
+    },
+    "excerpt": "Map relationships and settings. Record the clarity, emotions, openness, friction and ease you experience in each. Compare patterns to identify something to investigate in yourself or the setting.",
+    "attribution": "Supplied recovered manuscript; authorship or adoption of every wording is not independently established."
+  },
+  "canonicalSourceActions": [
+    "Map relevant relationships and settings.",
+    "Record clarity, emotion, openness, friction and ease in concrete episodes.",
+    "Compare recurring patterns and exceptions.",
+    "Choose something to investigate in yourself or the arrangement."
+  ],
+  "designReference": {
+    "sharedParts": [
+      "@trillion/ui Button",
+      "@trillion/ui Container",
+      "@trillion/ui DisclosureSection",
+      "@trillion/ui Text",
+      "@trillion/ui Textarea",
+      "useLessonPractice"
+    ],
+    "appearanceOwner": "Existing @trillion/ui and Screen Look bundle; no new appearance source.",
+    "anatomy": "Two comparable episode cards keep each setting, personal experience and observable cue together; the comparison and next inquiry follow across both episodes. No spatial diagram adds evidence beyond that structure.",
+    "registry": {
+      "twentyFirstDev": {
+        "query": "editable relationship context comparison map interaction reflection form",
+        "results": [
+          22490,
+          12385,
+          7469,
+          3997
+        ],
+        "note": "The comparison table is for selecting technical records, the feedback form collects reactions, and the others are unrelated controls; none fits this subjective, episode-based comparison. Existing shared Trillion components are used without code retrieval or copying."
+      },
+      "mobbin": {
+        "query": "compare two interpersonal settings and reflect on observed interaction patterns",
+        "status": "unavailable",
+        "reason": "No Mobbin search tool was exposed in this session."
+      }
+    },
+    "sourceMethod": "21st.dev metadata search only; no component code was retrieved or copied."
+  }
+}

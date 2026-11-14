@@ -1,0 +1,186 @@
+{
+  "title": "Time as nested modules",
+  "opening": "You give yourself a week to see a result that takes two weeks to appear. Changing the deadline does not make the result happen sooner. The work you do today still needs to serve the larger pursuit.",
+  "labels": {
+    "timeline": "Connect the time horizons",
+    "timelineIntro": "Edit one horizon at a time. Mark dates imposed by real conditions separately from schedules chosen for coordination.",
+    "horizon": "Horizon to edit",
+    "dateOrigin": "What sets the timing?",
+    "realDate": "A date or lead time set by a real condition",
+    "chosenDate": "A schedule chosen for coordination",
+    "unsetDate": "No date is set",
+    "meaningful": "Meaningful change or observation",
+    "completion": "How completion will be recognized",
+    "direction": "Larger direction this module serves",
+    "dependency": "Prerequisite, parallel work, lead time, compounding, decay, or irreversibility",
+    "feedback": "What evidence should arrive before commitment grows?",
+    "comparison": "When the schedule is shorter than the real lead time",
+    "comparisonIntro": "Illustrative values only. Move either date to see whether the chosen schedule leaves time for the effect to appear. A shorter chosen date cannot remove a biological or logistical lead time.",
+    "leadTime": "Real lead time (days)",
+    "chosenDays": "Chosen schedule (days)",
+    "effectLabel": "Effect can be observed",
+    "scheduleLabel": "Chosen schedule remains open",
+    "gap": "The chosen schedule ends before the effect can be observed. Change the process, coordinate around the real lead time, or accept bounded uncertainty.",
+    "fits": "The chosen schedule includes the stated lead time. It still needs feedback and evidence to fit the process.",
+    "practice": "Plan nested time for a real pursuit",
+    "practiceIntro": "Identify one real deadline and one chosen schedule. Include dependencies, feedback, and the larger direction.",
+    "private": "This private note is optional. The six required course questions are separate.",
+    "loadExample": "Load example",
+    "sampleLoaded": "Example loaded.",
+    "save": "Save private note",
+    "saving": "Saving private note",
+    "retry": "Retry the same save",
+    "done": "Private note saved",
+    "missing": "Add one note before saving.",
+    "length": "This full note is over 2,000 characters. Shorten it to save; all of your text stays here.",
+    "source": "Manuscript, pages 74–75",
+    "sourceQuote": "First ask which dates come from real conditions and which you have imposed. A chosen schedule can support a pursuit; an inherited one can crowd out curiosity without serving the outcome. Removing artificial pressure leaves room to follow a question, while lifespan, resources and other real limits still matter.",
+    "sourceLocator": "Manuscript, pages 74–75 (82-page source edition).",
+    "response": "What next when conditions change?",
+    "continueAction": "Continue",
+    "changeAction": "Change",
+    "stopAction": "Stop",
+    "recoverAction": "Recover",
+    "responseContinue": "Continue while current evidence and dependencies still support the chosen timing.",
+    "responseChange": "Change the timing or method to fit the observed dependency.",
+    "responseStop": "Stop this schedule while the chosen outcome or its conditions are reconsidered.",
+    "responseRecover": "Recover by restoring the resources or conditions needed to continue."
+  },
+  "feedback": {
+    "saved": "Your private note is saved.",
+    "unavailable": "Private saving is unavailable. Your note stays on screen.",
+    "missing": "Add one note before saving.",
+    "length": "Shorten the full note to fit the 2,000-character limit. Your text stays here.",
+    "conflict": "This note changed elsewhere. Your answers remain here; compare the saved version before saving again.",
+    "readFailure": "The saved note could not be loaded.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same note before changing it."
+  },
+  "modules": [
+    {
+      "id": "immediate",
+      "title": "Immediate action",
+      "detail": "One action begins the pursuit.",
+      "nextId": "day",
+      "nextTitle": "A day’s result",
+      "change": "",
+      "completion": "",
+      "direction": "",
+      "dependency": "",
+      "feedback": "",
+      "dateOrigin": "unset"
+    },
+    {
+      "id": "day",
+      "title": "Day result",
+      "detail": "Proof from the day shows what happened.",
+      "nextId": "week",
+      "nextTitle": "A week’s investigation",
+      "change": "",
+      "completion": "",
+      "direction": "",
+      "dependency": "",
+      "feedback": "",
+      "dateOrigin": "unset"
+    },
+    {
+      "id": "week",
+      "title": "Week investigation",
+      "detail": "An experiment examines a question.",
+      "nextId": "season",
+      "nextTitle": "A season of development",
+      "change": "",
+      "completion": "",
+      "direction": "",
+      "dependency": "",
+      "feedback": "",
+      "dateOrigin": "unset"
+    },
+    {
+      "id": "season",
+      "title": "Season of development",
+      "detail": "Change should have time to appear.",
+      "nextId": "year",
+      "nextTitle": "A year’s direction",
+      "change": "",
+      "completion": "",
+      "direction": "",
+      "dependency": "",
+      "feedback": "",
+      "dateOrigin": "unset"
+    },
+    {
+      "id": "year",
+      "title": "Year direction",
+      "detail": "A yearly direction serves a longer pursuit.",
+      "nextId": "pursuit",
+      "nextTitle": "The long-term pursuit",
+      "change": "",
+      "completion": "",
+      "direction": "",
+      "dependency": "",
+      "feedback": "",
+      "dateOrigin": "unset"
+    },
+    {
+      "id": "pursuit",
+      "title": "Long-term pursuit",
+      "detail": "The pursuit continues within real lifespan and resource limits.",
+      "nextId": "",
+      "nextTitle": "",
+      "change": "",
+      "completion": "",
+      "direction": "",
+      "dependency": "",
+      "feedback": "",
+      "dateOrigin": "unset"
+    }
+  ],
+  "fields": [
+    {
+      "id": "pursuit",
+      "label": "What pursuit or process are you scheduling?"
+    },
+    {
+      "id": "real",
+      "label": "Which date or lead time comes from a real condition?"
+    },
+    {
+      "id": "chosen",
+      "label": "Which date is your chosen coordination schedule?"
+    },
+    {
+      "id": "dependencies",
+      "label": "What prerequisites, parallel work, compounding, decay, or irreversible effects matter?"
+    },
+    {
+      "id": "return",
+      "label": "What evidence should arrive before further commitment?"
+    }
+  ],
+  "example": {
+    "pursuit": "A source inspection can finish today, while an external response remains pending.",
+    "real": "The outside response has not arrived. The waiting time is not controlled by the inspection schedule.",
+    "chosen": "Complete independent research this week; review the decision when the response arrives.",
+    "dependencies": "Independent reading can proceed in parallel. A decision that requires the response depends on it.",
+    "return": "Check the response before deciding. If its arrival changes the bottleneck, revise the next horizon."
+  },
+  "scheduleExample": {
+    "leadTimeDays": 14,
+    "chosenDays": 7,
+    "disclosure": "Fictional values for illustrating a lead time and a chosen schedule."
+  },
+  "source": {
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/candidate137/course-input.json#/courses/9/lessons/8/body",
+    "canonicalBodyIdentity": "1f:458790f1ccb86b6feb5ee9ff009d9e8aa9e1456154320c359b32b51ee27c6bde",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/156",
+    "assessmentIdentity": "1f:8ed525ce926e1d7e633065d4be17f82545c7a4968a01f18e760bb450d2f3cf78",
+    "assessmentBoundary": "Six required open-ended course questions remain separate from this optional private note. No qualified semantic grade or learner outcome is supplied.",
+    "manuscriptPdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscriptPdfIdentity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPage": "Manuscript, pages 74–75",
+    "manuscriptPageText": ".local/curriculum-continuation-20261028/M118-M120-next-unbuilt-source-mappings/source-pages-71-76.txt",
+    "manuscriptPageTextIdentity": "1f:f72a092d5042b70ec7e8570ac5f3eadb5300bdeb3d7f8738658747b8668a957b"
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "title": "Value > Suffering Reframe",
+  "opening": "A project can matter while one of its operations adds nothing useful. Examine each difficult part on its own.",
+  "labels": {
+    "example": "Example: preparing a learning demonstration",
+    "exampleContext": "A team wants learners to understand a procedure. They verify the demonstration against its source, then retype the unchanged source into three tools.",
+    "map": "Trace each operation",
+    "operation": "Operation",
+    "difficulty": "Difficulty",
+    "claimedValue": "Claimed value",
+    "inspect": "Inspect",
+    "supported": "Connection supported by the work",
+    "unsupported": "Connection not yet supported",
+    "redesign": "When an output has a different job",
+    "redesignBody": "If the three tools serve different audiences or functions, keep those needs and redesign the workflow from one checked source. Generate or adapt only what each use requires. If the outputs are duplicates, remove the repeated typing.",
+    "attempt": "Build your operation map",
+    "attemptIntro": "Choose an activity you can examine comfortably. Separate two difficult parts. For each one, state the value it is claimed to serve, what the operation actually produces, and what you would retain, redesign or remove. Leave a connection unresolved when you do not have enough evidence.",
+    "practiceField": "Your map and decision",
+    "practicePlaceholder": "Activity:\n\nOperation 1 and difficulty:\nClaimed value:\nWhat the operation actually contributes:\nDecision: retain, redesign, remove or investigate\n\nOperation 2 and difficulty:\nClaimed value:\nWhat the operation actually contributes:\nDecision:",
+    "save": "Save private map",
+    "retry": "Retry the same save",
+    "private": "This map is private to you. It is not graded.",
+    "busy": "Saving private map",
+    "oversize": "Shorten the complete map to 2,000 characters or fewer. Your full draft stays on screen.",
+    "sourceTitle": "Manuscript, page 43",
+    "sourceExcerpt": "“Separate the activity's difficulties and pair each with the value it creates or supports. Keep only the connections that explain the actual work.”",
+    "sourceLocator": "Supplied recovered manuscript, p. 43 (82-page source edition).",
+    "question": "A project is important, so every tedious operation must be necessary.",
+    "questionAnswer": "Importance of the whole project does not establish the contribution of each operation. Trace what each one actually does.",
+    "reset": "Reset example"
+  },
+  "operations": [
+    {
+      "id": "accuracy-check",
+      "name": "Check the demonstration against its source",
+      "difficulty": "Takes focused attention and time.",
+      "claimedValue": "Learners receive an accurate explanation.",
+      "actualContribution": "Comparison can reveal an incorrect or missing step before learners rely on it.",
+      "decision": "Retain the check, while keeping it proportionate to the risk and use."
+    },
+    {
+      "id": "triple-retype",
+      "name": "Retype the same unchanged source into three tools",
+      "difficulty": "Repeats manual entry and creates more chances for drift.",
+      "claimedValue": "The project is important, so all three copies must be prepared.",
+      "actualContribution": "When the copies have the same content and role, retyping adds no separate verification or learner-facing function.",
+      "decision": "Remove duplicate typing. If uses differ, redesign from one checked source and preserve only the needed adaptations."
+    }
+  ],
+  "feedback": {
+    "unavailable": "Private practice saving is unavailable. Your work remains on screen.",
+    "missing": "Write an operation map before saving private practice.",
+    "length": "Shorten the complete map to fit the 2,000-character practice limit. Your text stays here.",
+    "readFailure": "The saved map could not be loaded. Your current work remains on screen.",
+    "saved": "Your private map is saved.",
+    "conflict": "This map changed elsewhere. Your draft remains here; review the saved version before saving again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same map before changing it."
+  },
+  "source": {
+    "currentBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/4/lessons/38/body",
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/4/lessons/38/body",
+    "canonicalBodyIdentity": "1f:b2b24d72cf110f95a66fb46dcdae2d09f740015370e8a72c80362a52b92bc47c",
+    "currentBodyIdentity": "1f:b2b24d72cf110f95a66fb46dcdae2d09f740015370e8a72c80362a52b92bc47c",
+    "assessmentRolePath": "content-drafts/framework-library-2026-10-24/community-config.json#/courses/3/lessons/36/body",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/82",
+    "assessmentIdentity": "1f:fd022db1b97cc0764d31f282df79a130c16f861d7b4c916cf3a49b185b72f14f",
+    "assessmentBodyIdentity": "1f:b2b24d72cf110f95a66fb46dcdae2d09f740015370e8a72c80362a52b92bc47c",
+    "assessmentBoundary": "The six source assessment prompts are required open-ended questions with no stored gold answer. This optional private map is a separate practice, not a grade or replacement assessment.",
+    "reconciliationPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/reconciliation.json#/library_entries/82",
+    "manuscriptPdf": "framework-animation-pilot/catalogue-output/M080/lesson/proof/source-page-43/Manuscript.pdf",
+    "manuscriptPdfIdentity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPageTextPath": "framework-animation-pilot/catalogue-output/M083/lesson/proof/source-page-43/page-43.txt",
+    "manuscriptPageTextIdentity": "1f:a527d8b6ff158226c6de4f01b3d89e3b4f745ce0f5d42e18bb13e294733fa00f",
+    "manuscriptLocator": "p. 43 (82-page source edition)",
+    "attribution": "Supplied manuscript; authorship or adoption of every wording is not independently established.",
+    "exampleBoundary": "The learning demonstration scenario is an authored instructional illustration, not an observed outcome. The two operation links depend on the stated facts; distinct audiences or outputs could justify a different workflow.",
+    "designSources": {
+      "twentyFirstDev": {
+        "query": "editable comparison table for operation, difficulty, claimed value and evidence",
+        "componentId": 7469,
+        "componentName": "Comparison Table",
+        "use": "The column comparison informed how to keep operation, cost and value claims visible together. No code or copy was used; the lesson uses existing Trillion UI parts."
+      },
+      "mobbin": {
+        "query": "mobile lesson with an editable operation-to-value comparison",
+        "status": "unavailable",
+        "reason": "No Mobbin screen-search tool was exposed in this session."
+      }
+    }
+  },
+  "assessment": {
+    "guidedQuestion": "Does a project's importance prove that every difficult operation is necessary?",
+    "learnerCheck": "Can you trace a difficulty to what its operation actually contributes?",
+    "outcomeCheck": "Does the revised activity preserve the valued result while removing or redesigning an unsupported cost?",
+    "changeAccount": "If removing an operation damages the valued result, restore it or redesign the workflow to preserve its function."
+  }
+}

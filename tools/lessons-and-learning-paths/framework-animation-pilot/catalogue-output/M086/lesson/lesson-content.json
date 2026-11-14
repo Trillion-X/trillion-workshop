@@ -1,0 +1,52 @@
+{
+  "title": "The Impetus Thermometer",
+  "opening": "A single difficult session can take over your memory of a whole pursuit. This practice keeps each report beside its situation so you can notice whether the relationship changes over time.",
+  "labels": {
+    "example": "Read the pattern",
+    "exampleNote": "Illustrative pattern only. The manuscript supplies no readings for this example.",
+    "figure": "Hypothetical reports from one person on that person's own scale: perceived value stays similar while perceived difficulty rises over three intervals. Late-night sessions are context to investigate, not a proven cause.",
+    "exampleReading": "The reports point to a question about the late sessions. They do not prove why difficulty rose, show that the project lost value, or decide whether to continue.",
+    "separateEvent": "A serious or urgent event still needs attention when it happens. Do not average it away or wait for a trend.",
+    "practice": "Keep your own readings",
+    "practiceIntro": "Choose an interval that fits the pursuit. Use the same personal scale each time, then record the situation and any trigger beside both ratings. Add another interval when it occurs; compare the reports without calculating a total.",
+    "scaleNote": "For this private record, the controls use 1 to 10. Choose what the low and high ends mean for you and keep those meanings. These are subjective reports, not objective units, a clinical measure, or a comparison between people.",
+    "lowAnchor": "What does a low rating mean to you?",
+    "highAnchor": "What does a high rating mean to you?",
+    "readings": "Intervals",
+    "addReading": "Add an interval",
+    "removeReading": "Remove interval",
+    "interval": "When was this reading? Use a date or a clear interval name.",
+    "value": "Perceived value, on your scale (1 to 10)",
+    "difficulty": "Perceived difficulty, on your scale (1 to 10)",
+    "situation": "What was the situation around both ratings?",
+    "trigger": "What changed or may have triggered the reading? Leave this uncertain if you do not know.",
+    "save": "Save private readings",
+    "retry": "Retry private save",
+    "saving": "Saving private readings",
+    "private": "This record is private to your lesson practice. It is optional; saving is separate from entering a draft.",
+    "trend": "When difficulty approaches or passes value, inspect the cause with the Difficulty Diagnostic or Passion Balancer. The ratings cue an investigation; they do not make the decision for you.",
+    "source": "Source passage",
+    "sourceLocator": "Manuscript, p. 43 (82-page source edition).",
+    "sourceQuote": "At consistent intervals, rate perceived value and difficulty on the same scale. Record the situation and triggers beside both ratings. Look for a trend. When difficulty approaches or exceeds value, use the Difficulty Diagnostic or Passion Balancer to locate the cause and choose a response.",
+    "sourceAttribution": "Supplied recovered manuscript. Authorship or adoption of every wording is not independently established.",
+    "sourceBoundary": "The source gives no objective unit, clinical threshold, or universal interval. Examples and application guidance here are authored for this expansion; they are not observed learner results."
+  },
+  "feedback": {
+    "saved": "Your private readings were saved and read back.",
+    "saveFailure": "The save is still uncertain. Your entries are here; retry to check them.",
+    "conflict": "A newer private record exists. Your entries are here; review the conflict before saving again.",
+    "retryPending": "The earlier save may still be unresolved. Retry it before changing these entries.",
+    "length": "Shorten the private record to 2,000 characters or fewer. Your full draft is still here; nothing was saved.",
+    "missing": "Add an interval label, both ratings, and a situation before saving."
+  },
+  "source": {
+    "sourceRecord": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/delivery-history/302205da0020a769b62e1bfa45706ca5193ac0cde1fa0d55c1ac45b07e9a0768/course-input.json#/courses/4/lessons/41/body",
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/delivery-history/302205da0020a769b62e1bfa45706ca5193ac0cde1fa0d55c1ac45b07e9a0768/course-input.json#/courses/4/lessons/41/body",
+    "canonicalBodyIdentity": "1f:05bb413f1fee6af6f4cec72856e692406d63eac074c6fac7cbe1ee538249b7ed",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/85",
+    "assessmentIdentity": "1f:b1f1e6571e7ef880860e0c68f7290ac1138bbab6defbdba86c7d5ec7ab3cf6f7",
+    "assessmentBoundary": "Open-ended responses have no stored gold answer. The practice card answer is the exact source definition reference only. The learner’s own AI supplies any practice grade; its semantic judgment is unqualified. Syntactic validity is not evidence of understanding, transfer, or outcome success.",
+    "manuscriptLocator": "p. 43 (82-page source edition)",
+    "limits": "The manuscript supplies the mechanism and follow-up methods. The late-session schematic is a hypothetical illustration without numeric readings. This local run does not establish author acceptance, learner benefit, canonical adoption, or publication."
+  }
+}

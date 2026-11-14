@@ -1,0 +1,68 @@
+{
+  "title": "Value Integration Ritual",
+  "opening": "A routine can keep a value visible. It can also keep work going after the connection has slipped. Follow one recurring task before, during and after it, then change the arrangement to fit what the work actually did.",
+  "example": {
+    "title": "A weekly lesson-file review",
+    "intro": "Illustrative case, not observed learner results: the review is meant to help a learner understand the instructions and begin without asking what to do.",
+    "phaseNavigation": "Select any phase to inspect the same review from a different point.",
+    "phases": {
+      "before": {
+        "label": "Before",
+        "heading": "Name the difficulty and value",
+        "difficultyLabel": "The difficulty",
+        "difficulty": "Reading the same instructions each week feels repetitive; it is easy to lose track of what the review is protecting.",
+        "valueLabel": "The value it may serve",
+        "value": "A learner can identify the next action and begin without another explanation.",
+        "checkLabel": "What to look for",
+        "check": "Can someone new to this page tell what to try next?"
+      },
+      "during": {
+        "label": "During",
+        "heading": "Inspect the actual work",
+        "workLabel": "What the reviewer is doing in this example",
+        "work": "Changing punctuation and making the headings consistent.",
+        "connectionLabel": "Does that work serve the named value?",
+        "connection": "It may make the page look more consistent, but it does not show whether the next instruction is clear. The review has drifted from the value it was meant to serve."
+      },
+      "after": {
+        "label": "After",
+        "heading": "Compare the result and revise",
+        "resultLabel": "Suppose the next action is still unclear",
+        "result": "In this hypothetical result, the review did not test whether the page was usable. That does not establish a learner outcome or prove the value is absent.",
+        "revisionLabel": "A better arrangement next time",
+        "revision": "Read one instruction as a first-time reader and check whether the next action is clear. Remove repeat polishing that adds no useful effect. If a reliable default already catches the problem, the extra review may no longer be needed."
+      }
+    }
+  },
+  "source": {
+    "quote": "Before a recurring difficult task, name the difficulty and the value it serves. Check during and after the task whether that connection holds.",
+    "locator": "Supplied manuscript, 82-page source edition, p. 43. The sequence is source wording; this worked example and the practice prompts are authored expansion."
+  },
+  "practice": {
+    "title": "Try the check on a task that repeats",
+    "intro": "Choose a recurring task whose details you are comfortable keeping in a private practice note. You can save the plan before doing the work. Leave the during and after notes blank until you have real observations; do not treat a saved note as evidence that the task helped.",
+    "prompts": {
+      "prediction": "Before it starts: What part of this recurring task is difficult, what value do you expect it to serve, and what would you look for in the actual work?",
+      "observation": "During it: What are you actually doing? Which part of that work serves the value you named, and which part may have drifted? Leave blank until you do the task.",
+      "result": "After it: What happened that you can point to? Compare that result with the value you expected. Leave blank until there is a result to compare.",
+      "revision": "For the next repetition, what will you keep, change or remove? If you have not done the task yet, write what evidence you will look for before deciding."
+    },
+    "save": "Save private practice note",
+    "busy": "Saving private note",
+    "retry": "Retry the same private save",
+    "fieldLimit": 2000,
+    "partialSave": "Only the next-step note is required to save. Other reflections can stay blank or unfinished.",
+    "privacy": "This note is private practice. Saving it does not submit or complete the formal course assessment."
+  },
+  "messages": {
+    "unavailable": "Private practice saving is unavailable. Your writing remains here.",
+    "missing": "Write one useful next-step note to save. The earlier and later reflections may stay blank.",
+    "length": "Shorten each answer to 2,000 characters or fewer. Your draft is kept.",
+    "readFailure": "The saved practice note could not be loaded. Your current writing remains here.",
+    "saved": "Saved privately as a practice note. The formal assessment remains unsubmitted.",
+    "conflict": "A different practice note was saved elsewhere. Your writing remains here; compare it before saving again.",
+    "readbackFailure": "The private save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The private save is uncertain. Retry the same note.",
+    "retryPending": "The earlier private save is unresolved. Retry that same note before changing it."
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "title": "Time in contact with reality",
+  "opening": "An inquiry can spend more time preparing or waiting between useful contacts than the contact itself takes. Shortening one interval may fit more attempts before time or resources run out, but a relevant answer still has to change what you do next.",
+  "labels": {
+    "comparison": "Compare the time between useful contacts",
+    "comparisonIntro": "This illustration holds preparation and contact time steady across ten attempts. Change only the waiting interval and see how many contact windows fit before the same resource limit.",
+    "waitQuestion": "Waiting interval before the next contact",
+    "baseline": "Current interval",
+    "shortened": "Changed interval",
+    "preparationValue": "Preparation: {n} time unit",
+    "contactValue": "Contact: {n} time unit",
+    "waitingValue": "Waiting between contacts: {n} time units",
+    "waitingValueOne": "Waiting between contacts: 1 time unit",
+    "intervalValue": "Time between later contacts: {n} units",
+    "totalValue": "Ten attempts would take {n} units in total.",
+    "resolvedValue": "Up to {n} contact windows fit within the 12-unit limit.",
+    "comparisonConclusion": "With this illustration, {n} of the ten contact windows fit before the limit. Whether each contact teaches you something depends on the question, the response and how you use it.",
+    "interpretTitle": "A shorter interval is not the whole result",
+    "interpretText": "A person or condition has to be able to answer the question you are asking. After contact, interpret the response and carry the useful part into the next attempt. A longer, relevant observation can teach more than several quick contacts that do not address the question.",
+    "practice": "Map your next contact",
+    "practiceIntro": "Choose one question from work you are doing or considering. Mark the preparation, contact and waiting that stand between you and an answer. Keep required preparation and time-sensitive work; change only what the evidence supports.",
+    "private": "This private note is optional. The six required course questions are separate.",
+    "save": "Save private note",
+    "saving": "Saving private note",
+    "retry": "Retry the same save",
+    "done": "Private note saved",
+    "missing": "Add one note before saving.",
+    "length": "This full note is over 2,000 characters. Shorten it to save; all of your text stays here.",
+    "source": "Manuscript, page 67",
+    "sourceQuote": "Draw two timelines for the same ten attempts to test an idea. On each, mark the time when a person or real condition can respond to what you made, then mark the preparation and waiting before the next contact. Draw a line where your available time or resources run out. Hold contact duration equal in this illustration so you can see what changing the intervals does; actual tests may take different amounts of time. Which route lets you resolve more attempts before that limit?",
+    "sourceLocator": "Manuscript, page 67 (82-page source edition).",
+    "loadExample": "Load the example",
+    "sampleLoaded": "Example loaded. Replace it with your own observations when useful.",
+    "waitOptionTemplate": "Set waiting to {n} time units",
+    "waitOptionOne": "Set waiting to 1 time unit",
+    "fields": [
+      {
+        "id": "question",
+        "label": "The question and the person or condition that could answer it"
+      },
+      {
+        "id": "route",
+        "label": "What must be prepared, what happens at contact and what waits afterward"
+      },
+      {
+        "id": "boundary",
+        "label": "The time or resources available, and where they end"
+      },
+      {
+        "id": "next",
+        "label": "What waiting could be reduced without rushing necessary preparation or contact"
+      },
+      {
+        "id": "reuse",
+        "label": "How you will interpret the response and use it in the next attempt"
+      }
+    ],
+    "example": {
+      "question": "Suppose I need to learn whether people looking for a quiet study space can find one nearby. A short conversation with someone who is looking answers a different question than showing the idea to friends.",
+      "route": "I need to decide what to ask and where to find a relevant person. The contact itself may take longer than the conversation; I should include that time instead of assuming every test has the same duration.",
+      "boundary": "Suppose I have one afternoon and enough time for two conversations. This is a planning example, not a measured result.",
+      "next": "I could prepare one clear question once and reduce the delay between conversations. I would not skip the time needed to find people who can answer it.",
+      "reuse": "After each conversation, I will separate what the person said from what I inferred and revise the next question if it did not address the uncertainty."
+    },
+    "timelineLabel": "Contact windows completed within 12 time units",
+    "timelineLimit": "Planned attempts"
+  },
+  "waitOptions": [
+    3,
+    2,
+    1
+  ],
+  "routes": {
+    "baseline": {
+      "preparation": 1,
+      "contact": 1,
+      "waiting": 2
+    },
+    "shortened": {
+      "preparation": 1,
+      "contact": 1,
+      "waiting": 1
+    }
+  },
+  "comparison": {
+    "attempts": 10,
+    "available": 12
+  },
+  "feedback": {
+    "saved": "Your private note is saved.",
+    "unavailable": "Private saving is unavailable. Your note stays on screen.",
+    "missing": "Add one note before saving.",
+    "length": "Shorten the full note to fit the 2,000-character limit. Your text stays here.",
+    "conflict": "This note changed elsewhere. Your answers remain here; compare the saved version before saving again.",
+    "readFailure": "The saved note could not be loaded.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same note before changing it."
+  },
+  "source": {
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/candidate134/course-input.json#/courses/8/lessons/16/body",
+    "canonicalBodyIdentity": "1f:9e67c20b258a460449665fef0ebfebe970ceb73f22de688d215b248a1cdf5553",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/150",
+    "assessmentIdentity": "1f:e7248439231a31a1ce974d998fff470b0cd7769af63e979b64268bd02d2853fb",
+    "assessmentBoundary": "Six required open-ended questions remain separate from this optional private note. No qualified semantic grade or actual learner outcome is supplied.",
+    "manuscriptPdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscriptPdfIdentity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPage": "Manuscript, page 67",
+    "manuscriptPageText": ".local/curriculum-continuation-20261028/M118-M120-next-unbuilt-source-mappings/source-pages-64-68.txt",
+    "manuscriptPageTextIdentity": "1f:d18801b6f27dd8211a85e81d2d37999cdec67e0984f09fbd19ca7a8d5e549187"
+  }
+}

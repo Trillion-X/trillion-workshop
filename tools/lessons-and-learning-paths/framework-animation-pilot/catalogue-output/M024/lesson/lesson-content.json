@@ -1,0 +1,66 @@
+{
+  "title": "Unique Talents & Strengths Mapping",
+  "opening": "A strength is a capability supported by examples. Notice what you do repeatedly, including early interests. Ask someone familiar with your work for one specific action they observed, and compare the evidence. Then examine it in a suitable new task. Keep limits and conflicting examples in view; the candidate can change as evidence changes.",
+  "labels": {
+    "experiences": "Choose an example to inspect",
+    "experiencePrompt": "Use this worked example to inspect how specific evidence changes a capability claim.",
+    "sceneFigure": "A person reflecting on an example of work.",
+    "evidence": "What does this evidence support?",
+    "evidencePrompt": "In this worked example, choose a possible observation. See how it changes the candidate and what it still cannot establish.",
+    "unproved": "Still unproved:",
+    "nextTask": "Examine the candidate in another appropriate task",
+    "nextTaskText": "Choose a task that needs this capability. Record the action and result separately. You can plan what to examine; do not treat a task you have not tried as evidence.",
+    "limits": "Keep the limits in view",
+    "limitsText": "A conflicting example may narrow the conditions where a capability helps or show that the first explanation was wrong. A compliment, a single success or a label does not establish a permanent identity.",
+    "practice": "Map evidence for one candidate capability",
+    "memoryOne": "Recurring activity, including an early interest if remembered: what action do you take, and in what context?",
+    "memoryTwo": "What specific action did a willing person familiar with your work actually describe? If you have not asked, write “not yet observed.”",
+    "memoryThree": "Compare both examples. What candidate capability could account for them, and what differences remain?",
+    "save": "Save private reflection",
+    "busy": "Saving reflection",
+    "retry": "Retry the same save"
+  },
+  "examples": [
+    {"id":"conversation","title":"Clarifying a discussion","description":"Worked example: your own account is organizing scattered notes into a decision. A friend might have seen different actions that helped. These possible details are hypothetical until an observer reports one."},
+    {"id":"puzzle","title":"Finding a pattern","description":"Worked example: someone compares several cases, notes what differs and tests a possible rule."},
+    {"id":"return","title":"Adjusting a return","description":"Worked example: a player watches a serve, adjusts position and racket face, then checks where the ball lands."}
+  ],
+  "teaching": {
+    "evidenceByContext": {
+      "conversation": [
+        {"id":"none","label":"No outside example yet","candidate":"Possible candidate: organizing information","evidence":"Your own example is organizing scattered notes into a decision. Without a specific outside example, this remains a candidate from your account.","unproved":"Whether another person saw a specific helpful action, and what they observed."},
+        {"id":"summary","label":"Grouped points; summarized decision","candidate":"Summarizing a complex discussion","evidence":"The reported action was grouping related points and summarizing the unresolved decision. That could help others see what remains undecided.","unproved":"Whether the summary changed the decision, whether it was accurate, and whether this action recurs."},
+        {"id":"question","label":"Asked the missing question","candidate":"Finding an information gap","evidence":"This specific action could reveal information needed before a decision.","unproved":"Whether the answer clarified the choice, whether another person supplied the question, and whether this action recurs."}
+      ],
+      "puzzle": [
+        {"id":"none","label":"No outside example yet","candidate":"Possible candidate from this activity","evidence":"The activity suggests a question to examine, but no outside observation is supplied.","unproved":"Whether another person observed a specific action or result."},
+        {"id":"compare","label":"Compared cases and recorded what differed","candidate":"Comparing cases carefully","evidence":"This action may help separate relevant differences from shared features.","unproved":"Whether the comparison produced a useful rule or transfers to another problem."},
+        {"id":"test","label":"Tested a possible rule against another case","candidate":"Checking a pattern against evidence","evidence":"This action may show whether the proposed rule fits the example.","unproved":"Whether the rule predicts new cases or the result came from another factor."}
+      ],
+      "return": [
+        {"id":"none","label":"No outside example yet","candidate":"Possible candidate from this activity","evidence":"The activity suggests a question to examine, but no outside observation is supplied.","unproved":"Whether another person observed a specific action or result."},
+        {"id":"read","label":"Read the serve direction and moved into position","candidate":"Reading direction and adjusting position","evidence":"This action may help the player meet the ball in a more useful place.","unproved":"Whether the return improved and whether the skill transfers to other serves."},
+        {"id":"adjust","label":"Adjusted the racket face after seeing where the ball landed","candidate":"Using feedback to adjust technique","evidence":"The player changes an action in response to the last result.","unproved":"Whether the adjustment caused a better return or the next serve differed."}
+      ]
+    }
+  },
+  "feedback": {
+    "unavailable":"Private practice is unavailable here. Your answers remain in this session.",
+    "missing":"Add a recurring example, compare evidence, and describe a suitable next task before saving.",
+    "length":"Shorten each answer to 2,000 characters or fewer.",
+    "readFailure":"Your saved reflection could not be loaded. Your current answers remain here.",
+    "saved":"Your reflection is saved.",
+    "conflict":"This reflection changed elsewhere. Your answers remain here. Save again to keep these answers.",
+    "readbackFailure":"The save could not be confirmed. Retry to check the same save.",
+    "saveFailure":"The save is uncertain. Retry to check the same save.",
+    "retryPending":"The earlier save is still unresolved. Retry the same answers before changing them.",
+    "directAction":"Keep each claim tied to an action you actually observed."
+  },
+  "practice": {
+    "prediction":"Describe one recurring activity and a specific action you take.",
+    "observation":"Record one specific action a willing observer actually described, or write “not yet observed.”",
+    "comparison":"Compare your example and the observer evidence. What candidate capability could account for both?",
+    "result":"What differences, limits or counterexamples narrow this candidate?",
+    "step":"Choose a suitable new task. What action will you try, what result will you observe, and what could make the evidence inconclusive?"
+  }
+}

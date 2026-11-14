@@ -1,0 +1,88 @@
+{
+  "title": "Calling Statement Exercise",
+  "opening": "A useful calling statement connects what matters to you, what you can do and the contribution you want to make. Its words earn their place when they help you choose what to do.",
+  "labels": {
+    "comparison": "Which use of tomorrow fits the statement?",
+    "comparisonIntro": "Hypothetical teaching example: A teacher wants people to investigate independently. Tomorrow they could supply finished answers or teach learners a method they can try. Compare both choices with the contribution the teacher wants to make, then look at what learners do before calling either choice effective.",
+    "adherence": "Working statement",
+    "value": "Two choices",
+    "outcome": "Check and revise",
+    "adherenceText": "A working statement could be: help people investigate questions and act on what they learn. It names a candidate direction; the words alone do not establish anyone’s values, strengths or effect.",
+    "valueText": "If tomorrow calls for one answer, supplying it can meet that immediate need. If people need to investigate independently, teaching a method and leaving room to use it fits that aim more closely. The result depends on the question, learners and support available.",
+    "outcomeText": "Compare both choices with the contribution and facts of the situation. If the statement fits unrelated choices equally, sharpen it or gather missing evidence. Revise the statement or direction when an observed mismatch supports that change.",
+    "signalQuestion": "Choose a part of the comparison",
+    "rhythmTitle": "You can keep a working question",
+    "rhythmText": "A statement can be brief while the inquiry behind it remains open. Gather concrete examples of recurring values and demonstrated or developing strengths. If you do not yet know the contribution you want to make, keep that as a question. You can explore before you settle on a permanent calling or polished slogan.",
+    "practice": "Test a direction against two real choices",
+    "practiceIntro": "Use the fields that help with the choice in front of you. Leave the rest blank, save a working question and return when you have more evidence.",
+    "private": "This private note is optional. The six course questions remain separate.",
+    "save": "Save private direction note",
+    "saving": "Saving private direction note",
+    "retry": "Retry the same save",
+    "done": "Direction note saved",
+    "missing": "Add one note before saving.",
+    "length": "This full reflection is over 2,000 characters. Shorten it to save; all of your text stays here.",
+    "source": "Manuscript, page 61",
+    "sourceQuote": "Calling Statement Exercise\nGather the recurring values, strengths and desired contribution into a short\nstatement. Check it against the evidence and choices it is meant to guide.",
+    "sourceLocator": "Manuscript, p. 61 (82-page source edition)",
+    "loadExample": "Load the example",
+    "sampleLoaded": "Example loaded. Use your own situation when you are ready."
+  },
+  "feedback": {
+    "saved": "Your private direction note is saved.",
+    "unavailable": "Private saving is unavailable. Your reflection stays on screen.",
+    "missing": "Add one note before saving.",
+    "length": "Shorten the full draft to fit the 2,000-character limit. Your text stays here.",
+    "conflict": "This reflection changed elsewhere. Your answers remain here; compare the saved version before saving again.",
+    "readFailure": "The saved note could not be loaded.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same reflection before changing it."
+  },
+  "fields": [
+    {
+      "id": "qualities",
+      "label": "Values that recur in what you do"
+    },
+    {
+      "id": "contribution",
+      "label": "Strengths you can use or are developing, with examples"
+    },
+    {
+      "id": "avoid",
+      "label": "The contribution you want to explore"
+    },
+    {
+      "id": "present",
+      "label": "A short working statement or open question"
+    },
+    {
+      "id": "connection",
+      "label": "Two competing choices and what the comparison shows"
+    },
+    {
+      "id": "change",
+      "label": "A revision, next question or fact you need to check"
+    }
+  ],
+  "example": {
+    "qualities": "I value helping people investigate a question for themselves.",
+    "contribution": "I can explain one method clearly and want to learn how to offer help without taking over.",
+    "avoid": "Help people investigate questions and act on what they learn.",
+    "present": "Could I help someone use a method independently?",
+    "connection": "Tomorrow I could supply finished answers or offer a suitable question and method. The second choice may serve the contribution better if the learner has the time and support to try.",
+    "change": "Ask what help the learner needs and watch how they use the method before deciding what to change."
+  },
+  "source": {
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/delivery-history/93ccacfc335e21eaa9a1652a89d9e324b5af0faa6940ff3f4cb9e45b5982b622/course-input.json#/courses/7/lessons/28/body",
+    "canonicalBodyIdentity": "1f:dd70d0692027fc942b8314d477be02b6a54b182f0e8e24dd3eca80946d93ea0a",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/131",
+    "assessmentIdentity": "1f:78ff751d3de7610312a0b725ab3261c5f437c04239913e279e5f7efdd25395d5",
+    "assessmentBoundary": "Six required open-ended assessment questions remain separate from this optional private reflection. No qualified semantic grade or evidence of learner effectiveness is supplied.",
+    "manuscriptPdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscriptPdfIdentity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPage": "p. 61 (82-page source edition)",
+    "manuscriptPageText": ".local/curriculum-continuation-20261028/M118-M120-next-unbuilt-source-mappings/source-pages-61-62.txt",
+    "manuscriptPageTextIdentity": "1f:aa781da4dadcf887eebb8d8c3410aa1a08546fb5b4af87f45b5e10d368ccf9d7"
+  }
+}

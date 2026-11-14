@@ -1,0 +1,77 @@
+{
+  "title": "Engagement Scaffolding",
+  "opening": "A small test earns a larger commitment only if the feature that made it useful can survive the new conditions.",
+  "labels": {
+    "comparisonTitle": "A peer session at two scales",
+    "comparisonIntro": "In this hypothetical example, four peers bring real attempts and help each other revise. A facilitator visits groups one at a time. The feature worth carrying forward is working on real attempts together.",
+    "scale": "Next session size",
+    "scaleFour": "4 people",
+    "scaleTwentyFour": "24 people",
+    "arrangement": "How will the larger session run?",
+    "lectureOption": "One presenter, then questions",
+    "scaffoldOption": "Groups of four",
+    "lectureResultFour": "With four people, a presenter can explain the material. Check whether this still leaves time for peers to work through real attempts together.",
+    "lectureResultTwentyFour": "At 24 people, everyone can hear the presenter, but participants may stop working on one another’s real attempts. Attendance grows while the useful feature can disappear.",
+    "scaffoldResultFour": "With four people, the facilitator can work through the real attempts with the group. Check that each person still gets useful feedback.",
+    "adjustPrompt": "The facilitator visits six groups in turn. Change the total meeting time and compare the minutes each group gets with the time useful feedback needs.",
+    "meetingLength": "Minutes available",
+    "lengthShort": "30 minutes",
+    "lengthLong": "90 minutes",
+    "shortResult": "Split evenly, thirty minutes gives each of six groups five minutes with the facilitator, before transitions. If that is too short for useful feedback, keep the session smaller, add facilitation or increase the time.",
+    "longResult": "Split evenly, ninety minutes gives each of six groups fifteen minutes with the facilitator, before transitions. Compare that time with what useful feedback requires; then check whether people still take part and have energy.",
+    "practiceTitle": "Plan a next step",
+    "practiceIntro": "Use a real small test or a clearly labeled hypothetical one. Decide what should survive, what growth changes, and what observation would alter your plan.",
+    "save": "Save private draft",
+    "busy": "Saving private draft",
+    "retry": "Retry the same save",
+    "saved": "Your private draft is saved.",
+    "private": "This optional private draft is separate from the six required assessment questions.",
+    "needAnswer": "Add at least one part of your plan before saving.",
+    "oversize": "This full draft is over 2,000 characters. Shorten it to save; all of your text remains on screen.",
+    "sourceTitle": "Manuscript, page 56",
+    "sourceExcerpt": "When the small test warrants further work, name what made it valuable. Arrange time, energy, support and feedback to preserve that feature as engagement grows."
+  },
+  "feedback": {
+    "saved": "Your private draft is saved.",
+    "unavailable": "Private draft saving is unavailable. Your work remains on screen.",
+    "missing": "Add at least one part of your plan before saving.",
+    "length": "Shorten the full draft to fit the 2,000-character limit. Your text stays here.",
+    "conflict": "This draft changed elsewhere. Your answers remain here; compare the saved version before saving again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same draft before changing it."
+  },
+  "fields": [
+    {
+      "id": "feature",
+      "label": "What made the small test worth continuing?"
+    },
+    {
+      "id": "growth",
+      "label": "What changes as participation grows?"
+    },
+    {
+      "id": "time",
+      "label": "Time or energy the feature needs"
+    },
+    {
+      "id": "support",
+      "label": "Support or feedback to arrange"
+    },
+    {
+      "id": "check",
+      "label": "What will you observe in the next session?"
+    },
+    {
+      "id": "revision",
+      "label": "What result would make you change the scale or arrangement?"
+    }
+  ],
+  "source": {
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/delivery-history/93ccacfc335e21eaa9a1652a89d9e324b5af0faa6940ff3f4cb9e45b5982b622/course-input.json#/courses/7/lessons/15/body",
+    "canonicalBodyIdentity": "1f:e1194f3cc1692a48103ff0bd50155e148442479915591c85386ef47680ad2c6b",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/119",
+    "assessmentIdentity": "1f:318aea0bb3042f590eb2d6900a52662062b2241830a539f2b5b87241e872a7f4",
+    "assessmentBoundary": "Six required open-ended questions remain separate from the optional private draft. No stored gold answer or qualified semantic grading is supplied; syntactic validity does not establish understanding or outcome success."
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "title": "The Constraint / Current Most Limiting Factor",
+  "opening": "Polishing a lesson cannot help someone who cannot find or open it. Once that problem is fixed, an unclear demonstration might be the next thing preventing learning. The limiting condition depends on the result you want and on the whole route to it.",
+  "labels": {
+    "comparison": "Which part of the route is stopping progress?",
+    "comparisonIntro": "The goal in this example is to learn through a particular lesson. Finding the lesson and understanding its demonstration are different conditions. Compare each case, including the case where both are missing.",
+    "signalQuestion": "Condition to inspect",
+    "rhythmTitle": "Check what changes after the intervention",
+    "rhythmText": "After making the lesson easier to find, inspect what happens when people open it. A different limit may matter next. If you do not know where the result stops, obtaining that observation can be more useful than another improvement. A new opportunity may also be worth more than repairing the existing process.",
+    "practice": "Find the limit in your own pursuit",
+    "practiceIntro": "Name the result, trace how it is produced and compare the possible limitations. Keep observations, guesses and missing information distinct before choosing an intervention.",
+    "private": "This private note is optional. The six required course questions are separate.",
+    "save": "Save private note",
+    "saving": "Saving private note",
+    "retry": "Retry the same save",
+    "done": "Private note saved",
+    "missing": "Add one note before saving.",
+    "length": "This full note is over 2,000 characters. Shorten it to save; all of your text stays here.",
+    "source": "Manuscript, page 65",
+    "sourceQuote": "Current Most Limiting Factor\nThe Current Most Limiting Factor, or CMLF, is what most restricts the specified\nresult now. If nobody can find the lesson, polishing a paragraph may have little effect\non its use. If people find it but cannot understand the demonstration, increasing\ntraffic may amplify the problem. The limit depends on the result and the state of the\nwhole path.",
+    "sourceLocator": "Manuscript, page 65 (82-page source edition).",
+    "loadExample": "Load the example",
+    "sampleLoaded": "Example loaded. Replace it with your own observations when useful.",
+    "access": "Cannot find the lesson",
+    "accessText": "The learner never reaches the lesson. Improving the demonstration leaves that condition unchanged. Inspect where the learner looks, whether the lesson is available there and whether the link opens.",
+    "understanding": "Cannot follow the demonstration",
+    "understandingText": "The learner reaches the lesson but cannot follow what it explains. Sending more people to the same demonstration does not address that difficulty. Compare the explanation, assumed knowledge and practice task with what the learner can actually do.",
+    "coupled": "Both conditions are missing",
+    "coupledText": "Making the lesson available leaves the unclear demonstration to address. Improving the demonstration leaves the access problem to address. Both conditions can matter together; you do not have to pretend that only one limitation exists."
+  },
+  "feedback": {
+    "saved": "Your private note is saved.",
+    "unavailable": "Private saving is unavailable. Your note stays on screen.",
+    "missing": "Add one note before saving.",
+    "length": "Shorten the full note to fit the 2,000-character limit. Your text stays here.",
+    "conflict": "This note changed elsewhere. Your answers remain here; compare the saved version before saving again.",
+    "readFailure": "The saved note could not be loaded.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same note before changing it."
+  },
+  "fields": [
+    {
+      "id": "result",
+      "label": "The result whose progress is limited"
+    },
+    {
+      "id": "path",
+      "label": "Where the actual path stops, and what you observed"
+    },
+    {
+      "id": "candidates",
+      "label": "Possible limits, including coupled limits and unknowns"
+    },
+    {
+      "id": "intervention",
+      "label": "The change you will test and what may limit progress next"
+    },
+    {
+      "id": "observed",
+      "label": "What happened to the whole result after the change?"
+    }
+  ],
+  "example": {
+    "result": "People can use a particular lesson to learn a method.",
+    "path": "In this example, people look for the lesson but do not find it.",
+    "candidates": "Discovery is a candidate limit. Understanding the demonstration has not been checked because the people have not reached it.",
+    "intervention": "Put the lesson where these people actually look, then inspect whether they can open and follow it.",
+    "observed": "The intervention has not been tried. I will not count a clearer link as evidence of learning."
+  },
+  "source": {
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/candidate134/course-input.json#/courses/8/lessons/4/body",
+    "canonicalBodyIdentity": "1f:40079f54c8b985ff3fdc1b475cb4ad34cd97389ec6c4a717d45b75d77c976b2e",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/144",
+    "assessmentIdentity": "1f:e4e9537e3c486c40eddbfdaa612bcec2a0f658af15d244f2cd8bdf76c081ec22",
+    "assessmentBoundary": "Six required open-ended questions remain separate from this optional private note. No qualified semantic grade or actual learner outcome is supplied.",
+    "manuscriptPdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscriptPdfIdentity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPage": "Manuscript, page 65",
+    "manuscriptPageText": ".local/curriculum-continuation-20261028/M118-M120-next-unbuilt-source-mappings/source-pages-64-68.txt",
+    "manuscriptPageTextIdentity": "1f:d18801b6f27dd8211a85e81d2d37999cdec67e0984f09fbd19ca7a8d5e549187"
+  },
+  "modes": [
+    {
+      "id": "access"
+    },
+    {
+      "id": "understanding"
+    },
+    {
+      "id": "coupled"
+    }
+  ]
+}

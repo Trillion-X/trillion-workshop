@@ -5,6 +5,2246 @@
   "calls": [],
   "files": [
     {
+      "from": "framework-animation-pilot/catalogue-output/M002/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M002/lesson/lesson-content.json",
+      "source_identity": "1f:5e0753e8702c5ab97932e1b53d33f91a6d1f303bfe218bc2f3ea5dda25bbf938",
+      "identity": "1f:5e0753e8702c5ab97932e1b53d33f91a6d1f303bfe218bc2f3ea5dda25bbf938"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M002/lesson/lesson-model.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M002/lesson/lesson-model.mjs",
+      "source_identity": "1f:83f318cb8df5dc88e85bd1fbb9929a23b35e04494328f50b52b93f20b1180e18",
+      "identity": "1f:83f318cb8df5dc88e85bd1fbb9929a23b35e04494328f50b52b93f20b1180e18"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M002/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M002/lesson/lesson.mjs",
+      "source_identity": "1f:aaeb129cd81a5b46d10d6792294b3cba5afc55ffbaed1d3445b1614c53dff902",
+      "identity": "1f:aaeb129cd81a5b46d10d6792294b3cba5afc55ffbaed1d3445b1614c53dff902"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M003/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M003/lesson/lesson-content.json",
+      "source_identity": "1f:0628c3dbe077cd8c00a7f44c5553edd1743ebbbe06752fe30d198bde6b654345",
+      "identity": "1f:0628c3dbe077cd8c00a7f44c5553edd1743ebbbe06752fe30d198bde6b654345"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M003/lesson/lesson-model.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M003/lesson/lesson-model.mjs",
+      "source_identity": "1f:abc82ee64bcf22a11d09b18024cab1ea02d1e855d71489f204b1dd680950b301",
+      "identity": "1f:abc82ee64bcf22a11d09b18024cab1ea02d1e855d71489f204b1dd680950b301"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M003/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M003/lesson/lesson.mjs",
+      "source_identity": "1f:0d45f24a17911b5ad26541b494d4c030edec2ab39dcf09501e05388d5abdf1e0",
+      "identity": "1f:0d45f24a17911b5ad26541b494d4c030edec2ab39dcf09501e05388d5abdf1e0"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M004/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M004/lesson/lesson-content.json",
+      "source_identity": "1f:c40cba50a5d1443c9540a31fb8dca998a49a9702116b31ef2e07fe0e840904d7",
+      "identity": "1f:c40cba50a5d1443c9540a31fb8dca998a49a9702116b31ef2e07fe0e840904d7"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M004/lesson/lesson-model.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M004/lesson/lesson-model.mjs",
+      "source_identity": "1f:855c2cbc0922e485b87d9c3d1578e52404b62f8148876215cf1de74588547d5b",
+      "identity": "1f:855c2cbc0922e485b87d9c3d1578e52404b62f8148876215cf1de74588547d5b"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M004/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M004/lesson/lesson.mjs",
+      "source_identity": "1f:e26aa1242973359fd738622d9beba8a7de4bce4f21faf2ca902ce3e5ec497b61",
+      "identity": "1f:e26aa1242973359fd738622d9beba8a7de4bce4f21faf2ca902ce3e5ec497b61"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M005/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M005/lesson/lesson-content.json",
+      "source_identity": "1f:e7b35b9d0e936958b97ff791e0bac76b39ad35858a96455701a6c005e2effe07",
+      "identity": "1f:e7b35b9d0e936958b97ff791e0bac76b39ad35858a96455701a6c005e2effe07"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M005/lesson/lesson-model.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M005/lesson/lesson-model.mjs",
+      "source_identity": "1f:016da8b1a44e13e0e873fa2afac470e89fbc9105492af2292918fe17e2a687ac",
+      "identity": "1f:016da8b1a44e13e0e873fa2afac470e89fbc9105492af2292918fe17e2a687ac"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M005/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M005/lesson/lesson.mjs",
+      "source_identity": "1f:de3849acb486d9ee5014e79415941d17fa5c47523dd4f981af3b833f5912468f",
+      "identity": "1f:de3849acb486d9ee5014e79415941d17fa5c47523dd4f981af3b833f5912468f"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M006/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M006/lesson/lesson-content.json",
+      "source_identity": "1f:c460dcc1987811585059882260cbfc2ac6255c97307782528bab4b73609ceec9",
+      "identity": "1f:c460dcc1987811585059882260cbfc2ac6255c97307782528bab4b73609ceec9"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M006/lesson/lesson-model.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M006/lesson/lesson-model.mjs",
+      "source_identity": "1f:16ee3af19561735b5b3eb3ad2c0a07abeda1c9e3c051294408ec07d3528b19e7",
+      "identity": "1f:16ee3af19561735b5b3eb3ad2c0a07abeda1c9e3c051294408ec07d3528b19e7"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M006/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M006/lesson/lesson.mjs",
+      "source_identity": "1f:99d03fd4ba721563f2bf3023dea0ec0ee0f74fe5cf979429179bda1eda8d56b3",
+      "identity": "1f:99d03fd4ba721563f2bf3023dea0ec0ee0f74fe5cf979429179bda1eda8d56b3"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M007/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M007/lesson/lesson-content.json",
+      "source_identity": "1f:65b1a758b975fe238ddc461e99f182df07d452262f07b7b2c8a312868365363b",
+      "identity": "1f:65b1a758b975fe238ddc461e99f182df07d452262f07b7b2c8a312868365363b"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M007/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M007/lesson/lesson.mjs",
+      "source_identity": "1f:717192567182513ec18f6b9a162cd8e5f4e9a675cc51f16239ba2c0978b85afe",
+      "identity": "1f:717192567182513ec18f6b9a162cd8e5f4e9a675cc51f16239ba2c0978b85afe"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M009/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M009/lesson/lesson-content.json",
+      "source_identity": "1f:da9eaaa457f95e93a247deb022f31a67e61a5a17d82a2f2e77b5702bde6fcc73",
+      "identity": "1f:da9eaaa457f95e93a247deb022f31a67e61a5a17d82a2f2e77b5702bde6fcc73"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M009/lesson/lesson-model.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M009/lesson/lesson-model.mjs",
+      "source_identity": "1f:3848e06f3b0e451f089b9dfee271bb352a687fb9812599f9ae5646dc370019f9",
+      "identity": "1f:3848e06f3b0e451f089b9dfee271bb352a687fb9812599f9ae5646dc370019f9"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M009/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M009/lesson/lesson.mjs",
+      "source_identity": "1f:c2ae12bf516c8f625abaa4c35f3ee9f7c9a0a34a98f14a8a7d553e94ffa453ec",
+      "identity": "1f:c2ae12bf516c8f625abaa4c35f3ee9f7c9a0a34a98f14a8a7d553e94ffa453ec"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M010/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M010/lesson/lesson-content.json",
+      "source_identity": "1f:14a6ff9cd242e54871a49414fa2f0da09ef0f31a434f46d603720595de7e6209",
+      "identity": "1f:14a6ff9cd242e54871a49414fa2f0da09ef0f31a434f46d603720595de7e6209"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M010/lesson/lesson-model.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M010/lesson/lesson-model.mjs",
+      "source_identity": "1f:e7c5f636c97e92ac26f7433dc5b1349ad7e0ba5e433867f260c3dfe1fe61d7a0",
+      "identity": "1f:e7c5f636c97e92ac26f7433dc5b1349ad7e0ba5e433867f260c3dfe1fe61d7a0"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M010/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M010/lesson/lesson.mjs",
+      "source_identity": "1f:e1a5317440414e9d16211ba807d1e05e3f67c8a90675fd095095e1705591d765",
+      "identity": "1f:e1a5317440414e9d16211ba807d1e05e3f67c8a90675fd095095e1705591d765"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M011/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M011/lesson/lesson-content.json",
+      "source_identity": "1f:76015c16a22ff2008813f929a9d6b6ff621057295468d2b30ded3bff9ad6c5be",
+      "identity": "1f:76015c16a22ff2008813f929a9d6b6ff621057295468d2b30ded3bff9ad6c5be"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M011/lesson/lesson-model.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M011/lesson/lesson-model.mjs",
+      "source_identity": "1f:03b305e0705a408fad1da054cea8e9a9c080ee9a16e867d1fc0bca4ce9b4d06b",
+      "identity": "1f:03b305e0705a408fad1da054cea8e9a9c080ee9a16e867d1fc0bca4ce9b4d06b"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M011/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M011/lesson/lesson.mjs",
+      "source_identity": "1f:055cb9efaa7852236fd61f24ff7cfa3c1111b5eda22a9a8874f1a59d8fdf9e4e",
+      "identity": "1f:055cb9efaa7852236fd61f24ff7cfa3c1111b5eda22a9a8874f1a59d8fdf9e4e"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M012/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M012/lesson/lesson-content.json",
+      "source_identity": "1f:64369b9c021605a873041bc909cfef6854e7529c046f3a9c7fe01a3383006e31",
+      "identity": "1f:64369b9c021605a873041bc909cfef6854e7529c046f3a9c7fe01a3383006e31"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M012/lesson/lesson-model.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M012/lesson/lesson-model.mjs",
+      "source_identity": "1f:aefdb59a77812bf9810ff5c82e31d978f0968905735bcc2aa039882358126dd2",
+      "identity": "1f:aefdb59a77812bf9810ff5c82e31d978f0968905735bcc2aa039882358126dd2"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M012/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M012/lesson/lesson.mjs",
+      "source_identity": "1f:584317ec50090a05430b21843e4315a7a6817504d18f39cc1ed8cbbcf2233b13",
+      "identity": "1f:584317ec50090a05430b21843e4315a7a6817504d18f39cc1ed8cbbcf2233b13"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M013/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M013/lesson/lesson-content.json",
+      "source_identity": "1f:c7b1a9fc705509c8053fc309405ed32bda882132eef53187c5efdac767f47e99",
+      "identity": "1f:c7b1a9fc705509c8053fc309405ed32bda882132eef53187c5efdac767f47e99"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M013/lesson/lesson-model.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M013/lesson/lesson-model.mjs",
+      "source_identity": "1f:eb8aea6e3da2d10a801cfb24a95f27fd57c9a984581720eecc6f1c4c8385aba4",
+      "identity": "1f:eb8aea6e3da2d10a801cfb24a95f27fd57c9a984581720eecc6f1c4c8385aba4"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M013/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M013/lesson/lesson.mjs",
+      "source_identity": "1f:dc88a59158f7bdd5d63e285d847868c2619c48849c59c186424a4dddb3775bc2",
+      "identity": "1f:dc88a59158f7bdd5d63e285d847868c2619c48849c59c186424a4dddb3775bc2"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M014/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M014/lesson/lesson-content.json",
+      "source_identity": "1f:6b97ca959194eed3b34c7d6d02e169f2d7c19f689e0381d5f45d6fc69459dabe",
+      "identity": "1f:6b97ca959194eed3b34c7d6d02e169f2d7c19f689e0381d5f45d6fc69459dabe"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M014/lesson/lesson-model.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M014/lesson/lesson-model.mjs",
+      "source_identity": "1f:d78bac3ebc15cbe9137e9504d6fcd79922c03dd1ee66a4db25a4f28f303a380e",
+      "identity": "1f:d78bac3ebc15cbe9137e9504d6fcd79922c03dd1ee66a4db25a4f28f303a380e"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M014/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M014/lesson/lesson.mjs",
+      "source_identity": "1f:d8be17d74f2254992f6dfc499c8e6b518984863e3a034aabe435660f3a4c47d4",
+      "identity": "1f:d8be17d74f2254992f6dfc499c8e6b518984863e3a034aabe435660f3a4c47d4"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M015/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M015/lesson/lesson-content.json",
+      "source_identity": "1f:4fdf22f5efd06f47faf93910dedb4ac2654b1625da0b327da51a81f3e0026a50",
+      "identity": "1f:4fdf22f5efd06f47faf93910dedb4ac2654b1625da0b327da51a81f3e0026a50"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M015/lesson/lesson-model.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M015/lesson/lesson-model.mjs",
+      "source_identity": "1f:c56103d93174c77c63c1c7f720c88c3bb815ac4a627cbbfb3db0f3405597acc3",
+      "identity": "1f:c56103d93174c77c63c1c7f720c88c3bb815ac4a627cbbfb3db0f3405597acc3"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M015/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M015/lesson/lesson.mjs",
+      "source_identity": "1f:e89ad10527212ffa430df4112da75719ce195ed25b069377887e1248234922dd",
+      "identity": "1f:e89ad10527212ffa430df4112da75719ce195ed25b069377887e1248234922dd"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M016/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M016/lesson/lesson-content.json",
+      "source_identity": "1f:15602065444bb1a690716634fa0be4f5fb37a3da40bb466ef1e257c9cf067450",
+      "identity": "1f:15602065444bb1a690716634fa0be4f5fb37a3da40bb466ef1e257c9cf067450"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M016/lesson/lesson-model.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M016/lesson/lesson-model.mjs",
+      "source_identity": "1f:881736d68b700b57cda729f96ad5540c571a9a329e2fb6a8647892db90a7fa3d",
+      "identity": "1f:881736d68b700b57cda729f96ad5540c571a9a329e2fb6a8647892db90a7fa3d"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M016/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M016/lesson/lesson.mjs",
+      "source_identity": "1f:c95cd229293f3776d78906b7a07394b63b39b85f1644be3f783fcd4888c0b96d",
+      "identity": "1f:c95cd229293f3776d78906b7a07394b63b39b85f1644be3f783fcd4888c0b96d"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M018/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M018/lesson/lesson-content.json",
+      "source_identity": "1f:f50486e75c84be032fcac78046afbe2b7df0f8d9688a04ce6a7aaa8cd0243052",
+      "identity": "1f:f50486e75c84be032fcac78046afbe2b7df0f8d9688a04ce6a7aaa8cd0243052"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M018/lesson/lesson-model.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M018/lesson/lesson-model.mjs",
+      "source_identity": "1f:53575e1814ac1063a4613dc10487ddb9c3f125438c3cdf3695ee9cf373e50b3b",
+      "identity": "1f:53575e1814ac1063a4613dc10487ddb9c3f125438c3cdf3695ee9cf373e50b3b"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M018/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M018/lesson/lesson.mjs",
+      "source_identity": "1f:6ea922d149845f72560f60e4a6acdaad760e7051990f9ee8a63d294fc2329ec7",
+      "identity": "1f:6ea922d149845f72560f60e4a6acdaad760e7051990f9ee8a63d294fc2329ec7"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M020/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M020/lesson/lesson-content.json",
+      "source_identity": "1f:7f4210a5c7042af16c6d91dd2271a68bac9233b17ac38baac999a01ac3b5c13b",
+      "identity": "1f:7f4210a5c7042af16c6d91dd2271a68bac9233b17ac38baac999a01ac3b5c13b"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M020/lesson/lesson-model.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M020/lesson/lesson-model.mjs",
+      "source_identity": "1f:a75410acc4d0c6df51d41d36c590446e372e21dd956bf84960d8f985b17215cd",
+      "identity": "1f:a75410acc4d0c6df51d41d36c590446e372e21dd956bf84960d8f985b17215cd"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M020/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M020/lesson/lesson.mjs",
+      "source_identity": "1f:bd2ddfa03097007809f1d57c1c93158a3736e92d23873a443ae4483de725d73e",
+      "identity": "1f:bd2ddfa03097007809f1d57c1c93158a3736e92d23873a443ae4483de725d73e"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M021/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M021/lesson/lesson-content.json",
+      "source_identity": "1f:91f48ebecc09021b01e3235b6ffaa1a67071e32faf99c13abf9f1b08c2176d16",
+      "identity": "1f:91f48ebecc09021b01e3235b6ffaa1a67071e32faf99c13abf9f1b08c2176d16"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M021/lesson/lesson-model.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M021/lesson/lesson-model.mjs",
+      "source_identity": "1f:355442e840b35cd2af806e17d92a2a616d543b768417e6cb38a65a52a695feab",
+      "identity": "1f:355442e840b35cd2af806e17d92a2a616d543b768417e6cb38a65a52a695feab"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M021/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M021/lesson/lesson.mjs",
+      "source_identity": "1f:9abb7ae686de25b19a845cf95b7aae7beaf07612284614dab9c58704d19c96cf",
+      "identity": "1f:9abb7ae686de25b19a845cf95b7aae7beaf07612284614dab9c58704d19c96cf"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M022/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M022/lesson/lesson-content.json",
+      "source_identity": "1f:188ecdec1ec0f21ee24d11ba3c7c8e7bb0b5fdd9e779bf6ccf44f3264e063d4e",
+      "identity": "1f:188ecdec1ec0f21ee24d11ba3c7c8e7bb0b5fdd9e779bf6ccf44f3264e063d4e"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M022/lesson/lesson-model.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M022/lesson/lesson-model.mjs",
+      "source_identity": "1f:29f0b86fa4e774638fd3c1915402a6f8927a9dfaa513fc76f04c291477cd2fc3",
+      "identity": "1f:29f0b86fa4e774638fd3c1915402a6f8927a9dfaa513fc76f04c291477cd2fc3"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M022/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M022/lesson/lesson.mjs",
+      "source_identity": "1f:211d8ed715e6ad476432c1bc30a213c257efaf67612bd146aba1438ad87fe8b9",
+      "identity": "1f:211d8ed715e6ad476432c1bc30a213c257efaf67612bd146aba1438ad87fe8b9"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M023/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M023/lesson/lesson-content.json",
+      "source_identity": "1f:17e9503355c9c918afd6e18fa52757712a8c56ddcdd0fc0012abbd9906fed7fa",
+      "identity": "1f:17e9503355c9c918afd6e18fa52757712a8c56ddcdd0fc0012abbd9906fed7fa"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M023/lesson/lesson-model.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M023/lesson/lesson-model.mjs",
+      "source_identity": "1f:b8220a7f45549ae1541c40cd93c9d15b0633c74375dadde8f519cf5e171af017",
+      "identity": "1f:b8220a7f45549ae1541c40cd93c9d15b0633c74375dadde8f519cf5e171af017"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M023/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M023/lesson/lesson.mjs",
+      "source_identity": "1f:09ce1e0e13f4f1fe7aba02f207d05be42f9e4e837a2687b34c0083d137cee481",
+      "identity": "1f:09ce1e0e13f4f1fe7aba02f207d05be42f9e4e837a2687b34c0083d137cee481"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M024/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M024/lesson/lesson-content.json",
+      "source_identity": "1f:03ab0efa7f348352fbe35bee9a518ac76c3cf5cc9a49788d6c0c27e4f4df9142",
+      "identity": "1f:03ab0efa7f348352fbe35bee9a518ac76c3cf5cc9a49788d6c0c27e4f4df9142"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M024/lesson/lesson-model.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M024/lesson/lesson-model.mjs",
+      "source_identity": "1f:257e300e215eaabc4e27c26d76b89e8c6950f776bcc3536ed497f5fb36f6faea",
+      "identity": "1f:257e300e215eaabc4e27c26d76b89e8c6950f776bcc3536ed497f5fb36f6faea"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M024/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M024/lesson/lesson.mjs",
+      "source_identity": "1f:daa119e480f13790c139a379183f6c312038d6507c5b55018301cc186ea57142",
+      "identity": "1f:daa119e480f13790c139a379183f6c312038d6507c5b55018301cc186ea57142"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M025/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M025/lesson/lesson-content.json",
+      "source_identity": "1f:ded863becc741c6a891ad079a7bf4d444110532956aec0a6ce4a1a75058ce066",
+      "identity": "1f:ded863becc741c6a891ad079a7bf4d444110532956aec0a6ce4a1a75058ce066"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M025/lesson/lesson-model.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M025/lesson/lesson-model.mjs",
+      "source_identity": "1f:1e6439672f4afeb7e0d8b5f34674f68d2b9e07512d43af8dda24cc0844df131b",
+      "identity": "1f:1e6439672f4afeb7e0d8b5f34674f68d2b9e07512d43af8dda24cc0844df131b"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M025/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M025/lesson/lesson.mjs",
+      "source_identity": "1f:7a8598e71d63f29599b6f9ff82a1529f510de4ea08c2a6facb4eaa185377b3ff",
+      "identity": "1f:7a8598e71d63f29599b6f9ff82a1529f510de4ea08c2a6facb4eaa185377b3ff"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M026/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M026/lesson/lesson-content.json",
+      "source_identity": "1f:3502729ea72db643c3e4a03c1917c7d7be858d56618eb33183af5f1206b56ade",
+      "identity": "1f:3502729ea72db643c3e4a03c1917c7d7be858d56618eb33183af5f1206b56ade"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M026/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M026/lesson/lesson.mjs",
+      "source_identity": "1f:6767f6bbaf383064ee150c43b7602286dd57cabba360664b4bd00661fa1c974a",
+      "identity": "1f:6767f6bbaf383064ee150c43b7602286dd57cabba360664b4bd00661fa1c974a"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M028/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M028/lesson/lesson-content.json",
+      "source_identity": "1f:ae231f62c409b232739f726d4323d9421468b8da370cb19731c18e272f36985b",
+      "identity": "1f:ae231f62c409b232739f726d4323d9421468b8da370cb19731c18e272f36985b"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M028/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M028/lesson/lesson.mjs",
+      "source_identity": "1f:dba4e450861280cddda55ac9338b40784df06c46fa12dcef27b6bd240a5cc215",
+      "identity": "1f:dba4e450861280cddda55ac9338b40784df06c46fa12dcef27b6bd240a5cc215"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M029/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M029/lesson/lesson-content.json",
+      "source_identity": "1f:5bd0f26a7270b38636671da9cbdac07c6def82522dc46c8bca24bd93304a861a",
+      "identity": "1f:5bd0f26a7270b38636671da9cbdac07c6def82522dc46c8bca24bd93304a861a"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M029/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M029/lesson/lesson.mjs",
+      "source_identity": "1f:f67e0abd78bbd2c2032224a95900e5951993ab2b32784f57d1d0f353079dbd0a",
+      "identity": "1f:f67e0abd78bbd2c2032224a95900e5951993ab2b32784f57d1d0f353079dbd0a"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M030/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M030/lesson/lesson-content.json",
+      "source_identity": "1f:b526cd3930b79d7382f68f76a2bfd659be221a777723ff75feac5fb13b1a36a1",
+      "identity": "1f:b526cd3930b79d7382f68f76a2bfd659be221a777723ff75feac5fb13b1a36a1"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M030/lesson/lesson-model.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M030/lesson/lesson-model.mjs",
+      "source_identity": "1f:17d3341e9aa5b87b25efac32acccbe6e6f16aad6dcc2d3ad5a0a15421445794f",
+      "identity": "1f:17d3341e9aa5b87b25efac32acccbe6e6f16aad6dcc2d3ad5a0a15421445794f"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M030/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M030/lesson/lesson.mjs",
+      "source_identity": "1f:84bd331c3d5917404efbfcaa46214b49ddb1d7c2e3d5c2b69e680ff5d754dd7e",
+      "identity": "1f:84bd331c3d5917404efbfcaa46214b49ddb1d7c2e3d5c2b69e680ff5d754dd7e"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M031/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M031/lesson/lesson-content.json",
+      "source_identity": "1f:c1fa1d2d0b1f50dd5adc96fc47285f198eb4fe0ea67aca58781e568edb5bebeb",
+      "identity": "1f:c1fa1d2d0b1f50dd5adc96fc47285f198eb4fe0ea67aca58781e568edb5bebeb"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M031/lesson/lesson-model.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M031/lesson/lesson-model.mjs",
+      "source_identity": "1f:bbc424aaec4e9f2561a685da8f36e42e5c3889c66c8dc4bd1cf9590bbaa29379",
+      "identity": "1f:bbc424aaec4e9f2561a685da8f36e42e5c3889c66c8dc4bd1cf9590bbaa29379"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M031/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M031/lesson/lesson.mjs",
+      "source_identity": "1f:4ee19e7913a3c8ed091e029db012ff5566ad20ecd39b92728b314fc06d5d2240",
+      "identity": "1f:4ee19e7913a3c8ed091e029db012ff5566ad20ecd39b92728b314fc06d5d2240"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M032/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M032/lesson/lesson-content.json",
+      "source_identity": "1f:b91fca9b14e1c217551e790ad750d2349cbfda60f64271dd38385ff2bf427c8a",
+      "identity": "1f:b91fca9b14e1c217551e790ad750d2349cbfda60f64271dd38385ff2bf427c8a"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M032/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M032/lesson/lesson.mjs",
+      "source_identity": "1f:4c0da4f9e7b123dbf2b63bf1638f8146e0d3416f2b081f3a409f5753cf9028ee",
+      "identity": "1f:4c0da4f9e7b123dbf2b63bf1638f8146e0d3416f2b081f3a409f5753cf9028ee"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M033/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M033/lesson/lesson-content.json",
+      "source_identity": "1f:b6c0667d35dd0ddc26a50345e69bf6f8e5ff3f4283f3195c91c034680324b982",
+      "identity": "1f:b6c0667d35dd0ddc26a50345e69bf6f8e5ff3f4283f3195c91c034680324b982"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M033/lesson/lesson-model.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M033/lesson/lesson-model.mjs",
+      "source_identity": "1f:7d2c49ca54260e33ffc90d3461719695487845e691e37aac717da055ea7167c8",
+      "identity": "1f:7d2c49ca54260e33ffc90d3461719695487845e691e37aac717da055ea7167c8"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M033/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M033/lesson/lesson.mjs",
+      "source_identity": "1f:4e1922495ce152bb46b60675fccf8bc46a46be69beaead954b48b9a2be8c1574",
+      "identity": "1f:4e1922495ce152bb46b60675fccf8bc46a46be69beaead954b48b9a2be8c1574"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M034/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M034/lesson/lesson-content.json",
+      "source_identity": "1f:21e60e4f0ac22c1bc73935c223871aa855e9dc01b39d5e3bde557cf3516595f1",
+      "identity": "1f:21e60e4f0ac22c1bc73935c223871aa855e9dc01b39d5e3bde557cf3516595f1"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M034/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M034/lesson/lesson.mjs",
+      "source_identity": "1f:78e0bc65d4f7e86a4ecb50293c444c1e498331766aa82c8868ebb22f93ca56fc",
+      "identity": "1f:78e0bc65d4f7e86a4ecb50293c444c1e498331766aa82c8868ebb22f93ca56fc"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M035/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M035/lesson/lesson-content.json",
+      "source_identity": "1f:7a34f343c54e14f808981f0cb98c3e645a75bfe580f0ff5cb23e92327c2cfd29",
+      "identity": "1f:7a34f343c54e14f808981f0cb98c3e645a75bfe580f0ff5cb23e92327c2cfd29"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M035/lesson/lesson-model.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M035/lesson/lesson-model.mjs",
+      "source_identity": "1f:b556b509410097808c70dd8969fdb6e5221d22ccbd02e5ea871fe0ab5cb6a956",
+      "identity": "1f:b556b509410097808c70dd8969fdb6e5221d22ccbd02e5ea871fe0ab5cb6a956"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M035/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M035/lesson/lesson.mjs",
+      "source_identity": "1f:9bdd30c264489037652f34adc1c76fd9ffa6c004c89b9b6ab709ad0e8d173f71",
+      "identity": "1f:9bdd30c264489037652f34adc1c76fd9ffa6c004c89b9b6ab709ad0e8d173f71"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M036/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M036/lesson/lesson-content.json",
+      "source_identity": "1f:8eec1d5a23b9740722434fb8390922e27c2b2c8d92eac561a25d424071c60343",
+      "identity": "1f:8eec1d5a23b9740722434fb8390922e27c2b2c8d92eac561a25d424071c60343"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M036/lesson/lesson-model.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M036/lesson/lesson-model.mjs",
+      "source_identity": "1f:d2f544ce8c0c4c7752907e832a2540c9881d722fe72ab3cdd956b3111bdd5919",
+      "identity": "1f:d2f544ce8c0c4c7752907e832a2540c9881d722fe72ab3cdd956b3111bdd5919"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M036/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M036/lesson/lesson.mjs",
+      "source_identity": "1f:8486700115dd8b7cf86d3a0a27bafbfad0e72b9b8e4f5d8069e92f92ab91b5e6",
+      "identity": "1f:8486700115dd8b7cf86d3a0a27bafbfad0e72b9b8e4f5d8069e92f92ab91b5e6"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M037/lesson/book-task-figure.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M037/lesson/book-task-figure.mjs",
+      "source_identity": "1f:7493d21c44b41e0765314552f023c8cfee9009126d79e6498da903f7da7dc370",
+      "identity": "1f:7493d21c44b41e0765314552f023c8cfee9009126d79e6498da903f7da7dc370"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M037/lesson/book-task-model.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M037/lesson/book-task-model.mjs",
+      "source_identity": "1f:3142c50f444709b3f12653cc9b16630ab67d68d8e7865b21ad2770d4d6fb1da8",
+      "identity": "1f:3142c50f444709b3f12653cc9b16630ab67d68d8e7865b21ad2770d4d6fb1da8"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M037/lesson/BookTaskInteraction.tsx",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M037/lesson/BookTaskInteraction.tsx",
+      "source_identity": "1f:e0a8fa45862ac1f691c193fd977d55c79438ef2cf8f82d2d4a71a1707743c159",
+      "identity": "1f:e0a8fa45862ac1f691c193fd977d55c79438ef2cf8f82d2d4a71a1707743c159"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M037/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M037/lesson/lesson-content.json",
+      "source_identity": "1f:e3cebc7d46432fd606c0d509fff02198636988c34b08d727b341d4d7247294b4",
+      "identity": "1f:e3cebc7d46432fd606c0d509fff02198636988c34b08d727b341d4d7247294b4"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M037/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M037/lesson/lesson.mjs",
+      "source_identity": "1f:3a1e8c1d836c102783c35ac9eb291350bd01fca200d20903a947118f1316de3b",
+      "identity": "1f:3a1e8c1d836c102783c35ac9eb291350bd01fca200d20903a947118f1316de3b"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M038/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M038/lesson/lesson-content.json",
+      "source_identity": "1f:f4cdf8b8297b721a30f5f43428079ed6cc900134d8269b0d23539227b21fe748",
+      "identity": "1f:f4cdf8b8297b721a30f5f43428079ed6cc900134d8269b0d23539227b21fe748"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M038/lesson/lesson-model.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M038/lesson/lesson-model.mjs",
+      "source_identity": "1f:d1eacfc1fa84982f1520479120f012233b502e9f07c9fb89b44f1c1ac8b125ae",
+      "identity": "1f:d1eacfc1fa84982f1520479120f012233b502e9f07c9fb89b44f1c1ac8b125ae"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M038/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M038/lesson/lesson.mjs",
+      "source_identity": "1f:6850cdc0c344f5d4ca08f535a7a6c1973cae1b5c15b5e80db939482c116f9d32",
+      "identity": "1f:6850cdc0c344f5d4ca08f535a7a6c1973cae1b5c15b5e80db939482c116f9d32"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M039/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M039/lesson/lesson-content.json",
+      "source_identity": "1f:ddde164d73581a5ae7c81747d10ff3884ed68c45eb73ea500e680c877bf19613",
+      "identity": "1f:ddde164d73581a5ae7c81747d10ff3884ed68c45eb73ea500e680c877bf19613"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M039/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M039/lesson/lesson.mjs",
+      "source_identity": "1f:8adb7458ff548bac308922458000e1ba4831f5e9a6f95385a466f1a00645b96e",
+      "identity": "1f:8adb7458ff548bac308922458000e1ba4831f5e9a6f95385a466f1a00645b96e"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M041/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M041/lesson/lesson-content.json",
+      "source_identity": "1f:d162940ce6f313f86d323f870ce16b164ecbe42c6f1be52b274b6a9724cb77e4",
+      "identity": "1f:d162940ce6f313f86d323f870ce16b164ecbe42c6f1be52b274b6a9724cb77e4"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M041/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M041/lesson/lesson.mjs",
+      "source_identity": "1f:ba5aa3a01e9eb6ce67100ccd05d437f43ce7e9974e67742543531441b856ddd9",
+      "identity": "1f:ba5aa3a01e9eb6ce67100ccd05d437f43ce7e9974e67742543531441b856ddd9"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M042/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M042/lesson/lesson-content.json",
+      "source_identity": "1f:9c00f99b35c6aa973825cf89fa48ee3cab2bfee9e580f4e1ffddf14ef31f65d0",
+      "identity": "1f:9c00f99b35c6aa973825cf89fa48ee3cab2bfee9e580f4e1ffddf14ef31f65d0"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M042/lesson/lesson-model.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M042/lesson/lesson-model.mjs",
+      "source_identity": "1f:76de2398de5a4fd1deaa80a33f7a660b13db562c5d5eb254cfba543f8179d9d0",
+      "identity": "1f:76de2398de5a4fd1deaa80a33f7a660b13db562c5d5eb254cfba543f8179d9d0"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M042/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M042/lesson/lesson.mjs",
+      "source_identity": "1f:dda932ababfb5e3f6779c8a1efcd6f96b417738da4d0123d234bf797c05ba586",
+      "identity": "1f:dda932ababfb5e3f6779c8a1efcd6f96b417738da4d0123d234bf797c05ba586"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M043/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M043/lesson/lesson-content.json",
+      "source_identity": "1f:08cfed60f27af5aa3630bc03351fcf05c0104b5568e883da269d20c4440a476b",
+      "identity": "1f:08cfed60f27af5aa3630bc03351fcf05c0104b5568e883da269d20c4440a476b"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M043/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M043/lesson/lesson.mjs",
+      "source_identity": "1f:b211af8d29beebc9c823f4ad418842ee20d075022ea8fcee60b664ff1e3c2301",
+      "identity": "1f:b211af8d29beebc9c823f4ad418842ee20d075022ea8fcee60b664ff1e3c2301"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M044/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M044/lesson/lesson-content.json",
+      "source_identity": "1f:15f026f92815c3d58fa6edc05371c53cea7080fe82e169aa9b137d81217ce8dc",
+      "identity": "1f:15f026f92815c3d58fa6edc05371c53cea7080fe82e169aa9b137d81217ce8dc"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M044/lesson/lesson-model.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M044/lesson/lesson-model.mjs",
+      "source_identity": "1f:26596c1b488be11f8cb1eac8ea194b6cd7ff45a0cf0b7122ea3a63ad5063f01f",
+      "identity": "1f:26596c1b488be11f8cb1eac8ea194b6cd7ff45a0cf0b7122ea3a63ad5063f01f"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M044/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M044/lesson/lesson.mjs",
+      "source_identity": "1f:0c2b15853758124292941ad84c74028cd888851c41e3d26c619ddbaf5f564b06",
+      "identity": "1f:0c2b15853758124292941ad84c74028cd888851c41e3d26c619ddbaf5f564b06"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M045/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M045/lesson/lesson-content.json",
+      "source_identity": "1f:63f85f5512d32a3723b4d11045af385dd9d2e9ac6cec78e0d71b98c2ef07b24d",
+      "identity": "1f:63f85f5512d32a3723b4d11045af385dd9d2e9ac6cec78e0d71b98c2ef07b24d"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M045/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M045/lesson/lesson.mjs",
+      "source_identity": "1f:66d5878bc4cb04fe4ba4414b6cc8bde1c76cda35d1e01d25f05295266015ce64",
+      "identity": "1f:66d5878bc4cb04fe4ba4414b6cc8bde1c76cda35d1e01d25f05295266015ce64"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M046/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M046/lesson/lesson-content.json",
+      "source_identity": "1f:a25627f8d62081e69594d0a5806af4586d170addf219d9a1a75103c9870872f5",
+      "identity": "1f:a25627f8d62081e69594d0a5806af4586d170addf219d9a1a75103c9870872f5"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M046/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M046/lesson/lesson.mjs",
+      "source_identity": "1f:2b8910cf9dd337d53fed667e68e99f8683822533910a19d704d4b92f9e2408f8",
+      "identity": "1f:2b8910cf9dd337d53fed667e68e99f8683822533910a19d704d4b92f9e2408f8"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M047/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M047/lesson/lesson-content.json",
+      "source_identity": "1f:19ace644ef7f1882dda73cdbf95e4230adf7aa51db6eb69d5e878cdf6e40e04d",
+      "identity": "1f:19ace644ef7f1882dda73cdbf95e4230adf7aa51db6eb69d5e878cdf6e40e04d"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M047/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M047/lesson/lesson.mjs",
+      "source_identity": "1f:c83521f05e31a3f867b6d1c23c1d7d17d581d8944c62065c92b961b3cd3a7c59",
+      "identity": "1f:c83521f05e31a3f867b6d1c23c1d7d17d581d8944c62065c92b961b3cd3a7c59"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M048/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M048/lesson/lesson-content.json",
+      "source_identity": "1f:fb1a8f53fd7c8c256e36e5b78b5b6a8a3f6c82b6b7d1c02869bc7ca78b7e5a6f",
+      "identity": "1f:fb1a8f53fd7c8c256e36e5b78b5b6a8a3f6c82b6b7d1c02869bc7ca78b7e5a6f"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M048/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M048/lesson/lesson.mjs",
+      "source_identity": "1f:9579f388d5ec344418f484bd1d2a250ae2a546bc2632209af9d082e984cf711d",
+      "identity": "1f:9579f388d5ec344418f484bd1d2a250ae2a546bc2632209af9d082e984cf711d"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M049/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M049/lesson/lesson-content.json",
+      "source_identity": "1f:5746f877c11dc1db0f43dfcae970624bb9072acc29c59ad4c3626f9a89a41dcc",
+      "identity": "1f:5746f877c11dc1db0f43dfcae970624bb9072acc29c59ad4c3626f9a89a41dcc"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M049/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M049/lesson/lesson.mjs",
+      "source_identity": "1f:9494b401dce923e707ac5ed20a19173a4d47981fc654618e3859f334bf91f51f",
+      "identity": "1f:9494b401dce923e707ac5ed20a19173a4d47981fc654618e3859f334bf91f51f"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M050/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M050/lesson/lesson-content.json",
+      "source_identity": "1f:4ca51bf209ffa24d7c1ac5d5b0abf3ccc8107f46f6ca39748341d2ceed6f6e89",
+      "identity": "1f:4ca51bf209ffa24d7c1ac5d5b0abf3ccc8107f46f6ca39748341d2ceed6f6e89"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M050/lesson/lesson-model.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M050/lesson/lesson-model.mjs",
+      "source_identity": "1f:7ae6b87699a34a2809d40c2bfc8eadb0a472d296abd3189e6a536aa3ed7bffcf",
+      "identity": "1f:7ae6b87699a34a2809d40c2bfc8eadb0a472d296abd3189e6a536aa3ed7bffcf"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M050/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M050/lesson/lesson.mjs",
+      "source_identity": "1f:66c7fc0a4f40aaa5b495e5b754b2514876f9643fc478833e70ae1da0cfd3c68d",
+      "identity": "1f:66c7fc0a4f40aaa5b495e5b754b2514876f9643fc478833e70ae1da0cfd3c68d"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M051/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M051/lesson/lesson-content.json",
+      "source_identity": "1f:862bb3385512ee8f49fa9e7a86d8593beeec764155d3816cc758bc3b531b316a",
+      "identity": "1f:862bb3385512ee8f49fa9e7a86d8593beeec764155d3816cc758bc3b531b316a"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M051/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M051/lesson/lesson.mjs",
+      "source_identity": "1f:da57f1d06cffbbcd49810cb6c2b9ac2546bdfd055b5836a78ceec462c926fbdf",
+      "identity": "1f:da57f1d06cffbbcd49810cb6c2b9ac2546bdfd055b5836a78ceec462c926fbdf"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M052/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M052/lesson/lesson-content.json",
+      "source_identity": "1f:b4db0b087f8a317ff38c0a3439feeef85860a4366a9322f2c07184127335962e",
+      "identity": "1f:b4db0b087f8a317ff38c0a3439feeef85860a4366a9322f2c07184127335962e"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M052/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M052/lesson/lesson.mjs",
+      "source_identity": "1f:e0360c465f1ea7c352f9780f771c5e4c818a5f60842b5d2a4cbcec4bd46abf52",
+      "identity": "1f:e0360c465f1ea7c352f9780f771c5e4c818a5f60842b5d2a4cbcec4bd46abf52"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M053/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M053/lesson/lesson-content.json",
+      "source_identity": "1f:7fd34b7fa6aca456d59a7d9c2b9bff42444ae527f39fc91ed15b2388d72fde9b",
+      "identity": "1f:7fd34b7fa6aca456d59a7d9c2b9bff42444ae527f39fc91ed15b2388d72fde9b"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M053/lesson/lesson-model.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M053/lesson/lesson-model.mjs",
+      "source_identity": "1f:ca8ae94d492b31963c95632d5acde0537a6be299ca785f0e6f21adb885279094",
+      "identity": "1f:ca8ae94d492b31963c95632d5acde0537a6be299ca785f0e6f21adb885279094"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M053/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M053/lesson/lesson.mjs",
+      "source_identity": "1f:a85a56c6276fbe4ddd2521351cf4dce32e0101c034e178c5ae9600216850cd05",
+      "identity": "1f:a85a56c6276fbe4ddd2521351cf4dce32e0101c034e178c5ae9600216850cd05"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M054/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M054/lesson/lesson-content.json",
+      "source_identity": "1f:c9d02c8da98cc1bace73446c7a2e2082894198747a4107c0c3513de8a713eb68",
+      "identity": "1f:c9d02c8da98cc1bace73446c7a2e2082894198747a4107c0c3513de8a713eb68"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M054/lesson/lesson-model.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M054/lesson/lesson-model.mjs",
+      "source_identity": "1f:8e21648dcfeca7c8312dbd4cc788300bcf01a1b005a2f959ed7a4d04db4ffc4d",
+      "identity": "1f:8e21648dcfeca7c8312dbd4cc788300bcf01a1b005a2f959ed7a4d04db4ffc4d"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M054/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M054/lesson/lesson.mjs",
+      "source_identity": "1f:b439139aabc40b0d8d98602c657f242fde5969c55b034996a92d79b703d720f5",
+      "identity": "1f:b439139aabc40b0d8d98602c657f242fde5969c55b034996a92d79b703d720f5"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M055/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M055/lesson/lesson-content.json",
+      "source_identity": "1f:430093afd5f91f37f8dac6ae3742d1b01106467c952015eed67111939e08b242",
+      "identity": "1f:430093afd5f91f37f8dac6ae3742d1b01106467c952015eed67111939e08b242"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M055/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M055/lesson/lesson.mjs",
+      "source_identity": "1f:8a22fb30773e321c37785636062f17c57203b9854968d505fcbd5dbde4f40669",
+      "identity": "1f:8a22fb30773e321c37785636062f17c57203b9854968d505fcbd5dbde4f40669"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M056/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M056/lesson/lesson-content.json",
+      "source_identity": "1f:6497fe7755bb5606dd2dae835ed38d1b37a9c967fe163ac91e52b20f7421d28d",
+      "identity": "1f:6497fe7755bb5606dd2dae835ed38d1b37a9c967fe163ac91e52b20f7421d28d"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M056/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M056/lesson/lesson.mjs",
+      "source_identity": "1f:2629002ffc088a5b013e5ab6c844879951d0201f9e34c30b0af060f1b8ae7299",
+      "identity": "1f:2629002ffc088a5b013e5ab6c844879951d0201f9e34c30b0af060f1b8ae7299"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M057/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M057/lesson/lesson-content.json",
+      "source_identity": "1f:8383bc1072e8ea4396987b8b9f42a3cf3bb2cad587de4ebdca0429bd94371196",
+      "identity": "1f:8383bc1072e8ea4396987b8b9f42a3cf3bb2cad587de4ebdca0429bd94371196"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M057/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M057/lesson/lesson.mjs",
+      "source_identity": "1f:e9bf789d0414b1d08eeb3908e9bdb040a0f55a312792356e481c9d6529131f86",
+      "identity": "1f:e9bf789d0414b1d08eeb3908e9bdb040a0f55a312792356e481c9d6529131f86"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M058/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M058/lesson/lesson-content.json",
+      "source_identity": "1f:10a764aadd32ed31c3056c0b09b30af0ccb070b6de86eab5b934d1d3d798d998",
+      "identity": "1f:10a764aadd32ed31c3056c0b09b30af0ccb070b6de86eab5b934d1d3d798d998"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M058/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M058/lesson/lesson.mjs",
+      "source_identity": "1f:a0e666970b1016617f664d9633251e04c450670fdc1c3cfe312ffa58346de2dc",
+      "identity": "1f:a0e666970b1016617f664d9633251e04c450670fdc1c3cfe312ffa58346de2dc"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M059/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M059/lesson/lesson-content.json",
+      "source_identity": "1f:0e68ef60ad530bad8ea5f2250e8869193b4a24402b2bbf2885b22428ac8932ad",
+      "identity": "1f:0e68ef60ad530bad8ea5f2250e8869193b4a24402b2bbf2885b22428ac8932ad"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M059/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M059/lesson/lesson.mjs",
+      "source_identity": "1f:5a5584d1967b4ad5f1fd41025373cc2c61a70722dd374f2213be24c6dbf9651e",
+      "identity": "1f:5a5584d1967b4ad5f1fd41025373cc2c61a70722dd374f2213be24c6dbf9651e"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M060/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M060/lesson/lesson-content.json",
+      "source_identity": "1f:154785b30d76ff87eb62db70819b5002b79a1314198a16d64605ee3fb9b08032",
+      "identity": "1f:154785b30d76ff87eb62db70819b5002b79a1314198a16d64605ee3fb9b08032"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M060/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M060/lesson/lesson.mjs",
+      "source_identity": "1f:a3aaa9318084e519cd0ad01af6feecb8c49366663a3135671aec53c6bee2a9e6",
+      "identity": "1f:a3aaa9318084e519cd0ad01af6feecb8c49366663a3135671aec53c6bee2a9e6"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M062/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M062/lesson/lesson-content.json",
+      "source_identity": "1f:bfa4b763e959ffce95bf7a1c462dea90ce1a4222c5122cff2e7d52ae2765d358",
+      "identity": "1f:bfa4b763e959ffce95bf7a1c462dea90ce1a4222c5122cff2e7d52ae2765d358"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M062/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M062/lesson/lesson.mjs",
+      "source_identity": "1f:a6f5b94b84662c1d4e0a68ccfa78c12a6ec1c2f3b76f2181750c81d2b4c1a309",
+      "identity": "1f:a6f5b94b84662c1d4e0a68ccfa78c12a6ec1c2f3b76f2181750c81d2b4c1a309"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M063/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M063/lesson/lesson-content.json",
+      "source_identity": "1f:555bfe7a93e59a55dfd11237389a469bb18b26a569bc38112decec6bf9f251e6",
+      "identity": "1f:555bfe7a93e59a55dfd11237389a469bb18b26a569bc38112decec6bf9f251e6"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M063/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M063/lesson/lesson.mjs",
+      "source_identity": "1f:2094b94f1c04cd52d096ad579d224cd56649891b6ed348fced1e695cb241afb1",
+      "identity": "1f:2094b94f1c04cd52d096ad579d224cd56649891b6ed348fced1e695cb241afb1"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M064/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M064/lesson/lesson-content.json",
+      "source_identity": "1f:1c22cfdb0e072786160ea816785a551327081f26f4b9088ee16ecf89287a1ca7",
+      "identity": "1f:1c22cfdb0e072786160ea816785a551327081f26f4b9088ee16ecf89287a1ca7"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M064/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M064/lesson/lesson.mjs",
+      "source_identity": "1f:69cae1902e1189f51077312aad91248ee29e40edfc7a08ea8cb2d34d650d7941",
+      "identity": "1f:69cae1902e1189f51077312aad91248ee29e40edfc7a08ea8cb2d34d650d7941"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M065/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M065/lesson/lesson-content.json",
+      "source_identity": "1f:84d41dd81376ce7644708b852bd983005986b1805fba2de159947bd13baf6c61",
+      "identity": "1f:84d41dd81376ce7644708b852bd983005986b1805fba2de159947bd13baf6c61"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M065/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M065/lesson/lesson.mjs",
+      "source_identity": "1f:0f29d3e0e0c5f4d83cfeba2bfd493aeaf3e4d9b5fa8c09506e3e89f376ea78da",
+      "identity": "1f:0f29d3e0e0c5f4d83cfeba2bfd493aeaf3e4d9b5fa8c09506e3e89f376ea78da"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M066/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M066/lesson/lesson-content.json",
+      "source_identity": "1f:c9d9e594a2e969045d251c34fb38953c2ea71c74744071c81cd862cb7b94c61c",
+      "identity": "1f:c9d9e594a2e969045d251c34fb38953c2ea71c74744071c81cd862cb7b94c61c"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M066/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M066/lesson/lesson.mjs",
+      "source_identity": "1f:c9e4f3a233cea953b8031a8e3df59facc87bdde9030382e0203e154b0884a67c",
+      "identity": "1f:c9e4f3a233cea953b8031a8e3df59facc87bdde9030382e0203e154b0884a67c"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M067/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M067/lesson/lesson-content.json",
+      "source_identity": "1f:47501a8c275ac4b227a80a1be60d163ef597bc128f6e62ba8e9dc549ac5fff28",
+      "identity": "1f:47501a8c275ac4b227a80a1be60d163ef597bc128f6e62ba8e9dc549ac5fff28"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M067/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M067/lesson/lesson.mjs",
+      "source_identity": "1f:74d50abab3a6a8c65122d993c00f47012ecffeadd4de763675ab223139286c33",
+      "identity": "1f:74d50abab3a6a8c65122d993c00f47012ecffeadd4de763675ab223139286c33"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M068/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M068/lesson/lesson-content.json",
+      "source_identity": "1f:44a5778018a70aa79226070ac8e7e8d9d39ed1d74f7e03147f4598af1b2b3cfa",
+      "identity": "1f:44a5778018a70aa79226070ac8e7e8d9d39ed1d74f7e03147f4598af1b2b3cfa"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M068/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M068/lesson/lesson.mjs",
+      "source_identity": "1f:8fa5d7acd5f377c8fd41b7084e880a7a4212588f8f2f34587c6a7476b4926c7a",
+      "identity": "1f:8fa5d7acd5f377c8fd41b7084e880a7a4212588f8f2f34587c6a7476b4926c7a"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M069/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M069/lesson/lesson-content.json",
+      "source_identity": "1f:ba7ef0bc4f2dc5746920842b745de9db3dedfa6c0933d1c2d3c64e6e257b1af5",
+      "identity": "1f:ba7ef0bc4f2dc5746920842b745de9db3dedfa6c0933d1c2d3c64e6e257b1af5"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M069/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M069/lesson/lesson.mjs",
+      "source_identity": "1f:203d7f394b879a1f1dbe5990db858f2f7ecaafedc541cfd3c6540c9105cd82ee",
+      "identity": "1f:203d7f394b879a1f1dbe5990db858f2f7ecaafedc541cfd3c6540c9105cd82ee"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M072/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M072/lesson/lesson-content.json",
+      "source_identity": "1f:dfc2563aba48ab7e5c24c617a058f1dd23903913df5a1f9d6c32b183a4134022",
+      "identity": "1f:dfc2563aba48ab7e5c24c617a058f1dd23903913df5a1f9d6c32b183a4134022"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M072/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M072/lesson/lesson.mjs",
+      "source_identity": "1f:33d9601d5b90ffdac50326bd0b3dd3521d05585dbdf75cc30024b83c86adfb10",
+      "identity": "1f:33d9601d5b90ffdac50326bd0b3dd3521d05585dbdf75cc30024b83c86adfb10"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M073/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M073/lesson/lesson-content.json",
+      "source_identity": "1f:a0e9f6f97e49848a46731bec5c356ef01dde3d961003551daef8cca6dcb94f48",
+      "identity": "1f:a0e9f6f97e49848a46731bec5c356ef01dde3d961003551daef8cca6dcb94f48"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M073/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M073/lesson/lesson.mjs",
+      "source_identity": "1f:9ed08680a0a16846f1365a33c946ad72876c9297d72add8ca081ad05f538a2d1",
+      "identity": "1f:9ed08680a0a16846f1365a33c946ad72876c9297d72add8ca081ad05f538a2d1"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M074/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M074/lesson/lesson-content.json",
+      "source_identity": "1f:c238dee32353a949e4b8ae48393546714d22b35b0b291ccc21318949fa976aad",
+      "identity": "1f:c238dee32353a949e4b8ae48393546714d22b35b0b291ccc21318949fa976aad"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M074/lesson/lesson-model.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M074/lesson/lesson-model.mjs",
+      "source_identity": "1f:8adf4f956232c9e6682672b66ec62b21f239d3db8bfcd0ae299d354a7babfc0e",
+      "identity": "1f:8adf4f956232c9e6682672b66ec62b21f239d3db8bfcd0ae299d354a7babfc0e"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M074/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M074/lesson/lesson.mjs",
+      "source_identity": "1f:cabb15a30d86c6d073175d21d4c67784688b08747aa2232eee7566a99d96724d",
+      "identity": "1f:cabb15a30d86c6d073175d21d4c67784688b08747aa2232eee7566a99d96724d"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M074/lesson/source-actions.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M074/lesson/source-actions.json",
+      "source_identity": "1f:8794b385bfc9d3b6e6a28957655d528a3d5c255b4bbc229d02fe7fd06ac15155",
+      "identity": "1f:8794b385bfc9d3b6e6a28957655d528a3d5c255b4bbc229d02fe7fd06ac15155"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M075/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M075/lesson/lesson-content.json",
+      "source_identity": "1f:c3c0148f595a139de3c3b2ae1b88d9690c3b9756f714f9506acc2606626b467a",
+      "identity": "1f:c3c0148f595a139de3c3b2ae1b88d9690c3b9756f714f9506acc2606626b467a"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M075/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M075/lesson/lesson.mjs",
+      "source_identity": "1f:1a43dcbef526bda450039913c5d319341d44ff1c9e97c65e36253e6a79ca8d89",
+      "identity": "1f:1a43dcbef526bda450039913c5d319341d44ff1c9e97c65e36253e6a79ca8d89"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M076/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M076/lesson/lesson-content.json",
+      "source_identity": "1f:f92dda1446a5b6bf3c0676fe5cb842a8644dac5f7f7ac2fcda0a5ed2f8ed7449",
+      "identity": "1f:f92dda1446a5b6bf3c0676fe5cb842a8644dac5f7f7ac2fcda0a5ed2f8ed7449"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M076/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M076/lesson/lesson.mjs",
+      "source_identity": "1f:8304d974a123599b159dd8f6b1c67dbf66a9f9ad76507ecca5197395ad25ad4b",
+      "identity": "1f:8304d974a123599b159dd8f6b1c67dbf66a9f9ad76507ecca5197395ad25ad4b"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M077/lesson/figure.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M077/lesson/figure.json",
+      "source_identity": "1f:7973d587769dd290fea9e8ecabf0a59678f79e97131b6a1ddfbf512d62e8040b",
+      "identity": "1f:7973d587769dd290fea9e8ecabf0a59678f79e97131b6a1ddfbf512d62e8040b"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M077/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M077/lesson/lesson-content.json",
+      "source_identity": "1f:d43f7d63d39d727757e09af41aa4983ccff696e76392b757389998aed586d3d0",
+      "identity": "1f:d43f7d63d39d727757e09af41aa4983ccff696e76392b757389998aed586d3d0"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M077/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M077/lesson/lesson.mjs",
+      "source_identity": "1f:01c7078aedb5c7f31e74c8606b5128a09699de4aaaa24ab5ee797041bc30c6f8",
+      "identity": "1f:01c7078aedb5c7f31e74c8606b5128a09699de4aaaa24ab5ee797041bc30c6f8"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M078/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M078/lesson/lesson-content.json",
+      "source_identity": "1f:5376af112a07c36c382a614504b4a8832a3849dba4fe2ae55458189ad3548213",
+      "identity": "1f:5376af112a07c36c382a614504b4a8832a3849dba4fe2ae55458189ad3548213"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M078/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M078/lesson/lesson.mjs",
+      "source_identity": "1f:c9a7ebed9682cbcf5c19ebf9ccb362cd6a788414d68430f6ef5e736acd4da332",
+      "identity": "1f:c9a7ebed9682cbcf5c19ebf9ccb362cd6a788414d68430f6ef5e736acd4da332"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M079/lesson/figure.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M079/lesson/figure.json",
+      "source_identity": "1f:7607f20e1fcd6720d19042c722d9deb7000cbc9d6d7ed1b270189943a2c45555",
+      "identity": "1f:7607f20e1fcd6720d19042c722d9deb7000cbc9d6d7ed1b270189943a2c45555"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M079/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M079/lesson/lesson-content.json",
+      "source_identity": "1f:0550cc73bd76066ef3e733a42c3bee4c088d34e0869f1c271b1b6ac5ab1e6c9a",
+      "identity": "1f:0550cc73bd76066ef3e733a42c3bee4c088d34e0869f1c271b1b6ac5ab1e6c9a"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M079/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M079/lesson/lesson.mjs",
+      "source_identity": "1f:4f9a5f350d8eed0df72cee7488cd0b50c890caf43b49197ce435557b35b7083c",
+      "identity": "1f:4f9a5f350d8eed0df72cee7488cd0b50c890caf43b49197ce435557b35b7083c"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M080/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M080/lesson/lesson-content.json",
+      "source_identity": "1f:2f1a3e4eb7561c49f54e031a385e9cdb7d5de72302d798e56fe56b01b58761ed",
+      "identity": "1f:2f1a3e4eb7561c49f54e031a385e9cdb7d5de72302d798e56fe56b01b58761ed"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M080/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M080/lesson/lesson.mjs",
+      "source_identity": "1f:146e5c1f95138e51884b0a415aec423eef114ffd364599adeb6e24efcdc773d4",
+      "identity": "1f:146e5c1f95138e51884b0a415aec423eef114ffd364599adeb6e24efcdc773d4"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M080/lesson/source-actions.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M080/lesson/source-actions.json",
+      "source_identity": "1f:98d29b0c77310195b0e3b883df6c7b0ebce1bd130f5c5e213dc7dc540506faff",
+      "identity": "1f:98d29b0c77310195b0e3b883df6c7b0ebce1bd130f5c5e213dc7dc540506faff"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M081/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M081/lesson/lesson-content.json",
+      "source_identity": "1f:4a9ac68c36876a9760fa61fed463b038b711a22a86283bdf71237c7631bfbdbb",
+      "identity": "1f:4a9ac68c36876a9760fa61fed463b038b711a22a86283bdf71237c7631bfbdbb"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M081/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M081/lesson/lesson.mjs",
+      "source_identity": "1f:c4cc3e4ca46c27471d57d82b659a9fffc3dca59c22771dcb9dae92be63eb458f",
+      "identity": "1f:c4cc3e4ca46c27471d57d82b659a9fffc3dca59c22771dcb9dae92be63eb458f"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M082/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M082/lesson/lesson-content.json",
+      "source_identity": "1f:172c9852d38a7164f002d75351a6b405fe41f2ff46aee8aee119ed0b38aaf036",
+      "identity": "1f:172c9852d38a7164f002d75351a6b405fe41f2ff46aee8aee119ed0b38aaf036"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M082/lesson/lesson-model.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M082/lesson/lesson-model.mjs",
+      "source_identity": "1f:93558f16c0372f4aa3e1fcf2f34272a2bc119862a82c996d3af391a5056dcf43",
+      "identity": "1f:93558f16c0372f4aa3e1fcf2f34272a2bc119862a82c996d3af391a5056dcf43"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M082/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M082/lesson/lesson.mjs",
+      "source_identity": "1f:c983a408471f979aa5328cc989c743f5acaef8a3a242e03b50af4788be02ad24",
+      "identity": "1f:c983a408471f979aa5328cc989c743f5acaef8a3a242e03b50af4788be02ad24"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M082/lesson/source-actions.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M082/lesson/source-actions.json",
+      "source_identity": "1f:764a1f53a94b461057220561de3560d40f2aa68cf91730ca76526988fe5b507f",
+      "identity": "1f:764a1f53a94b461057220561de3560d40f2aa68cf91730ca76526988fe5b507f"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M083/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M083/lesson/lesson-content.json",
+      "source_identity": "1f:30b45739109722976424adab26bf987b027319666a3cc580badc075befda1dd3",
+      "identity": "1f:30b45739109722976424adab26bf987b027319666a3cc580badc075befda1dd3"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M083/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M083/lesson/lesson.mjs",
+      "source_identity": "1f:4df9cd78feeaa2af68f29607e39788842bc9ff54525e88ab9a0972a2173cda52",
+      "identity": "1f:4df9cd78feeaa2af68f29607e39788842bc9ff54525e88ab9a0972a2173cda52"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M084/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M084/lesson/lesson-content.json",
+      "source_identity": "1f:cb7d060c4ce8ec6ad32f6d28d5585608b286d57c2a670164973de344b6b242bc",
+      "identity": "1f:cb7d060c4ce8ec6ad32f6d28d5585608b286d57c2a670164973de344b6b242bc"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M084/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M084/lesson/lesson.mjs",
+      "source_identity": "1f:28d7b76c0636c034c6bad729fc2e09dd50a8e31c3029cf5a543d482daaeee9e2",
+      "identity": "1f:28d7b76c0636c034c6bad729fc2e09dd50a8e31c3029cf5a543d482daaeee9e2"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M085/lesson/figure.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M085/lesson/figure.json",
+      "source_identity": "1f:7da572a49edbf8a494326cd3f0efb52e4860fce0adcbc3973c88756e5da240d9",
+      "identity": "1f:7da572a49edbf8a494326cd3f0efb52e4860fce0adcbc3973c88756e5da240d9"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M085/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M085/lesson/lesson-content.json",
+      "source_identity": "1f:1046b58c7e273a3844cf8161a0d13a775c88525abc14c8e0fe807eaa9b44574e",
+      "identity": "1f:1046b58c7e273a3844cf8161a0d13a775c88525abc14c8e0fe807eaa9b44574e"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M085/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M085/lesson/lesson.mjs",
+      "source_identity": "1f:1a3d4e677a0dbb81e3e62d8ea7d8650b35463a21b2325aee29ba34727b115adc",
+      "identity": "1f:1a3d4e677a0dbb81e3e62d8ea7d8650b35463a21b2325aee29ba34727b115adc"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M086/lesson/figure.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M086/lesson/figure.json",
+      "source_identity": "1f:78a6f75a955c6d7701d97c1a2f65dd70e79542ffb26135eef237842bf8c87273",
+      "identity": "1f:78a6f75a955c6d7701d97c1a2f65dd70e79542ffb26135eef237842bf8c87273"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M086/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M086/lesson/lesson-content.json",
+      "source_identity": "1f:001985881eb5c8bf167e820a53e787f23c8ff7ef555394a6ee69d03170f0a70b",
+      "identity": "1f:001985881eb5c8bf167e820a53e787f23c8ff7ef555394a6ee69d03170f0a70b"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M086/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M086/lesson/lesson.mjs",
+      "source_identity": "1f:b5c6f2da08162dbb1b4db8711218b32ddaf8e9d7ceec32b584a7b0523f6e1a8c",
+      "identity": "1f:b5c6f2da08162dbb1b4db8711218b32ddaf8e9d7ceec32b584a7b0523f6e1a8c"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M087/lesson/figure.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M087/lesson/figure.json",
+      "source_identity": "1f:f34622485f6e8c03d889e3652b3e5ba87620a8988f7370a831aa296271ffeebd",
+      "identity": "1f:f34622485f6e8c03d889e3652b3e5ba87620a8988f7370a831aa296271ffeebd"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M087/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M087/lesson/lesson-content.json",
+      "source_identity": "1f:9293eef2ee6bddb608412a2e1fa06a66a787f427e733986b70ee876778fed16c",
+      "identity": "1f:9293eef2ee6bddb608412a2e1fa06a66a787f427e733986b70ee876778fed16c"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M087/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M087/lesson/lesson.mjs",
+      "source_identity": "1f:0b61e5c139c28b5d11a5d62594c5b2d2de08b3a65cb66fcdef733466814700ed",
+      "identity": "1f:0b61e5c139c28b5d11a5d62594c5b2d2de08b3a65cb66fcdef733466814700ed"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M088/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M088/lesson/lesson-content.json",
+      "source_identity": "1f:7f1a3a2898bb240da141146112c4f906c21a0a9fae7e068b46711c8d86a2f0f5",
+      "identity": "1f:7f1a3a2898bb240da141146112c4f906c21a0a9fae7e068b46711c8d86a2f0f5"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M088/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M088/lesson/lesson.mjs",
+      "source_identity": "1f:362d995f59358628146c396e97b88099be4b8f4c2cc180c9a648ee3270c381f3",
+      "identity": "1f:362d995f59358628146c396e97b88099be4b8f4c2cc180c9a648ee3270c381f3"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M089/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M089/lesson/lesson-content.json",
+      "source_identity": "1f:88fa29a9034ffa4b5b0f21fc20a69b6e12e51d5a46218df8ff9e498f70613bbd",
+      "identity": "1f:88fa29a9034ffa4b5b0f21fc20a69b6e12e51d5a46218df8ff9e498f70613bbd"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M089/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M089/lesson/lesson.mjs",
+      "source_identity": "1f:f067d4e98bf565d570bfe2f16a72d0ea4204e083c1c33926fd78625294f6e25a",
+      "identity": "1f:f067d4e98bf565d570bfe2f16a72d0ea4204e083c1c33926fd78625294f6e25a"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M090/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M090/lesson/lesson-content.json",
+      "source_identity": "1f:e62a2ae6dfd76500fac180f1e6202ff7a1590b3ce33359a80a0f6ce8840c6349",
+      "identity": "1f:e62a2ae6dfd76500fac180f1e6202ff7a1590b3ce33359a80a0f6ce8840c6349"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M090/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M090/lesson/lesson.mjs",
+      "source_identity": "1f:b6038a4ed5980112806b3d432553ca5981659075422f14a6b0ca0a3825ec4f85",
+      "identity": "1f:b6038a4ed5980112806b3d432553ca5981659075422f14a6b0ca0a3825ec4f85"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M090/lesson/source-actions.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M090/lesson/source-actions.json",
+      "source_identity": "1f:d8bd345de05054cee6eae1cc95d719d5b5a858f91f481d9e788c7dc2d81283fc",
+      "identity": "1f:d8bd345de05054cee6eae1cc95d719d5b5a858f91f481d9e788c7dc2d81283fc"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M091/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M091/lesson/lesson-content.json",
+      "source_identity": "1f:3d45d7515adc049b4c9e0d06daca57afb12e2dca3a7e4a3ba7090063861184f5",
+      "identity": "1f:3d45d7515adc049b4c9e0d06daca57afb12e2dca3a7e4a3ba7090063861184f5"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M091/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M091/lesson/lesson.mjs",
+      "source_identity": "1f:4b820016f5a4e78843bb9c6c3e7cbc38170546063eb845ca65edd963a635863d",
+      "identity": "1f:4b820016f5a4e78843bb9c6c3e7cbc38170546063eb845ca65edd963a635863d"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M092/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M092/lesson/lesson-content.json",
+      "source_identity": "1f:2256c9a68d8e3dead37a2535b0c8b7059327c97753196f8b852aada5bf8fd754",
+      "identity": "1f:2256c9a68d8e3dead37a2535b0c8b7059327c97753196f8b852aada5bf8fd754"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M092/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M092/lesson/lesson.mjs",
+      "source_identity": "1f:0b65f15879d5b91d71d26b7d44fced11537050502da3e09ad1c1c3827a7c69e7",
+      "identity": "1f:0b65f15879d5b91d71d26b7d44fced11537050502da3e09ad1c1c3827a7c69e7"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M093/lesson/figure.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M093/lesson/figure.json",
+      "source_identity": "1f:855e38ea602debe28609e49a140a59509ac305ee99114331c8edd30d943f1160",
+      "identity": "1f:855e38ea602debe28609e49a140a59509ac305ee99114331c8edd30d943f1160"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M093/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M093/lesson/lesson-content.json",
+      "source_identity": "1f:caf61b3cc966b90354c796cb61f570818ff0e245bd5c7d4cb22d62e61c993f87",
+      "identity": "1f:caf61b3cc966b90354c796cb61f570818ff0e245bd5c7d4cb22d62e61c993f87"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M093/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M093/lesson/lesson.mjs",
+      "source_identity": "1f:fe18b0f5c7951a841b97d1fc8a8b1f520eca93bb5c8a7c9db255010feeb2c32c",
+      "identity": "1f:fe18b0f5c7951a841b97d1fc8a8b1f520eca93bb5c8a7c9db255010feeb2c32c"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M094/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M094/lesson/lesson-content.json",
+      "source_identity": "1f:34574810db37db78427510bf39f8626dbaa3e5ecaf576fefc6447317a68ff4a6",
+      "identity": "1f:34574810db37db78427510bf39f8626dbaa3e5ecaf576fefc6447317a68ff4a6"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M094/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M094/lesson/lesson.mjs",
+      "source_identity": "1f:b83583c17671272cbd14a8f600018ed0bf374bfcf07fcd33b48df8964f035ee3",
+      "identity": "1f:b83583c17671272cbd14a8f600018ed0bf374bfcf07fcd33b48df8964f035ee3"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M095/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M095/lesson/lesson-content.json",
+      "source_identity": "1f:8730f37bafea96d59df7331f85b0187bca75d54f45549db268535d00c36cfa24",
+      "identity": "1f:8730f37bafea96d59df7331f85b0187bca75d54f45549db268535d00c36cfa24"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M095/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M095/lesson/lesson.mjs",
+      "source_identity": "1f:26303fc8dc58363989e5f1fbb123873e8ec250c1d4f6c19e5a5f0a43d4d28286",
+      "identity": "1f:26303fc8dc58363989e5f1fbb123873e8ec250c1d4f6c19e5a5f0a43d4d28286"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M096/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M096/lesson/lesson-content.json",
+      "source_identity": "1f:7c83203788903e9c92622c12282f66fd5b39cc1a54b3bdca8436c5ff79b20238",
+      "identity": "1f:7c83203788903e9c92622c12282f66fd5b39cc1a54b3bdca8436c5ff79b20238"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M096/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M096/lesson/lesson.mjs",
+      "source_identity": "1f:95fee0a9cb1c0fb108dfacd9aeda5045ad4d41a5364ac9125f16619527c8bbcc",
+      "identity": "1f:95fee0a9cb1c0fb108dfacd9aeda5045ad4d41a5364ac9125f16619527c8bbcc"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M097/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M097/lesson/lesson-content.json",
+      "source_identity": "1f:fdd4689fcfeb0e0c10502795deccc575655640fdf687313c9fcde1bbd6493096",
+      "identity": "1f:fdd4689fcfeb0e0c10502795deccc575655640fdf687313c9fcde1bbd6493096"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M097/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M097/lesson/lesson.mjs",
+      "source_identity": "1f:3bd7881e38ee83cefa45c429b198c381e6674c49447eade9862863f2c66e77ab",
+      "identity": "1f:3bd7881e38ee83cefa45c429b198c381e6674c49447eade9862863f2c66e77ab"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M099/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M099/lesson/lesson-content.json",
+      "source_identity": "1f:9e533f2daf30106912e112f9069a3185167103c5a6ec990739e7b2cd874ebf0b",
+      "identity": "1f:9e533f2daf30106912e112f9069a3185167103c5a6ec990739e7b2cd874ebf0b"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M099/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M099/lesson/lesson.mjs",
+      "source_identity": "1f:c6a3a12a2a72023ff8abf62f78377b4cf8d734960d24c58c5f608791d2ba20cb",
+      "identity": "1f:c6a3a12a2a72023ff8abf62f78377b4cf8d734960d24c58c5f608791d2ba20cb"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M100/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M100/lesson/lesson-content.json",
+      "source_identity": "1f:83f5fcd13cfe0bede958a2fec380e0d51236150373af1d2883ea32ce872de7c8",
+      "identity": "1f:83f5fcd13cfe0bede958a2fec380e0d51236150373af1d2883ea32ce872de7c8"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M100/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M100/lesson/lesson.mjs",
+      "source_identity": "1f:a4ce591bb66fafba598e021560203f98102cd4803c75e7efd3002729f1eda61f",
+      "identity": "1f:a4ce591bb66fafba598e021560203f98102cd4803c75e7efd3002729f1eda61f"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M102/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M102/lesson/lesson-content.json",
+      "source_identity": "1f:6a2a86995d78c69c010608ef7d74e655ef814de4a98eb39f887b2811f9cde80b",
+      "identity": "1f:6a2a86995d78c69c010608ef7d74e655ef814de4a98eb39f887b2811f9cde80b"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M102/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M102/lesson/lesson.mjs",
+      "source_identity": "1f:6b123d9af2103f0601c0e250257d178ab6246ca7624728a9fa8205031ffe3a17",
+      "identity": "1f:6b123d9af2103f0601c0e250257d178ab6246ca7624728a9fa8205031ffe3a17"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M103/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M103/lesson/lesson-content.json",
+      "source_identity": "1f:811fc5b91e3b003131501c2c1f907ee6b9a0d5d5eb49ddce0a24e7f679890663",
+      "identity": "1f:811fc5b91e3b003131501c2c1f907ee6b9a0d5d5eb49ddce0a24e7f679890663"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M103/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M103/lesson/lesson.mjs",
+      "source_identity": "1f:bd17bc75a12615a0ad8baef50b77c9da47209b12f88cdc31b36da4daa155918e",
+      "identity": "1f:bd17bc75a12615a0ad8baef50b77c9da47209b12f88cdc31b36da4daa155918e"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M104/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M104/lesson/lesson-content.json",
+      "source_identity": "1f:a8e3d47ddd1ac9748f423535b2036efccb51d524b5be7361ac675865044bbc0e",
+      "identity": "1f:a8e3d47ddd1ac9748f423535b2036efccb51d524b5be7361ac675865044bbc0e"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M104/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M104/lesson/lesson.mjs",
+      "source_identity": "1f:86c5b27fccedefb7388fbc74a68b2090c59ba90cd873ac040b8043404113c86b",
+      "identity": "1f:86c5b27fccedefb7388fbc74a68b2090c59ba90cd873ac040b8043404113c86b"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M106/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M106/lesson/lesson-content.json",
+      "source_identity": "1f:805dec9ed995f9982f60d5cf9fc938a223ea991abe4fba5e524e2a5ec509d5f4",
+      "identity": "1f:805dec9ed995f9982f60d5cf9fc938a223ea991abe4fba5e524e2a5ec509d5f4"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M106/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M106/lesson/lesson.mjs",
+      "source_identity": "1f:f959c4ff41bf50da59330e22bff5e8b856c975d1d98035db38f0e54ec2a65d11",
+      "identity": "1f:f959c4ff41bf50da59330e22bff5e8b856c975d1d98035db38f0e54ec2a65d11"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M107/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M107/lesson/lesson-content.json",
+      "source_identity": "1f:c436246438752c0d8bee962aa3d35a5daf6228a3b0e880e877a5fd268d05033c",
+      "identity": "1f:c436246438752c0d8bee962aa3d35a5daf6228a3b0e880e877a5fd268d05033c"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M107/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M107/lesson/lesson.mjs",
+      "source_identity": "1f:a4ab8990b7735023120aa2e470408dd4e826f2b6f004ad0e64f4eae3a5c0e4d5",
+      "identity": "1f:a4ab8990b7735023120aa2e470408dd4e826f2b6f004ad0e64f4eae3a5c0e4d5"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M110/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M110/lesson/lesson-content.json",
+      "source_identity": "1f:b718a56c3fc5a20b3b8f12c4c1a5fa6843eba33d2d515b01b02c763589c3edb7",
+      "identity": "1f:b718a56c3fc5a20b3b8f12c4c1a5fa6843eba33d2d515b01b02c763589c3edb7"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M110/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M110/lesson/lesson.mjs",
+      "source_identity": "1f:bc394d38dfed201aeea5208c58e6655272daa902c7d076403920cddc287ccc3b",
+      "identity": "1f:bc394d38dfed201aeea5208c58e6655272daa902c7d076403920cddc287ccc3b"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M115/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M115/lesson/lesson-content.json",
+      "source_identity": "1f:d3c532d190b67a8335ddaecffa0caa1d0f2e6dc2fab158fa0d8e7a33f0063ba5",
+      "identity": "1f:d3c532d190b67a8335ddaecffa0caa1d0f2e6dc2fab158fa0d8e7a33f0063ba5"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M115/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M115/lesson/lesson.mjs",
+      "source_identity": "1f:81003dc31b5f15abc51bf5bde996f53569ec96bec540a4f2da3bb9e6fd35210c",
+      "identity": "1f:81003dc31b5f15abc51bf5bde996f53569ec96bec540a4f2da3bb9e6fd35210c"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M117/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M117/lesson/lesson-content.json",
+      "source_identity": "1f:aea19d0908b8dc2b755a9d718cbcecd504e934e174aec81040f8811dc4929008",
+      "identity": "1f:aea19d0908b8dc2b755a9d718cbcecd504e934e174aec81040f8811dc4929008"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M117/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M117/lesson/lesson.mjs",
+      "source_identity": "1f:aafd10bb97a9ae35857d603e74d922e0ee169db2527b7f89cf25634377ba39e9",
+      "identity": "1f:aafd10bb97a9ae35857d603e74d922e0ee169db2527b7f89cf25634377ba39e9"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M118/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M118/lesson/lesson-content.json",
+      "source_identity": "1f:a70a4836b2d521da505a52ff34d4ad26daadd60330e6a73565e972ddab7bcea5",
+      "identity": "1f:a70a4836b2d521da505a52ff34d4ad26daadd60330e6a73565e972ddab7bcea5"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M118/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M118/lesson/lesson.mjs",
+      "source_identity": "1f:a6ce179661993f8ceede9f09adf0110300e18de423466e98f446726408c56b7f",
+      "identity": "1f:a6ce179661993f8ceede9f09adf0110300e18de423466e98f446726408c56b7f"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M120/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M120/lesson/lesson-content.json",
+      "source_identity": "1f:dd7a17e7c0b0b7deb9b8543b4d33cda720c0bea2fce7ae8e1b274918a0c10a86",
+      "identity": "1f:dd7a17e7c0b0b7deb9b8543b4d33cda720c0bea2fce7ae8e1b274918a0c10a86"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M120/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M120/lesson/lesson.mjs",
+      "source_identity": "1f:4bd94ddb4d3b11cf0dd1003aa9fb6ea6b968988471c020541b5d60b0dadaec11",
+      "identity": "1f:4bd94ddb4d3b11cf0dd1003aa9fb6ea6b968988471c020541b5d60b0dadaec11"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M123/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M123/lesson/lesson-content.json",
+      "source_identity": "1f:ea2f4ce9f1b8c70ece7e33c1cf7f1ab2841f6853ce7788d2a95722e94c07dde2",
+      "identity": "1f:ea2f4ce9f1b8c70ece7e33c1cf7f1ab2841f6853ce7788d2a95722e94c07dde2"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M123/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M123/lesson/lesson.mjs",
+      "source_identity": "1f:be55bb7b8a59f06aef17069d59ba3f948683c30d1d42e13471eb022b88ed8b7a",
+      "identity": "1f:be55bb7b8a59f06aef17069d59ba3f948683c30d1d42e13471eb022b88ed8b7a"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M124/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M124/lesson/lesson-content.json",
+      "source_identity": "1f:12c4d34df066fc6ae74ebc61a9fc7099dff1c24996b3ea59988569ba9459208a",
+      "identity": "1f:12c4d34df066fc6ae74ebc61a9fc7099dff1c24996b3ea59988569ba9459208a"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M124/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M124/lesson/lesson.mjs",
+      "source_identity": "1f:a2e73b09b2317ba22f1e2a0eac96bc06ef5ef20e18d2009972d124fb3cd43237",
+      "identity": "1f:a2e73b09b2317ba22f1e2a0eac96bc06ef5ef20e18d2009972d124fb3cd43237"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M125/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M125/lesson/lesson-content.json",
+      "source_identity": "1f:272ce25d6a31fa3fcd7ca240fe48bef15741ebc9dd278608c63f4188a2daea94",
+      "identity": "1f:272ce25d6a31fa3fcd7ca240fe48bef15741ebc9dd278608c63f4188a2daea94"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M125/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M125/lesson/lesson.mjs",
+      "source_identity": "1f:64fb90304f60a9dbbc27a82ce95ee58e6169ff79a66739ccc25ac6db9d8198d4",
+      "identity": "1f:64fb90304f60a9dbbc27a82ce95ee58e6169ff79a66739ccc25ac6db9d8198d4"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M126/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M126/lesson/lesson-content.json",
+      "source_identity": "1f:7e0411d6e672999760ff4d49c04ecb9cf541087caaf3b21e5d7808de98a9b02c",
+      "identity": "1f:7e0411d6e672999760ff4d49c04ecb9cf541087caaf3b21e5d7808de98a9b02c"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M126/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M126/lesson/lesson.mjs",
+      "source_identity": "1f:007a29a4c7f3776263c1a15dbaf2bd307a7149cefa7c81836f72d3bc8d9cf42a",
+      "identity": "1f:007a29a4c7f3776263c1a15dbaf2bd307a7149cefa7c81836f72d3bc8d9cf42a"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M127/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M127/lesson/lesson-content.json",
+      "source_identity": "1f:b6fbf537bf88447f327356df04aa6a617a04f43b151077836bca2e47e556e4b4",
+      "identity": "1f:b6fbf537bf88447f327356df04aa6a617a04f43b151077836bca2e47e556e4b4"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M127/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M127/lesson/lesson.mjs",
+      "source_identity": "1f:e94d9de53d948b4a2bd04db83c5c7ac275c37405d2df5a165fd3462385993fe3",
+      "identity": "1f:e94d9de53d948b4a2bd04db83c5c7ac275c37405d2df5a165fd3462385993fe3"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M128/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M128/lesson/lesson-content.json",
+      "source_identity": "1f:3351c6a52c65911855ac8c5cff8f16d0c7bcc0b73e063cf418d7353de5696cd2",
+      "identity": "1f:3351c6a52c65911855ac8c5cff8f16d0c7bcc0b73e063cf418d7353de5696cd2"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M128/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M128/lesson/lesson.mjs",
+      "source_identity": "1f:6f3deca2d2c37c5a7805bfb16288f64a1ecf41554c256e04a57e0cd029e7547c",
+      "identity": "1f:6f3deca2d2c37c5a7805bfb16288f64a1ecf41554c256e04a57e0cd029e7547c"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M129/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M129/lesson/lesson-content.json",
+      "source_identity": "1f:f83db70d10f00b721e3b50e9da7fc3df4a81ee21220afaf76e0670f9bb78e4d6",
+      "identity": "1f:f83db70d10f00b721e3b50e9da7fc3df4a81ee21220afaf76e0670f9bb78e4d6"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M129/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M129/lesson/lesson.mjs",
+      "source_identity": "1f:9bb047f96355f29aa3b2e2ad0f0570af09b402379abec13b6a7798b2505d0e29",
+      "identity": "1f:9bb047f96355f29aa3b2e2ad0f0570af09b402379abec13b6a7798b2505d0e29"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M130/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M130/lesson/lesson-content.json",
+      "source_identity": "1f:5085d16328a636cf05157fe37cbcd9a20a9eba32ed9beb2b205ad13e058f9914",
+      "identity": "1f:5085d16328a636cf05157fe37cbcd9a20a9eba32ed9beb2b205ad13e058f9914"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M130/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M130/lesson/lesson.mjs",
+      "source_identity": "1f:d4b2138a998043e42c9def2aa2b2be59df53bbd4a8d900da40422a5a3f918d3e",
+      "identity": "1f:d4b2138a998043e42c9def2aa2b2be59df53bbd4a8d900da40422a5a3f918d3e"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M131/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M131/lesson/lesson-content.json",
+      "source_identity": "1f:55149355248ea861a17ba297af220b9d5243588f5a5da9a63f8a906b8d302615",
+      "identity": "1f:55149355248ea861a17ba297af220b9d5243588f5a5da9a63f8a906b8d302615"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M131/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M131/lesson/lesson.mjs",
+      "source_identity": "1f:c48ec72f2ae9b0d71a6e7d31942d1337397c2e2cbe400b84771c77470a4ba1fd",
+      "identity": "1f:c48ec72f2ae9b0d71a6e7d31942d1337397c2e2cbe400b84771c77470a4ba1fd"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M132/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M132/lesson/lesson-content.json",
+      "source_identity": "1f:ba8ba9269c0cf9f85da5bb4652badb069d2ccc79baa191db306667a1a2923650",
+      "identity": "1f:ba8ba9269c0cf9f85da5bb4652badb069d2ccc79baa191db306667a1a2923650"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M132/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M132/lesson/lesson.mjs",
+      "source_identity": "1f:b1fe561164ddb94acbb59e90e94b3e088e1e05f3cc39995952dda58e00be3b8d",
+      "identity": "1f:b1fe561164ddb94acbb59e90e94b3e088e1e05f3cc39995952dda58e00be3b8d"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M133/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M133/lesson/lesson-content.json",
+      "source_identity": "1f:cc250f92ccb288651cdb48de098a53f7a6e756f7ad4336cf13cf147f5736c027",
+      "identity": "1f:cc250f92ccb288651cdb48de098a53f7a6e756f7ad4336cf13cf147f5736c027"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M133/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M133/lesson/lesson.mjs",
+      "source_identity": "1f:c38f7f2e1f8c39a37136ecc4022d776a68be6e0f002c2abf0f26f1ba66aea81c",
+      "identity": "1f:c38f7f2e1f8c39a37136ecc4022d776a68be6e0f002c2abf0f26f1ba66aea81c"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M134/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M134/lesson/lesson-content.json",
+      "source_identity": "1f:b55fe5d5b7720cdbf596185cd04d93b081a0f380c93da8bfd50340391117b4c6",
+      "identity": "1f:b55fe5d5b7720cdbf596185cd04d93b081a0f380c93da8bfd50340391117b4c6"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M134/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M134/lesson/lesson.mjs",
+      "source_identity": "1f:2b055fe5d14baf5b854658ffd19a7594aca0e5ead1eb32f69e31e647a33c0850",
+      "identity": "1f:2b055fe5d14baf5b854658ffd19a7594aca0e5ead1eb32f69e31e647a33c0850"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M136/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M136/lesson/lesson-content.json",
+      "source_identity": "1f:0f3d66e8bcdbb37caed576468e006b84ad4263273875d82a4960669b2bc93bdb",
+      "identity": "1f:0f3d66e8bcdbb37caed576468e006b84ad4263273875d82a4960669b2bc93bdb"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M136/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M136/lesson/lesson.mjs",
+      "source_identity": "1f:5613579ff1ef5d3b911fc3b9be77fe80ac8623c1bb1b64e4f38cb968055f9cc7",
+      "identity": "1f:5613579ff1ef5d3b911fc3b9be77fe80ac8623c1bb1b64e4f38cb968055f9cc7"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M137/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M137/lesson/lesson-content.json",
+      "source_identity": "1f:8126856dada324b4d399007eadd898dc1b86b3a72b88e8799033608f92b2c661",
+      "identity": "1f:8126856dada324b4d399007eadd898dc1b86b3a72b88e8799033608f92b2c661"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M137/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M137/lesson/lesson.mjs",
+      "source_identity": "1f:3f0d7847607710a989253cb0f6fe6ea153e37311992ccb02a7b6d8775e9a32d3",
+      "identity": "1f:3f0d7847607710a989253cb0f6fe6ea153e37311992ccb02a7b6d8775e9a32d3"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M139/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M139/lesson/lesson-content.json",
+      "source_identity": "1f:3442651bcc6676c08b2681df769f4264cba0fabb592d0bcf6456628431b47a14",
+      "identity": "1f:3442651bcc6676c08b2681df769f4264cba0fabb592d0bcf6456628431b47a14"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M139/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M139/lesson/lesson.mjs",
+      "source_identity": "1f:9cc5fe70db98d6d7c6dbe7f5493dee42eb2785dc8e0179b7c18744a350cd9184",
+      "identity": "1f:9cc5fe70db98d6d7c6dbe7f5493dee42eb2785dc8e0179b7c18744a350cd9184"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M140/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M140/lesson/lesson-content.json",
+      "source_identity": "1f:1fbb0c84fa13aa2e1e24c664b271d799ef9c7930e3a920c063837e3900be41bc",
+      "identity": "1f:1fbb0c84fa13aa2e1e24c664b271d799ef9c7930e3a920c063837e3900be41bc"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M140/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M140/lesson/lesson.mjs",
+      "source_identity": "1f:e7fe029241bd1006bd055c94a026c1daf70ee317eb149f8d5c87b6cfa1e23de0",
+      "identity": "1f:e7fe029241bd1006bd055c94a026c1daf70ee317eb149f8d5c87b6cfa1e23de0"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M142/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M142/lesson/lesson-content.json",
+      "source_identity": "1f:13acd8bd354252623ddf0c6b645667af3d533e751c79fc91cde2982a62cf291f",
+      "identity": "1f:13acd8bd354252623ddf0c6b645667af3d533e751c79fc91cde2982a62cf291f"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M142/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M142/lesson/lesson.mjs",
+      "source_identity": "1f:d749c2deead74e0bbe265227c4d94f059fdf907cab19c075881de699eb33b8c3",
+      "identity": "1f:d749c2deead74e0bbe265227c4d94f059fdf907cab19c075881de699eb33b8c3"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M143/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M143/lesson/lesson-content.json",
+      "source_identity": "1f:cecfcc633ab9e1f0298929a777d508c6d677ad1a5568d60f133cb65d3f4063fe",
+      "identity": "1f:cecfcc633ab9e1f0298929a777d508c6d677ad1a5568d60f133cb65d3f4063fe"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M143/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M143/lesson/lesson.mjs",
+      "source_identity": "1f:b40131f921a41285432418289ea49254de104aa2497f84277b310c70f263381b",
+      "identity": "1f:b40131f921a41285432418289ea49254de104aa2497f84277b310c70f263381b"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M144/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M144/lesson/lesson-content.json",
+      "source_identity": "1f:98ef9ca953c7df81e945785f6dd84c6f7111f5febb2ab83ee97bb75742b826c8",
+      "identity": "1f:98ef9ca953c7df81e945785f6dd84c6f7111f5febb2ab83ee97bb75742b826c8"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M144/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M144/lesson/lesson.mjs",
+      "source_identity": "1f:99532c695760d4d163330dc16334dd6bfb94dfef94ed28cb88ce7ec9d55b9fcf",
+      "identity": "1f:99532c695760d4d163330dc16334dd6bfb94dfef94ed28cb88ce7ec9d55b9fcf"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M145/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M145/lesson/lesson-content.json",
+      "source_identity": "1f:a3b1f3b0cc58bee61714fd67727e7e676316257c243b95a98425969c65dd1e4b",
+      "identity": "1f:a3b1f3b0cc58bee61714fd67727e7e676316257c243b95a98425969c65dd1e4b"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M145/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M145/lesson/lesson.mjs",
+      "source_identity": "1f:411d6cbbbd507d67cf4793ce67933d310e74ef796e86c45d223e76e0d7d33dcd",
+      "identity": "1f:411d6cbbbd507d67cf4793ce67933d310e74ef796e86c45d223e76e0d7d33dcd"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M146/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M146/lesson/lesson-content.json",
+      "source_identity": "1f:de7095b437d80e0a70272b4ba16030ffd3ae17f77c942b492274958fb4c8a35b",
+      "identity": "1f:de7095b437d80e0a70272b4ba16030ffd3ae17f77c942b492274958fb4c8a35b"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M146/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M146/lesson/lesson.mjs",
+      "source_identity": "1f:b36b26091ad26cf1a3ec4d5af6679b184c392641a7a3061ed77f73711e5dd908",
+      "identity": "1f:b36b26091ad26cf1a3ec4d5af6679b184c392641a7a3061ed77f73711e5dd908"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M147/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M147/lesson/lesson-content.json",
+      "source_identity": "1f:eb8c6563fa667dd27e87a2b97f4f7fe81198b001cd999683be0556f4f5214d0b",
+      "identity": "1f:eb8c6563fa667dd27e87a2b97f4f7fe81198b001cd999683be0556f4f5214d0b"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M147/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M147/lesson/lesson.mjs",
+      "source_identity": "1f:2ac029f4f96c38e87dd0db4bb508f3499c1e258dd349c25ba8eab44b86776097",
+      "identity": "1f:2ac029f4f96c38e87dd0db4bb508f3499c1e258dd349c25ba8eab44b86776097"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M148/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M148/lesson/lesson-content.json",
+      "source_identity": "1f:ced8c739db6e0fac4c456d48592a1cf46da92079d30859dd1b12ec0221f22f0e",
+      "identity": "1f:ced8c739db6e0fac4c456d48592a1cf46da92079d30859dd1b12ec0221f22f0e"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M148/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M148/lesson/lesson.mjs",
+      "source_identity": "1f:d0980bb3bb863834dd9fc168994ea281aef620ccd49827f59f2a8031a5e5a880",
+      "identity": "1f:d0980bb3bb863834dd9fc168994ea281aef620ccd49827f59f2a8031a5e5a880"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M149/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M149/lesson/lesson-content.json",
+      "source_identity": "1f:585fed79dd033c3654827d959152a47f18b1944b7a84744d30e62d51cd3ad8bf",
+      "identity": "1f:585fed79dd033c3654827d959152a47f18b1944b7a84744d30e62d51cd3ad8bf"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M149/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M149/lesson/lesson.mjs",
+      "source_identity": "1f:9302feb1e0e92d6dcbb75f72a00c78f5ac2053cbe528cb787c87cf4fa3d3514d",
+      "identity": "1f:9302feb1e0e92d6dcbb75f72a00c78f5ac2053cbe528cb787c87cf4fa3d3514d"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M150/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M150/lesson/lesson-content.json",
+      "source_identity": "1f:6d3de864c30572f45882c2f0ea2484ced4ec66f19a9e670410dedb8d6d86e3b4",
+      "identity": "1f:6d3de864c30572f45882c2f0ea2484ced4ec66f19a9e670410dedb8d6d86e3b4"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M150/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M150/lesson/lesson.mjs",
+      "source_identity": "1f:cf11977c44422d59e58c15c0cb6e4ef39c2c823b1e8837ed3a914f9cf00779d5",
+      "identity": "1f:cf11977c44422d59e58c15c0cb6e4ef39c2c823b1e8837ed3a914f9cf00779d5"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M151/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M151/lesson/lesson-content.json",
+      "source_identity": "1f:d9f5616715044211a2ba20e2c3f0f67674ff6395f973fa7a2b151256fa29eb75",
+      "identity": "1f:d9f5616715044211a2ba20e2c3f0f67674ff6395f973fa7a2b151256fa29eb75"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M151/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M151/lesson/lesson.mjs",
+      "source_identity": "1f:ddb041150c50f9971eeed733dfab3ad55d294cc4be6bc8ce8e4a15955b4a99d4",
+      "identity": "1f:ddb041150c50f9971eeed733dfab3ad55d294cc4be6bc8ce8e4a15955b4a99d4"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M152/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M152/lesson/lesson-content.json",
+      "source_identity": "1f:62f26a83e481574ece199499df118f35f635a15f40c1fbae7698afdf456237ff",
+      "identity": "1f:62f26a83e481574ece199499df118f35f635a15f40c1fbae7698afdf456237ff"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M152/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M152/lesson/lesson.mjs",
+      "source_identity": "1f:306f5427981e248ad30f28cbf23c07ee2109d11ef622bf8b3e28563939b2c293",
+      "identity": "1f:306f5427981e248ad30f28cbf23c07ee2109d11ef622bf8b3e28563939b2c293"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M153/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M153/lesson/lesson-content.json",
+      "source_identity": "1f:5a27c723f21cee021de3a44b156d46c0a65a2b2491728eeb833257eedbed6f7b",
+      "identity": "1f:5a27c723f21cee021de3a44b156d46c0a65a2b2491728eeb833257eedbed6f7b"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M153/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M153/lesson/lesson.mjs",
+      "source_identity": "1f:12e5c71f31dd6d1523874663373d0faec8a344acfc4120bc146173d0bcf9876c",
+      "identity": "1f:12e5c71f31dd6d1523874663373d0faec8a344acfc4120bc146173d0bcf9876c"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M154/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M154/lesson/lesson-content.json",
+      "source_identity": "1f:2877ea6f98bc8f592178f1fde6da67e400ac96be5d8a34807403f495536cf4e6",
+      "identity": "1f:2877ea6f98bc8f592178f1fde6da67e400ac96be5d8a34807403f495536cf4e6"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M154/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M154/lesson/lesson.mjs",
+      "source_identity": "1f:f922231809a8200fa71e8ccbcb86e5e301aaff02865cba2c895252f8626a91a5",
+      "identity": "1f:f922231809a8200fa71e8ccbcb86e5e301aaff02865cba2c895252f8626a91a5"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M155/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M155/lesson/lesson-content.json",
+      "source_identity": "1f:3bba818590207ed434bd505aba3f5231129c8b1eb55bf46316a79af40acfcadc",
+      "identity": "1f:3bba818590207ed434bd505aba3f5231129c8b1eb55bf46316a79af40acfcadc"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M155/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M155/lesson/lesson.mjs",
+      "source_identity": "1f:427ee8df41c97716d9e5dd46e7eac4b589494f6a6bd2e884d1dc38ea88727f7f",
+      "identity": "1f:427ee8df41c97716d9e5dd46e7eac4b589494f6a6bd2e884d1dc38ea88727f7f"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M156/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M156/lesson/lesson-content.json",
+      "source_identity": "1f:5433b63c2033ac2c9c9fa3a0e3708d8c60f4ca3e5cce87b17a720e19961c039f",
+      "identity": "1f:5433b63c2033ac2c9c9fa3a0e3708d8c60f4ca3e5cce87b17a720e19961c039f"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M156/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M156/lesson/lesson.mjs",
+      "source_identity": "1f:f4c72b73e9b6f05e34595c9111623760efb2b84122870b0e9ff0ce40c50f87de",
+      "identity": "1f:f4c72b73e9b6f05e34595c9111623760efb2b84122870b0e9ff0ce40c50f87de"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M157/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M157/lesson/lesson-content.json",
+      "source_identity": "1f:60c3e12cd65da7923cda068f25498dbd6bd7df8517bee8238382b2d0b7447e72",
+      "identity": "1f:60c3e12cd65da7923cda068f25498dbd6bd7df8517bee8238382b2d0b7447e72"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M157/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M157/lesson/lesson.mjs",
+      "source_identity": "1f:34785efda22883f9e849cd1668cb5a598ba89fe2d56ca37498ce2f8db46b0730",
+      "identity": "1f:34785efda22883f9e849cd1668cb5a598ba89fe2d56ca37498ce2f8db46b0730"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M159/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M159/lesson/lesson-content.json",
+      "source_identity": "1f:60fc7a8f64290cb010306859f86b094cd88c9cb5dc9c4b974860409db9f30998",
+      "identity": "1f:60fc7a8f64290cb010306859f86b094cd88c9cb5dc9c4b974860409db9f30998"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M159/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M159/lesson/lesson.mjs",
+      "source_identity": "1f:bb2db3da6ae6ef09dc7e50c4f57defecf6f40eb8e4709d0a3025785adecc8236",
+      "identity": "1f:bb2db3da6ae6ef09dc7e50c4f57defecf6f40eb8e4709d0a3025785adecc8236"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M159/lesson/source-actions.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M159/lesson/source-actions.json",
+      "source_identity": "1f:67fb727977983033e7d6920fa55119ef7906665ad49e07432ad712bf61787379",
+      "identity": "1f:67fb727977983033e7d6920fa55119ef7906665ad49e07432ad712bf61787379"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M160/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M160/lesson/lesson-content.json",
+      "source_identity": "1f:f87ae59e9e581bc9e7f6a41862e3429e7d32e0feb4cfa9f18ae17cbe51339337",
+      "identity": "1f:f87ae59e9e581bc9e7f6a41862e3429e7d32e0feb4cfa9f18ae17cbe51339337"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M160/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M160/lesson/lesson.mjs",
+      "source_identity": "1f:c4e4141d52bd6a4818b1cba5fae04b3422c23154cd3752b7bdd27806ead3fb5e",
+      "identity": "1f:c4e4141d52bd6a4818b1cba5fae04b3422c23154cd3752b7bdd27806ead3fb5e"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M160/lesson/source-actions.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M160/lesson/source-actions.json",
+      "source_identity": "1f:c165a7c1601bb84ccf1c01c4ba74511237530377b908fd222d4ddc3455440212",
+      "identity": "1f:c165a7c1601bb84ccf1c01c4ba74511237530377b908fd222d4ddc3455440212"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M161/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M161/lesson/lesson-content.json",
+      "source_identity": "1f:31ff8fe35ed981b0265731b008fc59eaff5804709606be5d942aa88fdd4419c5",
+      "identity": "1f:31ff8fe35ed981b0265731b008fc59eaff5804709606be5d942aa88fdd4419c5"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M161/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M161/lesson/lesson.mjs",
+      "source_identity": "1f:73aa25ba630ddfb83f6fd2ce1c0de558dd3cd4b3de66a70e4f1d1194add34d1e",
+      "identity": "1f:73aa25ba630ddfb83f6fd2ce1c0de558dd3cd4b3de66a70e4f1d1194add34d1e"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M162/lesson/lesson-content.json",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M162/lesson/lesson-content.json",
+      "source_identity": "1f:587f4db2fee0924e66b9c62dd064927e0f6bdb8314303fce844884addf6843aa",
+      "identity": "1f:587f4db2fee0924e66b9c62dd064927e0f6bdb8314303fce844884addf6843aa"
+    },
+    {
+      "from": "framework-animation-pilot/catalogue-output/M162/lesson/lesson.mjs",
+      "commit": "f8d6b8124a7d1801571702d911a7ec8d775895c2",
+      "to": "tools/lessons-and-learning-paths/framework-animation-pilot/catalogue-output/M162/lesson/lesson.mjs",
+      "source_identity": "1f:f9c6efbf9ff433861bdc5f4d1c07cc0515717bc5445aba79cc9758dd322edd11",
+      "identity": "1f:f9c6efbf9ff433861bdc5f4d1c07cc0515717bc5445aba79cc9758dd322edd11"
+    },
+    {
       "from": "packages/course-lesson/show/CourseLessonSurface.tsx",
       "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
       "to": "tools/lessons-and-learning-paths/packages/course-lesson/show/CourseLessonSurface.tsx",

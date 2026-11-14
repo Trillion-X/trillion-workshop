@@ -1,0 +1,78 @@
+{
+  "title": "Distraction Reframing",
+  "opening": "A useful video idea can wait. A wrong price changes the work now. When the same alert returns, change the setup.",
+  "labels": {
+    "task": "What are you working on?",
+    "classify": "Choose what arrived",
+    "later": "Useful later",
+    "now": "Changes this answer",
+    "recurring": "Keeps interrupting",
+    "laterIdea": "The video idea to save",
+    "saveLater": "Save this idea for later",
+    "savingLater": "Saving this idea privately",
+    "draftLine": "Current example pricing line",
+    "exampleSource": "Example pricing source",
+    "correctDraft": "Update the current draft",
+    "setupChange": "What setup change would reduce this repeat interruption?",
+    "recordSetup": "Record this setup change",
+    "laterList": "Later ideas",
+    "privateRecord": "Keep a private copy",
+    "save": "Save my notes privately",
+    "busy": "Saving private notes",
+    "retry": "Retry the same save",
+    "sourceExcerpt": "From the manuscript"
+  },
+  "cases": [
+    {
+      "id": "later",
+      "label": "A video idea",
+      "summary": "A plan-comparison walkthrough could help later, but it does not change the pricing explanation you are writing."
+    },
+    {
+      "id": "now",
+      "label": "A pricing contradiction",
+      "summary": "The draft says $29 per month; the current example pricing sheet says $19. The correction changes this explanation."
+    },
+    {
+      "id": "recurring",
+      "label": "The same alert again",
+      "summary": "A non-urgent project alert interrupts each time you work on the pricing explanation."
+    }
+  ],
+  "example": {
+    "task": "Finish the pricing explanation.",
+    "laterIdea": "Make a short plan-comparison walkthrough.",
+    "draftLine": "The starter plan costs $29 per month.",
+    "approvedLine": "The starter plan costs $19 per month.",
+    "setupChange": "Pause non-urgent project alerts during drafting; keep urgent contacts available."
+  },
+  "practice": {
+    "result": "A private record of your chosen task, captured later idea, current draft correction, or setup change."
+  },
+  "feedback": {
+    "unavailable": "Private saving is unavailable. Your work remains on screen.",
+    "missing": "Choose a response before saving this note.",
+    "length": "Shorten the saved note to 2,000 characters or fewer. Your full text remains here.",
+    "readFailure": "The saved note could not be loaded. Your current work remains here.",
+    "saved": "Your private note is saved.",
+    "conflict": "This note changed elsewhere. Your work remains here; save again to keep this version.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry the same save before changing it.",
+    "retryPending": "The earlier save is unresolved. Retry the same note before changing it.",
+    "ideaNotConfirmed": "The idea is still on screen, but its private save has not been confirmed. Use the private record below to retry or check the result."
+  },
+  "source": {
+    "sourceRecord": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/3/lessons/49/body",
+    "sourceSpan": "When a significant distraction appears, briefly ask whether it supplies something useful to the present question. Capture a useful connection, or save the unrelated question for later. Return to the task. Notice a recurring interruption that requires a change in the arrangement rather than the same repeated decision.",
+    "manuscriptPdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf#page=35",
+    "manuscriptLocator": "p. 35 (82-page source edition)",
+    "attribution": "[S01] Supplied Manuscript — 82-page edition. Authorship/adoption of every wording is not independently established.",
+    "effectLimit": "This practice teaches a classification and next action. It makes no claim that the interaction itself improves attention or performance."
+  },
+  "teaching": {
+    "laterIdea": "Make a short plan-comparison walkthrough.",
+    "materialCorrection": "The example pricing sheet says $19 per month; update the line in the explanation before continuing.",
+    "recurringPattern": "When the same alert keeps interrupting, change one relevant part of the setup instead of making the same decision again.",
+    "sourceExcerpt": "When a significant distraction appears, briefly ask whether it supplies something useful to the present question. Capture a useful connection, or save the unrelated question for later. Return to the task. Notice a recurring interruption that requires a change in the arrangement rather than the same repeated decision."
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "title": "The Passion Crucible Practice",
+  "opening": "You like the idea of publishing but have not experienced revising a piece after specific critique. Test one real demand of a possible passion at a safe, bounded scale; the test is the work itself.",
+  "labels": {
+    "source": "Source passage",
+    "practice": "Plan, try, and review",
+    "example": "A small teaching trial",
+    "figure": "A plan names the value, question, and limits; the actual attempt produces observations that inform whether to continue, adjust, or reconsider.",
+    "pursuit": "Possible pursuit",
+    "difficulty": "Relevant difficulty to try",
+    "value": "Value this work may serve",
+    "question": "What should this attempt help me learn?",
+    "limits": "Limits that keep this trial bounded and safe",
+    "plan": "Plan: what I intend to do and when",
+    "actual": "Actual attempt: what I did, or not yet done",
+    "difficultyObserved": "Observed difficulty during the work",
+    "valueObserved": "Did the value remain compelling during the work? What did I notice?",
+    "review": "Would I choose this work again? What will I do next?",
+    "save": "Save private reflection",
+    "saving": "Saving reflection",
+    "retry": "Retry the same save",
+    "private": "This reflection is private to you. Save a partial plan or leave it unsaved; you can return after an actual attempt.",
+    "sourceHint": "Supplied recovered manuscript, p. 42 (82-page source edition)."
+  },
+  "feedback": {
+    "unavailable": "Private practice saving is unavailable. Your reflection remains on screen.",
+    "missing": "",
+    "length": "Shorten this practice response to 2,000 characters or fewer. Your full draft is still here; nothing was saved.",
+    "readFailure": "The saved reflection could not be loaded. Your current work remains on screen.",
+    "saved": "Your private reflection is saved.",
+    "conflict": "This practice record changed elsewhere. Your reflection remains here; read the saved version before saving again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same reflection before changing it."
+  },
+  "source": {
+    "manuscript": "The Passion Crucible Practice: choose a bounded difficulty directly relevant to a possible passion; state the value and what the attempt should reveal, with limits; make the attempt and observe both difficulty and whether the value remains compelling; then review whether you would choose that work again and decide to continue, adjust or reconsider.",
+    "attribution": "Supplied recovered manuscript; authorship/adoption of every wording is not independently established.",
+    "boundary": "A challenge must be relevant to the pursuit. Unrelated pain, humiliation or unsafe exposure does not establish passion. One unrepresentative trial cannot stand for an entire pursuit. A difficulty can be informative without being proof; stop or change the trial if safety or access conditions require it."
+  },
+  "example": {
+    "title": "The task is learning to teach",
+    "body": "Illustrative case: someone is considering teaching. They prepare one short explanation of a topic they know, share it with a willing learner, and ask which step was unclear. They plan to revise that explanation once, then stop. Their value is helping another person understand; the question is whether explanation and revision still feel worthwhile when a learner misunderstands. The plan is not the evidence. Afterward they record what they actually did, how revision felt, and whether they would choose another teaching task. A learner's confusion is a relevant demand; hostile treatment is not a teaching test. If the small lesson does not resemble the teaching work they mean to pursue, they keep the conclusion narrow."
+  },
+  "comparison": {
+    "title": "A smaller trial can answer the question",
+    "body": "Near miss: deliberately making the work harder, accepting humiliation, or enduring unrelated pain to prove commitment. None tests whether the pursuit's value remains compelling. A single short explanation and one revision can be enough to learn something."
+  },
+  "connections": "Connect this with Value > Suffering (M070) to examine value during difficulty, Minimum Viable Action Design (M117) to bound a test, and Difficulty Diagnostic (M076) to distinguish sources of resistance."
+}

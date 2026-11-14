@@ -1,0 +1,52 @@
+{
+  "title": "Learn through a pursuit",
+  "opening": "What you’re trying to do helps you work out what you need to learn. Returning a wide ball and sending one cross-court give you different things to practise.",
+  "modes": [
+    {
+      "id": "wide-return",
+      "label": "Return a wide feed",
+      "description": "The receiver starts near the left sideline and a feed travels in from the far court. This setup needs lateral room, a feed you can repeat, and a way to observe the return.",
+      "focus": "wide-return"
+    },
+    {
+      "id": "cross-court",
+      "label": "Send a cross-court return",
+      "description": "The receiver starts near center and sends the ball toward a partner across court. This setup needs a clear target, a repeatable feed, and room to reset.",
+      "focus": "cross-court"
+    }
+  ],
+  "labels": {
+    "mode": "Choose the next attempt",
+    "ownPursuit": "Your next attempt",
+    "save": "Save reflection",
+    "busy": "Saving reflection"
+  },
+  "feedback": {
+    "unavailable": "Saving is unavailable for this lesson.",
+    "missing": "Answer each question before saving.",
+    "length": "Keep each answer within 2,000 characters.",
+    "readFailure": "Your saved reflection could not be loaded.",
+    "saved": "Your reflection is saved.",
+    "conflict": "This reflection changed elsewhere. Review it and save again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check it again.",
+    "saveFailure": "The save is still uncertain. Retry to check it safely.",
+    "retryPending": "Your earlier reflection is still being saved. Wait for its status before retrying."
+  },
+  "ownPursuit": {
+    "prompt": "Pick something you’re working on. Write down what you’ll try next and what you need to learn or practise to do it.",
+    "prediction": "What are you trying to make possible, and what will your next attempt do?",
+    "observation": "What must the practice space, materials and task provide for that attempt?",
+    "comparison": "Which concept, technique or material will you study or practise first? How does that choice follow from the task?",
+    "revision": "What happened when you tried it? What did the result show about the work and your own ability?",
+    "step": "What can you now explain, judge or do on your own? How could you check?",
+    "result": "What will you change in the question, practice space or next attempt?"
+  },
+  "accessibility": {
+    "mode": "Choose a tennis task. The receiver position and ball path change with the selected setup.",
+    "ownPursuit": "Write six open reflections about a real pursuit, then save them.",
+    "figureByMode": {
+      "wide-return": "Tennis court with the receiver near the left sideline and a ball traveling in from the far court.",
+      "cross-court": "Tennis court with a receiver near center sending the ball toward a partner across court."
+    }
+  }
+}

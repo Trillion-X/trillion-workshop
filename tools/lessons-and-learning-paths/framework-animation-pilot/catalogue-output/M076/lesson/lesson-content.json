@@ -1,0 +1,80 @@
+{
+  "title": "Difficulty Diagnostic",
+  "opening": "When a pursuit matters but feels hard, name the moment, test the cause, and choose a response that fits what you learn.",
+  "labels": {
+    "comparison": "Compare two explanations for the same writing task",
+    "fearCase": "Possibility A: fear of criticism",
+    "knowledgeCase": "Possibility B: missing knowledge or resources",
+    "moment": "What is the exact difficult moment?",
+    "cause": "What cause are you considering?",
+    "test": "What small test could distinguish this cause?",
+    "response": "What response fits this cause?",
+    "evidence": "What might you observe if this explanation fits?",
+    "comparisonNote": "These are editable examples, not diagnoses or measured learner results. Compare the evidence and response each possibility calls for.",
+    "attempt": "Try the diagnostic on one pursuit you value",
+    "broad": "What broad complaint do you notice?",
+    "value": "What value or outcome matters here? How strong is its felt connection today, from 1 to 10? This is your report, not an objective score.",
+    "difficulty": "How difficult does it feel today, from 1 to 10? This is your report, not an objective score. Given both reports, does the value feel to exceed the difficulty for you now?",
+    "exactMoment": "At what exact moment does the difficulty show up?",
+    "causes": "Name two competing causes, such as fear of criticism and a missing skill, fact, tool, or resource.",
+    "testBoth": "What bounded test could tell these causes apart without assuming either is true?",
+    "responses": "What would you do if the first cause fits? What would you do if the second fits?",
+    "result": "What observable result would support each explanation? What would you change if neither result appears?",
+    "ending": "If a different arrangement preserves the value, change the arrangement. If the pursuit no longer fits its value and consequences, reconsider or end it. A strong value rating alone does not prove that continuing is good for you.",
+    "sourceTitle": "Manuscript, page 42",
+    "save": "Save private practice",
+    "busy": "Saving private practice",
+    "retry": "Retry the same save",
+    "private": "Only you can read this saved practice.",
+    "oversize": "This complete answer is over the 2,000-character limit. Shorten it to save. Your full draft stays on screen.",
+    "needPractice": "Complete the exact moment, competing causes, test, responses, and expected evidence before saving.",
+    "invalid": "Add the missing practice details. Nothing was saved.",
+    "sourceExcerpt": "Difficulty Diagnostic\nUse this when a pursuit matters to you but its difficulty is stopping you.\n1. Name the specific suffering creating resistance. “Fear of publishing imperfect work” gives you more to examine than “writing is hard.”\n2. State the specific value you are pursuing.\n3. Rate the suffering and your felt connection to the value from one to ten. Ask whether the value exceeds the suffering for you now.\n4. If it does not, investigate the difference. Would seeing the value more clearly change it? Could another way of pursuing that value reduce the difficulty? Does the pursuit still fit?\n5. Choose what follows from that examination: clarify the value, change the arrangement or reconsider the pursuit."
+  },
+  "comparisonCases": [
+    {
+      "id": "criticism",
+      "title": "Possibility A: fear of criticism",
+      "moment": "Fear of publishing imperfect work.",
+      "cause": "The writer may fear readers' judgment more than the work's factual weakness.",
+      "test": "Ask one informed reader whether the explanation is understandable, using a specific question about the content rather than asking for general approval.",
+      "response": "If the explanation is clear but public exposure remains the barrier, try a smaller, bounded audience or a limited release with a clear purpose.",
+      "evidence": "The reader can explain the main point, while the writer's hesitation is tied to being judged. This would support the fear explanation for this moment; it would not prove a diagnosis."
+    },
+    {
+      "id": "knowledge",
+      "title": "Possibility B: a knowledge or resource gap",
+      "moment": "I cannot explain one key claim because I do not know which evidence supports it.",
+      "cause": "The writer may lack a fact, skill, source, tool, or time needed to make the explanation sound.",
+      "test": "Name the unanswered factual question, then check one relevant source or ask a knowledgeable person to review that claim.",
+      "response": "If the gap is real, obtain the missing information or resource, revise the claim, and then reassess the publication step.",
+      "evidence": "A specific unanswered question is found and the explanation improves after it is addressed. That would support a resource explanation for this moment; it would not prove a diagnosis."
+    }
+  ],
+  "feedback": {
+    "unavailable": "Private practice saving is unavailable. Your work remains on screen.",
+    "missing": "Complete the required practice details before saving.",
+    "length": "Shorten the complete answer to fit the 2,000-character practice limit. Your text stays here.",
+    "readFailure": "The saved practice could not be loaded. Your current work remains on screen.",
+    "saved": "Your private practice is saved.",
+    "conflict": "This practice changed elsewhere. Your answers remain here; review the saved version before saving again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same answers before changing them."
+  },
+  "source": {
+    "sourceRecord": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/4/lessons/31/body",
+    "currentBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/4/lessons/31/body",
+    "currentBodyIdentity": "1f:a10dc3327327bcd716b3a8ed52e4f7260658a25c6262be78444abfc3e747a6af",
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/4/lessons/31/body",
+    "canonicalBodyIdentity": "1f:a10dc3327327bcd716b3a8ed52e4f7260658a25c6262be78444abfc3e747a6af",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/75",
+    "assessmentIdentity": "1f:064e7a4b08c253920591bb33e4d7c153f55962b34e6d4257a2e5ba9cf02fa041",
+    "assessmentBodyIdentity": "1f:a10dc3327327bcd716b3a8ed52e4f7260658a25c6262be78444abfc3e747a6af",
+    "assessmentBoundary": "Open-ended answers have no stored gold answer. The source practice reference does not establish understanding, diagnosis accuracy, transfer, or outcome success.",
+    "manuscriptArchiveMember": "M040 retained 82-page Manuscript.pdf, actual page 42; identity 1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptTextMember": "framework-animation-pilot/catalogue-output/M076/lesson/proof/source-page-42/page-42.txt; identity 1f:47a21bab7aaf7ab5792d5c993db6900c96c58fad8a2d855b7c7cabb0d5dc92b7",
+    "distinctions": "The source describes a five-part value–difficulty inquiry and allows clarification, arrangement change, or reconsideration. The editable illustration contrasts fear of criticism with a knowledge/resource gap, uses bounded tests and cause-specific responses, and labels evidence as possible rather than an observed learner result.",
+    "limits": "The supplied manuscript is the source; authorship or adoption of every wording is not independently established. The source examples are authored teaching illustrations, not observed learner data. Private local practice does not establish independent learner effectiveness, author acceptance, diagnostic accuracy, or publication."
+  }
+}

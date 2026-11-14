@@ -1,0 +1,90 @@
+{
+  "title": "Check understanding by concept and attempt",
+  "opening": "A lesson can feel clear while you read it. The useful question is what you can explain or do when the question changes. Work with one idea here, then keep each attempt beside the question that called for it.",
+  "initialSide": "payer",
+  "conceptValue": "Cost and price",
+  "sides": [
+    {
+      "id": "payer",
+      "label": "Follow who pays",
+      "description": "The employer pays the provider for a service the employee uses at no charge.",
+      "focus": "Which person pays the service provider, and what price does the employee pay?",
+      "statement": "payer"
+    },
+    {
+      "id": "user",
+      "label": "Follow who uses it",
+      "description": "The employee receives the service at no charge, while the employer pays the provider.",
+      "focus": "What price does the employee pay, and what separate information would tell you the provider's cost to deliver this service?",
+      "statement": "user"
+    }
+  ],
+  "statements": [
+    {
+      "id": "payer",
+      "text": "The employer pays the provider. The employee pays nothing to use the service.",
+      "kind": "example",
+      "feedback": "A free service can still have a buyer who pays the provider. The employee's price and the employer's payment describe different people in this example."
+    },
+    {
+      "id": "user",
+      "text": "The employee pays no price. The provider's cost is the separate amount it spends to deliver the service; this example does not state that amount.",
+      "kind": "example",
+      "feedback": "The service user's price does not tell you what the provider spends. Keep those questions separate when you explain the example."
+    }
+  ],
+  "choices": [
+    { "id": "first", "label": "Compare this attempt" },
+    { "id": "second", "label": "Compare with another attempt" }
+  ],
+  "labels": {
+    "side": "Choose the question you want to try",
+    "ownPursuit": "Make a question for something you are learning",
+    "try": "Record this attempt",
+    "trying": "Recording attempt",
+    "showExample": "Compare with the example",
+    "hideExample": "Hide the example",
+    "comparison": "Compare two attempts",
+    "attempts": "Your attempts",
+    "attemptAuthor": "You, in this lesson",
+    "concept": "Concept",
+    "task": "Task",
+    "result": "What can you say about what this attempt showed?",
+    "emptyAttempts": "Record up to three attempts to compare their questions, responses and results.",
+    "attemptLimit": "Three attempts are recorded. Compare them, then choose the next question.",
+    "transferLength": "Shorten the response or account of what it showed so all recorded attempts fit the private practice limit.",
+    "save": "Save this practice",
+    "busy": "Saving practice"
+  },
+  "feedback": {
+    "sameDemand": "Both attempts use this same question. That keeps the question and demand the same, though it does not by itself explain why either answer changed.",
+    "differentDemand": "These attempts use different questions. Check what each asks before you compare their responses.",
+    "needTwo": "Record two attempts before comparing them.",
+    "emptyResponse": "Write your response and what the attempt showed before recording it.",
+    "maxAttempts": "This comparison already holds three attempts. Use them to choose the next question.",
+    "unavailable": "Private practice is not available in this lesson context. Your writing stays in this session.",
+    "missing": "Write a question for something you are learning before saving.",
+    "length": "Keep each answer within 2,000 characters.",
+    "readFailure": "The saved practice could not be read. Your answers remain on this screen.",
+    "saveFailure": "The save was not confirmed. Your answers remain here. Try again.",
+    "conflict": "This practice changed in another window. Your answers are still here. Save again to keep your answers.",
+    "readbackFailure": "The save could not be confirmed. Your answers are still here.",
+    "retryPending": "The earlier save is still unresolved. Retry the same answers.",
+    "saved": "Your answers are saved."
+  },
+  "ownPursuit": {
+    "prompt": "Use a concept you have just studied or practised. Keep the question close to the capability you want to check.",
+    "prediction": "Write one new application question for a concept you just learned.",
+    "observation": "What would you need to keep with the response so you can understand what the attempt shows?",
+    "revision": "If the response shows a gap, what would you ask or teach next?"
+  },
+  "accessibility": {
+    "figure": "Illustrative person representing an actor in the employer-funded service example.",
+    "employer": "Employer",
+    "provider": "Service provider",
+    "employee": "Employee",
+    "side": "Follow a relationship in the example",
+    "statements": "Attempts recorded by the learner",
+    "ownPursuit": "Write a question for your own learning"
+  }
+}

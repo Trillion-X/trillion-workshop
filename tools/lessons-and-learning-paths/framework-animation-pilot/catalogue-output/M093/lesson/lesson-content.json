@@ -1,0 +1,61 @@
+{
+  "title": "Continuous Presence Practice",
+  "opening": "Bring noticing into a routine activity that is already happening. Attend to sensory experience and thoughts; when attention wanders, notice that and return if it still fits the activity. Compare afterward with how you usually participate.",
+  "labels": {
+    "figure": "The optional attention cycle: choose a safe routine activity, notice sensory experience and thoughts, return after wandering when appropriate, then compare afterward.",
+    "example": "Follow the attention cycle",
+    "practice": "Try a brief comparison",
+    "activity": "What familiar, low-risk activity will you choose?",
+    "noticing": "What sensory detail or thought did you notice?",
+    "wandering": "Did attention wander? If so, what did you notice about that moment?",
+    "return": "Did you return to the activity, or choose another response?",
+    "compare": "How did this brief attempt compare with your usual participation?",
+    "fit": "Did noticing support the activity? What would make you pause or stop?",
+    "private": "This attempt is private to you. Save it only if you want a copy.",
+    "save": "Save private attempt",
+    "saving": "Saving private attempt",
+    "done": "Saved",
+    "retry": "Retry private save",
+    "source": "Source passage",
+    "sourceHint": "Manuscript page 44; recovered source, authorship and adoption of every wording not independently established.",
+    "sourceQuote": "Choose a routine activity. Notice its sensory experience and your thoughts; return when attention wanders. At its end, compare the experience with your usual way of doing it.",
+    "sourceAttribution": "Supplied recovered manuscript, 82-page source edition, p. 44.",
+    "sourceBoundary": "This is an optional practice, not a rule for uninterrupted attention. A wandering thought can be useful and does not automatically invalidate the attempt. Keep attention on the surroundings when the activity needs it; do not force constant self-observation."
+  },
+  "cases": [
+    {
+      "name": "Washing a cup",
+      "before": "A person usually washes a cup while planning the rest of the evening.",
+      "after": "For one low-risk wash, they notice warm water, the cup's weight and a recurring thought about a message. They return to washing, then compare the experience with their usual routine.",
+      "reading": "The point is the sequence of noticing, wandering and returning, followed by a comparison. The thought about the message may also matter; the practice does not require suppressing it or producing an insight."
+    },
+    {
+      "name": "Crossing a busy street",
+      "before": "Someone considers tracking their breath while crossing.",
+      "after": "Traffic, signals and other people require their attention.",
+      "reading": "Do not turn inward when it competes with safe participation. External monitoring is primary here; choose another suitable time or skip the practice."
+    },
+    {
+      "name": "Listening to a friend",
+      "before": "A listener notices thoughts arriving during a conversation.",
+      "after": "They can return attention to what the friend is saying without repeatedly checking whether they are focused.",
+      "reading": "Returning can be simple and brief. If self-monitoring starts to interrupt listening, drop the monitoring and attend to the conversation."
+    }
+  ],
+  "feedback": {
+    "saved": "Your private attempt is saved.",
+    "saveFailure": "The private attempt could not be saved. Your draft is still here; retry when ready.",
+    "conflict": "A newer saved version exists. Your draft is still here; compare it before saving again.",
+    "retryPending": "The earlier save may still be unresolved. Retry it before making another change.",
+    "length": "Shorten this private attempt to 2,000 characters or fewer. Your full draft is still here; nothing was saved.",
+    "missing": "Write at least one part of the attempt before saving. Your draft stays here."
+  },
+  "source": {
+    "locator": "p. 44 (82-page recovered source edition)",
+    "pdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscript": "Choose a routine activity. Notice its sensory experience and your thoughts; return when attention wanders. At its end, compare the experience with your usual way of doing it.",
+    "attribution": "Supplied recovered manuscript; authorship/adoption of every wording is not independently established.",
+    "boundary": "Examples and application guidance are authored for this expansion, not manuscript doctrine. This practice does not require uninterrupted attention or constant self-observation. Safety-critical external attention takes priority. No benefit, outcome, or learner result is claimed."
+  },
+  "example": { "body": "" }
+}

@@ -1,0 +1,77 @@
+{
+  "title": "Polarity Integration Meditation",
+  "opening": "A pursuit can matter and still carry a real cost. Name both sides, consider them together, then decide what the facts support.",
+  "labels": {
+    "comparison": "Compare two possible responses to the same pursuit",
+    "moment": "What is the specific situation or cost you are considering?",
+    "cause": "What might explain this cost, without assuming it is the whole story?",
+    "test": "What fact or small check could help you assess this possibility?",
+    "response": "What response could fit if this possibility holds?",
+    "evidence": "What would you need to learn before treating that response as feasible?",
+    "comparisonNote": "These are editable teaching examples, not observed outcomes or advice. Compare the practical checks each response still needs.",
+    "attempt": "Try the reflection on one manageable pursuit",
+    "broad": "What pursuit are you considering?",
+    "value": "What value or outcome matters to you in this pursuit? You may leave this broad or use ordinary words.",
+    "difficulty": "What difficulty, cost, or constraint is present? Describe it plainly; you do not need to soften it.",
+    "relationship": "How might this difficulty relate to the value? Choose a possibility to inspect against evidence.",
+    "supportedRelationship": "May support value",
+    "unrelatedRelationship": "Unrelated cost",
+    "unclearRelationship": "Not sure yet",
+    "relationshipSupportedHint": "Look for a specific, observable link between this difficulty and the valued outcome. Even a real link does not prove the arrangement is feasible or worth its costs.",
+    "relationshipUnrelatedHint": "Check whether this cost contributes to the valued outcome. If it does not, test whether a different arrangement can keep the value while reducing the unrelated cost.",
+    "relationshipUnclearHint": "Keep the relationship uncertain. Name a fact, constraint, or conversation that would help you tell whether the cost supports the value or is separate from it.",
+    "exactMoment": "When or where does this cost show up most clearly?",
+    "causes": "What evidence, competing explanation, or unknown led you to this relationship choice?",
+    "testBoth": "What concrete fact, condition, or conversation would help test the feasibility of each possibility?",
+    "responses": "Given what you know, which next step fits: continue, change the arrangement, stop, ask a further question, or wait for more information? Why?",
+    "result": "What did considering both sides clarify? 'No insight yet' is a complete answer. What question or decision comes next?",
+    "ending": "A felt sense of integration does not establish feasibility or justify a tradeoff. You can change the arrangement, ask what is still unknown, stop, or set the reflection aside.",
+    "sourceTitle": "Manuscript, page 43",
+    "save": "Save private practice",
+    "busy": "Saving private practice",
+    "retry": "Retry the same save",
+    "private": "Only you can read this saved practice.",
+    "oversize": "This complete answer is over the 2,000-character limit. Shorten it to save. Your full draft stays on screen.",
+    "needPractice": "Add a pursuit, name both sides, choose a relationship (including 'not sure yet'), and give a grounded next step or further question before saving.",
+    "sourceExcerpt": "Bring the pursuit to mind. Represent its value in one hand and its difficulty in the other. Bring them together while examining their relationship in this pursuit."
+  },
+  "comparisonCases": [
+    {
+      "id": "keep-teaching",
+      "title": "Possibility A: keep the current teaching arrangement",
+      "moment": "Teaching a useful skill matters; the current travel arrangement is exhausting.",
+      "cause": "The travel may be demanding but still manageable for a limited period; we do not know yet.",
+      "test": "Check the actual schedule, recovery time, access needs, and whether the teaching remains useful to learners.",
+      "response": "If the arrangement is feasible and its costs are acceptable, continue for now and review after a defined interval.",
+      "evidence": "The time and recovery demands fit available capacity, and teaching remains valuable. A felt sense of balance alone cannot establish this."
+    },
+    {
+      "id": "change-delivery",
+      "title": "Possibility B: change how the skill is taught",
+      "moment": "The value is teaching a useful skill; exhausting travel may come from the current delivery format.",
+      "cause": "Travel may be an avoidable feature of the arrangement rather than a necessary part of teaching.",
+      "test": "Ask whether a nearby or remote format meets the learning need, and compare its access, preparation, and time costs.",
+      "response": "If a different format preserves the teaching value and is workable, try that arrangement; otherwise reassess.",
+      "evidence": "A small trial shows learners can use the format and the travel burden falls. This is a possibility to check, not a promised result."
+    }
+  ],
+  "feedback": {
+    "unavailable": "Private practice saving is unavailable. Your work remains on screen.",
+    "missing": "Add a pursuit, name both sides, choose a relationship (including 'not sure yet'), and give a grounded next step or further question before saving.",
+    "length": "Shorten the complete answer to fit the 2,000-character practice limit. Your text stays here.",
+    "readFailure": "The saved practice could not be loaded. Your current work remains on screen.",
+    "saved": "Your private practice is saved.",
+    "conflict": "This practice changed elsewhere. Your answers remain here; review the saved version before saving again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same answers before changing them."
+  },
+  "source": {
+    "sourceRecord": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/4/lessons/39/body",
+    "currentBodyIdentity": "1f:d5dbfeb1191597dfcff60345cc99c2f442abbf45811646fbd5b91b663212e1f7",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/83",
+    "assessmentIdentity": "1f:6a365bad73b36d51488be78c38cbec98a34b2a4b9d9d7683a5ee48d2fb972627",
+    "assessmentBoundary": "Open-ended responses have no stored gold answer. A source reference does not establish learner understanding, transfer or outcome success.",
+    "limits": "The supplied manuscript is the source; authorship or adoption of every wording is not independently established. The gesture is metaphorical and changes no external facts. No diagnosis, clinical benefit, required feeling, or justification of harm is claimed."
+  }
+}

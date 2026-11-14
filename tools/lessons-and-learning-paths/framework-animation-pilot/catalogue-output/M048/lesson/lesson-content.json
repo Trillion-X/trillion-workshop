@@ -1,0 +1,63 @@
+{
+  "title": "Because-of chains",
+  "opening": "Follow a reason until you can see what connects it to the thing you want. Check each link against the situation, then choose a response that fits.",
+  "labels": {
+    "statement": "What do you want or feel you need?",
+    "statementHelp": "Write one specific statement. Example: “I need a studio to record this lesson.”",
+    "add": "Add a reason",
+    "link": "Reason",
+    "relation": "What connects this reason to the one before it?",
+    "causal": "One thing causes another",
+    "practical": "A step or resource is needed",
+    "value": "Two things I care about conflict",
+    "assumed": "I am treating this connection as true",
+    "check": "How could you check this link?",
+    "finding": "What did the check show?",
+    "remove": "Remove reason",
+    "endpoint": "Where will you stop?",
+    "stopReason": "What is clear now, or what remains unknown?",
+    "response": "Choose a response that fits what you found",
+    "responseHelp": "Address a real condition, test an assumption, adjust the plan, protect a value, or leave the question open.",
+    "save": "Save private practice record",
+    "busy": "Saving record",
+    "retry": "Retry the same save",
+    "example": "Studio recording example",
+    "source": "Manuscript excerpt",
+    "private": "Private practice record",
+    "privateHelp": "Your chain and response are saved privately. Keep each practice answer within 2,000 characters.",
+    "addFirst": "Add a reason when you are ready. You can stop whenever another question adds no useful information.",
+    "emptyFinding": "No check recorded yet. You can leave it open if you have not checked this link."
+  },
+  "feedback": {
+    "unavailable": "Private practice saving is unavailable. Your work remains on screen.",
+    "missing": "Write a statement before saving.",
+    "length": "Keep each answer within 2,000 characters.",
+    "readFailure": "The saved record could not be loaded. Your current work remains on screen.",
+    "saved": "Your private practice record is saved.",
+    "conflict": "This record changed elsewhere. Your answers remain here; compare the saved record before saving again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same answers before changing them."
+  },
+  "practice": {
+    "result": "Your starting statement and reasons",
+    "transfer": "Checks, findings, stopping point and response"
+  },
+  "source": {
+    "sourceRecord": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/4/lessons/2",
+    "manuscriptArchiveMember": "Trillion_X_Framework_Library/sources/Manuscript.pdf, p. 36 (82-page source edition)",
+    "distinctions": "The source says to follow a “because of” when it conceals an assumption. It cautions against forcing a psychological root, and distinguishes removing unnecessary friction from denying a real condition.",
+    "limits": "The supplied recovered manuscript is the source. The studio scenario and checks are authored teaching examples. Local fixture activity is synthetic; no independent learner result or author acceptance is established."
+  },
+  "teaching": {
+    "sourceSummary": "Because-of chains\n\nFollow a “because of” when it conceals an assumption. “I need to win because I need the ranking.” Why does the ranking matter? “Because otherwise the years of training were wasted.” What would make those years wasted? Following the chain can reveal a belief about identity, belonging or what a worthwhile life must look like. There is no requirement that every chain end in the same wound. Sometimes the obstacle is exactly what it appears to be. You lack a qualification, a piece of equipment or a safe place to practice. Sometimes the pursuit conflicts with another value. Investigate what the situation supplies instead of forcing a psychological explanation onto it. This is the practical difference between removing unnecessary friction and denying a real condition. A mistaken belief can lose its force when you see what it assumes. An unpaid bill still needs a response. Seeing the distinction helps you choose the kind of response that can work.",
+    "example": {
+      "statement": "I need a studio to record this lesson.",
+      "reason": "The recording needs clear sound and a visible demonstration.",
+      "relationship": "Practical: sound and a visible demo are needs for this recording; a studio is one possible way to meet them.",
+      "check": "Record a short sample in the available room with the available microphone and camera. Listen for noise and check whether the demonstration is visible.",
+      "finding": "If the sample is clear and the demo is visible, the studio may be unnecessary. If the sound stays unusable with available gear, specialist equipment or a studio remains a real requirement.",
+      "response": "Use the setup that passes the check. If no available setup passes, plan for the equipment or space the recording actually needs."
+    }
+  }
+}

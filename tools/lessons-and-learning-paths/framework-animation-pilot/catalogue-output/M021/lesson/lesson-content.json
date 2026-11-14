@@ -1,0 +1,131 @@
+{
+  "title": "Fact or cap",
+  "opening": "A player misses a return. Late preparation could explain it, but the miss alone does not tell you why. The racket angle or the bounce could matter too.",
+  "labels": {
+    "example": "Compare the observations",
+    "verdict": "What does this comparison support?",
+    "ownPursuit": "Try the same check on your question",
+    "save": "Save my practice",
+    "busy": "Saving practice",
+    "sourceSteps": "Keep the question open in this order"
+  },
+  "ownPursuit": {
+    "prompt": "Choose one result or event from something you are learning or building. Keep what happened separate from what you think caused it.",
+    "observation": "What happened, in words another person could check? Which relevant observations or records do you already have? What is absent, and what is still unknown?",
+    "prediction": "What one explanation do you want to examine, and what would it lead you to expect?",
+    "alternative": "Name another explanation and what it would lead you to expect.",
+    "comparison": "What fair observation could distinguish those expectations? What conditions need to stay comparable, and what might change too?",
+    "revision": "Which part of your explanation could this comparison support or contradict? Keep the answer within the conditions checked.",
+    "result": "Is the claim supported, rejected or unresolved by what you have? What question remains, or what observation could answer it?"
+  },
+  "accessibility": {
+    "caseChoices": "Choose a hypothetical comparison. The isometric court changes with the selected preparation, feed and return path.",
+    "figure": "Illustrative isometric tennis court. Player swing timing, incoming feed path and return path follow the selected hypothetical comparison. No measured result is shown.",
+    "verdicts": "Choose supported, rejected or unresolved for the claim and observations shown. The response explains the scope of that choice.",
+    "ownPursuit": "Private practice about an observation, one claim, existing information, another explanation, a fair comparison and a scoped conclusion.",
+    "status": "Explanation of how the selected verdict fits the hypothetical comparison."
+  },
+  "feedback": {
+    "unavailable": "Saving is unavailable for this lesson.",
+    "missing": "Complete each practice field before saving.",
+    "length": "Keep each answer within 2,000 characters.",
+    "readFailure": "Your saved practice could not be loaded.",
+    "saved": "Your practice is saved.",
+    "conflict": "This practice changed elsewhere. Review it and save again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check it again.",
+    "saveFailure": "The save is still uncertain. Retry to check it safely.",
+    "retryPending": "Your earlier practice is still being saved. Wait for its status before retrying.",
+    "verdicts": {
+      "miss-only": {
+        "supported": "The miss gives you a reason to examine late preparation, but it does not support that cause by itself. The racket angle, bounce or another condition could produce the same miss.",
+        "rejected": "The miss does not rule out late preparation. It also does not establish it. Keep the cause unresolved until an observation distinguishes the explanations.",
+        "unresolved": "That fits what you have. The miss is an observation; the cause remains open because the alternatives could produce it too."
+      },
+      "matched-improvement": {
+        "supported": "That fits this hypothetical comparison. Repeated improvement after the preparation change supports the explanation under these conditions; it does not settle every possible cause.",
+        "rejected": "The repeated improvement is evidence for the explanation under these conditions. It does not prove that preparation is the only cause, but it is not a reason to reject this narrower claim.",
+        "unresolved": "This comparison separates the preparation change from the feed and shows repeated improvement. It supports the narrower claim in these conditions, while leaving other conditions open."
+      },
+      "matched-no-improvement": {
+        "supported": "The misses remain after the preparation change, so this comparison does not support the claim that the change is enough to remove them.",
+        "rejected": "That fits this hypothetical comparison. It contradicts the claim that changing preparation alone is enough here; it does not rule out timing as one contributing factor.",
+        "unresolved": "The comparison holds the feed similar and the stated claim is about whether the preparation change is enough. Misses that remain reject that claim within these checked conditions."
+      },
+      "feed-also-changed": {
+        "supported": "The better returns followed two changes. This comparison cannot isolate preparation as their cause, so it does not support that conclusion on its own.",
+        "rejected": "The altered feed leaves the cause unresolved. It does not rule out preparation; the comparison changed both conditions together.",
+        "unresolved": "That fits the comparison. Preparation and feed changed together, so the result does not tell you which change made the difference."
+      }
+    }
+  },
+  "source": {
+    "sourceRecord": "content-drafts/framework-library-2026-10-24/community-config.json#/courses/2/lessons/13",
+    "draft": "content-drafts/school-content-series-2026-10-25/16a-fact-or-cap.md",
+    "expansion": "content-drafts/framework-library-2026-10-24/community-config.json#/courses/2/lessons/13/body",
+    "sourceEvidence": "framework-animation-pilot/catalogue-output/M021/source-evidence/source-actions.json",
+    "status": "The four source moves and the six spoken paragraphs inform this original interactive lesson. The scenarios are hypothetical. No trial, return count, measured cause, learner result or author approval is claimed.",
+    "voiceCandidate": "The media preparation's one-word hit → held correction is an editorial candidate; this lesson does not claim author approval."
+  },
+  "options": {
+    "learnerCases": [
+      {
+        "id": "miss-only",
+        "label": "The miss by itself",
+        "description": "You know the return was missed. This observation does not show the preparation, racket angle or bounce closely enough to choose a cause."
+      },
+      {
+        "id": "matched-improvement",
+        "label": "Similar feed; returns improve",
+        "description": "Imagine the feed and starting position stay comparable. Preparation changes, and the returns repeatedly improve. The court shows the incoming path held in place while the return travels back."
+      },
+      {
+        "id": "matched-no-improvement",
+        "label": "Similar feed; misses remain",
+        "description": "Imagine preparation changes while the feed stays comparable, but the misses remain. That challenges this claim of sufficiency; it does not show that timing can never matter."
+      },
+      {
+        "id": "feed-also-changed",
+        "label": "Preparation and feed both change",
+        "description": "Imagine preparation changes and the feed changes too, while returns improve. The court changes both the player’s swing timing and the incoming path, so the result cannot tell you which change mattered."
+      }
+    ],
+    "predictions": {
+      "miss-only": "Claim to examine: Late preparation caused this missed return.",
+      "matched-improvement": "Claim to examine: Late preparation helps explain missed returns under this comparable feed.",
+      "matched-no-improvement": "Claim to examine: Changing preparation alone is enough to remove these misses under comparable feeds.",
+      "feed-also-changed": "Claim to examine: Earlier preparation caused the better returns."
+    }
+  },
+  "choices": [
+    {
+      "id": "supported",
+      "label": "Supported"
+    },
+    {
+      "id": "rejected",
+      "label": "Rejected"
+    },
+    {
+      "id": "unresolved",
+      "label": "Unresolved"
+    }
+  ],
+  "steps": [
+    {
+      "id": "step-1",
+      "label": "Write the claim and what would support or contradict it."
+    },
+    {
+      "id": "step-2",
+      "label": "Check the relevant observations and records you already have before designing another test."
+    },
+    {
+      "id": "step-3",
+      "label": "Compare the live explanations against conditions that would distinguish them."
+    },
+    {
+      "id": "step-4",
+      "label": "Mark the claim supported, rejected or unresolved within the conditions you checked, and keep the remaining question."
+    }
+  ]
+}

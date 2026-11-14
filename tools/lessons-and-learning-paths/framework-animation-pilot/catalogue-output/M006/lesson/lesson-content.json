@@ -1,0 +1,73 @@
+{
+  "title": "Sexy Coins",
+  "opening": "Imagine a coin above a route you could walk. It catches your eye, then you decide whether walking fits what you are doing.",
+  "initialMode": "routine-call",
+  "initialDecision": "notice",
+  "modes": [
+    {
+      "id": "routine-call",
+      "label": "Routine call",
+      "description": "A familiar, safe route may fit if you can still take part in the call.",
+      "availableDecisions": ["notice", "take", "leave"]
+    },
+    {
+      "id": "difficult-review",
+      "label": "Difficult review",
+      "description": "If the review needs close listening and notes, leave the walk for later.",
+      "availableDecisions": ["notice", "leave"]
+    },
+    {
+      "id": "between-heavy-sets",
+      "label": "Between heavy sets",
+      "description": "If walking could impair the set you came to perform, rest may preserve it.",
+      "availableDecisions": ["notice", "leave"]
+    }
+  ],
+  "decisions": {
+    "notice": { "label": "Notice the coin" },
+    "take": { "label": "Take the opportunity" },
+    "leave": { "label": "Leave it for now" }
+  },
+  "labels": {
+    "context": "Activity",
+    "decision": "Would you take this opportunity or leave it for now?",
+    "reflection": "Apply the cue in your day",
+    "question": "Where in an ordinary day could an imagined coin help you notice a movement opportunity, and when would you leave it alone to protect the main activity or recovery?",
+    "save": "Save reflection",
+    "busy": "Saving…"
+  },
+  "reflection": {
+    "question": "Where in an ordinary day could an imagined coin help you notice a movement opportunity, and when would you leave it alone to protect the main activity or recovery?"
+  },
+  "feedback": {
+    "unavailable": "Saving is unavailable right now.",
+    "missing": "Write a reflection before saving.",
+    "length": "Keep your reflection under 2,000 characters.",
+    "readFailure": "Your saved reflection could not be loaded.",
+    "saved": "Your reflection is saved.",
+    "conflict": "Your reflection changed elsewhere. Review it and save again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check it again.",
+    "saveFailure": "The save is still uncertain. Retry to check it safely.",
+    "retryPending": "Your earlier reflection is still saving. Wait for its status before trying again."
+  },
+  "accessibility": {
+    "figure": {
+      "routine-call": {
+        "notice": "Illustration of a person noticing an imagined coin cue above a safe route during a routine call, before choosing whether to walk.",
+        "take": "Illustration of a person walking on a safe route during a routine call with an imagined coin cue above the route.",
+        "leave": "Illustration of a person staying with a routine call and not walking the safe route after dismissing the imagined coin cue."
+      },
+      "difficult-review": {
+        "notice": "Illustration of a seated person with a phone and notes, noticing an imagined coin cue near a walking route during a difficult review.",
+        "leave": "Illustration of a seated person with a phone and notes, not walking during a difficult review after dismissing the imagined coin cue."
+      },
+      "between-heavy-sets": {
+        "notice": "Illustration of a person resting between heavy sets while noticing an imagined coin cue near a walking route.",
+        "leave": "Illustration of a person resting between heavy sets instead of walking after dismissing the imagined coin cue."
+      }
+    },
+    "mode": "Choose the activity context",
+    "decision": "Available choices",
+    "reflection": "Write and save an ungraded reflection about where a cue may or may not fit"
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "title": "Minimum Viable Action Design",
+  "opening": "A small test is useful only if it still includes the feature you want to experience. Keep the commitment bounded; keep the question intact.",
+  "labels": {
+    "example": "Does the action include teaching?",
+    "exampleNote": "Question: Would I enjoy teaching this method to another person?",
+    "feature": "Feature to experience",
+    "optionA": "Landing page",
+    "optionB": "One teaching session",
+    "action": "Action",
+    "reveals": "What it can reveal",
+    "boundary": "What it cannot settle",
+    "practice": "Design a bounded test",
+    "practiceIntro": "Name the experience you want, then choose an action that contains it. Keep the boundary and the next decision visible.",
+    "featureField": "What part of the opportunity attracts you?",
+    "actionField": "What small action would include that part?",
+    "experienceField": "What would you notice while taking part?",
+    "boundaryField": "What resource or commitment limit keeps this test bounded?",
+    "questionField": "What would you learn about fit and your current commitments?",
+    "loadExample": "Use the teaching example",
+    "exampleLoaded": "The example is editable. Change the feature, action, or limit to fit your situation.",
+    "private": "This optional attempt is private and separate from the formal six-prompt assessment.",
+    "save": "Save private attempt",
+    "saving": "Saving private attempt",
+    "done": "Saved",
+    "retry": "Retry private save",
+    "source": "Source passage",
+    "sourceHint": "p. 57 (82-page source edition)",
+    "sourceQuote": "Minimum Viable Action Design\nUse this when an opportunity attracts you and you want to experience it before making a larger commitment.\n\n1. Identify the feature that most interests you.\n2. Choose a small action that exposes that feature while limiting resources and commitment.\n3. State what you want to learn about fit, misfit and the effect on existing commitments.\n4. Try it with attention to what happens and how participation feels.\n5. Compare the experience with your expectation. Use the result to decide what commitment, if any, comes next.",
+    "sourceBoundary": "A short session can reveal what teaching feels like in that interaction. It does not establish whether a full school is financially viable or sustainable."
+  },
+  "example": {
+    "feature": "Explaining the method while another person tries it, and responding to their questions.",
+    "actionA": "Write a landing page that describes the method and invites sign-ups.",
+    "revealsA": "Whether the description is clear and whether people show interest.",
+    "boundaryA": "It does not include teaching, so it cannot answer whether teaching this method feels engaging.",
+    "actionB": "Offer one short lesson to a willing participant. Teach one part of the method and leave time for questions.",
+    "revealsB": "Whether the teaching interaction includes the feature that attracts you, and what participation feels like.",
+    "boundaryB": "One session cannot settle the workload, income, demand or sustainability of a future school.",
+    "practice": {
+      "feature": "Explaining the method while another person tries it, and responding to their questions.",
+      "action": "Offer one short lesson to a willing participant. Teach one part of the method and leave time for questions.",
+      "experience": "Notice whether you want to keep explaining, answering questions and helping the person try the method.",
+      "boundary": "One short session; no promise of a course, recurring schedule or larger commitment.",
+      "question": "Would this interaction make me want another teaching session? What existing commitment could it affect?"
+    }
+  },
+  "feedback": {
+    "saved": "Your private attempt is saved.",
+    "saveFailure": "The private attempt could not be saved. Your draft is still here; retry when ready.",
+    "conflict": "A newer saved version exists. Your draft is still here; compare it before saving again.",
+    "retryPending": "The earlier save may still be unresolved. Retry it before making another change.",
+    "length": "Shorten this private attempt to 2,000 characters or fewer. Your full draft is still here; nothing was saved.",
+    "missing": "Add a note to at least one part of the test. Other fields can stay empty."
+  },
+  "source": {
+    "locator": "p. 57 (82-page source edition)",
+    "pdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscript": "Use this when an opportunity attracts you and you want to experience it before making a larger commitment. Identify the feature that most interests you. Choose a small action that exposes that feature while limiting resources and commitment. State what you want to learn about fit, misfit and the effect on existing commitments. Try it with attention to what happens and how participation feels. Compare the experience with your expectation. Use the result to decide what commitment, if any, comes next.",
+    "attribution": "Supplied recovered manuscript; authorship/adoption of every wording is not independently established.",
+    "boundary": "The teaching comparison is an instructional example. Its proposed session and possible observations are not source-reported outcomes or evidence about any learner.",
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/delivery-history/93ccacfc335e21eaa9a1652a89d9e324b5af0faa6940ff3f4cb9e45b5982b622/course-input.json#/courses/7/lessons/17/body",
+    "canonicalBodyIdentity": "1f:366df544ecaddf91dcab779abf603c05e42af35c8184be40ae54a3ee633d4fdf",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/121",
+    "assessmentIdentity": "1f:6573f1a1de35f80e11fc262cc6c526d4178b9772c7f6ae848850fbe095f759f0"
+  },
+  "sourceExcerpt": "Minimum Viable Action Design\nUse this when an opportunity attracts you and you want to experience it before making a larger commitment.\n\n1. Identify the feature that most interests you.\n2. Choose a small action that exposes that feature while limiting resources and commitment.\n3. State what you want to learn about fit, misfit and the effect on existing commitments.\n4. Try it with attention to what happens and how participation feels.\n5. Compare the experience with your expectation. Use the result to decide what commitment, if any, comes next."
+}

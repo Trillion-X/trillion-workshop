@@ -1,0 +1,48 @@
+{
+  "title": "Non-Striving Attention Practice",
+  "opening": "Choose an object. See the same point stay while one thought takes two different paths.",
+  "labels": {
+    "chooseObject": "Choose a simple object",
+    "objects": {
+      "visual": "Visual point",
+      "sound": "Sound around me",
+      "sensation": "Comfortable sensation"
+    },
+    "visualInstruction": "Rest attention on the point. Follow the example thought through either response.",
+    "soundInstruction": "Let attention rest on a sound around you. When it wanders, notice and gently return to that sound.",
+    "sensationInstruction": "Let attention rest on a comfortable sensation. When it wanders, notice and gently return to it.",
+    "diagramDescription": "A brass visual point sits near the lower edge. Above it, a thought bubble reads “Tomorrow's appointment.” The red path leads to “I shouldn't be thinking this” and loops back to that thought. The green path passes through “Notice wandering” and returns to the very same brass point.",
+    "responses": {
+      "strain": "Straining loop",
+      "returnPath": "Gentle return"
+    },
+    "responseGroup": "Highlight a response",
+    "noteHeading": "Optional private note",
+    "noteLabel": "What would you like to remember?",
+    "noteHelp": "Save this note whenever you want.",
+    "save": "Save private note",
+    "retry": "Retry the same note",
+    "saved": "Your private note is saved.",
+    "stopBoundary": "If this feels uncomfortable, pause or choose another object."
+  },
+  "feedback": {
+    "unavailable": "Private practice saving is unavailable. Your draft remains on screen.",
+    "missing": "Write a note before saving it.",
+    "length": "Keep the note within 2,000 characters.",
+    "readFailure": "The saved note could not be loaded. Your current draft remains on screen.",
+    "saved": "Your private note is saved.",
+    "conflict": "This note changed elsewhere. Your draft remains here; compare the saved note before saving again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same note before changing it."
+  },
+  "practice": {
+    "observation": "What would you like to remember?"
+  },
+  "source": {
+    "sourceRecord": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/3/lessons/45",
+    "manuscriptLocator": "p. 34 (82-page source edition)",
+    "distinctions": "The practiced action is noticing and returning; the manuscript does not require eliminating thoughts or producing a particular feeling. The comparison makes the added struggle visible without claiming a measured effect.",
+    "limits": "The visual is an authored teaching example, not a report about the learner. It does not measure attention, learning or improvement, and it makes no clinical or spiritual-attainment claim."
+  }
+}

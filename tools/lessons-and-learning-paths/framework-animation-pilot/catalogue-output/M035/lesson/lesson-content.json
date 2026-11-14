@@ -1,0 +1,82 @@
+{
+  "title": "Physiological Sigh",
+  "opening": "One optional sequence: two comfortable nasal inhales, the second added to the first, then a long mouth exhale. Keep it comfortable; skip it if unsuitable. Stop if uncomfortable or dizzy and return to ordinary breathing. You can explore the steps without trying them.",
+  "labels": {
+    "sequence": "Breathing sequence",
+    "sequenceIntro": "Select a step to see where air moves.",
+    "sequenceGroup": "Choose a step in the optional sequence",
+    "include": "Preparation choice",
+    "task": "Choose the task to check",
+    "state": "What does the person report feeling?",
+    "taskResult": "What does the task show?",
+    "interpretation": "Read the two observations",
+    "scenarioIntro": "Choose a sample combination; these are fictional, not recorded learner results.",
+    "practice": "Write a short plan for a real situation",
+    "save": "Save my notes",
+    "busy": "Saving notes",
+    "retry": "Retry the same save"
+  },
+  "sequence": [
+    {"id":"inhale-one","title":"First inhale · through nose","instruction":"Breathe in comfortably through the nose."},
+    {"id":"inhale-two","title":"Second inhale · add to first","instruction":"Take a second comfortable nasal inhale, adding it to the first."},
+    {"id":"exhale","title":"Exhale · through mouth","instruction":"Exhale for a long, comfortable breath through the mouth."}
+  ],
+  "preparations": [
+    {"id":"direct","title":"Start the task directly","detail":"No breathing preparation is used. Starting directly may be adequate."},
+    {"id":"ordinary","title":"Use comfortable ordinary breathing","detail":"Continue ordinary comfortable breathing before the task. This is a comparison option, not a required technique."},
+    {"id":"optional","title":"Consider the optional sequence","detail":"The person may choose the comfortable sequence, skip it, or stop immediately. No breathing exercise is needed for this lesson."}
+  ],
+  "tasks": [
+    {"id":"explain","title":"Explain one idea clearly","measure":"Check whether the explanation includes the key idea and is understandable to its listener."},
+    {"id":"recall","title":"Recall three details","measure":"Check which details are recalled accurately. A calmer feeling does not supply the recall result."},
+    {"id":"reason","title":"Solve a reasoning problem","measure":"Check whether the reasoning reaches a supported answer. A calmer feeling does not establish correctness."}
+  ],
+  "states": [
+    {"id":"calmer","title":"Feels calmer"},
+    {"id":"same","title":"Feels about the same"},
+    {"id":"uncomfortable","title":"Feels uncomfortable"}
+  ],
+  "taskResults": [
+    {"id":"clear","title":"Task check is met"},
+    {"id":"missed","title":"Task check is not met"},
+    {"id":"unknown","title":"Task result is not checked"}
+  ],
+  "interpretations": {
+    "calmer-clear": "The person reports feeling calmer, and the selected task check is met in this scenario. Keep the two observations separate; this single example does not show the preparation caused the task result.",
+    "calmer-missed": "The person reports feeling calmer, while the selected task check is not met. A calmer feeling does not prove improved memory, reasoning, or communication.",
+    "calmer-unknown": "The person reports feeling calmer, but the task result was not checked. The task outcome remains unknown.",
+    "same-clear": "The person reports no felt change, while the selected task check is met. A felt change is not required to establish this one task result.",
+    "same-missed": "Neither a felt change nor a successful task check is reported in this scenario. There is no basis here for claiming benefit.",
+    "same-unknown": "No felt change is reported and the task result was not checked. The task outcome remains unknown.",
+    "uncomfortable-clear": "The task check is met, but the person feels uncomfortable. Stop or skip the breathing option; a task result does not make discomfort a reason to continue.",
+    "uncomfortable-missed": "The person feels uncomfortable and the selected task check is not met. Stop the option and return to ordinary breathing; do not repeat it to dizziness or strain.",
+    "uncomfortable-unknown": "The person feels uncomfortable and the task result was not checked. Stop the option; the task outcome remains unknown."
+  },
+  "practice": {
+    "prediction": "In the situation you have in mind, what change in felt state would you expect, if any? Mark uncertainty plainly; this is not a prediction of better performance.",
+    "observation": "Without doing a breathing exercise, describe the source sequence in order and say whether it is optional.",
+    "comparison": "Compare starting directly, comfortable ordinary breathing, and considering the optional sequence. What would each comparison help you learn?",
+    "result": "Name the task you would check. What separate observation would tell you whether that task result was met?",
+    "revision": "What would make you skip or stop the option, or decide it did not help this task?",
+    "step": "Transfer the same distinction to another task: how would you record felt state and task result as separate observations?"
+  },
+  "feedback": {
+    "unavailable": "Saving is unavailable. Your notes remain here.",
+    "missing": "Complete all six notes before saving.",
+    "saved": "Your notes are saved.",
+    "conflict": "The saved notes changed elsewhere. Your answers remain here; save again to keep them.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry the same answers.",
+    "retryPending": "The earlier save is unresolved. Retry the same answers before changing them."
+  },
+  "source": {
+    "currentRecord": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/M035",
+    "currentBody": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/M035/body",
+    "reconciliationRecord": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/reconciliation.json#/library_entries/M035",
+    "assessmentRecord": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/M035",
+    "manuscriptLocator": "p. 31 (82-page source edition)",
+    "externalContext": "R05 NCCIH — Meditation and Mindfulness: Effectiveness and Safety",
+    "attribution": "Supplied manuscript; authorship or adoption of every wording is not independently established.",
+    "boundary": "Specific preparation settings and physiological claims are working proposals, not established universal doses or proven performance multipliers. Application checks the actual task as well as the person's reported state."
+  }
+}

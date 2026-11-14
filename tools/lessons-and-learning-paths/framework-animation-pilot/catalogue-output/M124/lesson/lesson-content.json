@@ -1,0 +1,88 @@
+{
+  "title": "Self-Authoring Process / Self-Authoring Future Visioning",
+  "opening": "Compare a future you want with past attempts and the daily life it would require. Keep desired outcomes, assumed routes and observed conditions separate.",
+  "labels": {
+    "comparison": "A future title and the life behind it",
+    "comparisonIntro": "Hypothetical example: a person wants a life of independent inquiry and assumes a particular income arrangement. If that arrangement uses the time, resources or relationships needed for inquiry, test the assumption before treating the route as necessary.",
+    "adherence": "Desired future",
+    "value": "Current conditions",
+    "outcome": "Revised route",
+    "adherenceText": "Independent inquiry is the desired outcome. A title or vivid story does not establish the time, resources or relationships needed to live it.",
+    "valueText": "If a past attempt lost inquiry time to paid work, compare that account with the hours, resources and relationships available now. Treat it as a condition to check, not proof that the desired future is impossible.",
+    "outcomeText": "Compare a smaller paid-work commitment or a different income arrangement. Check actual costs and protect one inquiry period; revise the route when the facts change.",
+    "signalQuestion": "Choose a part of the comparison",
+    "rhythmTitle": "Use only the reflection that helps this choice",
+    "rhythmText": "The manuscript adapts Self-Authoring from Jordan Peterson and colleagues. This lesson uses that limited reflection; it does not reproduce or validate the whole external program. A possible future is neither a prediction nor a binding identity. A narrow present decision may need only a small reflection, not a whole-life autobiography.",
+    "practice": "Connect one desired outcome with daily conditions",
+    "practiceIntro": "Use only the fields that clarify your question. A partial private note is fine; observations, assumptions and desired outcomes need not be complete before you can keep them.",
+    "private": "This optional private reflection is separate from the six required assessment questions.",
+    "save": "Save private reflection",
+    "saving": "Saving private reflection",
+    "retry": "Retry the same save",
+    "done": "Reflection saved",
+    "missing": "Add one reflection before saving.",
+    "length": "This full reflection is over 2,000 characters. Shorten it to save; all of your text stays here.",
+    "source": "Manuscript, page 61",
+    "sourceQuote": "Self-Authoring Process / Self-Authoring Future Visioning\nAdapted from Jordan Peterson and colleagues: review goals pursued, what supported\nor obstructed them, present alignment and a possible future across life domains.\nExtract the few outcomes that matter most.",
+    "sourceLocator": "Manuscript, p. 61 (82-page source edition)",
+    "loadExample": "Load the example",
+    "sampleLoaded": "Example loaded. Replace its details with your own if useful."
+  },
+  "feedback": {
+    "saved": "Your private reflection is saved.",
+    "unavailable": "Private saving is unavailable. Your reflection stays on screen.",
+    "missing": "Add one reflection before saving.",
+    "length": "Shorten the full draft to fit the 2,000-character limit. Your text stays here.",
+    "conflict": "This reflection changed elsewhere. Your answers remain here; compare the saved version before saving again.",
+    "readFailure": "The saved note could not be loaded.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same reflection before changing it."
+  },
+  "fields": [
+    {
+      "id": "qualities",
+      "label": "A past goal or attempt worth examining"
+    },
+    {
+      "id": "contribution",
+      "label": "One desired future outcome"
+    },
+    {
+      "id": "avoid",
+      "label": "What supported or obstructed the past attempt"
+    },
+    {
+      "id": "present",
+      "label": "Observed current conditions and alignment"
+    },
+    {
+      "id": "connection",
+      "label": "An assumed route and the daily life it requires"
+    },
+    {
+      "id": "change",
+      "label": "One priority, next inquiry or fact that would change the account"
+    }
+  ],
+  "example": {
+    "qualities": "I tried to write regularly while taking extra paid work.",
+    "contribution": "Spend time on independent inquiry that can help people learn.",
+    "avoid": "Extra work occupied the mornings I had intended to use for inquiry.",
+    "present": "I currently need reliable income and have two free mornings each month.",
+    "connection": "The first plan assumes a prestigious research role is essential. A smaller protected inquiry period may also serve the desired life.",
+    "change": "Check the actual income requirement and protect one morning for an inquiry session before choosing a larger commitment."
+  },
+  "source": {
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/delivery-history/93ccacfc335e21eaa9a1652a89d9e324b5af0faa6940ff3f4cb9e45b5982b622/course-input.json#/courses/7/lessons/25/body",
+    "canonicalBodyIdentity": "1f:f006f048d130918e7d4534f7a21c756476b9fa68bce3a0c835b1d95c9f6bd4b9",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/128",
+    "assessmentIdentity": "1f:b7f5eeab4d0db29c054ab88276301f001845cb9e55d37094cb11c751ab267998",
+    "assessmentBoundary": "Six required open-ended assessment questions remain separate from this optional private reflection. No qualified semantic grade or evidence of learner effectiveness is supplied.",
+    "manuscriptPdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscriptPdfIdentity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPage": "p. 61 (82-page source edition)",
+    "manuscriptPageText": ".local/curriculum-continuation-20261028/M118-M120-next-unbuilt-source-mappings/source-pages-59-61.txt",
+    "manuscriptPageTextIdentity": "1f:f1d9ce4955a55154c4729b632c7de40dd78ed10d5aa776c56027d911f3c41a18"
+  }
+}

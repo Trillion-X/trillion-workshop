@@ -1,0 +1,88 @@
+{
+  "title": "Legacy Embodiment Practice",
+  "opening": "You can express a quality you value before you earn a title or complete a large project. Choose a suitable ordinary action, try it, then look at what it actually changed.",
+  "labels": {
+    "comparison": "Help someone think through one question",
+    "comparisonIntro": "Suppose a colleague values helping people think independently. When someone asks for help, they could supply an answer immediately or ask a useful question and leave time for the other person to reason.",
+    "adherence": "Valued quality",
+    "value": "Suitable action",
+    "outcome": "What to examine",
+    "adherenceText": "Helping people think independently can guide an ordinary conversation. A title or distant educational project is not required for every expression of that quality.",
+    "valueText": "For a suitable question, ask what the person has tried and what they notice. Give them room to reason and offer help where it is needed. If the situation needs preparation or direct assistance, choose that response instead.",
+    "outcomeText": "Look at what happened in the conversation and whether it helped the person reason. One helpful interaction can express the quality; it does not establish a whole teaching system or a lasting effect.",
+    "signalQuestion": "Choose a part of the comparison",
+    "rhythmTitle": "Choose an action that serves the situation",
+    "rhythmText": "An ordinary act matters through what it does for the people involved. Publicizing it does not establish its value. Some contributions need preparation before direct action is possible; a truthful preparation step is useful too. Keep the scale of the claim matched to what happened, then adjust the action if it did not serve the quality you intended.",
+    "practice": "Bring one valued quality into this week",
+    "practiceIntro": "Keep the notes that help you decide what to try or change. You can save a partial note and return after the attempt.",
+    "private": "This private note is optional. The six course questions remain separate.",
+    "save": "Save private practice note",
+    "saving": "Saving private practice note",
+    "retry": "Retry the same save",
+    "done": "Practice note saved",
+    "missing": "Add one note before saving.",
+    "length": "This full reflection is over 2,000 characters. Shorten it to save; all of your text stays here.",
+    "source": "Manuscript, page 62",
+    "sourceQuote": "Legacy Embodiment Practice\nFor a valued quality or contribution, ask how it can appear in an ordinary action this\nweek. Choose the action and context, do it and examine the experience. This\nconnects the desired life with something you can live now.",
+    "sourceLocator": "Manuscript, p. 62 (82-page source edition)",
+    "loadExample": "Load the example",
+    "sampleLoaded": "Example loaded. Use your own situation when you are ready."
+  },
+  "feedback": {
+    "saved": "Your private practice note is saved.",
+    "unavailable": "Private saving is unavailable. Your reflection stays on screen.",
+    "missing": "Add one note before saving.",
+    "length": "Shorten the full draft to fit the 2,000-character limit. Your text stays here.",
+    "conflict": "This reflection changed elsewhere. Your answers remain here; compare the saved version before saving again.",
+    "readFailure": "The saved note could not be loaded.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same reflection before changing it."
+  },
+  "fields": [
+    {
+      "id": "qualities",
+      "label": "The quality or contribution you value"
+    },
+    {
+      "id": "contribution",
+      "label": "An ordinary situation where it could matter"
+    },
+    {
+      "id": "avoid",
+      "label": "One suitable action you could take"
+    },
+    {
+      "id": "present",
+      "label": "Preparation or help needed before you act"
+    },
+    {
+      "id": "connection",
+      "label": "What happened and what the action actually changed"
+    },
+    {
+      "id": "change",
+      "label": "What you would keep, change or try next"
+    }
+  ],
+  "example": {
+    "qualities": "Help people think independently.",
+    "contribution": "A colleague asks for help with a question they are able and willing to explore.",
+    "avoid": "Ask what they have tried and what they notice, then leave room for their reasoning.",
+    "present": "Check that the situation allows time to explore; offer direct help if it is needed.",
+    "connection": "",
+    "change": "Notice what helps the colleague reason, then adjust the amount of help in the next suitable conversation."
+  },
+  "source": {
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/delivery-history/93ccacfc335e21eaa9a1652a89d9e324b5af0faa6940ff3f4cb9e45b5982b622/course-input.json#/courses/7/lessons/31/body",
+    "canonicalBodyIdentity": "1f:e10cb57bd6beba81d780d6e094dcb1fc2a07f8a4ab375847064b6f8acebde7e0",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/133",
+    "assessmentIdentity": "1f:5dbcde6412eb4c288887d0301960d8ca90f153e3738f63d80aa3e479ddc4251d",
+    "assessmentBoundary": "Six required open-ended assessment questions remain separate from this optional private reflection. No qualified semantic grade or evidence of learner effectiveness is supplied.",
+    "manuscriptPdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscriptPdfIdentity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPage": "p. 62 (82-page source edition)",
+    "manuscriptPageText": ".local/curriculum-continuation-20261028/M118-M120-next-unbuilt-source-mappings/source-pages-61-62.txt",
+    "manuscriptPageTextIdentity": "1f:aa781da4dadcf887eebb8d8c3410aa1a08546fb5b4af87f45b5e10d368ccf9d7"
+  }
+}

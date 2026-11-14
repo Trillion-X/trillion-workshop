@@ -1,0 +1,34 @@
+{
+  "title": "Early Life Exploration",
+  "opening": "Use evidence already available: a memory, an existing recollection, a record, current behavior, or an unanswered question. You do not need to ask anyone for a new account. Compare examples with present choices. A childhood pattern is a clue, not a fixed identity.",
+  "labels": {
+    "comparison": "Compare evidence",
+    "save": "Save private notes",
+    "busy": "Saving notes",
+    "retry": "Retry save"
+  },
+  "prompts": {
+    "result": "Write what you already know as a short comparison: a specific event or recurring behavior, including interests, aversions, absorption or responses to difficulty if known; its source; what it may suggest; a present choice or other evidence that supports, conflicts with, or cannot answer the idea; and any disagreement or question to examine now. Use events, not trait labels. Leave unknown parts open."
+  },
+  "limits": {
+    "heading": "Keep the comparison open",
+    "body": "No single recollection has to win. Do not force a childhood-to-adult pattern, infer a diagnosis, try to recover an absent memory, or treat its absence as a problem. Current behavior may matter more for a current decision.",
+    "privacy": "Leave this blank to continue without saving."
+  },
+  "feedback": {
+    "length": "This note is over the 2,000-character save limit. Shorten it to save; the full draft remains here.",
+    "missing": "Add a note if you want to save, or leave the lesson without saving.",
+    "saved": "Private notes saved.",
+    "saveFailure": "The save did not finish. Your notes remain here; retry the save.",
+    "retryPending": "A save needs a result before editing or starting another save.",
+    "conflict": "Another save changed these notes. Your draft remains here; compare it with the saved version before saving again."
+  },
+  "practice": {
+    "result": ""
+  },
+  "source": {
+    "currentBodyIdentity": "1f:e2726299b8308fee91085540a78ea25872b1a79a38c1e0862c75cc0dd5d4b0ae",
+    "assessmentBodyIdentity": "1f:e2726299b8308fee91085540a78ea25872b1a79a38c1e0862c75cc0dd5d4b0ae",
+    "assessmentIdentity": "1f:2c99963d546525e018d5c5025722ad7b980db7540f16c68861baa20868c8c0e0"
+  }
+}

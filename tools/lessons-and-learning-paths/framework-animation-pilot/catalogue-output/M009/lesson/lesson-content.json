@@ -1,0 +1,261 @@
+{
+  "title": "Map of Awareness",
+  "opening": "You see the opponent move and want the return to land in court. Those are different parts of one moment. The map offers seven questions you can explore when they help; you do not need to fill every entry.",
+  "modes": [
+    {
+      "id": "distinction",
+      "label": "Distinction",
+      "description": "Which difference are you noticing?",
+      "focus": "You can see the opponent's position and the ball's path. The result you want is separate from what you see.",
+      "availableStatements": ["opponent-visible", "ball-path", "want-return-in-court", "next-shot"]
+    },
+    {
+      "id": "existence",
+      "label": "Existence and absence",
+      "description": "What is present, and what have you only assumed is present or absent?",
+      "focus": "The scene shows positions and a path, but not private states. The absence of one state does not, by itself, establish its opposite.",
+      "availableStatements": ["next-shot", "fear", "hope"]
+    },
+    {
+      "id": "space",
+      "label": "Space",
+      "description": "Where does this occur?",
+      "focus": "The scene locates the player, opponent and ball on the court. A private thought or feeling has no location in this figure.",
+      "availableStatements": ["player-position", "opponent-position", "ball-path", "player-thought", "player-feeling"]
+    },
+    {
+      "id": "time",
+      "label": "Time",
+      "description": "When does this occur, and what continues?",
+      "focus": "One moment does not tell you whether an action repeats, focus continues, understanding develops or a preference lasts. Those need evidence across time.",
+      "availableStatements": ["next-shot", "repeated-action", "continued-focus", "developed-understanding", "continued-preference"]
+    },
+    {
+      "id": "subject-object",
+      "label": "Subject and object",
+      "description": "What am I observing?",
+      "focus": "The scene emphasizes the selected person while the court camera stays fixed. This focus does not show what the person actually noticed.",
+      "availableStatements": ["player-position", "opponent-position", "ball-path", "player-thought"]
+    },
+    {
+      "id": "self-environment",
+      "label": "Self and environment",
+      "description": "Are you noticing a thought, feeling or bodily sensation, or something around you?",
+      "focus": "The court shows people, ball and surroundings. It does not reveal anyone's private thought, feeling or bodily sensation.",
+      "availableStatements": ["player-thought", "player-feeling", "player-body", "opponent-position", "ball-path"]
+    },
+    {
+      "id": "preference",
+      "label": "Preference",
+      "description": "What do you want, and what did you observe before that judgment?",
+      "focus": "The wish for a return in court is a preference. The opponent's position and the ball's path are separate observations.",
+      "availableStatements": ["want-return-in-court", "opponent-position", "ball-path", "continued-preference"]
+    }
+  ],
+  "statements": [
+    {
+      "id": "opponent-visible",
+      "text": "The opponent is visible on the far side of the court.",
+      "kind": "scene observation",
+      "feedback": "You can see where the opponent is at this moment. Their position does not tell you what they notice, feel or intend."
+    },
+    {
+      "id": "player-position",
+      "text": "The player is on the near side of the court.",
+      "kind": "scene observation",
+      "feedback": "You can see where the player is at this moment. Their position does not tell you what they are experiencing."
+    },
+    {
+      "id": "opponent-position",
+      "text": "The opponent is on the far side of the court.",
+      "kind": "scene observation",
+      "feedback": "The opponent is on the far side of the court at this moment. One position does not establish a repeated pattern."
+    },
+    {
+      "id": "ball-path",
+      "text": "The ball follows the path shown.",
+      "kind": "scene observation",
+      "feedback": "You can follow the ball's path. That does not tell you what the player intended or what shot comes next."
+    },
+    {
+      "id": "next-shot",
+      "text": "The opponent will send the next shot toward the open court.",
+      "kind": "assumption",
+      "feedback": "The scene does not show the next shot. That action is unknown here, not proof that it will not happen or that it is absent."
+    },
+    {
+      "id": "fear",
+      "text": "The player feels fear.",
+      "kind": "private-state claim",
+      "feedback": "The pose cannot establish whether fear is present or absent. Even a report that fear is absent would not establish hope or another opposite state."
+    },
+    {
+      "id": "hope",
+      "text": "The player feels hope.",
+      "kind": "private-state claim",
+      "feedback": "The pose cannot establish whether hope is present or absent. A lack of visible fear would not prove that hope is present."
+    },
+    {
+      "id": "want-return-in-court",
+      "text": "The player wants the return to land in court.",
+      "kind": "preference",
+      "feedback": "This is the player's stated aim. What they want is separate from where the ball went."
+    },
+    {
+      "id": "player-thought",
+      "text": "The player thinks the opponent will send the next shot toward the open court.",
+      "kind": "private-state claim",
+      "feedback": "The illustration cannot show the player's thought. A player report can tell you what they thought; without one, a plausible guess remains unknown."
+    },
+    {
+      "id": "player-feeling",
+      "text": "The player feels rushed.",
+      "kind": "private-state claim",
+      "feedback": "The illustration cannot establish how the player feels. A player report can describe that experience, while the court scene shows external positions and movement."
+    },
+    {
+      "id": "player-body",
+      "text": "The player feels strain in their body.",
+      "kind": "private-state claim",
+      "feedback": "A body position is visible, but a bodily sensation is not. The player can report the sensation; the scene alone cannot confirm it."
+    },
+    {
+      "id": "repeated-action",
+      "text": "This one exchange proves the player has a repeated habit.",
+      "kind": "duration claim",
+      "feedback": "One action does not establish repetition or a habit. Evidence from other moments is needed."
+    },
+    {
+      "id": "continued-focus",
+      "text": "The player's focus continued over time.",
+      "kind": "duration claim",
+      "feedback": "The scene does not show how long the player focused. Evidence across time is needed before calling it concentration."
+    },
+    {
+      "id": "developed-understanding",
+      "text": "The player's understanding developed and was retained.",
+      "kind": "duration claim",
+      "feedback": "A court pose cannot show what someone learned or retained. Expertise requires evidence of developed, retained understanding that the person can use."
+    },
+    {
+      "id": "continued-preference",
+      "text": "The player has a preference that continues over time.",
+      "kind": "duration claim",
+      "feedback": "One stated aim does not establish a continuing preference or value. Evidence across situations and time is needed."
+    }
+  ],
+  "choices": [
+    {
+      "id": "observed",
+      "label": "Present in this description",
+      "description": "The scene or report describes this state or event as present in this situation. Name what supports that reading."
+    },
+    {
+      "id": "opposite",
+      "label": "Opposite state present",
+      "description": "The paired opposite is described as present. The absence of one state alone does not establish this answer."
+    },
+    {
+      "id": "neither",
+      "label": "Neither state present",
+      "description": "There is evidence for neither the named state nor its opposite. This differs from not having enough information."
+    },
+    {
+      "id": "unknown",
+      "label": "Unknown",
+      "description": "The available scene or report does not establish whether the state, its opposite or neither applies. Unknown does not mean absent."
+    }
+  ],
+  "viewpoints": [
+    {
+      "id": "player",
+      "label": "Player",
+      "description": "The scene emphasizes the player's position while the court camera stays fixed. This does not show what the player noticed."
+    },
+    {
+      "id": "opponent",
+      "label": "Opponent",
+      "description": "The scene emphasizes the opponent's position while the court camera stays fixed. This does not show what the opponent noticed."
+    },
+    {
+      "id": "spectator",
+      "label": "Spectator",
+      "description": "The scene emphasizes the spectator's position while the court camera stays fixed. This does not show what the spectator noticed."
+    }
+  ],
+  "durations": [
+    {
+      "id": "moment",
+      "label": "One moment",
+      "description": "One moment tells you what happened then. To describe a pattern, you need to know what happens at other times."
+    },
+    {
+      "id": "repeated-action",
+      "label": "Repeated action",
+      "description": "Repeated action may form a habit. A single court scene does not show repetition."
+    },
+    {
+      "id": "continued-focus",
+      "label": "Continued focus",
+      "description": "Focus that continues may count as concentration. One pose does not establish how long focus lasted."
+    },
+    {
+      "id": "developed-retained-understanding",
+      "label": "Developed and retained understanding",
+      "description": "Understanding that develops and is retained may count as expertise. A movement does not establish what someone learned."
+    },
+    {
+      "id": "continued-preference",
+      "label": "Continued preference",
+      "description": "A preference that continues over time may count as a value. One stated aim is not enough evidence."
+    },
+    {
+      "id": "passing-or-sustained-state",
+      "label": "Passing or sustained state",
+      "description": "Hope, fear, opportunity or threat can be passing or sustained. Evidence across time is needed to tell."
+    }
+  ],
+  "labels": {
+    "facet": "Map question",
+    "viewpoint": "Whose position should the scene emphasize?",
+    "claim": "Claim to examine",
+    "selectedObservation": "How does the available evidence describe this claim?",
+    "duration": "What duration does your evidence support?",
+    "replayProgress": "Return progress",
+    "statements": "Claims to examine",
+    "ownPursuit": "Try the map with your own example",
+    "prediction": "What are you noticing, wanting or assuming, and what would you expect an observation to show?",
+    "observation": "What did you observe, from which viewpoint and at what time?",
+    "revision": "What does the evidence establish, and what remains unknown?",
+    "save": "Save this practice",
+    "busy": "Saving practice"
+  },
+  "feedback": {
+    "correct": "That answer fits the stated scene or report. Keep its scope to the evidence that supports it.",
+    "incorrect": "Check what the information tells you. A position can be visible while a private feeling, the next action or a repeated pattern remains unknown.",
+    "unresolved": "Keep the claim unknown when this scene or report does not settle it. Unknown is different from absent or neither.",
+    "directAction": "A clear observation can still support action. Keep the action tied to what you know and leave other claims open.",
+    "readFailure": "The saved practice could not be read. Your answers remain on this screen.",
+    "saveFailure": "The save was not confirmed. Your answers remain here. Try again.",
+    "conflict": "This practice changed in another window. Your answers are still here. Save again to keep your answers.",
+    "readbackFailure": "The save could not be confirmed. Your answers are still here.",
+    "retryPending": "The earlier save is still unresolved. Retry the same answers.",
+    "saved": "Your answers are saved.",
+    "missing": "Complete the three practice fields before saving.",
+    "length": "Keep each answer within 2,000 characters.",
+    "unavailable": "Private practice is not available in this lesson context. Your answers stay in this session."
+  },
+  "ownPursuit": {
+    "prompt": "Choose a recent, ordinary situation in your pursuit. Leave out private details you do not want to save.",
+    "prediction": "Describe what you noticed, what you wanted and one assumption you want to check. If you name a state, say what supports present, opposite, neither or unknown. If you describe a duration, name the evidence across time.",
+    "observation": "Record what you observed, its source, your viewpoint and the time or setting it covers. Keep your thought, feeling or bodily report separate from outside conditions.",
+    "revision": "Keep what the evidence establishes separate from what remains unknown, and revise an explanation when new evidence changes it. Repetition, continued focus and a lasting preference need evidence across time."
+  },
+  "accessibility": {
+    "facet": "Seven optional questions for exploring one tennis exchange",
+    "viewpoint": "The selected person is emphasized while the court camera stays fixed; this does not show what the person noticed",
+    "observation": "Learner interpretation of a claim, separate from evidence represented in the scene",
+    "duration": "Learner-selected duration description; the illustration does not provide historical evidence",
+    "figure": "Tennis court with a near player, far opponent, ball, path, net, baselines and a separate spectator."
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "title": "Observation in daily life",
+  "opening": "Observation can happen while you are already doing something. In the message example, the words on screen are one thing; a guess about why the person wrote them is another. Noticing the difference may help you decide what to do next, but it does not tell you whether you agree.",
+  "modes": [
+    {
+      "id": "glimpse",
+      "label": "Notice a glimpse",
+      "description": "Notice a brief moment when you are already aware of what is happening during an ordinary activity."
+    },
+    {
+      "id": "return",
+      "label": "Return at transitions",
+      "description": "Use an everyday change, such as finishing one activity or entering a room, as another cue to notice what is already happening."
+    },
+    {
+      "id": "stay",
+      "label": "Stay with the activity",
+      "description": "Stay with an activity’s experience a little longer. When attention wanders, return to what you are doing."
+    },
+    {
+      "id": "challenge",
+      "label": "Notice during challenge",
+      "description": "You can notice what is happening during a difficult moment too; you do not have to be calm first."
+    },
+    {
+      "id": "focus",
+      "label": "Shift between particular and open attention",
+      "description": "Move attention between one detail, such as the message words, and the wider experience. Each view can show something different."
+    },
+    {
+      "id": "act",
+      "label": "Act, then notice the result",
+      "description": "Let what you notice inform an action, then notice what happened afterward. No particular result is required."
+    }
+  ],
+  "initialMode": "glimpse",
+  "modeNote": "These six ways can overlap and recur. Choose any one that fits; they are not a required order, and calm is not a prerequisite.",
+  "example": {
+    "messageLabel": "Message",
+    "message": "Can you send the current draft by three?",
+    "assumptionLabel": "Possible assumption (not stated)",
+    "possibleAssumption": "They think I am behind.",
+    "replyLabel": "One possible reply",
+    "reply": "Yes, I can send it by 2:30."
+  },
+  "labels": {
+    "modes": "Choose a way to notice",
+    "example": "A message and a possible assumption",
+    "inspectExample": "Show the message and possible assumption",
+    "showReply": "Show one possible reply",
+    "hideReply": "Hide the possible reply",
+    "ownPursuit": "Your own pursuit",
+    "save": "Save reflection",
+    "busy": "Saving reflection"
+  },
+  "ownPursuit": {
+    "prompt": "Choose a safe transition in your own pursuit, such as finishing one activity before starting another. Keep taking part; notice what is happening and use any mode that fits. The modes can overlap and recur.",
+    "prediction": "Before the transition, what, if anything, do you expect to notice about the activity or surroundings? What might you notice within yourself, if anything? A particular feeling or state is not required.",
+    "observation": "What actually happened around you? What, if anything, did you notice in your body, thoughts or feelings? Separate what happened from your explanation of why.",
+    "revision": "Did anything you noticed change what you did next or clarify what was happening? What did you notice afterward, if anything? It is fine if none of the modes seemed useful."
+  },
+  "feedback": {
+    "missing": "Complete each reflection field before saving.",
+    "length": "Keep each answer within 2,000 characters.",
+    "readFailure": "Your saved reflection could not be loaded.",
+    "saved": "Your reflection is saved.",
+    "conflict": "This reflection changed elsewhere. Review it and save again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check it again.",
+    "saveFailure": "The save is still uncertain. Retry to check it safely.",
+    "retryPending": "Your earlier reflection is still being saved. Wait for its status before retrying.",
+    "unavailable": "Saving is unavailable for this lesson."
+  },
+  "accessibility": {
+    "modes": "Choose any of six connected ways to notice. They can overlap and recur; the selected view is not progress or a required step.",
+    "example": "The message words, an assumption that is not stated, and one authored reply are separately labeled. The reply is an example, not the only valid response.",
+    "ownPursuit": "Write and save a private, unscored reflection about what you actually noticed in a safe transition in your own pursuit.",
+    "figure": "A person holding a phone in front of them."
+  }
+}

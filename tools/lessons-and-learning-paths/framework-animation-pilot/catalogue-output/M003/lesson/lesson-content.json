@@ -1,0 +1,150 @@
+{
+  "title": "Trillion Dollar Body",
+  "opening": "Two people can weigh the same and have different strength, mobility and fitness. Your goal needs to include what you want your body to be able to do. If weight changes but you lose strength you wanted to keep, the plan has not met the whole goal. Compare what you expected with what happens.",
+  "modes": [
+    {
+      "id": "capability-contrast",
+      "label": "Weight and capability",
+      "description": "The same scale reading does not tell you whether someone can perform a strength task, move comfortably or sustain their day. Choose the capability that belongs in the goal.",
+      "availableStatements": [
+        "weight-is-one-output",
+        "choose-an-output",
+        "estimate-needs-review",
+        "protocol-is-personal"
+      ]
+    },
+    {
+      "id": "control-map",
+      "label": "Controls and outcomes",
+      "description": "Food intake, energy expenditure, protein, muscle stimulus and time interact. Choose gain, maintenance or loss, then name a capability to preserve.",
+      "availableStatements": [
+        "weight-is-one-output",
+        "choose-an-output",
+        "estimate-needs-review",
+        "protocol-is-personal"
+      ]
+    },
+    {
+      "id": "forecast-review",
+      "label": "Forecast and observation",
+      "description": "A watch or calculator supplies an estimate, not an observation of exact tissue change. Compare the forecast with appropriate observations over time, including capability and recovery.",
+      "availableStatements": [
+        "weight-is-one-output",
+        "choose-an-output",
+        "estimate-needs-review",
+        "protocol-is-personal"
+      ]
+    }
+  ],
+  "options": {
+    "goals": [
+      {
+        "id": "gain",
+        "label": "Gain"
+      },
+      {
+        "id": "maintain",
+        "label": "Maintain"
+      },
+      {
+        "id": "lose",
+        "label": "Lose"
+      }
+    ],
+    "capabilities": [
+      {
+        "id": "strength",
+        "label": "Strength"
+      },
+      {
+        "id": "mobility",
+        "label": "Mobility"
+      },
+      {
+        "id": "fitness",
+        "label": "Fitness"
+      }
+    ]
+  },
+  "choices": [
+    {
+      "id": "source-distinction",
+      "label": "A source distinction"
+    },
+    {
+      "id": "estimate",
+      "label": "An estimate to check"
+    },
+    {
+      "id": "needs-evidence",
+      "label": "A claim that needs evidence"
+    }
+  ],
+  "statements": [
+    {
+      "id": "weight-is-one-output",
+      "kind": "source-distinction",
+      "text": "Body weight is one output, not the whole meaning of physical mastery.",
+      "feedback": "The framework asks you to consider the physical capability and other outcomes relevant to the person, as well as body composition."
+    },
+    {
+      "id": "choose-an-output",
+      "kind": "source-distinction",
+      "text": "Choose gain, maintenance or loss, and name the capability that should be preserved.",
+      "feedback": "If you reach your weight target but lose the capability you wanted to keep, the plan hasn't met the whole goal."
+    },
+    {
+      "id": "estimate-needs-review",
+      "kind": "estimate",
+      "text": "A watch’s expenditure value is an estimate that should be compared with suitable observations.",
+      "feedback": "It remains an estimate, not a direct observation of every bodily process or change in body tissue."
+    },
+    {
+      "id": "protocol-is-personal",
+      "kind": "needs-evidence",
+      "text": "One aggressive personal protocol is the right plan for everyone with the same goal.",
+      "feedback": "The source warns against universalizing a personal protocol. Suitability, health, recovery and the actual outcome matter."
+    }
+  ],
+  "examples": {
+    "summary": "Someone wants to change their body composition while keeping their strength. They track their weight and repeat the same strength task. If that task gets harder across repeated attempts and they have more trouble recovering, they need to review the plan. The change in weight alone does not tell them whether they kept their strength."
+  },
+  "labels": {
+    "mode": "Explore the framework",
+    "goal": "Choose an intended outcome",
+    "capability": "Capability to preserve",
+    "statements": "Read the claims",
+    "ownPursuit": "Apply the distinction to a plan you can inspect",
+    "prediction": "Your forecast",
+    "observation": "Evidence to observe",
+    "revision": "What you would review",
+    "save": "Save reflection",
+    "busy": "Saving…"
+  },
+  "feedback": {
+    "openQuestion": "If the scale changes, what else would tell you whether the plan worked?",
+    "unavailable": "Saving is unavailable for this lesson.",
+    "missing": "Complete each practice field before saving.",
+    "length": "Each practice answer must be no longer than 2,000 characters.",
+    "readFailure": "Your saved reflection could not be loaded.",
+    "saved": "Your reflection was saved.",
+    "conflict": "This reflection changed elsewhere. Review it and save again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check it again.",
+    "saveFailure": "The save is still uncertain. Retry to safely check it again.",
+    "retryPending": "Your earlier reflection is still being saved. Wait for its status before trying again."
+  },
+  "ownPursuit": {
+    "prompt": "Choose a current, suitable body goal. Name the result you expect, the capability you want to preserve, and what observation would inform your review.",
+    "prediction": "What result does the current arrangement lead you to expect, and what assumptions does that forecast use?",
+    "observation": "What could you observe to compare the forecast with the result, including the capability you want to preserve and recovery?",
+    "revision": "If observations differ from the forecast, what would you investigate before changing the arrangement?"
+  },
+  "accessibility": {
+    "figure": "Body composition, interacting controls, estimates, observations and the physical capability to preserve.",
+    "mode": "Choose which illustrative framework view to inspect",
+    "goal": "Choose gain, maintenance or loss as the example’s intended outcome",
+    "capability": "Choose the example capability to preserve",
+    "statements": "Classify the statements using the reading prompts",
+    "ownPursuit": "Write and save an ungraded reflection about a plan you can inspect"
+  }
+}

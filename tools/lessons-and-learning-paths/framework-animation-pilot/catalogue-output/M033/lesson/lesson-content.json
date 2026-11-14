@@ -1,0 +1,230 @@
+{
+  "title": "Optimal Performance Protocol",
+  "opening": "The Optimal Performance Protocol (OPP) arranges a whole session around what you want to learn or do. It has preparation, work during the session and work afterward. The ability you are trying to develop is the target. The room, equipment, state, support and task demand are conditions for practicing that ability; changing the conditions does not by itself show that the ability changed.",
+  "labels": {
+    "target": "What ability are you trying to develop?",
+    "targetHelp": "Name the thing you want to be able to do. Keep this target the same while you change the conditions or demand of an attempt.",
+    "capability": "Choose the kind of attempt",
+    "stage": "Where is this skill now?",
+    "stageHelp": "Choose a stage only if it fits the task and an observable measure. M033's percentages are adjustable working settings, not a universal rule.",
+    "task": "Make the first attempt",
+    "taskHelp": "Use your actual material or task. For a memory attempt, close the source before answering. For movement, use the required equipment and feedback, then record what happened.",
+    "firstAttempt": "Your first attempt or observed action",
+    "criterion": "What would count as a useful result for this target?",
+    "criterionHelp": "Use a real task criterion or feedback source. Do not substitute confidence or session completion for the result.",
+    "firstEvidence": "What did this attempt show against that criterion?",
+    "result": "Compare the attempt with your criterion",
+    "adjustment": "Choose one next practice change",
+    "dimension": "Which part of the task demand will change?",
+    "nextAttempt": "Now try the same target with that one change",
+    "secondAttempt": "Your second attempt or observed action",
+    "check": "What did the comparison actually establish?",
+    "comparison": "Check the result or record what is still unknown",
+    "support": "Source settings and their limits",
+    "phaseNavigation": "Choose a session phase",
+    "prepare": "Prepare",
+    "during": "During",
+    "after": "After",
+    "savePlan": "Record the session and next check",
+    "save": "Save private practice record",
+    "busy": "Saving record",
+    "retry": "Retry the same save"
+  },
+  "choices": {
+    "retrieve": {
+        "description": "With the source closed, retrieve the idea or answer in your own words.",
+        "label": "Retrieve an idea"
+      },
+    "explain": {
+        "description": "Explain the relationship in your own words, without copying the source.",
+        "label": "Explain a relationship"
+      },
+    "apply": {
+        "description": "Make an attempt in a real case or representative practice task, then record what happened.",
+        "label": "Use it in a real case"
+      },
+    "starting": {
+        "description": "The skill is unfamiliar; the source prioritizes repeated attempts and useful errors below roughly 30% success.",
+        "label": "Starting"
+      },
+    "familiarizing": {
+        "description": "The source places the move toward refinement around 30–50% success.",
+        "label": "Building familiarity"
+      },
+    "refining": {
+        "description": "The source's working band is 65–80%; during refinement it raises demand above 80% and reduces it below 65%.",
+        "label": "Refining"
+      },
+    "unsure": {
+        "description": "Keep the current result unknown until you can observe the target against a useful criterion.",
+        "label": "Not sure yet"
+      },
+    "below": {
+        "description": "The attempt did not meet the criterion you wrote.",
+        "label": "Below the criterion"
+      },
+    "within": {
+        "description": "The attempt met the criterion you wrote.",
+        "label": "Within the criterion"
+      },
+    "above": {
+        "description": "The attempt went beyond the criterion you wrote.",
+        "label": "Above the criterion"
+      },
+    "unknown": {
+        "description": "The available attempt or feedback does not answer the question.",
+        "label": "I cannot tell yet"
+      },
+    "repeat": {
+        "description": "Keep the target and demand; use the next attempt to see what repeats.",
+        "label": "Repeat and inspect the error"
+      },
+    "reduce": {
+        "description": "Keep the target and reduce the selected task demand so you can continue working on it.",
+        "label": "Reduce one demand"
+      },
+    "increase": {
+        "description": "Keep the target and raise the selected task demand; use only when the observed result supports it.",
+        "label": "Raise one demand"
+      },
+    "feedback": {
+        "description": "Keep the result unknown and choose a way to observe the same target more clearly.",
+        "label": "Get clearer feedback first"
+      },
+    "support": {
+        "description": "Change how much cueing or support the same attempt gets.",
+        "label": "support or prompting"
+      },
+    "speed": {
+        "description": "Change the speed of the same task.",
+        "label": "speed"
+      },
+    "precision": {
+        "description": "Change the precision required for the same target.",
+        "label": "precision"
+      },
+    "complexity": {
+        "description": "Change one part of the task complexity.",
+        "label": "complexity"
+      },
+    "variation": {
+        "description": "Change one type of task variation, such as speed, spin or placement.",
+        "label": "variation"
+      }
+  },
+  "choiceGroups": {
+    "capability": { "retrieve": true, "explain": true, "apply": true },
+    "stage": { "starting": true, "familiarizing": true, "refining": true, "unsure": true },
+    "result": { "below": true, "within": true, "above": true, "unknown": true },
+    "adjustment": { "repeat": true, "reduce": true, "increase": true, "feedback": true },
+    "dimension": { "support": true, "speed": true, "precision": true, "complexity": true, "variation": true }
+  },
+  "feedback": {
+    "unavailable": "Private practice saving is unavailable. Your work remains on screen.",
+    "missing": "Add a target, a useful criterion, the observed attempt, a result or unknown, and the next check before saving.",
+    "length": "Keep each answer within 2,000 characters.",
+    "readFailure": "The saved practice record could not be loaded. Your current work remains on screen.",
+    "saved": "Your private practice record is saved.",
+    "conflict": "This practice record changed elsewhere. Your answers remain here; compare the record before saving again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same answers before changing them."
+  },
+  "practice": {
+    "prediction": "What ability are you trying to develop, and what larger goal does it serve?",
+    "observation": "What did an actual earlier attempt, feedback or performance record show about the current limiting factor? If you do not have one, say what you will observe first.",
+    "comparison": "What criterion will you use for this target? What attempt, source or feedback can you compare against? If there is no reliable comparison yet, keep that unknown visible.",
+    "result": "What did the first attempt actually show against the criterion? Keep your confidence, engagement, disruption and task result separate.",
+    "revision": "Which relevant condition or task demand will you change for the next attempt, and why does the observed result support that change? Keep the target ability the same.",
+    "step": "What happened in the second attempt? What remains unknown, and when or where will you test the ability again under representative demand?"
+  },
+  "source": {
+    "sourceRecord": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/3/lessons/33",
+    "sourceOverride": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/current-source-overrides.json#/overrides/0",
+    "sourceArchive": "content-drafts/framework-library-2026-10-24/community-config.json#/courses/2/lessons/25",
+    "historicalArchive": "content-drafts/framework-library-2026-10-24/community-config.json#/courses/2/lessons/19",
+    "reconciliation": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/reconciliation.json#/library_entries/33",
+    "conceptHistory": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/concept-history.json#M027-to-M033",
+    "sourceActions": "source-actions.json",
+    "historicalSource": "M027 is retained at community-config.json#/courses/2/lessons/19 as the earlier Ethos Learning System source; its practice is historical and current application uses M033.",
+    "branches": "OPP is the whole preparation/session/post-session protocol. MLP is its learning version. MPP and MCP are distinct uses and branches.",
+    "status": "Source-derived teaching for the current course record. Authored exercise and prompts are teaching design; examples are not learner outcomes. Working settings retain their source status and are not universal prescriptions."
+  },
+  "teaching": {
+    "distinction": "Practice conditions, target ability and results are separate. A saved plan or completed session is not itself a learning result. Keep what you did, what an attempt showed and what remains unknown distinct.",
+    "sections": [
+      {
+        "title": "Prepare the work",
+        "paragraphs": [
+          "Start with the larger goal and look for the Current Most Limiting Factor (CMFL): the part that is breaking most often or stopping the next step. Previous attempts, feedback, performance data or trying a task above your current comfort level can help locate it. Preview roughly 20% of the material, notice what interests you, connect it to what you already know, write down the questions it raises and make a pre-test attempt. The pre-test can expose an assumption or a part you cannot yet do.",
+          "Prepare the place and equipment for the task: a visually sparse space, control over noise, comfortable temperature and clothing that does not keep demanding attention. For non-motor learning, M033 proposes solitude without interruptions from people or devices. Movement still needs its equipment and feedback. If fear of a mistake stops an attempt, choose a setting where you can make and inspect the mistake; writing down the anxiety is one preparation step.",
+          "Attention, alertness and tension are separate conditions. M033 lists a 2–5-minute settling scan, cold exposure for 30 seconds to three minutes, physical activity in the preceding 0–3 hours, nutritional preparation or fasting, 17 minutes of focused breathing, a 60-second visual focus target and a 30–60-second burst of physical activity. These are options; choose only a relevant, suitable adjustment. Its arousal branch uses 10–15 rounds of a two-second deep inhale and one-second exhale; its tension branch uses a body scan and 4–7–8 breathing. If tension is the issue, adding arousal addresses a different condition. A changed setting does not show that the target ability developed."
+        ]
+      },
+      {
+        "title": "Work on the same target",
+        "paragraphs": [
+          "M033 describes a 90–120-minute learning block with a repeated cycle: learn or practice, take a micro-gap, retrieve, adjust state and difficulty, then repeat. For an idea, use an analogy, mind map or concept connections, a personal example, an association with something you know, or a recurring pattern. For movement, slow it down, use a metronome or isolate one component, such as a forehand takeback. Feedback has to change what you do during the action; repeating without that adjustment stays open-loop practice.",
+          "M033 uses a 10–30-second eyes-closed micro-gap between attempts or chunks. Summarize what you learned in your own words, then retrieve it without copying. Use as little prompting as the task allows and produce an answer, from a short explanation to a longer one. Recognizing an answer on a page and retrieving it are different results. Use the attempt to decide what to try next.",
+          "Attention, alertness and tension can change during work. The protocol includes a reward or no reward for staying focused, a return to the goal and why it matters, a 60-second visual target when attention needs resetting, and breathing or movement options when arousal needs to rise. When tension is the problem, use the body-scan and tension-release branch instead. Then return to the same learning target.",
+          "Keep the beginner stage separate from refinement. When a skill is unfamiliar and success is consistently below roughly 30%, M033 prioritizes attempts and useful errors. As familiarity develops, around 30–50% success, it moves toward refinement. In that refinement stage, its working band is 65–80% success: raise speed, precision, complexity or variation, or reduce support, above 80%; reduce demand below 65%. These are adjustable protocol settings, not a universal scoring rule. Keep the target the same while adjusting the demand."
+        ]
+      },
+      {
+        "title": "After the attempt",
+        "paragraphs": [
+          "M033's post-session sequence begins with a brief stressor, such as physical activity or one of its cold-exposure or breathing options, intended to mark the material as important. It separates 1–5 minutes of immediate quiet replay, eyes closed without a phone or conversation, from 10–30 minutes of non-sleep deep rest (NSDR). These are protocol proposals, not instructions every learner must follow.",
+          "After rest, test what remains: recall the material, teach it or imagine teaching it, and brainstorm applications or extensions. M033 schedules 2–3 hours between demanding learning sessions, at most two or three such sessions per day, and sleep to support consolidation. Its written sleep setting is 6–8 hours minimum, with key points reviewed before bed. Track what you retain and can do to find out what this arrangement does for you.",
+          "Keep the target, conditions, attempts, results and changes together for the next session. Test later in the situation where the ability matters. Explaining a movement, making it in controlled practice and using it during a point are different demands. If it works in one setting and fails in another, that difference is the next thing to investigate."
+        ]
+      },
+      {
+        "title": "Change the task demand, not the target",
+        "paragraphs": [
+          "In the source's forehand example, a player who had played for a year and a half could compete from the baseline, but the aim was to make the forehand a weapon. For three weeks of a six-week program, practice stayed at short court. The demand rose within that space: the player tossed the ball, then received a toss, a farther toss and a ball that required movement; then they rallied and varied speed, spin and placement. The benchmark was a top-ten forehand like Federer or Alcaraz, not a claim that the player had reached it.",
+          "In week three they moved first to the space between short court and baseline, then the baseline after roughly five to ten minutes when the attempt held up. When success fell, practice moved forward again; below 65%, they returned to middle or short court and worked back up. Reaching the baseline once did not mean they had to stay there. The target remained the forehand while the demand changed. The source describes plateaus and quick jumps as that coach's observation, not a promised schedule for someone else's progress.",
+          "Across sessions, a stronger opponent can expose what is breaking. Identify the skill, then Clarify it by giving it focused attention outside the whole match. Train that one thing, compare videos side by side, space repetitions, watch the best progress videos and visualize the movement until you can feel what you are trying to do. Solidify it where you can already perform well, including varied or competitive play; give the skill priority over winning that match. Reassess at the higher level where it broke. If it holds, raise demand until a new limit appears. If it does not, return to Clarify and repeat the sequence. Confidence in an isolated drill and performance against an opponent are different results.",
+          "For the live cohort, the source specifies at least two meetings per week and at least an hour of practice every day: at least seven hours of practice across seven days. The meetings are where the group reconvenes; practice continues through the week. This is that cohort's arrangement, not a required schedule for every learner."
+        ]
+      },
+      {
+        "title": "Use a record to make the next call",
+        "paragraphs": [
+          "Put the goal's desired level, current level, observed rate of change and target date on one timeline. Add stage changes, actual practice, instruction, comparison videos and relevant messages. Compare goals to see whether workloads compete and whether progress is ahead of, on or behind the current plan. That record may lead you to reconsider the goal or the conditions and practice around it.",
+          "If you use mastery scores or forecasts, define the scale and later compare the forecast with actual performance. Suggested stage changes are proposals; the learner and coach make the final call. If instruction appears Tuesday and performance improves Thursday, the timeline shows their order. It does not prove Tuesday caused the improvement. Keep both events so you can examine the connection without mistaking timing for evidence.",
+          "The learning version is the Master Learner Protocol (MLP). The Master Performer Protocol (MPP) carries its preparation and post-session work into a performing or applying session. The Master Creator Protocol (MCP) starts from places where you think well, such as a shower, gym or walk, and uses mind wandering, stream of consciousness, word association, prompted brainstorming and creative critical-thinking questions. They are different uses and branches of OPP; a quiz is one retrieval tool, not the whole learning protocol.",
+          "The source gives two examples of ideas changing through active work. When the author walked to a cafe without a working phone, a waiter's interest in history shifted several hours of writing about curiosity. While reading The Dip, he stopped at a passage, said what he thought, applied it to his business and life, followed the pattern into other work and recorded the thinking. In both cases, the person did more than take in information: an answer or passage changed what he considered next."
+        ]
+      }
+    ],
+    "plan": {
+      "emptyTarget": "the ability you named",
+      "instructions": {
+        "below": {
+          "repeat": "Keep the same target and demand. Repeat the attempt and note which error returns.",
+          "reduce": "Keep the same target. Reduce {dimension} for the next attempt and inspect what changes.",
+          "increase": "Your evidence is below the criterion, so raising demand is not supported by this attempt. Keep the target and repeat or choose clearer feedback.",
+          "feedback": "Keep the result unknown. Choose a source of feedback that can show the same target more clearly before changing demand."
+        },
+        "within": {
+          "repeat": "Keep the same target and demand. Repeat once to see whether the result holds.",
+          "reduce": "Keep the same target. You chose to reduce {dimension}; record why that fits the next attempt.",
+          "increase": "Keep the same target. Raise {dimension} for the next attempt and check whether the criterion still holds.",
+          "feedback": "Keep the result as observed. Get another useful check before deciding whether to change demand."
+        },
+        "above": {
+          "repeat": "Keep the same target and demand. Repeat once to check whether the result holds.",
+          "reduce": "Keep the same target. You chose to reduce {dimension}; record why that fits the next attempt.",
+          "increase": "Keep the same target. Raise {dimension} for the next attempt and check what the new demand changes.",
+          "feedback": "Keep the result as observed. Get another useful check before deciding what to change."
+        },
+        "unknown": {
+          "repeat": "The result is still unknown. Repeat only if the same attempt will produce evidence you can compare.",
+          "reduce": "The result is still unknown. Before lowering {dimension}, choose feedback that can show whether the target is met.",
+          "increase": "The result is still unknown. Do not raise {dimension} from this evidence; choose a clearer check of the same target.",
+          "feedback": "Keep the result unknown. Choose a source of feedback that can show the same target more clearly."
+        }
+      }
+    }
+  }
+}

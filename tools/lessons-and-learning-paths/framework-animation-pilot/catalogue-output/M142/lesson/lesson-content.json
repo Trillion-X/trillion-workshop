@@ -1,0 +1,124 @@
+{
+  "title": "First-principles gauntlet",
+  "opening": "A required meeting can serve several jobs: sharing information, coordinating work or checking whether someone understands a method. Those jobs need different evidence. The gauntlet examines why a requirement exists, what it achieves and what would preserve the useful function if the arrangement changed.",
+  "labels": {
+    "comparison": "Examine the same meeting through seven tests",
+    "comparisonIntro": "In this example, attendance is being used as evidence of learning. A direct task might test that capability better. A meeting that resolves interdependent work may still be needed.",
+    "signalQuestion": "Test to examine",
+    "rhythmTitle": "A test can preserve the requirement",
+    "rhythmText": "The gauntlet does not require deleting a meeting or any other rule. A requirement can survive because its function is necessary and the proposed alternative fails to supply it. Preserve that evidence and change only the conclusion it affects.",
+    "practice": "Examine one requirement in your own work",
+    "practiceIntro": "Choose a specific “must” statement. Trace its source and function, compare alternatives and record what would have to be true for a change to work.",
+    "private": "This private note is optional. The six required course questions are separate.",
+    "save": "Save private note",
+    "saving": "Saving private note",
+    "retry": "Retry the same save",
+    "done": "Private note saved",
+    "missing": "Add one note before saving.",
+    "length": "This full note is over 2,000 characters. Shorten it to save; all of your text stays here.",
+    "source": "Manuscript, page 66",
+    "sourceQuote": "First-principles gauntlet\nUse these tests to examine a proposed constraint or intervention.",
+    "sourceLocator": "Manuscript, page 66 (82-page source edition).",
+    "loadExample": "Load the example",
+    "sampleLoaded": "Example loaded. Replace it with your own observations when useful.",
+    "origin": "Physics and Society",
+    "originText": "A rule that requires attendance has an institutional source. That does not make its current enforcement disappear. Identify who can change it and what the meeting must still accomplish, rather than treating a convention as either a natural law or permission to ignore it.",
+    "cause": "Deepest root",
+    "causeText": "Trace why attendance is used to judge learning. Read the actual evidence at each step. If the problem is that the school cannot tell whether the method can be applied, a better capability task addresses a different cause from another attendance reminder.",
+    "structural": "Structural elimination",
+    "structuralText": "An extra reminder repairs another missed meeting. A direct way to inspect capability could remove the need to infer it from attendance across many lessons. Preserve any separate coordination job before removing the meeting.",
+    "primitive": "Generative primitive",
+    "primitiveText": "A reusable way to retain a task attempt, feedback and the next change could support lessons, coaching and project reviews. Test it on a different use and a valid exception; naming a generic operation is not evidence that it works.",
+    "inversion": "Inversion",
+    "inversionText": "Consider someone attending every session while still being unable to apply the method. That possible failure shows why attendance alone cannot settle the capability question. Look for an observation that distinguishes attendance from understanding.",
+    "exclusivity": "False exclusivity",
+    "exclusivityText": "Group interaction and independent practice can serve different jobs in the same program. A meeting may coordinate interdependent work while an individual task examines understanding. Test the supposed conflict before choosing one and discarding the other.",
+    "scale": "The 1000x question",
+    "scaleText": "Ask what could remove or reuse large amounts of repeated work while preserving the learning and coordination the school needs. Describe the mechanism and compare its actual effect. A large target is a design question; a claimed multiplier needs measurement."
+  },
+  "feedback": {
+    "saved": "Your private note is saved.",
+    "unavailable": "Private saving is unavailable. Your note stays on screen.",
+    "missing": "Add one note before saving.",
+    "length": "Shorten the full note to fit the 2,000-character limit. Your text stays here.",
+    "conflict": "This note changed elsewhere. Your answers remain here; compare the saved version before saving again.",
+    "readFailure": "The saved note could not be loaded.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same note before changing it."
+  },
+  "fields": [
+    {
+      "id": "origin",
+      "label": "The requirement, its source and who can change it"
+    },
+    {
+      "id": "cause",
+      "label": "The causal explanation and the evidence for each step"
+    },
+    {
+      "id": "structural",
+      "label": "The recurring failure and the function that must remain"
+    },
+    {
+      "id": "primitive",
+      "label": "A reusable operation and a different case that tests it"
+    },
+    {
+      "id": "inversion",
+      "label": "A possible failure and what would reveal it"
+    },
+    {
+      "id": "exclusivity",
+      "label": "Properties that appear incompatible, and whether they can coexist"
+    },
+    {
+      "id": "scale",
+      "label": "A substantially different arrangement and how its effect would be checked"
+    }
+  ],
+  "example": {
+    "origin": "In this example, an institution requires attendance and uses it as evidence of learning. The actual authority and change process must be identified.",
+    "cause": "The question is whether the person can apply the method. Attendance is available, but the capability has not yet been examined directly.",
+    "structural": "A reusable capability task might reduce repeated inferences from attendance. Any coordination function still needs to be supplied.",
+    "primitive": "Retain an attempt, feedback and the next change. Test whether the same operation supports a different lesson and a collaborative task.",
+    "inversion": "A person could attend every session without being able to use the method. A suitable independent attempt could expose that gap.",
+    "exclusivity": "Keep group interaction where it supports interdependent work and independent practice where it tests capability. Neither automatically replaces the other.",
+    "scale": "Compare the actual learning, coordination and total work under a changed arrangement. No improvement multiplier has been measured."
+  },
+  "source": {
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/candidate134/course-input.json#/courses/8/lessons/8/body",
+    "canonicalBodyIdentity": "1f:710a14be92e97a0f1dc6c976424f8699d311ae59f86873087159e1e732f7b039",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/146",
+    "assessmentIdentity": "1f:c01022fad860b97019426ca5d959e918f5dd64eb6d8b40de1dcfe95c4bf92116",
+    "assessmentBoundary": "Six required open-ended questions remain separate from this optional private note. No qualified semantic grade or actual learner outcome is supplied.",
+    "manuscriptPdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscriptPdfIdentity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPage": "Manuscript, page 66",
+    "manuscriptPageText": ".local/curriculum-continuation-20261028/M118-M120-next-unbuilt-source-mappings/source-pages-64-68.txt",
+    "manuscriptPageTextIdentity": "1f:d18801b6f27dd8211a85e81d2d37999cdec67e0984f09fbd19ca7a8d5e549187"
+  },
+  "modes": [
+    {
+      "id": "origin"
+    },
+    {
+      "id": "cause"
+    },
+    {
+      "id": "structural"
+    },
+    {
+      "id": "primitive"
+    },
+    {
+      "id": "inversion"
+    },
+    {
+      "id": "exclusivity"
+    },
+    {
+      "id": "scale"
+    }
+  ]
+}

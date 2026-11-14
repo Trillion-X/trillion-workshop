@@ -1,0 +1,65 @@
+{
+  "title": "The Passion Balancer",
+  "opening": "When willingness to continue falls, look for what changed before calling yourself lazy. Difficulty may have risen, value may be harder to see, or both may have shifted. The answer can still be uncertain.",
+  "labels": {
+    "figure": "A three-path comparison for checking a rise in difficulty, faded value, or both before choosing to continue, alter, or stop.",
+    "example": "Trace the change",
+    "practice": "Compare before and now",
+    "event": "What changed, and when did willingness first fall?",
+    "harder": "What became harder? Name the concrete change, if known.",
+    "value": "What value mattered before? What current evidence supports or weakens it?",
+    "other": "What other cause or unknown could also explain the change?",
+    "adjustment": "What real arrangement change or clarification could test your account?",
+    "choice": "Given what you know now, what would you choose: continue, alter the task, pause, or stop?",
+    "private": "This attempt is private to you. Save it only if you want a copy.",
+    "save": "Save private attempt",
+    "saving": "Saving private attempt",
+    "retry": "Retry private save",
+    "source": "Source passage",
+    "sourceHint": "Manuscript page 43; recovered source, authorship and adoption of every wording not independently established.",
+    "sourceQuote": "When impetus falls, identify the trigger. Did difficulty rise, value fade or both? Address the changed side, then decide whether to continue, alter the task or stop.",
+    "sourceAttribution": "Supplied recovered manuscript, 82-page source edition, p. 43.",
+    "sourceBoundary": "This short comparison does not explain every cause of changed willingness. Rest, health, conflict, missing resources, changed obligations, or other conditions may matter too. If the cause or value is unclear, gather relevant evidence before treating one explanation as settled."
+  },
+  "cases": [
+    {
+      "name": "The route changed",
+      "before": "A volunteer repairs bicycles at a nearby room. People use the repaired bikes to get to work.",
+      "after": "The room moves across town; each visit now adds two hours of travel. The repairs still help people get to work.",
+      "reading": "The travel cost clearly rose while the useful outcome is still visible. Check whether a nearer room, shared delivery, or a shorter shift is actually possible. Continue only if an arrangement fits; changing or stopping can also be reasonable."
+    },
+    {
+      "name": "The effect is unclear",
+      "before": "A trainer's monthly checklist helped a team catch missed handoffs.",
+      "after": "The team changed its process and no one has used the checklist for weeks. The trainer feels less interested.",
+      "reading": "Do not assume the value only became hidden. Ask whether the team still needs this check, whether the new process covers it, and what happens when it is absent. If the need remains, alter the tool; if it does not, stop maintaining it."
+    },
+    {
+      "name": "Both may have shifted",
+      "before": "A neighborhood garden produced vegetables for a nearby pantry with a modest water bill.",
+      "after": "Water limits cut the harvest, and new rules make tending the beds harder. The pantry's need remains, but this garden may no longer meet it well.",
+      "reading": "Keep the two changes separate: the practical cost rose, and the useful result may have weakened. Check whether a lower-water plan would help the pantry. Do not count the need itself as proof that this particular arrangement works."
+    }
+  ],
+  "figure": {
+    "label": "A three-path comparison for checking difficulty, value, or both before choosing a response."
+  },
+  "feedback": {
+    "saved": "Your private attempt is saved.",
+    "saveFailure": "The private attempt could not be saved. Your draft is still here; retry when ready.",
+    "conflict": "A newer saved version exists. Your draft is still here; compare it before saving again.",
+    "retryPending": "The earlier save may still be unresolved. Retry it before making another change.",
+    "length": "Shorten this private attempt to 2,000 characters or fewer. Your full draft is still here; nothing was saved.",
+    "missing": "Write at least one part of the comparison before saving. Your draft stays here."
+  },
+  "source": {
+    "locator": "p. 43 (82-page recovered source edition)",
+    "pdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscript": "When impetus falls, identify the trigger. Did difficulty rise, value fade or both? Address the changed side, then decide whether to continue, alter the task or stop.",
+    "attribution": "Supplied recovered manuscript; authorship/adoption of every wording is not independently established.",
+    "boundary": "Examples and application guidance are authored for this expansion. They are illustrative cases, not observed outcomes. No objective passion score, permanent calling, or learner outcome is claimed."
+  },
+  "example": {
+    "body": ""
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "title": "Context Shifting",
+  "opening": "When every answer looks like the tool you already know, change the setting around the same question. A different place, group or domain can reveal an option your current assumptions hide. That option is a candidate to check, not proof it will work here.",
+  "labels": {
+    "example": "Try the same question in a different setting",
+    "question": "Question in the school setting",
+    "current": "What happens now",
+    "shifted": "A different context",
+    "visible": "What becomes visible there",
+    "candidate": "A candidate to bring back",
+    "practice": "Try a context shift",
+    "attempt": "Your draft",
+    "save": "Save private draft",
+    "saving": "Saving private draft",
+    "retry": "Retry the same save",
+    "source": "Original source passage"
+  },
+  "example": {
+    "question": "How might every student get a turn with a limited set of workshop tools?",
+    "current": "One team keeps the kit for a full week while other teams wait.",
+    "shifted": "A public library lends scarce books to many readers: a reader reserves an item, returns it by a due date, and the next reader can borrow it.",
+    "visible": "The access bottleneck may be the handoff and time per borrower, not just the number of kits.",
+    "candidate": "Try reserving one kit for a class period and returning it to a shared check-in.",
+    "boundary": "The reusable relation is a scarce item moving between people. A library does not settle school bell schedules, tool safety, or teacher supervision. Test a small candidate in the school setting; the comparison alone does not show that access improved."
+  },
+  "practice": {
+    "result": ""
+  },
+  "prompts": {
+    "practice": "Use a question you are actually considering. Note the question and its current setting, a different place, group or domain, what that context makes visible, and one candidate to check back in the original setting. Include a difference or a small test that could disprove the transfer. Save a partial draft if you want; unknown parts can stay open."
+  },
+  "feedback": {
+    "unavailable": "Saving is unavailable for this lesson.",
+    "missing": "Add part of a draft to save, or leave it unsaved.",
+    "length": "This private draft is over the 2,000-character save limit. Shorten it to save; the full draft remains here.",
+    "readFailure": "The saved draft could not be loaded.",
+    "saved": "Private draft saved.",
+    "conflict": "Another save changed this draft. Your work remains here; compare it with the saved version before trying again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check it safely.",
+    "saveFailure": "The save did not finish. Your draft remains here; retry the same save.",
+    "retryPending": "A save needs a result before you edit or start another save."
+  },
+  "source": {
+    "quote": "Context Shifting: change the place, people or domain through which you examine the question. Keep the new possibility beside the filter that had hidden it.",
+    "locator": "Manuscript p. 55 (82-page source edition).",
+    "boundary": "The manuscript places Context Shifting among several perception-disruption techniques. This module focuses on context shifting and does not treat novelty alone as transfer evidence."
+  }
+}

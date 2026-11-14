@@ -1,0 +1,87 @@
+{
+  "title": "Using AI to Find Deeper Patterns",
+  "opening": "Use AI as a second interpreter. Give it observations first, then check every pattern against the examples and sources you supplied.",
+  "labels": {
+    "observations": "Observations, before your preferred conclusion",
+    "observationHelp": "Give each concrete example an ID and a source location. Keep events and quotations separate from your interpretation. Share only material you have authority to share with the AI you choose.",
+    "addObservation": "Add an observation",
+    "removeObservation": "Remove observation",
+    "observationSource": "Where can you check this example?",
+    "observationText": "What happened, or what does the source say?",
+    "prompt": "Prompt for an AI you choose",
+    "copyPrompt": "Copy prompt",
+    "copied": "Prompt copied. Paste it into an AI you choose.",
+    "copyFailed": "Copy is unavailable. Select and copy the prompt below.",
+    "promptBoundary": "This lesson prepares a prompt; it does not send it or generate an AI answer.",
+    "response": "Paste the AI response you want to inspect",
+    "responseHelp": "Keep the full answer while you review it. This local practice record is private to you. Do not include sensitive material unless you have authority to share and store it.",
+    "preferredConclusion": "What conclusion were you hoping to hear? Add it after the response.",
+    "preferredConclusionHelp": "Keep this separate from the observations and prompt. Compare it with candidate patterns after checking their evidence.",
+    "themes": "Review each proposed theme",
+    "addTheme": "Review another theme",
+    "removeTheme": "Remove theme",
+    "themeName": "What pattern did the AI propose?",
+    "themeRefs": "Which observation IDs and exact passages support it?",
+    "themeSupport": "What do those examples actually establish?",
+    "alternatives": "What competing explanations could also fit?",
+    "conflicts": "Which conflicting example or countercase changes the account?",
+    "newContext": "What new context could distinguish the explanations? What happened when you checked it?",
+    "citationCheckLimit": "The check below finds IDs only. Reopen each original source and confirm the exact passage, context and meaning yourself.",
+    "walkthrough": "Inspect the source’s example",
+    "walkthroughBoundary": "This is a teaching example quoted from M067, not an AI response produced by this lesson.",
+    "privateRecord": "Save private practice",
+    "save": "Save private practice",
+    "retry": "Retry the same save",
+    "busy": "Saving practice",
+    "saveLimit": "This private practice field holds 2,000 characters total, including saved formatting. If the complete draft is longer, shorten it here before saving; your text stays on screen.",
+    "overflow": "This complete draft is over the 2,000-character practice limit. Shorten it to save; your text stays on screen.",
+    "emptyObservations": "Add concrete observations with source locations before building the prompt."
+  },
+  "feedback": {
+    "unavailable": "Private practice saving is unavailable. Your work remains on screen.",
+    "missing": "Add at least one observation before saving this practice.",
+    "length": "Keep the complete practice record within 2,000 characters.",
+    "readFailure": "The saved practice could not be loaded. Your current work remains on screen.",
+    "saved": "Your private practice is saved.",
+    "conflict": "This practice changed elsewhere. Your answers remain here; compare the saved record before saving again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same answers before changing them."
+  },
+  "promptTemplate": "Compare only the observations below. They come before my preferred conclusion. Do not invent events, motives, sources, quotations or example IDs.\n\nFind recurring themes across contexts. For each theme, cite the exact observation IDs and short passages that support it. Give competing explanations. Name conflicts and counterexamples, including examples that would change or narrow the theme. If the evidence is insufficient, say so. Separate observations from interpretation. Identify any citation you cannot locate. Suggest one new context or situation that could distinguish the explanations, and say what evidence would count for each. Do not turn a candidate pattern into a fixed identity.\n\nObservations:\n{observations}",
+  "source": {
+    "sourceRecord": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/4/lessons/21/body",
+    "manuscriptArchiveMember": "Trillion_X_Framework_Library/sources/Manuscript.pdf, p. 40 (82-page source edition)",
+    "manuscriptTextMember": "Trillion_X_Framework_Library/entries/M067.md",
+    "sourceStatus": "Recovered manuscript. Supplied material; authorship or adoption of every wording is not independently established.",
+    "distinctions": "AI can organize material without authority over a person's motives or history. A generated pattern is a candidate interpretation; observations and source references remain the evidence.",
+    "limits": "This lesson prepares a prompt and a private inspection record. It does not call an AI, connect an account, verify an external source, or establish learner outcomes. Its worked example is the source's own illustration, not a live model response."
+  },
+  "teaching": {
+    "sourceSummary": "Give AI organized observations before the conclusion you hope to receive. Ask for recurring themes, competing explanations and conflicts. Require each theme to cite actual examples, verify the references and test a candidate in a new context.",
+    "walkthrough": {
+      "sourceExcerpt": "AI proposes ‘teaching’ from coaching and software explanations, but also cites a nonexistent tutoring job.",
+      "references": [
+        { "id": "E1", "source": "M067 §7, source illustration", "text": "The proposed theme is drawn from coaching." },
+        { "id": "E2", "source": "M067 §7, source illustration", "text": "The proposed theme is also drawn from software explanations." },
+        { "id": "E3", "source": "M067 §7, source illustration", "text": "The AI also cites a tutoring job that did not exist." }
+      ],
+      "theme": "Teaching is a possible recurring theme across the two examples.",
+      "support": "E1 and E2 are the examples the source says the AI used. They support a candidate; they do not establish a permanent motive.",
+      "competing": "Explaining ideas or helping someone understand may fit both examples without implying a broader teaching identity.",
+      "conflict": "E3 is a counterexample to the claim that this account is fully grounded: the source says that job did not exist. Remove it; do not count it as evidence. The two real examples remain, so the candidate is weakened on source fidelity, not automatically erased.",
+      "newContext": "Look for a real example in a different setting that could separate teaching from explaining or problem-solving. Record the event and source first, then compare what each explanation predicts."
+    },
+    "learnerCheck": "You can trace each proposed theme to real examples, preserve competing explanations and identify a contradiction that matters.",
+    "outcomeCheck": "The comparison improves understanding or reduces work without adding false facts.",
+    "whatWouldChangeTheAccount": "An invented reference, a missed counterexample or an unstable result in a new context requires correction before relying on the pattern."
+  },
+  "practice": {
+    "prediction": "What was the question or task behind these observations?",
+    "observation": "Which observations and source locations did you provide before stating your preferred conclusion?",
+    "comparison": "What recurring themes, competing explanations and conflicts did the response name?",
+    "result": "Which references did you reopen and verify? What did the original sources actually establish?",
+    "revision": "What countercase or new-context test changed, narrowed or supported a theme?",
+    "step": "What conclusion, if any, remains useful after the checks? What would you do next?"
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "title": "Daily questioning",
+  "opening": "A useful question changes what you notice or do. Start with the moment that fits; let an answer open another question only while that helps.",
+  "labels": {
+    "workedExample": "Watch one day take shape",
+    "exampleNote": "An authored illustration, not a reported outcome. The moments are available when useful; they are not a checklist.",
+    "practice": "Try one question",
+    "practiceIntro": "Choose the moment that fits. Write what you actually know, including “unclear.” If a follow-up adds nothing useful, stop.",
+    "moment": "Which moment fits now?",
+    "situation": "What is happening in this moment?",
+    "answer": "What did the question bring into view?",
+    "consequence": "What will you do, change, or carry forward because of it?",
+    "followups": "Follow-up questions",
+    "followupQuestion": "What useful question came next?",
+    "followupAnswer": "What did that answer add?",
+    "addFollowup": "Add a useful follow-up",
+    "removeFollowup": "Remove follow-up",
+    "private": "This private draft can be partial. It is separate from the formal six-question assessment.",
+    "save": "Save private draft",
+    "saving": "Saving private draft",
+    "done": "Draft saved",
+    "retry": "Retry private save",
+    "source": "Source passage",
+    "sourceQuote": "Use these questions at the point in the day when they help. Let each answer open the next inquiry rather than aiming for an expected conclusion.",
+    "sourceAttribution": "Supplied recovered manuscript, 82-page source edition, p. 44.",
+    "sourceBoundary": "The morning, resistance, decision and evening prompts follow the retained course guidance. This lesson's example and added questions are instructional expansions. No hidden motive or outcome is assumed."
+  },
+  "moments": [
+    {
+      "id": "morning",
+      "label": "Morning",
+      "prompt": "What matters most today, or what am I bringing awareness to?",
+      "guidance": "Notice a direction or commitment that could shape today's next action.",
+      "example": "A promised explanation comes into view."
+    },
+    {
+      "id": "resistance",
+      "label": "When resistance appears",
+      "prompt": "What seems to be beneath this resistance?",
+      "guidance": "Follow a linked question only while it reveals something useful. “I can't tell yet” is enough; don't invent a cause.",
+      "example": "If no useful detail appears, stop or inspect a different source."
+    },
+    {
+      "id": "decision",
+      "label": "At a decision",
+      "prompt": "What is driving this choice, and what practical conditions or consequences matter?",
+      "guidance": "A reason can be considered alongside time, obligations and likely consequences.",
+      "example": "An attractive new project does not serve the promise right now, so it is deferred."
+    },
+    {
+      "id": "evening",
+      "label": "In the evening",
+      "prompt": "What did I learn or notice, and what should inform tomorrow?",
+      "guidance": "Keep a useful reason or observation so tomorrow does not need to restart the same choice.",
+      "example": "The reason for deferring the project is carried forward."
+    }
+  ],
+  "nearMiss": "If an existing plan already answers the question, use that plan instead of manufacturing another reflection.",
+  "feedback": {
+    "saved": "Your private draft is saved.",
+    "saveFailure": "The private draft could not be saved. Your full draft is still here; retry when ready.",
+    "conflict": "A newer saved version exists. Your draft is still here; compare it before saving again.",
+    "retryPending": "The earlier save may still be unresolved. Retry it before making another change.",
+    "length": "Shorten this private draft to 2,000 characters or fewer. Your full text is still here; nothing was saved.",
+    "missing": "Add a note in any text field before saving. Empty fields can stay empty."
+  }
+}

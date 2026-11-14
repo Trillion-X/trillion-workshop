@@ -1,0 +1,124 @@
+{
+  "title": "Cross-Domain Synthesis",
+  "opening": "A method from another field can help when the relationship and its conditions match. Similar words alone do not establish a useful transfer.",
+  "example": {
+    "heading": "A saved software check meets a revised lesson",
+    "intro": "A regression check keeps an input that once exposed a bug and reruns it after a code change. A passing check can show that the specified software behavior still holds for that input.",
+    "lesson": "Now consider an authored teaching example: a learner once thought feedback had to be praise. The lesson is revised to show how a specific observation can guide a next action.",
+    "mappingHeading": "What carries across",
+    "mapping": [
+      { "source": "Saved input that exposed the bug", "target": "The lesson case that revealed the misunderstanding" },
+      { "source": "Expected software behavior after the fix", "target": "A learner explanation that shows the correction" },
+      { "source": "Rerun after a code change", "target": "Revisit the old case after revising the lesson" }
+    ],
+    "startType": "original",
+    "cases": {
+      "original": {
+        "button": "Recheck the old confusion",
+        "targetCase": "A reviewer says, “Your conclusion needs one source; add it before sharing.” A learner says that cannot be feedback because it is not praise.",
+        "question": "After the lesson change, can the learner explain what was observed and which next action follows?",
+        "signal": "Look for the learner to connect the specific gap to a possible action, not repeat the new definition verbatim.",
+        "limit": "This checks the earlier misunderstanding. It does not show that the learner can use the idea in another situation."
+      },
+      "newCase": {
+        "button": "Try a changed situation",
+        "targetCase": "A bike tire loses pressure during a ride. A mechanic suggests checking the valve before the next ride.",
+        "question": "Without the familiar lesson wording, can the learner connect the observed problem to the suggested next step?",
+        "signal": "Listen for a reasoned link between the pressure loss, the valve check and the next ride.",
+        "limit": "A changed example can probe transfer only if it preserves a relevant relationship. It is not proof of broader learning by itself."
+      },
+      "sameWord": {
+        "button": "Check the same word",
+        "targetCase": "Someone calls a comment “feedback” and says only, “Great job.” No observation or next action is given.",
+        "question": "Does using the same word show that the underlying method transferred?",
+        "signal": "No. Identify what is observed, whether it changes an action, and the conditions that would make the relation useful.",
+        "limit": "Shared vocabulary is not a role or operation. This case is a contrary example to word-matching."
+      }
+    }
+  },
+  "labels": {
+    "sourceMechanism": "Software regression check",
+    "sourceConditions": "The input can be repeated, and the intended software behavior is specific enough to check.",
+    "editCase": "Edit the target case",
+    "caseHelp": "Change the situation while keeping the question in view. The lesson does not grade your wording.",
+    "targetQuestion": "Question to investigate",
+    "evidenceToNotice": "Evidence to notice",
+    "limit": "Where the comparison stops",
+    "fourStepsHeading": "A careful transfer",
+    "steps": [
+      "Study the source relationship and the conditions where it worked.",
+      "Map the roles and operations in the target situation.",
+      "Name differences that could change or break the relationship.",
+      "Test at an appropriate scale and keep the limits visible."
+    ],
+    "boundaryHeading": "A script pass cannot certify a learner",
+    "boundaryBody": "Software checks can compare repeatable input and output. A person may give different valid explanations, and a script pass does not establish capability. Treat the new case as a question to investigate; use an independent human check for learning.",
+    "attemptHeading": "Try a transfer of your own",
+    "attemptBody": "Pick a method from another domain. Explain the relationship and a condition it needs, map its roles to a target, identify a difference that could break it, then name a small test and what evidence you would look for. Mark what remains uncertain.",
+    "practiceField": "Your private transfer note",
+    "practicePlaceholder": "Source mechanism and condition:\n\nTarget situation and role map:\n\nDifference that could break the transfer:\n\nSmall test, evidence to look for, and what remains uncertain:",
+    "save": "Save private practice",
+    "retry": "Retry the same save",
+    "busy": "Saving private practice",
+    "private": "This optional practice note is private and ungraded. The six open-ended assessment questions are separate.",
+    "oversize": "Shorten the complete note to 2,000 characters or fewer. Your full draft stays on screen.",
+    "sourceTitle": "Source passage · page 55",
+    "sourceManuscript": "“Cross-Domain Synthesis: study a relationship or method in another domain, apply its structure to the present question and inspect where the transfer holds or fails.”",
+    "sourceBody": "“Human learning still requires independent capability checks that a script’s pass result does not supply.”",
+    "sourceLocator": "Supplied manuscript, p. 55 (82-page source edition)."
+  },
+  "feedback": {
+    "unavailable": "Private practice saving is unavailable. Your note remains on screen.",
+    "missing": "Write a private practice note before saving.",
+    "length": "Shorten the complete note to fit the 2,000-character practice limit. Your text stays here.",
+    "readFailure": "Saved practice could not be loaded. Your current note remains on screen.",
+    "saved": "Your private practice note is saved.",
+    "conflict": "Practice changed elsewhere. Your draft remains here; review the saved version before saving again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same note before changing it."
+  },
+  "source": {
+    "mappingPath": ".local/curriculum-continuation-20261028/M102-M109-next-unbuilt-source-mappings/source-mappings-v1-immutable-course.json",
+    "mappingIdentity": "1f:ff53eabf9cebb0db96b3276b0a487c7be25f7acb8964ad4ebf8e69103fb30970",
+    "mappedBodyPath": ".local/curriculum-continuation-20261028/M102-M109-next-unbuilt-source-mappings/M107-current-body.bin",
+    "mappedBodyIdentity": "1f:beb701be093eaa9ab84922b2f743f74ceae1699f91d359381da778d44153c0ea",
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/delivery-history/93ccacfc335e21eaa9a1652a89d9e324b5af0faa6940ff3f4cb9e45b5982b622/course-input.json#/courses/7/lessons/7/body",
+    "canonicalBodyIdentity": "1f:beb701be093eaa9ab84922b2f743f74ceae1699f91d359381da778d44153c0ea",
+    "currentBodyIdentity": "1f:beb701be093eaa9ab84922b2f743f74ceae1699f91d359381da778d44153c0ea",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/111",
+    "assessmentIdentity": "1f:d155de88475ebeffa314c906db1c4b4f93c3485c7d17d8944275f64dd39646f5",
+    "assessmentBodyIdentity": "1f:beb701be093eaa9ab84922b2f743f74ceae1699f91d359381da778d44153c0ea",
+    "assessmentBoundary": "Assessment 111 has six required open-ended questions and no stored gold answer. This optional private note does not replace it.",
+    "reconciliationPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/reconciliation.json#/library_entries/111",
+    "manuscriptPdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscriptPdfIdentity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPageTextPath": "framework-animation-pilot/catalogue-output/M107/lesson/proof/source-page-55/page-55.txt",
+    "manuscriptPageTextIdentity": "1f:87e13224a96cbaf2f167e31b8bc46cbf701fe4badac728b8efb372c52efc3fa2",
+    "manuscriptLocator": "p. 55 (82-page source edition)",
+    "versionBoundary": "The source distinguishes structure transfer from surface resemblance. Its example is source-informed; this lesson’s expanded regression/lesson case is authored, not an observed outcome.",
+    "exampleBoundary": "The feedback lesson and cases are authored teaching examples, not reported learner outcomes. A changed case probes application; it does not establish learner benefit or broad transfer.",
+    "designSources": {
+      "twentyFirstDev": {
+        "queries": [
+          "editable cause and effect lesson transfer comparison matrix relationship map roles operations conditions responsive educational interface",
+          "editable causal relationship map roles operations conditions source target domain transfer lesson mechanism comparison"
+        ],
+        "metadataResults": [37527, 10758, 24572, 34893, 36071, 40264, 19985],
+        "use": "Metadata returned image sliders, a motion lattice, marketing attribution, path diagrams and a routing indicator. None explains this source mechanism and its analogy boundary; no registry code was fetched. The Trillion lesson composes shared Button, Container, Text and Textarea owners.",
+        "codeFetched": false
+      },
+      "mobbin": {
+        "query": "lesson comparison source and target mechanism editable example transfer conditions mobile",
+        "status": "unavailable",
+        "reason": "No Mobbin search tool was exposed in this session."
+      }
+    }
+  },
+  "assessment": {
+    "guidedQuestion": "Both cases contain the word “feedback.” Is transfer established?",
+    "learnerCheck": "Can you explain both the invariant relationship and a meaningful limit?",
+    "outcomeCheck": "Does the transferred method improve the actual target result?",
+    "changeAccount": "A failed target application may expose an omitted condition rather than disprove the source result."
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "title": "Self-Discovery Cycle",
+  "opening": "A lesson can be saved and still miss the next attempt. The Self-Discovery Cycle carries an experience into a useful change while keeping its original conditions and observations available.",
+  "labels": {
+    "cycle": "Explore the cycle",
+    "cycleIntro": "Move through the four actions. The detail panel shows what each action asks you to do.",
+    "step": "Cycle action",
+    "back": "Previous action",
+    "next": "Next action",
+    "practice": "Try the framework",
+    "practiceIntro": "Use an actual attempt or event. Keep observation, interpretation and uncertainty distinct. Saving a note alone does not integrate the learning.",
+    "loadExample": "Load an illustrative example",
+    "exampleNotice": "Illustrative example loaded; it is not an observed outcome.",
+    "save": "Save private note",
+    "saving": "Saving private note",
+    "retry": "Retry the same save",
+    "done": "Private note saved",
+    "missing": "Add one note before saving.",
+    "length": "Shorten the full note to fit the 2,000-character limit. Your text stays here.",
+    "source": "Source passage",
+    "sourceQuote": "Use the Self-Discovery Cycle: Experience → Capture → Reflect → Integrate. Capture the event and conditions, reflect on what the account explains, and integrate the useful change into the next attempt. Keep the original observation or source behind a summary.",
+    "sourceLocator": "Manuscript, pages 77–78 (82-page source edition).",
+    "private": "This note is private and optional; six required course questions remain separate."
+  },
+  "feedback": {
+    "saved": "Your private note is saved.",
+    "unavailable": "Private saving is unavailable. Your note stays on screen.",
+    "missing": "Add one note before saving.",
+    "length": "Shorten the full note to fit the 2,000-character limit. Your text stays here.",
+    "conflict": "This note changed elsewhere. Your answers remain here; compare the saved version before saving again.",
+    "readFailure": "The saved note could not be loaded.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same note before changing it."
+  },
+  "steps": [
+    { "id": "experience", "title": "Experience", "detail": "Start with an event or attempt that could inform later action." },
+    { "id": "capture", "title": "Capture", "detail": "Record what happened and the relevant conditions. Preserve the original observation or source." },
+    { "id": "reflect", "title": "Reflect", "detail": "Separate the observation from the interpretation. Name what the account explains and what remains uncertain." },
+    { "id": "integrate", "title": "Integrate", "detail": "Place a useful change in the next attempt, tool, instruction, or arrangement so later work can use it." }
+  ],
+  "fields": [
+    { "id": "event", "label": "What event or attempt are you learning from?" },
+    { "id": "conditions", "label": "What happened, and under which conditions?" },
+    { "id": "source", "label": "Where can you return to the original observation or source?" },
+    { "id": "reflection", "label": "What does the account explain, and what remains uncertain?" },
+    { "id": "next", "label": "What useful change will the next attempt, tool, or arrangement inherit?" }
+  ],
+  "example": {
+    "event": "A learner misunderstands one instruction in a lesson.",
+    "conditions": "The misunderstanding appears when the example changes from paper to software; the exact learner wording is retained.",
+    "source": "Keep the learner’s original question beside the lesson section it concerns.",
+    "reflection": "The example may hide a step. It is not yet clear whether the wording or the sequence caused the confusion.",
+    "next": "Revise that example in the lesson learners use, then check a later independent attempt."
+  },
+  "source": {
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/candidate137/course-input.json#/courses/10/lessons/0/body",
+    "canonicalBodyIdentity": "1f:b8b75cc59cf1900945482a2e3658dc7c50705b2fd19d4cec8547d9406cc5b8fd",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/164",
+    "assessmentIdentity": "1f:ec5fa9ce171a8e8bd6a2c9000488d4693955dfda70bef6f26583e5212e586097",
+    "assessmentBoundary": "Six required open-ended course questions remain separate from optional private practice. No qualified semantic grade or learner outcome is supplied.",
+    "manuscriptPdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscriptPage": "Manuscript, pages 77–78 (82-page source edition).",
+    "manuscriptPageText": ".local/curriculum-continuation-20261028/M118-M120-next-unbuilt-source-mappings/source-pages-76-82.txt"
+  }
+}

@@ -1,0 +1,140 @@
+{
+  "title": "Embracing the Challenge Zone",
+  "opening": "The transcript shows every word. A learner can read the phrase but cannot explain one term. Taking more time with the text will not add the missing meaning.",
+  "labels": {
+    "case": "Current attempt",
+    "target": "Target ability",
+    "task": "Current task",
+    "report": "What the attempt shows",
+    "adjustment": "Choose one change",
+    "evidence": "Read the evidence",
+    "question": "What does this attempt establish?",
+    "meaningQuestion": "What does “harden off” mean here?",
+    "wordGuide": "Word guide",
+    "next": "Choose the next demand",
+    "transferQuestion": "What does this instruction establish?",
+    "save": "Save reflection",
+    "busy": "Saving reflection",
+    "ownPursuit": "Apply it to your practice",
+    "steps": "The practice sequence"
+  },
+  "choices": [
+    {
+      "id": "pace",
+      "label": "Read more slowly",
+      "description": "The transcript already shows the words. A slower read changes pace, not the missing word meaning."
+    },
+    {
+      "id": "complexity",
+      "label": "Shorten sentence",
+      "description": "Fewer words reduce sentence complexity. The unfamiliar term remains, so its meaning is still unavailable."
+    },
+    {
+      "id": "vocabulary",
+      "label": "Add a word guide",
+      "description": "A short definition addresses the missing information. The learner can now try the intended explanation and receive feedback on it."
+    }
+  ],
+  "statements": [
+    { "id": "pace-supported", "text": "Meaning still unknown", "feedback": "The transcript is easier to read slowly, but it still does not define the unfamiliar term." },
+    { "id": "pace-meaning", "text": "Meaning now known", "feedback": "The transcript provides no definition. Extra time with the same words does not establish their meaning." },
+    { "id": "pace-irrelevant", "text": "Term not relevant", "feedback": "The task asks for the term's meaning. The transcript does not establish that it is irrelevant." },
+    { "id": "complexity-supported", "text": "Meaning still unknown", "feedback": "A shorter sentence changes complexity. The unfamiliar term remains undefined." },
+    { "id": "complexity-meaning", "text": "Meaning now known", "feedback": "The term's definition is still absent. Fewer words do not provide it." },
+    { "id": "complexity-irrelevant", "text": "Term not relevant", "feedback": "The task asks for the term's meaning. The shorter sentence does not establish that it is irrelevant." },
+    { "id": "vocabulary-supported", "text": "Gradual exposure", "feedback": "The guide says to expose seedlings outdoors a little at a time before planting. This supplies usable feedback on the intended explanation." },
+    { "id": "vocabulary-water", "text": "Water before planting", "feedback": "The word guide describes gradual exposure to outdoor conditions, not watering once." },
+    { "id": "vocabulary-shade", "text": "Shade after planting", "feedback": "The word guide describes gradual exposure before planting, not shade afterward." },
+    { "id": "transfer-action-supported", "text": "The gradual action", "feedback": "The instruction supports the gradual action, but it does not give an exact schedule for the cold night. The new demand is more complex because you must preserve that distinction." },
+    { "id": "transfer-timing", "text": "Exact cold-night schedule", "feedback": "The note mentions the cold night but gives no exact schedule. Do not infer a timing rule that the instruction does not supply." }
+  ],
+  "scenarios": [
+    {
+      "id": "steady",
+      "label": "Keep this demand",
+      "description": "If the same task still produces useful feedback, repeat it at this demand. Repetition can consolidate the ability; novelty is not a requirement."
+    },
+    {
+      "id": "transfer",
+      "label": "Try a new context",
+      "description": "When this task no longer challenges the ability, keep the target skill and increase a relevant demand. Here the next instruction uses a different plant and adds a timing condition."
+    }
+  ],
+  "caseStatus": {
+    "target": "Explain a gardening instruction accurately.",
+    "task": "Transcript: “Harden off the seedlings before transplanting.” The learner can identify each word but cannot explain the unfamiliar term.",
+    "report": "“I can read the words. I still don't know what ‘harden off’ means.”",
+    "wordGuide": "Gradually expose seedlings to outdoor conditions over several days before planting them outside.",
+    "transferTask": "A different plant must be hardened off before a cold night. Explain what the instruction asks the gardener to do and which timing detail still needs checking."
+  },
+  "steps": [
+    { "id": "compare", "label": "Compare this task's demand with the ability you want to develop." },
+    { "id": "locate", "label": "Find the component that fails. Reduce that relevant demand when attempts are too overwhelming to guide practice." },
+    { "id": "engage", "label": "When the task no longer engages the ability, raise one meaningful demand, such as precision, speed, complexity, uncertainty or a useful constraint." },
+    { "id": "observe", "label": "Observe the result, place your estimate on the skill–challenge map, and adjust again when the evidence calls for it." }
+  ],
+  "ownPursuit": {
+    "prompt": "Choose one actual skill and one task where you practise it. Use evidence from an attempt to decide what, if anything, to change.",
+    "prediction": "What ability are you practising, and what does the current task ask you to do?",
+    "observation": "What happened in a recent attempt? Which part worked, and where did it fail or stop challenging you?",
+    "comparison": "Which demand dimension appears related to that part? What evidence supports that choice?",
+    "revision": "What one adjustment will you try, and which demand or condition will stay the same?",
+    "step": "What would make you keep this demand, reduce it, or increase a relevant dimension next?",
+    "result": "What feedback did the attempt provide? What remains uncertain, and what would change your explanation?",
+    "skillChallengeMap": {
+      "title": "Place the attempt on a skill–challenge map",
+      "prompt": "Use a recent attempt to estimate the target skill and task challenge. Pick the row that best fits your current ability and the column that best fits the demand. These are your observations, not measured scores.",
+      "skillAxis": "Your current skill estimate",
+      "challengeAxis": "Task challenge relative to this skill",
+      "skillLevels": [
+        { "id": "building", "label": "Still learning parts of the skill", "short": "Still learning" },
+        { "id": "supported", "label": "Can do it with some support", "short": "With support" },
+        { "id": "reliable", "label": "Can do it reliably in familiar conditions", "short": "Often reliable" }
+      ],
+      "challengeLevels": [
+        { "id": "below", "label": "Task demand seems lower than this ability", "short": "Lower" },
+        { "id": "near", "label": "Task demand seems close to this ability", "short": "Near" },
+        { "id": "above", "label": "Task demand seems higher than this ability", "short": "Higher" }
+      ],
+      "selectPrompt": "Choose this skill and challenge estimate",
+      "noEstimate": "Not enough evidence to place it",
+      "noEstimateFeedback": "Leave the map estimate open. Try one suitable attempt and record what happened before assigning a position.",
+      "estimatedPrefix": "You placed the task demand",
+      "followUp": "The map is a prompt for your evidence, not a score or verdict. If useful feedback continues, keep the demand. If a component overwhelms practice, lower that relevant demand; if the task no longer engages the skill, raise one meaningful demand such as precision, speed, complexity, uncertainty or a useful constraint.",
+      "lowerRelation": "below your current ability",
+      "nearRelation": "close to your current ability",
+      "higherRelation": "above your current ability",
+      "actionTitle": "Choose what to do next from the attempt",
+      "actionLabel": "Choose the next action after mapping this attempt",
+      "saveMissing": "Place the attempt or choose not enough evidence, then choose a next action before saving.",
+      "nextActions": [
+        { "id": "lower", "label": "Lower one demand", "description": "If the task overwhelms useful practice, identify the component that fails and lower only that relevant demand. Keep the target skill and other conditions steady." },
+        { "id": "keep", "label": "Keep this demand", "description": "If the attempt gives useful feedback, keep the demand. Stable practice can help consolidate a skill." },
+        { "id": "raise", "label": "Raise one demand", "description": "If the task no longer engages the target ability, raise one relevant dimension: precision, speed, complexity, uncertainty or a useful constraint." },
+        { "id": "observe", "label": "Observe another attempt", "description": "If the evidence does not support a placement or adjustment yet, record another suitable attempt before changing the demand." }
+      ]
+    }
+  },
+  "feedback": {
+    "unavailable": "Saving is unavailable for this lesson.",
+    "missing": "Add an answer to each field before saving.",
+    "length": "Keep each answer within 2,000 characters.",
+    "readFailure": "Your saved reflection could not be loaded.",
+    "saved": "Your reflection is saved.",
+    "conflict": "This reflection changed elsewhere. Review it and save again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check it again.",
+    "saveFailure": "The save is still uncertain. Retry to check it safely.",
+    "retryPending": "Your earlier reflection is still being saved. Wait for its status before retrying."
+  },
+  "accessibility": {
+    "adjustment": "Choose one change to a gardening instruction shown as text. More reading time and a shorter sentence leave the unfamiliar term undefined; the word guide supplies its meaning.",
+    "evidence": "Choose what the learner's transcript and note establish. Each answer receives direct feedback.",
+    "next": "Choose whether to keep a demand that still gives feedback or try the target skill in a more complex context.",
+    "ownPursuit": "Write a reflection about an actual practice task. The answers are saved privately and are not graded by this lesson."
+  },
+  "source": {
+    "entry": "M029 · Embracing the Challenge Zone",
+    "manuscriptLocator": "Page 29 in the supplied 82-page manuscript edition.",
+    "exampleBoundary": "The gardening scenario and response options are authored teaching examples, not observed learner outcomes. The interactive case uses text; it does not play an audio recording."
+  }
+}

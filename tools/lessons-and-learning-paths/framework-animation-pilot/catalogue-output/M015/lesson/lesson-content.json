@@ -1,0 +1,54 @@
+{
+  "title": "The Genius Process",
+  "opening": "A complicated workflow can hide which rule, explanation or tool is causing the problem. The Genius Process follows a specific failure through investigation, a supported finding, and a reconstruction that still has to be tested.",
+  "views": [
+    { "id": "complex", "label": "Complex World", "description": "The inherited claim is that every learner needs the same long introductory call. The rules, explanations and tools in that call are part of what you are examining." },
+    { "id": "crazy", "label": "Crazy Process", "description": "Keep the event beside the claim. A question that the repeated directions do not answer gives you something specific to investigate; it does not prove the whole call is useless." },
+    { "id": "truth", "label": "Simple Truth", "description": "A supported relationship could separate reusable instruction from individual diagnosis. A shorter explanation alone does not establish that finding." },
+    { "id": "obsessive", "label": "Obsessive Process", "description": "Build from the distinction: keep reusable directions in the book and keep a tutor available for a different question. The proposed arrangement still needs a useful test." },
+    { "id": "world", "label": "Simple World", "description": "Check whether learners can use the instruction, get individual help and do the task under the stated conditions. A counterexample can reopen the finding." }
+  ],
+  "sides": [
+    { "id": "instruction", "label": "The same directions", "description": "The directions can travel from the tutor to the learner again, or sit in the retained book once they are made reusable." },
+    { "id": "question", "label": "A different question", "description": "A question the directions do not answer travels from the learner to the tutor. The book does not answer that question by itself." }
+  ],
+  "labels": {
+    "stage": "Choose a stage in the process",
+    "need": "Choose what the learner needs",
+    "ownPursuit": "Apply the process to your pursuit",
+    "save": "Save reflection",
+    "busy": "Saving reflection"
+  },
+  "feedback": {
+    "unavailable": "Saving is unavailable for this lesson.",
+    "missing": "Answer each question before saving.",
+    "length": "Keep each answer within 2,000 characters.",
+    "readFailure": "Your saved reflection could not be loaded.",
+    "saved": "Your reflection is saved.",
+    "conflict": "This reflection changed elsewhere. Review it and save again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check it again.",
+    "saveFailure": "The save is still uncertain. Retry to check it safely.",
+    "retryPending": "Your earlier reflection is still being saved. Wait for its status before retrying."
+  },
+  "ownPursuit": {
+    "prompt": "Choose a real confusing situation in your own pursuit. Keep the explanation you inherited beside the event that explanation does not account for.",
+    "prediction": "What explanation did people inherit, and what specific event did it fail to explain?",
+    "observation": "What can you observe about that event without naming its cause?",
+    "comparison": "What comparison or instrument could distinguish the possible explanations, and what should stay the same?",
+    "revision": "What relationship does the evidence support, under which conditions, and what does it leave unresolved?",
+    "step": "What would you build or change from that relationship, and what result would show whether it helps?",
+    "result": "What happened when you tested the result where it matters, or what is still untested? What counterexample would make you reopen the finding?"
+  },
+  "accessibility": {
+    "stage": "Choose one of the five source stages to change how the inherited call is examined and rebuilt.",
+    "need": "Change whether the learner needs the repeated directions or help with a different question. The picture changes the route that the directions or question take.",
+    "ownPursuit": "Write an unscored reflection about a confusing situation in your own pursuit, then save it.",
+    "figure": "An illustrative tutor, learner and retained book. The green path carries repeatable instruction; the warm path carries a different question to individual help.",
+    "case": {
+      "book": "One retained book holds the reusable directions.",
+      "tutor": "A tutor remains available for a different question.",
+      "learner": "A learner works at a notebook.",
+      "question": "A different learner question travels to the tutor for individual help."
+    }
+  }
+}

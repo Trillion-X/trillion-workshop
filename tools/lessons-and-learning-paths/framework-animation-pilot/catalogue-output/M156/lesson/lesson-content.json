@@ -1,0 +1,76 @@
+{
+  "title": "Trillion X",
+  "opening": "A workflow can produce complete reports while the intended result is still missing. Check the work against its purpose, then check the method when its result or burden calls for it.",
+  "labels": {
+    "review": "Check the work and the method",
+    "reviewIntro": "Select what the evidence says about the result. This choice guides the next inspection; it does not grade a person or prove a method works.",
+    "result": "What does the evidence show?",
+    "sourceActions": "Apply the correction",
+    "branchGood": "Purpose met; burden acceptable",
+    "branchMiss": "Purpose missed",
+    "branchBurden": "Unnecessary burden",
+    "goodResponse": "Keep the working method. It does not need a redesign to look sophisticated.",
+    "missResponse": "Inspect the method’s assumptions and operations, then compare a correction against the purpose.",
+    "burdenResponse": "Examine which operation creates avoidable burden and whether a simpler arrangement can preserve the useful result.",
+    "routeResponse": "After any change, inspect both the result and the total burden. Retain an improvement where the next use can find it.",
+    "private": "This optional note is private practice. The six required course questions are separate.",
+    "practice": "Review a process you use",
+    "practiceIntro": "Name its purpose, inspect its actual result and burden, and record what evidence would justify a change. The example is illustrative.",
+    "loadExample": "Load illustration",
+    "sampleLoaded": "Illustration loaded. It is not a report of an observed outcome.",
+    "save": "Save private note",
+    "saving": "Saving private note",
+    "retry": "Retry the same save",
+    "done": "Private note saved",
+    "missing": "Add one note before saving.",
+    "length": "This full note is over 2,000 characters. Shorten it to save; all of your text stays here.",
+    "source": "Manuscript, page 77",
+    "sourceQuote": "Trillion X applies this standard recursively to the work and to the method doing it. If a method repeatedly produces completed records while leaving the intended result absent, examine the method itself. The learner’s ability to use the published lesson remains the test.",
+    "sourceLocator": "Manuscript, page 77 (82-page source edition).",
+    "noChange": "Keep the current method and check again when new evidence or conditions make its result uncertain."
+  },
+  "feedback": {
+    "saved": "Your private note is saved.",
+    "unavailable": "Private saving is unavailable. Your note stays on screen.",
+    "missing": "Add one note before saving.",
+    "length": "Shorten the full note to fit the 2,000-character limit. Your text stays here.",
+    "conflict": "This note changed elsewhere. Your answers remain here; compare the saved version before saving again.",
+    "readFailure": "The saved note could not be loaded.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same note before changing it."
+  },
+  "steps": [
+    { "id": "inspect", "title": "Compare the result with its purpose", "detail": "Use the actual result as evidence. A complete report or list of activities does not substitute for the intended result." },
+    { "id": "examine", "title": "Examine the method when needed", "detail": "If the result is wrong or the burden is unnecessary, inspect the method’s assumptions and operations." },
+    { "id": "compare", "title": "Reuse a correction and compare", "detail": "Compare an applicable correction with a better arrangement. A working simple method needs no redesign for appearance." },
+    { "id": "apply", "title": "Apply and inspect again", "detail": "Check both the output and the total burden after the change." },
+    { "id": "retain", "title": "Keep the improvement where future work can find it", "detail": "Save the supported change with the people who maintain this method so the next use can inherit it." }
+  ],
+  "fields": [
+    { "id": "purpose", "label": "What result is this process meant to produce?" },
+    { "id": "actual", "label": "What result have you actually observed?" },
+    { "id": "burden", "label": "What time, effort, or other burden does the method add?" },
+    { "id": "correction", "label": "What assumption or operation would you inspect or change?" },
+    { "id": "evidence", "label": "After a change, what result and total burden will you inspect, and where will you keep a useful correction for later use?" }
+  ],
+  "example": {
+    "purpose": "Help a learner choose when to use the method.",
+    "actual": "The page has every heading, but the learner still cannot choose when to use it.",
+    "burden": "Adding more headings would increase reading without addressing the missing choice.",
+    "correction": "Compare a short contrast that shows when the method fits with a case where it does not.",
+    "evidence": "Check whether a learner can choose appropriately after using the revision, and whether the added explanation makes the page harder to use. Keep a useful correction with the people who maintain the lesson."
+  },
+  "source": {
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/candidate137/course-input.json#/courses/9/lessons/12/body",
+    "canonicalBodyIdentity": "1f:d7fee0ca28963b78f560d4847208399e6178b13fcf6ef11a98354e2da484fa65",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/160",
+    "assessmentIdentity": "1f:ed7efe4868c4f084b34911cf0c297ba2335392b64296d212d2c3fd4402eb3846",
+    "assessmentBoundary": "Six required open-ended course questions remain separate from this optional private note. No qualified semantic grade or learner outcome is supplied.",
+    "manuscriptPdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscriptPdfIdentity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPage": "Manuscript, page 77",
+    "manuscriptPageText": ".local/curriculum-continuation-20261028/M118-M120-next-unbuilt-source-mappings/source-pages-76-82.txt",
+    "manuscriptPageTextIdentity": "1f:21bc4926935b10e4ffec47ceb4a12c30ffc853fbb0be683fe904459e56724cff"
+  }
+}

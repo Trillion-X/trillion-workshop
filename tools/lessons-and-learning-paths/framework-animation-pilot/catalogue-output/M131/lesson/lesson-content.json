@@ -1,0 +1,88 @@
+{
+  "title": "“I'm 10 Years Away”",
+  "opening": "A missed milestone can tell you what needs attention without deciding the fate of the whole pursuit. This practice gives you room to respond while keeping real promises in view.",
+  "labels": {
+    "comparison": "Does missing practice end the pursuit?",
+    "comparisonIntro": "Suppose a learner misses a practice target and concludes that learning the skill is pointless. They also have a lesson booked for Friday. Compare the discouraging verdict with a longer view, while keeping Friday and any needed preparation real.",
+    "adherence": "The local miss",
+    "value": "A longer view",
+    "outcome": "The next response",
+    "adherenceText": "The learner missed the practice target. That is a fact to examine: what got in the way, what can be changed, and whether the target or method still fits. It does not alone establish that the whole pursuit is over.",
+    "valueText": "The thought “I’m in this for the long haul; I’m ten years away” can put this miss in perspective. In this practice the imagined horizon keeps moving forward. It is a way to think about the pursuit, not a prediction of when the learner will succeed.",
+    "outcomeText": "Friday’s booked lesson still has its actual date. The learner can prepare what is feasible, explain any problem with the commitment and choose a better practice arrangement. The long view changes neither the promise nor the available time.",
+    "signalQuestion": "Choose a part of the comparison",
+    "rhythmTitle": "Keep the perspective and the promise separate",
+    "rhythmText": "Try the rolling horizon when one local miss has become a verdict about your whole future. Then return to what happened and choose an action, a changed method or a revised milestone. If the pursuit no longer deserves your time, examine that too. Repeating the phrase while avoiding action or a real obligation defeats its purpose.",
+    "practice": "Respond to one missed milestone",
+    "practiceIntro": "Use the fields that help you separate the setback from the larger pursuit. A short note is enough to return to after you try the next action.",
+    "private": "This private note is optional. The six course questions remain separate.",
+    "save": "Save private setback note",
+    "saving": "Saving private setback note",
+    "retry": "Retry the same save",
+    "done": "Setback note saved",
+    "missing": "Add one note before saving.",
+    "length": "This full reflection is over 2,000 characters. Shorten it to save; all of your text stays here.",
+    "source": "Manuscript, page 62",
+    "sourceQuote": "“I'm 10 Years Away”\nWhen you miss a weekly, monthly, quarterly or yearly milestone, try the separate\nperspective: “I’m in this for the long haul; I’m ten years away.” In this practice you\nkeep moving that horizon forward, so it remains ten years away. Use it to put this\nsetback in perspective, then choose the next action or revised milestone. The rolling\nhorizon is a mindset tool; keep any actual deadline or commitment visible separately.",
+    "sourceLocator": "Manuscript, p. 62 (82-page source edition)",
+    "loadExample": "Load the example",
+    "sampleLoaded": "Example loaded. Use your own situation when you are ready."
+  },
+  "feedback": {
+    "saved": "Your private setback note is saved.",
+    "unavailable": "Private saving is unavailable. Your reflection stays on screen.",
+    "missing": "Add one note before saving.",
+    "length": "Shorten the full draft to fit the 2,000-character limit. Your text stays here.",
+    "conflict": "This reflection changed elsewhere. Your answers remain here; compare the saved version before saving again.",
+    "readFailure": "The saved note could not be loaded.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same reflection before changing it."
+  },
+  "fields": [
+    {
+      "id": "qualities",
+      "label": "The pursuit and why you still value it"
+    },
+    {
+      "id": "contribution",
+      "label": "The milestone you missed and what happened"
+    },
+    {
+      "id": "avoid",
+      "label": "The wider verdict you are drawing from this miss"
+    },
+    {
+      "id": "present",
+      "label": "What a longer view helps you see"
+    },
+    {
+      "id": "connection",
+      "label": "Actual dates, limits or promises to other people"
+    },
+    {
+      "id": "change",
+      "label": "The next action, changed method or revised milestone"
+    }
+  ],
+  "example": {
+    "qualities": "Learn to play a piece of music with a steady rhythm.",
+    "contribution": "I planned three practice sessions this week and completed one.",
+    "avoid": "I am tempted to treat one missed week as proof that I cannot learn.",
+    "present": "One week can show that my arrangement needs work without deciding what I can learn over time.",
+    "connection": "The booked lesson is still on Friday. I need to prepare or explain what I can bring.",
+    "change": "Try a shorter practice session in a time I can protect, then review whether that arrangement works."
+  },
+  "source": {
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/delivery-history/93ccacfc335e21eaa9a1652a89d9e324b5af0faa6940ff3f4cb9e45b5982b622/course-input.json#/courses/7/lessons/33/body",
+    "canonicalBodyIdentity": "1f:074b8140a867e82d729b4385514ac537a56313eadc5225ddfdb78ec022d22fc0",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/135",
+    "assessmentIdentity": "1f:0219db817758b95ed50d78a59bedd8f1a02eaa886543cb2a6d3220690d601dfd",
+    "assessmentBoundary": "Six required open-ended assessment questions remain separate from this optional private reflection. No qualified semantic grade or evidence of learner effectiveness is supplied.",
+    "manuscriptPdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscriptPdfIdentity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPage": "p. 62 (82-page source edition)",
+    "manuscriptPageText": ".local/curriculum-continuation-20261028/M118-M120-next-unbuilt-source-mappings/source-pages-61-62.txt",
+    "manuscriptPageTextIdentity": "1f:aa781da4dadcf887eebb8d8c3410aa1a08546fb5b4af87f45b5e10d368ccf9d7"
+  }
+}

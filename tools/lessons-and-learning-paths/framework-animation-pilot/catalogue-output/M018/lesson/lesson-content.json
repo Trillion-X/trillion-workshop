@@ -1,0 +1,56 @@
+{
+  "title": "N × N",
+  "opening": "A tennis return depends on how the player prepares and where they are when the ball arrives. Each change can matter on its own, but what it does can also depend on the other change.",
+  "explanation": "N × N means looking at the relevant parts and then checking the combinations that could change what you do next. A useful comparison keeps the important conditions steady and includes the combination you need to understand.",
+  "scope": "You do not need to try every pairing you can imagine. Keep failed pairings with the conditions that produced them, and check whether your way of testing changed what you saw.",
+  "interventions": [
+    { "id": "base", "label": "Starting return", "timing": "usual", "position": "starting" },
+    { "id": "timing", "label": "Preparation only", "timing": "earlier", "position": "starting" },
+    { "id": "position", "label": "Position only", "timing": "usual", "position": "adjusted" },
+    { "id": "combined", "label": "Both changes", "timing": "earlier", "position": "adjusted" }
+  ],
+  "sceneLabels": {
+    "figure": "Illustrative tennis court with a fixed incoming feed and a player whose racket preparation and court position change with the selected condition.",
+    "feed": "The incoming ball path is held constant so the selected player changes can be compared.",
+    "relationship": "In this example, the racket is farther from the ball after the first change. Moving the player changes the effect: the two changes together bring the racket closer than either change alone."
+  },
+  "teaching": {
+    "partsHeading": "Change one part, then put them together",
+    "partsText": "The incoming ball and camera stay still while each condition changes the player's pose. Compare the racket with the ball in each scene to see what changes when you isolate a part and when you put the parts together.",
+    "question": "What would you look for to tell whether the two changes work differently together than they do alone?",
+    "returnHeading": "Return to the task that matters",
+    "returnText": "A promising combination in practice still needs to work in the task that matters. Check the return again with a representative feed and the conditions you need to handle."
+  },
+  "practice": {
+    "heading": "Keep a comparison from your own pursuit",
+    "prompt": "Choose a real task you are learning or trying to improve. Pick two parts that could interact, and keep the conditions that matter visible while you compare them.",
+    "prediction": "What do you expect when you combine the two changes, and what would you compare it with?",
+    "observation": "What happened in each separate and combined condition? Keep unsuccessful pairings and the conditions they occurred under.",
+    "revision": "What would you change about the next test, or what would you check in the representative task?",
+    "transfer": "What part of your comparison method could carry to a different task, and what would need testing again?"
+  },
+  "labels": {
+    "selectCondition": "Racket preparation and court position",
+    "try": "Add this condition to my comparison",
+    "attempts": "Conditions you recorded",
+    "recorded": "Recorded condition",
+    "save": "Save this practice",
+    "retry": "Retry the same answers",
+    "saved": "Your comparison is saved.",
+    "empty": "Your recorded conditions will appear here.",
+    "ownTask": "Task in your pursuit"
+  },
+  "feedback": {
+    "duplicate": "That condition is already in your comparison. Choose another condition or review the one you recorded.",
+    "limit": "All four conditions are recorded. Compare the separate changes with the combined condition.",
+    "empty": "Add what you observed before recording this condition.",
+    "length": "Shorten the answer so the private comparison can be saved.",
+    "unavailable": "Private practice is unavailable in this lesson. Your comparison stays in this session.",
+    "conflict": "This practice changed in another window. Your comparison is still here; save again to keep these answers.",
+    "readFailure": "The saved comparison could not be read. Your answers remain on this screen.",
+    "saveFailure": "The save was not confirmed. Your answers remain here; retry to check the same save.",
+    "readbackFailure": "The save could not be confirmed. Your answers remain here.",
+    "saved": "Your comparison is saved.",
+    "retryPending": "The earlier save is unresolved. Retry the same answers to check it."
+  }
+}

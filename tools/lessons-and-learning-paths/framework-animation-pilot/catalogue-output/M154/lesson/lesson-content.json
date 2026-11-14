@@ -1,0 +1,175 @@
+{
+  "title": "Continuing a useful result",
+  "opening": "A drill still helps other players, but its creator no longer wants to maintain it every day. Decide whether the result should continue, then separate that decision from who can actually carry it.",
+  "labels": {
+    "comparison": "Compare ways the drill could stay useful",
+    "comparisonIntro": "The same result can take different forms. Compare the added benefit with the work and obligations each form creates.",
+    "forms": [
+      {
+        "id": "recommend",
+        "label": "Recommend an existing resource",
+        "icon": "BookOpen",
+        "description": "Use when an available drill already fits the players and conditions.",
+        "benefit": "Players can reach a useful drill without creating a duplicate.",
+        "burden": "Check that the resource still fits; the original creator does not inherit its maintenance.",
+        "mustBeTrue": "The resource is available to the intended players and fits their situation."
+      },
+      {
+        "id": "share",
+        "label": "Share the current drill",
+        "icon": "Share2",
+        "description": "Keep the current version available to the people who can use it.",
+        "benefit": "Players retain access to a result that already helps.",
+        "burden": "Access alone does not provide correction, maintenance, or a responsible operator.",
+        "mustBeTrue": "The intended users can access the drill, and its present limits are clear."
+      },
+      {
+        "id": "service",
+        "label": "Run a supported service",
+        "icon": "Handshake",
+        "description": "Consider this when people need ongoing feedback or implementation help.",
+        "benefit": "A service can provide continuing support around the drill.",
+        "burden": "It adds delivery, staffing, funding, exchange, and maintenance obligations.",
+        "mustBeTrue": "An actual operator, resources, delivery route, and economics can support the promise. Usefulness alone does not establish a business."
+      }
+    ],
+    "sequence": "Follow the seven parts in order. New use, corrections, failures, or changed conditions can send the next review back to an earlier part.",
+    "source": "Source passage",
+    "sourceQuote": "When a finding, method or creation may deserve continued use: 1. Establish what is supported and whose situation it can help. 2. Research existing ways to make it available and people who could maintain it. 3. Compare the added benefit and total burden of those forms. 4. Examine exchange and economics if a commercial arrangement is proposed. 5. Choose what to do: retain, share, recommend, improve, delegate, commercialize, pause or retire. 6. Arrange the actual steward, resources and delivery. Verify the delivery where it is part of the commitment. 7. Return use, corrections, failures and changed conditions to the shared understanding. A result can remain useful after the original pursuit changes. It can also stop deserving continued effort. Its value and obligations determine what follows.",
+    "sourceLocator": "Supplied manuscript, p. 76 (82-page source edition).",
+    "sourceAttribution": "The supplied manuscript's authorship or adoption of every wording is not independently established.",
+    "sourceBoundary": "The sequence is source material. The drill, comparison, prompts, and action guidance here are instructional examples, not observed outcomes or automatic commercialization advice.",
+    "practice": "Try a continuation decision",
+    "practiceIntro": "You can work with the drill example or a result you know. Choose what should happen to it, who will maintain it, what they need, and how people will get it. Decide what feedback would make you reconsider. Saving is optional.",
+    "resultLabel": "Which result are you considering, and who could it help?",
+    "stewardLabel": "Who agreed to maintain it, with what resources, and how will people get it?",
+    "feedbackLabel": "What use, correction, failure, or changed condition should prompt another look?",
+    "save": "Save private practice",
+    "retry": "Retry private save",
+    "saving": "Saving private practice",
+    "privateNote": "These private notes are separate from the six required course questions.",
+    "saved": "Your private practice is saved.",
+    "saveFailure": "The save is still uncertain. Your draft is here; retry to check it.",
+    "conflict": "A newer private practice exists. Your draft is here; review it before saving again.",
+    "retryPending": "The earlier save may still be unresolved. Retry it before changing this draft.",
+    "length": "Shorten the private practice to 2,000 characters or fewer. The full draft is still here; nothing was saved.",
+    "missing": "Choose a disposition and complete the result and steward fields before saving."
+  },
+  "steps": [
+    {
+      "id": "support",
+      "label": "Support",
+      "icon": "ShieldCheck",
+      "source": "Establish what is supported and whose situation it can help.",
+      "prompt": "Name the finding or method, the evidence behind it, and the people or conditions it may fit.",
+      "check": "Keep the supported result distinct from a promise that it will work everywhere."
+    },
+    {
+      "id": "access",
+      "label": "Access",
+      "icon": "Search",
+      "source": "Research existing ways to provide access and people or systems that could maintain it.",
+      "prompt": "Look for adequate existing resources, delivery routes, and people or systems able to maintain the result.",
+      "check": "Name a real route and potential steward; a label or intention is not an operator."
+    },
+    {
+      "id": "burden",
+      "label": "Benefit and burden",
+      "icon": "Scale",
+      "source": "Compare the added benefit and total burden of candidate forms.",
+      "prompt": "Compare what each candidate adds with the time, resources, maintenance, and obligations it creates.",
+      "check": "Compare options over the same intended use and conditions."
+    },
+    {
+      "id": "economics",
+      "label": "Economics",
+      "icon": "DollarSign",
+      "source": "Examine exchange and economics when commercialization is proposed.",
+      "prompt": "If considering a commercial arrangement, examine what is exchanged and whether delivery can be supported.",
+      "check": "Commercialization is one possible disposition, not a required next step."
+    },
+    {
+      "id": "disposition",
+      "label": "Disposition",
+      "icon": "ListChecks",
+      "source": "Choose retain, share, recommend, improve, delegate, commercialize, pause or retire.",
+      "prompt": "Choose the form that fits the supported use, available alternatives, burden, and ownership.",
+      "check": "Use the choices below to inspect the practical commitment each option implies."
+    },
+    {
+      "id": "delivery",
+      "label": "Delivery",
+      "icon": "PackageCheck",
+      "source": "Arrange the actual steward, resources and delivery; check committed delivery.",
+      "prompt": "Name who accepted responsibility, what resources they can use, and how the result reaches its users.",
+      "check": "Verify a committed delivery from evidence that it happened, not from preparation or a plan."
+    },
+    {
+      "id": "feedback",
+      "label": "Feedback",
+      "icon": "RefreshCw",
+      "source": "Return use, corrections, failures and changed conditions to shared understanding.",
+      "prompt": "Decide how actual use, corrections, failures, and changed conditions will reach the people able to act.",
+      "check": "Revisit the disposition when relevance or burden changes."
+    }
+  ],
+  "dispositions": [
+    {
+      "id": "retain",
+      "label": "Retain",
+      "description": "Keep it available within a stated scope; name the owner and review condition."
+    },
+    {
+      "id": "share",
+      "label": "Share",
+      "description": "Give the intended users access and state what the shared result does not promise."
+    },
+    {
+      "id": "recommend",
+      "label": "Recommend",
+      "description": "Point people to an adequate existing resource when a duplicate adds little."
+    },
+    {
+      "id": "improve",
+      "label": "Improve",
+      "description": "Make a bounded change for a supported need and name who can maintain it."
+    },
+    {
+      "id": "delegate",
+      "label": "Delegate",
+      "description": "Transfer responsibility only to a steward who accepts it with usable resources."
+    },
+    {
+      "id": "commercialize",
+      "label": "Commercialize",
+      "description": "Use only when exchange, economics, operator, resources, and delivery support the offer."
+    },
+    {
+      "id": "pause",
+      "label": "Pause",
+      "description": "State what stops, what remains available, and what would prompt review."
+    },
+    {
+      "id": "retire",
+      "label": "Retire",
+      "description": "End continued operation responsibly; consider users who need notice or a transition."
+    }
+  ],
+  "feedback": {
+    "saved": "Your private practice is saved.",
+    "saveFailure": "The save is still uncertain. Your draft is here; retry to check it.",
+    "conflict": "A newer private practice exists. Your draft is here; review it before saving again.",
+    "retryPending": "The earlier save may still be unresolved. Retry it before changing this draft.",
+    "length": "Shorten the private practice to 2,000 characters or fewer. The full draft is still here; nothing was saved.",
+    "missing": "Choose a disposition and complete the result and steward fields before saving."
+  },
+  "source": {
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/candidate137/course-input.json#/courses/9/lessons/10/body",
+    "canonicalBodyIdentity": "1f:a943dff557d147986fa09b07582b42bd644d9909c56c47cee82b418c16c64099",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/158",
+    "assessmentIdentity": "1f:6b040285926b8f2623fc59a5410dfabf21d5fe1baebfa277eba663c6924d10b0",
+    "assessmentBoundary": "Open-ended responses have no stored gold answer. The practice card answer is the exact source definition reference only. The learner's own AI supplies any practice grade; its semantic judgment is unqualified. Syntactic validity is not evidence of understanding, transfer, or outcome success.",
+    "manuscriptLocator": "p. 76 (82-page source edition)",
+    "limits": "No canonical course adoption, author acceptance, account installation, publication, or learner outcome is established by this local lesson run."
+  }
+}

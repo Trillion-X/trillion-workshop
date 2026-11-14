@@ -1,0 +1,55 @@
+{
+  "title": "Descending pyramid",
+  "opening": "Two training logs can use the same number for different work. Read what each count includes before comparing the sessions.",
+  "modes": [
+    {
+      "id": "ordinary-sets",
+      "label": "Three conventional sets",
+      "description": "This sample uses conventional sets. The picture shows one representative set; the record lists no loads, repetitions, effort or recovery.",
+      "logSummary": "Training log: 3 sets",
+      "unitLabel": "The “3” counts three separate sets."
+    },
+    {
+      "id": "descending-pyramids",
+      "label": "Three descending pyramids",
+      "description": "A later, lighter setting can still feel demanding because fatigue carries through the descent.",
+      "logSummary": "Training log: 3 sets",
+      "unitLabel": "One complete descent is one pyramid and one continuous set; the “3” counts three such descents."
+    }
+  ],
+  "examples": {
+    "summary": "Record the rungs or loads, repetitions and effort inside each unit. Add the recovery that followed so the sessions can be compared by the work they contain."
+  },
+  "labels": {
+    "mode": "Read the training log",
+    "ownPursuit": "Make the count clear",
+    "save": "Save reflection",
+    "busy": "Saving reflection"
+  },
+  "feedback": {
+    "openQuestion": "",
+    "unavailable": "Saving is unavailable for this lesson.",
+    "missing": "Complete each reflection field before saving.",
+    "length": "Each answer must be 2,000 characters or fewer.",
+    "readFailure": "Your saved reflection could not be loaded.",
+    "saved": "Your reflection is saved.",
+    "conflict": "This reflection changed elsewhere. Review it and save again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check it again.",
+    "saveFailure": "The save is still uncertain. Retry to check it safely.",
+    "retryPending": "Your earlier reflection is still being saved. Wait for its status before retrying."
+  },
+  "ownPursuit": {
+    "prompt": "Use the sample logs or a training record you can inspect. Write what the count refers to before comparing the work.",
+    "prediction": "When you first saw “3 sets,” what did you think it meant? What changed when you compared the two units?",
+    "observation": "What information is missing from the sample record once you know what “3” counts?",
+    "revision": "Rewrite one training log so its count and the work it includes are clear. What details will help you compare it later?"
+  },
+  "accessibility": {
+    "figure": {
+      "ordinary-sets": "Illustrative knee-extension repetition beside one representative load setting, showing one ordinary set.",
+      "descending-pyramids": "Illustrative knee-extension repetition beside three connected, progressively lighter load settings."
+    },
+    "mode": "Choose which interpretation of the training log to inspect",
+    "ownPursuit": "Write and save an ungraded reflection about what a training record counts"
+  }
+}

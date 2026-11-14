@@ -1,0 +1,82 @@
+{
+  "title": "The 3R Method",
+  "opening": "A missed result shows a mismatch, but it does not yet explain the cause. Recognize what happened, form a plausible cause, and choose one response that gives you a useful check. If the mismatch remains, use that result to revisit the cause and consider a wider change.",
+  "lesson": {
+    "heading": "Follow the evidence from mismatch to response",
+    "text": "Suppose a small team plans a weekly inventory count, but the last two counts do not happen. The observation is that the count is missing. One possible cause is that nobody owns the task at shift change. That is a hypothesis, not something the missed count proves. For the next count, name one owner and check the handoff sheet and Friday’s record. If the handoff reaches that person and the count is still missing, the result weakens the hypothesis. Reopen the causes and check access, workload, or whether the weekly target still fits. A direct known repair can combine recognition and response; no three meetings are required.",
+    "hypothesisNote": "A missing action, an ineffective method, an absent resource, or changed values can point to different causes and responses. Those examples do not cover every cause. Keep the observation and the cause hypothesis in separate fields so the check can change your view.",
+    "stepsHeading": "See the three moves in one example",
+    "stepPrompt": "Choose a move",
+    "steps": {
+      "recognize": {
+        "label": "Recognize",
+        "text": "Two weekly counts did not happen. That is the mismatch. Shift ownership is one possible cause, not an observed fact."
+      },
+      "respond": {
+        "label": "Respond",
+        "text": "Name one owner for the next count. Check the handoff sheet to see whether the task reached them, then check whether Friday’s count appears."
+      },
+      "restructure": {
+        "label": "Restructure",
+        "text": "If the named owner received the task and the count still did not happen, reopen the cause. Check access and workload, then consider a different time, route, scope, or goal if the mismatch persists."
+      }
+    }
+  },
+  "practice": {
+    "heading": "Keep the observation separate from the hypothesis",
+    "intro": "Use this optional private note for one mismatch. Record what you saw, what you think may explain it, and what check could change your view.",
+    "optional": "This private note is optional. The six required course questions are separate.",
+    "save": "Save private note",
+    "saving": "Saving private note",
+    "retry": "Retry the same save",
+    "done": "Private note saved",
+    "loadExample": "Load the hypothetical example",
+    "sampleLoaded": "Hypothetical example loaded. Replace it with your own observations when useful.",
+    "missing": "Add one observation or response before saving.",
+    "length": "This full note is over 2,000 characters. Shorten it to save; all text stays here.",
+    "fields": [
+      {"id": "observation", "label": "What happened, or did not happen? Record the mismatch you observed."},
+      {"id": "hypothesis", "label": "What is one plausible cause? Keep it as a hypothesis."},
+      {"id": "response", "label": "What one change will you try in response to that cause?"},
+      {"id": "check", "label": "What will you check, and when, to see whether the response reached the break?"},
+      {"id": "result", "label": "What did the check show? Separate the result from your explanation."},
+      {"id": "restructure", "label": "If the mismatch remains, what part of the arrangement or goal will you reconsider?"}
+    ],
+    "example": {
+      "observation": "The team planned a weekly inventory count. The last two Friday records are blank.",
+      "hypothesis": "The task may be lost when one shift hands work to another. I have not checked the handoff yet.",
+      "response": "Name one owner for the next count and include it in the shift handoff.",
+      "check": "Check the handoff sheet on Thursday and the inventory record on Friday.",
+      "result": "Not checked yet. The handoff and Friday record will show whether the task reached its owner and whether the count happened.",
+      "restructure": "If the handoff is clear but the count is still missing, reopen the cause. Check access and workload before changing the weekly scope or timing."
+    },
+    "source": {
+      "label": "Manuscript, page 63",
+      "quote": "The 3R Method\nRecognize → Respond → Restructure.\n\n1. Recognize: identify the specific mismatch. Is the action not happening, the process not producing the expected result, the resource missing or the goal no longer aligned? Record the observations.\n2. Respond: make one change aimed at that cause. Define when and how you will check it.\n3. Restructure: if the response does not resolve the problem, examine the goal’s size or timing, a different route, or the outcome itself. Record what changed and why.",
+      "locator": "Manuscript, p. 63 (82-page source edition)"
+    }
+  },
+  "feedback": {
+    "saved": "Your private note is saved.",
+    "unavailable": "Private saving is unavailable. Your note stays on screen.",
+    "missing": "Add one observation or response before saving.",
+    "length": "Shorten the full note to fit the 2,000-character limit. Your text stays here.",
+    "conflict": "This note changed elsewhere. Your text stays here; compare the saved version before saving again.",
+    "readFailure": "The saved note could not be loaded.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same note before changing it."
+  },
+  "source": {
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/candidate131/course-input.json#/courses/7/lessons/36/body",
+    "canonicalBodyIdentity": "1f:f6efa8a48395f3d17b7c1a1ce8d36245a674a1f675ecfe9a4fa9562875e7236f",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/138",
+    "assessmentIdentity": "1f:6e0f07272f3201abf7b3a71b8fda451cf25b9233acbf6f2f820dfea547d9b8ce",
+    "assessmentBoundary": "Six required open-ended assessment questions remain separate from this optional private note. No qualified semantic grade or evidence of learner effectiveness is supplied.",
+    "manuscriptPdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscriptPdfIdentity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPage": "p. 63 (82-page source edition)",
+    "manuscriptPageText": ".local/curriculum-continuation-20261028/M118-M120-next-unbuilt-source-mappings/source-pages-62-63.txt",
+    "manuscriptPageTextIdentity": "1f:329bf4d53b1d7deb0ab928a30e665ff8c5346fbf399e2d0447d93d21fff86c47"
+  }
+}

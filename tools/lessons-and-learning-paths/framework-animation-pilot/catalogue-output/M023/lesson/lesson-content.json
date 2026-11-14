@@ -1,0 +1,68 @@
+{
+  "title": "Flow State Analysis",
+  "opening": "Flow State Analysis compares three to five experiences when you were absorbed and lost track of time. Look for abilities and conditions that recur, then examine one candidate in another suitable activity. The feeling of absorption can point to a question. It does not tell you what you learned or how well you performed.",
+  "labels": {
+    "experiences": "Recall the moments when you lost track of time",
+    "experiencePrompt": "Choose three to five experiences you remember well. For each one, recall what you were doing and what made it difficult. Which skills did you use? What response told you how it was going? What were you trying to do, and why did it matter to you?",
+    "scene": "Try a question with an answer check",
+    "sceneFigure": "A seated learner reading a phone or writing an answer in a notebook at a desk.",
+    "arrangements": "Choose a scene to inspect",
+    "familiar": "A familiar routine",
+    "questionCheck": "One question and an answer check",
+    "sceneFamiliar": "Use a familiar study routine as your comparison.",
+    "sceneQuestionCheck": "Answer one study question, then check it against the source. Record what you learned and whether you felt absorbed.",
+    "pattern": "Compare what happened in each experience",
+    "patternText": "In a conversation, a friend’s question can show what needs explaining. A puzzle tells you whether an answer fits, and a tennis return shows where the ball lands. Those activities use different skills and give different feedback, but each gives you a response to an attempt. Look for patterns in your own experiences while keeping those differences in view.",
+    "comparison": "Try one pattern in another activity",
+    "comparisonText": "To examine a candidate condition, compare with actual sessions where it was absent. A familiar routine may already supply that comparison and work well. Keep differences in activity, challenge and feedback in view; the absent condition alone does not show what caused the change. Record what you learned separately from how absorbed you felt.",
+    "music": "Check whether music made a difference",
+    "musicText": "If music accompanied each experience, include it as one candidate condition. The activity, challenge, rest, company and feedback may also have varied. Compare suitable sessions with and without music, and keep the other differences in your notes. A repeated memory suggests a question; it does not identify the cause by itself.",
+    "outcomes": "Track absorption separately from performance",
+    "outcomesText": "Record how absorbed you felt, then record what you learned or how you performed. Losing track of time cannot tell you whether you understood the material or improved your return. If absorption returns but the capability you wanted does not improve, use the performance evidence to decide whether to keep the arrangement. One absorbing session cannot establish a permanent calling.",
+    "practice": "Write down what you want to examine",
+    "memoryOne": "Experience one. Describe the activity, challenge, skills, feedback, goal and why it mattered.",
+    "memoryTwo": "Experience two. Describe the activity, challenge, skills, feedback, goal and why it mattered.",
+    "memoryThree": "Experience three. Describe the activity, challenge, skills, feedback, goal and why it mattered.",
+    "memoryFour": "Experience four, if you have one. Describe the activity, challenge, skills, feedback, goal and why it mattered.",
+    "memoryFive": "Experience five, if you have one. Describe the activity, challenge, skills, feedback, goal and why it mattered.",
+    "save": "Save this reflection",
+    "busy": "Saving reflection",
+    "retry": "Retry the same save"
+  },
+  "examples": [
+    {
+      "id": "conversation",
+      "title": "Explaining an idea",
+      "description": "A person explains a difficult idea to a friend who asks questions. They listen for what is unclear, choose another example and ask the friend to explain the idea back. Their goal is to help the friend prepare for class, and the conversation matters because they are studying together."
+    },
+    {
+      "id": "puzzle",
+      "title": "Solving a puzzle",
+      "description": "A person works through a logic puzzle with several possible answers. They write down constraints and cross out choices that do not fit. Their goal is to solve it before dinner, and each answer that fails a constraint shows what to try next."
+    },
+    {
+      "id": "return",
+      "title": "Practicing a return",
+      "description": "A player practices returning serves. They read the ball’s direction, move into position and adjust the racket face. Where the ball lands gives feedback on the attempt. The player wants a reliable return for a match with friends, so they can keep the rally going."
+    }
+  ],
+  "feedback": {
+    "unavailable": "Private practice is unavailable here. Your answers remain in this session.",
+    "missing": "Fill in the first three experiences, the pattern, the next attempt and the outcome check before saving.",
+    "length": "Shorten each answer to 2,000 characters or fewer.",
+    "readFailure": "Your saved reflection could not be loaded. Your current answers remain here.",
+    "saved": "Your reflection is saved.",
+    "conflict": "This reflection changed elsewhere. Your answers remain here. Save again to keep these answers.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is still unresolved. Retry the same answers before changing them.",
+    "directAction": "Keep your comparison tied to what you actually remember and observe."
+  },
+  "practice": {
+    "prediction": "Experience one. What were you doing? What was the challenge? Which skills did you use? What feedback did you get? What was your goal, and why did it matter to you?",
+    "observation": "Experience two. What were you doing? What was the challenge? Which skills did you use? What feedback did you get? What was your goal, and why did it matter to you?",
+    "comparison": "Experience three. What were you doing? What was the challenge? Which skills did you use? What feedback did you get? What was your goal, and why did it matter to you?",
+    "result": "What capability or condition recurs across your examples? Which differences remain, and what else could explain the absorption?",
+    "step": "What activity will you try, and which candidate condition will you examine? Which actual sessions had that condition absent, if any? Your familiar routine may work well as a comparison. If you have no useful comparison yet, what would you need to look for? Note other differences in activity, challenge and feedback. What will tell you whether learning or performance changed, separately from absorption?"
+  }
+}

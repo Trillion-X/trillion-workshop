@@ -1,0 +1,54 @@
+{
+  "title": "Finding Deeper Patterns Through Abstraction",
+  "opening": "Helping someone learn tennis and debugging a confusing explanation seem unrelated. Put the examples beside each other before deciding what connects them.",
+  "actions": [
+    "Gather examples from several tools.",
+    "Ask which broader preference connects their different expressions.",
+    "Compare the proposed value with another context, keeping fits and conflicts.",
+    "Choose the value to examine through action."
+  ],
+  "teaching": {
+    "mechanism": "A broad idea compresses several cases. It is useful when it explains their differences and helps you read a new case, not just when it sounds convincing.",
+    "guardrail": "Keep each example beside your interpretation. One pattern may fit some choices and fail to explain others; more than one value may fit better.",
+    "transfer": "Pick a setting that was not used to invent the pattern. Ask what the pattern would lead you to expect there, and what might point elsewhere.",
+    "action": "Choose one possible value and an action that would express it in that setting. Record what happened; an action tests the idea against circumstances, it does not prove a permanent identity."
+  },
+  "labels": {
+    "method": "The method",
+    "comparison": "Examples beside a possible pattern",
+    "comparisonPrompt": "Bring notes from methods you have actually used. Put each example next to what it may suggest. Which preference could connect their different expressions? Keep a case that does not fit, and allow separate values.",
+    "transfer": "A different context and an action",
+    "transferPrompt": "Try the possible value in a setting you did not use to form the pattern. What would fit, what could conflict, and what else might explain the choice? Name one action you could take and what you would watch for.",
+    "save": "Save private comparison",
+    "busy": "Saving comparison",
+    "retry": "Retry the same save"
+  },
+  "practice": {
+    "comparison": "",
+    "transfer": ""
+  },
+  "feedback": {
+    "unavailable": "This private comparison cannot be saved here. Your writing remains on screen.",
+    "missing": "Add a comparison and a different context with an action. You can leave your interpretation uncertain.",
+    "length": "Shorten this answer to 2,000 characters or fewer.",
+    "readFailure": "The saved comparison could not be loaded. Your current writing remains here.",
+    "saved": "Your private comparison is saved.",
+    "conflict": "This comparison changed elsewhere. Your writing remains here; compare before saving again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry the same writing.",
+    "retryPending": "The earlier save is unresolved. Retry the same comparison before changing it."
+  },
+  "source": {
+    "courseInput": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/4/lessons/20/body",
+    "currentBodyIdentity": "1f:244b6352a046e7dfddbaa96a131d4541fe91f6306b2413c51191fa39b5d3d50c",
+    "assessmentSource": "content-drafts/framework-library-2026-10-24/community-config.json#/courses/3/lessons/19/body",
+    "assessmentBodyIdentity": "1f:244b6352a046e7dfddbaa96a131d4541fe91f6306b2413c51191fa39b5d3d50c",
+    "reconciliation": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/reconciliation.json#/library_entries/M066",
+    "assessmentIdentity": "1f:38d353302261182ac9b0a27957f7097a51ec6b4deb0b903d2370867fad9a15d2",
+    "manuscriptLocator": "p. 39 (82-page source edition)",
+    "manuscriptPdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscriptPdfIdentity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPageTextIdentity": "1f:95fe7e13c98fce957d43608749246cc166833af033a7f8391b21121facee2dbd",
+    "attribution": "Supplied manuscript. Authorship or adoption of every wording is not independently established."
+  }
+}

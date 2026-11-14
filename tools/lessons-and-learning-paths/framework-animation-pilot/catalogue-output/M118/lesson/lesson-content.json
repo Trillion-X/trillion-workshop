@@ -1,0 +1,71 @@
+{
+  "title": "Direction + Fuel Goal Setting",
+  "opening": "Write one result you want and one practice that can move toward it while expressing a value you want to live now. Then separate whether you did the practice from whether the result moved.",
+  "labels": {
+    "comparison": "Three signals from one pursuit",
+    "comparisonIntro": "Suppose Jordan wants to explain a technical idea clearly to new teammates. They revise one explanation and ask a teammate to try it. Their notes say the planned practice happened and the work still feels worthwhile, but the teammate explains the idea about as before.",
+    "adherence": "Practice happened",
+    "value": "Value now",
+    "outcome": "Result moved",
+    "adherenceText": "The planned practice happened. That is evidence of follow-through; it does not show by itself that the method works or the outcome changed.",
+    "valueText": "The work still expresses Jordan’s value of making shared work clear. That matters during the pursuit, even while the result is unchanged.",
+    "outcomeText": "The teammate explains the idea about as before. Keep this outcome separate from the completed sessions. Ask whether the practice, feedback or goal needs another look.",
+    "signalQuestion": "Choose a signal to inspect",
+    "rhythmTitle": "Plan a routine that fits the work",
+    "rhythmText": "A person can revise a passage when a complete draft is ready, instead of scheduling a daily writing session. That timing can fit the task. The outcome question is whether the intended reader explains the idea more clearly.",
+    "practice": "Draft your own direction and practice",
+    "practiceIntro": "Keep each answer distinct. A blank field is fine while you are still deciding. Save one or more notes privately if useful; the six required course assessment questions are separate.",
+    "outcomeField": "Result you want to move toward",
+    "practiceField": "Practice you could repeat on a suitable schedule",
+    "valueField": "What value this practice expresses now",
+    "fitField": "How it fits a difficult day and other goals",
+    "evidenceField": "What would show practice happened, and separately what would show progress",
+    "revisionField": "What you would examine or revise if practice continues but progress does not",
+    "private": "This optional private note does not replace the six required assessment questions.",
+    "save": "Save private goal note",
+    "saving": "Saving private goal note",
+    "retry": "Retry private save",
+    "done": "Private goal note saved",
+    "missing": "Add one note before saving.",
+    "length": "This full draft is over 2,000 characters. Shorten it to save; your text stays here.",
+    "source": "Manuscript, page 58",
+    "sourceQuote": "Direction + Fuel Goal Setting\nUse this to connect a result you want with a practice you can sustain.\n1. Define the direction: what outcome would count as meaningful progress?\n2. Define the fuel: what daily or weekly practice would move you toward it while expressing something you value now?\n3. Place the outcome and practice together. Check whether the practice fits your life, including difficult days and other goals.\n4. Track the practice and outcome separately. You need to know both whether you did the work and whether it moved you toward the result.",
+    "sourceLocator": "Manuscript, p. 58 (82-page source edition)",
+    "loadExample": "Load a sample goal note",
+    "sampleLoaded": "Sample note loaded; replace its details with your own if you use it."
+  },
+  "feedback": {
+    "saved": "Your private goal note is saved.",
+    "unavailable": "Private note saving is unavailable. Your text remains here.",
+    "missing": "Add one note before saving.",
+    "length": "Shorten the full draft to fit the 2,000-character limit. Your text stays here.",
+    "conflict": "This note changed elsewhere. Your answers remain here; review the saved version before saving again.",
+    "readFailure": "The saved note could not be loaded.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same note before changing it."
+  },
+  "fields": [
+    { "id": "outcome", "label": "Result you want to move toward" },
+    { "id": "practice", "label": "Practice you could repeat on a suitable schedule" },
+    { "id": "value", "label": "What value this practice expresses now" },
+    { "id": "fit", "label": "How it fits a difficult day and other goals" },
+    { "id": "evidence", "label": "What would show practice happened, and separately what would show progress" },
+    { "id": "revision", "label": "What you would examine or revise if practice continues but progress does not" }
+  ],
+  "example": {
+    "outcome": "Help a new teammate explain the main idea in a short guide.",
+    "practice": "Revise one confusing passage after a reader tries the guide.",
+    "value": "Make shared work easier to understand.",
+    "fit": "Work on a passage when reader feedback arrives; skip a session during a deadline week and return when there is room.",
+    "evidence": "Practice: note whether I revised after feedback. Outcome: ask the reader to explain the idea in their own words and compare with the earlier attempt.",
+    "revision": "If revisions happen but the reader is still unsure, inspect the method, the feedback or whether this is the right goal."
+  },
+  "source": {
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/delivery-history/93ccacfc335e21eaa9a1652a89d9e324b5af0faa6940ff3f4cb9e45b5982b622/course-input.json#/courses/7/lessons/18/body",
+    "canonicalBodyIdentity": "1f:4f3b5835fd4d04c2ffa530063f8458571a560cea561e6559c0d5d823a8de18a1",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/122",
+    "assessmentIdentity": "1f:cca1f1721d307676c61bdf980c925101dffc0b0bc725b3291a3ce831e9fe93b7",
+    "assessmentBoundary": "The six required open-ended questions remain separate from this optional private note. No stored gold answer or qualified semantic grading is supplied; syntactic validity does not establish understanding or outcome success."
+  }
+}

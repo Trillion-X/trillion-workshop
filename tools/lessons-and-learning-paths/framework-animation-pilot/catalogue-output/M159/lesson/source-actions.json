@@ -1,0 +1,58 @@
+{
+  "source": {
+    "course": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/candidate137/course-input.json",
+    "record": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/candidate137/course-input.json#/courses/10/lessons/4/body",
+    "body": "/courses/10/lessons/4/body",
+    "bodyIdentity": "1f:6ee455206f7bea3d574996540c3e98a94c4104f8ba88d1a06acd53a637bb05cc",
+    "assessment": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/166",
+    "assessmentIdentity": "1f:1c61b975bd83a71e753e0bd0a145b68e4b02a5fb9f521fb9f63d7e3db9cadb33",
+    "reconciliation": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/reconciliation.json#/library_entries/166",
+    "mapping": ".local/curriculum-continuation-20261028/M118-M120-next-unbuilt-source-mappings/M155-M162-source-mappings-immutable-course.json",
+    "mappingIdentity": "1f:9cd886c92057a17ab33ac7a8511c3d5630d5c288ccf99e0a26e069a3c0c19dba",
+    "manuscriptPdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscriptPdfIdentity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPageText": ".local/curriculum-continuation-20261028/M118-M120-next-unbuilt-source-mappings/source-pages-76-82.txt",
+    "manuscriptPageTextIdentity": "1f:21bc4926935b10e4ffec47ceb4a12c30ffc853fbb0be683fe904459e56724cff",
+    "manuscriptPage": "Manuscript, page 79",
+    "canonicalSourceActions": "\nSource-informed application guidance. Where the source supplies a sequence, its meaning is retained; additional setup, examples and checks are instructional expansion, not newly attributed original doctrine. Original wording is available in the source panel.\n\n1. Find the underlying truth or need: what remains if the present object, fashion or technology disappears?\n2. Find the simplest best form for the purpose, preserving necessary reasoning, examples, steps and context.\n3. Make it generative: state what another person can understand, build or create with it.\n4. Test across changed conditions and record which functions survive and which need rebuilding.\n\n"
+  },
+  "sourceActions": [
+    {
+      "id": "step1",
+      "text": "Find the underlying truth or need: what remains if the present object, fashion or technology disappears?",
+      "meaning": "Find the underlying truth or need: what remains if the present object, fashion or technology disappears?",
+      "implementedBy": "Each source action is preserved as a selectable, editable step; the source guidance remains exact."
+    },
+    {
+      "id": "step2",
+      "text": "Find the simplest best form for the purpose, preserving necessary reasoning, examples, steps and context.",
+      "meaning": "Find the simplest best form for the purpose, preserving necessary reasoning, examples, steps and context.",
+      "implementedBy": "Each source action is preserved as a selectable, editable step; the source guidance remains exact."
+    },
+    {
+      "id": "step3",
+      "text": "Make it generative: state what another person can understand, build or create with it.",
+      "meaning": "Make it generative: state what another person can understand, build or create with it.",
+      "implementedBy": "Each source action is preserved as a selectable, editable step; the source guidance remains exact."
+    },
+    {
+      "id": "step4",
+      "text": "Test across changed conditions and record which functions survive and which need rebuilding.",
+      "meaning": "Test across changed conditions and record which functions survive and which need rebuilding.",
+      "implementedBy": "Each source action is preserved as a selectable, editable step; the source guidance remains exact."
+    }
+  ],
+  "assessmentBoundary": {
+    "path": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json//assessments/166",
+    "requiredFlags": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "scope": "All six required open-ended course questions remain separate from optional private practice. No qualified semantic grade."
+  },
+  "limits": "Local source and synthetic Classroom-fixture evidence only; no canonical course edit, account, publication, learner-outcome, or author-voice claim."
+}

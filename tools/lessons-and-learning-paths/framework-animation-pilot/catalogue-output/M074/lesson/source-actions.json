@@ -1,0 +1,118 @@
+{
+  "currentCourseInput": {
+    "path": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/4/lessons/29/body",
+    "inputBytes": 1022491,
+    "inputBlake3": "8d96362acb175da7444105aea071c62ab89ecaecb8ec481eb2cf53840d543af4",
+    "resolvedId": "M074",
+    "title": "Value-Identity Integration",
+    "bodyIdentity": "1f:c16b45674f7f481d41220fc10ed7079e3c8c57a4a8be127ba1ad4e14e5e13f67",
+    "body": "# M074 · Value-Identity Integration\n\n**Practices · Emotional · Practice / tool**\n\nSource status: Recovered manuscript\n\n> The explanation follows the cited sources. Examples, practice questions and application guidance are authored for this expansion unless identified as source material. Illustrations are not observed outcomes.\n\n## 1. See it\n\nYou call yourself truth-seeking but avoid the source that could overturn your favorite explanation.\n\n## 2. What it is\n\nA comparison between an “I am someone who…” statement, the value it expresses and the actions that support or contradict it.\n\n## 3. Why it exists\n\nIt makes identity language answerable to conduct rather than allowing it to substitute for conduct.\n\n## 4. First principles and mechanism\n\nAn identity statement compresses a pattern. Its usefulness depends on whether it guides action and remains revisable when actions conflict.\n\n## 5. When to use it\n\n**Use:** Use when a self-description is meant to support a chosen way of living.\n\n**Do not use it this way:** Do not turn identity into a defense against correction or force other people to validate it.\n\n**What you need:** A proposed statement and specific examples, including observations by others where available.\n\n## 6. How to use it\n\nSource-informed application guidance. Where the source supplies a sequence, its meaning is retained; additional setup, examples and checks are instructional expansion, not newly attributed original doctrine. Original wording is available in the source panel.\n\n1. Write the current “I am someone who…” statement.\n2. Name the value you intend it to express.\n3. Ground it in specific actions and compare with what others have actually observed.\n4. Choose a next action that expresses the value, or revise the statement.\n\n## 7. Watch it happen\n\nIllustration: “I correct myself when wrong” becomes a concrete action: revisiting a claim after contrary results. The correction strengthens the practice even if it makes the earlier self-description less flattering.\n\n**Comparison or near miss:** An action can be chosen without adopting an identity label. The label is optional support.\n\n## 8. Now you do it\n\n**Try it now:** Find one action supporting and one challenging a self-description.\n\n**Guided question:** What happens when the identity conflicts with a clear observation?\n\n**Model answer:** The observation should inform revision; identity is not a veto.\n\n**Independent transfer:** Apply the same check to a team’s declared values.\n\n## 9. How you know\n\n**Learner check:** You can connect a statement to actual conduct and admit exceptions.\n\n**Outcome check:** The framing helps useful action and correction instead of protecting reputation.\n\n**What would change the account:** If the statement makes disconfirming facts harder to acknowledge, change or drop it.\n\n## 10. Connect and multiply\n\n- **requires [Fact or cap](M021.md)** — Tests the factual part of the identity.\n- **uses [Actions and Activities Analysis](M058.md)** — Compares declarations with behavior.\n- **supports [Self-Discovery Cycle](M157.md)** — Integrates what experience teaches.\n\n## 11. Original sources and revisions\n\n**Manuscript locator:** p. 41 (82-page source edition).\n\n**[S01] Manuscript — 82-page edition.** Supplied manuscript; authorship/adoption of every wording is not independently established. File: `sources/Manuscript.pdf`.\n\nExpansion edition: 2026-10-24. These teaching materials have been source-checked and structurally inspected; independent learner effectiveness has not been measured in this production run.\n"
+  },
+  "assessment": {
+    "path": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/73",
+    "identity": "1f:f37adec6a52535ae211ace41fedd5f52568943d5946e4d3b92cc70a1a643dc26",
+    "sourceBodyIdentity": "1f:c16b45674f7f481d41220fc10ed7079e3c8c57a4a8be127ba1ad4e14e5e13f67",
+    "sourceBodyLocation": "../community-config.json#/courses/3/lessons/27/body",
+    "practiceAdd": {
+      "operation": "add",
+      "prompt": "Explain M074 (Value-Identity Integration) from memory.",
+      "answer": "A comparison between an “I am someone who…” statement, the value it expresses and the actions that support or contradict it.",
+      "why": "It makes identity language answerable to conduct rather than allowing it to substitute for conduct.",
+      "deck": "framework-library",
+      "source_ref": "M074"
+    },
+    "questions": [
+      {
+        "questionId": "m074-recall",
+        "questionTypeId": "long-text",
+        "label": "Without reopening M074 (Value-Identity Integration), explain what it does and how its parts work together.",
+        "required": true
+      },
+      {
+        "questionId": "m074-application",
+        "questionTypeId": "long-text",
+        "label": "Apply the source practice: Find one action supporting and one challenging a self-description.",
+        "required": true
+      },
+      {
+        "questionId": "m074-guided-question",
+        "questionTypeId": "long-text",
+        "label": "Answer the source’s guided question: What happens when the identity conflicts with a clear observation?",
+        "required": true
+      },
+      {
+        "questionId": "m074-learner-check",
+        "questionTypeId": "long-text",
+        "label": "Self-check against the source: You can connect a statement to actual conduct and admit exceptions.",
+        "required": true
+      },
+      {
+        "questionId": "m074-outcome-check",
+        "questionTypeId": "long-text",
+        "label": "Check the outcome using the source criterion: The framing helps useful action and correction instead of protecting reputation.",
+        "required": true
+      },
+      {
+        "questionId": "m074-account-change",
+        "questionTypeId": "long-text",
+        "label": "Consider what would change the source account: If the statement makes disconfirming facts harder to acknowledge, change or drop it.",
+        "required": true
+      }
+    ],
+    "answerPolicy": "Open-ended responses have no stored gold answer. The practice card answer is the exact source definition reference only. The learner’s own AI supplies any practice grade; its semantic judgment is unqualified. Syntactic validity is not evidence of understanding, transfer, or outcome success."
+  },
+  "reconciliation": {
+    "path": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/reconciliation.json#/library_entries/73",
+    "id": "M074",
+    "title": "Value-Identity Integration",
+    "originalBodyPreserved": true,
+    "sourceRefs": [
+      "M074"
+    ],
+    "prerequisites": [],
+    "prerequisiteStatus": "Source-stated conceptual support is attached; no blanket course-completion prerequisite is imposed.",
+    "conceptualPrerequisites": [
+      {
+        "source_id": "M021",
+        "evidence": "Tests the factual part of the identity.",
+        "locator": {
+          "path": "Downloads/Trillion X Framework Library.md",
+          "anchor": "m074",
+          "section": "10. Connect and multiply",
+          "line": 6556,
+          "raw_line": "- **requires [Fact or cap](#m021)** — Tests the factual part of the identity."
+        },
+        "use_scope": "Fact-checking input for factual claims inside an identity/action comparison.",
+        "status": "explicit_expanded_library_relationship_not_universal_mastery_gate"
+      }
+    ]
+  },
+  "manuscript": {
+    "path": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "page": 41,
+    "edition": "82-page supplied source edition",
+    "bytes": 1151040,
+    "blake3": "d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "excerpt": "Compare your current “I am someone who…” statement with the value you want to express. Ground it in specific actions; compare it with examples other people have observed.",
+    "scopeNote": "Supplied manuscript; authorship/adoption of every wording is not independently established."
+  },
+  "sourceActions": [
+    "Write the current “I am someone who…” statement.",
+    "Name the value the statement is meant to express.",
+    "Ground it in specific actions; compare with what others have actually observed.",
+    "Choose a next action that expresses the value, or revise the statement."
+  ],
+  "designReference": {
+    "sharedParts": [
+      "@trillion/ui Button",
+      "@trillion/ui Container",
+      "@trillion/ui DisclosureSection",
+      "@trillion/ui Text",
+      "@trillion/ui Textarea",
+      "useLessonPractice"
+    ],
+    "appearanceOwner": "Existing @trillion/ui and Screen Look bundle; no new appearance source.",
+    "anatomy": "Not used: this lesson is a text-led comparison with no spatial mechanism that benefits from an Anatomy figure.",
+    "registry": "21st.dev and Mobbin MCP tools are not exposed in this session. No live registry result is claimed. No component source or artwork was copied."
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "title": "Decade-by-Decade Mapping",
+  "opening": "Work backward from a desired contribution to the conditions it needs. Test each claimed prerequisite before turning a possible route into a fixed life timetable.",
+  "labels": {
+    "comparison": "Does the school need a building first?",
+    "comparisonIntro": "Someone wants to establish an enduring school. A plan starts with buying a building. Compare the teaching, people and resources that the school needs with what a building would actually enable.",
+    "adherence": "Desired contribution",
+    "value": "Claimed prerequisite",
+    "outcome": "Alternative route",
+    "adherenceText": "An enduring school is the desired contribution. Transferable teaching, people and resources may support it; a distant horizon does not establish a precise schedule.",
+    "valueText": "A building may provide space, but owning it is not automatically the first prerequisite. Ask what needs to happen there and whether suitable space already exists.",
+    "outcomeText": "Try a teaching session in an available venue while developing the curriculum and relationships in parallel. Keep each dependency only while its causal reason holds.",
+    "signalQuestion": "Choose a part of the comparison",
+    "rhythmTitle": "Keep horizons and dependencies revisable",
+    "rhythmText": "Decades are possible horizons, not guaranteed deadlines or required ages. Some conditions must precede others; some can develop together or are already available. Use a nearer project horizon if that helps. A forward experiment may reveal more than detailed planning when the direction is uncertain.",
+    "practice": "Test one claimed prerequisite",
+    "practiceIntro": "Use only the fields that clarify your question. A partial private note is fine; observations, assumptions and desired outcomes need not be complete before you can keep them.",
+    "private": "This optional private reflection is separate from the six required assessment questions.",
+    "save": "Save private reflection",
+    "saving": "Saving private reflection",
+    "retry": "Retry the same save",
+    "done": "Reflection saved",
+    "missing": "Add one reflection before saving.",
+    "length": "This full reflection is over 2,000 characters. Shorten it to save; all of your text stays here.",
+    "source": "Manuscript, page 61",
+    "sourceQuote": "Decade-by-Decade Mapping\nWork backward from the desired life to nearer capabilities, relationships, resources\nand contributions. Check what must precede what.",
+    "sourceLocator": "Manuscript, p. 61 (82-page source edition)",
+    "loadExample": "Load the example",
+    "sampleLoaded": "Example loaded. Replace its details with your own if useful."
+  },
+  "feedback": {
+    "saved": "Your private reflection is saved.",
+    "unavailable": "Private saving is unavailable. Your reflection stays on screen.",
+    "missing": "Add one reflection before saving.",
+    "length": "Shorten the full draft to fit the 2,000-character limit. Your text stays here.",
+    "conflict": "This reflection changed elsewhere. Your answers remain here; compare the saved version before saving again.",
+    "readFailure": "The saved note could not be loaded.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same reflection before changing it."
+  },
+  "fields": [
+    {
+      "id": "qualities",
+      "label": "Desired life or contribution"
+    },
+    {
+      "id": "contribution",
+      "label": "Nearer capabilities, people or resources"
+    },
+    {
+      "id": "avoid",
+      "label": "One claimed prerequisite or presumed first step"
+    },
+    {
+      "id": "present",
+      "label": "Why it must come first, or what remains uncertain"
+    },
+    {
+      "id": "connection",
+      "label": "An alternative source or work that can develop in parallel"
+    },
+    {
+      "id": "change",
+      "label": "One present action and evidence that would revise the route"
+    }
+  ],
+  "example": {
+    "qualities": "Create a school where people can keep learning independently.",
+    "contribution": "A teachable activity, willing participants and a suitable place to meet.",
+    "avoid": "Own a dedicated building before offering any teaching.",
+    "present": "A meeting place is needed, but ownership may not be. I have not checked existing venues.",
+    "connection": "Use an existing community room while developing the teaching with participants.",
+    "change": "Check one available venue and try one session; review whether dedicated space is actually needed."
+  },
+  "source": {
+    "canonicalBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/delivery-history/93ccacfc335e21eaa9a1652a89d9e324b5af0faa6940ff3f4cb9e45b5982b622/course-input.json#/courses/7/lessons/26/body",
+    "canonicalBodyIdentity": "1f:3ce2e99378baecc89964d3818f1c640260b7910c84b317d1d04497f3c3809980",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/129",
+    "assessmentIdentity": "1f:86fd5ca778179b7d0357ea5d8a7b20f906e8888487c82c8d82474230045c5138",
+    "assessmentBoundary": "Six required open-ended assessment questions remain separate from this optional private reflection. No qualified semantic grade or evidence of learner effectiveness is supplied.",
+    "manuscriptPdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscriptPdfIdentity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPage": "p. 61 (82-page source edition)",
+    "manuscriptPageText": ".local/curriculum-continuation-20261028/M118-M120-next-unbuilt-source-mappings/source-pages-59-61.txt",
+    "manuscriptPageTextIdentity": "1f:f1d9ce4955a55154c4729b632c7de40dd78ed10d5aa776c56027d911f3c41a18"
+  }
+}

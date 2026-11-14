@@ -1,0 +1,54 @@
+{
+  "title": "Story-Based Value Excavation",
+  "opening": "A story can move you before you know why. Beginning, Goal, Conflict and Aftermath (BGCA) helps you name the change you care about, then compare that concern with your own recurring stories and real choices.",
+  "actions": [
+    "Describe the Beginning, Goal, Conflict and Aftermath.",
+    "Name the transformation you care about.",
+    "Compare it with stories you repeatedly tell about your own life.",
+    "Form a candidate value and check it against actual choices."
+  ],
+  "teaching": {
+    "use": "Use this when stories reveal concerns that direct value questions leave vague.",
+    "distinction": "Being moved by a story can suggest a value to investigate. It does not show that the story's events caused its ending, or that the same action would work in your life.",
+    "evidence": "Keep the story's events, your interpretation and your real choices distinct. A candidate value earns support when it also helps explain choices you actually made.",
+    "guardrail": "An appealing plot is not proof that its choice is wise. You do not need a happy ending, a heroic life or one grand personal story.",
+    "independentSource": "Story analysis is one perspective. You can keep it alongside choices or other experiences that fit, conflict with or refine the candidate value.",
+    "tryIt": "In Aesop's fable The Hare and the Tortoise, the tortoise keeps moving while the hare rests, and the tortoise reaches the finish first. You might care about steady effort; another reader might notice overconfidence or the race itself. The fable cannot decide which reading fits you."
+  },
+  "labels": {
+    "method": "The four story parts",
+    "reflection": "Compare the story with your own",
+    "note": "Your comparison",
+    "reflectionPrompt": "Use one meaningful story, fictional or real. Write a sentence for each part: Beginning, what is true at the start? Goal, what does someone want? Conflict, what blocks or complicates that goal? Aftermath, what changes or happens next? Then name the transformation you care about. Compare it with stories you repeatedly tell about your own life. What actual choices support or challenge the candidate value? Leave any part open, revise it or remove it. You do not need to share a private story.",
+    "save": "Save private reflection",
+    "busy": "Saving reflection",
+    "retry": "Retry the same save"
+  },
+  "practice": {
+    "result": ""
+  },
+  "feedback": {
+    "unavailable": "Private notes cannot be saved here. Your note remains on screen.",
+    "missing": "Write a note before saving. You can leave parts of the reflection open.",
+    "length": "Shorten the note to 2,000 characters or fewer.",
+    "readFailure": "The saved note could not be loaded. Your current note remains here.",
+    "saved": "Your private reflection is saved.",
+    "conflict": "This note changed elsewhere. Your answer remains here; compare before saving again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry the same note.",
+    "retryPending": "The earlier save is unresolved. Retry the same note before changing it."
+  },
+  "source": {
+    "courseInput": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/4/lessons/19/body",
+    "currentBodyIdentity": "1f:6e3e04984645854506977d1a9ec086a284bead37b3bfcc0f6955c852fe2e2afd",
+    "assessmentSource": "content-drafts/framework-library-2026-10-24/community-config.json#/courses/3/lessons/18/body",
+    "assessmentBodyIdentity": "1f:6e3e04984645854506977d1a9ec086a284bead37b3bfcc0f6955c852fe2e2afd",
+    "assessmentIdentity": "1f:8b3370623247255355309ba89e8caf253a365faa47628b5524f23afc38677e66",
+    "reconciliation": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/reconciliation.json#/library_entries/M065",
+    "manuscriptLocator": "p. 39 (82-page source edition)",
+    "manuscriptPdf": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf",
+    "manuscriptPdfIdentity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPageTextIdentity": "1f:3903d03c45c060d549027776a744394104c8c8580357f8d8b90caf936727e54f",
+    "attribution": "Supplied manuscript. Authorship or adoption of every wording is not independently established. The Hare and the Tortoise is identified as a fable; the brief plot summary and possible interpretations are authored teaching illustration, not source doctrine or learner evidence."
+  }
+}

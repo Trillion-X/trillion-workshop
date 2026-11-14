@@ -1,0 +1,57 @@
+{
+  "title": "Settling Scan",
+  "opening": "Choose one small task you can begin now. A brief transition is optional; starting directly is valid too.",
+  "labels": {
+    "activity": "What are you about to start?",
+    "scan": "Notice briefly",
+    "direct": "Start directly",
+    "begin": "I started the task",
+    "skip": "Skip the scan and begin",
+    "stop": "Stop here",
+    "noticing": "Notice what is already here",
+    "sound": "One sound you notice (optional)",
+    "sensation": "One bodily sensation (optional)",
+    "thought": "One thought (optional)",
+    "report": "After starting, how did this transition fit?",
+    "reportGroup": "Your report of the transition",
+    "practice": "Keep a private note",
+    "save": "Save my notes",
+    "busy": "Saving notes",
+    "retry": "Retry the same save"
+  },
+  "reports": [
+    {"id":"helped","label":"It helped me begin"},
+    {"id":"same","label":"No clear difference"},
+    {"id":"hindered","label":"It got in the way"},
+    {"id":"unsure","label":"I cannot tell yet"}
+  ],
+  "practice": {
+    "prediction": "Before starting, what do you expect from a brief scan or from starting directly? It is fine to write that you have no expectation.",
+    "observation": "If you chose a scan, what did you notice: a sound, sensation, or thought? If you skipped or stopped, what happened then?",
+    "comparison": "Did you choose a scan or start directly? What task did you begin, and what was happening around you?",
+    "result": "What happened after you began? Record what you noticed, or say you have not checked yet.",
+    "revision": "Next time, would you use, shorten, stop, or skip this transition? What would you change?",
+    "step": "Which small task did you choose? What would count as beginning it?",
+    "transfer": "Would the same optional transition fit another activity, such as a conversation? Explain when you would skip it."
+  },
+  "feedback": {
+    "unavailable": "Saving is unavailable for this lesson. Your notes remain on screen.",
+    "missing": "Complete each private note before saving.",
+    "length": "Keep each answer within 2,000 characters.",
+    "readFailure": "Your saved notes could not be loaded. Your current notes remain here.",
+    "saved": "Your notes are saved privately.",
+    "conflict": "These notes changed elsewhere. Your answers remain here. Save again to keep these answers.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry the same answers before changing them.",
+    "retryPending": "The earlier save is still unresolved. Retry the same answers before changing them."
+  },
+  "source": {
+    "currentRecord": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/M034",
+    "currentBody": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/M034/body",
+    "reconciliationRecord": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/reconciliation.json#/library_entries/M034",
+    "manuscriptLocator": "p. 31 (82-page source edition)",
+    "attribution": "[S01] Supplied Manuscript — 82-page edition. Authorship/adoption of every wording is not independently established.",
+    "externalContext": "[R05] NCCIH — Meditation and Mindfulness: Effectiveness and Safety. External context, not source doctrine.",
+    "status": "The transition is optional. This interaction records learner-reported experience, not a guaranteed psychological, physiological, or performance effect. The task buttons record the learner's stated choice, not independent observation of task completion."
+  }
+}

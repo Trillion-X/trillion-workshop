@@ -1,0 +1,50 @@
+{
+  "title": "Value Embodiment Practice",
+  "opening": "A cue is a prompt or arrangement that may support a chosen action. It is not the value, and it does not prove the action happened. Compare what you intended with what you actually did.",
+  "labels": {
+    "comparison": "Compare three possible cues",
+    "posture": "Posture cue",
+    "environment": "Object or surroundings cue",
+    "speaking": "Way of speaking cue",
+    "sourceTitle": "Manuscript, page 41",
+    "sourceExcerpt": "Compare a posture, an environmental object or arrangement, and a way of speaking as cues for expressing the value. Retain the cues that help actual action.",
+    "practiceTitle": "Try one in a real situation",
+    "value": "What value are you trying to express?",
+    "behavior": "What specific action would express it here?",
+    "postureTest": "What posture could remind you? What would you observe to tell whether it helped?",
+    "environmentTest": "What object or arrangement could cue the action? What would you observe to tell whether it helped?",
+    "speakingTest": "What words or way of speaking could cue the action? What would you observe to tell whether it helped?",
+    "actual": "After trying a cue, what did you actually do? What did the other person or situation call for?",
+    "decision": "Which cue, if any, helped the action? Keep only what you tested and found useful; change or drop the rest.",
+    "save": "Save private practice",
+    "busy": "Saving private practice",
+    "retry": "Retry the same save",
+    "private": "This practice is private to you. Leave it blank to continue without saving.",
+    "oversize": "This complete practice is over the 2,000-character save limit. Shorten it to save; the full draft stays on screen."
+  },
+  "feedback": {
+    "unavailable": "Private practice saving is unavailable. Your work remains on screen.",
+    "missing": "Name the value, the action you intend, and what happened when you tested a cue.",
+    "length": "Shorten the complete practice to fit the 2,000-character save limit. Your full draft remains here.",
+    "readFailure": "Saved practice could not be loaded. Your current work remains on screen.",
+    "saved": "Private practice saved.",
+    "conflict": "This practice changed elsewhere. Your answers remain here; compare the saved version before saving again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry the same save to check it.",
+    "retryPending": "The earlier save is unresolved. Retry the same answers before changing them."
+  },
+  "example": {
+    "title": "A cue can look right and still miss the action",
+    "context": "Suppose you want to listen carefully. Putting your phone out of reach is an environmental cue you could test. But if you spend the conversation rehearsing what you will say next, the phone gesture does not show that you listened.",
+    "posture": "Posture: turning toward the speaker could remind you to attend. Check whether you let them finish and can respond to what they said; the posture alone does not answer that.",
+    "environment": "Object or surroundings: moving the phone away could remove one prompt to check it. Check your attention and response; distance from the phone is not proof of either.",
+    "speaking": "Speaking: asking a brief follow-up could give you a chance to check your understanding. A question can still be mistimed or self-serving, so notice whether it fits what the speaker just said.",
+    "distinction": "A notebook labeled ‘curiosity’ is a symbol, not curious conduct. A note that says ‘ask one question before I close this tab’ could be a cue. Asking, investigating or revising is the action to look for.",
+    "lesson": "Try a cue in context, look at the conduct it was meant to support, and keep it only if it helped in that situation. Another context may need a different cue, or none."
+  },
+  "source": {
+    "currentBodyIdentity": "1f:ba7984a8da0a9a5e321f6b8ada512c4d78042344e84c920ff55d17984238476b",
+    "assessmentBodyIdentity": "1f:ba7984a8da0a9a5e321f6b8ada512c4d78042344e84c920ff55d17984238476b",
+    "assessmentIdentity": "1f:77f382c86185048e8cfbbef7043819928bfae26b6ecc14a00046a7ee787b821b"
+  }
+}

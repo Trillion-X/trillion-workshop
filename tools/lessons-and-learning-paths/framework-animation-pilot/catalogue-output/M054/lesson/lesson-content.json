@@ -1,0 +1,51 @@
+{
+  "title": "Unconditional Action Practice",
+  "opening": "You can choose an activity because it matters to you. Its result does not decide whether you matter.",
+  "example": {
+    "activity": "Write one private paragraph to explore an idea.",
+    "frames": [
+      {
+        "id": "usual",
+        "label": "Usual frame",
+        "message": "The paragraph must prove that I am brilliant.",
+        "question": "Notice pressure, attention, and enjoyment as they are now."
+      },
+      {
+        "id": "chosen",
+        "label": "Chosen action",
+        "message": "I choose to write one paragraph to explore an idea.",
+        "question": "Try one bounded, low-stakes action. Notice pressure, attention, and enjoyment."
+      }
+    ],
+    "standard": "If you publish the paragraph, review its reasoning first."
+  },
+  "limits": {
+    "heading": "Keep the task real",
+    "body": "A chosen action does not cancel a commitment or a standard that protects someone else. If removing a necessary check harms practical performance, restore that check.",
+    "comparison": "If pressure comes from an actual workload or deadline, address that condition too."
+  },
+  "labels": {
+    "example": "One writing example",
+    "frame": "Choose a way to frame the action",
+    "transfer": "Try it with your activity",
+    "note": "What did you notice about pressure, attention, or enjoyment? What task standard still applies?",
+    "save": "Save private note",
+    "retry": "Retry save",
+    "busy": "Saving private note…"
+  },
+  "practice": { "result": "" },
+  "feedback": {
+    "missing": "Write a note before you save it.",
+    "length": "Your note is longer than 2,000 characters. Shorten it before you save.",
+    "saved": "Your private note was saved.",
+    "saveFailure": "The save did not finish. Your note is still here. Retry the save.",
+    "conflict": "Another version was saved. Compare it with your note before you save again.",
+    "retryPending": "Your last save did not finish. Retry the same save or keep your note here."
+  },
+  "source": {
+    "currentBodyIdentity": "1f:e7af4084317b2a74ea00d0a6c15347fc34b8ef1216a499cae51c2ebfab1003b2",
+    "assessmentBodyIdentity": "1f:e7af4084317b2a74ea00d0a6c15347fc34b8ef1216a499cae51c2ebfab1003b2",
+    "assessmentIdentity": "1f:9f321c8db2055cb7c07489b464aa423eeb0ae5ae21fd800cc24aa14ea68335ce",
+    "manuscriptLocator": "p. 38 (82-page source edition)"
+  }
+}

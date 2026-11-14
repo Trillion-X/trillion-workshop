@@ -1,0 +1,58 @@
+{
+  "title": "Self-Authoring Process: Values-Oriented Foundation",
+  "opening": "A value is a possibility to examine, not a label you have to prove. Start with present conduct. Choose only the memories that feel useful; an ordinary recent episode is enough, and you can leave the past aside. Compare what mattered across the examples you choose, then test a tentative value against one current action. You can save a partial note or leave without saving.",
+  "labels": {
+    "conduct": "Present conduct",
+    "step": "One useful note from this reflection (required to save)",
+    "result": "A strength in how I act (optional)",
+    "alternative": "A recurring difficulty in how I act (optional)",
+    "observation": "What happened? (optional)",
+    "zoom": "What was the situation and what else was going on? (optional)",
+    "revision": "What followed for you or others? (optional)",
+    "comparison": "Across these examples, what mattered in each? (optional)",
+    "transfer": "One current action that could express or test a value (optional)",
+    "prediction": "A value that might fit, and what could change your mind (optional)",
+    "example": "Use the worked example",
+    "save": "Save private reflection",
+    "busy": "Saving reflection",
+    "retry": "Retry the same save",
+    "locked": "The earlier save is unresolved. Retry that same save before changing this reflection."
+  },
+  "example": {
+    "title": "Two moments of being heard",
+    "step": "I want to remember to ask whose view is missing before I argue for my own.",
+    "result": "In a planning meeting, I asked a quiet teammate to finish their point before we chose a direction.",
+    "alternative": "In a family discussion, I interrupted when my idea was questioned and pushed to settle the choice quickly.",
+    "observation": "In one meeting, a teammate's suggestion was passed over. In another discussion, someone challenged my suggestion.",
+    "zoom": "The meeting had little time. The family discussion was about a decision that affected everyone.",
+    "revision": "The teammate explained a missing constraint and the group changed its plan. In the second discussion, I later learned a concern I had not asked about.",
+    "comparison": "In both moments, being heard mattered. The first also showed that listening made room for useful information; the second showed that wanting to be heard can make it harder to hear others.",
+    "transfer": "In my next shared decision, I can ask whose view is missing before arguing for my own.",
+    "prediction": "Fairness or careful listening might matter to me, but these examples do not settle which one fits better. Other episodes may change my reading."
+  },
+  "messages": {
+    "capacity": "Each note has a 2,000-character limit.",
+    "missing": "Write one useful note to save. Every conduct, episode, comparison, candidate and action field can stay blank.",
+    "length": "This note exceeds 2,000 characters. Your text is still here and was not saved; shorten it before trying again.",
+    "saved": "Your private reflection is saved. You can reopen it to review or revise.",
+    "unavailable": "Private saving is unavailable here. Your current reflection remains on screen.",
+    "readFailure": "The saved reflection could not be loaded. Your current text remains here.",
+    "conflict": "This reflection changed elsewhere. Your local text remains here; review it before saving again.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry that same save before changing this reflection."
+  },
+  "source": {
+    "id": "M063",
+    "courseRecord": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/4/lessons/17",
+    "courseBody": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/4/lessons/17/body",
+    "assessmentRecord": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/source_ref=M063",
+    "manuscript": "framework-animation-pilot/catalogue-output/M040/lesson/proof/source-page-34/Manuscript.pdf, p. 39 of the 82-page edition",
+    "practiceContract": {
+      "fields": ["step", "result", "alternative", "observation", "zoom", "revision", "comparison", "transfer", "prediction"],
+      "required": ["step"],
+      "optional": ["result", "alternative", "observation", "zoom", "revision", "comparison", "transfer", "prediction"]
+    },
+    "limits": "The four source actions guide a reflection; they do not establish a clinical assessment or fixed identity. Recollections are chosen by the learner and may be skipped. No traumatic detail or childhood history is requested. The values and examples here are prompts, not conclusions about a learner. A candidate remains open to revision and is tested against current action."
+  }
+}

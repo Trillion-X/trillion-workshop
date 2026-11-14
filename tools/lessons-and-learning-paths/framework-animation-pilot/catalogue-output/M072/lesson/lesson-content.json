@@ -1,0 +1,59 @@
+{
+  "title": "Distinction Dissolution Exercise",
+  "opening": "A value and its apparent opposite can coexist in some situations. In others, a specific requirement blocks one action. Test what each behavior actually needs before deciding.",
+  "teaching": {
+    "mechanism": "An either/or claim can hide an assumption: that one quality always cancels the other. Break both qualities into actions, name the assumed boundary, then test a concrete case. If the combination fails a real condition or harms someone, keep that boundary and look for another action.",
+    "falseExclusivity": {
+      "title": "Example: serious teaching and a light joke",
+      "pair": "“If I am serious about teaching, I cannot joke.”",
+      "demands": "Serious teaching calls for an accurate explanation and respect for the learner. A brief, non-targeted joke may ease tension without replacing the explanation.",
+      "assumption": "The hidden rule is that any joke makes the work careless.",
+      "test": "A teacher makes a gentle joke about a confusing diagram, checks that no learner is its target, then explains the idea precisely. Purpose and playfulness coexist in this case.",
+      "limit": "A joke that humiliates a learner, distracts from a difficult point or blocks a needed explanation fails the test. The lesson is not that every opposite behavior is useful."
+    },
+    "constraint": {
+      "title": "Contrast: transparency and a learner’s confidence",
+      "pair": "“I must publish every detail to be transparent.”",
+      "demands": "A team can explain why it changed a rule and what it will do next. A learner’s private, identifiable disclosure may have been shared in confidence.",
+      "test": "The team can publish its reasons and an anonymized pattern. Publishing the learner’s identifying note without consent would break the confidence it agreed to protect. Those exact actions cannot both be done here.",
+      "limit": "That real boundary does not require silence: explain the decision without exposing the person. If a proposed action needs private details, pause and protect consent instead of calling disclosure ‘integration.’"
+    }
+  },
+  "labels": {
+    "attemptTitle": "Try one boundary test",
+    "attemptIntro": "Use a low-risk, non-private case. If you have not tried an action, write what you predict; do not report a result you have not observed.",
+    "statement": "I cannot be ___ and ___",
+    "demands": "What does each side actually require?",
+    "assumption": "What rule makes them seem incompatible?",
+    "classification": "In this case, the pair is",
+    "combination": "Can coexist here",
+    "constraintChoice": "Specific actions conflict",
+    "unclear": "Need more context",
+    "case": "What concrete case tests your claim?",
+    "action": "What small action could test it, or preserve the boundary?",
+    "signal": "What would make you keep, change or reject your view?",
+    "save": "Save private attempt",
+    "busy": "Saving attempt…",
+    "retry": "Retry private save",
+    "saved": "Private attempt saved.",
+    "saveError": "The private save did not finish. Your draft remains here; retry when ready.",
+    "lengthError": "This draft is longer than the 2,000-character private note limit. Shorten a field to save; the text you entered remains here.",
+    "requiredError": "Complete the pair, both demands, the assumed rule, a classification, a concrete case, a safe next action and a signal to watch before saving.",
+    "practiceTitle": "Private practice",
+    "practiceDescription": "This saves only your own boundary test in private practice. It does not grade the answer or claim that a predicted result happened.",
+    "sourceTitle": "Manuscript, page 41",
+    "sourceExcerpt": "List behaviors you associate with the value and its opposite. Trace the boundary, examine what it permits or prevents and test a small action across it where appropriate."
+  },
+  "source": {
+    "currentBodyPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/4/lessons/27/body",
+    "currentBodyIdentity": "1f:94aa998201746ea796ebc7ecc46fbb0d46c136e654ac0f3032fc3b4f588fe82d",
+    "assessmentPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/assessment-data.json#/assessments/71",
+    "assessmentBodyIdentity": "1f:94aa998201746ea796ebc7ecc46fbb0d46c136e654ac0f3032fc3b4f588fe82d",
+    "assessmentIdentity": "1f:98659d22e2bdf44179a071b9fc575b304337692c946052e2f3d338517315f8f0",
+    "reconciliationPath": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/reconciliation.json#/library_entries/M072",
+    "manuscriptPath": "framework-animation-pilot/catalogue-output/M072/lesson/proof/source-page-41/Manuscript.pdf",
+    "manuscriptPage": 41,
+    "manuscriptPdfIdentity": "1f:d56f79b3e630df54d13ddf5a4868fe310d2acad25d3283de18ff7a5b3188c27e",
+    "manuscriptPageTextIdentity": "1f:c21112d3d4865d3476cc2646433fbf2d8869f9539998a0781b2d226a4c50af54"
+  }
+}

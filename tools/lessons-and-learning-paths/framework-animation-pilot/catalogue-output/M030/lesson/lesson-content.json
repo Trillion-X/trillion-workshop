@@ -1,0 +1,94 @@
+{
+  "title": "Flow Trigger Design",
+  "opening": "Choose conditions that seem to help you work on a real task. Then compare the work and how the session felt; absorption alone cannot show that the work improved.",
+  "labels": {
+    "conditions": "Arrange this writing attempt",
+    "conditionsText": "Start from your own practice log or other observations: list recurring place, time, social, preparation, challenge, goal-clarity and feedback conditions. M023 Flow State Analysis can help, but you do not need to complete it first. Use a question from work you actually need to explain; if none is at hand, use: “How does a familiar process work?” Write a short answer, then set the conditions you want to examine.",
+    "setting": "Setting and social context",
+    "preparation": "Preparation",
+    "challenge": "Challenge",
+    "feedback": "Feedback",
+    "quiet": "Quiet, working alone",
+    "conversation": "Explain it while someone asks questions",
+    "question": "Write one question before starting",
+    "noPrompt": "Start without a written question",
+    "sameTask": "Explain the same process",
+    "newTask": "Explain it for a new reader",
+    "noCheck": "No reader check",
+    "clarityCheck": "Ask the reader to restate it",
+    "personCheck": "Ask the reader what is still unclear",
+    "attempt": "Make the attempt",
+    "draftPrompt": "Write two or three sentences that answer the task question.",
+    "draftPlaceholder": "Your answer to the reader’s question…",
+    "plannedSession": "What this arrangement asks you to do",
+    "goal": "Task goal",
+    "quietGoal": "Answer the reader’s question in a short explanation.",
+    "conversationGoal": "Explain the process aloud and answer one follow-up question.",
+    "quietGoal": "Answer the reader’s question in a short explanation.",
+    "conversationGoal": "Explain the process aloud and answer one follow-up question.",
+    "prepWithQuestion": "Before drafting, write the reader’s question: “How does this process work?”",
+    "prepWithoutQuestion": "Start from the task without writing a reader question first.",
+    "challengeLabel": "Task to attempt",
+    "sameChallenge": "Explain the same process for the same reader.",
+    "newChallenge": "Explain the same process to a new reader who needs one extra detail.",
+    "noCheckEvidence": "After drafting, keep the answer as evidence. Its clarity has not been checked by a reader.",
+    "clarityCheckEvidence": "Ask the reader to restate the answer in their own words. Compare their restatement with the task question; record what matched and what was missing.",
+    "personCheckEvidence": "Ask the reader which part remains unclear. Record their words and revise only after you have noted the original answer.",
+    "comparison": "Find a real comparison",
+    "comparisonText": "Think of an earlier attempt at a similar task where this condition was absent. Compare the actual writing and how absorbed you felt. If the task or other conditions differed, note them; if no useful earlier attempt exists, record that and use this attempt as your first observation.",
+    "evidence": "Record separate evidence",
+    "engagementEvidence": "Engagement: how absorbed or distracted you felt.",
+    "disruptionEvidence": "Disruption: interruptions or other conditions that broke the attempt.",
+    "performanceEvidence": "Performance: the draft, reader response and what the answer enabled the reader to explain.",
+    "unknownEvidence": "Unknown: which condition, if any, made a difference when other things also changed.",
+    "plan": "Record what happened and choose the next adjustment",
+    "save": "Save session plan",
+    "busy": "Saving plan",
+    "retry": "Retry the same save"
+  },
+  "choices": {
+    "setting": [
+      { "id": "quiet", "label": "quiet", "title": "Quiet, solo", "description": "Draft alone in a quiet place." },
+      { "id": "conversation", "label": "conversation", "title": "Conversation", "description": "Explain the process aloud and answer a question while drafting." }
+    ],
+    "preparation": [
+      { "id": "question", "label": "question", "title": "Question first", "description": "Write the reader question before drafting." },
+      { "id": "no-prompt", "label": "no-prompt", "title": "No prompt", "description": "Start drafting without writing the reader question first." }
+    ],
+    "challenge": [
+      { "id": "same", "label": "same", "title": "Same reader", "description": "Explain the same process for the same reader." },
+      { "id": "new", "label": "new", "title": "New reader", "description": "Explain it to a new reader who needs one extra detail." }
+    ],
+    "feedback": [
+      { "id": "none", "label": "no-check", "title": "No reader check", "description": "Keep the draft; clarity remains unchecked." },
+      { "id": "reader-restates", "label": "reader-restates", "title": "Reader restates", "description": "Ask the reader to restate your answer." },
+      { "id": "reader-unclear", "label": "reader-unclear", "title": "Ask what is unclear", "description": "Ask the reader what still needs explaining." }
+    ]
+  },
+  "feedback": {
+    "unavailable": "Saving is unavailable here. Your plan remains on screen.",
+    "missing": "Complete the task goal, a baseline, a comparison plan, separate outcome notes and a revision before saving.",
+    "length": "Keep each answer within 2,000 characters.",
+    "readFailure": "Your saved plan could not be loaded. Your current answers remain here.",
+    "saved": "Your session plan is saved.",
+    "conflict": "This plan changed elsewhere. Your answers remain here. Save again to keep these answers.",
+    "readbackFailure": "The save could not be confirmed. Retry to check the same save.",
+    "saveFailure": "The save is uncertain. Retry to check the same save.",
+    "retryPending": "The earlier save is unresolved. Retry the same answers before changing them."
+  },
+  "practice": {
+    "prediction": "What task are you arranging? What should the reader be able to explain after reading your answer?",
+    "observation": "What did an actual earlier attempt show about engagement, disruption and how clearly your answer worked? If none exists, say what you will observe first.",
+    "comparison": "Which one condition will you examine? What real attempt can you compare with where it was absent? Record other differences or say when you do not know.",
+    "result": "After the attempt, how absorbed were you, what disrupted the work, and what did the draft or reader response show? Keep these separate.",
+    "revision": "What difficulty repeated, or what did the reader still need? How could you adjust the task challenge to fit your current ability?",
+    "step": "What will you change next time? How will you compare that attempt with a real session where the condition was absent?"
+  },
+  "source": {
+    "sourceRecord": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/course-input.json#/courses/3/lessons/29",
+    "reconciliation": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/reconciliation.json#/library_entries/29",
+    "sourceActions": "source-actions.json",
+    "relatedEvidence": "M023 Flow State Analysis is an evidence reference; it is not a required lesson prerequisite.",
+    "status": "Current expansion actions are preserved. The writing task and its feedback prompts are authored instructional examples; no learner outcome is asserted."
+  }
+}
