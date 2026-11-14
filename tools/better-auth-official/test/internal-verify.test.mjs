@@ -74,10 +74,11 @@ const list = values => { const n = Buffer.alloc(4); n.writeUInt32BE(values.lengt
 const proofSettings = settings.computer_proof;
 const accountKey = pair(), computer = pair(), stranger = pair();
 const address = addressOf(proofSettings, accountKey.hex);
-const keptFor = holders => {
+const keptFor = (holders, by = accountKey) => {
+  const address = addressOf(proofSettings, by.hex);
   const revision = Buffer.alloc(8); revision.writeBigUInt64BE(1n);
   const bytes = Buffer.concat([text(proofSettings.signed_domain), text(address), text(''), revision, list(holders), list(holders), list([])]);
-  return { row: { account: address, revision: 1, holders, answering: holders, voters: [], signature: sign(null, bytes, accountKey.privateKey).toString('hex') }, account_key: accountKey.hex };
+  return { row: { account: address, revision: 1, holders, answering: holders, voters: [], signature: sign(null, bytes, by.privateKey).toString('hex') }, account_key: by.hex };
 };
 const proofFor = (who, key, at = Date.now()) => {
   const time = Buffer.alloc(8); time.writeBigInt64BE(BigInt(at));
@@ -106,6 +107,25 @@ test('a computer the row does not list, a proof for another key, an old proof or
 
 test('a computer learns nothing of another account\'s key', async () => {
   assert.deepEqual(await (await elsewhere(made.key)).json(), { valid: false, key: null });
+});
+
+test('a key whose user has no account takes, on its first check by a computer of an account, that account, and keeps it', async () => {
+  const fresh = await post(`${ORIGIN}/api/auth/sign-up/email`, { email: 'made-before@example.test', password: 'scratch-password-123', name: 'Scratch' });
+  const freshCookie = fresh.headers.getSetCookie().map(c => c.split(';')[0]).join('; ');
+  const freshUser = (await ctx.internalAdapter.findUserByEmail('made-before@example.test')).user;
+  const key = await (await post(`${ORIGIN}/api/auth/api-key/create`, { name: 'first' }, freshCookie)).json();
+  assert.equal((await (await verify(key.key)).json()).key.metadata?.trillion_account, undefined, 'no account before the check');
+  const other = pair(), otherComputer = pair();
+  const linked = await (await elsewhere(key.key)).json();
+  assert.equal(linked.valid, true);
+  assert.equal(linked.key.metadata.trillion_account, address);
+  assert.equal((await ctx.internalAdapter.findUserById(freshUser.id)).trillionAccount, address);
+  assert.equal((await (await verify(key.key)).json()).key.metadata.trillion_account, address, 'the engine on this computer reads it too');
+  const moved = await (await elsewhere(key.key, { by: otherComputer, kept: keptFor([otherComputer.hex], other) })).json();
+  assert.deepEqual(moved, { valid: false, key: null }, 'a computer of another account learns nothing and moves nothing');
+  assert.equal((await ctx.internalAdapter.findUserById(freshUser.id)).trillionAccount, address);
+  const later = await (await post(`${ORIGIN}/api/auth/api-key/create`, { name: 'later' }, freshCookie)).json();
+  assert.equal((await (await verify(later.key)).json()).key.metadata.trillion_account, address, 'every key of the user answers the account');
 });
 
 test('a party with no account cannot name one for its key', async () => {

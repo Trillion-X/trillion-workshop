@@ -8,6 +8,11 @@
 // signed for the `key-check` use (computer-proof.mjs), and in the body, beside the key, `kept`: its account's own signed
 // computers row and the account's public key, as it tells a forwarder. A proof binds one key, so it is never replayed for
 // another; the row must list the computer; and a computer learns only about keys of its own account.
+//
+// A key carries its account in its metadata when its user had one as it was made. A key whose user has none yet (an account
+// made before this tool, never created here) takes its account on its first check by a computer its account's own row
+// enrolls: the user is linked to that account, once (a user already linked is never moved), and every key of that user
+// answers that account from then on. Holding the key and a computer of the account together is the proof both are one party's.
 import { createServer } from 'node:http';
 import { enrolledAccount, keyDigest, readProof } from './computer-proof.mjs';
 
@@ -21,11 +26,19 @@ const bodyOf = (request, most) => new Promise(done => {
 });
 const keyOf = async request => { const { key } = (await bodyOf(request, 4096)) ?? {}; return typeof key === 'string' && key ? key : null; };
 
-/** Better Auth's answer for `key`, in the engine's shape. */
-async function verified(auth, key) {
+/** Better Auth's answer for `key`, in the engine's shape. A key that names no account answers its user's account, if any;
+ * with `link`, a user that has none is first linked to `link` (the account a computer proved, computerKeyCheck). */
+async function verified(auth, key, claim, link = null) {
   const answer = await auth.api.verifyApiKey({ body: { key } });
   if (!answer.valid || !answer.key) return { valid: false, key: null };
-  const { id, referenceId: userId, metadata = null, permissions = null } = answer.key;
+  const { id, referenceId: userId, permissions = null } = answer.key;
+  let metadata = answer.key.metadata ?? null;
+  if (claim && !metadata?.[claim.claim]) {
+    const ctx = await auth.$context;
+    const user = await ctx.internalAdapter.findUserById(userId);
+    if (user && !user[claim.field] && link) user[claim.field] = (await ctx.internalAdapter.updateUser(userId, { [claim.field]: link }))?.[claim.field] ?? link;
+    if (user?.[claim.field]) metadata = { ...(metadata ?? {}), [claim.claim]: user[claim.field] };
+  }
   return { valid: true, key: { id, userId, metadata, permissions } };
 }
 
@@ -42,17 +55,17 @@ export function computerKeyCheck(auth, settings) {
     const read = readProof(proof, check.use, credential, Date.now());
     const account = read && read.part === keyDigest(key) ? enrolledAccount(proof, body.kept, read.computer) : null;
     if (!account) return json(response, 401, { error: 'computer_not_admitted' }), true;
-    const answer = await verified(auth, key);
+    const answer = await verified(auth, key, claim, account);
     const owner = answer.key?.metadata?.[claim?.claim ?? 'trillion_account'];
     return json(response, 200, owner === account ? answer : { valid: false, key: null }), true;
   };
 }
 
-export function serveInternal(auth, { host, port, verify_path: path }) {
+export function serveInternal(auth, { host, port, verify_path: path }, claim = null) {
   return createServer(async (request, response) => {
     if (request.method !== 'POST' || request.url !== path) return json(response, 404, { error: 'not_found' });
     const key = await keyOf(request);
     if (!key) return json(response, 400, { error: 'key_required' });
-    json(response, 200, await verified(auth, key));
+    json(response, 200, await verified(auth, key, claim));
   }).listen(port, host);
 }

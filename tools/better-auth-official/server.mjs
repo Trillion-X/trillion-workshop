@@ -29,5 +29,5 @@ createServer(async (request, response) => {
 
 // The computer's own side: the engine's API key check (internal-verify.mjs), on a listener Caddy never reaches.
 if (settings.internal) {
-  serveInternal(auth, settings.internal).on('listening', () => console.log(`better-auth internal on ${settings.internal.host}:${settings.internal.port}`));
+  serveInternal(auth, settings.internal, settings.account_claim).on('listening', () => console.log(`better-auth internal on ${settings.internal.host}:${settings.internal.port}`));
 }
