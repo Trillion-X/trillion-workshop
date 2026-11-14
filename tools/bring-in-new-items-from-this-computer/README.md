@@ -78,6 +78,9 @@ try here is skipped (no preview, no pane, the host name for the computer's name)
 |------|---------|
 | `computer/read-new-items.mjs` | The readers and `readNewItems`: settle, send once per version, group per window, preview and copy pictures, hear a recording and read a picture before sending, back-fill the past newest first, and each place's and each item's waits. |
 | `computer/read-new-items.json` | How many reader child processes run at once and how long a read waits for one. |
+| `whatsapp-web/do-work/wa-snapshot-store.mjs` | Moved byte for byte from bitfield-packages `whatsapp-web-connector`: the pure fold of WhatsApp history and live batches into the decoder-shaped `{self_jid, contacts, messages}` snapshot (dedup by `remoteJid:id`, chronological, contact names from push names and the history directory). |
+| `whatsapp-web/do-work/worker.mjs` | Moved with it: `runConnector`, one bounded run (session restore, pairing hold, bounded reconnects, history and live fold, creds saved on every update) and `snapshotFileStore`. |
+| `whatsapp-web/do-work/live-shell.mjs` | Moved with it: the real Baileys socket factory, session pack and restore, half-paired session sweep, phone-code and QR emitters, and the command line. Its default folders and the vault blob calls are the retired runtime's: not wired here. |
 | `computer/computer-sources.json` | The rows the `inputs` list starts with, and every wait and word the reader keeps. |
 | `computer/inputs.mjs` | The `inputs` list as the reader reaches it (`liveInputs`, `startersOf`), and the `tool` reader for a connected service (`serviceReader`, `toolRunner`, `readersWith`). |
 | `computer/inputs-list.json` | The list's definition: its fields and what a row holds. |

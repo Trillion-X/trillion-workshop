@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/whatsapp-web-connector/do-work/wa-snapshot-store.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bring-in-new-items-from-this-computer/whatsapp-web/do-work/wa-snapshot-store.mjs",
+      "source_identity": "1f:879a3f205f06293865b7c36d7667b494ed823895711a3993e3bd856eb2eac881",
+      "identity": "1f:879a3f205f06293865b7c36d7667b494ed823895711a3993e3bd856eb2eac881"
+    },
+    {
+      "from": "packages/whatsapp-web-connector/do-work/worker.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bring-in-new-items-from-this-computer/whatsapp-web/do-work/worker.mjs",
+      "source_identity": "1f:eff0b39c517f7f8707dc8ec27dd2985beb52e66c1ce4acce7365b6091d0ac475",
+      "identity": "1f:eff0b39c517f7f8707dc8ec27dd2985beb52e66c1ce4acce7365b6091d0ac475"
+    },
+    {
+      "from": "packages/whatsapp-web-connector/do-work/live-shell.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bring-in-new-items-from-this-computer/whatsapp-web/do-work/live-shell.mjs",
+      "source_identity": "1f:4b28407b47724cf9d620f57a0971c3a412cad8aa078e6647a66d5a1d8bfff349",
+      "identity": "1f:4b28407b47724cf9d620f57a0971c3a412cad8aa078e6647a66d5a1d8bfff349"
+    }
+  ]
+}

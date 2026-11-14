@@ -10,9 +10,11 @@
     "own-writes.json": "computer/own-writes.json",
     "read-new-items": "computer/read-new-items.mjs",
     "read-new-items.json": "computer/read-new-items.json",
-    "whatsapp": "computer/connections/whatsapp.mjs"
+    "whatsapp": "computer/connections/whatsapp.mjs",
+    "whatsapp-web/*": "whatsapp-web/*"
   },
   "imported_by": [
-    "Trillion-X/trillion"
+    "Trillion-X/trillion",
+    "bitfield-packages"
   ]
 }
