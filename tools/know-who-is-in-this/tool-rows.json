@@ -44,8 +44,79 @@
         },
         "invoke": {
           "kind": "container",
+          "programs": {
+            "ffmpeg": {
+              "fetch": {
+                "macos-aarch64": {
+                  "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+                },
+                "macos-x86_64": {
+                  "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+                },
+                "linux-x86_64": {
+                  "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+                },
+                "linux-aarch64": {
+                  "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+                }
+              },
+              "search": "ffmpeg",
+              "search_path": [
+                "/opt/homebrew/bin",
+                "/usr/local/bin",
+                "/opt/local/bin"
+              ]
+            },
+            "ffprobe": {
+              "fetch": {
+                "macos-aarch64": {
+                  "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+                },
+                "macos-x86_64": {
+                  "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+                },
+                "linux-x86_64": {
+                  "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+                },
+                "linux-aarch64": {
+                  "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+                }
+              },
+              "search": "ffprobe",
+              "search_path": [
+                "/opt/homebrew/bin",
+                "/usr/local/bin",
+                "/opt/local/bin"
+              ]
+            }
+          },
           "files": {
             "package_files": [
+              {
+                "packages": [
+                  "yunet-face-model",
+                  "sface-face-model"
+                ],
+                "at": "/opt/models/faces"
+              },
+              {
+                "packages": [
+                  "numpy",
+                  "onnxruntime",
+                  "kaldi-native-fbank",
+                  "blake3",
+                  "webrtcvad-wheels",
+                  "pillow",
+                  "flatbuffers",
+                  "packaging",
+                  "protobuf",
+                  "sympy",
+                  "mpmath",
+                  "coloredlogs",
+                  "humanfriendly"
+                ],
+                "at": "/opt/know-who-is-in-this/do-work"
+              },
               {
                 "package": "know-who-is-in-this",
                 "paths": [
@@ -223,8 +294,79 @@
         },
         "invoke": {
           "kind": "container",
+          "programs": {
+            "ffmpeg": {
+              "fetch": {
+                "macos-aarch64": {
+                  "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+                },
+                "macos-x86_64": {
+                  "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+                },
+                "linux-x86_64": {
+                  "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+                },
+                "linux-aarch64": {
+                  "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+                }
+              },
+              "search": "ffmpeg",
+              "search_path": [
+                "/opt/homebrew/bin",
+                "/usr/local/bin",
+                "/opt/local/bin"
+              ]
+            },
+            "ffprobe": {
+              "fetch": {
+                "macos-aarch64": {
+                  "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+                },
+                "macos-x86_64": {
+                  "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+                },
+                "linux-x86_64": {
+                  "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+                },
+                "linux-aarch64": {
+                  "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+                }
+              },
+              "search": "ffprobe",
+              "search_path": [
+                "/opt/homebrew/bin",
+                "/usr/local/bin",
+                "/opt/local/bin"
+              ]
+            }
+          },
           "files": {
             "package_files": [
+              {
+                "packages": [
+                  "yunet-face-model",
+                  "sface-face-model"
+                ],
+                "at": "/opt/models/faces"
+              },
+              {
+                "packages": [
+                  "numpy",
+                  "onnxruntime",
+                  "kaldi-native-fbank",
+                  "blake3",
+                  "webrtcvad-wheels",
+                  "pillow",
+                  "flatbuffers",
+                  "packaging",
+                  "protobuf",
+                  "sympy",
+                  "mpmath",
+                  "coloredlogs",
+                  "humanfriendly"
+                ],
+                "at": "/opt/know-who-is-in-this/do-work"
+              },
               {
                 "package": "know-who-is-in-this",
                 "paths": [
@@ -378,8 +520,79 @@
         },
         "invoke": {
           "kind": "container",
+          "programs": {
+            "ffmpeg": {
+              "fetch": {
+                "macos-aarch64": {
+                  "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+                },
+                "macos-x86_64": {
+                  "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+                },
+                "linux-x86_64": {
+                  "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+                },
+                "linux-aarch64": {
+                  "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+                }
+              },
+              "search": "ffmpeg",
+              "search_path": [
+                "/opt/homebrew/bin",
+                "/usr/local/bin",
+                "/opt/local/bin"
+              ]
+            },
+            "ffprobe": {
+              "fetch": {
+                "macos-aarch64": {
+                  "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+                },
+                "macos-x86_64": {
+                  "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+                },
+                "linux-x86_64": {
+                  "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+                },
+                "linux-aarch64": {
+                  "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+                }
+              },
+              "search": "ffprobe",
+              "search_path": [
+                "/opt/homebrew/bin",
+                "/usr/local/bin",
+                "/opt/local/bin"
+              ]
+            }
+          },
           "files": {
             "package_files": [
+              {
+                "packages": [
+                  "yunet-face-model",
+                  "sface-face-model"
+                ],
+                "at": "/opt/models/faces"
+              },
+              {
+                "packages": [
+                  "numpy",
+                  "onnxruntime",
+                  "kaldi-native-fbank",
+                  "blake3",
+                  "webrtcvad-wheels",
+                  "pillow",
+                  "flatbuffers",
+                  "packaging",
+                  "protobuf",
+                  "sympy",
+                  "mpmath",
+                  "coloredlogs",
+                  "humanfriendly"
+                ],
+                "at": "/opt/know-who-is-in-this/do-work"
+              },
               {
                 "package": "know-who-is-in-this",
                 "paths": [
