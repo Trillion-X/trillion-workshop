@@ -1,0 +1,39 @@
+{
+  "drafted_from": "tool:check-a-connection's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Check that the person's connection to a place still reaches its account, before a post is set to go there or a read is made\", with {\"place\":\"threads\",\"account_id\":\"service_connection:threads\"}. It runs tool:check-a-connection; its answer contains \"id\".",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
+  "workflows": [],
+  "tools": [
+    "tool:check-a-connection",
+    "tool:list-post-destinations"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Check that the person's connection to a place still reaches its account, before a post is set to go there or a read is made\", and give it place (the slug of a place that declares a check, here threads) and account_id (One of the person's accounts of that place's kind, from tool:list-post-destinations).",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-connection and its input (the worked example shows one).",
+    "3. Read what comes back: Asks the place which account the person's connection signs in as, with the value the person's vault holds for it (placed only as the request leaves, never shown)."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check the Threads connection through the one check tool",
+      "ask": "Check that the person's connection to a place still reaches its account, before a post is set to go there or a read is made",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-a-connection",
+            "input": {
+              "place": "threads",
+              "account_id": "service_connection:threads"
+            }
+          }
+        }
+      },
+      "given": "The input {\"place\":\"threads\",\"account_id\":\"service_connection:threads\"}.",
+      "hands_back": "The answer's $ contains \"id\"."
+    }
+  ]
+}

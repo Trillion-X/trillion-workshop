@@ -12,6 +12,7 @@ import rows from '../tool-rows.json' with { type: 'json' };
 import settings from '../sign-in-settings.json' with { type: 'json' };
 import descriptorFile from '../records.json' with { type: 'json' };
 import socialRows from '../../social-posts/tool-rows.json' with { type: 'json' };
+import { resolvedInvoke } from '../../social-posts/test/by-input.mjs';
 
 const ROUTE = 'tool:connect-an-account-by-signing-in-to-the-service';
 const row = rowOf(rows, ROUTE);
@@ -51,14 +52,13 @@ const toolRuns = ({ pages = onePage, email = 'someone@example.com', traded = { a
   'tool:google-account-find_my_mailbox': () => ({ emailAddress: email, messagesTotal: 3, threadsTotal: 2, historyId: '1' }),
   'tool:trade-an-instagram-sign-in-code-for-its-short-token': () => ({ access_token: HELD, user_id: 17800000000000001 }),
   'tool:trade-a-short-instagram-token-for-a-long-one': () => ({ access_token: HELD, token_type: 'bearer', expires_in: 5183944 }),
-  'tool:check-the-instagram-connection': () => ({ user_id: '17800000000000001', username: 'made_up_account', id: '1' }),
   'tool:trade-a-facebook-sign-in-code-for-its-short-token': () => ({ access_token: HELD, token_type: 'bearer', expires_in: 5183944 }),
   'tool:trade-a-short-facebook-token-for-a-long-one': () => ({ access_token: HELD, token_type: 'bearer', expires_in: 5183944 }),
   'tool:list-the-facebook-pages-a-sign-in-reaches': () => ({ data: pages }),
   'tool:keep-a-facebook-pages-token': () => ({ id: 'kept', access_token: HELD }),
   'tool:trade-a-threads-sign-in-code-for-its-short-token': () => ({ access_token: HELD, user_id: 17800000000000002 }),
   'tool:trade-a-short-threads-token-for-a-long-one': () => ({ access_token: HELD, token_type: 'bearer', expires_in: 5183944 }),
-  'tool:check-the-threads-connection': () => ({ id: '17800000000000002', username: 'made_up_threads_account' }),
+  'tool:check-a-connection': input => (input.place === 'instagram' ? { user_id: '17800000000000001', username: 'made_up_account', id: '1' } : { id: '17800000000000002', username: 'made_up_threads_account' }),
 });
 
 const route = (path, query, sample) => runRow(row, { path, method: 'GET', query, body: {}, browser: { user_agent: 'test', origin: '', visitor: '' }, account_id: 'made-up-account' }, sample);
@@ -335,7 +335,8 @@ test('a Threads sign-in trades the code for a short token then a long one, check
 });
 
 test('the Threads check asks only the Threads host, with the held token placed in the query, and renews it before it lapses', () => {
-  const check = rowOf(socialRows, 'tool:check-the-threads-connection');
+  const checkRow = rowOf(socialRows, 'tool:check-a-connection');
+  const check = { ...checkRow, invoke: resolvedInvoke(checkRow, { place: 'threads' }) };
   assert.equal(check.invoke.url, 'https://graph.threads.net/v1.0/me');
   assert.equal(check.invoke.connection.vendor, 'threads');
   assert.equal(check.read_only, true);

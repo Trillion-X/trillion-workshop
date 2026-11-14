@@ -6,11 +6,11 @@
   "workflows": [],
   "tools": [
     "tool:list-my-youtube-videos",
-    "tool:check-the-youtube-connection"
+    "tool:check-a-connection"
   ],
   "instructions": [
     "1. Connect your YouTube account (service_connection:youtube, or service_connection:youtube:<name> for a second one).",
-    "2. Run tool:check-the-youtube-connection with {account_id}; it answers the channel and its uploads playlist_id.",
+    "2. Run tool:check-a-connection with {place: \"youtube\", account_id}; it answers the channel and its uploads playlist_id.",
     "3. Say \"List my YouTube videos\": the AI runs tool:list-my-youtube-videos at @workshop-tools with {account_id, playlist_id}.",
     "4. Read the answer: the playlist's items (50 a page), each with its title, publish time and privacy status (public, unlisted or private), and nextPageToken when there is more; pass it back as page_token for the next page. A refusal from YouTube means the sign-in lacks read access to the channel."
   ],

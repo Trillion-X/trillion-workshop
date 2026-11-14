@@ -283,7 +283,7 @@
     "tool:check-copy",
     "tool:draft-a-post",
     "tool:see-how-each-post-did",
-    "tool:send-a-post-to-substack",
+    "tool:send-a-post",
     "tool:set-a-post-to-go-at-its-time"
   ],
   "instructions": [

@@ -5,14 +5,16 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { resolvedInvoke } from './by-input.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const rows = JSON.parse(readFileSync(join(HERE, '..', 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
 const row = id => rows.find(payload => payload.id === id);
+const checkOf = slug => { const check = row('tool:check-a-connection'); return { ...check, invoke: resolvedInvoke(check, { place: slug }) }; };
 const PLACE_HOSTS = ['www.googleapis.com', 'youtube.googleapis.com'];
 
 test('the YouTube connection check asks for the channel the connection signs in as', () => {
-  const check = row('tool:check-the-youtube-connection');
+  const check = checkOf('youtube');
   assert.ok(check, 'row exists');
   assert.equal(check.read_only, true);
   assert.equal(check.invoke.kind, 'http');
@@ -21,7 +23,7 @@ test('the YouTube connection check asks for the channel the connection signs in 
   assert.deepEqual(check.invoke.query.part, { const: 'id,snippet,contentDetails' });
   assert.deepEqual(check.invoke.query.mine, { const: 'true' });
   assert.deepEqual(check.invoke.connection, { vendor: 'youtube', from_input: 'account_id' });
-  assert.deepEqual(check.input_schema.required, ['account_id']);
+  assert.deepEqual(check.input_schema.required, ['place', 'account_id']);
   assert.equal(check.invoke.credential_injections[0].field_id, 'access_token');
   for (const inj of check.invoke.credential_injections) {
     assert.deepEqual(inj.hosts, ['www.googleapis.com']);
@@ -44,9 +46,9 @@ test('the list of the channel videos reads the uploads playlist, unlisted and pr
 });
 
 test('neither new row names a secret value or a host outside the place hosts', () => {
-  for (const id of ['tool:check-the-youtube-connection', 'tool:list-my-youtube-videos']) {
-    assert.doesNotMatch(JSON.stringify(row(id)), /ya29\.|refresh_token=|client_secret/);
-    for (const inj of row(id).invoke.credential_injections) {
+  for (const [id, rowFor] of [['the youtube check', () => checkOf('youtube')], ['tool:list-my-youtube-videos', () => row('tool:list-my-youtube-videos')]]) {
+    assert.doesNotMatch(JSON.stringify(rowFor()), /ya29\.|refresh_token=|client_secret/);
+    for (const inj of rowFor().invoke.credential_injections) {
       for (const host of inj.hosts) assert.ok(PLACE_HOSTS.includes(host));
     }
   }

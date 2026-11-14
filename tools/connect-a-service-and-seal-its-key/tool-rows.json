@@ -1335,17 +1335,15 @@
               "tool:trade-a-gmail-sign-in-code-for-its-tokens",
               "tool:google-account-find_my_mailbox",
               "tool:trade-a-youtube-sign-in-code-for-its-tokens",
-              "tool:check-the-youtube-connection",
+              "tool:check-a-connection",
               "tool:trade-an-instagram-sign-in-code-for-its-short-token",
               "tool:trade-a-short-instagram-token-for-a-long-one",
-              "tool:check-the-instagram-connection",
               "tool:trade-a-facebook-sign-in-code-for-its-short-token",
               "tool:trade-a-short-facebook-token-for-a-long-one",
               "tool:list-the-facebook-pages-a-sign-in-reaches",
               "tool:keep-a-facebook-pages-token",
               "tool:trade-a-threads-sign-in-code-for-its-short-token",
               "tool:trade-a-short-threads-token-for-a-long-one",
-              "tool:check-the-threads-connection",
               "tool:trade-an-x-sign-in-code-for-its-tokens",
               "tool:check-the-x-connection"
             ]

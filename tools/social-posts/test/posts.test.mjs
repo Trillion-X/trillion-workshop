@@ -8,6 +8,8 @@ import { openRecordsDoor } from 'trillion-workshop/tools/records-door/read-data/
 import { approveAPost, publishAPostNow } from '../read-data/posts.mjs';
 import { approvalValues } from '../read-data/post-shape.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
+import { resolvedInvoke } from './by-input.mjs';
+import { slugOf } from '../read-data/place-variants.mjs';
 
 const row = id => rowOf(rows, `tool:${id}`);
 const connection = value => ({ id: `connection:${encodeURIComponent(value.connection_id)}`, type: 'connection', value });
@@ -325,8 +327,11 @@ test('a bad time zone and a link that is not https are refused with what to give
 
 test('each connection check asks with the value its place signs with, over https, and posts nothing', async () => {
   const { default: places } = await import('../read-data/post-places.json', { with: { type: 'json' } });
-  const checks = rows.records.map(record => record.payload).filter(payload => payload.invoke.kind === 'http');
-  assert.ok(checks.length >= 2);
+  const checkRow = rows.records.map(record => record.payload).find(payload => payload.id === 'tool:check-a-connection');
+  const slugs = Object.keys(checkRow.invoke.by_input.variants);
+  assert.deepEqual(slugs.sort(), places.places.filter(item => item.check).map(slugOf).sort(), 'a variant for each place that declares a check, and no other');
+  assert.ok(slugs.length >= 4);
+  const checks = [...slugs.map(slug => ({ ...checkRow, id: `${checkRow.id} (${slug})`, invoke: resolvedInvoke(checkRow, { place: slug }) })), ...rows.records.map(record => record.payload).filter(payload => payload.invoke.kind === 'http' && !payload.invoke.by_input)];
   for (const check of checks) {
     const vendor = check.invoke.connection.vendor;
     const place = places.places.find(item => item.connection_vendor === vendor);

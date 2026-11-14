@@ -44,8 +44,7 @@
     "tool:read-where-you-stand",
     "tool:reframe-video",
     "tool:say-why-a-technique-works",
-    "tool:send-a-post-to-x",
-    "tool:send-a-post-to-youtube",
+    "tool:send-a-post",
     "tool:set-a-post-to-go-at-its-time",
     "tool:tell-the-person",
     "tool:transcribe-audio-and-repair-whisper-loops"

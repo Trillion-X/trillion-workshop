@@ -3,9 +3,9 @@
 // Purpose: send one of the person's posts to one of its destinations, once its time has come, through the publisher
 // of that place (@opencoredev/social-sdk, MIT, or a publisher shaped like one), and keep the outcome on the post
 // record. A place's row (read-data/post-places.json) says which publisher, how its options are filled and which hosts
-// a held value may go to; the destination is one of the person's connection records. Each place has its own tool row
-// (tool:send-a-post-to-<place>), because each place signs with its own held fields: the engine hands this run that
-// connection's held values on descriptors 4, 5, ... in the order the place's options name them (`heldFields`), and
+// a held value may go to; the destination is one of the person's connection records. One tool row (tool:send-a-post) sends to every place, and its input `place` (the place's slug) chooses the
+// variant of the row that names that place's connection kind, held fields and renewal (place-variants.mjs makes them
+// from the place rows): the engine hands this run that connection's held values on descriptors 4, 5, ... in the order the place's options name them (`heldFields`), and
 // the run's input names which of the person's accounts of that kind (`account_id`).
 //
 // Non-Negotiable Invariants:
@@ -41,6 +41,7 @@ import { facebookPage } from './publisher-facebook-page.mjs';
 import { requests } from './publisher-requests.mjs';
 import { substack } from './publisher-substack.mjs';
 import { shaped } from './post-shape.mjs';
+import { slugOf } from './place-variants.mjs';
 
 // The publishers this tool carries, bound by the names place rows use (`adapter`). A place whose adapter is not here
 // is refused in plain words.
@@ -231,11 +232,12 @@ async function mediaFor(post, place, door) {
   return { kind, mimeType: shared.media_type ?? mediaType, byteSize: shared.byte_length, source: { kind: 'https-url', url: shared.url } };
 }
 
-/** tool:send-a-post-to-<place>: sends the post to one destination once its time has come, and keeps the outcome. Run
+/** tool:send-a-post: sends the post to one destination once its time has come, and keeps the outcome. Run
  *  at the post's time by its wake, it is told the armed_at the post was set with, and sends nothing once the post no
  *  longer carries it (taken back, changed, set again or gone). */
-export async function sendAPost({ post_id: postId, account_id: accountId, resend = false, armed_at: armedAt } = {}, { door, now = () => new Date(), send = fetch, held = null, publishers = PUBLISHERS }) {
+export async function sendAPost({ post_id: postId, place: placeSlug, account_id: accountId, resend = false, armed_at: armedAt } = {}, { door, now = () => new Date(), send = fetch, held = null, publishers = PUBLISHERS }) {
   if (typeof postId !== 'string' || !postId.trim() || typeof accountId !== 'string' || !accountId.trim()) throw new Error('Give post_id and account_id (one of the post\'s destinations).');
+  if (typeof placeSlug !== 'string' || !placeSlug.trim()) throw new Error('Give place (the slug of the place account_id belongs to).');
   const original = await door.readRecord(TYPE, postId.trim());
   let post = original?.value ?? null;
   let expected = original;
@@ -255,6 +257,7 @@ export async function sendAPost({ post_id: postId, account_id: accountId, resend
   }
   const connection = await door.read(settings.connection_type, `${settings.connection_prefix}${encodeURIComponent(accountId)}`);
   const place = connection ? PLACES.find(item => item.connection_vendor === connection.vendor) ?? null : null;
+  if (place && slugOf(place) !== placeSlug.trim()) throw new Error(`${accountId} belongs to ${slugOf(place)}, not ${placeSlug.trim()}. Nothing was sent.`);
   const keep = async verb => {
     const at = now().toISOString();
     const next = { ...post, sent_at: post.sent_at ?? at, deliveries: { ...deliveries }, updated_at: at };
@@ -316,7 +319,7 @@ export async function sendEachPostAtItsTime({ task = {} } = {}, { door }) {
       if (!settings.resend_states.includes(post.deliveries?.[accountId]?.status ?? 'not sent')) continue;
       const connection = await door.read(settings.connection_type, `${settings.connection_prefix}${encodeURIComponent(accountId)}`);
       const place = connection ? PLACES.find(item => item.connection_vendor === connection.vendor) ?? null : null;
-      if (!place?.send_tool) {
+      if (!place) {
         leftOut.push({ post_id: post.post_id, account_id: accountId, said: plan.words.not_connected });
         continue;
       }
@@ -324,8 +327,8 @@ export async function sendEachPostAtItsTime({ task = {} } = {}, { door }) {
         leftOut.push({ post_id: post.post_id, account_id: accountId, said: fillWords(plan.words.too_many, { most: String(plan.most_sends) }) });
         continue;
       }
-      set.push({ post_id: post.post_id, account_id: accountId, tool: place.send_tool, at: post.scheduled_for });
-      wakes.push({ wake: { tool: place.send_tool, at_ms: at, input: { post_id: post.post_id, account_id: accountId, armed_at: post.armed_at }, budget: plan.child_budget } });
+      set.push({ post_id: post.post_id, account_id: accountId, tool: plan.send_tool, at: post.scheduled_for });
+      wakes.push({ wake: { tool: plan.send_tool, at_ms: at, input: { post_id: post.post_id, place: slugOf(place), account_id: accountId, armed_at: post.armed_at }, budget: plan.child_budget } });
     }
   }
   return { set, left_out: leftOut, said: set.length ? fillWords(plan.words.set, { count: String(set.length) }) : plan.words.none, wake_effects: wakes };

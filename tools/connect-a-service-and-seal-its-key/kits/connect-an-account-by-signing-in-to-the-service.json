@@ -122,9 +122,7 @@
     "tool:trade-a-short-threads-token-for-a-long-one",
     "tool:trade-an-x-sign-in-code-for-its-tokens",
     "tool:check-the-x-connection",
-    "tool:check-the-instagram-connection",
-    "tool:check-the-threads-connection",
-    "tool:check-the-youtube-connection",
+    "tool:check-a-connection",
     "tool:google-account-find_my_mailbox"
   ],
   "instructions": [

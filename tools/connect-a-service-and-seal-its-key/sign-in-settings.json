@@ -20,7 +20,7 @@
   },
   "youtube": {
    "trade": ["tool:trade-a-youtube-sign-in-code-for-its-tokens"],
-   "verify": { "tool": "tool:check-the-youtube-connection", "input": { "account_id": "{connection_id}" } }
+   "verify": { "tool": "tool:check-a-connection", "input": { "place": "youtube", "account_id": "{connection_id}" } }
   },
   "x": {
    "trade": ["tool:trade-an-x-sign-in-code-for-its-tokens"],
@@ -28,7 +28,7 @@
   },
   "instagram": {
    "trade": ["tool:trade-an-instagram-sign-in-code-for-its-short-token", "tool:trade-a-short-instagram-token-for-a-long-one"],
-   "verify": { "tool": "tool:check-the-instagram-connection", "input": { "account_id": "{connection_id}" } }
+   "verify": { "tool": "tool:check-a-connection", "input": { "place": "instagram", "account_id": "{connection_id}" } }
   },
   "facebook-messenger": {
    "trade": ["tool:trade-a-facebook-sign-in-code-for-its-short-token", "tool:trade-a-short-facebook-token-for-a-long-one"],
@@ -37,7 +37,7 @@
   },
   "threads": {
    "trade": ["tool:trade-a-threads-sign-in-code-for-its-short-token", "tool:trade-a-short-threads-token-for-a-long-one"],
-   "verify": { "tool": "tool:check-the-threads-connection", "input": { "account_id": "{connection_id}" } }
+   "verify": { "tool": "tool:check-a-connection", "input": { "place": "threads", "account_id": "{connection_id}" } }
   }
  },
  "words": {

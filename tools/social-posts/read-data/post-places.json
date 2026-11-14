@@ -1,9 +1,8 @@
 {
-  "_what": "The places a person posts to, one row per place: which kind of connection reaches the account (connection_vendor: a connection record of that vendor, `service_connection:<vendor>` or `service_connection:<vendor>:<name>`), how a publisher is filled from it (options and account: {held: field} is a value held in the person's vault, read only as the request leaves, and {held: field, sign} a value made from it then (read-data/send-a-post.mjs signers: jwt-hs256 with claims and seconds); {plain: field} is a readable field of their connection record; {value} is fixed), which hosts a held value may go to, how a post's file reaches the place (media_from: stream, its bytes streamed to the place; whole, its bytes handed as one piece to a place whose uploader takes a file only so; address, a share of it the place fetches), the settings sent unless the post names its own (default_settings), and what the place takes (format: read by read-data/post-ready.mjs), and which tool row sends to it (send_tool, run at a post's time by tool:send-each-post-at-its-time). Read by read-data/posts.mjs. A place reached by a plain JSON API takes adapter requests and writes its requests in its options (read-data/publisher-requests.mjs). A new place is a row; nothing in the code names a place.",
+  "_what": "The places a person posts to, one row per place: which kind of connection reaches the account (connection_vendor: a connection record of that vendor, `service_connection:<vendor>` or `service_connection:<vendor>:<name>`), how a publisher is filled from it (options and account: {held: field} is a value held in the person's vault, read only as the request leaves, and {held: field, sign} a value made from it then (read-data/send-a-post.mjs signers: jwt-hs256 with claims and seconds); {plain: field} is a readable field of their connection record; {value} is fixed), which hosts a held value may go to, how a post's file reaches the place (media_from: stream, its bytes streamed to the place; whole, its bytes handed as one piece to a place whose uploader takes a file only so; address, a share of it the place fetches), the settings sent unless the post names its own (default_settings), and what the place takes (format: read by read-data/post-ready.mjs), how the engine renews the connection's access token (refresh, a refresh descriptor of the engine's http and container kinds; none when the held value does not expire), and how to ask the place which account a connection signs in as (check: url, query, the held field_id and its placement, timeout_seconds; read by tool:check-a-connection). The place's slug is its id without `post-place:`. ONE tool row sends to every place (tool:send-a-post, named by posts.json at_its_time.send_tool, run at a post's time by tool:send-each-post-at-its-time) and ONE row checks a connection (tool:check-a-connection): each takes `place` (the slug) and its by_input variants (connection, refresh, credential_mounts or url and credential_injections) are made from these rows by read-data/place-variants.mjs, which a test holds the tool rows to. Read by read-data/posts.mjs. A place reached by a plain JSON API takes adapter requests and writes its requests in its options (read-data/publisher-requests.mjs). A new place is a row; nothing in the code names a place.",
   "places": [
     {
       "id": "post-place:youtube",
-      "send_tool": "tool:send-a-post-to-youtube",
       "platform": "youtube",
       "label": "YouTube",
       "adapter": "youtube",
@@ -50,11 +49,59 @@
           "from": "@opencoredev/social-sdk dist/platforms/youtube.js publish checks",
           "read_on": "2026-09-29"
         }
+      },
+      "refresh": {
+        "token_url": "https://oauth2.googleapis.com/token",
+        "asked": {
+          "method": "POST",
+          "grant_type": "refresh_token",
+          "token_param": "refresh_token"
+        },
+        "client_auth": "form",
+        "client": {
+          "id": {
+            "name": "google-sign-in-client-id"
+          },
+          "secret": {
+            "name": "google-sign-in-client-secret"
+          }
+        },
+        "access_field": "access_token",
+        "token_paths": [
+          [
+            "access_token"
+          ]
+        ],
+        "expires_path": [
+          "expires_in"
+        ],
+        "refresh": {
+          "field": "refresh_token",
+          "token_paths": [
+            [
+              "refresh_token"
+            ]
+          ]
+        },
+        "when_expiry_unknown": true
+      },
+      "check": {
+        "url": "https://www.googleapis.com/youtube/v3/channels",
+        "query": {
+          "part": "id,snippet,contentDetails",
+          "mine": "true"
+        },
+        "field_id": "access_token",
+        "placement": {
+          "kind": "header",
+          "name": "Authorization",
+          "prefix": "Bearer "
+        },
+        "timeout_seconds": 20
       }
     },
     {
       "id": "post-place:tiktok",
-      "send_tool": "tool:send-a-post-to-tiktok",
       "platform": "tiktok",
       "label": "TikTok",
       "adapter": "tiktok",
@@ -105,7 +152,6 @@
     },
     {
       "id": "post-place:instagram",
-      "send_tool": "tool:send-a-post-to-instagram",
       "platform": "instagram",
       "label": "Instagram",
       "adapter": "instagram",
@@ -155,11 +201,46 @@
           "from": "@opencoredev/social-sdk dist/platforms/instagram.js publish checks, and Meta's Content Publishing limits (developers.facebook.com/docs/instagram-platform/content-publishing)",
           "read_on": "2026-09-29"
         }
+      },
+      "refresh": {
+        "token_url": "https://graph.instagram.com/refresh_access_token",
+        "asked": {
+          "method": "GET",
+          "grant_type": "ig_refresh_token",
+          "token_param": "access_token"
+        },
+        "client_auth": "none",
+        "margin_ms": 864000000,
+        "when_expiry_unknown": true,
+        "access_field": "access_token",
+        "token_paths": [
+          [
+            "access_token"
+          ]
+        ],
+        "expires_path": [
+          "expires_in"
+        ],
+        "refresh": {
+          "field": "access_token",
+          "token_paths": []
+        }
+      },
+      "check": {
+        "url": "https://graph.instagram.com/v21.0/me",
+        "query": {
+          "fields": "user_id,username"
+        },
+        "field_id": "access_token",
+        "placement": {
+          "kind": "query",
+          "name": "access_token"
+        },
+        "timeout_seconds": 20
       }
     },
     {
       "id": "post-place:facebook",
-      "send_tool": "tool:send-a-post-to-facebook",
       "platform": "facebook",
       "label": "Facebook Page",
       "adapter": "facebook-page",
@@ -195,11 +276,22 @@
           "from": "developers.facebook.com/docs/pages-api/posts (/{page-id}/feed, /photos, /videos)",
           "read_on": "2026-10-05"
         }
+      },
+      "check": {
+        "url": "https://graph.facebook.com/v21.0/me",
+        "query": {
+          "fields": "id,name"
+        },
+        "field_id": "page_access_token",
+        "placement": {
+          "kind": "query",
+          "name": "access_token"
+        },
+        "timeout_seconds": 20
       }
     },
     {
       "id": "post-place:instagram-facebook",
-      "send_tool": "tool:send-a-post-to-instagram-facebook",
       "platform": "instagram",
       "label": "Instagram through Facebook",
       "adapter": "instagram",
@@ -255,7 +347,6 @@
     },
     {
       "id": "post-place:threads",
-      "send_tool": "tool:send-a-post-to-threads",
       "platform": "threads",
       "label": "Threads",
       "adapter": "threads",
@@ -291,11 +382,46 @@
           "from": "@opencoredev/social-sdk dist/platforms/threads.js publish checks",
           "read_on": "2026-09-29"
         }
+      },
+      "refresh": {
+        "token_url": "https://graph.threads.net/refresh_access_token",
+        "asked": {
+          "method": "GET",
+          "grant_type": "th_refresh_token",
+          "token_param": "access_token"
+        },
+        "client_auth": "none",
+        "margin_ms": 864000000,
+        "when_expiry_unknown": true,
+        "access_field": "access_token",
+        "token_paths": [
+          [
+            "access_token"
+          ]
+        ],
+        "expires_path": [
+          "expires_in"
+        ],
+        "refresh": {
+          "field": "access_token",
+          "token_paths": []
+        }
+      },
+      "check": {
+        "url": "https://graph.threads.net/v1.0/me",
+        "query": {
+          "fields": "id,username"
+        },
+        "field_id": "access_token",
+        "placement": {
+          "kind": "query",
+          "name": "access_token"
+        },
+        "timeout_seconds": 20
       }
     },
     {
       "id": "post-place:linkedin",
-      "send_tool": "tool:send-a-post-to-linkedin",
       "platform": "linkedin",
       "label": "LinkedIn",
       "adapter": "linkedin",
@@ -340,7 +466,6 @@
     },
     {
       "id": "post-place:substack",
-      "send_tool": "tool:send-a-post-to-substack",
       "platform": "substack",
       "label": "Substack",
       "adapter": "substack",
@@ -394,7 +519,6 @@
     },
     {
       "id": "post-place:x",
-      "send_tool": "tool:send-a-post-to-x",
       "platform": "x",
       "label": "X",
       "adapter": "x",
@@ -441,11 +565,45 @@
           "from": "@opencoredev/social-sdk dist/platforms/x.js publish checks",
           "read_on": "2026-09-29"
         }
+      },
+      "refresh": {
+        "token_url": "https://api.x.com/2/oauth2/token",
+        "asked": {
+          "method": "POST",
+          "grant_type": "refresh_token",
+          "token_param": "refresh_token"
+        },
+        "client_auth": "basic",
+        "client": {
+          "id": {
+            "name": "x-sign-in-client-id"
+          },
+          "secret": {
+            "name": "x-sign-in-client-secret"
+          }
+        },
+        "access_field": "access_token",
+        "token_paths": [
+          [
+            "access_token"
+          ]
+        ],
+        "expires_path": [
+          "expires_in"
+        ],
+        "refresh": {
+          "field": "refresh_token",
+          "token_paths": [
+            [
+              "refresh_token"
+            ]
+          ]
+        },
+        "when_expiry_unknown": true
       }
     },
     {
       "id": "post-place:beehiiv",
-      "send_tool": "tool:send-a-post-to-beehiiv",
       "platform": "beehiiv",
       "label": "beehiiv",
       "adapter": "requests",
@@ -580,7 +738,6 @@
     },
     {
       "id": "post-place:ghost",
-      "send_tool": "tool:send-a-post-to-ghost",
       "platform": "ghost",
       "label": "Ghost",
       "adapter": "requests",

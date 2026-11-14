@@ -177,12 +177,11 @@
   ],
   "tools": [
     "tool:add-an-email-sending-domain",
+    "tool:check-a-connection",
     "tool:check-an-email-sending-domain",
-    "tool:check-the-facebook-page-connection",
-    "tool:check-the-instagram-connection",
     "tool:list-every-connection",
     "tool:make-a-sending-key",
-    "tool:send-a-post-to-youtube",
+    "tool:send-a-post",
     "tool:set-up-someone-i-pay-in-stripe"
   ],
   "instructions": [
@@ -212,7 +211,7 @@
       "workflow": "workflow:set-up-business-accounts-and-connections",
       "step": "check-youtube",
       "given": "Read from the step in tools/workflows/recipes/workflows.json: it reads the youtube row of the list-connections answer instead of calling a tool. Synthetic row: {\"name\":\"youtube\",\"kind\":\"service\",\"connected\":false}. The step says to submit connected false and a gap.",
-      "hands_back": "{\"connected\":false} with the gap \"No YouTube connection check tool is in the live catalog (send-a-post-to-youtube needs an account id). Reconnect the YouTube channel in the app's connections list.\""
+      "hands_back": "{\"connected\":false} with the gap \"No YouTube connection check tool is in the live catalog (send-a-post for the youtube place needs an account id). Reconnect the YouTube channel in the app's connections list.\""
     },
     {
       "title": "The sending domain is added and its DNS records are kept",

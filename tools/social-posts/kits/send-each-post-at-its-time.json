@@ -7,13 +7,12 @@
   "tools": [
     "tool:send-each-post-at-its-time",
     "tool:set-a-post-to-go-at-its-time",
-    "tool:send-a-post-to-linkedin",
-    "tool:send-a-post-to-instagram"
+    "tool:send-a-post"
   ],
   "instructions": [
     "1. Draft a post and approve it (tool:draft-a-post, tool:approve-a-post), and connect each account it goes to.",
     "2. Say \"Set that post to go at its time\": the AI runs tool:set-a-post-to-go-at-its-time, which arms the post (armed_at) for its scheduled_for time.",
-    "3. Switch on the wake of tool:send-each-post-at-its-time once (its wake name is at-its-time). From then on each time your posts change it runs with the changed record ids and sets one timed run of the place's send row (tool:send-a-post-to-<place>) per destination still to be sent, at scheduled_for. Nothing is polled.",
+    "3. Switch on the wake of tool:send-each-post-at-its-time once (its wake name is at-its-time). From then on each time your posts change it runs with the changed record ids and sets one timed run of tool:send-a-post (told the destination's place) per destination still to be sent, at scheduled_for. Nothing is polled.",
     "4. Read what it answers: set (each post, account, send tool and time), left_out (each send not set and why: the account is no longer connected, or more than 32 sends in one firing) and said. A post taken back, changed or set again sends nothing at the old time, because each timed send checks the post still carries the armed_at it was set with."
   ],
   "worked_examples": [
@@ -33,7 +32,7 @@
         }
       },
       "given": "From tools/social-posts/test/send-a-post.test.mjs (the first send-each-post-at-its-time test, run here on its fixture): the wake fires with the change of post:p1, a scheduled post with caption \"A short post\", destinations [service_connection:x:second], approved, armed_at 2026-01-01T00:00:05.000Z and scheduled_for 2026-01-02T00:00:00Z; that X connection is on file. The run is woken by the engine with the changed record ids, so the input is empty.",
-      "hands_back": "{\"set\":[{\"post_id\":\"post:p1\",\"account_id\":\"service_connection:x:second\",\"tool\":\"tool:send-a-post-to-x\",\"at\":\"2026-01-02T00:00:00Z\"}],\"left_out\":[],\"said\":\"1 sends are set to go at their time.\"}; the engine is also handed one timed run of tool:send-a-post-to-x at 2026-01-02T00:00:00Z with input {post_id: \"post:p1\", account_id: \"service_connection:x:second\", armed_at: \"2026-01-01T00:00:05.000Z\"}. The wake writes nothing; a draft, a post already posted to that account or a removed post answers no send and said \"No changed post is set to go at its time, so nothing was set.\""
+      "hands_back": "{\"set\":[{\"post_id\":\"post:p1\",\"account_id\":\"service_connection:x:second\",\"tool\":\"tool:send-a-post\",\"at\":\"2026-01-02T00:00:00Z\"}],\"left_out\":[],\"said\":\"1 sends are set to go at their time.\"}; the engine is also handed one timed run of tool:send-a-post at 2026-01-02T00:00:00Z with input {post_id: \"post:p1\", place: \"x\", account_id: \"service_connection:x:second\", armed_at: \"2026-01-01T00:00:05.000Z\"}. The wake writes nothing; a draft, a post already posted to that account or a removed post answers no send and said \"No changed post is set to go at its time, so nothing was set.\""
     }
   ]
 }

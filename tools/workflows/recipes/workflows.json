@@ -21877,7 +21877,7 @@
           {
             "id": "publish",
             "title": "Publish once per destination, with each hook variant in its test",
-            "do": "For each destination: say what is kept, added or removed for that place (aspect, length, caption, description, cover); pick the cover frame with tool:pick-cover-frame; make a tracked link with tool:make-tracked-link for any link to the person's offer; post the agreed cut once on the person's own accounts through their own post records, placing each hook variant as the test step said: list their accounts with tool:list-post-destinations, keep the post with tool:draft-a-post (the cut as media with its media_facts, each place's own words in caption_by_platform and settings in settings_by_platform, the tracked link, the destinations, scheduled_for and time_zone, and source naming the release record), run tool:check-a-post until every destination is ready, approve it with tool:approve-a-post passing the approval_values that were reviewed, and set it with tool:set-a-post-to-go-at-its-time; it is sent at its time by the send tool of that destination (tool:send-a-post-to-x, tool:send-a-post-to-youtube and the others, one per place) for each destination, on a wake the person switched on, or now only with the person's yes for that post. Posting changes nothing else on their accounts. Before posting, store the person's approval of the exact cut and words (posting their own content to their own accounts needs only what their records say it needs), check the account and its privacy setting, and stay inside input spend_limit: a paid or irreversible action outside it waits for their yes, and a blocked paid action is reported, not retried. If approval is withheld, the run ends on hold with the editable version kept. Open each live post's address with tool:read-public-web-page and record it as published only when the post is there. Keep a release record: each post's id and package, the source passage records it used, the edits, every cost, and every test result, negative and inconclusive ones too.",
+            "do": "For each destination: say what is kept, added or removed for that place (aspect, length, caption, description, cover); pick the cover frame with tool:pick-cover-frame; make a tracked link with tool:make-tracked-link for any link to the person's offer; post the agreed cut once on the person's own accounts through their own post records, placing each hook variant as the test step said: list their accounts with tool:list-post-destinations, keep the post with tool:draft-a-post (the cut as media with its media_facts, each place's own words in caption_by_platform and settings in settings_by_platform, the tracked link, the destinations, scheduled_for and time_zone, and source naming the release record), run tool:check-a-post until every destination is ready, approve it with tool:approve-a-post passing the approval_values that were reviewed, and set it with tool:set-a-post-to-go-at-its-time; it is sent at its time by the send tool of that destination (tool:send-a-post, told the destination's place) for each destination, on a wake the person switched on, or now only with the person's yes for that post. Posting changes nothing else on their accounts. Before posting, store the person's approval of the exact cut and words (posting their own content to their own accounts needs only what their records say it needs), check the account and its privacy setting, and stay inside input spend_limit: a paid or irreversible action outside it waits for their yes, and a blocked paid action is reported, not retried. If approval is withheld, the run ends on hold with the editable version kept. Open each live post's address with tool:read-public-web-page and record it as published only when the post is there. Keep a release record: each post's id and package, the source passage records it used, the edits, every cost, and every test result, negative and inconclusive ones too.",
             "submit": {
               "type": "object",
               "required": [
@@ -32811,7 +32811,7 @@
         "produces": "A seven-day batch of posts for each channel, approved, set to go, and read back.",
         "source": {
           "from": "business-on-trillion meta-workflow, generic and public",
-          "note": "Top of funnel. Live tools: draft-a-post, approve-a-post, set-a-post-to-go-at-its-time, see-how-each-post-did, check-against-a-persons-rules-and-verdicts, check-copy. send-each-post-at-its-time is wake-driven; the wake step reads whether it is on. The per-channel send tools (send-a-post-to-instagram, -youtube, -facebook, -tiktok, -threads, -x, -linkedin) are live and the scheduled path uses them."
+          "note": "Top of funnel. Live tools: draft-a-post, approve-a-post, set-a-post-to-go-at-its-time, see-how-each-post-did, check-against-a-persons-rules-and-verdicts, check-copy. send-each-post-at-its-time is wake-driven; the wake step reads whether it is on. The one send tool (send-a-post, told its place: instagram, youtube, facebook, tiktok, threads, x or linkedin) is live and the scheduled path uses it."
         },
         "fires_when": [
           {
@@ -33728,7 +33728,7 @@
         "produces": "A week of dated articles, approved and set to go on the newsletter platform, with their numbers read back.",
         "source": {
           "from": "business-on-trillion meta-workflow, generic and public",
-          "note": "Top of funnel. Live tools: draft-a-post, approve-a-post, set-a-post-to-go-at-its-time, send-a-post-to-substack, send-a-post-to-beehiiv, send-a-post-to-ghost, check-copy, see-how-each-post-did. Cadence is set by facts.posts_per_day."
+          "note": "Top of funnel. Live tools: draft-a-post, approve-a-post, set-a-post-to-go-at-its-time, send-a-post, check-copy, see-how-each-post-did. Cadence is set by facts.posts_per_day."
         },
         "fires_when": [
           {
@@ -33981,7 +33981,7 @@
           {
             "id": "send-the-newsletter",
             "title": "Send each post to the newsletter platform at its time",
-            "do": "Call tool:send-a-post-to-substack with input {\"post_id\": \"<one id from scheduled_post_ids>\", \"account_id\": \"<the newsletter account id>\"}. Use the send tool that matches facts.newsletter_platform: send-a-post-to-substack, send-a-post-to-beehiiv or send-a-post-to-ghost. Each send runs at its time; this step only confirms the post is set to go for that place.",
+            "do": "Call tool:send-a-post with input {\"post_id\": \"<one id from scheduled_post_ids>\", \"place\": \"<facts.newsletter_platform>\", \"account_id\": \"<the newsletter account id>\"}. Give place as facts.newsletter_platform (substack, beehiiv or ghost). Each send runs at its time; this step only confirms the post is set to go for that place.",
             "submit": {
               "type": "object",
               "required": [
@@ -33997,9 +33997,10 @@
               }
             },
             "run_tool": {
-              "tool_id": "tool:send-a-post-to-substack",
+              "tool_id": "tool:send-a-post",
               "input": {
                 "post_id": "<one id from scheduled_post_ids>",
+                "place": "<facts.newsletter_platform>",
                 "account_id": "<the newsletter account id>"
               }
             },
@@ -34011,7 +34012,7 @@
             "came_from": [
               "brief:business-on-trillion-2026-11-12:top-of-funnel",
               "L082",
-              "tool:send-a-post-to-substack input_schema"
+              "tool:send-a-post input_schema"
             ],
             "part_of": [
               "workflow:publish-articles-and-newsletter-on-a-cadence"
@@ -51539,7 +51540,7 @@
           {
             "id": "check-tools-live",
             "title": "Check every tool the stages name is in the live catalog",
-            "do": "Call run_resource_operation with address @workshop-tools, method tools:list and input {\"tool\": \"tool:<the id>\"} once per id in this list: add-a-customer, add-an-email-sending-domain, advance-a-community-matchmaker, answer-in-a-community, approve-a-post, attach_domain, break-down-visits-and-sales, cancel-a-stripe-subscription, check-a-page-for-search-and-answer-engines, check-against-a-persons-rules-and-verdicts, check-an-email-sending-domain, check-copy, check-given-pages-at-every-width, check-the-facebook-page-connection, check-the-instagram-connection, copy-a-site, count-a-paid-installment-in-stripe, critique-a-public-page, cut-and-caption, draft-a-funnel, draft-a-post, expand-a-reply-template, find-a-completed-stripe-checkout, find-silence, list-ended-stripe-subscriptions, list-every-connection, list-my-recordings-and-media, make-a-referral-code, make-a-sending-key, measure-a-checklist, measure-funnel-stages, name_site, pick-cover-frame, publish_site, pull-my-instagram-messages, read-my-community-matches, read-public-web-page, record-a-customer-step, reframe-video, render-an-edit, resolve-a-brand, search-one-of-my-lists, see-how-each-post-did, see-where-each-customer-is, see-who-holds-paid-access, send-a-post-to-substack, send-a-post-to-youtube, send-an-email, send-due-email-lessons, send-each-post-at-its-time, set-a-post-to-go-at-its-time, set-up-someone-i-pay-in-stripe, set-up-stripe-payment-links, show-which-offers-a-buyer-may-see, sign-someone-up-for-an-email-course, start-a-recipe-run, start-a-stripe-checkout-that-pays-someone-else, stop-an-email-course, stripe-events-read_money_since, suggest-media-cuts, tag-a-stripe-subscription, withdraw-a-referral-code, work-out-referral-codes, work-out-where-a-learner-stands, write-legal-documents. An answer with the id and an input_schema means the tool is live. Write the result as one row: records:write with {\"records\":[{\"id\":\"record:business-setup:tools\",\"type\":\"record:business-setup\",\"value\":{\"live\":[<ids found>],\"not_live\":[<ids not found>]}}]}. Ids in not_live are source-only or absent: every stage that names one already has its own gap step, so nothing is claimed as run.",
+            "do": "Call run_resource_operation with address @workshop-tools, method tools:list and input {\"tool\": \"tool:<the id>\"} once per id in this list: add-a-customer, add-an-email-sending-domain, advance-a-community-matchmaker, answer-in-a-community, approve-a-post, attach_domain, break-down-visits-and-sales, cancel-a-stripe-subscription, check-a-page-for-search-and-answer-engines, check-against-a-persons-rules-and-verdicts, check-an-email-sending-domain, check-copy, check-given-pages-at-every-width, check-a-connection, copy-a-site, count-a-paid-installment-in-stripe, critique-a-public-page, cut-and-caption, draft-a-funnel, draft-a-post, expand-a-reply-template, find-a-completed-stripe-checkout, find-silence, list-ended-stripe-subscriptions, list-every-connection, list-my-recordings-and-media, make-a-referral-code, make-a-sending-key, measure-a-checklist, measure-funnel-stages, name_site, pick-cover-frame, publish_site, pull-my-instagram-messages, read-my-community-matches, read-public-web-page, record-a-customer-step, reframe-video, render-an-edit, resolve-a-brand, search-one-of-my-lists, see-how-each-post-did, see-where-each-customer-is, see-who-holds-paid-access, send-a-post, send-an-email, send-due-email-lessons, send-each-post-at-its-time, set-a-post-to-go-at-its-time, set-up-someone-i-pay-in-stripe, set-up-stripe-payment-links, show-which-offers-a-buyer-may-see, sign-someone-up-for-an-email-course, start-a-recipe-run, start-a-stripe-checkout-that-pays-someone-else, stop-an-email-course, stripe-events-read_money_since, suggest-media-cuts, tag-a-stripe-subscription, withdraw-a-referral-code, work-out-referral-codes, work-out-where-a-learner-stands, write-legal-documents. An answer with the id and an input_schema means the tool is live. Write the result as one row: records:write with {\"records\":[{\"id\":\"record:business-setup:tools\",\"type\":\"record:business-setup\",\"value\":{\"live\":[<ids found>],\"not_live\":[<ids not found>]}}]}. Ids in not_live are source-only or absent: every stage that names one already has its own gap step, so nothing is claimed as run.",
             "submit": {
               "type": "object",
               "required": [
@@ -53129,7 +53130,7 @@
         "produces": "One checked account state per connection and a sending key kept in the vault.",
         "source": {
           "from": "business-on-trillion meta-workflow, generic and public",
-          "note": "Stage 1 of the business meta-workflow. Live tools: list-every-connection, set-up-someone-i-pay-in-stripe, check-the-instagram-connection, check-the-facebook-page-connection, add-an-email-sending-domain, check-an-email-sending-domain, make-a-sending-key. No live tool checks a YouTube connection (gap written at run time). DNS changes are done by the person at their DNS host; no tool does that."
+          "note": "Stage 1 of the business meta-workflow. Live tools: list-every-connection, set-up-someone-i-pay-in-stripe, check-a-connection, add-an-email-sending-domain, check-an-email-sending-domain, make-a-sending-key. No live tool checks a YouTube connection (gap written at run time). DNS changes are done by the person at their DNS host; no tool does that."
         },
         "fires_when": [
           {
@@ -53337,7 +53338,7 @@
           {
             "id": "check-instagram",
             "title": "Check the Instagram connection",
-            "do": "Call tool:check-the-instagram-connection with input {\"account_id\": \"<facts.instagram_account_id, or the account id of the instagram row in list-connections when facts has none>\"}. A connection that does not answer connected is reconnected by the person in the app's connections list; the tool does not connect it.",
+            "do": "Call tool:check-a-connection with input {\"place\": \"instagram\", \"account_id\": \"<facts.instagram_account_id, or the account id of the instagram row in list-connections when facts has none>\"}. A connection that does not answer connected is reconnected by the person in the app's connections list; the tool does not connect it.",
             "submit": {
               "type": "object",
               "required": [
@@ -53353,8 +53354,9 @@
               }
             },
             "run_tool": {
-              "tool_id": "tool:check-the-instagram-connection",
+              "tool_id": "tool:check-a-connection",
               "input": {
+                "place": "instagram",
                 "account_id": "<facts.instagram_account_id, or the account id of the instagram row in list-connections when facts has none>"
               }
             },
@@ -53374,7 +53376,7 @@
           {
             "id": "check-facebook",
             "title": "Check the Facebook page connection",
-            "do": "Call tool:check-the-facebook-page-connection with input {\"account_id\": \"<facts.facebook_account_id, or the account id of the facebook row in list-connections>\"}. Same reconnect rule as check-instagram: the person reconnects in the app; the tool does not connect.",
+            "do": "Call tool:check-a-connection with input {\"place\": \"facebook\", \"account_id\": \"<facts.facebook_account_id, or the account id of the facebook row in list-connections>\"}. Same reconnect rule as check-instagram: the person reconnects in the app; the tool does not connect.",
             "submit": {
               "type": "object",
               "required": [
@@ -53390,8 +53392,9 @@
               }
             },
             "run_tool": {
-              "tool_id": "tool:check-the-facebook-page-connection",
+              "tool_id": "tool:check-a-connection",
               "input": {
+                "place": "facebook",
                 "account_id": "<facts.facebook_account_id, or the account id of the facebook row in list-connections>"
               }
             },
@@ -53411,7 +53414,7 @@
           {
             "id": "check-youtube",
             "title": "Check the YouTube connection",
-            "do": "Read the youtube row of the list-connections answer. If its connected value is true, submit connected true with its account_id. If it is false or absent, submit connected false and a gap: \"No YouTube connection check tool is in the live catalog (send-a-post-to-youtube needs an account id). Reconnect the YouTube channel in the app's connections list; the exact label is not verified.\"",
+            "do": "Read the youtube row of the list-connections answer. If its connected value is true, submit connected true with its account_id. If it is false or absent, submit connected false and a gap: \"No YouTube connection check tool is in the live catalog (send-a-post for the youtube place needs an account id). Reconnect the YouTube channel in the app's connections list; the exact label is not verified.\"",
             "submit": {
               "type": "object",
               "required": [
@@ -53434,7 +53437,7 @@
             "came_from": [
               "brief:business-on-trillion-2026-11-12:accounts-and-connections",
               "L082",
-              "tool:send-a-post-to-youtube input_schema"
+              "tool:send-a-post input_schema"
             ],
             "part_of": [
               "workflow:set-up-business-accounts-and-connections"
