@@ -1,0 +1,230 @@
+{
+ "_what": "Each file here and where it came from: the engine's sign-in code, moved whole out of trillion-rust by 2e08465a7 on the owner's order of Nov 13 2026.",
+ "files": {
+  "from-trillion-rust/src/account/computers/sign_in_copy.rs": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/computers/sign_in_copy.rs"
+  },
+  "from-trillion-rust/src/account/credential_verification.rs": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/credential_verification.rs"
+  },
+  "from-trillion-rust/src/account/passkey_verification.rs": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/passkey_verification.rs"
+  },
+  "from-trillion-rust/src/account/person_confirmation.rs": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/person_confirmation.rs"
+  },
+  "from-trillion-rust/src/account/person_confirmation/tests.rs": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/person_confirmation/tests.rs"
+  },
+  "from-trillion-rust/src/account/sign_in.rs": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in.rs"
+  },
+  "from-trillion-rust/src/account/sign_in/README.md": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/README.md"
+  },
+  "from-trillion-rust/src/account/sign_in/approve.rs": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/approve.rs"
+  },
+  "from-trillion-rust/src/account/sign_in/assets.json": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/assets.json"
+  },
+  "from-trillion-rust/src/account/sign_in/assets.rs": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/assets.rs"
+  },
+  "from-trillion-rust/src/account/sign_in/browser_route_hint_tests.rs": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/browser_route_hint_tests.rs"
+  },
+  "from-trillion-rust/src/account/sign_in/calls.rs": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/calls.rs"
+  },
+  "from-trillion-rust/src/account/sign_in/email_index.json": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/email_index.json"
+  },
+  "from-trillion-rust/src/account/sign_in/email_index.rs": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/email_index.rs"
+  },
+  "from-trillion-rust/src/account/sign_in/email_index_tests.rs": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/email_index_tests.rs"
+  },
+  "from-trillion-rust/src/account/sign_in/families.json": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/families.json"
+  },
+  "from-trillion-rust/src/account/sign_in/keys.rs": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/keys.rs"
+  },
+  "from-trillion-rust/src/account/sign_in/known.rs": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/known.rs"
+  },
+  "from-trillion-rust/src/account/sign_in/known_tests.rs": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/known_tests.rs"
+  },
+  "from-trillion-rust/src/account/sign_in/lists.rs": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/lists.rs"
+  },
+  "from-trillion-rust/src/account/sign_in/new-accounts.json": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/new-accounts.json"
+  },
+  "from-trillion-rust/src/account/sign_in/oauth.rs": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/oauth.rs"
+  },
+  "from-trillion-rust/src/account/sign_in/pages.rs": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/pages.rs"
+  },
+  "from-trillion-rust/src/account/sign_in/passkey_bytes.js": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/passkey_bytes.js"
+  },
+  "from-trillion-rust/src/account/sign_in/passkeys.rs": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/passkeys.rs"
+  },
+  "from-trillion-rust/src/account/sign_in/reach.json": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/reach.json"
+  },
+  "from-trillion-rust/src/account/sign_in/release_fixtures_tests.rs": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/release_fixtures_tests.rs"
+  },
+  "from-trillion-rust/src/account/sign_in/route-hint.json": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/route-hint.json"
+  },
+  "from-trillion-rust/src/account/sign_in/route_hint.rs": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/route_hint.rs"
+  },
+  "from-trillion-rust/src/account/sign_in/routes.rs": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/routes.rs"
+  },
+  "from-trillion-rust/src/account/sign_in/sessions.rs": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/sessions.rs"
+  },
+  "from-trillion-rust/src/account/sign_in/set_password.rs": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/set_password.rs"
+  },
+  "from-trillion-rust/src/account/sign_in/settings.json": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/settings.json"
+  },
+  "from-trillion-rust/src/account/sign_in/shape-defaults.json": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/shape-defaults.json"
+  },
+  "from-trillion-rust/src/account/sign_in/shell.rs": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/shell.rs"
+  },
+  "from-trillion-rust/src/account/sign_in/shell_tests.rs": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/shell_tests.rs"
+  },
+  "from-trillion-rust/src/account/sign_in/store.rs": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/store.rs"
+  },
+  "from-trillion-rust/src/account/sign_in/tokens.rs": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/tokens.rs"
+  },
+  "from-trillion-rust/src/account/sign_in/way_pages.rs": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/way_pages.rs"
+  },
+  "from-trillion-rust/src/account/sign_in/way_pages_tests.rs": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/way_pages_tests.rs"
+  },
+  "from-trillion-rust/src/account/sign_in/ways.rs": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/ways.rs"
+  },
+  "from-trillion-rust/src/account/sign_in/ways_tests.rs": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/ways_tests.rs"
+  },
+  "from-trillion-rust/src/account/sign_in/words_row.rs": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/words_row.rs"
+  },
+  "from-trillion-rust/src/account/sign_in/words_row_tests.rs": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in/words_row_tests.rs"
+  },
+  "from-trillion-rust/src/account/sign_in_check.rs": {
+   "repository": "Trillion-X/trillion-rust",
+   "commit": "2b8b821a4cbafc1a5c1c168386c13aeb392c64a6",
+   "path": "src/account/sign_in_check.rs"
+  }
+ }
+}

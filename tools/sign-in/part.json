@@ -1,0 +1,7 @@
+{
+ "_what": "The engine's former sign-in code, held here as a part until the Better Auth sign-in tool (lane better-auth-build) gives this folder its own rows. trillion-rust imported it until 2e08465a7.",
+ "imported_by": [
+  "Trillion-X/trillion-rust"
+ ],
+ "public": []
+}
