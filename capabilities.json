@@ -992,7 +992,8 @@
       "capability": "hold a body of work as a tree: roll up what is really finished, add requested items, check the proof behind finished work",
       "owner": ["tools/work-breakdown/"],
       "entry": "tools/work-breakdown/tool-rows.json",
-      "evidence": "README.md:3 rolls up how much is really finished, adds requested items, and checks whether the proof behind finished work can be checked"
+      "evidence": "README.md:3 rolls up how much is really finished, adds requested items, and checks whether the proof behind finished work can be checked; the originals of the package files commands (roll-up with --tree and --out, the per-tree evidence check) and the tasks package screens (list, kanban, dependency graph) and source-linked proposal request builder are moved byte for byte under packages/ in this folder from bitfield-packages d926b7adb8ca24159ee64f47e7d9cae254f5b641, see moved-from.json; the pure-function port in do-work/ stays until the rows are pointed at the originals",
+      "source_still_in": {"repo_kind": "retired bitfield-packages repository", "paths": ["bitfield-packages/packages/work-breakdown/", "bitfield-packages/packages/tasks/"]}
     },
     {
       "capability": "keep shared step-by-step playbooks any person's AI can follow",
@@ -1267,8 +1268,8 @@
       "capability": "practise with due reviews and guided drills: spaced repetition, decision practice, tactics",
       "owner": ["tools/practice-and-review/"],
       "entry": "tools/practice-and-review/tool-rows.json",
-      "evidence": "spaced-repetition README.md:1 due-review prompts; practice-decision-loop practises decisions from evidence; tactics-practice is chess tactics over it; the originals of bitfield-packages packages/spaced-repetition (scheduler, due-queue fold, next-record builder, queue view reader, review-response request, review surface and mount, the five __tests__) moved byte for byte from commit d926b7adb8ca24159ee64f47e7d9cae254f5b641 into read-data/, do-work/, show/ and __tests__/ (moved-from.json in each); wiring of the surface and request needs the retired runtime and stays held; from-bitfield-packages/quiz-me-on-saved-items/ carries the package that turns a summarized saved item into recall questions and routes the answers into review and progress (its records and conformance test, moved byte for byte, not yet converted to rows of this model)",
-      "source_still_in": {"repo_kind":"retired bitfield-packages repository","paths":["bitfield-packages/packages/spaced-repetition/things-to-store-and-run.json","bitfield-packages/packages/spaced-repetition/proof/","bitfield-packages/packages/spaced-repetition/reference-grounded-screen-contract.md","bitfield-packages/packages/quiz-me-on-saved-items/"]}
+      "evidence": "spaced-repetition README.md:1 due-review prompts; practice-decision-loop practises decisions from evidence; tactics-practice is chess tactics over it; the originals of bitfield-packages packages/spaced-repetition (scheduler, due-queue fold, next-record builder, queue view reader, review-response request, review surface and mount, the five __tests__) moved byte for byte from commit d926b7adb8ca24159ee64f47e7d9cae254f5b641 into read-data/, do-work/, show/ and __tests__/ (moved-from.json in each); wiring of the surface and request needs the retired runtime and stays held; from-bitfield-packages/quiz-me-on-saved-items/ carries the package that turns a summarized saved item into recall questions and routes the answers into review and progress (its records and conformance test, moved byte for byte, not yet converted to rows of this model); its contests, seasons, ratings and screens are moved byte for byte under packages/tactics-practice/ in this folder from bitfield-packages d926b7adb8ca24159ee64f47e7d9cae254f5b641, see moved-from.json",
+      "source_still_in": {"repo_kind":"retired bitfield-packages repository","paths":["bitfield-packages/packages/spaced-repetition/things-to-store-and-run.json","bitfield-packages/packages/spaced-repetition/proof/","bitfield-packages/packages/spaced-repetition/reference-grounded-screen-contract.md","bitfield-packages/packages/quiz-me-on-saved-items/","bitfield-packages/packages/tactics-practice/"]}
     },
     {
       "capability": "decide with a method: start a decision, read its method (a saved view over the person's method rows) and record answers to any number of its rows in one call, make the decision once every row has an answer, report how it turned out, bring back the person's similar past decisions, and make a decided one safe to share",
@@ -1416,7 +1417,7 @@
       "capability": "place broker orders from a trading policy and audit the trades",
       "owner": ["tools/trading/"],
       "entry": "tools/trading/tool-rows.json",
-      "evidence": "trade-order README.md:1 turns the AI-authored trading policy into real broker orders; trade-audit audits them; portfolio-connector read the paper account and positions, which a route lookup now does",
+      "evidence": "trade-order README.md:1 turns the AI-authored trading policy into real broker orders; trade-audit audits them (its Order history screen is moved byte for byte under packages/trade-audit/ in this folder from bitfield-packages d926b7adb8ca24159ee64f47e7d9cae254f5b641, see moved-from.json); portfolio-connector read the paper account and positions, which a route lookup now does",
       "source_still_in": {"repo_kind": "retired bitfield-packages repository", "paths": ["bitfield-packages/packages/trade-order/", "bitfield-packages/packages/trade-audit/", "bitfield-packages/packages/portfolio-connector/"]}
     },
     {
@@ -1594,7 +1595,7 @@
       "capability": "generate speech from text in a chosen voice",
       "owner": ["tools/generate-speech/"],
       "entry": "tools/generate-speech/tool-rows.json",
-      "evidence": "speech-generation README.md:1 speech request, voice profile, result and error records",
+      "evidence": "speech-generation README.md:1 speech request, voice profile, result and error records; the original request builder, local say-and-ffmpeg provider, record maker and panel are moved byte for byte under packages/speech-generation/ in this folder from bitfield-packages d926b7adb8ca24159ee64f47e7d9cae254f5b641, see moved-from.json; the rewritten do-work/generate_speech.py, local_voice_provider.py and read-data/speech_records.py stay until the row is pointed at the originals",
       "source_still_in": {"repo_kind": "retired bitfield-packages repository", "paths": ["bitfield-packages/packages/speech-generation/"]}
     },
     {
@@ -1951,6 +1952,18 @@
         {"job": "walk an app's journeys in a browser and read what a running app shows", "why": "that drives a browser over the screens; this calls the app's declared actions and reads its records"}
       ],
       "source_still_in": {"repo_kind": "retired bitfield-packages repository", "paths": ["bitfield-packages/packages/send-requests-to-an-engine/"]}
+    },
+    {
+      "capability": "show a descriptor-driven three-dimensional scene in the browser, with a text story that stands without WebGL",
+      "owner": ["tools/show-a-three-dimensional-scene/"],
+      "entry": "tools/show-a-three-dimensional-scene/part.json",
+      "evidence": "three-dimensional-scene README.md:1 descriptor-driven, browser-local Three.js projection for landing pages, teaching, simulations and live operational surfaces; validates the scene descriptor, reduces drivers to tracks, batches static geometry, picks asset quality variants and releases GPU resources; moved byte for byte from bitfield-packages d926b7adb8ca24159ee64f47e7d9cae254f5b641, see moved-from.json (the surface and its runtime wiring are held: no Workshop tool row runs it yet)",
+      "source_still_in": {"repo_kind": "retired bitfield-packages repository", "paths": ["bitfield-packages/packages/three-dimensional-scene/"]},
+      "distinct_from": [
+        {"job": "import Markdown into the maintained editable composition-document scene tree, preserving headings, nested lists, tables, code fences, source-byte provenance and strict semantic round trips", "why": "that owner turns Markdown into an editable document tree; this one draws a three-dimensional world from a scene descriptor"},
+        {"job": "edit video: find action, scene changes, silence and beats; reframe; change speed; caption; grade colour; lay sounds and pictures over it; arrange and render an edit; measure loudness", "why": "that tool cuts and renders footage; this one draws a live Three.js scene in the browser"},
+        {"job": "turn a look's colour, size and font tokens into concrete values and the stylesheet a document carries, with its font faces", "why": "that tool resolves a page look's tokens; this one validates a scene descriptor and runs its meshes, tracks and cameras"}
+      ]
     }
   ]
 }

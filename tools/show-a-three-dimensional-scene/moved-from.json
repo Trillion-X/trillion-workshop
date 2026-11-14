@@ -1,0 +1,190 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/three-dimensional-scene/proof/fixtures/landing-page.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-a-three-dimensional-scene/packages/three-dimensional-scene/proof/fixtures/landing-page.json",
+      "source_identity": "1f:7309039cd80c1270d1b96b01770ffa9f44d21226fcdab830ec0f31688103a22a",
+      "identity": "1f:7309039cd80c1270d1b96b01770ffa9f44d21226fcdab830ec0f31688103a22a"
+    },
+    {
+      "from": "packages/three-dimensional-scene/proof/fixtures/physics-course.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-a-three-dimensional-scene/packages/three-dimensional-scene/proof/fixtures/physics-course.json",
+      "source_identity": "1f:e7f873da516daee4cd752309f3b9f002231f099957b27bbad3f42c13840c61e9",
+      "identity": "1f:e7f873da516daee4cd752309f3b9f002231f099957b27bbad3f42c13840c61e9"
+    },
+    {
+      "from": "packages/three-dimensional-scene/proof/fixtures/tennis-lesson.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-a-three-dimensional-scene/packages/three-dimensional-scene/proof/fixtures/tennis-lesson.json",
+      "source_identity": "1f:dd3e07be0d2c1fb174edf4d9416ef1dce288386850bbd720f024fdd3b32bf222",
+      "identity": "1f:dd3e07be0d2c1fb174edf4d9416ef1dce288386850bbd720f024fdd3b32bf222"
+    },
+    {
+      "from": "packages/three-dimensional-scene/proof/fixtures/workplace-topology.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-a-three-dimensional-scene/packages/three-dimensional-scene/proof/fixtures/workplace-topology.json",
+      "source_identity": "1f:3875d188b0934cff410aa62aad2378ff329b5ba22edd8154944d7103c2262f17",
+      "identity": "1f:3875d188b0934cff410aa62aad2378ff329b5ba22edd8154944d7103c2262f17"
+    },
+    {
+      "from": "packages/three-dimensional-scene/proof/harness/index.html",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-a-three-dimensional-scene/packages/three-dimensional-scene/proof/harness/index.html",
+      "source_identity": "1f:1e50862672126481ffdf8496665d55849ffa375b9fa5c84b272889376449a2d7",
+      "identity": "1f:1e50862672126481ffdf8496665d55849ffa375b9fa5c84b272889376449a2d7"
+    },
+    {
+      "from": "packages/three-dimensional-scene/proof/harness/main.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-a-three-dimensional-scene/packages/three-dimensional-scene/proof/harness/main.tsx",
+      "source_identity": "1f:58ceb2273af786471f6f1f730c85528a26744ba7af101120a613bf07bf214b30",
+      "identity": "1f:58ceb2273af786471f6f1f730c85528a26744ba7af101120a613bf07bf214b30"
+    },
+    {
+      "from": "packages/three-dimensional-scene/proof/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-a-three-dimensional-scene/packages/three-dimensional-scene/proof/README.md",
+      "source_identity": "1f:ea54354d7be851937121472bebe3d38d626787dd020562cc411ea6fed801b7c4",
+      "identity": "1f:ea54354d7be851937121472bebe3d38d626787dd020562cc411ea6fed801b7c4"
+    },
+    {
+      "from": "packages/three-dimensional-scene/read-data/read-scene-descriptor.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-a-three-dimensional-scene/packages/three-dimensional-scene/read-data/read-scene-descriptor.ts",
+      "source_identity": "1f:82f9c92ff93b0b769395ca09384cd027051f34fc4cfb4a9e4f1c46ee07e26c94",
+      "identity": "1f:82f9c92ff93b0b769395ca09384cd027051f34fc4cfb4a9e4f1c46ee07e26c94"
+    },
+    {
+      "from": "packages/three-dimensional-scene/read-data/scene-descriptor.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-a-three-dimensional-scene/packages/three-dimensional-scene/read-data/scene-descriptor.ts",
+      "source_identity": "1f:7492235f2bc8681b7b62581d0baf62621da609cc686d9c49aad9379f14545b84",
+      "identity": "1f:7492235f2bc8681b7b62581d0baf62621da609cc686d9c49aad9379f14545b84"
+    },
+    {
+      "from": "packages/three-dimensional-scene/read-data/validate-scene-descriptor.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-a-three-dimensional-scene/packages/three-dimensional-scene/read-data/validate-scene-descriptor.ts",
+      "source_identity": "1f:30e0f392a1694adf45e04f09d4583735b5353b55dd2676dfb98bc1b78c76fa2c",
+      "identity": "1f:30e0f392a1694adf45e04f09d4583735b5353b55dd2676dfb98bc1b78c76fa2c"
+    },
+    {
+      "from": "packages/three-dimensional-scene/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-a-three-dimensional-scene/packages/three-dimensional-scene/README.md",
+      "source_identity": "1f:101e5d47f006f7540bf114ba160a022a0f8789a97d47eb42c68c18ba919e8af2",
+      "identity": "1f:101e5d47f006f7540bf114ba160a022a0f8789a97d47eb42c68c18ba919e8af2"
+    },
+    {
+      "from": "packages/three-dimensional-scene/show/mount-three-dimensional-scene.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-a-three-dimensional-scene/packages/three-dimensional-scene/show/mount-three-dimensional-scene.tsx",
+      "source_identity": "1f:5515d1cd63855602b26e3f3a351e8fb759883c8ae3776fab33b4a0d1256d2d43",
+      "identity": "1f:5515d1cd63855602b26e3f3a351e8fb759883c8ae3776fab33b4a0d1256d2d43"
+    },
+    {
+      "from": "packages/three-dimensional-scene/show/runtime/apply-track-value.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-a-three-dimensional-scene/packages/three-dimensional-scene/show/runtime/apply-track-value.ts",
+      "source_identity": "1f:06c5fa16247122c2c925d9e02227730e096a45ac755e725dc909271db121944e",
+      "identity": "1f:06c5fa16247122c2c925d9e02227730e096a45ac755e725dc909271db121944e"
+    },
+    {
+      "from": "packages/three-dimensional-scene/show/runtime/batch-immutable-static-geometry.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-a-three-dimensional-scene/packages/three-dimensional-scene/show/runtime/batch-immutable-static-geometry.ts",
+      "source_identity": "1f:b771e01e026955b2a1e410add883250c89b17358753247a9a2d52f11da52e76d",
+      "identity": "1f:b771e01e026955b2a1e410add883250c89b17358753247a9a2d52f11da52e76d"
+    },
+    {
+      "from": "packages/three-dimensional-scene/show/runtime/builtin-capabilities.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-a-three-dimensional-scene/packages/three-dimensional-scene/show/runtime/builtin-capabilities.ts",
+      "source_identity": "1f:fb128e31607d047b9e307c8c2a9b30297ca2bfbb14e271d1d6ce18f01d34b9db",
+      "identity": "1f:fb128e31607d047b9e307c8c2a9b30297ca2bfbb14e271d1d6ce18f01d34b9db"
+    },
+    {
+      "from": "packages/three-dimensional-scene/show/runtime/capability-registry.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-a-three-dimensional-scene/packages/three-dimensional-scene/show/runtime/capability-registry.ts",
+      "source_identity": "1f:ada77eb3236ac51a0b0144ebe588135e2f1711e3663f559edde5f89294f8c38f",
+      "identity": "1f:ada77eb3236ac51a0b0144ebe588135e2f1711e3663f559edde5f89294f8c38f"
+    },
+    {
+      "from": "packages/three-dimensional-scene/show/runtime/create-layered-scene-compositor.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-a-three-dimensional-scene/packages/three-dimensional-scene/show/runtime/create-layered-scene-compositor.ts",
+      "source_identity": "1f:0d174b229dae74c3081b8912ddac7533db519f179d585834ada8cbcf41a94f24",
+      "identity": "1f:0d174b229dae74c3081b8912ddac7533db519f179d585834ada8cbcf41a94f24"
+    },
+    {
+      "from": "packages/three-dimensional-scene/show/runtime/create-object-index.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-a-three-dimensional-scene/packages/three-dimensional-scene/show/runtime/create-object-index.ts",
+      "source_identity": "1f:a5ea7d7dba5ca2a13feafec1a4f9dbd669ca29949f9c7ac23c440a201872ef79",
+      "identity": "1f:a5ea7d7dba5ca2a13feafec1a4f9dbd669ca29949f9c7ac23c440a201872ef79"
+    },
+    {
+      "from": "packages/three-dimensional-scene/show/runtime/create-scene-runtime.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-a-three-dimensional-scene/packages/three-dimensional-scene/show/runtime/create-scene-runtime.ts",
+      "source_identity": "1f:1e2f0f3a56d9270817c4a161d0ee4781ff38c480658ae7c28cf53206e0f4819e",
+      "identity": "1f:1e2f0f3a56d9270817c4a161d0ee4781ff38c480658ae7c28cf53206e0f4819e"
+    },
+    {
+      "from": "packages/three-dimensional-scene/show/runtime/dispose-three-object.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-a-three-dimensional-scene/packages/three-dimensional-scene/show/runtime/dispose-three-object.ts",
+      "source_identity": "1f:6455d9bc3f0a4e45107b3d69dcd59e6a088994f40a7d27e64658b8d817fbd1a2",
+      "identity": "1f:6455d9bc3f0a4e45107b3d69dcd59e6a088994f40a7d27e64658b8d817fbd1a2"
+    },
+    {
+      "from": "packages/three-dimensional-scene/show/runtime/evaluate-track.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-a-three-dimensional-scene/packages/three-dimensional-scene/show/runtime/evaluate-track.ts",
+      "source_identity": "1f:4dd00745c0b0e8f4133e7a1f01c33e6b9171d54d2e2cdb8c024c0552003f2cb6",
+      "identity": "1f:4dd00745c0b0e8f4133e7a1f01c33e6b9171d54d2e2cdb8c024c0552003f2cb6"
+    },
+    {
+      "from": "packages/three-dimensional-scene/show/runtime/gltf-bytes-loader.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-a-three-dimensional-scene/packages/three-dimensional-scene/show/runtime/gltf-bytes-loader.ts",
+      "source_identity": "1f:f508137e9aea8f571670e6353bf1f10360f0d0a0fcf3e70a923fb80c77766b6d",
+      "identity": "1f:f508137e9aea8f571670e6353bf1f10360f0d0a0fcf3e70a923fb80c77766b6d"
+    },
+    {
+      "from": "packages/three-dimensional-scene/show/runtime/procedural-surface-materials.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-a-three-dimensional-scene/packages/three-dimensional-scene/show/runtime/procedural-surface-materials.ts",
+      "source_identity": "1f:fd798a4804bb13d020f7081a790182bad0345a2d68310da80d82fd00c99056d0",
+      "identity": "1f:fd798a4804bb13d020f7081a790182bad0345a2d68310da80d82fd00c99056d0"
+    },
+    {
+      "from": "packages/three-dimensional-scene/show/runtime/quality-governor.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-a-three-dimensional-scene/packages/three-dimensional-scene/show/runtime/quality-governor.ts",
+      "source_identity": "1f:1a8c5186f04235d6dd148324ac4209f688f6ed49f55d7a30e44cc8d0139792d2",
+      "identity": "1f:1a8c5186f04235d6dd148324ac4209f688f6ed49f55d7a30e44cc8d0139792d2"
+    },
+    {
+      "from": "packages/three-dimensional-scene/show/semantic-scene-story.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-a-three-dimensional-scene/packages/three-dimensional-scene/show/semantic-scene-story.tsx",
+      "source_identity": "1f:54a9db73c519901e31684c33c997ca0173228389d5d79b4351befd97cfcc0067",
+      "identity": "1f:54a9db73c519901e31684c33c997ca0173228389d5d79b4351befd97cfcc0067"
+    },
+    {
+      "from": "packages/three-dimensional-scene/show/ThreeDimensionalSceneSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-a-three-dimensional-scene/packages/three-dimensional-scene/show/ThreeDimensionalSceneSurface.tsx",
+      "source_identity": "1f:a6fbfd503effcdbf91221880c1c59c9b5f5238b73434ec940d93b39f0873e4f8",
+      "identity": "1f:a6fbfd503effcdbf91221880c1c59c9b5f5238b73434ec940d93b39f0873e4f8"
+    }
+  ]
+}

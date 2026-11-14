@@ -2,7 +2,14 @@
   "about": "Files moved here byte for byte from Trillion-X/trillion (old main, commit 5dc302be37) by the old-trillion sweep. Each names its source path and commit and the BLAKE3 identity of its bytes there and here.",
   "source": "Trillion-X/trillion",
   "package": "trillion-workshop",
-  "calls": [],
+  "calls": [
+    {
+      "id": "owner-name-br\u0069an",
+      "find": "\\bB[a-z]{4}(?=['’]s\\b)",
+      "replace": "The owner",
+      "means": "A real person's name, by its place (before 's), swapped for a made-up role."
+    }
+  ],
   "files": [
     {
       "from": "records/speech-engine-records.json",
@@ -31,6 +38,44 @@
       "to": "tools/generate-speech/packages/speech-generation/show/SpeechGenerationPanel.tsx",
       "source_identity": "1f:11f940d5b1e4fb8b1ada9826dabde08837f16ee2278bfa1b9973d1f92ac1598f",
       "identity": "1f:11f940d5b1e4fb8b1ada9826dabde08837f16ee2278bfa1b9973d1f92ac1598f"
+    },
+    {
+      "from": "packages/speech-generation/do-work/process-scripts/local-tts-provider.py",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/generate-speech/packages/speech-generation/do-work/process-scripts/local-tts-provider.py",
+      "source_identity": "1f:34201609af531c892e765650e73aa07dd90c8c5af0065e2f77bae46d994ec020",
+      "identity": "1f:34201609af531c892e765650e73aa07dd90c8c5af0065e2f77bae46d994ec020"
+    },
+    {
+      "from": "packages/speech-generation/do-work/process-scripts/make-speech-generation-records-from-command-output.py",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/generate-speech/packages/speech-generation/do-work/process-scripts/make-speech-generation-records-from-command-output.py",
+      "source_identity": "1f:20892304383d0c2bc9eecd414fb63f0c8aa1893f7dfd12c5d598cf2082f04f11",
+      "identity": "1f:20892304383d0c2bc9eecd414fb63f0c8aa1893f7dfd12c5d598cf2082f04f11"
+    },
+    {
+      "from": "packages/speech-generation/do-work/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/generate-speech/packages/speech-generation/do-work/README.md",
+      "source_identity": "1f:f120b4bb46bdaf65e6407c539c8cd2bcb7a749a4def044d96ad9c352a2b40ed7",
+      "identity": "1f:f120b4bb46bdaf65e6407c539c8cd2bcb7a749a4def044d96ad9c352a2b40ed7"
+    },
+    {
+      "from": "packages/speech-generation/do-work/submit-speech-generation.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/generate-speech/packages/speech-generation/do-work/submit-speech-generation.ts",
+      "source_identity": "1f:4bc51ceaa3ff988a07d75d5295ce446fd59ee0b50423b77b75512132025e772f",
+      "identity": "1f:18cd2d0c98eae6ebf6b037a4712f2a29a67910c921a8f53f5f6d33038353ff2b",
+      "calls": [
+        "owner-name-br\u0069an"
+      ]
+    },
+    {
+      "from": "packages/speech-generation/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/generate-speech/packages/speech-generation/README.md",
+      "source_identity": "1f:6b642aa9356746345d15b623f2ba6e82e9a41fb6c781b4740c8ef5180d0c86ca",
+      "identity": "1f:6b642aa9356746345d15b623f2ba6e82e9a41fb6c781b4740c8ef5180d0c86ca"
     }
   ]
 }

@@ -1,0 +1,98 @@
+{
+  "schema": "three-dimensional-scene/v1",
+  "id": "proof.workplace-topology",
+  "revision": "r1",
+  "title": "Workplace topology",
+  "canvasLabel": "Workplace topology interactive scene",
+  "camera": {
+    "objectId": "camera.main",
+    "fov": 42,
+    "near": 0.1,
+    "far": 100,
+    "position": [
+      0,
+      1,
+      5
+    ],
+    "lookAt": [
+      0,
+      0,
+      0
+    ]
+  },
+  "background": {
+    "color": "#080808",
+    "alpha": 1
+  },
+  "assets": [],
+  "drivers": [
+    {
+      "id": "progress",
+      "capability": {
+        "capabilityId": "driver.addressed-number"
+      },
+      "input": {
+        "path": "progress",
+        "fallback": 0
+      },
+      "clamp": [
+        0,
+        1
+      ]
+    }
+  ],
+  "tracks": [
+    {
+      "id": "camera.depth",
+      "driverId": "progress",
+      "target": {
+        "object": "camera.main",
+        "propertyPath": "position"
+      },
+      "interpolation": {
+        "capabilityId": "interpolate.vec3"
+      },
+      "keyframes": [
+        {
+          "at": 0,
+          "value": [
+            0,
+            1,
+            5
+          ]
+        },
+        {
+          "at": 1,
+          "value": [
+            0,
+            1,
+            2
+          ],
+          "easing": {
+            "capabilityId": "easing.smoothstep"
+          }
+        }
+      ]
+    }
+  ],
+  "interactions": [],
+  "semanticSections": [
+    {
+      "id": "chapter.one",
+      "heading": "Work moves through a system",
+      "body": "An operational view reveals handoffs, constraints, evidence, and the next responsible action.",
+      "claimState": "illustrative",
+      "stationId": "chapter.one"
+    }
+  ],
+  "quality": {
+    "maxDevicePixelRatio": 1.5,
+    "maxActiveLights": 3,
+    "maxTrianglesDesktop": 100000,
+    "maxTrianglesMobile": 50000,
+    "maxTextureBytes": 33554432,
+    "suspendWhenHidden": true,
+    "renderOnlyWhenDirty": true
+  }
+}
+

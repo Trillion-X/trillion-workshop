@@ -216,6 +216,55 @@
       "to": "tools/practice-and-review/packages/tactics-practice/show/TacticsPracticeSurface.tsx",
       "source_identity": "1f:d5a9173f97b0dd586f8771f5746d9cb05a87648d08463202bfd2d5fe1dad2378",
       "identity": "1f:d5a9173f97b0dd586f8771f5746d9cb05a87648d08463202bfd2d5fe1dad2378"
+    },
+    {
+      "from": "packages/tactics-practice/do-work/create-tactics-contest.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/packages/tactics-practice/do-work/create-tactics-contest.ts",
+      "source_identity": "1f:dd90d0d4ae27976850331a83e2b9976f7cb5fe8e98115050455e07ed0a504b3e",
+      "identity": "1f:dd90d0d4ae27976850331a83e2b9976f7cb5fe8e98115050455e07ed0a504b3e"
+    },
+    {
+      "from": "packages/tactics-practice/do-work/open-season-tournament.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/packages/tactics-practice/do-work/open-season-tournament.ts",
+      "source_identity": "1f:de8a6b3193b2e93e59ccf1484add91c5bb1a47fcb42b8be4cd94e0f9f0dff28f",
+      "identity": "1f:de8a6b3193b2e93e59ccf1484add91c5bb1a47fcb42b8be4cd94e0f9f0dff28f"
+    },
+    {
+      "from": "packages/tactics-practice/do-work/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/packages/tactics-practice/do-work/README.md",
+      "source_identity": "1f:bf538bdfe9556bc72cb9106e05499d623deffce82662f873aaee7d225f620c16",
+      "identity": "1f:bf538bdfe9556bc72cb9106e05499d623deffce82662f873aaee7d225f620c16"
+    },
+    {
+      "from": "packages/tactics-practice/do-work/record-season-result.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/packages/tactics-practice/do-work/record-season-result.ts",
+      "source_identity": "1f:e0fb1ac21415f6812b026ca4709daecc078d15901f27d2dcc4970ba38a75f77e",
+      "identity": "1f:e0fb1ac21415f6812b026ca4709daecc078d15901f27d2dcc4970ba38a75f77e"
+    },
+    {
+      "from": "packages/tactics-practice/read-data/read-tactics-practice.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/packages/tactics-practice/read-data/read-tactics-practice.ts",
+      "source_identity": "1f:33e1ae952a3a33c94f5461ee3571f3a35729d96356a4120d4f7f501101417d40",
+      "identity": "1f:33e1ae952a3a33c94f5461ee3571f3a35729d96356a4120d4f7f501101417d40"
+    },
+    {
+      "from": "packages/tactics-practice/read-data/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/packages/tactics-practice/read-data/README.md",
+      "source_identity": "1f:ed9fcdbbef662b379a53bdc7e87a3c0e21105d7c5812e4b8c79db7f65fc63dda",
+      "identity": "1f:ed9fcdbbef662b379a53bdc7e87a3c0e21105d7c5812e4b8c79db7f65fc63dda"
+    },
+    {
+      "from": "packages/tactics-practice/read-data/tactics-practice-types.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/packages/tactics-practice/read-data/tactics-practice-types.ts",
+      "source_identity": "1f:406d2370c1846f34ba2e256e08efb1ceb94769ab5474704890fc5190fb835988",
+      "identity": "1f:406d2370c1846f34ba2e256e08efb1ceb94769ab5474704890fc5190fb835988"
     }
   ]
 }

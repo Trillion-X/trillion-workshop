@@ -1,0 +1,106 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/tasks/do-work/accept-source-linked-proposal.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/work-breakdown/packages/tasks/do-work/accept-source-linked-proposal.ts",
+      "source_identity": "1f:b60ca494c3a4a74075b93859b35bbecbaa3f81a250cb38945c620fe9d4f57644",
+      "identity": "1f:b60ca494c3a4a74075b93859b35bbecbaa3f81a250cb38945c620fe9d4f57644"
+    },
+    {
+      "from": "packages/tasks/index.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/work-breakdown/packages/tasks/index.tsx",
+      "source_identity": "1f:45226540980cc2c1e42441ef45da5b0d91b592ea43257a2e26bcdb2606365b12",
+      "identity": "1f:45226540980cc2c1e42441ef45da5b0d91b592ea43257a2e26bcdb2606365b12"
+    },
+    {
+      "from": "packages/tasks/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/work-breakdown/packages/tasks/README.md",
+      "source_identity": "1f:4687ef88cd81bbb8936e79dac1e744bd5e8564ab203b27caa7c046d1d708a736",
+      "identity": "1f:4687ef88cd81bbb8936e79dac1e744bd5e8564ab203b27caa7c046d1d708a736"
+    },
+    {
+      "from": "packages/tasks/show/compute-task-dag-layout.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/work-breakdown/packages/tasks/show/compute-task-dag-layout.ts",
+      "source_identity": "1f:df77e03285023f5c72daa7e3e33cb11598350e4bdd8633c9e19479a2e95844dd",
+      "identity": "1f:df77e03285023f5c72daa7e3e33cb11598350e4bdd8633c9e19479a2e95844dd"
+    },
+    {
+      "from": "packages/tasks/show/KanbanBoard.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/work-breakdown/packages/tasks/show/KanbanBoard.tsx",
+      "source_identity": "1f:3352e2d13fe29a229a169708633b96877d787ee4df79bb48604b67ed0bca6ec9",
+      "identity": "1f:3352e2d13fe29a229a169708633b96877d787ee4df79bb48604b67ed0bca6ec9"
+    },
+    {
+      "from": "packages/tasks/show/KanbanCard.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/work-breakdown/packages/tasks/show/KanbanCard.tsx",
+      "source_identity": "1f:16770aa2fd85bcc0894a157461c9bd6f3ea31faacdef49e5e4b8d6e89f3a4df8",
+      "identity": "1f:16770aa2fd85bcc0894a157461c9bd6f3ea31faacdef49e5e4b8d6e89f3a4df8"
+    },
+    {
+      "from": "packages/tasks/show/mount-tasks.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/work-breakdown/packages/tasks/show/mount-tasks.tsx",
+      "source_identity": "1f:6be50e4985d610e14c0e6cf419a74f7765ac076054a13d08e9f39600334c074f",
+      "identity": "1f:6be50e4985d610e14c0e6cf419a74f7765ac076054a13d08e9f39600334c074f"
+    },
+    {
+      "from": "packages/tasks/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/work-breakdown/packages/tasks/show/README.md",
+      "source_identity": "1f:a794d9888e01ea9adca5624994818c072e58ce8052a571fff8f41de8ad1614cd",
+      "identity": "1f:a794d9888e01ea9adca5624994818c072e58ce8052a571fff8f41de8ad1614cd"
+    },
+    {
+      "from": "packages/tasks/show/TaskDAG.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/work-breakdown/packages/tasks/show/TaskDAG.tsx",
+      "source_identity": "1f:03318310a5f3b4ea25ee0d74a531677f47b113ffe1e79b4662171596342cff91",
+      "identity": "1f:03318310a5f3b4ea25ee0d74a531677f47b113ffe1e79b4662171596342cff91"
+    },
+    {
+      "from": "packages/tasks/show/TaskList.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/work-breakdown/packages/tasks/show/TaskList.tsx",
+      "source_identity": "1f:46ed1ddbbe6b97698912515c55a827b20d422e4b3b71ddf4d6f251a0578b2c09",
+      "identity": "1f:46ed1ddbbe6b97698912515c55a827b20d422e4b3b71ddf4d6f251a0578b2c09"
+    },
+    {
+      "from": "packages/tasks/show/TasksPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/work-breakdown/packages/tasks/show/TasksPanel.tsx",
+      "source_identity": "1f:f8d7c7464b8b6cc0cb9a131ace1f4397f255ad4e8e24d5dd98438f10aa8a4326",
+      "identity": "1f:f8d7c7464b8b6cc0cb9a131ace1f4397f255ad4e8e24d5dd98438f10aa8a4326"
+    },
+    {
+      "from": "packages/work-breakdown/do-work/check-the-evidence-behind-finished-work.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/work-breakdown/packages/work-breakdown/do-work/check-the-evidence-behind-finished-work.mjs",
+      "source_identity": "1f:e184eec87be6ccdca72c3ca4b74575a151a8a0752fd84e9b84980b3586991c27",
+      "identity": "1f:e184eec87be6ccdca72c3ca4b74575a151a8a0752fd84e9b84980b3586991c27"
+    },
+    {
+      "from": "packages/work-breakdown/do-work/roll-up-work-completion.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/work-breakdown/packages/work-breakdown/do-work/roll-up-work-completion.mjs",
+      "source_identity": "1f:61874cf1e2d8f1cd40c16fec156754170e6713a6d2d48b32eeef3e6ee63a21e8",
+      "identity": "1f:61874cf1e2d8f1cd40c16fec156754170e6713a6d2d48b32eeef3e6ee63a21e8"
+    },
+    {
+      "from": "packages/work-breakdown/tests/roll-up-work-completion.test.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/work-breakdown/packages/work-breakdown/tests/roll-up-work-completion.test.mjs",
+      "source_identity": "1f:b3102f0ce60a4fdfb781e5d9b2b7a20185b9642e17f6f1b27f075e9e723e6749",
+      "identity": "1f:b3102f0ce60a4fdfb781e5d9b2b7a20185b9642e17f6f1b27f075e9e723e6749"
+    }
+  ]
+}
