@@ -1,0 +1,313 @@
+#!/usr/bin/env node
+// A dead engine must cost a STALE page, never a dead one.
+//
+// MOVED HERE 2026-09-04, from the runtime kit's own deploy folder. Two reasons, and the
+// second is the one that matters. (1) The runtime kit is a WRITE root and not a RUN root,
+// so an agent could author this test and then not run it, which meant every execution was
+// somebody else's errand. `bitfield-packages/packages/` is both, so it runs here. (2) The
+// runtime kit has no git history anywhere above it, so the only copy of this test lived
+// where nothing retains it. `hosted-public-app` calls itself the public app hosting owner
+// and already carries runtime-kit-facing tests, so this is the nearest true owner. The
+// SERVER it exercises has not moved yet and still has no owning package, which is the
+// larger open defect this test now sits next to rather than inside.
+//
+// This test exists because on 2026-09-03 a live app host returned
+// `502 public entry unavailable` for over an hour while index.html sat readable on disk
+// the whole time: the app-shell route awaited the entry scene alongside the shell, the
+// scene's cursor fetch hit ECONNREFUSED on the engine port, Promise.all rejected, and the
+// render threw. A sibling host had tolerated exactly this since its own 2026-08-07
+// incident, so the fix had been applied to one host instead of to the category.
+//
+// VERIFIED TO FAIL ON THE DEFECT (2026-09-03): re-introducing the propagating
+// `await currentCursor()` makes `/entry-scene` 502 and drops the fallback log line, while
+// the shell route KEEPS serving 200, because the app-shell call site catches the scene
+// independently. The two halves are therefore NOT redundant: the call-site catch is what
+// saves the shell, and the scene holder's tolerance is what saves /entry-scene and gives
+// convergence. Do not delete either as "belt and braces".
+//
+// It compiles and boots the real generic server with the engine port pointed at a closed socket. No
+// mocking of the failure: the engine is genuinely not there.
+//
+// ---------------------------------------------------------------------------
+// PHASE 2 ADDED 2026-09-04, because phase 1 alone could not tell "stale" from "dead".
+//
+// The app scene's fallback stopped being a baked file and became the last scene the engine
+// actually served, kept under BITFIELD_INSTALL_ROOT. That change has two halves, REMEMBER
+// a live scene and SERVE the remembered one when the engine is gone, and a dead engine
+// never returns a scene to remember, so phase 1 exercises only the second half against an
+// empty store.
+//
+// Worse, phase 1's scene check was `status < 500`, and the empty-store answer is a 204. So
+// a build that remembered nothing, served nothing, and painted an empty shell forever
+// passed every check in this file while the whole point of the change is that it must not.
+// A check that cannot distinguish the fix from its absence is not a check.
+//
+// Phase 2 runs the real loop across a RESTART, the only window the fallback covers: a live
+// engine answers once, the server is killed, and a cold boot pointed at a dead port with
+// the same install root must still paint that same scene. The scene carries a marker
+// string, so "the right scene" is asserted rather than "a scene".
+
+import { spawn } from 'node:child_process';
+import { mkdtemp, writeFile, readFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { createServer } from 'node:net';
+import { createServer as createHttpServer, request as httpRequest } from 'node:http';
+import { theBuiltEntryServer } from './built-entry-server.mjs';
+
+// The host name is arbitrary and deliberately not a real one: the server learns which
+// hosts are app-entry hosts from BITFIELD_APP_ENTRY_SCENE_HOSTS, which this test sets. Naming
+// a customer's domain here would put a product into a package test for no gain.
+const APP_HOST = 'app.entry-host.test';
+const SHELL_MARKER = '<!DOCTYPE html>';
+
+// A value no other part of the system could produce, so finding it in a response proves it
+// travelled engine to disk to restart to browser, and is not some default.
+const SCENE_MARKER = 'last-good-scene-marker-2026-09-04';
+const LIVE_SCENE = { marker: SCENE_MARKER, kind: 'test-scene', children: [] };
+const LIVE_CURSOR = 7;
+
+// The test helper compiles the generic source directly; no package-set deployment output is read.
+
+async function freePort() {
+  return new Promise((resolve, reject) => {
+    const probe = createServer();
+    probe.on('error', reject);
+    probe.listen(0, '127.0.0.1', () => {
+      const { port } = probe.address();
+      probe.close(() => resolve(port));
+    });
+  });
+}
+
+// node:http, NOT fetch: `Host` is a forbidden header name in fetch, so a fetch-based probe
+// silently arrives as 127.0.0.1 and never matches an app-entry host. That made this test
+// report a 502 the product does not actually have.
+function get(port, path, host) {
+  return new Promise((resolve, reject) => {
+    const request = httpRequest(
+      { host: '127.0.0.1', port, path, method: 'GET', headers: { Host: host, Accept: 'text/html' } },
+      (response) => {
+        let body = '';
+        response.setEncoding('utf8');
+        response.on('data', (chunk) => { body += chunk; });
+        response.on('end', () => resolve({ status: response.statusCode, body }));
+      },
+    );
+    request.on('error', reject);
+    request.end();
+  });
+}
+
+const failures = [];
+function check(name, condition, detail) {
+  if (condition) console.log(`  PASS  ${name}`);
+  else { console.log(`  FAIL  ${name}${detail ? `, ${detail}` : ''}`); failures.push(name); }
+}
+
+// The smallest thing that answers like the engine. Not a mock of the failure, since phase 1
+// keeps a genuinely absent engine for that. A real socket speaking the three shapes the
+// entry server asks for, so the REMEMBER path can run at all.
+async function startFakeEngine() {
+  const port = await freePort();
+  const server = createHttpServer((req, res) => {
+    let raw = '';
+    req.setEncoding('utf8');
+    req.on('data', (chunk) => { raw += chunk; });
+    req.on('end', () => {
+      const reply = (value) => {
+        const body = JSON.stringify(value);
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) });
+        res.end(body);
+      };
+      const path = (req.url || '/').split('?')[0];
+      if (path === '/boot') return reply([{ running_command_list_basis: 'basis-for-this-test' }]);
+
+      let request = {};
+      try { request = raw ? JSON.parse(raw) : {}; } catch { request = {}; }
+
+      if (path.endsWith('engine.operation.label-addressed')) {
+        if (request.operation_label === 'engine.operation.current-cursor') return reply({ cursor: LIVE_CURSOR });
+        if (request.operation_label === 'engine.operation.read-current') {
+          // Only the scene exists. Everything else the server reads on refresh is
+          // legitimately absent, and `found: false` is how the engine says so.
+          if (request.address_label === 'scene') return reply({ found: true, payload: LIVE_SCENE });
+          return reply({ found: false });
+        }
+        return reply({ found: false });
+      }
+      return reply({ items: [] });
+    });
+  });
+  await new Promise((resolve, reject) => {
+    server.on('error', reject);
+    server.listen(port, '127.0.0.1', resolve);
+  });
+  return { port, close: () => new Promise((resolve) => server.close(resolve)) };
+}
+
+function startEntryServer({ server, port, enginePort, staticDir, installRoot }) {
+  const child = spawn(process.execPath, [server], {
+    env: {
+      ...process.env,
+      BITFIELD_PUBLIC_ENTRY_LISTEN_HOST: '127.0.0.1',
+      BITFIELD_PUBLIC_ENTRY_LISTEN_PORT: String(port),
+      BITFIELD_PUBLIC_ENTRY_SHELL_URL: `http://127.0.0.1:${enginePort}`,
+      BITFIELD_BROWSER_STATIC_DIR: staticDir,
+      BITFIELD_APP_ENTRY_SCENE_HOSTS: APP_HOST,
+      // The app scene's fallback is the last scene the engine actually served, kept under
+      // BITFIELD_INSTALL_ROOT, which replaced BITFIELD_APP_ENTRY_SCENE_FILE. Point it at a
+      // temp dir: unset, the server would write into the real install root while a test
+      // runs, and on a developer machine that path is neither present nor writable.
+      BITFIELD_INSTALL_ROOT: installRoot,
+      BITFIELD_BOOT_WAIT_MS: '1000',
+    },
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  const handle = { child, log: '' };
+  child.stdout.on('data', (d) => { handle.log += d; });
+  child.stderr.on('data', (d) => { handle.log += d; });
+  return handle;
+}
+
+async function waitForListen(port, deadlineMs = 30000) {
+  const started = Date.now();
+  while (Date.now() - started < deadlineMs) {
+    try {
+      await get(port, '/', APP_HOST);
+      return true;
+    } catch { await new Promise((r) => setTimeout(r, 200)); }
+  }
+  return false;
+}
+
+const { server: SERVER, note: serverNote, reason: noServerReason } = await theBuiltEntryServer();
+if (!SERVER) {
+  // Exit 1 rather than skip. A test that quietly passes when its subject is absent is a
+  // verifier that cannot fail, which is the exact defect this file's phase 2 exists to fix.
+  // Silently choosing among several subjects is the same defect wearing a green result.
+  console.log(`FAIL: ${noServerReason}`);
+  process.exit(1);
+}
+console.log(serverNote);
+
+const staticDir = await mkdtemp(join(tmpdir(), 'app-shell-proof-'));
+await writeFile(join(staticDir, 'index.html'),
+  `${SHELL_MARKER}\n<html><head></head><body><div id="root"></div></body></html>\n`, 'utf8');
+
+// Phase 1 and phase 2 get SEPARATE install roots on purpose. Phase 1's claim is about a
+// host that has never once heard from the engine; sharing a root would let phase 2's
+// remembered scene answer phase 1's question and quietly delete the empty-store case.
+const emptyInstallRoot = await mkdtemp(join(tmpdir(), 'app-shell-install-empty-'));
+const survivingInstallRoot = await mkdtemp(join(tmpdir(), 'app-shell-install-surviving-'));
+
+let deadEngineServer = null;
+let liveEngineServer = null;
+let restartedServer = null;
+let fakeEngine = null;
+let exitCode = 0;
+
+try {
+  console.log('\napp-shell-survives-a-dead-engine');
+  const port = await freePort();
+  // An engine port that is definitively closed: a port we reserved and never bound.
+  const deadEnginePort = await freePort();
+  deadEngineServer = startEntryServer({
+    server: SERVER, port, enginePort: deadEnginePort, staticDir, installRoot: emptyInstallRoot,
+  });
+
+  const listening = await waitForListen(port);
+  check('the server listens even though the engine never answers', listening);
+  if (!listening) throw new Error('server never listened');
+
+  const shell = await get(port, '/', APP_HOST);
+  check('the app host serves its shell instead of 502', shell.status === 200, `got ${shell.status}`);
+  check('the response is the on-disk shell', shell.body.includes(SHELL_MARKER));
+
+  // Repeat: a cursor-0 cache must not harden into a permanent answer, and must not start
+  // throwing once cached.
+  const again = await get(port, '/', APP_HOST);
+  check('it keeps serving on a second request (cursor-0 cache is not poison)', again.status === 200, `got ${again.status}`);
+
+  // 204 EXACTLY, not `< 500`. With an engine that never answered and a store never written,
+  // "no scene" is the true answer and 204 is how it is said; the incident produced a 5xx
+  // here. Asserting the exact code is what stops this check from also passing in phase 2's
+  // situation, where 204 would be a real defect.
+  const scene = await get(port, '/entry-scene', APP_HOST);
+  check('/entry-scene answers 204 rather than throwing, because nothing was ever true yet',
+    scene.status === 204, `got ${scene.status}`);
+
+  check('the engine absence was logged, not swallowed',
+    /engine unreachable for the app scene cursor/.test(deadEngineServer.log),
+    'expected the published-scene fallback log line');
+
+  console.log('\nthe last good scene survives a restart');
+  fakeEngine = await startFakeEngine();
+  const livePort = await freePort();
+  liveEngineServer = startEntryServer({
+    server: SERVER, port: livePort, enginePort: fakeEngine.port, staticDir, installRoot: survivingInstallRoot,
+  });
+
+  const liveListening = await waitForListen(livePort);
+  check('the server listens against a live engine', liveListening);
+  if (!liveListening) throw new Error('server never listened against the live engine');
+
+  // No sleep: refresh() awaits sceneBytes, which awaits rememberLastGoodScene, so by the
+  // time a response exists the write has already happened or already failed.
+  const liveScene = await get(livePort, '/entry-scene', APP_HOST);
+  check('a live engine produces a real scene, not a 204', liveScene.status === 200, `got ${liveScene.status}`);
+  check('the served scene is the one the engine returned', liveScene.body.includes(SCENE_MARKER));
+
+  const remembered = await readFile(
+    join(survivingInstallRoot, 'last-good-entry-scene', 'app.json'), 'utf8',
+  ).catch((error) => `UNREADABLE: ${error?.message ?? error}`);
+  check('the live scene was written to the install root',
+    remembered.includes(SCENE_MARKER), remembered.slice(0, 160));
+
+  // Kill BOTH the server and the engine. What follows is a cold boot into a world where
+  // the engine does not exist and never did, holding nothing but the volume.
+  liveEngineServer.child.kill('SIGKILL');
+  await fakeEngine.close();
+  fakeEngine = null;
+
+  const restartPort = await freePort();
+  const nowDeadEnginePort = await freePort();
+  restartedServer = startEntryServer({
+    server: SERVER, port: restartPort, enginePort: nowDeadEnginePort, staticDir, installRoot: survivingInstallRoot,
+  });
+
+  const restartListening = await waitForListen(restartPort);
+  check('a cold boot with the engine gone still listens', restartListening);
+  if (!restartListening) throw new Error('restarted server never listened');
+
+  const afterRestart = await get(restartPort, '/entry-scene', APP_HOST);
+  check('after a restart with no engine, /entry-scene is still 200, not 204',
+    afterRestart.status === 200, `got ${afterRestart.status}`);
+  check('and it is the SAME scene the engine served before it died',
+    afterRestart.body.includes(SCENE_MARKER));
+
+  const restartShell = await get(restartPort, '/', APP_HOST);
+  check('the shell still serves alongside it', restartShell.status === 200, `got ${restartShell.status}`);
+} catch (error) {
+  console.log(`  FAIL  harness, ${error?.message ?? error}`);
+  failures.push('harness');
+} finally {
+  deadEngineServer?.child.kill('SIGKILL');
+  liveEngineServer?.child.kill('SIGKILL');
+  restartedServer?.child.kill('SIGKILL');
+  if (fakeEngine) await fakeEngine.close();
+  await rm(staticDir, { recursive: true, force: true });
+  await rm(emptyInstallRoot, { recursive: true, force: true });
+  await rm(survivingInstallRoot, { recursive: true, force: true });
+}
+
+if (failures.length) {
+  console.log(`\nFAIL: ${failures.length} check(s): ${failures.join(', ')}`);
+  console.log('--- dead-engine server log ---\n' + (deadEngineServer?.log ?? '').slice(-1200));
+  console.log('--- live-engine server log ---\n' + (liveEngineServer?.log ?? '').slice(-1200));
+  console.log('--- restarted server log ---\n' + (restartedServer?.log ?? '').slice(-1200));
+  exitCode = 1;
+} else {
+  console.log('\nPASS: a dead engine costs a stale page, and the stale page is the last real one');
+}
+process.exit(exitCode);

@@ -1,0 +1,60 @@
+import { describe, expect, it } from '../../../test-helpers/vitest-shim.mjs';
+import { reduceReservePublicSelectionTransition } from './public-selection-transition.ts';
+
+const ref = (address: string) => ({ address, revision: 'r1', object_hash: `1f:${address.padEnd(64, '0').slice(0, 64)}` });
+const selection = {
+  kind: 'hosted-public-app.public-selection/v1',
+  address: 'hosted-public-app::selection::example@1',
+  revision: 'r1',
+  surface_ref: ref('surface'),
+  generation: 7,
+  stable_release_ref: ref('stable'),
+  candidate_release_refs: [ref('candidate')],
+  allocation_policy_ref: ref('allocation'),
+  route_contract_ref: ref('route'),
+};
+const request = {
+  selection_ref: ref(selection.address),
+  expected_generation: 7,
+  expected_selection_digest: '1f:selection-digest',
+  proposed_transition_ref: ref('transition'),
+  admission_evidence_set_ref: ref('evidence'),
+  idempotency_key: 'promote-candidate-v1',
+};
+
+describe('public selection transition authority', () => {
+  it('reserves exactly one pending transition while preserving the stable release', () => {
+    const first = reduceReservePublicSelectionTransition(selection, request.expected_selection_digest, request);
+    expect(first.status).toBe('accepted');
+    if (first.status !== 'accepted') throw new Error('reservation failed');
+    expect(first.nextSelection.generation).toBe(8);
+    expect(first.nextSelection.stable_release_ref).toEqual(selection.stable_release_ref);
+    expect(first.nextSelection.pending_transition_ref).toEqual(first.reservationRef);
+    expect(first.reservation.previous_stable_release_ref).toEqual(selection.stable_release_ref);
+  });
+
+  it('makes a same-generation contender stale before any provider call can be returned', () => {
+    let providerCalls = 0;
+    const first = reduceReservePublicSelectionTransition(selection, request.expected_selection_digest, request);
+    if (first.status !== 'accepted') throw new Error('first contender did not reserve');
+    const second = reduceReservePublicSelectionTransition(first.nextSelection, '1f:new-selection-digest', {
+      ...request,
+      idempotency_key: 'competing-promoter',
+    });
+    if (second.status === 'accepted') providerCalls += 1;
+    expect(second).toEqual({ status: 'conflict', reason: 'stale-selection' });
+    expect(providerCalls).toBe(0);
+  });
+
+  it('refuses a second pending transition even with a forged current generation and digest', () => {
+    const first = reduceReservePublicSelectionTransition(selection, request.expected_selection_digest, request);
+    if (first.status !== 'accepted') throw new Error('first contender did not reserve');
+    const second = reduceReservePublicSelectionTransition(first.nextSelection, '1f:new-selection-digest', {
+      ...request,
+      expected_generation: 8,
+      expected_selection_digest: '1f:new-selection-digest',
+      idempotency_key: 'parallel-transition',
+    });
+    expect(second).toEqual({ status: 'conflict', reason: 'transition-pending' });
+  });
+});

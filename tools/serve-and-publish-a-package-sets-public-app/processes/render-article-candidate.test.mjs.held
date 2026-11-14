@@ -1,0 +1,143 @@
+import assert from 'node:assert/strict';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import { tmpdir } from 'node:os';
+import test from 'node:test';
+import {
+  captureArticleCandidate,
+  composeCandidateArchive,
+  dockerCopyIntoArguments,
+  needsMaskCompatibleBrowser,
+  readRenderArtifact,
+  releaseRenderWorkspace,
+} from './render-article-candidate.mjs';
+
+test('capture escalates only when an overflowing shared viewport loses its mask', () => {
+  assert.equal(needsMaskCompatibleBrowser([]), false);
+  assert.equal(needsMaskCompatibleBrowser([{ overflow: false, mask: '' }]), false);
+  assert.equal(needsMaskCompatibleBrowser([{ overflow: true, mask: 'linear-gradient(to right, transparent, black)' }]), false);
+  assert.equal(needsMaskCompatibleBrowser([{ overflow: true, mask: '' }]), true);
+  assert.equal(needsMaskCompatibleBrowser([{ overflow: true, mask: 'none' }]), true);
+});
+
+const description = {
+  kind: 'hosted-public-app.page-description',
+  pages: [{ hosts: ['articles.example.test'], fallback_pages_file: '/app/assets/recovery/public-articles.json' }],
+};
+const candidate = {
+  route_path: '/articles/new-story',
+  page: {
+    id: 'new-story', kind: 'public-sales-page', route_path: '/articles/new-story',
+    title: 'A New Story', schema: { '@type': 'Article' },
+    blocks: [{ kind: 'paragraph', text: 'Candidate article copy.' }],
+  },
+  page_ref: { address: 'package-set-records::public-sales-page-records::/articles/new-story' },
+  document_ref: { address: 'documents::new-story' },
+  document_revision_hash: '1f:document-revision',
+  input_bases: [{ address: 'documents::new-story', object_hash: '1f:base' }],
+  verdicts: { factual: 'pass', writing: 'pass', design: 'pass' },
+};
+const originalArchive = Buffer.from(JSON.stringify({ rows: [
+  { id: 'existing-one', kind: 'public-sales-page', route_path: '/articles/one', title: 'One' },
+  { ...candidate.page, title: 'Old candidate version', blocks: [{ kind: 'paragraph', text: 'Old.' }] },
+  { id: 'existing-two', kind: 'public-sales-page', route_path: '/articles/two', title: 'Two' },
+] }));
+
+test('composition replaces one exact route and preserves other archive rows', () => {
+  const composed = JSON.parse(composeCandidateArchive(originalArchive, candidate));
+  assert.deepEqual(composed.rows[0], { id: 'existing-one', kind: 'public-sales-page', route_path: '/articles/one', title: 'One' });
+  assert.deepEqual(composed.rows[1], candidate.page);
+  assert.deepEqual(composed.rows[2], { id: 'existing-two', kind: 'public-sales-page', route_path: '/articles/two', title: 'Two' });
+});
+
+test('image archive injection copies local bytes into the image path', () => {
+  assert.deepEqual(dockerCopyIntoArguments('candidate-container', '/workspace/archive.json', '/app/assets/archive.json'),
+    ['cp', '/workspace/archive.json', 'candidate-container:/app/assets/archive.json']);
+});
+
+test('candidate capture verifies the current image archive and returns exact render evidence', async () => {
+  const workspace = await mkdtemp(path.join(tmpdir(), 'render-candidate-test-'));
+  try {
+    const pageDescriptionBytes = Buffer.from(JSON.stringify(description));
+    const prospectiveArchiveBytes = composeCandidateArchive(originalArchive, candidate);
+    const calls = [];
+    const result = await captureArticleCandidate({
+      application: 'article-host', candidate, description, archivePath: 'assets/recovery/public-articles.json',
+      proposedArchive: prospectiveArchiveBytes, image: 'registry.fly.io/article-host:release-current1',
+    }, {
+      currentContainerBaseResult: async (application) => {
+        assert.equal(application, 'article-host');
+        return { kind: 'hosted-current-container-base-handle', image: 'registry.fly.io/article-host:release-current1' };
+      },
+      inspectCurrentContainerImage: async (image) => {
+        assert.equal(image, 'registry.fly.io/article-host:release-current1');
+        return { Config: { Entrypoint: ['node', '/opt/bitfield/launcher'], Env: ['BITFIELD_HOST_ENTRY_SCENE_HOSTS=articles.example.test'] } };
+      },
+      run: async (_command, args) => { calls.push(args); },
+      copyFromImage: async (_container, from, to) => {
+        await writeFile(to, from === '/app/page-description.json' ? pageDescriptionBytes : originalArchive);
+      },
+      startImage: async (input) => {
+        assert.equal(input.image, 'registry.fly.io/article-host:release-current1');
+        assert.equal(input.archivePath, '/app/assets/recovery/public-articles.json');
+        assert.deepEqual(input.prospectiveArchiveBytes, prospectiveArchiveBytes);
+        assert.equal(input.host, 'articles.example.test');
+        return { localUrl: 'http://127.0.0.1:12345/articles/new-story' };
+      },
+      capture: async ({ url, host, outputDirectory }) => {
+        assert.equal(url, 'http://127.0.0.1:12345/articles/new-story');
+        assert.equal(host, 'articles.example.test');
+        const artifacts = {};
+        for (const mode of ['desktop', 'mobile']) {
+          const htmlPath = path.join(outputDirectory, `${mode}.html`);
+          const screenshotPath = path.join(outputDirectory, `${mode}.png`);
+          const html = Buffer.from(`<main>${mode} A New Story</main>`);
+          const screenshot = Buffer.from(`${mode}-png-bytes`);
+          await writeFile(htmlPath, html);
+          await writeFile(screenshotPath, screenshot);
+          artifacts[mode] = {
+            html_identity: mode === 'desktop' ? '1f:desktop-html' : '1f:mobile-html',
+            screenshot_identity: mode === 'desktop' ? '1f:desktop-png' : '1f:mobile-png',
+            html_path: htmlPath, screenshot_path: screenshotPath,
+            viewport: mode === 'desktop' ? { width: 1440, height: 1000 } : { width: 390, height: 844 },
+          };
+        }
+        return artifacts;
+      },
+    });
+
+    assert.equal(result.kind, 'hosted-public-app.rendered-article-candidate');
+    assert.equal(result.route_path, candidate.route_path);
+    assert.deepEqual(result.prospectiveArchiveBytes, prospectiveArchiveBytes);
+    assert.equal(result.identities.page.startsWith('1f:'), true);
+    assert.equal(result.identities.candidate.startsWith('1f:'), true);
+    assert.equal(result.identities.current_archive.startsWith('1f:'), true);
+    assert.equal(result.identities.prospective_archive.startsWith('1f:'), true);
+    assert.equal(result.identities.desktop_screenshot, '1f:desktop-png');
+    assert.equal(result.identities.mobile_screenshot, '1f:mobile-png');
+    assert.equal(Object.hasOwn(result.workspace_handle, 'directory'), false);
+    assert.equal((await readRenderArtifact(result.workspace_handle, 'desktop.png')).toString(), 'desktop-png-bytes');
+    assert.equal((await readRenderArtifact(result.workspace_handle, 'prospective-archive.json')).equals(prospectiveArchiveBytes), true);
+    await releaseRenderWorkspace(result.workspace_handle);
+    await assert.rejects(readRenderArtifact(result.workspace_handle, 'desktop.png'), /no longer available/);
+    assert.ok(calls.some((args) => args[0] === 'rm' && args.includes('--force')));
+  } finally {
+    await rm(workspace, { recursive: true, force: true });
+  }
+});
+
+test('capture rejects a proposed archive that changes an unrelated route', async () => {
+  const current = JSON.parse(originalArchive);
+  current.rows[0].title = 'Mutated sibling';
+  const mutated = Buffer.from(JSON.stringify(current));
+  await assert.rejects(captureArticleCandidate({
+    application: 'article-host', candidate, description, archivePath: 'assets/recovery/public-articles.json',
+    proposedArchive: mutated, image: 'registry.fly.io/article-host:release-current1',
+  }, {
+    currentContainerBaseResult: async () => ({ kind: 'hosted-current-container-base-handle', image: 'registry.fly.io/article-host:release-current1' }),
+    inspectCurrentContainerImage: async () => ({ Config: { Entrypoint: ['node'], Env: [] } }),
+    run: async () => {},
+    copyFromImage: async (_container, from, to) => writeFile(to,
+      from === '/app/page-description.json' ? JSON.stringify(description) : originalArchive),
+  }), /replace exactly the candidate route/);
+});

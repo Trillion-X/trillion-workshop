@@ -1,0 +1,34 @@
+import {
+  readAuthorizedSubscriptions,
+  resolveHostedExperienceAuthority,
+  safeAuthorityError,
+} from "../../../../stored-artifacts/hosted-experience-authority";
+
+export const dynamic = "force-dynamic";
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+export async function POST(
+  request: Request,
+  context: { params: Promise<{ experienceRef: string }> },
+) {
+  try {
+    const body: unknown = await request.json();
+    const refs = isRecord(body) && Array.isArray(body.refs) ? body.refs : [];
+    const { experienceRef } = await context.params;
+    const authority = await resolveHostedExperienceAuthority(
+      request,
+      experienceRef,
+      "subscription",
+      body,
+    );
+    return Response.json(
+      await readAuthorizedSubscriptions(authority, refs as string[]),
+      { headers: { "Cache-Control": "private, no-store" } },
+    );
+  } catch (error) {
+    return safeAuthorityError(error);
+  }
+}

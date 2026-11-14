@@ -1,0 +1,69 @@
+import { createServer, type Server } from 'node:http';
+import { execFileSync } from 'node:child_process';
+import { mkdtempSync, readFileSync, symlinkSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+
+const playwrightModule = process.env.PLAYWRIGHT_TEST_MODULE;
+const axeCoreScript = process.env.AXE_CORE_SCRIPT;
+if (!playwrightModule || !axeCoreScript) throw new Error('T14 requires PLAYWRIGHT_TEST_MODULE and AXE_CORE_SCRIPT');
+const playwright = await import(playwrightModule) as any;
+const { expect, test } = playwright.default ?? playwright;
+const packagesRoot = path.resolve(import.meta.dirname, '../../..');
+const packages = path.join(packagesRoot, 'packages');
+const studioRecords = path.resolve(packagesRoot, '../ai-command-center/notes/projects/packages-and-package-sets/_shared/data/emergent-capability-experience-closure/selected-experience-publication-records.json');
+const identity = 't14-remaining-worker-t14-project-chromium-attempt-0001';
+let server: Server; let origin = '';
+
+function bundle() {
+  const root = mkdtempSync(path.join(tmpdir(), `${identity}-`));
+  symlinkSync(path.join(packagesRoot, 'node_modules'), path.join(root, 'node_modules'));
+  writeFileSync(path.join(root, 'main.tsx'), `
+    import React from 'react'; import { createRoot } from 'react-dom/client';
+    import records from ${JSON.stringify(studioRecords)};
+    import { CommandPalette } from ${JSON.stringify(path.join(packages, 'ui/show/command-palette/CommandPalette.tsx'))};
+    import { ActionForm } from ${JSON.stringify(path.join(packages, 'ui/show/action-affordance/ActionForm.tsx'))};
+    import { readActionAffordances } from ${JSON.stringify(path.join(packages, 'ui/show/action-affordance/read-action-affordances.ts'))};
+    import { readPublishedRecords } from ${JSON.stringify(path.join(packages, 'ui/show/placeable-surface-intent/placeable-surface-record.ts'))};
+    import { affordanceSlashRows } from ${JSON.stringify(path.join(packages, 'documents/read-data/affordance-materials.ts'))};
+    import { advanceChatToolRound } from ${JSON.stringify(path.join(packages, 'chat/do-work/advance-chat-tool-round.ts'))};
+    import { prepareToolResult } from ${JSON.stringify(path.join(packages, 'ai-tool-catalog/do-work/prepare-tool-result.ts'))};
+    import { receiptSurfaceIntentRequest } from ${JSON.stringify(path.join(packages, 'chat/show/receipt-surface-intent.ts'))};
+    import { ToolUseBlock } from ${JSON.stringify(path.join(packages, 'chat/show/ToolUseBlock.tsx'))};
+    import { CellExpressionEditor } from ${JSON.stringify(path.join(packages, 'visual-database/show/cell-expression-editor.tsx'))};
+    const seller = affordanceSlashRows(readActionAffordances(readPublishedRecords(records.things))).find((row:any) => row.label === 'Share or sell selected experience')!;
+    const discovered = { canonical_address:'capability:prepared-work', canonical_revision:'r1', payload_hash:'hash', owner_target:'slot::workflow', schema_ref:'schema', schema_digest:'digest', authority_provenance_ref:'authority', rank_provenance_ref:'rank', descriptor_revision:'r1', model_provenance_ref:'model', rank_score:1, title:'Prepared Chat work result', description:'Chat discovery result' };
+    function App() {
+      const [palette, setPalette] = React.useState(true); const [sellerOpen, setSellerOpen] = React.useState(false); const [placed, setPlaced] = React.useState(false); const [empty, setEmpty] = React.useState(false); const [items, setItems] = React.useState<any[]>([]);
+      React.useEffect(() => { const fence = String.fromCharCode(96).repeat(3); void (async () => { const result:any = await advanceChatToolRound({ replyText: fence + 'bitfield-capability-discovery\\n{"query":"prepared"}\\n' + fence, requestId:'turn', userText:'prepared', toolRound:0, maxRounds:2, workflowActions:[], toolResultAddressPrefix:'result', agentRef:'agent', resultPolicy:{maxBytes:1024,maxAddressBytes:128}, runDiscovery:async()=>({capabilities:[discovered],authorityBindingRef:'authority'}), runTools:async()=>[], readToolResult:async()=>null, emitToolMessage:()=>{}, isCancelled:()=>false }); setItems(result.kind === 'continue' ? (result.discoveredCapabilities ?? []).map((value:any) => ({ id:value.canonical_address, label:value.title, section:'Chat capability discovery', run:()=>setPlaced(true) })) : []); })(); }, []);
+      const prepared = prepareToolResult({ workflowReply:{result:{summary:'Prepared Chat work result'}}, resultSelector:'$.result.summary', policy:{maxBytes:1024,maxAddressBytes:128}, accepted:true });
+      const placement = receiptSurfaceIntentRequest({sourceRef:'package::chat::workflow-execution-receipt::attempt-1',selector:'$.surface'}, 'workspace:active');
+      return <main><h1>Work result accessibility</h1><button onClick={()=>setPalette(true)}>Search work</button><button onClick={()=>setSellerOpen(true)}>Share selected work</button><button onClick={()=>setEmpty(!empty)}>Toggle result state</button><p role="status" aria-live="polite">{empty ? 'empty' : 'dense'} results {placed ? 'receipt placed' : ''}</p><CommandPalette open={palette} onClose={()=>setPalette(false)} items={empty ? [] : items}/>{sellerOpen ? <ActionForm open title="Share or sell" fields={seller.trigger.ask.fields} submitLabel={seller.trigger.ask.submit_label} onCancel={()=>setSellerOpen(false)} onSubmit={()=>setPlaced(true)}/> : null}<CellExpressionEditor cellRef={{recordRef:'record:a',fieldRef:'field:b'} as any} expression={{literal:'3'}} evaluators={[]} onDismiss={()=>{}} onCommit={()=>setPlaced(true)}/>{placed ? <section aria-label="Prepared Chat receipt"><ToolUseBlock defaultOpen toolUse={{id:'attempt-1',tool:'Prepared work',params:{receipt_ref:placement?.deliveryRef},result:prepared.summary} as any}/></section> : null}</main>;
+    }
+    createRoot(document.getElementById('root')!).render(<App/>);
+  `);
+  const out = path.join(root, 'main.js'); execFileSync(path.join(packagesRoot, 'node_modules/.bin/esbuild'), ['main.tsx','--bundle','--format=iife','--platform=browser','--loader:.tsx=tsx',`--alias:@=${packagesRoot}`,`--outfile=${out}`], { cwd: root, stdio: 'pipe' }); return readFileSync(out, 'utf8');
+}
+test.beforeAll(async()=>{const js=bundle();server=createServer((q,r)=>{r.writeHead(200,{'content-type':q.url==='/main.js'?'text/javascript':'text/html'});r.end(q.url==='/main.js'?js:'<!doctype html><html lang="en"><head><title>T14 owner accessibility</title></head><body><div id="root"></div><script src="/main.js"></script></body></html>')});await new Promise<void>((ok,no)=>{server.once('error',no);server.listen(0,'127.0.0.1',ok)});const a=server.address();if(!a||typeof a==='string')throw new Error('no bind');origin=`http://127.0.0.1:${a.port}`});
+test.beforeEach(() => server?.unref());
+test.afterAll(async()=>{server.closeAllConnections();server.close()});
+test('owner-derived discovery, seller affordance, Chat receipt, and cell editor meet T14 accessibility', async ({ page }, testInfo) => {
+  for (const view of [{ id:'desktop', width:1440, height:900 }, { id:'mobile', width:320, height:900 }]) {
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send('Emulation.setPageScaleFactor', { pageScaleFactor: 1 });
+    await page.setViewportSize(view); await page.goto(origin);
+    await expect(page.getByRole('textbox', { name:'Command palette search' })).toBeVisible();
+    await page.getByRole('textbox', { name:'Command palette search' }).fill('prepared'); await page.keyboard.press('Enter');
+    await expect(page.getByRole('status')).toContainText('receipt placed');
+    await page.getByRole('button', { name:'Share selected work' }).click();
+    const dialog = page.getByRole('dialog', { name:'Share or sell' }); await expect(dialog).toBeVisible();
+    await expect(dialog.getByText('How should people access it?')).toBeVisible(); await dialog.getByRole('button', { name:'Cancel' }).click();
+    await cdp.send('Emulation.setPageScaleFactor', { pageScaleFactor: 2 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBeTruthy();
+    await page.addScriptTag({ path: axeCoreScript });
+    expect(await page.evaluate(async () => (await (window as any).axe.run(document)).violations.filter((v:any) => v.impact === 'serious' || v.impact === 'critical').map((v:any) => v.id))).toEqual([]);
+    await page.screenshot({ path:testInfo.outputPath(`${identity}-${view.id}.png`) });
+    await cdp.send('Emulation.setPageScaleFactor', { pageScaleFactor: 1 });
+    await cdp.detach();
+  }
+});

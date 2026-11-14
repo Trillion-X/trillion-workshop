@@ -1,0 +1,494 @@
+// The isolation gate for a host that serves signed-in people.
+//
+// The shell this server proxies to cannot tell two customers apart: its
+// partition is a process-wide env value and its `/target/*` gate is one shared
+// token. So the ONLY thing standing between two customers' chats is that they
+// are never handed the same upstream. That is what this suite refuses to let
+// regress.
+//
+// Every assertion below is about WHICH UPSTREAM, because a leak here does not
+// look like an error. It looks like a working page with somebody else's
+// conversation on it.
+
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { readdirSync, readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+
+import {
+  readPerAccountRuntime,
+  isDirectoryRoute,
+  resolveRuntimeInstance,
+  directoryBackedResolvers,
+} from '../processes/runtime-instance-for-this-request.mjs';
+import { workspaceDigestForPrincipal, workspaceLaunchPlan } from '../processes/open-the-workspace-for-one-account.mjs';
+
+const DIRECTORY = 'http://127.0.0.1:9101';
+
+test('the public front door refuses a direct customer process launcher', async () => {
+  const binding = describedHost({ workspace: { root_directory: '/var/lib/bitfield/workspaces' } });
+  const resolver = directoryBackedResolvers({
+    binding,
+    postJson: async () => { throw new Error('a direct launcher must never reach the directory'); },
+  });
+  await assert.rejects(
+    resolver.startWorkspace({ principalRef: 'principal:ada', workspace: binding.workspace }),
+    /requires a confined launcher owner/,
+  );
+});
+
+test('a declared workspace owner must bind its socket reply to the verified account', async () => {
+  const binding = describedHost({ workspace: { open_target: 'workspace.open-for-account' } });
+  const resolver = directoryBackedResolvers({
+    binding,
+    postJson: async () => ({
+      principal_ref: 'principal:bo',
+      workspace_name: 'principal~3abo',
+      socket_path: '/run/bitfield/bo.sock',
+    }),
+  });
+  await assert.rejects(
+    resolver.startWorkspace({ principalRef: 'principal:ada', workspace: binding.workspace }),
+    /different account identity/,
+  );
+});
+
+test('a declared workspace owner receives session evidence instead of a claimed principal', async () => {
+  const binding = describedHost({ workspace: {
+    open_target: 'workspace.open-for-account',
+    socket_path: '/run/bitfield/{principal_digest}.sock',
+  } });
+  let requestBody;
+  const resolver = directoryBackedResolvers({
+    binding,
+    postJson: async (_url, body) => {
+      requestBody = body;
+      return {
+        principal_ref: 'principal:ada',
+        workspace_name: 'principal~3aada',
+        socket_path: `/run/bitfield/${workspaceDigestForPrincipal('principal:ada')}.sock`,
+      };
+    },
+  });
+  await resolver.startWorkspace({
+    principalRef: 'principal:ada',
+    workspace: binding.workspace,
+    headers: { cookie: 'session=ada' },
+  });
+  assert.equal(Object.hasOwn(requestBody, 'principal_ref'), false);
+  assert.equal(Object.hasOwn(requestBody, 'workspace'), false);
+  assert.deepEqual(requestBody.headers, [{ name: 'cookie', value: 'session=ada' }]);
+});
+
+test('a socket in a customer-writable root is refused before the owner launches', async () => {
+  const binding = describedHost({ workspace: {
+    open_target: 'workspace.open-for-account',
+    socket_path: '/var/lib/bitfield/workspaces/{name}/s',
+  } });
+  let called = false;
+  const resolver = directoryBackedResolvers({
+    binding,
+    postJson: async () => {
+      called = true;
+      return {
+      principal_ref: 'principal:ada',
+      workspace_name: 'principal~3aada',
+      socket_path: '/var/lib/bitfield/workspaces/principal~3aada/s',
+      };
+    },
+  });
+  await assert.rejects(
+    resolver.startWorkspace({ principalRef: 'principal:ada', workspace: binding.workspace }),
+    /customer-writable root/,
+  );
+  assert.equal(called, false);
+});
+
+test('a digest-root workspace name and socket are checked against the verified account', async () => {
+  const binding = describedHost({ workspace: {
+    open_target: 'workspace.open-for-account',
+    root_component: 'principal_digest',
+    socket_path: '/run/bitfield-workspaces/{name}.sock',
+  } });
+  const digest = workspaceDigestForPrincipal('principal:ada');
+  const resolver = directoryBackedResolvers({
+    binding,
+    postJson: async () => ({
+      principal_ref: 'principal:ada',
+      workspace_name: digest,
+      socket_path: `/run/bitfield-workspaces/${digest}.sock`,
+    }),
+  });
+  const opened = await resolver.startWorkspace({ principalRef: 'principal:ada', workspace: binding.workspace });
+  assert.equal(opened.workspace_name, digest);
+  await assert.rejects(() => directoryBackedResolvers({
+    binding,
+    postJson: async () => ({
+      principal_ref: 'principal:ada',
+      workspace_name: workspaceDigestForPrincipal('principal:bo'),
+      socket_path: `/run/bitfield-workspaces/${workspaceDigestForPrincipal('principal:bo')}.sock`,
+    }),
+  }).startWorkspace({ principalRef: 'principal:ada', workspace: binding.workspace }), /different account identity/);
+});
+
+test('the session evidence reaches the declared owner after verification', async () => {
+  const binding = describedHost();
+  let ownerInput;
+  const answer = await resolveRuntimeInstance({
+    binding,
+    method: 'GET',
+    pathname: '/',
+    headers: { cookie: 'session=ada' },
+    verifySession: sessionVerifier({ 'session=ada': 'principal:ada' }),
+    startWorkspace: async (input) => {
+      ownerInput = input;
+      return { opening: true };
+    },
+  });
+  assert.equal(answer.kind, 'opening');
+  assert.equal(ownerInput.principalRef, 'principal:ada');
+  assert.deepEqual(ownerInput.headers, { cookie: 'session=ada' });
+});
+
+test('a declared workspace owner cannot return a shared TCP upstream', async () => {
+  const binding = describedHost({ workspace: {
+    open_target: 'workspace.open-for-account',
+    socket_path: '/run/bitfield/{principal_digest}.sock',
+  } });
+  const resolver = directoryBackedResolvers({
+    binding,
+    postJson: async () => ({
+      principal_ref: 'principal:ada',
+      workspace_name: 'principal~3aada',
+      shell_url: 'http://127.0.0.1:8082',
+    }),
+  });
+  await assert.rejects(
+    resolver.startWorkspace({ principalRef: 'principal:ada', workspace: binding.workspace }),
+    /private Unix socket/,
+  );
+});
+
+test('a declared workspace owner cannot redirect one account to a peer socket', async () => {
+  const binding = describedHost({ workspace: {
+    open_target: 'workspace.open-for-account',
+    socket_path: '/run/bitfield/{principal_digest}.sock',
+  } });
+  const resolver = directoryBackedResolvers({
+    binding,
+    postJson: async () => ({
+      principal_ref: 'principal:ada',
+      workspace_name: 'principal~3aada',
+      socket_path: `/run/bitfield/${workspaceDigestForPrincipal('principal:bo')}.sock`,
+    }),
+  });
+  await assert.rejects(
+    resolver.startWorkspace({ principalRef: 'principal:ada', workspace: binding.workspace }),
+    /private Unix socket/,
+  );
+});
+
+function describedHost(extra = {}) {
+  const { workspace: workspaceExtra, ...other } = extra;
+  return readPerAccountRuntime({
+    per_account_runtime: {
+      directory_shell_url: DIRECTORY,
+      sign_in_route: '/sign-in',
+      directory_route_prefixes: ['/auth/', '/target/account-session.'],
+      public_directory_targets: ['/target/account-session.login-link'],
+      workspace: { provider_profile: 'test-provider', private_root_directory: '/var/lib/bitfield/workspaces', ...workspaceExtra },
+      ...other,
+    },
+  });
+}
+
+// One workspace per principal, handed out by an injected starter. The starter
+// is what a deploy replaces; the decision under test is the same either way.
+function workspaceStarter() {
+  const opened = new Map();
+  let nextPort = 9200;
+  return {
+    opened,
+    async startWorkspace({ principalRef }) {
+      if (!opened.has(principalRef)) {
+        nextPort += 1;
+        opened.set(principalRef, `http://127.0.0.1:${nextPort}`);
+      }
+      return { shell_url: opened.get(principalRef) };
+    },
+  };
+}
+
+function sessionVerifier(cookieToPrincipal) {
+  return async ({ headers }) => {
+    const principal = cookieToPrincipal[headers?.cookie ?? ''];
+    return principal ? { principal_ref: principal } : {};
+  };
+}
+
+async function resolve(binding, cookie, extra = {}) {
+  const starter = extra.starter ?? workspaceStarter();
+  return resolveRuntimeInstance({
+    binding,
+    method: 'GET',
+    pathname: extra.pathname ?? '/',
+    headers: { cookie },
+    verifySession: extra.verifySession ?? sessionVerifier({
+      'session=ada': 'principal:ada',
+      'session=bo': 'principal:bo',
+    }),
+    startWorkspace: extra.startWorkspace ?? starter.startWorkspace,
+  });
+}
+
+test('two signed-in accounts are never handed the same upstream', async () => {
+  const binding = describedHost();
+  const starter = workspaceStarter();
+  const ada = await resolve(binding, 'session=ada', { starter, startWorkspace: starter.startWorkspace });
+  const bo = await resolve(binding, 'session=bo', { starter, startWorkspace: starter.startWorkspace });
+
+  assert.equal(ada.kind, 'workspace');
+  assert.equal(bo.kind, 'workspace');
+  assert.notEqual(ada.shellUrl, bo.shellUrl,
+    'two accounts sharing one upstream is the leak this whole design exists to prevent');
+  assert.notEqual(ada.shellUrl, DIRECTORY);
+  assert.notEqual(bo.shellUrl, DIRECTORY);
+});
+
+test('boot gives each signed-in browser its own target command basis', async () => {
+  const binding = describedHost();
+  const starter = workspaceStarter();
+  const ada = await resolve(binding, 'session=ada', { pathname: '/boot', starter });
+  const bo = await resolve(binding, 'session=bo', { pathname: '/boot', starter });
+  const unsigned = await resolve(binding, '', { pathname: '/boot', starter });
+  assert.equal(ada.kind, 'workspace');
+  assert.equal(bo.kind, 'workspace');
+  assert.notEqual(ada.shellUrl, bo.shellUrl);
+  assert.equal(unsigned.kind, 'directory');
+  assert.equal(unsigned.shellUrl, DIRECTORY);
+});
+
+test('socket workspaces are bound to the verified principal', async () => {
+  const binding = describedHost();
+  const verifySession = sessionVerifier({ 'session=ada': 'principal:ada', 'session=bo': 'principal:bo' });
+  const startWorkspace = async ({ principalRef }) => ({
+    socket_path: `/run/bitfield/${principalRef === 'principal:ada' ? 'ada' : 'bo'}.sock`,
+  });
+  const ada = await resolve(binding, 'session=ada', { verifySession, startWorkspace });
+  const bo = await resolve(binding, 'session=bo', { verifySession, startWorkspace });
+  assert.equal(ada.kind, 'workspace');
+  assert.equal(bo.kind, 'workspace');
+  assert.notEqual(ada.socketPath, bo.socketPath);
+  assert.equal(ada.principalRef, 'principal:ada');
+  assert.equal(bo.principalRef, 'principal:bo');
+});
+
+test('the same account returns to the same upstream', async () => {
+  const binding = describedHost();
+  const starter = workspaceStarter();
+  const first = await resolve(binding, 'session=ada', { startWorkspace: starter.startWorkspace });
+  const second = await resolve(binding, 'session=ada', { startWorkspace: starter.startWorkspace });
+  assert.equal(first.shellUrl, second.shellUrl,
+    'a person whose second request lands elsewhere has lost their own work');
+});
+
+test('a visitor with no session is sent to sign in and reaches no instance', async () => {
+  const binding = describedHost();
+  const answer = await resolve(binding, '');
+  assert.equal(answer.kind, 'sign-in');
+  assert.equal(answer.location, '/sign-in');
+  assert.equal(answer.shellUrl, undefined);
+});
+
+test('a session the directory does not accept reaches no instance', async () => {
+  const binding = describedHost();
+  const answer = await resolve(binding, 'session=forged');
+  assert.equal(answer.kind, 'sign-in');
+  assert.equal(answer.shellUrl, undefined);
+});
+
+test('a principal claimed in the request itself is ignored', async () => {
+  // The browser controls every header it sends. If any of them could name a
+  // principal, the isolation above would be one curl away from nothing.
+  const binding = describedHost();
+  const answer = await resolveRuntimeInstance({
+    binding,
+    method: 'GET',
+    pathname: '/',
+    headers: {
+      cookie: '',
+      'x-principal-ref': 'principal:ada',
+      'x-bitfield-principal': 'principal:ada',
+      authorization: 'Bearer principal:ada',
+    },
+    verifySession: sessionVerifier({ 'session=ada': 'principal:ada' }),
+    startWorkspace: workspaceStarter().startWorkspace,
+  });
+  assert.equal(answer.kind, 'sign-in',
+    'only the directory reply may establish who is asking');
+});
+
+test('a directory that cannot answer is refused, never signed out and never defaulted', async () => {
+  const binding = describedHost();
+  const answer = await resolve(binding, 'session=ada', {
+    verifySession: async () => { throw new Error('connect ECONNREFUSED'); },
+  });
+  assert.equal(answer.kind, 'refuse');
+  assert.equal(answer.shellUrl, undefined);
+  assert.match(answer.reason, /verify the session/);
+});
+
+test('a starter that opens nothing is refused rather than falling back', async () => {
+  const binding = describedHost();
+  for (const reply of [undefined, {}, { shell_url: '' }, { shell_url: '   ' }]) {
+    const answer = await resolve(binding, 'session=ada', { startWorkspace: async () => reply });
+    assert.equal(answer.kind, 'refuse', `a reply of ${JSON.stringify(reply) ?? 'undefined'} opened nothing`);
+    assert.equal(answer.shellUrl, undefined);
+  }
+});
+
+test('a workspace that is still booting is its own answer, not a refusal', async () => {
+  // A cold boot is not a fault and must not read as one. It is also not an
+  // upstream: answering with any shell here would be answering with somebody
+  // elses, which is why this state exists at all.
+  const binding = describedHost();
+  const answer = await resolve(binding, 'session=ada', {
+    startWorkspace: async () => ({ opening: true, workspace_name: 'principal~3aada' }),
+  });
+  assert.equal(answer.kind, 'opening');
+  assert.equal(answer.shellUrl, undefined);
+});
+
+test('opening only counts when the starter says so, never as a bare empty reply', async () => {
+  const binding = describedHost();
+  for (const reply of [{ opening: 'true' }, { opening: 1 }, { opening: false }]) {
+    const answer = await resolve(binding, 'session=ada', { startWorkspace: async () => reply });
+    assert.equal(answer.kind, 'refuse',
+      `${JSON.stringify(reply)} is not a starter saying it opened something`);
+  }
+});
+
+test('a workspace may not resolve to the shared directory instance', async () => {
+  const binding = describedHost();
+  const answer = await resolve(binding, 'session=ada', {
+    startWorkspace: async () => ({ shell_url: DIRECTORY }),
+  });
+  assert.equal(answer.kind, 'refuse');
+  assert.match(answer.reason, /directory/);
+});
+
+test('sign-in and its exact public action reach the directory without a session', async () => {
+  const binding = describedHost();
+  for (const pathname of ['/sign-in', '/auth/callback', '/target/account-session.login-link']) {
+    const answer = await resolve(binding, '', { pathname });
+    assert.equal(answer.kind, 'directory', `${pathname} must reach the directory`);
+    assert.equal(answer.shellUrl, DIRECTORY);
+  }
+});
+
+test('a directory target family does not grant anonymous access to sibling targets', async () => {
+  const binding = describedHost();
+  for (const pathname of [
+    '/target/account-session.authorize-transient-session',
+    '/target/account-session.read-browser-session',
+    '/target/account-session.login-link-extra',
+  ]) {
+    const anonymous = await resolve(binding, '', { pathname });
+    assert.deepEqual(anonymous, { kind: 'sign-in-required' }, pathname);
+    const signedIn = await resolve(binding, 'session=ada', { pathname });
+    assert.equal(signedIn.kind, 'directory', pathname);
+  }
+});
+
+test('the sign-in route is a directory route even when the deploy did not list it', async () => {
+  // A binding that forgot to repeat its own sign-in route under the prefixes
+  // would send the sign-in page to a workspace, which has no session, which
+  // redirects to sign-in. A redirect loop, from one omission.
+  const binding = readPerAccountRuntime({
+    per_account_runtime: {
+      directory_shell_url: DIRECTORY,
+      sign_in_route: '/sign-in',
+      directory_route_prefixes: [],
+    },
+  });
+  assert.equal(isDirectoryRoute(binding, '/sign-in'), true);
+  const answer = await resolve(binding, '', { pathname: '/sign-in' });
+  assert.equal(answer.kind, 'directory');
+});
+
+test('a prefix matches at a segment boundary, not at any character', async () => {
+  const binding = describedHost({ directory_route_prefixes: ['/auth'] });
+  assert.equal(isDirectoryRoute(binding, '/auth/callback'), true);
+  assert.equal(isDirectoryRoute(binding, '/auth'), true);
+  assert.equal(isDirectoryRoute(binding, '/authorize-my-account'), false,
+    'a page whose name merely starts with a directory route is not a directory route');
+});
+
+// Every binding a package set actually ships, DISCOVERED rather than listed, so
+// a set added tomorrow is covered the day it is written.
+//
+// This exists because the suite that renders each set's description reads the
+// INSTALLED sets, and a description in the checkout is invisible to it. A
+// binding is exactly the kind of DATA that fails silently: one misspelled key
+// and `readPerAccountRuntime` returns null, the host quietly reverts to the
+// single-shell path, and every customer shares one instance while every page
+// still answers 200.
+function shippedBindings() {
+  const setsRoot = fileURLToPath(new URL('../../../package-sets/', import.meta.url));
+  const found = [];
+  for (const setName of readdirSync(setsRoot, { withFileTypes: true })) {
+    if (!setName.isDirectory()) continue;
+    const file = `${setsRoot}${setName.name}/package-set-records/public-page-description-records.json`;
+    let description;
+    try {
+      description = JSON.parse(readFileSync(file, 'utf8'));
+    } catch {
+      continue;
+    }
+    for (const page of description?.pages ?? []) {
+      if (!page || typeof page !== 'object') continue;
+      if (!('per_account_runtime' in page)) continue;
+      found.push({ setName: setName.name, hosts: page.hosts ?? [], page });
+    }
+  }
+  return found;
+}
+
+test('every shipped per-account binding actually parses into a binding', () => {
+  const shipped = shippedBindings();
+  assert.ok(shipped.length > 0,
+    'no package set ships a per_account_runtime page; if that is deliberate, delete this check');
+  for (const { setName, hosts, page } of shipped) {
+    const binding = readPerAccountRuntime(page);
+    assert.ok(binding,
+      `${setName} ${JSON.stringify(hosts)} declares per_account_runtime but it does not parse, `
+      + 'so that host would silently serve every customer one shared instance');
+    assert.equal(isDirectoryRoute(binding, binding.signInRoute), true);
+    // A workspace that runs beside the server must say where its opener
+    // publishes the ready file. Without it the plan throws at request time,
+    // which a description-parse check alone would never reach.
+    if (binding.workspace.root_directory) {
+      const plan = workspaceLaunchPlan({ principalRef: 'principal:probe', workspace: binding.workspace });
+      assert.ok(plan.readyFilePath.startsWith(plan.installRoot),
+        `${setName} puts its ready file outside the account's own directory`);
+      assert.equal(plan.readyFilePath.includes('{'), false,
+        `${setName} left an unfilled placeholder in ready_file: ${plan.readyFilePath}`);
+      assert.ok(typeof binding.workspace.launcher?.command === 'string'
+        && binding.workspace.launcher.command.trim(),
+        `${setName} declares a local workspace with no launcher.command`);
+    }
+  }
+});
+
+test('a host that declares no binding is unchanged', async () => {
+  for (const description of [undefined, {}, { per_account_runtime: null },
+    { per_account_runtime: [] }, { per_account_runtime: {} },
+    { per_account_runtime: { directory_shell_url: DIRECTORY } },
+    { per_account_runtime: { sign_in_route: '/sign-in' } }]) {
+    assert.equal(readPerAccountRuntime(description), null,
+      `${JSON.stringify(description)} must not become a partial binding`);
+  }
+  // And a null binding decides nothing, so every existing tenant keeps the
+  // single-upstream behaviour it has today.
+  assert.equal(await resolveRuntimeInstance({ binding: null, pathname: '/' }), null);
+});

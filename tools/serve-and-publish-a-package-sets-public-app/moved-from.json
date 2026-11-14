@@ -1,0 +1,1121 @@
+{
+  "about": "Files restored byte for byte from the retired bitfield-packages repository (standing order: originals move wholesale, no rewrites from scratch).",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "home-path-made-relative",
+      "find": "[/]Users[/][b]rian[a]khtar/dev/bitfield-packages",
+      "replace": "bitfield-packages",
+      "means": "A path in one person's home folder names that person; made relative to the repository folder it was in."
+    },
+    {
+      "id": "tenant-host-made-generic",
+      "find": "community\\.[e]thosschoolof[t]ennis\\.com",
+      "replace": "community.example-school.test",
+      "means": "A real business's public host name in a test fixture; a public tree holds made-up names only."
+    },
+    {
+      "id": "tenant-app-name-made-generic",
+      "find": "[e]thos-school-of-[t]ennis",
+      "replace": "example-school",
+      "means": "A real business's app name in a test fixture; made up."
+    },
+    {
+      "id": "tenant-fork-name-made-generic",
+      "find": "[e]thos-house",
+      "replace": "tenant-fork",
+      "means": "The name of one business's fork of the server, in comments and the guard that no tenant is named; made generic."
+    },
+    {
+      "id": "tenant-asset-folder-made-generic",
+      "find": "/assets/[e]thos-landing/",
+      "replace": "/assets/tenant-landing/",
+      "means": "One business's asset folder in a comment; made generic."
+    },
+    {
+      "id": "tenant-header-made-generic",
+      "find": "x-[e]thos",
+      "replace": "x-tenant",
+      "means": "A header name that carried one business's name, in the test that no tenant name survives in a header; made generic."
+    },
+    {
+      "id": "tenant-words-guard-made-generic",
+      "find": "[e]thos\\|[t]ennis",
+      "replace": "zzname|gardening",
+      "means": "The words a guard test refuses in a page and a server config (one business's name and its field of work); made-up words stand in."
+    },
+    {
+      "id": "tenant-env-prefix-made-generic",
+      "find": "[E]THOS_",
+      "replace": "TENANT_",
+      "means": "An old environment-variable prefix that carried one business's name, in the README history; made generic."
+    },
+    {
+      "id": "tenant-install-folder-made-generic",
+      "find": "/opt/[e]thos/site",
+      "replace": "/opt/tenant/site",
+      "means": "An install folder named for one business, in the README history; made generic."
+    },
+    {
+      "id": "person-name-made-up",
+      "find": "person:[b]rian",
+      "replace": "person:ana",
+      "means": "A real person's first name in a test principal; a made-up name stands in."
+    },
+    {
+      "id": "fixture-field-of-work-made-generic",
+      "find": "[T]ennis",
+      "replace": "Gardening",
+      "means": "A fixture title named one person's field of work; a public tree holds made-up fixtures only."
+    },
+    {
+      "id": "fixture-field-of-work-made-generic-lower",
+      "find": "[t]ennis",
+      "replace": "gardening",
+      "means": "A fixture word named one person's field of work; a public tree holds made-up fixtures only."
+    },
+    {
+      "id": "a-real-person-named-in-a-comment-made-generic",
+      "find": "[f]ederer",
+      "replace": "example-person",
+      "means": "A well-known real person's name in a comment about a page route; a public tree holds made-up names only."
+    },
+    {
+      "id": "a-test-secret-made-plainly-fake",
+      "find": "sk_[l]ive_do_not_share",
+      "replace": "fake_key_do_not_share",
+      "means": "A test fixture secret written in the shape of a live payment key; a plainly fake value stands in."
+    },
+    {
+      "id": "home-prefix-made-relative",
+      "find": "[/]Users[/][b]rian[a]khtar/dev/",
+      "replace": "",
+      "means": "A path in one person's home folder names that person; the folder prefix is dropped and the path starts at the repository folder it was in."
+    },
+    {
+      "id": "private-notes-path",
+      "find": "\\.ai-orch[e]stra/",
+      "replace": "notes/",
+      "means": "A path into the maker's private notes, named as notes/ instead."
+    },
+    {
+      "id": "a-test-address-made-up",
+      "find": "https://user@",
+      "replace": "https://",
+      "means": "A test address with a user part shaped like a real mailbox; the user part left out."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/hosted-public-app/README.md",
+      "commit": "19e76c3c214a6436d6326704d7e8589fcda989ef",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/from-bitfield-packages/README.md",
+      "calls": [
+        "home-path-made-relative",
+        "tenant-fork-name-made-generic",
+        "tenant-env-prefix-made-generic",
+        "tenant-install-folder-made-generic",
+        "fixture-field-of-work-made-generic-lower",
+        "home-prefix-made-relative"
+      ],
+      "source_identity": "1f:5d18b8998985c08b278e01b2ca69f49f8737700d258421201e72c27118edbfa1",
+      "identity": "1f:6b5a05a322c9cd52571e636bf90d749d4bb0efc026eade04add474a0e0f8ad2a"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/README.md",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/README.md",
+      "source_identity": "1f:128e88d417b3af1e8d0a0396c00edb8c950b305e92dad5c377864903e7f4b2fa",
+      "identity": "1f:128e88d417b3af1e8d0a0396c00edb8c950b305e92dad5c377864903e7f4b2fa"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/a-customer-socket-serves-only-its-own-request.test.mjs",
+      "commit": "3be4af68805066244d151fd00c0e99bbe4089713",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/a-customer-socket-serves-only-its-own-request.test.mjs",
+      "source_identity": "1f:c47f6a8afced54e8796fc7349eee360f72bcde57142e582a7feb53ff5d752be1",
+      "identity": "1f:c47f6a8afced54e8796fc7349eee360f72bcde57142e582a7feb53ff5d752be1"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/a-description-names-its-files-where-it-lives.test.mjs",
+      "commit": "295829806862608cfce667779c9cf7b25c42b0fa",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/a-description-names-its-files-where-it-lives.test.mjs.held",
+      "source_identity": "1f:17e7ed64d5556026a3a1845be9cf4046e85960976bc9a2afee29c43f909c6028",
+      "identity": "1f:17e7ed64d5556026a3a1845be9cf4046e85960976bc9a2afee29c43f909c6028"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/a-funnel-step-sells-the-price-option-it-names.test.mjs",
+      "commit": "4162f2f9a2e413d6e3b9aad6e567fa5570dfdc28",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/a-funnel-step-sells-the-price-option-it-names.test.mjs",
+      "source_identity": "1f:9e6b6d01d0bf6cf9be508749f51e011ca7d00c887fe6a9a5626048a617d97c03",
+      "identity": "1f:9e6b6d01d0bf6cf9be508749f51e011ca7d00c887fe6a9a5626048a617d97c03"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/a-page-with-words-is-never-blank.test.mjs",
+      "commit": "99a7162b8a5cebf43468c571a2f6a96ac0b7a831",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/a-page-with-words-is-never-blank.test.mjs.held",
+      "source_identity": "1f:dcf4f7621272005c770ec1a08242262af3120829bfb88bdc22c44eb212635c6d",
+      "identity": "1f:dcf4f7621272005c770ec1a08242262af3120829bfb88bdc22c44eb212635c6d"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/a-produced-file-holds-what-the-module-returned.test.mjs",
+      "commit": "07a418417deca15c637b7a2a8035b609df4b1584",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/a-produced-file-holds-what-the-module-returned.test.mjs",
+      "source_identity": "1f:697ac7e8cfb8a2966052ddf5cd8b4ad4fa094ebcd3d6b1385545c2a458eaadfa",
+      "identity": "1f:697ac7e8cfb8a2966052ddf5cd8b4ad4fa094ebcd3d6b1385545c2a458eaadfa"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/a-recovering-host-serves-only-its-own-archive.test.mjs",
+      "commit": "f4863ffed636872c5a7806e643d7f7a94e769aad",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/a-recovering-host-serves-only-its-own-archive.test.mjs.held",
+      "calls": [
+        "fixture-field-of-work-made-generic-lower"
+      ],
+      "source_identity": "1f:5a4ee57038c6764e87a4a6cc1d543746fa3f91abed0dcbecffc08c760c2dbae9",
+      "identity": "1f:fef617d9072601b0ca623b644725693577ada5a936a78f4079a302e3bcf23536"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/a-release-does-not-shrink-the-machines.test.mjs",
+      "commit": "483baedde7a97b9444ef0a5b82bd18207cd52816",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/a-release-does-not-shrink-the-machines.test.mjs.held",
+      "source_identity": "1f:be98892dcab5e9b3624ddbbf04dab8be089f3442b5808c2cc6f336b8b4b5c762",
+      "identity": "1f:be98892dcab5e9b3624ddbbf04dab8be089f3442b5808c2cc6f336b8b4b5c762"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/a-sign-in-page-can-load-its-own-code.test.mjs",
+      "commit": "7228ddcbf324cf17a095e9ae88c0c5f73fd2e858",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/a-sign-in-page-can-load-its-own-code.test.mjs.held",
+      "calls": [
+        "person-name-made-up"
+      ],
+      "source_identity": "1f:3d3680360d0b6173c254210cf0cdb14ee94f140ef5cd78b00b35384ff5d8959a",
+      "identity": "1f:1153e49355fed5805c6eb3484a4b08b3709cb1b5f4506506b316d3eb53b76d06"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/a-tenant-with-no-island-still-gets-a-page.test.mjs",
+      "commit": "f4863ffed636872c5a7806e643d7f7a94e769aad",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/a-tenant-with-no-island-still-gets-a-page.test.mjs.held",
+      "calls": [
+        "tenant-fork-name-made-generic"
+      ],
+      "source_identity": "1f:ac225e61a07cc8f809e2bb8cdcbb5b0b3971fae457b1a5cc6862ad0d6f2bee0b",
+      "identity": "1f:9e24c298db59beae10d011bde2340d225463ae33d76d0c025bf09453e31b2e51"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/a-tenants-authored-files-answer-where-no-route-did.test.mjs",
+      "commit": "f4863ffed636872c5a7806e643d7f7a94e769aad",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/a-tenants-authored-files-answer-where-no-route-did.test.mjs.held",
+      "calls": [
+        "tenant-fork-name-made-generic"
+      ],
+      "source_identity": "1f:2676ad8af7b7c959960f30183f6221e50204744485bcd42463069db7b7620071",
+      "identity": "1f:a3811f753c0a7505e41708ac33b4646115bf026a3e1cbcbed6d9a1edfe2e07a1"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/an-envelope-says-where-its-value-comes-from.test.mjs",
+      "commit": "f4863ffed636872c5a7806e643d7f7a94e769aad",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/an-envelope-says-where-its-value-comes-from.test.mjs.held",
+      "calls": [
+        "tenant-fork-name-made-generic"
+      ],
+      "source_identity": "1f:02c7cda4339821c11fffe5b380ff7bdfc89cef93e52a0f64cbcfe1e36b5fa1a7",
+      "identity": "1f:7311499edc1aaa26010004446f04c8e6c12d2b5701d1da5b7ab76445819722e3"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/an-unreviewed-article-row-cannot-replace-the-archive.test.mjs",
+      "commit": "086778aa9192575067621cbf10dbd0489e100fff",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/an-unreviewed-article-row-cannot-replace-the-archive.test.mjs.held",
+      "source_identity": "1f:848bf71daa3de661398e617d46a94257eaeda841f7c7d3d8c173eb78ef5a0675",
+      "identity": "1f:848bf71daa3de661398e617d46a94257eaeda841f7c7d3d8c173eb78ef5a0675"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/anonymous-app-routes-stay-out-of-the-directory.test.mjs",
+      "commit": "5b23de4fcdd5060d3eab673e4ea29e6baf2e5fb4",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/anonymous-app-routes-stay-out-of-the-directory.test.mjs.held",
+      "source_identity": "1f:fc15eac5892d5ef54b9bc0c184c54cb25637da76578125d3c699dcbe72c4b2f8",
+      "identity": "1f:fc15eac5892d5ef54b9bc0c184c54cb25637da76578125d3c699dcbe72c4b2f8"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/app-shell-survives-a-dead-engine.test.mjs",
+      "commit": "4e845153eb0c318b79896ad538166c832b0b0e11",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/app-shell-survives-a-dead-engine.test.mjs.held",
+      "source_identity": "1f:d9e09162e5eec5b51e01bd5ce99ceaab91dd4bb1ee705cfabb0683a60f3fc744",
+      "identity": "1f:d9e09162e5eec5b51e01bd5ce99ceaab91dd4bb1ee705cfabb0683a60f3fc744"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/archived-pages-for-tests.json",
+      "commit": "4d002f7ad00084ee00d0aa9fd468371159969a1f",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/archived-pages-for-tests.json",
+      "source_identity": "1f:3b43523e4693b1de505a9426a577ed683e317185f4b166b205cae18d8f857aed",
+      "identity": "1f:3b43523e4693b1de505a9426a577ed683e317185f4b166b205cae18d8f857aed"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/asking-twice-for-a-certificate-is-safe.test.mjs",
+      "commit": "0e5342363cf395c4c9e1c3e41c2dd501e23a1407",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/asking-twice-for-a-certificate-is-safe.test.mjs",
+      "source_identity": "1f:5892d60dad6938582f4733b9478ffdfc1d2f11668a1ad4114788cf1107b79db1",
+      "identity": "1f:5892d60dad6938582f4733b9478ffdfc1d2f11668a1ad4114788cf1107b79db1"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/built-entry-server.mjs",
+      "commit": "4e845153eb0c318b79896ad538166c832b0b0e11",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/built-entry-server.mjs",
+      "source_identity": "1f:2fdc700ecd500f49b04b4d2d78285e290290c4fea0f92ca87a53edb0e2a4cfa7",
+      "identity": "1f:2fdc700ecd500f49b04b4d2d78285e290290c4fea0f92ca87a53edb0e2a4cfa7"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/buyer-artifact-absence.test.ts",
+      "commit": "f4863ffed636872c5a7806e643d7f7a94e769aad",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/buyer-artifact-absence.test.ts",
+      "source_identity": "1f:889b213d7d3149c2ed70934eff945bc90ab36b617bc9af9a26908fd37d8f6765",
+      "identity": "1f:558604506a7ca9dc7af76670d91124d893441467000319f08d247995408a6a58"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/buyer-authority-boundaries.test.ts",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/buyer-authority-boundaries.test.ts",
+      "source_identity": "1f:f340bfad67cbb573ae7a4513af00f167225453561c9e55d7ab598d7612d07719",
+      "identity": "1f:c4e0136280c72051b42a55cddc74fb8a663dc2566421f728626f60a04b5c0310"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/buyer-browser-context-isolation.test.ts",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/buyer-browser-context-isolation.test.ts",
+      "source_identity": "1f:1ae2de9e3ccba1014b7e016653c1c0ec2985ce9a35c4b36eaf62faab38f7ed2d",
+      "identity": "1f:fc3cdc86f82a5dbd45311239d0e98232e5a9f9c01e5447fd4b96a38aa7d169dc"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/buyer-data-footprint.test.ts",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/buyer-data-footprint.test.ts",
+      "source_identity": "1f:08f8b82106695ff3fd39916fbdf29e35b01ba57c24e3a046bfb8113ae6bcba45",
+      "identity": "1f:9831420428ed51f64ef614d3c9b68470f9e234cba408b08495bc8ad9645ee48d"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/buyer-identity-chain.test.ts",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/buyer-identity-chain.test.ts",
+      "source_identity": "1f:559b162c030dba98b50876418a260340a7c7c2c0bb37f50993a561fec7b03290",
+      "identity": "1f:0f25e43dc9d01eef3240a90096f5105c6ffe5fce0b2417f5c9c9ace98ebc9609"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/buyer-network-escape.test.ts",
+      "commit": "998e235e9903380507f9e0d33c1f558642891476",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/buyer-network-escape.test.ts",
+      "source_identity": "1f:37fcf6035f749a92e754f03cd3263d9cb8190d51fbee874342b9bce487792c21",
+      "identity": "1f:9a462e29ec11ca0867e22f6e3fb936356d74646f394b4c63d3b76c1cc1e829ba"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/buyer-runtime.browser.spec.ts",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/buyer-runtime.browser.spec.ts.held",
+      "source_identity": "1f:1c8c0bf5954c7d10758079d5fd5c2421238562267b22cbe1b73b2441ffc78fd5",
+      "identity": "1f:1c8c0bf5954c7d10758079d5fd5c2421238562267b22cbe1b73b2441ffc78fd5"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/carrier-http-effect.test.mjs",
+      "commit": "0d388359fcd31ceafbdc98fd73b036063152f5d2",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/carrier-http-effect.test.mjs",
+      "source_identity": "1f:99cdcdb34139f8c78c8ca37c2d316553c2fd2e89c877c9c3f5141fa0f3ad5105",
+      "identity": "1f:99cdcdb34139f8c78c8ca37c2d316553c2fd2e89c877c9c3f5141fa0f3ad5105"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/chrome-for-tests.css",
+      "commit": "0caf67a4669b0c8fefcbf057ea084bada8d1f0f3",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/chrome-for-tests.css",
+      "source_identity": "1f:2b7d9355bc3f1f6d2c3b65fb20c6aeabca3f5b749edf2551d734da9d4383f6d7",
+      "identity": "1f:2b7d9355bc3f1f6d2c3b65fb20c6aeabca3f5b749edf2551d734da9d4383f6d7"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/every-installed-package-set-description-renders.test.mjs",
+      "commit": "4e845153eb0c318b79896ad538166c832b0b0e11",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/every-installed-package-set-description-renders.test.mjs.held",
+      "source_identity": "1f:90c135cd207274c2f9242941b5d0ed281b3f9161669257a99ac70559b9b72cce",
+      "identity": "1f:90c135cd207274c2f9242941b5d0ed281b3f9161669257a99ac70559b9b72cce"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/every-target-ask-says-which-targets-are-running.test.mjs",
+      "commit": "ce7c372e398898c2d22681d7596939583a0e5959",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/every-target-ask-says-which-targets-are-running.test.mjs",
+      "source_identity": "1f:db9575c40a1b6994b7c7dd07223818d8519fd2757d6dcfc1be9bca2ce350fdb3",
+      "identity": "1f:db9575c40a1b6994b7c7dd07223818d8519fd2757d6dcfc1be9bca2ce350fdb3"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/execute-definition-authority.test.ts",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/execute-definition-authority.test.ts.held",
+      "source_identity": "1f:e73c108c133e9a1fa4dd20802b102ba8d6054003241b1697713386de2862b63a",
+      "identity": "1f:120e526271f412737650f63cc37e75fd80e5b186b9427843808f3d8e87351e5f"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/fallback-body-for-tests.html",
+      "commit": "9730f8aa2316aa97b9b462494e65ef4688d7edff",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/fallback-body-for-tests.html",
+      "source_identity": "1f:7523b4ef9b27d9d6870e4e6d5a0e589429f4fc23f15407687e46951aadb62b89",
+      "identity": "1f:7523b4ef9b27d9d6870e4e6d5a0e589429f4fc23f15407687e46951aadb62b89"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/hosted-entry-projection-selection.test.mjs",
+      "commit": "2cba44f1cd34c2507073b0707038555b7e3bf4fd",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/hosted-entry-projection-selection.test.mjs",
+      "source_identity": "1f:0661a9b0d2cd234d73365a01300c84ddc779bb0b071039ca1e99c60d680cfa18",
+      "identity": "1f:0661a9b0d2cd234d73365a01300c84ddc779bb0b071039ca1e99c60d680cfa18"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/hosted-experience-authority-carrier.test.mjs",
+      "commit": "5b896e2884523bc5fa7f4fdba3d49c87e8ba660d",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/hosted-experience-authority-carrier.test.mjs.held",
+      "source_identity": "1f:dc04e9f430ee9c671b808d63961ec30878f25c078c454a4c7eb1c1d88f7cb8e1",
+      "identity": "1f:dc04e9f430ee9c671b808d63961ec30878f25c078c454a4c7eb1c1d88f7cb8e1"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/hosted-public-app-backend.test.ts",
+      "commit": "703a86bd101764a62383ff4abd443110ac242f6e",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/hosted-public-app-backend.test.ts.held",
+      "source_identity": "1f:a5c7c086be4388e3aa45ac8d7e9b9a22334c63c78dce6ca225a427f66dd22685",
+      "identity": "1f:97d6deebac2ce516d61971396c7f759e4fe2a0c337a82b8463beea2d21c11589"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/kept-prices-survive-a-dead-engine.test.mjs",
+      "commit": "0d388359fcd31ceafbdc98fd73b036063152f5d2",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/kept-prices-survive-a-dead-engine.test.mjs.held",
+      "source_identity": "1f:583a43f0150e0c655614f157b544e266e2a3ed5f443632354815d481ba0ed375",
+      "identity": "1f:583a43f0150e0c655614f157b544e266e2a3ed5f443632354815d481ba0ed375"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/normalize-selected-publication-target.test.ts",
+      "commit": "998e235e9903380507f9e0d33c1f558642891476",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/normalize-selected-publication-target.test.ts.held",
+      "source_identity": "1f:de7dcb5b913d66ff104ecd36d121c38ed9322f108803af73c41e5054156fd5f8",
+      "identity": "1f:802fda2920e30d5b8d4fc1a6858274b75777d5b6e3f037f2cd820d6d961a0311"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/one-account-gets-one-workspace-it-can-reach.test.mjs",
+      "commit": "3fa0dc6038f41dc673f5e0a111ce9072b3299ba1",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/one-account-gets-one-workspace-it-can-reach.test.mjs",
+      "source_identity": "1f:4eb3c62255342017bb8ec30e72a8f75df0f0b41703ad4ffaac2f6a711805b6db",
+      "identity": "1f:3655f978df322e6eda7bd47da6894f750935590b1cce3516023954a224dfae9d",
+      "calls": [
+        "a-test-secret-made-plainly-fake"
+      ]
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/one-binary-serves-two-tenants.test.mjs",
+      "commit": "0d388359fcd31ceafbdc98fd73b036063152f5d2",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/one-binary-serves-two-tenants.test.mjs.held",
+      "calls": [
+        "tenant-header-made-generic"
+      ],
+      "source_identity": "1f:2a69733e59c59b94055c7522529461186240f12fb470f390fd89634e3dbf9051",
+      "identity": "1f:4d09a83a0f93c2223800f0fcdda3fe4c55f47e857df2d78ba099122b61b1002d"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/page-description-for-tests.json",
+      "commit": "25ec6e72abad78400146fe03204c8bc1dfb64c9d",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/page-description-for-tests.json",
+      "source_identity": "1f:c345794ba10da9b5d9864970ec576011e9852d4249bb9cabf41c2da6b68de5cc",
+      "identity": "1f:c345794ba10da9b5d9864970ec576011e9852d4249bb9cabf41c2da6b68de5cc"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/page-shell-for-tests.css",
+      "commit": "1142e88becc2888714c4a463fd73f044327b086c",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/page-shell-for-tests.css",
+      "source_identity": "1f:a9db7f9f477e556ba13d035f4c34af0b649a237831b04f9c3fd9b102ec595b9a",
+      "identity": "1f:a9db7f9f477e556ba13d035f4c34af0b649a237831b04f9c3fd9b102ec595b9a"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/protected-route-authority-wiring.test.mjs",
+      "commit": "e0022dc3e90dd7760015c7086613f85219d54324",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/protected-route-authority-wiring.test.mjs",
+      "source_identity": "1f:01cd2963cf21daba0058c8c2d9009509ef96bb3423d65b9ed8b053c5e509e1b8",
+      "identity": "1f:01cd2963cf21daba0058c8c2d9009509ef96bb3423d65b9ed8b053c5e509e1b8"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/public-landing-page-renders-without-an-engine.test.mjs",
+      "commit": "1588c07bfd4ec69e1334c46d932d18ab33d6ed66",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/public-landing-page-renders-without-an-engine.test.mjs.held",
+      "calls": [
+        "tenant-fork-name-made-generic",
+        "tenant-asset-folder-made-generic",
+        "tenant-words-guard-made-generic",
+        "fixture-field-of-work-made-generic-lower"
+      ],
+      "source_identity": "1f:441a00b4e03c694567f74f6e1a3809e82975f87dc1dfbeb934efe6b6abb3e4e3",
+      "identity": "1f:908faeba2cba4093f8c1ee21972971f97df54c21172f9895d0a1c52f727b7a11"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/publication-failure-semantics.test.ts",
+      "commit": "426b789dd19d64aac7b9379bf0cbef541ed33aa2",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/publication-failure-semantics.test.ts.held",
+      "source_identity": "1f:2d72c4da3571e6c7e627668a65ea547f92fee6c8c9c1efba166a8bdb42f60e25",
+      "identity": "1f:41774659622dba98e7faf1a18402250921942cba42b5c963755feaf735a0010e"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/reading-a-public-page-stays-public.test.mjs",
+      "commit": "47b7e53a36eb231b9298974e83972af06199df52",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/reading-a-public-page-stays-public.test.mjs",
+      "source_identity": "1f:b74d9464685a85fab2e3768177ae0f7e3986f1c05e06961b9d2dbe9e155b21e3",
+      "identity": "1f:b74d9464685a85fab2e3768177ae0f7e3986f1c05e06961b9d2dbe9e155b21e3"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/restarting-is-not-rebuilding.test.mjs",
+      "commit": "ceaf99b330d0f4d4a9ec6b04bb439ffe5128c775",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/restarting-is-not-rebuilding.test.mjs.held",
+      "source_identity": "1f:16208e26c409f56a880b36796de8be7e7798cdb628edca1277ff8b7781818053",
+      "identity": "1f:16208e26c409f56a880b36796de8be7e7798cdb628edca1277ff8b7781818053"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/runtime-kit-test-tools.mjs",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/runtime-kit-test-tools.mjs",
+      "source_identity": "1f:25fc4082afe77b3eb2519dd078b013f9a02c65d597e33d1491ebea389d7ef3f2",
+      "identity": "1f:25fc4082afe77b3eb2519dd078b013f9a02c65d597e33d1491ebea389d7ef3f2"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/sealed-closure-integrity.test.mjs",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/sealed-closure-integrity.test.mjs.held",
+      "source_identity": "1f:b1d41c2331e5cf62369827d6ccf97df926c5689e6e36a05a54f7927e213f4589",
+      "identity": "1f:b1d41c2331e5cf62369827d6ccf97df926c5689e6e36a05a54f7927e213f4589"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/selected-experience-offline-build.test.mjs",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/selected-experience-offline-build.test.mjs.held",
+      "source_identity": "1f:3724bd56f21980a8523e87e98601fa102aa39563b32312d51a93a1fce111c48b",
+      "identity": "1f:3724bd56f21980a8523e87e98601fa102aa39563b32312d51a93a1fce111c48b"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/selected-experience-publication-e2e.test.mjs",
+      "commit": "cf57d6ce237bc26d20d9cd1afb321d1c35702030",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/selected-experience-publication-e2e.test.mjs.held",
+      "source_identity": "1f:13a5cdd434de54633d8840646f81f2bb987260b70020c618ac6b56cb10c75ea5",
+      "identity": "1f:13a5cdd434de54633d8840646f81f2bb987260b70020c618ac6b56cb10c75ea5"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/selected-experience-publication.test.ts",
+      "commit": "426b789dd19d64aac7b9379bf0cbef541ed33aa2",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/selected-experience-publication.test.ts",
+      "source_identity": "1f:ef4389dd774c853bb893c8e8747b58b62945a5ee7c6865a1d5b0da12bbe71b6e",
+      "identity": "1f:be9614763d36fb60d171425522e4a1fe69fefee03846f335c076f3b4fe68111c"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/selected-publication-targets.test.ts",
+      "commit": "d57fe2cfedb74c8b980ad3224a1a7dd13943ca32",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/selected-publication-targets.test.ts.held",
+      "source_identity": "1f:fcacca320f0732f29d495c643f323725e20e6616c3f8aa8a27f6ad757e62d7ad",
+      "identity": "1f:73326d719e675c80dc8e2a1f451136fd826f848843bd514193b3eb57738caca2"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/seller-share-sell-flow.browser.spec.ts",
+      "commit": "39635907744f1bd9f8eba12da7d4398b1eb2226f",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/seller-share-sell-flow.browser.spec.ts.held",
+      "source_identity": "1f:f7536cd0979337bfbc0377a0e02178dfc4d8570458fb0fda723f459e148ef1a5",
+      "identity": "1f:07ab1d80570c085beb342cd0fbab24ac68f3c55a45db08b79eaf896be7711a68",
+      "calls": [
+        "private-notes-path"
+      ]
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/seller-share-sell-flow.test.ts",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/seller-share-sell-flow.test.ts.held",
+      "source_identity": "1f:f077bda85a6e5e3350c0a7959483473e48a64e45ad2d516a4358f6f9121fcbb3",
+      "identity": "1f:de524301200cd8bb9766da4d34c5a2fd2748ecc6d4a1647fb963da69f7ee8645"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/t14-remaining-accessibility.browser.spec.ts",
+      "commit": "2cba44f1cd34c2507073b0707038555b7e3bf4fd",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/t14-remaining-accessibility.browser.spec.ts.held",
+      "source_identity": "1f:bbfbc35e8de5cb5ceaa7348392cf1eaa06c1db91d92d7855dd0e9014fd24af49",
+      "identity": "1f:f3ee5f3af4e6ec8806878314588e4e98375b2b367214b9d15c327bb632902df5",
+      "calls": [
+        "private-notes-path"
+      ]
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/the-generic-server-names-no-tenant.test.mjs",
+      "commit": "f1190b223894c08fe26d64d85e10de5101ab0201",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/the-generic-server-names-no-tenant.test.mjs",
+      "source_identity": "1f:ecb01cadab0141d7a99c7039a50d7f52ab2d99a360f7e9437c814ba279780b1b",
+      "identity": "1f:ecb01cadab0141d7a99c7039a50d7f52ab2d99a360f7e9437c814ba279780b1b"
+    },
+    {
+      "from": "packages/hosted-public-app/__tests__/two-accounts-never-share-a-runtime-instance.test.mjs",
+      "commit": "f5055f826b87608c82e5cfc0b2730a4cc1cbfd3f",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/__tests__/two-accounts-never-share-a-runtime-instance.test.mjs.held",
+      "source_identity": "1f:e9ce4c5bcb5098a88965f71db91a62907ce9dafee82603ae54047731cfe0b64c",
+      "identity": "1f:e9ce4c5bcb5098a88965f71db91a62907ce9dafee82603ae54047731cfe0b64c"
+    },
+    {
+      "from": "packages/hosted-public-app/do-work/public-selection-transition.test.ts",
+      "commit": "7229c0c1d5311ff11cc55bb6ccf31843fe305b83",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/do-work/public-selection-transition.test.ts.held",
+      "source_identity": "1f:de270f74b6f16f0ca86f531ca9f2aed8d0d0324acbfb3bc3f6b8b419014eef77",
+      "identity": "1f:dc1c5fffc485ff611cb61a55f722f94fbeec57e1e76700deee049779fe512d3b"
+    },
+    {
+      "from": "packages/hosted-public-app/do-work/public-selection-transition.ts",
+      "commit": "7ee1b76995ac4b9f4a5c52d974d132ab8a0541aa",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/do-work/public-selection-transition.ts",
+      "source_identity": "1f:123b8950cad9177fedb25caa62501f16b514465cb63892d426c6abc390bafdc1",
+      "identity": "1f:123b8950cad9177fedb25caa62501f16b514465cb63892d426c6abc390bafdc1"
+    },
+    {
+      "from": "packages/hosted-public-app/do-work/request-publish-live-site.ts",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/do-work/request-publish-live-site.ts",
+      "source_identity": "1f:7bb57c959ec7cfab6e4a99f5f776cfa399ac1f28ebfc83f974032d18b33ea65b",
+      "identity": "1f:7bb57c959ec7cfab6e4a99f5f776cfa399ac1f28ebfc83f974032d18b33ea65b"
+    },
+    {
+      "from": "packages/hosted-public-app/do-work/selected-publication-targets.ts",
+      "commit": "d57fe2cfedb74c8b980ad3224a1a7dd13943ca32",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/do-work/selected-publication-targets.ts",
+      "source_identity": "1f:de5c75bdcb3d4a17cefb326372882e31944891bff6606baab599d9a4c636787b",
+      "identity": "1f:de5c75bdcb3d4a17cefb326372882e31944891bff6606baab599d9a4c636787b"
+    },
+    {
+      "from": "packages/hosted-public-app/index.ts",
+      "commit": "7229c0c1d5311ff11cc55bb6ccf31843fe305b83",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/index.ts",
+      "source_identity": "1f:c736ee8e8c7b97f3bdd1ab8fb6e056a064ff3354d3d42b53cf3d29facd7b5438",
+      "identity": "1f:3bb40d5b507f649288741268e3f6f7dce46c85c9e0a7a0a46c56d5da3b3417d4"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/ask-the-host-provider-for-a-certificate.mjs",
+      "commit": "0e5342363cf395c4c9e1c3e41c2dd501e23a1407",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/ask-the-host-provider-for-a-certificate.mjs",
+      "source_identity": "1f:5cd1457106b548dc5e35ed24ab60a0fdf3c800657ccdfc1776370893c56cba60",
+      "identity": "1f:5cd1457106b548dc5e35ed24ab60a0fdf3c800657ccdfc1776370893c56cba60"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/carrier-http-effect.mjs",
+      "commit": "0d388359fcd31ceafbdc98fd73b036063152f5d2",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/carrier-http-effect.mjs",
+      "source_identity": "1f:cf955b6b13d45df3409a937d7d342ea360ce078c5a26346ce9c4ad1d3ca4bb44",
+      "identity": "1f:cf955b6b13d45df3409a937d7d342ea360ce078c5a26346ce9c4ad1d3ca4bb44"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/check-the-live-update-lane-answers.mjs",
+      "commit": "cde98c57ab6f384f7d4a296c6468b32d01c79098",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/check-the-live-update-lane-answers.mjs",
+      "source_identity": "1f:01eafb5d8339da17e1fbc72f4692a4397eff1406116d87a2cee962222a3a1a60",
+      "identity": "1f:01eafb5d8339da17e1fbc72f4692a4397eff1406116d87a2cee962222a3a1a60"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/compose-article-discovery.mjs",
+      "commit": "0f1ab4257baf5118403ae4f939fba6d63cf72bff",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/compose-article-discovery.mjs",
+      "source_identity": "1f:8a09e67c75dec30fcb3c570825ff2f88bf0f8c82a32ad6205f6363f709b2241a",
+      "identity": "1f:8a09e67c75dec30fcb3c570825ff2f88bf0f8c82a32ad6205f6363f709b2241a"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/compose-article-discovery.test.mjs",
+      "commit": "0f1ab4257baf5118403ae4f939fba6d63cf72bff",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/compose-article-discovery.test.mjs",
+      "calls": [
+        "fixture-field-of-work-made-generic"
+      ],
+      "source_identity": "1f:cefefa11e8b022e287a872d2d2d59d68fccec9b50a860a49f85def98f5ce84bd",
+      "identity": "1f:4a611a9423188218a154bddae17523383b1c6644ecbf897a40afcc28d4623924"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/document-parts.mjs",
+      "commit": "07a418417deca15c637b7a2a8035b609df4b1584",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/document-parts.mjs",
+      "source_identity": "1f:ba4441b3b5593cbe7ad8c8499425099633f4d4b7f75794b460a3af1424a83ac0",
+      "identity": "1f:ba4441b3b5593cbe7ad8c8499425099633f4d4b7f75794b460a3af1424a83ac0"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/flatten-current-container-base.mjs",
+      "commit": "ff36bdca7016c2c9894b6ace3fc33615ce8f88ad",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/flatten-current-container-base.mjs",
+      "source_identity": "1f:8ad2688d29b600760fa33e9b020724788818fb1aad46d2d1af4196cf945fcdf2",
+      "identity": "1f:8ad2688d29b600760fa33e9b020724788818fb1aad46d2d1af4196cf945fcdf2"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/flatten-current-container-base.test.mjs",
+      "commit": "ff36bdca7016c2c9894b6ace3fc33615ce8f88ad",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/flatten-current-container-base.test.mjs",
+      "source_identity": "1f:a24328e50aa6c5a9bf640ec0101564b53579426b2d553d51b424b822bb8d3a8e",
+      "identity": "1f:a24328e50aa6c5a9bf640ec0101564b53579426b2d553d51b424b822bb8d3a8e"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/hosted-url-return-action.mjs",
+      "commit": "308ee10c3bde28234d7b60d0605b36ce0a777adb",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/hosted-url-return-action.mjs",
+      "source_identity": "1f:d3ad601861b559199f5ec4f72b016504d40942c6c41a612bbc817fe56168ac58",
+      "identity": "1f:d3ad601861b559199f5ec4f72b016504d40942c6c41a612bbc817fe56168ac58"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/hosted-url-return-action.test.mjs",
+      "commit": "308ee10c3bde28234d7b60d0605b36ce0a777adb",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/hosted-url-return-action.test.mjs",
+      "calls": [
+        "tenant-host-made-generic"
+      ],
+      "source_identity": "1f:ce43d1232b0e09c5faaae01b3f49f1a9114b73a5853ecede0cc2b4d7ac5a6998",
+      "identity": "1f:46b103da8856e31cf6525b063b07a5002b04ba7880d5099792a7028ed7b0ccf3"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/materialize-hosted-projection-tree.mjs",
+      "commit": "22bac8ff957ce7f6c38f56ec31f7adbef39f4380",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/materialize-hosted-projection-tree.mjs",
+      "source_identity": "1f:69bf529ff25fa9cff15864d50e57b40cf87c7fff932ed84a43117d1dabe46402",
+      "identity": "1f:69bf529ff25fa9cff15864d50e57b40cf87c7fff932ed84a43117d1dabe46402"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/materialize-hosted-projection-tree.test.mjs",
+      "commit": "22bac8ff957ce7f6c38f56ec31f7adbef39f4380",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/materialize-hosted-projection-tree.test.mjs.held",
+      "source_identity": "1f:bca6fddc8dad2293097383707c0407146215994ff38fad14945b9ef3c628f0a4",
+      "identity": "1f:bca6fddc8dad2293097383707c0407146215994ff38fad14945b9ef3c628f0a4"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/offer-price-observations.mjs",
+      "commit": "2c1427b487f8b2be74ed68a53fb22ba78ebe4b08",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/offer-price-observations.mjs",
+      "source_identity": "1f:aae0b2028a28e11c33350aa80da8bfddc0fb006a4415615ee517ee7c1b2c0434",
+      "identity": "1f:aae0b2028a28e11c33350aa80da8bfddc0fb006a4415615ee517ee7c1b2c0434"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/offer-price-observations.test.mjs",
+      "commit": "2c1427b487f8b2be74ed68a53fb22ba78ebe4b08",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/offer-price-observations.test.mjs.held",
+      "source_identity": "1f:8b805bf1536154509e7d59463d26213dc98533186436e6806ba4cf6e668dc664",
+      "identity": "1f:8b805bf1536154509e7d59463d26213dc98533186436e6806ba4cf6e668dc664"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/open-the-workspace-for-one-account.mjs",
+      "commit": "3fa0dc6038f41dc673f5e0a111ce9072b3299ba1",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/open-the-workspace-for-one-account.mjs",
+      "source_identity": "1f:ac0ef39f61f2aca5ac38d74e9509fa9cd64e5199b604200c587544335271e40b",
+      "identity": "1f:ac0ef39f61f2aca5ac38d74e9509fa9cd64e5199b604200c587544335271e40b"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/persistent-entry-styles.mjs",
+      "commit": "04ec96c6d7484df261554ee42f77c44584447afa",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/persistent-entry-styles.mjs",
+      "source_identity": "1f:b90837b865d9bd7efaa579dbf1177ebedaa9080af25ad679cdf3b49885d0a43c",
+      "identity": "1f:b90837b865d9bd7efaa579dbf1177ebedaa9080af25ad679cdf3b49885d0a43c"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/prepare-publication-records.mjs",
+      "commit": "e0022dc3e90dd7760015c7086613f85219d54324",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/prepare-publication-records.mjs",
+      "source_identity": "1f:8de8260c9614cf6e901c22d1ef40a0f5fd43d2dfc03c35142053b3cbcbeb3f83",
+      "identity": "1f:8de8260c9614cf6e901c22d1ef40a0f5fd43d2dfc03c35142053b3cbcbeb3f83"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/prepare-publication-records.test.mjs",
+      "commit": "e0022dc3e90dd7760015c7086613f85219d54324",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/prepare-publication-records.test.mjs.held",
+      "source_identity": "1f:7da8965b071460af50391702f9ab208fbc06fe803be994a99abae109fada0875",
+      "identity": "1f:f11644fa7c53be5d2f1a44d859f71323d487a5525d667029d0534e2262e46802",
+      "calls": [
+        "a-test-address-made-up"
+      ]
+    },
+    {
+      "from": "packages/hosted-public-app/processes/prove-a-release-host.test.mjs",
+      "commit": "65f326ce725951f11bdb81948862e07575906aec",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/prove-a-release-host.test.mjs.held",
+      "calls": [
+        "tenant-app-name-made-generic"
+      ],
+      "source_identity": "1f:0acce0af44974c5636bb2130975041d416073af622004308a63091ff268bade4",
+      "identity": "1f:9ca7d238d2bbca086234713f3b1abc270ec719df28654bf0aafc9175e1434354"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/prove-a-release-starts-before-it-goes-live.mjs",
+      "commit": "f04ec93278a1ce094d3bde6f8347315944a512ab",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/prove-a-release-starts-before-it-goes-live.mjs",
+      "calls": [
+        "fixture-field-of-work-made-generic"
+      ],
+      "source_identity": "1f:5bb476547773467b417b76ff64869d1c24445484bb9fb6ba31d89309d3c52042",
+      "identity": "1f:12042762796784ffd6f6381dc76272ccdfe8aded26512ebd4c4d2b3236c44619"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/provider-credential.mjs",
+      "commit": "8df8c1085efeb97504cd86d266e4d3714cb91ef6",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/provider-credential.mjs",
+      "source_identity": "1f:6c016ed428a09af8d4a7fce0c508d01fa53151dd082fd3bcb22e2a8dc434de4a",
+      "identity": "1f:6c016ed428a09af8d4a7fce0c508d01fa53151dd082fd3bcb22e2a8dc434de4a"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/public-entry-server-source.mjs",
+      "commit": "f429c6b5764190ab58290e49feffa97ac36cd96c",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/public-entry-server-source.mjs",
+      "source_identity": "1f:5dd5c3074bdfae12b34f277c7a90e4178893d0c68f75b38213b20ce76a0ff9f2",
+      "identity": "1f:32c26c4ce04728d07833ae3c523c1ee5e7642fa941d428f812f078ade5b9fbb7",
+      "calls": [
+        "a-real-person-named-in-a-comment-made-generic",
+        "private-notes-path"
+      ]
+    },
+    {
+      "from": "packages/hosted-public-app/processes/public-route-retirement.mjs",
+      "commit": "fdcc475eb3297574f08f703ebd1956cdab2a96a3",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/public-route-retirement.mjs",
+      "source_identity": "1f:30f00e4b991ff3ff2f9044e628e82dfa14abbd8b939478f90b22a0e8c1f4d014",
+      "identity": "1f:30f00e4b991ff3ff2f9044e628e82dfa14abbd8b939478f90b22a0e8c1f4d014"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/public-route-retirement.test.mjs",
+      "commit": "fdcc475eb3297574f08f703ebd1956cdab2a96a3",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/public-route-retirement.test.mjs",
+      "source_identity": "1f:df652a37b8b86db053ee1bdcefc52ad4cf5fd75a0fc8916df619b76bd27fe4cf",
+      "identity": "1f:df652a37b8b86db053ee1bdcefc52ad4cf5fd75a0fc8916df619b76bd27fe4cf"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/publish-current-document.mjs",
+      "commit": "b8ebda016990ec882ba77a6e96972ecb690b0b57",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/publish-current-document.mjs",
+      "source_identity": "1f:62f64dfe75058eac6cbbdcd55198ff98191c642d212f9d8f10e6695b1a2c6303",
+      "identity": "1f:62f64dfe75058eac6cbbdcd55198ff98191c642d212f9d8f10e6695b1a2c6303"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/publish-current-document.test.mjs",
+      "commit": "086778aa9192575067621cbf10dbd0489e100fff",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/publish-current-document.test.mjs.held",
+      "source_identity": "1f:f85ecd519d23a0217ad69dc48ff04597fe77bfff6b8eaca788d02cd98e8a989c",
+      "identity": "1f:f85ecd519d23a0217ad69dc48ff04597fe77bfff6b8eaca788d02cd98e8a989c"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/publish-reviewed-article.mjs",
+      "commit": "086778aa9192575067621cbf10dbd0489e100fff",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/publish-reviewed-article.mjs",
+      "source_identity": "1f:ae500171fcd0396974a5267413316b215db1ed04901458c54426df3b72aa2f63",
+      "identity": "1f:ae500171fcd0396974a5267413316b215db1ed04901458c54426df3b72aa2f63"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/publish-reviewed-article.test.mjs",
+      "commit": "086778aa9192575067621cbf10dbd0489e100fff",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/publish-reviewed-article.test.mjs.held",
+      "source_identity": "1f:5464cbeaf35ff0ca8a9af248490ca36189caa232d29fea406bd30ca2a5cba72f",
+      "identity": "1f:5464cbeaf35ff0ca8a9af248490ca36189caa232d29fea406bd30ca2a5cba72f"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/read-one-public-page.mjs",
+      "commit": "47b7e53a36eb231b9298974e83972af06199df52",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/read-one-public-page.mjs",
+      "source_identity": "1f:3426560b8f188212ec71c6f1224bc2e253d42b47dc88eaafc8905d612ced9800",
+      "identity": "1f:3426560b8f188212ec71c6f1224bc2e253d42b47dc88eaafc8905d612ced9800"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/render-article-candidate.mjs",
+      "commit": "7abfac7eeb96b63e38977e699df4c8c8208dcb54",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/render-article-candidate.mjs",
+      "source_identity": "1f:e51f318360d39942a45732d8303ac6a11d12ab14e0d48af8d415ae101a8993e6",
+      "identity": "1f:e51f318360d39942a45732d8303ac6a11d12ab14e0d48af8d415ae101a8993e6"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/render-article-candidate.test.mjs",
+      "commit": "fa7e8329133ee5fedb8564781e241d1c7a410e93",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/render-article-candidate.test.mjs.held",
+      "source_identity": "1f:c21565a65f31c5c3d021142cfa4efc8239b74bf54875a5596f3754158315db4a",
+      "identity": "1f:c21565a65f31c5c3d021142cfa4efc8239b74bf54875a5596f3754158315db4a"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/report-what-a-public-address-serves.mjs",
+      "commit": "bf42cad222c51782cffb5912aa1c71946fe3d695",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/report-what-a-public-address-serves.mjs",
+      "source_identity": "1f:bba25db0519c6ac80cc5f4d4c39e101a21733e29743be54c26c938ccb7e398f3",
+      "identity": "1f:bba25db0519c6ac80cc5f4d4c39e101a21733e29743be54c26c938ccb7e398f3"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/run-provider-deploy.mjs",
+      "commit": "530ea83d9ce9d9a437b02fd0ad5070699da216e4",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/run-provider-deploy.mjs",
+      "source_identity": "1f:5dcec2d5013dc4db676edbf41dee63baaf7b3a480fda79e29efd0df6e6d0635c",
+      "identity": "1f:5dcec2d5013dc4db676edbf41dee63baaf7b3a480fda79e29efd0df6e6d0635c"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/run-provider-deploy.test.mjs",
+      "commit": "f04ec93278a1ce094d3bde6f8347315944a512ab",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/run-provider-deploy.test.mjs.held",
+      "source_identity": "1f:e1f95e67939ed955ed380d8f7d9442501e4db92366ef280c638067672a2d1f15",
+      "identity": "1f:092e68d0f55f551ede5c28245d5f07ba2a6898bde8c2bc3b3ba7ae8a1b111404",
+      "calls": [
+        "a-test-address-made-up"
+      ]
+    },
+    {
+      "from": "packages/hosted-public-app/processes/runtime-instance-for-this-request.mjs",
+      "commit": "f5055f826b87608c82e5cfc0b2730a4cc1cbfd3f",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/runtime-instance-for-this-request.mjs",
+      "source_identity": "1f:ecb199e07b8ec0816ffdc7727d3955d4ebde691733eb8c9be7e94f344abd2455",
+      "identity": "1f:ecb199e07b8ec0816ffdc7727d3955d4ebde691733eb8c9be7e94f344abd2455"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/runtime-upstream-transport.mjs",
+      "commit": "3be4af68805066244d151fd00c0e99bbe4089713",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/runtime-upstream-transport.mjs",
+      "source_identity": "1f:3b184a80c9880906b536c1cdb4ce459771e35c10f26067ef59b4f9fb2dabc671",
+      "identity": "1f:3b184a80c9880906b536c1cdb4ce459771e35c10f26067ef59b4f9fb2dabc671"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/verify-release-viewport-paint.mjs",
+      "commit": "ae80856e42e93d622e2a6c4858b2d8a74eb21870",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/verify-release-viewport-paint.mjs",
+      "source_identity": "1f:d92e9ef32cebda0dc827d3028901c1e093b12991ca3c2d2e5aa4b25a7b4f0b35",
+      "identity": "1f:d92e9ef32cebda0dc827d3028901c1e093b12991ca3c2d2e5aa4b25a7b4f0b35"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/write-a-module-export-result-to-a-file.mjs",
+      "commit": "07a418417deca15c637b7a2a8035b609df4b1584",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/write-a-module-export-result-to-a-file.mjs",
+      "source_identity": "1f:c97acae36bb941c680f3c4c6f904b5df52dd31cc98aa2232769fc7128ef31ccb",
+      "identity": "1f:c97acae36bb941c680f3c4c6f904b5df52dd31cc98aa2232769fc7128ef31ccb"
+    },
+    {
+      "from": "packages/hosted-public-app/read-data/__tests__/page-cta-price.test.ts",
+      "commit": "5fe43d7cac241cd39151cf7791c92c664ee09ac6",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/read-data/__tests__/page-cta-price.test.ts.held",
+      "source_identity": "1f:3dd8281649866773598988a836d834609ba1f412da5ea300926c99fac3902a11",
+      "identity": "1f:473ad3fe63a80304d9ccea40a815c12027eb8a6be8312782fa19587f9e8eb4e0"
+    },
+    {
+      "from": "packages/hosted-public-app/read-data/artifacts/app-api-experience-bytes-route.ts.txt",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/read-data/artifacts/app-api-experience-bytes-route.ts.txt",
+      "source_identity": "1f:6cf6dc1aa09697226f0ac31229b0bd3bce00b539fa1de9f203a65532e07ea245",
+      "identity": "1f:6cf6dc1aa09697226f0ac31229b0bd3bce00b539fa1de9f203a65532e07ea245"
+    },
+    {
+      "from": "packages/hosted-public-app/read-data/artifacts/app-api-experience-data-route.ts.txt",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/read-data/artifacts/app-api-experience-data-route.ts.txt",
+      "source_identity": "1f:0761fdfda17d0786b2e7451138abd944a79d25af1ba0913ba4396e84e6b4f825",
+      "identity": "1f:0761fdfda17d0786b2e7451138abd944a79d25af1ba0913ba4396e84e6b4f825"
+    },
+    {
+      "from": "packages/hosted-public-app/read-data/artifacts/app-api-experience-manifest-route.ts.txt",
+      "commit": "e0022dc3e90dd7760015c7086613f85219d54324",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/read-data/artifacts/app-api-experience-manifest-route.ts.txt",
+      "source_identity": "1f:9b32e6d10246dcd2bd8890310a03c6e5046d222789c031f6aad15c233d34cdd9",
+      "identity": "1f:9b32e6d10246dcd2bd8890310a03c6e5046d222789c031f6aad15c233d34cdd9"
+    },
+    {
+      "from": "packages/hosted-public-app/read-data/artifacts/app-api-experience-subscriptions-route.ts.txt",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/read-data/artifacts/app-api-experience-subscriptions-route.ts.txt",
+      "source_identity": "1f:84eb5f9a165a176382e3ed25f753dade17808dca0c43ccbf85d3e1ba18f5c11b",
+      "identity": "1f:84eb5f9a165a176382e3ed25f753dade17808dca0c43ccbf85d3e1ba18f5c11b"
+    },
+    {
+      "from": "packages/hosted-public-app/read-data/artifacts/app-globals.css.txt",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/read-data/artifacts/app-globals.css.txt",
+      "source_identity": "1f:aa2f0b43f497ac1ccf7a2d0623270f117ed493e1bf2e92d24200d4b541e649f9",
+      "identity": "1f:aa2f0b43f497ac1ccf7a2d0623270f117ed493e1bf2e92d24200d4b541e649f9"
+    },
+    {
+      "from": "packages/hosted-public-app/read-data/artifacts/app-layout.tsx.txt",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/read-data/artifacts/app-layout.tsx.txt",
+      "source_identity": "1f:91465b328295bfb688bb64b2fdd26c84b87905ad94df44d7e96729d8f1dc01b6",
+      "identity": "1f:91465b328295bfb688bb64b2fdd26c84b87905ad94df44d7e96729d8f1dc01b6"
+    },
+    {
+      "from": "packages/hosted-public-app/read-data/artifacts/app-next.config.mjs.txt",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/read-data/artifacts/app-next.config.mjs.txt",
+      "source_identity": "1f:a3cd003f0891014a3db16da201f6b8ac8ec52ec0ff385b059c3264bb2dcb1ef6",
+      "identity": "1f:a3cd003f0891014a3db16da201f6b8ac8ec52ec0ff385b059c3264bb2dcb1ef6"
+    },
+    {
+      "from": "packages/hosted-public-app/read-data/artifacts/app-page.tsx.txt",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/read-data/artifacts/app-page.tsx.txt",
+      "source_identity": "1f:fec295dcd33696da602d00e96ceb0da202e440e65032ed823db81d91ed50bbd5",
+      "identity": "1f:fec295dcd33696da602d00e96ceb0da202e440e65032ed823db81d91ed50bbd5"
+    },
+    {
+      "from": "packages/hosted-public-app/read-data/artifacts/app-robots.ts.txt",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/read-data/artifacts/app-robots.ts.txt",
+      "source_identity": "1f:d63f7621c7a58bfd374c45efdfd8499ddbd210ea46490e67d2253d10203278d9",
+      "identity": "1f:d63f7621c7a58bfd374c45efdfd8499ddbd210ea46490e67d2253d10203278d9"
+    },
+    {
+      "from": "packages/hosted-public-app/read-data/artifacts/app-sitemap.ts.txt",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/read-data/artifacts/app-sitemap.ts.txt",
+      "source_identity": "1f:d5c223efb0ad9b12c8719a716832d7aa26cdf5bfa8f5f24cc417244e32bc92d8",
+      "identity": "1f:d5c223efb0ad9b12c8719a716832d7aa26cdf5bfa8f5f24cc417244e32bc92d8"
+    },
+    {
+      "from": "packages/hosted-public-app/read-data/artifacts/app-tsconfig.json.txt",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/read-data/artifacts/app-tsconfig.json.txt",
+      "source_identity": "1f:8af93406f77542d58156bb53a8f6d6840572963ce3ef43dd31524b48f26c71b1",
+      "identity": "1f:8af93406f77542d58156bb53a8f6d6840572963ce3ef43dd31524b48f26c71b1"
+    },
+    {
+      "from": "packages/hosted-public-app/read-data/artifacts/hosted-experience-authority.ts.txt",
+      "commit": "e0022dc3e90dd7760015c7086613f85219d54324",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/read-data/artifacts/hosted-experience-authority.ts.txt",
+      "source_identity": "1f:dc37e896a9f08d0c16eaa88ddb6f17787d20b0b2faf148f261bba0b2eee49f29",
+      "identity": "1f:dc37e896a9f08d0c16eaa88ddb6f17787d20b0b2faf148f261bba0b2eee49f29"
+    },
+    {
+      "from": "packages/hosted-public-app/read-data/artifacts/hosted-surface-client.tsx.txt",
+      "commit": "e0022dc3e90dd7760015c7086613f85219d54324",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/read-data/artifacts/hosted-surface-client.tsx.txt",
+      "source_identity": "1f:c0442754ef6c74a55157c370ddea2da4a37e94422a19387dd1ce33c7b9bc7713",
+      "identity": "1f:c0442754ef6c74a55157c370ddea2da4a37e94422a19387dd1ce33c7b9bc7713"
+    },
+    {
+      "from": "packages/hosted-public-app/read-data/artifacts/hosted-surface-page.tsx.txt",
+      "commit": "e0022dc3e90dd7760015c7086613f85219d54324",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/read-data/artifacts/hosted-surface-page.tsx.txt",
+      "source_identity": "1f:a009a34e99c02cf0930f2bddd08a9b2fa932ba98b18140e0203764b04d61bca0",
+      "identity": "1f:a009a34e99c02cf0930f2bddd08a9b2fa932ba98b18140e0203764b04d61bca0"
+    },
+    {
+      "from": "packages/hosted-public-app/read-data/artifacts/hosted-target-carrier-client.tsx.txt",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/read-data/artifacts/hosted-target-carrier-client.tsx.txt",
+      "source_identity": "1f:1084f89e54cff546c61fe06862d1ca029bb69e058b93fb253bc0d8711bd14a99",
+      "identity": "1f:1084f89e54cff546c61fe06862d1ca029bb69e058b93fb253bc0d8711bd14a99"
+    },
+    {
+      "from": "packages/hosted-public-app/read-data/artifacts/hosted-target-carrier-server.ts.txt",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/read-data/artifacts/hosted-target-carrier-server.ts.txt",
+      "source_identity": "1f:0fdadd54e596f234fd1c0823dbb69151649c3d732b1688afb2475a13f4593f67",
+      "identity": "1f:0fdadd54e596f234fd1c0823dbb69151649c3d732b1688afb2475a13f4593f67"
+    },
+    {
+      "from": "packages/hosted-public-app/read-data/artifacts/hosted-target-route.ts.txt",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/read-data/artifacts/hosted-target-route.ts.txt",
+      "source_identity": "1f:e5ddd7444a4465296d0dbf8e81f91436ae6e68d75f934395b88a6b7c5281d6e6",
+      "identity": "1f:e5ddd7444a4465296d0dbf8e81f91436ae6e68d75f934395b88a6b7c5281d6e6"
+    },
+    {
+      "from": "packages/hosted-public-app/read-data/artifacts/site.webmanifest.txt",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/read-data/artifacts/site.webmanifest.txt",
+      "source_identity": "1f:733c1b8bf8e6f4a6db34feee466e60082fed22ea991fe9eda06802d4151e5bd7",
+      "identity": "1f:733c1b8bf8e6f4a6db34feee466e60082fed22ea991fe9eda06802d4151e5bd7"
+    },
+    {
+      "from": "packages/hosted-public-app/read-data/described-file-at.mjs",
+      "commit": "295829806862608cfce667779c9cf7b25c42b0fa",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/read-data/described-file-at.mjs",
+      "source_identity": "1f:db7aed376388fb7d06c4639a1eff738de072fc3c1a8516d065df8471d1f0f644",
+      "identity": "1f:db7aed376388fb7d06c4639a1eff738de072fc3c1a8516d065df8471d1f0f644"
+    },
+    {
+      "from": "packages/hosted-public-app/read-data/named-price-option.mjs",
+      "commit": "4162f2f9a2e413d6e3b9aad6e567fa5570dfdc28",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/read-data/named-price-option.mjs",
+      "source_identity": "1f:15a47f87f65f9ebeceec08c3f03376aa7a9be8b564d75279a709e4d053a0d039",
+      "identity": "1f:15a47f87f65f9ebeceec08c3f03376aa7a9be8b564d75279a709e4d053a0d039"
+    },
+    {
+      "from": "packages/hosted-public-app/read-data/operational-record-projection.ts",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/read-data/operational-record-projection.ts",
+      "source_identity": "1f:4345ea82c2c49931a0cc9027580f4f35562c973e2220e42693032b07f50abe66",
+      "identity": "1f:4345ea82c2c49931a0cc9027580f4f35562c973e2220e42693032b07f50abe66"
+    },
+    {
+      "from": "packages/hosted-public-app/read-data/package-store-metadata.ts",
+      "commit": "07852d610806b03bd3a85a0a51a6bc0db6db5e20",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/read-data/package-store-metadata.ts",
+      "source_identity": "1f:a9691cc6d21094d6a12d66e4e5bdf06e54542d44387f1a39c336142d4af0bf3b",
+      "identity": "1f:a9691cc6d21094d6a12d66e4e5bdf06e54542d44387f1a39c336142d4af0bf3b"
+    },
+    {
+      "from": "packages/hosted-public-app/read-data/page-cta-price.mjs",
+      "commit": "5fe43d7cac241cd39151cf7791c92c664ee09ac6",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/read-data/page-cta-price.mjs",
+      "source_identity": "1f:6f169dcf2436501f63d12aa58470aaf99ec5139b7d12c4ce23665f910444b49a",
+      "identity": "1f:6f169dcf2436501f63d12aa58470aaf99ec5139b7d12c4ce23665f910444b49a"
+    },
+    {
+      "from": "packages/hosted-public-app/read-data/release-machine-settings.json",
+      "commit": "65f326ce725951f11bdb81948862e07575906aec",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/read-data/release-machine-settings.json",
+      "source_identity": "1f:80594b44578a034aa642b178f46e23f4990cae65e3f60b6b7680a346e57cd69a",
+      "identity": "1f:80594b44578a034aa642b178f46e23f4990cae65e3f60b6b7680a346e57cd69a"
+    },
+    {
+      "from": "packages/hosted-public-app/things-to-store-and-run.json",
+      "commit": "ae80856e42e93d622e2a6c4858b2d8a74eb21870",
+      "to": "tools/serve-and-publish-a-package-sets-public-app/things-to-store-and-run.json",
+      "source_identity": "1f:b3514fc5a6c21dd50092668439bdef590cb97b4569eccbef5bb6315c51d3ebcc",
+      "identity": "1f:b3514fc5a6c21dd50092668439bdef590cb97b4569eccbef5bb6315c51d3ebcc"
+    }
+  ],
+  "held": {
+    "tools/serve-and-publish-a-package-sets-public-app/__tests__/a-page-with-words-is-never-blank.test.mjs.held": "imports a file of another package that is not at the path the import names in this tree (checkout `read-offers`, ui `format-money`, ui server-rendered-page parts)",
+    "tools/serve-and-publish-a-package-sets-public-app/__tests__/a-description-names-its-files-where-it-lives.test.mjs.held": "bundles processes/public-entry-server-source.mjs with esbuild; that file imports shared parts this tree does not hold at the path it names (the server-rendered page parts of the ui package, the package `keep-the-last-good-answer`), plus `react` and `react-dom` which this repository does not depend on",
+    "tools/serve-and-publish-a-package-sets-public-app/__tests__/a-recovering-host-serves-only-its-own-archive.test.mjs.held": "bundles processes/public-entry-server-source.mjs with esbuild; that file imports shared parts this tree does not hold at the path it names (the server-rendered page parts of the ui package, the package `keep-the-last-good-answer`), plus `react` and `react-dom` which this repository does not depend on",
+    "tools/serve-and-publish-a-package-sets-public-app/__tests__/a-sign-in-page-can-load-its-own-code.test.mjs.held": "fails against the committed bytes of the package: the committed boundary file and the committed test disagree (the package's own working tree holds uncommitted edits to both, not carried because a receipt needs a source commit)",
+    "tools/serve-and-publish-a-package-sets-public-app/__tests__/a-release-does-not-shrink-the-machines.test.mjs.held": "imports `pngjs` (and the browser checks `playwright`), which this repository does not depend on",
+    "tools/serve-and-publish-a-package-sets-public-app/__tests__/a-tenant-with-no-island-still-gets-a-page.test.mjs.held": "bundles processes/public-entry-server-source.mjs with esbuild; that file imports shared parts this tree does not hold at the path it names (the server-rendered page parts of the ui package, the package `keep-the-last-good-answer`), plus `react` and `react-dom` which this repository does not depend on",
+    "tools/serve-and-publish-a-package-sets-public-app/__tests__/a-tenants-authored-files-answer-where-no-route-did.test.mjs.held": "bundles processes/public-entry-server-source.mjs with esbuild; that file imports shared parts this tree does not hold at the path it names (the server-rendered page parts of the ui package, the package `keep-the-last-good-answer`), plus `react` and `react-dom` which this repository does not depend on",
+    "tools/serve-and-publish-a-package-sets-public-app/__tests__/app-shell-survives-a-dead-engine.test.mjs.held": "bundles processes/public-entry-server-source.mjs with esbuild; that file imports shared parts this tree does not hold at the path it names (the server-rendered page parts of the ui package, the package `keep-the-last-good-answer`), plus `react` and `react-dom` which this repository does not depend on",
+    "tools/serve-and-publish-a-package-sets-public-app/__tests__/an-envelope-says-where-its-value-comes-from.test.mjs.held": "bundles processes/public-entry-server-source.mjs with esbuild; that file imports shared parts this tree does not hold at the path it names (the server-rendered page parts of the ui package, the package `keep-the-last-good-answer`), plus `react` and `react-dom` which this repository does not depend on",
+    "tools/serve-and-publish-a-package-sets-public-app/__tests__/anonymous-app-routes-stay-out-of-the-directory.test.mjs.held": "bundles processes/public-entry-server-source.mjs with esbuild; that file imports shared parts this tree does not hold at the path it names (the server-rendered page parts of the ui package, the package `keep-the-last-good-answer`), plus `react` and `react-dom` which this repository does not depend on",
+    "tools/serve-and-publish-a-package-sets-public-app/__tests__/an-unreviewed-article-row-cannot-replace-the-archive.test.mjs.held": "bundles processes/public-entry-server-source.mjs with esbuild; that file imports shared parts this tree does not hold at the path it names (the server-rendered page parts of the ui package, the package `keep-the-last-good-answer`), plus `react` and `react-dom` which this repository does not depend on",
+    "tools/serve-and-publish-a-package-sets-public-app/__tests__/every-installed-package-set-description-renders.test.mjs.held": "bundles processes/public-entry-server-source.mjs with esbuild; that file imports shared parts this tree does not hold at the path it names (the server-rendered page parts of the ui package, the package `keep-the-last-good-answer`), plus `react` and `react-dom` which this repository does not depend on",
+    "tools/serve-and-publish-a-package-sets-public-app/__tests__/execute-definition-authority.test.ts.held": "fails against the committed bytes of the package: the committed boundary file and the committed test disagree (the package's own working tree holds uncommitted edits to both, not carried because a receipt needs a source commit)",
+    "tools/serve-and-publish-a-package-sets-public-app/__tests__/hosted-experience-authority-carrier.test.mjs.held": "imports `@bitfield/slot-protocol`, the retired package runtime's protocol package, which this tree does not hold",
+    "tools/serve-and-publish-a-package-sets-public-app/__tests__/hosted-public-app-backend.test.ts.held": "fails against the committed bytes of the package: the committed boundary file and the committed test disagree (the package's own working tree holds uncommitted edits to both, not carried because a receipt needs a source commit)",
+    "tools/serve-and-publish-a-package-sets-public-app/__tests__/kept-prices-survive-a-dead-engine.test.mjs.held": "bundles processes/public-entry-server-source.mjs with esbuild; that file imports shared parts this tree does not hold at the path it names (the server-rendered page parts of the ui package, the package `keep-the-last-good-answer`), plus `react` and `react-dom` which this repository does not depend on",
+    "tools/serve-and-publish-a-package-sets-public-app/__tests__/normalize-selected-publication-target.test.ts.held": "the file it loads uses a TypeScript parameter property, which node's type stripping refuses (needs a TypeScript transform, not a strip)",
+    "tools/serve-and-publish-a-package-sets-public-app/__tests__/one-binary-serves-two-tenants.test.mjs.held": "bundles processes/public-entry-server-source.mjs with esbuild; that file imports shared parts this tree does not hold at the path it names (the server-rendered page parts of the ui package, the package `keep-the-last-good-answer`), plus `react` and `react-dom` which this repository does not depend on",
+    "tools/serve-and-publish-a-package-sets-public-app/__tests__/public-landing-page-renders-without-an-engine.test.mjs.held": "bundles processes/public-entry-server-source.mjs with esbuild; that file imports shared parts this tree does not hold at the path it names (the server-rendered page parts of the ui package, the package `keep-the-last-good-answer`), plus `react` and `react-dom` which this repository does not depend on",
+    "tools/serve-and-publish-a-package-sets-public-app/__tests__/sealed-closure-integrity.test.mjs.held": "imports `@bitfield/slot-protocol`, the retired package runtime's protocol package, which this tree does not hold",
+    "tools/serve-and-publish-a-package-sets-public-app/__tests__/restarting-is-not-rebuilding.test.mjs.held": "imports `pngjs` (and the browser checks `playwright`), which this repository does not depend on",
+    "tools/serve-and-publish-a-package-sets-public-app/__tests__/publication-failure-semantics.test.ts.held": "fails against the committed bytes of the package: the committed boundary file and the committed test disagree (the package's own working tree holds uncommitted edits to both, not carried because a receipt needs a source commit)",
+    "tools/serve-and-publish-a-package-sets-public-app/__tests__/selected-experience-offline-build.test.mjs.held": "imports `@bitfield/slot-protocol`, the retired package runtime's protocol package, which this tree does not hold",
+    "tools/serve-and-publish-a-package-sets-public-app/__tests__/selected-experience-publication-e2e.test.mjs.held": "imports `@bitfield/slot-protocol`, the retired package runtime's protocol package, which this tree does not hold",
+    "tools/serve-and-publish-a-package-sets-public-app/__tests__/selected-publication-targets.test.ts.held": "the file it loads uses a TypeScript parameter property, which node's type stripping refuses (needs a TypeScript transform, not a strip)",
+    "tools/serve-and-publish-a-package-sets-public-app/__tests__/two-accounts-never-share-a-runtime-instance.test.mjs.held": "scans `package-sets/` of the original repository for every installed package set; this tree holds none",
+    "tools/serve-and-publish-a-package-sets-public-app/__tests__/seller-share-sell-flow.test.ts.held": "fails against the committed bytes of the package: the committed boundary file and the committed test disagree (the package's own working tree holds uncommitted edits to both, not carried because a receipt needs a source commit)",
+    "tools/serve-and-publish-a-package-sets-public-app/do-work/public-selection-transition.test.ts.held": "the file it loads uses a TypeScript parameter property, which node's type stripping refuses (needs a TypeScript transform, not a strip)",
+    "tools/serve-and-publish-a-package-sets-public-app/processes/offer-price-observations.test.mjs.held": "imports a file of another package that is not at the path the import names in this tree (checkout `read-offers`, ui `format-money`, ui server-rendered-page parts)",
+    "tools/serve-and-publish-a-package-sets-public-app/processes/materialize-hosted-projection-tree.test.mjs.held": "imports `@bitfield/slot-protocol`, the retired package runtime's protocol package, which this tree does not hold",
+    "tools/serve-and-publish-a-package-sets-public-app/processes/prepare-publication-records.test.mjs.held": "imports `@bitfield/slot-protocol`, the retired package runtime's protocol package, which this tree does not hold",
+    "tools/serve-and-publish-a-package-sets-public-app/processes/prove-a-release-host.test.mjs.held": "imports `pngjs` (and the browser checks `playwright`), which this repository does not depend on",
+    "tools/serve-and-publish-a-package-sets-public-app/processes/publish-current-document.test.mjs.held": "imports `pngjs` (and the browser checks `playwright`), which this repository does not depend on",
+    "tools/serve-and-publish-a-package-sets-public-app/processes/publish-reviewed-article.test.mjs.held": "imports `pngjs` (and the browser checks `playwright`), which this repository does not depend on",
+    "tools/serve-and-publish-a-package-sets-public-app/processes/render-article-candidate.test.mjs.held": "imports `pngjs` (and the browser checks `playwright`), which this repository does not depend on",
+    "tools/serve-and-publish-a-package-sets-public-app/processes/run-provider-deploy.test.mjs.held": "imports `pngjs` (and the browser checks `playwright`), which this repository does not depend on",
+    "tools/serve-and-publish-a-package-sets-public-app/read-data/__tests__/page-cta-price.test.ts.held": "imports a file of another package that is not at the path the import names in this tree (checkout `read-offers`, ui `format-money`, ui server-rendered-page parts)",
+    "tools/serve-and-publish-a-package-sets-public-app/__tests__/buyer-runtime.browser.spec.ts.held": "a Playwright browser spec; this repository runs node tests only and does not depend on `playwright`",
+    "tools/serve-and-publish-a-package-sets-public-app/__tests__/seller-share-sell-flow.browser.spec.ts.held": "a Playwright browser spec; this repository runs node tests only and does not depend on `playwright`",
+    "tools/serve-and-publish-a-package-sets-public-app/__tests__/t14-remaining-accessibility.browser.spec.ts.held": "a Playwright browser spec; this repository runs node tests only and does not depend on `playwright`"
+  },
+  "still_calls": {
+    "tools/serve-and-publish-a-package-sets-public-app/__tests__/built-entry-server.mjs": [
+      "retired package build alias"
+    ],
+    "tools/serve-and-publish-a-package-sets-public-app/__tests__/runtime-kit-test-tools.mjs": [
+      "retired package runtime"
+    ],
+    "tools/serve-and-publish-a-package-sets-public-app/do-work/public-selection-transition.ts": [
+      "retired package runtime"
+    ],
+    "tools/serve-and-publish-a-package-sets-public-app/do-work/selected-publication-targets.ts": [
+      "retired package runtime"
+    ],
+    "tools/serve-and-publish-a-package-sets-public-app/processes/materialize-hosted-projection-tree.mjs": [
+      "retired slot protocol"
+    ],
+    "tools/serve-and-publish-a-package-sets-public-app/processes/prepare-publication-records.mjs": [
+      "retired slot protocol"
+    ],
+    "tools/serve-and-publish-a-package-sets-public-app/processes/public-entry-server-source.mjs": [
+      "retired package build alias"
+    ]
+  }
+}

@@ -1,0 +1,185 @@
+{
+  "about": "Files restored byte for byte from the retired bitfield-packages repository (standing order: originals move wholesale, no rewrites from scratch).",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "home-path-made-relative",
+      "find": "[/]Users[/][b]rian[a]khtar/dev/bitfield-packages",
+      "replace": "bitfield-packages",
+      "means": "A path in one person's home folder names that person; made relative to the repository folder it was in."
+    },
+    {
+      "id": "fixture-field-of-work-made-generic",
+      "find": "[T]ennis",
+      "replace": "Gardening",
+      "means": "A fixture title named one person's field of work; a public tree holds made-up fixtures only."
+    },
+    {
+      "id": "fixture-field-of-work-made-generic-lower",
+      "find": "[t]ennis",
+      "replace": "gardening",
+      "means": "A fixture word named one person's field of work; a public tree holds made-up fixtures only."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/plan-lifecycle/README.md",
+      "commit": "0a34625124c92f7f752c86d20e191784f9ec82b4",
+      "to": "tools/change-pause-resume-or-cancel-a-plan/from-bitfield-packages/README.md",
+      "source_identity": "1f:0ffddf43cf5cb8939924195cd2f54d6f1e37ef4db851f561f8c448d3a290feb0",
+      "calls": [
+        "home-path-made-relative"
+      ],
+      "identity": "1f:b1f9ebb46fbaa54612f43aa3d6501e31a0cf70447c188bb34d78666f1ee2a130"
+    },
+    {
+      "from": "packages/plan-lifecycle/do-work/README.md",
+      "commit": "23ef84d75546817174a290a16c32d4f80adf5042",
+      "to": "tools/change-pause-resume-or-cancel-a-plan/do-work/README.md",
+      "source_identity": "1f:def5f945c379c46b7bd600ebfaeab0cb9b30aaa3fc5990e78cacb28e197d2ee3",
+      "identity": "1f:def5f945c379c46b7bd600ebfaeab0cb9b30aaa3fc5990e78cacb28e197d2ee3"
+    },
+    {
+      "from": "packages/plan-lifecycle/do-work/read-portal-plan-state.ts",
+      "commit": "dbd780bcfba428e03e6f90f092c1955cd3335a52",
+      "to": "tools/change-pause-resume-or-cancel-a-plan/do-work/read-portal-plan-state.ts",
+      "source_identity": "1f:d7db086f0d9aa9dc3a03acd1d8b98b524fec97c165d985a31f258e15ac39a9bc",
+      "identity": "1f:d7db086f0d9aa9dc3a03acd1d8b98b524fec97c165d985a31f258e15ac39a9bc"
+    },
+    {
+      "from": "packages/plan-lifecycle/do-work/request-record-work-action.ts",
+      "commit": "23ef84d75546817174a290a16c32d4f80adf5042",
+      "to": "tools/change-pause-resume-or-cancel-a-plan/do-work/request-record-work-action.ts",
+      "source_identity": "1f:53be88760b14f5dd0007962efeb64213040829341ef9e9df1148e66703d5c8a2",
+      "identity": "1f:a9b459f18d64a2f08d17c245cedab8a49ae8e7e92ba6bbfcab7675f7c8812cf5"
+    },
+    {
+      "from": "packages/plan-lifecycle/do-work/send-plan-lifecycle-event.ts",
+      "commit": "dbd780bcfba428e03e6f90f092c1955cd3335a52",
+      "to": "tools/change-pause-resume-or-cancel-a-plan/do-work/send-plan-lifecycle-event.ts",
+      "source_identity": "1f:cf0c0acd6eeb8bb434e02c37feafb62c25ccb0035346c6a88ac477a2d841f2d6",
+      "identity": "1f:cf0c0acd6eeb8bb434e02c37feafb62c25ccb0035346c6a88ac477a2d841f2d6"
+    },
+    {
+      "from": "packages/plan-lifecycle/index.ts",
+      "commit": "0a34625124c92f7f752c86d20e191784f9ec82b4",
+      "to": "tools/change-pause-resume-or-cancel-a-plan/index.ts",
+      "source_identity": "1f:c7bf71ceba592d9a14bb75c6c4e66a5124f2df15b8eaa8bdeef5b08ad31b1f38",
+      "identity": "1f:8c6299e65cd2ca6b8a4a11604347bda374081a34a050041566920843e4ff18c5"
+    },
+    {
+      "from": "packages/plan-lifecycle/read-data/README.md",
+      "commit": "23ef84d75546817174a290a16c32d4f80adf5042",
+      "to": "tools/change-pause-resume-or-cancel-a-plan/read-data/README.md",
+      "source_identity": "1f:d4050b3a38d9613edfef8b5d47021235b20a4ab1a6a4b097298f95c3676eea0d",
+      "identity": "1f:d4050b3a38d9613edfef8b5d47021235b20a4ab1a6a4b097298f95c3676eea0d"
+    },
+    {
+      "from": "packages/plan-lifecycle/read-data/record-work-model.ts",
+      "commit": "23ef84d75546817174a290a16c32d4f80adf5042",
+      "to": "tools/change-pause-resume-or-cancel-a-plan/read-data/record-work-model.ts",
+      "source_identity": "1f:9430117b880525214806a97f7893a083376f59eb6497019d54ed71090891f3c9",
+      "identity": "1f:9430117b880525214806a97f7893a083376f59eb6497019d54ed71090891f3c9"
+    },
+    {
+      "from": "packages/plan-lifecycle/show-ios-jscore/README.md",
+      "commit": "0a34625124c92f7f752c86d20e191784f9ec82b4",
+      "to": "tools/change-pause-resume-or-cancel-a-plan/show-ios-jscore/README.md",
+      "source_identity": "1f:195dcb9c382fa3904d6939d62fb87050ad5b913ddd35940a93af1776fc122c83",
+      "identity": "1f:195dcb9c382fa3904d6939d62fb87050ad5b913ddd35940a93af1776fc122c83"
+    },
+    {
+      "from": "packages/plan-lifecycle/show-ios-jscore/mount-plan-lifecycle-jscore.js",
+      "commit": "0a34625124c92f7f752c86d20e191784f9ec82b4",
+      "to": "tools/change-pause-resume-or-cancel-a-plan/show-ios-jscore/mount-plan-lifecycle-jscore.js",
+      "source_identity": "1f:8483db68bfb09524c9d6f5f530521fa512d1476d210b54b962ba9b8759fe2408",
+      "identity": "1f:8483db68bfb09524c9d6f5f530521fa512d1476d210b54b962ba9b8759fe2408"
+    },
+    {
+      "from": "packages/plan-lifecycle/show-ios-jscore/mount-plan-lifecycle-jscore.test.ts",
+      "commit": "0a34625124c92f7f752c86d20e191784f9ec82b4",
+      "to": "tools/change-pause-resume-or-cancel-a-plan/show-ios-jscore/mount-plan-lifecycle-jscore.test.ts.held",
+      "source_identity": "1f:e517a8417d2d1271fc42a769e26c2e841ffdcbd1ad5e513d13a8fe2239c16cba",
+      "identity": "1f:fdcb0a46dcc7ce85ac9d9d196aafda00114e73ac3faf591127ddd404d3f49e39"
+    },
+    {
+      "from": "packages/plan-lifecycle/show/README.md",
+      "commit": "0a34625124c92f7f752c86d20e191784f9ec82b4",
+      "to": "tools/change-pause-resume-or-cancel-a-plan/show/README.md",
+      "source_identity": "1f:4e35faea92b3c8b8a89633951565dd6fc76b6b0c06629bc0d9f74b5639826556",
+      "identity": "1f:4e35faea92b3c8b8a89633951565dd6fc76b6b0c06629bc0d9f74b5639826556"
+    },
+    {
+      "from": "packages/plan-lifecycle/show/app-shell/PlanLifecyclePortalSurface.tsx",
+      "commit": "dbd780bcfba428e03e6f90f092c1955cd3335a52",
+      "to": "tools/change-pause-resume-or-cancel-a-plan/show/app-shell/PlanLifecyclePortalSurface.tsx",
+      "source_identity": "1f:9982bd79feb4ae936db0a70bdbe74ca09ac6e41384c492b5b0eff5b8d867dae0",
+      "identity": "1f:f0645bb7157355b282e941062508686bfcaf98c66c31d13f5d1d9f2b687af696"
+    },
+    {
+      "from": "packages/plan-lifecycle/show/mount-plan-lifecycle-portal.tsx",
+      "commit": "dbd780bcfba428e03e6f90f092c1955cd3335a52",
+      "to": "tools/change-pause-resume-or-cancel-a-plan/show/mount-plan-lifecycle-portal.tsx",
+      "source_identity": "1f:92893ebbdf57cd3fd211a178c4d9d58467d5a3534110ada5420b41f045f72a05",
+      "identity": "1f:ee78bc67823f41dcceed1cc26bec42e2035d903fa81707da5efbd4f307138b9e"
+    },
+    {
+      "from": "packages/plan-lifecycle/show/plan-lifecycle-surface-descriptor.ts",
+      "commit": "0a34625124c92f7f752c86d20e191784f9ec82b4",
+      "to": "tools/change-pause-resume-or-cancel-a-plan/show/plan-lifecycle-surface-descriptor.ts",
+      "source_identity": "1f:9fe2f0d7e9082e7a3e7ad4f6a924dae737a279be8910102d866e04507a792e63",
+      "identity": "1f:87e49a44e97ad8669ade6c0fe3f3337d30aac27e330ec3d76567adff657c7a7f"
+    },
+    {
+      "from": "packages/plan-lifecycle/tests/README.md",
+      "commit": "23ef84d75546817174a290a16c32d4f80adf5042",
+      "to": "tools/change-pause-resume-or-cancel-a-plan/tests/README.md",
+      "source_identity": "1f:aedf0e6417cbdbdc2a53f1cb0057115218e8c10bc1cd47cae132cfe75ef2cb48",
+      "identity": "1f:aedf0e6417cbdbdc2a53f1cb0057115218e8c10bc1cd47cae132cfe75ef2cb48"
+    },
+    {
+      "from": "packages/plan-lifecycle/tests/read-portal-plan-state.test.ts",
+      "commit": "dbd780bcfba428e03e6f90f092c1955cd3335a52",
+      "to": "tools/change-pause-resume-or-cancel-a-plan/tests/read-portal-plan-state.test.ts.held",
+      "source_identity": "1f:62cc00244f8aa0dadf9640b22decf8d5980261d40b0c2f2a513217d067f38fa1",
+      "identity": "1f:d0898457577bdf7b9d3fdbd4b8eae2f331b2deb8a45ff09850fe48c9fb52be15"
+    },
+    {
+      "from": "packages/plan-lifecycle/tests/record-work-backend.test.ts",
+      "commit": "23ef84d75546817174a290a16c32d4f80adf5042",
+      "to": "tools/change-pause-resume-or-cancel-a-plan/tests/record-work-backend.test.ts.held",
+      "source_identity": "1f:1cb23d47bf356973ec0fb36f38775a8a4248ce3e71a70319dff0805ac53747ee",
+      "calls": [
+        "fixture-field-of-work-made-generic",
+        "fixture-field-of-work-made-generic-lower"
+      ],
+      "identity": "1f:96a4bd14fe1733a985da907a984e66b318877833f1cfae540e4c552268d4557a",
+      "identity_at_move": "1f:9ca34274b9154ceb54004f3466c7c4004a98a7708a958c41b21705f096ad3eb4",
+      "byte_copy_commit": "daa5cc064aee3b91aa75fdb23b451077556784a8"
+    },
+    {
+      "from": "packages/plan-lifecycle/things-to-store-and-run.json",
+      "commit": "e0022dc3e90dd7760015c7086613f85219d54324",
+      "to": "tools/change-pause-resume-or-cancel-a-plan/things-to-store-and-run.json",
+      "source_identity": "1f:806d2a68187f7be304a66240cea8d2e4c4656e51f59a01f28547cc5620a48b58",
+      "identity": "1f:806d2a68187f7be304a66240cea8d2e4c4656e51f59a01f28547cc5620a48b58"
+    }
+  ],
+  "held": {
+    "tools/change-pause-resume-or-cancel-a-plan/tests/read-portal-plan-state.test.ts.held": "reads do-work/read-portal-plan-state.ts, which sends its request through `sendRequestToBitfieldTarget` from `@bitfield/runtime-kit`, the retired package runtime; that call needs the records-door form before the test can load",
+    "tools/change-pause-resume-or-cancel-a-plan/tests/record-work-backend.test.ts.held": "bundles do-work/request-record-work-action.ts, which imports `@bitfield/runtime-kit` (retired package runtime); needs the records-door form before it loads",
+    "tools/change-pause-resume-or-cancel-a-plan/show-ios-jscore/mount-plan-lifecycle-jscore.test.ts.held": "imports things-to-store-and-run.json as a bare JSON module (no `with { type: 'json' }` attribute), which Node refuses; the test also builds the iOS JSCore bundle of the retired package runtime"
+  },
+  "still_calls": {
+    "tools/change-pause-resume-or-cancel-a-plan/do-work/read-portal-plan-state.ts": [
+      "retired package runtime"
+    ],
+    "tools/change-pause-resume-or-cancel-a-plan/do-work/request-record-work-action.ts": [
+      "retired package runtime"
+    ],
+    "tools/change-pause-resume-or-cancel-a-plan/do-work/send-plan-lifecycle-event.ts": [
+      "retired package runtime"
+    ]
+  }
+}

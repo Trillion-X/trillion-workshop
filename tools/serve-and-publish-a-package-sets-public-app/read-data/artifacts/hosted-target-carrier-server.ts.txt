@@ -1,0 +1,93 @@
+// Server-only transport for one authority-bound hosted experience.
+// Projected from Bitfield stored bytes; do not edit generated output.
+
+const textEncoder = new TextEncoder();
+const textDecoder = new TextDecoder("utf-8", { fatal: true });
+
+function requiredText(value: unknown, label: string): string {
+  if (typeof value !== "string" || !value.trim()) {
+    throw new Error(`${label} must be a non-empty string`);
+  }
+  return value;
+}
+
+function carrierUrl(target: string): string {
+  const configured = requiredText(
+    process.env.BITFIELD_TARGET_CARRIER_URL,
+    "BITFIELD_TARGET_CARRIER_URL",
+  );
+  const url = new URL(configured);
+  url.pathname = `${url.pathname.replace(/\/+$/, "")}/target/${encodeURIComponent(target)}`;
+  return url.toString();
+}
+
+function carrierHeaders(): Headers {
+  const headers = new Headers({ "Content-Type": "application/octet-stream" });
+  const token = process.env.BITFIELD_TARGET_ACCESS_TOKEN;
+  if (token) headers.set("X-Bitfield-Target-Access", token);
+  return headers;
+}
+
+type JsonRecord = Record<string, unknown>;
+
+function isRecord(value: unknown): value is JsonRecord {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function requiredRevision(value: unknown, label: string): string {
+  const revision = String(value ?? "").trim();
+  if (!revision) throw new Error(`${label} must be present.`);
+  return revision;
+}
+
+/**
+ * The only transport path for a hosted owner mutation. The route-level
+ * authority gate has already authenticated the browser and attached this
+ * opaque capability; this carrier refuses an unbound owner call.
+ */
+export async function invokeSessionAdmittedOwnerTarget(
+  target: string,
+  request: unknown,
+  signal?: AbortSignal,
+): Promise<unknown> {
+  if (!isRecord(request) || !isRecord(request.ambient_actor) || !isRecord(request.access_decision)) {
+    throw new Error("Hosted owner request is missing server admission.");
+  }
+  const actor = request.ambient_actor;
+  const decision = request.access_decision;
+  requiredText(actor.actor_ref, "ambient_actor.actor_ref");
+  requiredText(actor.session_ref, "ambient_actor.session_ref");
+  const sessionRevision = requiredRevision(actor.session_revision, "ambient_actor.session_revision");
+  if (
+    decision.decision !== "allow"
+    || requiredText(decision.actor_ref, "access_decision.actor_ref") !== actor.actor_ref
+    || requiredText(decision.session_ref, "access_decision.session_ref") !== actor.session_ref
+    || requiredRevision(isRecord(decision.revisions) ? decision.revisions.session_revision : undefined, "access_decision.revisions.session_revision") !== sessionRevision
+    || typeof decision.decision_proof !== "string"
+    || !decision.decision_proof.trim()
+  ) {
+    throw new Error("Hosted owner request has invalid server admission.");
+  }
+  return invokeHostedTarget(target, request, signal);
+}
+
+export async function invokeHostedTarget(
+  target: string,
+  payload: unknown,
+  signal?: AbortSignal,
+): Promise<unknown> {
+  const response = await fetch(carrierUrl(requiredText(target, "target")), {
+    method: "POST",
+    body: textEncoder.encode(JSON.stringify(payload)),
+    cache: "no-store",
+    headers: carrierHeaders(),
+    signal,
+  });
+  const bytes = new Uint8Array(await response.arrayBuffer());
+  const targetStatus = response.headers.get("x-bitfield-target-status");
+  if (!response.ok || (targetStatus !== null && targetStatus !== "0")) {
+    throw new Error("Hosted authority request was denied.");
+  }
+  const text = textDecoder.decode(bytes).trim();
+  return text ? JSON.parse(text) : {};
+}

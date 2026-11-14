@@ -1,0 +1,1177 @@
+{
+  "package": "investment-command",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::investment-command::placeable-surface::investment-command",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "icon": "Activity",
+        "id": "investment-command.panel",
+        "kind": "placeable-surface",
+        "label": "Trading Center",
+        "material_target": "investment-command",
+        "order": 779,
+        "surface_id": "investment-command.panel",
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000000779:investment-command.panel",
+        "package_entry": {
+          "package_name": "investment-command",
+          "entry_name": "investment-command"
+        },
+        "materialTarget": "investment-command",
+        "placementLabels": [
+          "main-workspace"
+        ],
+        "orderKey": "000000779:investment-command.panel",
+        "surface_input": {
+          "trading_surface": "workspace",
+          "frame_fit": "fill"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::investment-command::placeable-surface::investment-command-overview",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "icon": "Activity",
+        "id": "investment-command.overview",
+        "kind": "placeable-surface",
+        "label": "Trading center",
+        "material_target": "investment-command",
+        "order": 779,
+        "surface_id": "investment-command.overview",
+        "placement_labels": [
+          "trading-workspace"
+        ],
+        "placement_order_key": "000000779:investment-command.overview",
+        "package_entry": {
+          "package_name": "investment-command",
+          "entry_name": "investment-command"
+        },
+        "surface_input": {
+          "trading_surface": "overview"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::investment-command::entry::investment-command",
+      "path": [
+        "packages",
+        "investment-command",
+        "entries",
+        "investment-command"
+      ],
+      "payload": {
+        "entry_name": "investment-command",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-investment-command.tsx",
+        "dynamic_read_selector_policy": "declared-provider-input-membership",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-investment-command"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::investment-command::input::market-bars",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "market-bars",
+        "is_default": false,
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "investment-command.market-bars"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::investment-command::input::trading-agent-cycle",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "trading-agent-cycle",
+        "is_default": false,
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          },
+          "projection": {
+            "op": "path",
+            "path": [
+              0
+            ]
+          }
+        },
+        "value_address_label": "agent:trading-momentum.last-cycle"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::investment-command::input::cockpit-fields",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "cockpit-fields",
+        "is_default": false,
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "agent:cockpit-board.fields"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::investment-command::input::cockpit-views",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "cockpit-views",
+        "is_default": false,
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "agent:cockpit-board.views"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::investment-command::input::cockpit-ranges",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "cockpit-ranges",
+        "is_default": false,
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "agent:cockpit-board.ranges"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::investment-command::input::placeable-surface-list-by-address-label",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "placeable-surface-list-by-address-label",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": {
+            "op": "path",
+            "from": "params",
+            "path": [
+              "addressLabel"
+            ]
+          },
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::investment-command::input::placeable-surface-list",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "placeable-surface-list",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "address": "placeable-surface-list::main-workspace",
+            "missing": "empty",
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "placeable-surface-list::main-workspace"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::investment-command::input::placeable-surfaces",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "placeable-surfaces",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "address": "placeable-surfaces",
+            "missing": "empty",
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "placeable-surfaces"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::investment-command::input::investmentCommandWorkspaceLayoutState",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "investmentCommandWorkspaceLayoutState",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "investment-command-workspace-layout-state"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::investment-command::input::layout-presets",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "layout-presets",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "projection": {
+            "fields": [
+              {
+                "column": 0,
+                "key": "id",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "name",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 2,
+                "key": "layout",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              },
+              {
+                "column": 3,
+                "key": "created_at",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              }
+            ],
+            "op": "rows"
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        },
+        "value_address_label": "layout-presets"
+      }
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::investment-command::screen-reply-provider-feed",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "equals": "reply-template"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::investment-command::input::published-records",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "published-records",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": "package::investment-command::screen-reply-provider-feed",
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::investment-command::input::package-entry-by-address-label",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "package-entry-by-address-label",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": {
+            "op": "path",
+            "from": "params",
+            "path": [
+              "addressLabel"
+            ]
+          },
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "bytes"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "investment-command-workspace-layout-state",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "containers": {
+          "trading-workspace-overview": {
+            "id": "trading-workspace-overview",
+            "groupId": "trading-workspace-overview-group"
+          },
+          "trading-workspace-market": {
+            "id": "trading-workspace-market",
+            "groupId": "trading-workspace-market-group"
+          },
+          "trading-workspace-account": {
+            "id": "trading-workspace-account",
+            "groupId": "trading-workspace-account-group"
+          },
+          "trading-workspace-guardrails": {
+            "id": "trading-workspace-guardrails",
+            "groupId": "trading-workspace-guardrails-group"
+          },
+          "trading-workspace-order": {
+            "id": "trading-workspace-order",
+            "groupId": "trading-workspace-order-group"
+          },
+          "trading-workspace-audit": {
+            "id": "trading-workspace-audit",
+            "groupId": "trading-workspace-audit-group"
+          }
+        },
+        "tabGroups": {
+          "trading-workspace-overview-group": {
+            "tabIds": [
+              "trading-workspace-overview-tab"
+            ],
+            "activeTabId": "trading-workspace-overview-tab"
+          },
+          "trading-workspace-market-group": {
+            "tabIds": [
+              "trading-workspace-market-tab"
+            ],
+            "activeTabId": "trading-workspace-market-tab"
+          },
+          "trading-workspace-account-group": {
+            "tabIds": [
+              "trading-workspace-account-tab"
+            ],
+            "activeTabId": "trading-workspace-account-tab"
+          },
+          "trading-workspace-guardrails-group": {
+            "tabIds": [
+              "trading-workspace-guardrails-tab"
+            ],
+            "activeTabId": "trading-workspace-guardrails-tab"
+          },
+          "trading-workspace-order-group": {
+            "tabIds": [
+              "trading-workspace-order-tab"
+            ],
+            "activeTabId": "trading-workspace-order-tab"
+          },
+          "trading-workspace-audit-group": {
+            "tabIds": [
+              "trading-workspace-audit-tab"
+            ],
+            "activeTabId": "trading-workspace-audit-tab"
+          }
+        },
+        "tabs": {
+          "trading-workspace-overview-tab": {
+            "id": "trading-workspace-overview-tab",
+            "title": "Trading center",
+            "target": null,
+            "packageEntry": {
+              "packageName": "investment-command",
+              "entryName": "investment-command"
+            },
+            "materialTarget": "investment-command",
+            "icon": "Activity",
+            "closable": true,
+            "metadata": {
+              "placeable_surface_id": "investment-command.overview",
+              "placeable_surface_material_target": "investment-command",
+              "surfaceInput": {
+                "trading_surface": "overview"
+              }
+            }
+          },
+          "trading-workspace-market-tab": {
+            "id": "trading-workspace-market-tab",
+            "title": "Market data",
+            "target": null,
+            "packageEntry": {
+              "packageName": "market-data-feed",
+              "entryName": "market-data-feed"
+            },
+            "materialTarget": "market-data-feed",
+            "icon": "Radar",
+            "closable": true,
+            "metadata": {
+              "placeable_surface_id": "market-data-feed.panel",
+              "placeable_surface_material_target": "market-data-feed"
+            }
+          },
+          "trading-workspace-account-tab": {
+            "id": "trading-workspace-account-tab",
+            "title": "Account",
+            "target": null,
+            "packageEntry": {
+              "packageName": "portfolio-connector",
+              "entryName": "portfolio-connector"
+            },
+            "materialTarget": "portfolio-connector",
+            "icon": "Wallet",
+            "closable": true,
+            "metadata": {
+              "placeable_surface_id": "portfolio-connector.panel",
+              "placeable_surface_material_target": "portfolio-connector"
+            }
+          },
+          "trading-workspace-guardrails-tab": {
+            "id": "trading-workspace-guardrails-tab",
+            "title": "Guardrails",
+            "target": null,
+            "packageEntry": {
+              "packageName": "permission-lease",
+              "entryName": "permission-lease"
+            },
+            "materialTarget": "permission-lease",
+            "icon": "ShieldCheck",
+            "closable": true,
+            "metadata": {
+              "placeable_surface_id": "permission-lease.panel",
+              "placeable_surface_material_target": "permission-lease"
+            }
+          },
+          "trading-workspace-order-tab": {
+            "id": "trading-workspace-order-tab",
+            "title": "Order",
+            "target": null,
+            "packageEntry": {
+              "packageName": "trade-order",
+              "entryName": "trade-order"
+            },
+            "materialTarget": "trade-order",
+            "icon": "SendHorizontal",
+            "closable": true,
+            "metadata": {
+              "placeable_surface_id": "trade-order.panel",
+              "placeable_surface_material_target": "trade-order"
+            }
+          },
+          "trading-workspace-audit-tab": {
+            "id": "trading-workspace-audit-tab",
+            "title": "Order history",
+            "target": null,
+            "packageEntry": {
+              "packageName": "trade-audit",
+              "entryName": "trade-audit"
+            },
+            "materialTarget": "trade-audit",
+            "icon": "BarChart3",
+            "closable": true,
+            "metadata": {
+              "placeable_surface_id": "trade-audit.panel",
+              "placeable_surface_material_target": "trade-audit"
+            }
+          }
+        },
+        "layouts": [
+          {
+            "type": "tiled",
+            "root": {
+              "kind": "split",
+              "dir": "row",
+              "children": [
+                {
+                  "kind": "split",
+                  "dir": "column",
+                  "children": [
+                    {
+                      "kind": "leaf",
+                      "containerId": "trading-workspace-overview"
+                    },
+                    {
+                      "kind": "leaf",
+                      "containerId": "trading-workspace-account"
+                    }
+                  ],
+                  "sizes": [
+                    0.58,
+                    0.42
+                  ]
+                },
+                {
+                  "kind": "split",
+                  "dir": "column",
+                  "children": [
+                    {
+                      "kind": "leaf",
+                      "containerId": "trading-workspace-market"
+                    },
+                    {
+                      "kind": "leaf",
+                      "containerId": "trading-workspace-order"
+                    }
+                  ],
+                  "sizes": [
+                    0.62,
+                    0.38
+                  ]
+                },
+                {
+                  "kind": "split",
+                  "dir": "column",
+                  "children": [
+                    {
+                      "kind": "leaf",
+                      "containerId": "trading-workspace-guardrails"
+                    },
+                    {
+                      "kind": "leaf",
+                      "containerId": "trading-workspace-audit"
+                    }
+                  ],
+                  "sizes": [
+                    0.44,
+                    0.56
+                  ]
+                }
+              ],
+              "sizes": [
+                0.28,
+                0.46,
+                0.26
+              ]
+            }
+          },
+          {
+            "type": "floating",
+            "containers": [
+              {
+                "containerId": "trading-workspace-overview",
+                "x": 40,
+                "y": 64,
+                "w": 420,
+                "h": 480,
+                "z": 1
+              },
+              {
+                "containerId": "trading-workspace-market",
+                "x": 480,
+                "y": 64,
+                "w": 720,
+                "h": 500,
+                "z": 2
+              },
+              {
+                "containerId": "trading-workspace-account",
+                "x": 40,
+                "y": 564,
+                "w": 420,
+                "h": 280,
+                "z": 3
+              },
+              {
+                "containerId": "trading-workspace-guardrails",
+                "x": 1220,
+                "y": 64,
+                "w": 360,
+                "h": 340,
+                "z": 4
+              },
+              {
+                "containerId": "trading-workspace-order",
+                "x": 480,
+                "y": 584,
+                "w": 720,
+                "h": 260,
+                "z": 5
+              },
+              {
+                "containerId": "trading-workspace-audit",
+                "x": 1220,
+                "y": 424,
+                "w": 360,
+                "h": 420,
+                "z": 6
+              }
+            ],
+            "camera": {
+              "scale": 1,
+              "tx": 0,
+              "ty": 0,
+              "min": 0.55,
+              "max": 1.75
+            }
+          },
+          {
+            "type": "overlay",
+            "containers": []
+          }
+        ],
+        "surface": "grid",
+        "focusedContainerId": "trading-workspace-market",
+        "maximizedContainerId": null
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "investment-command.market-bars",
+      "path": [
+        "packages",
+        "investment-command",
+        "generated-values",
+        "market-bars"
+      ],
+      "payload": null,
+      "payload_base64": "W10=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::investment-command::surface-recipe::trading-center",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "investment-command.surface-recipe",
+        "title": "Trading Center",
+        "eyebrow": "Live trading cockpit",
+        "emptyTitle": "Connect market data",
+        "emptyCopy": "No fake candles. Connect market data and the chart appears.",
+        "liveTitle": "Market price",
+        "setupLabel": "Connect market data",
+        "marketBarsInput": "market-bars",
+        "setupSurface": {
+          "id": "service-connections.settings",
+          "title": "Outside Accounts and Keys",
+          "materialTarget": "service-connections",
+          "packageEntry": {
+            "packageName": "service-connections",
+            "entryName": "service-connections"
+          }
+        },
+        "primaryAction": {
+          "label": "Run paper order",
+          "target": "slot::workflow",
+          "definitionId": "action:autonomous-paper-trading-cycle",
+          "includeSteps": true,
+          "includeOutput": true,
+          "input": {
+            "strategy_ref": {
+              "address": "package::market-data-feed::strategy::default-paper-momentum"
+            },
+            "signal_ref": {
+              "address": "package::market-data-feed::signal::default-paper-cycle"
+            },
+            "account_ref": {
+              "address": "package::portfolio-connector::paper-account::default"
+            },
+            "permission_lease_ref": {
+              "address": "package::permission-lease::lease::default-paper-trading"
+            },
+            "instrument_ref": {
+              "symbol": "AAPL",
+              "asset_class": "equity"
+            },
+            "risk_limits_ref": {
+              "address": "package::market-data-feed::risk-limits::default-paper"
+            }
+          }
+        },
+        "ownerRefs": [
+          {
+            "id": "market-data-feed",
+            "label": "Market data",
+            "status": "Not connected",
+            "role": "Live prices feed the chart and every order check.",
+            "surfaceRef": "package::market-data-feed::placeable-surface::market-data-feed"
+          },
+          {
+            "id": "portfolio-connector",
+            "label": "Account",
+            "status": "Not connected",
+            "role": "Your balance and positions, straight from the broker.",
+            "surfaceRef": "package::portfolio-connector::placeable-surface::portfolio-connector"
+          },
+          {
+            "id": "permission-lease",
+            "label": "Guardrails",
+            "status": "Paper only",
+            "role": "Every order is checked here before it can go live.",
+            "surfaceRef": "package::permission-lease::placeable-surface::permission-lease"
+          },
+          {
+            "id": "trade-order",
+            "label": "Orders",
+            "status": "Paper trading",
+            "role": "Orders run on paper until you switch them live.",
+            "surfaceRef": "package::trade-order::placeable-surface::trade-order"
+          },
+          {
+            "id": "trade-audit",
+            "label": "Audit",
+            "status": "Append-only",
+            "role": "Every order outcome is reviewed here as evidence.",
+            "surfaceRef": "package::trade-audit::placeable-surface::trade-audit"
+          }
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-investment-command",
+      "source_path": "built-stored-bytes/entry-bytes-investment-command",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-investment-command.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::investment-command::input::selector-source-by-address-label",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "selector-source-by-address-label",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": {
+            "op": "path",
+            "from": "params",
+            "path": [
+              "addressLabel"
+            ]
+          },
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "agent:cockpit-board.fields",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "visual-database.fields",
+        "version": 1,
+        "descriptors": [
+          {
+            "id": "equity",
+            "label": "Equity",
+            "role": "headline",
+            "order": 0,
+            "shape": "money",
+            "paths": [
+              [
+                "equity"
+              ],
+              [
+                "payload",
+                "equity"
+              ]
+            ],
+            "editable": false
+          },
+          {
+            "id": "daily_pl_pct",
+            "label": "Today",
+            "role": "delta",
+            "order": 1,
+            "shape": "signed-percent",
+            "paths": [
+              [
+                "daily_pl_pct"
+              ],
+              [
+                "payload",
+                "daily_pl_pct"
+              ]
+            ],
+            "editable": false
+          },
+          {
+            "id": "buying_power",
+            "label": "Buying power",
+            "role": "metric",
+            "order": 2,
+            "shape": "money",
+            "paths": [
+              [
+                "buying_power"
+              ],
+              [
+                "payload",
+                "buying_power"
+              ]
+            ],
+            "editable": false
+          },
+          {
+            "id": "unrealized_pl",
+            "label": "Unrealized P&L",
+            "role": "metric",
+            "order": 3,
+            "shape": "money2",
+            "paths": [
+              [
+                "unrealized_pl"
+              ],
+              [
+                "payload",
+                "unrealized_pl"
+              ]
+            ],
+            "editable": false
+          },
+          {
+            "id": "positions_count",
+            "label": "Positions",
+            "role": "metric",
+            "order": 4,
+            "shape": "integer",
+            "paths": [
+              [
+                "positions_count"
+              ],
+              [
+                "payload",
+                "positions_count"
+              ]
+            ],
+            "editable": false
+          },
+          {
+            "id": "open_orders",
+            "label": "Open orders",
+            "role": "metric",
+            "order": 5,
+            "shape": "integer",
+            "paths": [
+              [
+                "open_orders"
+              ],
+              [
+                "payload",
+                "open_orders"
+              ]
+            ],
+            "editable": false
+          },
+          {
+            "id": "orders_placed",
+            "label": "Placed this cycle",
+            "role": "metric",
+            "order": 6,
+            "shape": "integer",
+            "paths": [
+              [
+                "orders_placed"
+              ],
+              [
+                "payload",
+                "orders_placed"
+              ]
+            ],
+            "editable": false
+          },
+          {
+            "id": "target_pct",
+            "label": "Daily target",
+            "role": "metric",
+            "order": 7,
+            "shape": "percent",
+            "paths": [
+              [
+                "target_pct"
+              ],
+              [
+                "payload",
+                "target_pct"
+              ]
+            ],
+            "editable": false
+          },
+          {
+            "id": "momentum_threshold_pct",
+            "label": "Momentum gate",
+            "role": "metric",
+            "order": 8,
+            "shape": "percent",
+            "paths": [
+              [
+                "momentum_threshold_pct"
+              ],
+              [
+                "payload",
+                "momentum_threshold_pct"
+              ]
+            ],
+            "editable": false
+          }
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "agent:cockpit-board.views",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "visual-database.views",
+        "version": 1,
+        "source": "signals",
+        "descriptors": [
+          {
+            "id": "symbol",
+            "label": "Symbol",
+            "role": "title",
+            "order": 0,
+            "shape": "text",
+            "paths": [
+              [
+                "symbol"
+              ],
+              [
+                "payload",
+                "symbol"
+              ]
+            ],
+            "editable": false
+          },
+          {
+            "id": "momentum_pct",
+            "label": "Momentum",
+            "role": "badge",
+            "order": 1,
+            "shape": "signed-percent",
+            "paths": [
+              [
+                "momentum_pct"
+              ],
+              [
+                "payload",
+                "momentum_pct"
+              ]
+            ],
+            "editable": false
+          },
+          {
+            "id": "buy",
+            "label": "Signal",
+            "role": "status",
+            "order": 2,
+            "shape": "choice",
+            "paths": [
+              [
+                "buy"
+              ],
+              [
+                "payload",
+                "buy"
+              ]
+            ],
+            "editable": false,
+            "domain": {
+              "values": [
+                {
+                  "id": "true",
+                  "label": "Buy",
+                  "tone": "success",
+                  "order": 0,
+                  "pulse": true
+                },
+                {
+                  "id": "false",
+                  "label": "Hold",
+                  "tone": "neutral",
+                  "order": 1
+                }
+              ]
+            }
+          }
+        ],
+        "views": [
+          {
+            "id": "signals",
+            "label": "Signals",
+            "kind": "table",
+            "order": 0,
+            "lanes": [],
+            "filters": []
+          }
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "agent:cockpit-board.ranges",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "visual-database.domain",
+        "values": [
+          {
+            "id": "1D",
+            "label": "1D",
+            "order": 0
+          },
+          {
+            "id": "1W",
+            "label": "1W",
+            "order": 1
+          },
+          {
+            "id": "1M",
+            "label": "1M",
+            "order": 2
+          },
+          {
+            "id": "3M",
+            "label": "3M",
+            "order": 3
+          },
+          {
+            "id": "1Y",
+            "label": "1Y",
+            "order": 4
+          },
+          {
+            "id": "All",
+            "label": "All",
+            "order": 5
+          }
+        ]
+      },
+      "remove": false
+    }
+  ]
+}

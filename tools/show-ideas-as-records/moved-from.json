@@ -1,0 +1,63 @@
+{
+  "about": "Files restored byte for byte from the retired bitfield-packages repository (standing order: originals move wholesale, no rewrites from scratch).",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/ideas/__tests__/package-data-contract.test.ts",
+      "commit": "7229c0c1d5311ff11cc55bb6ccf31843fe305b83",
+      "to": "tools/show-ideas-as-records/__tests__/package-data-contract.test.ts",
+      "source_identity": "1f:4c74a9dabda050c2b2f7e38806fb1ffb2741ba053a10b1633e9a321465ebbba5",
+      "identity": "1f:7560ae74d90086b28bf666253c49ce86ff9a883f0eddab5fa0b69a952dc53056"
+    },
+    {
+      "from": "packages/ideas/read-data/__tests__/read-ideas.test.ts",
+      "commit": "ac80a8a835867f7650df4e7e148a9025c0c1da22",
+      "to": "tools/show-ideas-as-records/read-data/__tests__/read-ideas.test.ts",
+      "source_identity": "1f:ed5f0570d783ca549f211fc1fd3114eefb82ff04f7531ceb3e331e0b088c797b",
+      "identity": "1f:0eb3345b7047992f02c419906e40b9f321ce1962037500b8ec6ae098ab1ee775"
+    },
+    {
+      "from": "packages/ideas/read-data/read-idea-lineage.ts",
+      "commit": "ac80a8a835867f7650df4e7e148a9025c0c1da22",
+      "to": "tools/show-ideas-as-records/read-data/read-idea-lineage.ts",
+      "source_identity": "1f:6be070f261e576d43744e477c4c2b931e2ba06b5835bba2e1a4e96139d1ad913",
+      "identity": "1f:4b50f597c486b8376eeae669db6fd6909f3e4337b30c9ef9d990ae5d21cc6bf4"
+    },
+    {
+      "from": "packages/ideas/read-data/read-idea-projects.ts",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/show-ideas-as-records/read-data/read-idea-projects.ts",
+      "source_identity": "1f:e5cda3723d7e88bf86bf7adef313c3b9644adf787bd81de4e49c8c2e4617cfae",
+      "identity": "1f:e5cda3723d7e88bf86bf7adef313c3b9644adf787bd81de4e49c8c2e4617cfae"
+    },
+    {
+      "from": "packages/ideas/read-data/read-ideas.ts",
+      "commit": "ac80a8a835867f7650df4e7e148a9025c0c1da22",
+      "to": "tools/show-ideas-as-records/read-data/read-ideas.ts",
+      "source_identity": "1f:78a482882b08da4b128c82ef99274c0a6bfe2934263b73e1c5b917b023b59d5a",
+      "identity": "1f:e9281bfa3e9ca0ce9ede1efd75836463fb603581cd0042e67561cedfe5af8e97"
+    },
+    {
+      "from": "packages/ideas/show/mount-ideas.tsx",
+      "commit": "ac80a8a835867f7650df4e7e148a9025c0c1da22",
+      "to": "tools/show-ideas-as-records/show/mount-ideas.tsx",
+      "source_identity": "1f:9a455c1e9b092fcd98b6ce26f42988f1f5ca7f510104d8b17e107cf9e5fc5342",
+      "identity": "1f:7ce506c636ae9dfc369c43df2f2373a450ac2307cc4b37038d2a11caa3ff704c"
+    },
+    {
+      "from": "packages/ideas/things-to-store-and-run.json",
+      "commit": "e0022dc3e90dd7760015c7086613f85219d54324",
+      "to": "tools/show-ideas-as-records/things-to-store-and-run.json",
+      "source_identity": "1f:ce2f6cbf3abd7303695fe0ac5bdebc609599f4126e85b54873bdebcf7dfb9c59",
+      "identity": "1f:ce2f6cbf3abd7303695fe0ac5bdebc609599f4126e85b54873bdebcf7dfb9c59"
+    }
+  ],
+  "still_calls": {
+    "tools/show-ideas-as-records/show/mount-ideas.tsx": [
+      "a package path of the old app that is not in this tree",
+      "retired package runtime"
+    ]
+  }
+}

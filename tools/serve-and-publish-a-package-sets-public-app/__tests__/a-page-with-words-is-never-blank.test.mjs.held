@@ -1,0 +1,87 @@
+// A PAGE THAT HAS WORDS MUST NEVER SERVE A BLANK ONE.
+//
+// gettrillion.ai answered 200 for weeks with nothing on it. It declared an
+// island bundle, the bundle was never built by anything, the browser 404d it,
+// and the mount element stayed empty. Every check that asked whether the site
+// was up said yes, because it was up. It just had nothing in it.
+//
+// So the test is not "does it answer" but "is there anything to read".
+import { strict as assert } from 'node:assert';
+import test from 'node:test';
+
+import {
+  escapeHtml,
+  pageSectionsHtml,
+  pageShellHtml,
+} from '../../ui/show/server-rendered-page/page-sections-html.mjs';
+
+const PAGE = {
+  title: 'Trillion',
+  island: { mount_element_id: 'trillion-landing-root', bundle_url: '/assets/trillion-landing/app.js' },
+  sections: [
+    { emphasis: 'hero', heading: 'Trillion finds the needle mover.', actions: [{ label: 'Start free', href: '/go' }] },
+    { heading: 'One price', body: '$100 a month, after a 7-day free trial.' },
+  ],
+};
+
+test('the words are inside the mount element, so a missing bundle still reads', () => {
+  const html = pageShellHtml(PAGE);
+  assert.ok(html.includes('Trillion finds the needle mover.'));
+  assert.ok(html.includes('$100 a month, after a 7-day free trial.'));
+  // Inside the element the bundle would mount over, not beside it: a bundle
+  // that does arrive replaces this content rather than appearing under it.
+  const mount = html.indexOf('id="trillion-landing-root"');
+  const closingBody = html.indexOf('</body>');
+  const heading = html.indexOf('Trillion finds the needle mover.');
+  assert.ok(mount > 0 && heading > mount && heading < closingBody);
+});
+
+test('a page that declares a bundle still gets it, so hydration is unaffected', () => {
+  assert.ok(pageShellHtml(PAGE).includes('src="/assets/trillion-landing/app.js"'));
+});
+
+// The exact regression: an island, no sections. Nothing to read.
+test('a page with no words renders an empty mount element and says nothing', () => {
+  const html = pageShellHtml({ island: { mount_element_id: 'root', bundle_url: '/a.js' } });
+  assert.ok(html.includes('<div id="root"></div>'));
+});
+
+test('a page that can be read does not bounce a reader who has no scripting', () => {
+  const withWords = pageShellHtml({ ...PAGE, island: { ...PAGE.island, noscript_route: '/classic' } });
+  assert.equal(withWords.includes('http-equiv="refresh"'), false);
+  // With nothing to read, the redirect is still the best it can do.
+  const withoutWords = pageShellHtml({ island: { noscript_route: '/classic' } });
+  assert.ok(withoutWords.includes('http-equiv="refresh"'));
+});
+
+test('a section holding nothing renders nothing rather than empty spacing', () => {
+  assert.equal(pageSectionsHtml([{}, { items: [] }, { actions: [] }]), '');
+});
+
+// A description is DATA and DATA can carry anything, including a quote mark
+// and a destination that is not a destination.
+test('copy and destinations from data cannot become markup or a script', () => {
+  const html = pageSectionsHtml([{
+    heading: '<script>alert(1)</script>',
+    actions: [
+      { label: 'Tap', href: 'javascript:alert(1)' },
+      { label: 'Fine', href: 'https://example.com/a?b=1&c=2' },
+    ],
+  }]);
+  assert.equal(html.includes('<script>'), false);
+  assert.ok(html.includes('&lt;script&gt;'));
+  // A destination this owner will not emit becomes plain text, so the words
+  // survive and the link does not.
+  assert.equal(html.includes('javascript:'), false);
+  assert.ok(html.includes('<span class="page-action">Tap</span>'));
+  assert.ok(html.includes('href="https://example.com/a?b=1&amp;c=2"'));
+});
+
+test('an emphasis that is not a plain word is dropped rather than written', () => {
+  assert.ok(pageSectionsHtml([{ heading: 'A', emphasis: 'hero' }]).includes('page-section--hero'));
+  assert.equal(pageSectionsHtml([{ heading: 'A', emphasis: '" onload="x' }]).includes('onload'), false);
+});
+
+test('escaping covers the characters that end an attribute or a tag', () => {
+  assert.equal(escapeHtml(`<&">'`), '&lt;&amp;&quot;&gt;&#39;');
+});

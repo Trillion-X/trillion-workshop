@@ -1,0 +1,51 @@
+{
+  "about": "Files restored byte for byte from the retired bitfield-packages repository (standing order: originals move wholesale, no rewrites from scratch).",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "fixture-field-of-work-made-generic-lower",
+      "find": "[t]ennis",
+      "replace": "gardening",
+      "means": "A fixture word named one person's field of work; a public tree holds made-up fixtures only."
+    },
+    {
+      "id": "a-real-person-named-in-a-comment-made-generic",
+      "find": "[f]ederer",
+      "replace": "example-person",
+      "means": "A well-known real person's name in a test's word list; a public tree holds made-up names only."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/how-someone-does-their-thing/README.md",
+      "commit": "3af117a9461e638c154f6702f2803a9e5171aaa7",
+      "to": "tools/how-someone-does-their-thing/from-bitfield-packages-how-someone-does-their-thing/README.md",
+      "source_identity": "1f:d3fff9cf46b4bce80b77603f72f34dede0f8cad815904d788b0a507269e8bfff",
+      "identity": "1f:d3fff9cf46b4bce80b77603f72f34dede0f8cad815904d788b0a507269e8bfff"
+    },
+    {
+      "from": "packages/how-someone-does-their-thing/__tests__/profile-chain.conformance.test.ts",
+      "commit": "960421e3f4e0ce1cfaacd17e652170d03234b219",
+      "to": "tools/how-someone-does-their-thing/__tests__/profile-chain.conformance.test.ts.held",
+      "source_identity": "1f:9d4b4082bab309e5f2f40486c74a499fed4cc8c62ff6473039cd13090bad7bd8",
+      "calls": [
+        "fixture-field-of-work-made-generic-lower",
+        "a-real-person-named-in-a-comment-made-generic"
+      ],
+      "identity": "1f:586edfe274d2ffbcec39c8f1fdfab48f7ceb046909f8fe1aed76c9d154194627",
+      "identity_at_move": "1f:58351000064cb39e813f3f5da7d20af2c22f9b048b1b0f826c15f56a99ad903a",
+      "byte_copy_commit": "daa5cc064aee3b91aa75fdb23b451077556784a8"
+    },
+    {
+      "from": "packages/how-someone-does-their-thing/things-to-store-and-run.json",
+      "commit": "d9f9626296f01f91fea7b2c509f6c6d84f822a09",
+      "to": "tools/how-someone-does-their-thing/from-bitfield-packages-how-someone-does-their-thing/things-to-store-and-run.json",
+      "source_identity": "1f:5f8bd664438c832a21a646f5ecec8b64cea097354e57d54aac18b33ff205451b",
+      "identity": "1f:5f8bd664438c832a21a646f5ecec8b64cea097354e57d54aac18b33ff205451b"
+    }
+  ],
+  "held": {
+    "tools/how-someone-does-their-thing/__tests__/profile-chain.conformance.test.ts.held": "reads the things-to-store-and-run.json of two sibling packages (how-someone-does-their-thing and profile-a-creator-or-topic) by relative path out of its own folder; the second package is not carried here, and the wiring it locks (the retired slot::workflow dispatch of action:run-ai-records-production) has no engine in this tree"
+  }
+}

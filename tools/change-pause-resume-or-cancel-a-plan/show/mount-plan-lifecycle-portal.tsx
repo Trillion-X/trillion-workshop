@@ -1,0 +1,20 @@
+import React from 'react';
+import { ErrorBoundary } from '../../ui/show/error-boundary';
+import { mountReactSurface } from '../../ui/show/react-surface-mount';
+import { PlanLifecyclePortalSurface } from './app-shell/PlanLifecyclePortalSurface.tsx';
+
+type MountArgs = {
+  el: HTMLElement;
+};
+
+function PlanLifecyclePortalRoot() {
+  return (
+    <ErrorBoundary zoneName="plan-lifecycle-portal">
+      <PlanLifecyclePortalSurface />
+    </ErrorBoundary>
+  );
+}
+
+export default function mount({ el }: MountArgs) {
+  return mountReactSurface(el, <PlanLifecyclePortalRoot />);
+}

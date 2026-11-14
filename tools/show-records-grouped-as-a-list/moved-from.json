@@ -1,0 +1,131 @@
+{
+  "about": "Files restored byte for byte from the retired bitfield-packages repository (standing order: originals move wholesale, no rewrites from scratch).",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "home-path-made-relative",
+      "find": "[/]Users[/][b]rian[a]khtar/dev/bitfield-packages",
+      "replace": "bitfield-packages",
+      "means": "A path in one person's home folder names that person; made relative to the repository folder it was in."
+    },
+    {
+      "id": "fixture-field-of-work-made-generic-lower",
+      "find": "[t]ennis",
+      "replace": "gardening",
+      "means": "A fixture word named one person's field of work; a public tree holds made-up fixtures only."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/group-list/README.md",
+      "commit": "5631fcb078b8c153f993ac9abeadc3e2f4b8b58e",
+      "to": "tools/show-records-grouped-as-a-list/from-bitfield-packages/README.md",
+      "source_identity": "1f:d5775e9c8942eb09122d912ca2a1ff16c1ffc196dbe7a3e3097ca458fcabe91e",
+      "calls": [
+        "home-path-made-relative"
+      ],
+      "identity": "1f:c49b4210adbd529ff613356beb400d30bf567334e2bde9a1f88818d2620fd62f"
+    },
+    {
+      "from": "packages/group-list/data/record-projection-descriptors.json",
+      "commit": "5631fcb078b8c153f993ac9abeadc3e2f4b8b58e",
+      "to": "tools/show-records-grouped-as-a-list/data/record-projection-descriptors.json",
+      "source_identity": "1f:c64d3b22439fc79e86eb38bc246f1a4c7413e644b45472ad7b6184bf7a979633",
+      "identity": "1f:c64d3b22439fc79e86eb38bc246f1a4c7413e644b45472ad7b6184bf7a979633"
+    },
+    {
+      "from": "packages/group-list/do-work/README.md",
+      "commit": "5631fcb078b8c153f993ac9abeadc3e2f4b8b58e",
+      "to": "tools/show-records-grouped-as-a-list/do-work/README.md",
+      "source_identity": "1f:ad4d411ee72e122e611c712d003c2749bf1ed0d3de20b4798168f68aa171fb9e",
+      "identity": "1f:ad4d411ee72e122e611c712d003c2749bf1ed0d3de20b4798168f68aa171fb9e"
+    },
+    {
+      "from": "packages/group-list/do-work/invoke-record-action.mjs",
+      "commit": "5631fcb078b8c153f993ac9abeadc3e2f4b8b58e",
+      "to": "tools/show-records-grouped-as-a-list/do-work/invoke-record-action.mjs",
+      "source_identity": "1f:379fbcb2ea54031f075c0cf05f6ddbdf2b5adac9427140776a3bbcb599079098",
+      "identity": "1f:379fbcb2ea54031f075c0cf05f6ddbdf2b5adac9427140776a3bbcb599079098"
+    },
+    {
+      "from": "packages/group-list/do-work/read-process-session-proof.mjs",
+      "commit": "5631fcb078b8c153f993ac9abeadc3e2f4b8b58e",
+      "to": "tools/show-records-grouped-as-a-list/do-work/read-process-session-proof.mjs",
+      "source_identity": "1f:f184710a2f1e219d5aea40e1b2115fcf12b685c491dfb9b7a193cc6bd02c9f03",
+      "identity": "1f:f184710a2f1e219d5aea40e1b2115fcf12b685c491dfb9b7a193cc6bd02c9f03"
+    },
+    {
+      "from": "packages/group-list/fixtures/record-projection-fixtures.json",
+      "commit": "5631fcb078b8c153f993ac9abeadc3e2f4b8b58e",
+      "to": "tools/show-records-grouped-as-a-list/fixtures/record-projection-fixtures.json",
+      "source_identity": "1f:467a3bd09453233956c58148a96cd67a16c11beff35d014c789f7ede42cc5ea2",
+      "calls": [
+        "fixture-field-of-work-made-generic-lower"
+      ],
+      "identity": "1f:69bcc227bc346c1ebf0cf9ccc3c26114ecf19de1a631a56ab067d73a5ee454cb"
+    },
+    {
+      "from": "packages/group-list/read-data/README.md",
+      "commit": "5631fcb078b8c153f993ac9abeadc3e2f4b8b58e",
+      "to": "tools/show-records-grouped-as-a-list/read-data/README.md",
+      "source_identity": "1f:ee03e49a50d635754414b2cb180aa3ed045d62d068e22ca558fb3901b435247e",
+      "identity": "1f:ee03e49a50d635754414b2cb180aa3ed045d62d068e22ca558fb3901b435247e"
+    },
+    {
+      "from": "packages/group-list/read-data/maintained-projection.mjs",
+      "commit": "5631fcb078b8c153f993ac9abeadc3e2f4b8b58e",
+      "to": "tools/show-records-grouped-as-a-list/read-data/maintained-projection.mjs",
+      "source_identity": "1f:3475332e9481bb46dc86bf6051c3d815f27901fe58d1143b41674cc39481370d",
+      "identity": "1f:3475332e9481bb46dc86bf6051c3d815f27901fe58d1143b41674cc39481370d"
+    },
+    {
+      "from": "packages/group-list/read-data/read-record-projection.mjs",
+      "commit": "5631fcb078b8c153f993ac9abeadc3e2f4b8b58e",
+      "to": "tools/show-records-grouped-as-a-list/read-data/read-record-projection.mjs",
+      "source_identity": "1f:bf4976d74599861cc50a4afd4e46131132d7c59d561aa887c8eb8deb83d78e32",
+      "identity": "1f:bf4976d74599861cc50a4afd4e46131132d7c59d561aa887c8eb8deb83d78e32"
+    },
+    {
+      "from": "packages/group-list/tests/README.md",
+      "commit": "5631fcb078b8c153f993ac9abeadc3e2f4b8b58e",
+      "to": "tools/show-records-grouped-as-a-list/tests/README.md",
+      "source_identity": "1f:a45d091a72774fc9f009beda9ff88f9bc60d726e341f7e4f4c8853824f711682",
+      "calls": [
+        "home-path-made-relative"
+      ],
+      "identity": "1f:0fea5bc24092d1455e5361f475010da1571f7c648eb5ed7b39ea8ca063c919c3"
+    },
+    {
+      "from": "packages/group-list/tests/action-adapter.test.mjs",
+      "commit": "5631fcb078b8c153f993ac9abeadc3e2f4b8b58e",
+      "to": "tools/show-records-grouped-as-a-list/tests/action-adapter.test.mjs",
+      "source_identity": "1f:f81a19ee79783c40658ec90a925c55f4076bf2bd6c10d415f89d5717e1453529",
+      "identity": "1f:f81a19ee79783c40658ec90a925c55f4076bf2bd6c10d415f89d5717e1453529"
+    },
+    {
+      "from": "packages/group-list/tests/boundary.test.mjs",
+      "commit": "8b4c11e9be0733bd09ac6afcdb30382a133f9fcd",
+      "to": "tools/show-records-grouped-as-a-list/tests/boundary.test.mjs",
+      "source_identity": "1f:5e39ed138c515134c3d298085fb82b3538a71a6e56d9b2a11d19a5cdfd3be73a",
+      "identity": "1f:5e39ed138c515134c3d298085fb82b3538a71a6e56d9b2a11d19a5cdfd3be73a"
+    },
+    {
+      "from": "packages/group-list/tests/projection.test.mjs",
+      "commit": "5631fcb078b8c153f993ac9abeadc3e2f4b8b58e",
+      "to": "tools/show-records-grouped-as-a-list/tests/projection.test.mjs",
+      "source_identity": "1f:ea58a1a6766bcd1af92f7bf1bf3675df19a5760c33de3076d2ddd23def260fff",
+      "calls": [
+        "fixture-field-of-work-made-generic-lower"
+      ],
+      "identity": "1f:8c6d9633fbce3ecbabe996ce194d77977a04a4db78ba97799ac036c2e7002271"
+    },
+    {
+      "from": "packages/group-list/things-to-store-and-run.json",
+      "commit": "e0022dc3e90dd7760015c7086613f85219d54324",
+      "to": "tools/show-records-grouped-as-a-list/things-to-store-and-run.json",
+      "source_identity": "1f:642bbc8abc2964441f1e41dbba22a7d0f3942e2b838f2108349bb555b496ad71",
+      "identity": "1f:642bbc8abc2964441f1e41dbba22a7d0f3942e2b838f2108349bb555b496ad71"
+    }
+  ]
+}

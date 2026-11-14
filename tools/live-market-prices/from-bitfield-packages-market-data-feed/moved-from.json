@@ -1,0 +1,79 @@
+{
+  "about": "Files restored byte for byte from the retired bitfield-packages repository (standing order: originals move wholesale, no rewrites from scratch).",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/market-data-feed/read-data/README.md",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/live-market-prices/read-data/README.md",
+      "source_identity": "1f:b1e5a322e444ba1bc93f228a12dd89b1987e894e7d29d4e81c393a052ac4a9d8",
+      "identity": "1f:b1e5a322e444ba1bc93f228a12dd89b1987e894e7d29d4e81c393a052ac4a9d8"
+    },
+    {
+      "from": "packages/market-data-feed/read-data/agent-cycle-surface.ts",
+      "commit": "cf505a116fc14449e6d359278a60ca8827cdb97b",
+      "to": "tools/live-market-prices/read-data/agent-cycle-surface.ts",
+      "source_identity": "1f:6d57662c7d9cc214cf300db6c5764d4f27e8c735c0e3e4abdccb79e77f3bcd2f",
+      "identity": "1f:6d57662c7d9cc214cf300db6c5764d4f27e8c735c0e3e4abdccb79e77f3bcd2f"
+    },
+    {
+      "from": "packages/market-data-feed/read-data/instrument-board.ts",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/live-market-prices/read-data/instrument-board.ts",
+      "source_identity": "1f:0f1f9881e01af5904ef6c8b59f56ec1c692c9bfe7101633c2cf4353afac4654f",
+      "identity": "1f:0f1f9881e01af5904ef6c8b59f56ec1c692c9bfe7101633c2cf4353afac4654f"
+    },
+    {
+      "from": "packages/market-data-feed/read-data/market-board.ts",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/live-market-prices/read-data/market-board.ts",
+      "source_identity": "1f:3f4d67bec3667194a836b25adf229ba97ec36613c7435d3c5a498152cf9cb2ce",
+      "identity": "1f:b170e68fa30464ae75d4880322b274b3a7dcbad5e742cc009cc386a821caf2ad"
+    },
+    {
+      "from": "packages/market-data-feed/read-data/market-data-feed-surface.ts",
+      "commit": "422e50317271fc2e6bc188c0ffc832202b142963",
+      "to": "tools/live-market-prices/read-data/market-data-feed-surface.ts",
+      "source_identity": "1f:28f3ffe48e60c3ff27382194300622a6288afdd46f0bef078e4ea0c8e779b66e",
+      "identity": "1f:28f3ffe48e60c3ff27382194300622a6288afdd46f0bef078e4ea0c8e779b66e"
+    },
+    {
+      "from": "packages/market-data-feed/show/MarketDataFeedPanel.tsx",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/live-market-prices/show/MarketDataFeedPanel.tsx",
+      "source_identity": "1f:ac6e3de634da57d5974b17d2f33958905ba78c5aba38fa2f2202a076a96ce2f3",
+      "identity": "1f:1b1b3f2e0fb783e40bfd7896b8990a7b01067eeeccc3230b02e57194181b67c1"
+    },
+    {
+      "from": "packages/market-data-feed/show/README.md",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/live-market-prices/show/README.md",
+      "source_identity": "1f:1b0e5674a7b0c403e6f7047c9cf761e0206a62ac8218a6aefe68d7d37c82bb9c",
+      "identity": "1f:1b0e5674a7b0c403e6f7047c9cf761e0206a62ac8218a6aefe68d7d37c82bb9c"
+    },
+    {
+      "from": "packages/market-data-feed/show/mount-market-data-feed.tsx",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/live-market-prices/show/mount-market-data-feed.tsx",
+      "source_identity": "1f:fd1a99f535033bcf8629a275ea2d3967243bd54eac5ef98067869d17ddceddb7",
+      "identity": "1f:a3c5a27870f10fa2510b077dfb227b732dfbb805fdca9c2e94b4bb1d3359f757"
+    },
+    {
+      "from": "packages/market-data-feed/things-to-store-and-run.json",
+      "commit": "9c1c1919cdaf9a6842c1751eb380337644e2c958",
+      "to": "tools/live-market-prices/from-bitfield-packages-market-data-feed/things-to-store-and-run.json",
+      "source_identity": "1f:619bfb8b6425a9dade9010b03344501a7627df80810bdf734f40fecffdf583c2",
+      "identity": "1f:619bfb8b6425a9dade9010b03344501a7627df80810bdf734f40fecffdf583c2"
+    }
+  ],
+  "still_calls": {
+    "tools/live-market-prices/read-data/agent-cycle-surface.ts": [
+      "a package path of the old app that is not in this tree"
+    ],
+    "tools/live-market-prices/show/MarketDataFeedPanel.tsx": [
+      "retired package runtime"
+    ]
+  }
+}

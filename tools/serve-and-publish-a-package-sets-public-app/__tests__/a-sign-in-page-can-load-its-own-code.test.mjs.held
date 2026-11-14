@@ -1,0 +1,175 @@
+// A SIGN-IN PAGE MUST BE ABLE TO LOAD ITS OWN CODE.
+//
+// The sign-in page is served by the shared directory instance. Its scripts were
+// not, so a visitor with no session asked for a script and was redirected to the
+// sign-in page, and the browser received a web page where a program should have
+// been. What it then reported was that a module did not provide an export, which
+// is true and sends every reader to look at the module. The page rendered black.
+//
+// This is the same argument the sign-in route itself already won one function
+// above: a page and the things it needs to run are not separable, and a deploy
+// that has to remember them separately is a deploy that can forget.
+import { strict as assert } from 'node:assert';
+import test from 'node:test';
+
+import {
+  isDirectoryRoute,
+  readPerAccountRuntime,
+  resolveRuntimeInstance,
+} from '../processes/runtime-instance-for-this-request.mjs';
+
+const DESCRIPTION = {
+  per_account_runtime: {
+    directory_shell_url: 'http://127.0.0.1:8081',
+    sign_in_route: '/sign-in',
+    directory_route_prefixes: ['/auth/'],
+    workspace: { root_directory: '/somewhere' },
+  },
+};
+
+const binding = readPerAccountRuntime(DESCRIPTION);
+
+test('the instance program the sign-in page loads is answered without a session', () => {
+  assert.equal(isDirectoryRoute(binding, '/src/shell-runtime.js'), true);
+  assert.equal(isDirectoryRoute(binding, '/src/platform-shell-contract.js?bf-static=1f-abc'), true);
+});
+
+test('what the instance says it can do is answered without a session', () => {
+  assert.equal(isDirectoryRoute(binding, '/boot'), true);
+  assert.equal(isDirectoryRoute(binding, '/boot-phase'), true);
+});
+
+test('an app scene is not assumed public before its contents are known', () => {
+  assert.equal(isDirectoryRoute(binding, '/entry-scene'), false);
+});
+
+test('content bytes and live updates require a session', () => {
+  assert.equal(isDirectoryRoute(binding, '/cas/1f20abc'), false);
+  assert.equal(isDirectoryRoute(binding, '/ws'), false);
+});
+
+test('a deploy that lists nothing extra still gets a page that can run', () => {
+  assert.equal(isDirectoryRoute(binding, '/sign-in'), true);
+  assert.equal(isDirectoryRoute(binding, '/auth/callback'), true);
+});
+
+// The point of the split is that a person's work is NOT reachable this way. If
+// this ever passes as a directory route, the isolation is gone.
+test("a person's own work is still not answered without a session", () => {
+  assert.equal(isDirectoryRoute(binding, '/'), false);
+  assert.equal(isDirectoryRoute(binding, '/target/engine.operation.write-batch'), false);
+});
+
+test('an anonymous general read cannot reach the directory or a workspace', async () => {
+  for (const pathname of [
+    '/target/engine.operation.label-addressed',
+    '/target/engine.operation.read-current',
+    '/target/engine.operation.scan-current-under-path',
+  ]) {
+    const decision = await resolveRuntimeInstance({
+      binding,
+      method: 'POST',
+      pathname,
+      headers: {},
+      verifySession: async () => ({}),
+      startWorkspace: async () => {
+        throw new Error('an anonymous read must not start a workspace');
+      },
+    });
+    assert.deepEqual(decision, { kind: 'sign-in-required' }, pathname);
+  }
+});
+
+test('private storage and app scene routes deny anonymous requests', async () => {
+  for (const pathname of [
+    '/entry-scene', '/ws', '/namespace', '/namespace/photos',
+    '/guarded-object/token', '/byte-address/name', '/byte-address-have', '/cas/hash',
+  ]) {
+    const decision = await resolveRuntimeInstance({
+      binding,
+      method: 'GET',
+      pathname,
+      headers: {},
+      verifySession: async () => ({}),
+      startWorkspace: async () => {
+        throw new Error('private data must not open a workspace without a session');
+      },
+    });
+    assert.deepEqual(decision, { kind: 'sign-in-required' }, pathname);
+  }
+});
+
+test('a visitor with no session still cannot change anything', async () => {
+  const decision = await resolveRuntimeInstance({
+    binding,
+    method: 'POST',
+    pathname: '/target/engine.operation.label-addressed',
+    headers: {},
+    verifySession: async () => ({}),
+    startWorkspace: async () => {
+      throw new Error('a visitor with no session must never reach a workspace');
+    },
+  });
+  assert.deepEqual(decision, { kind: 'sign-in-required' });
+});
+
+test('the public sign-in page opens without asking a stalled directory', async () => {
+  const decision = await resolveRuntimeInstance({
+    binding,
+    method: 'GET',
+    pathname: '/sign-in',
+    headers: {},
+    verifySession: async () => {
+      throw new Error('a public sign-in page must not verify a session');
+    },
+    startWorkspace: async () => {
+      throw new Error('the public sign-in page must not open a workspace');
+    },
+  });
+  assert.deepEqual(decision, { kind: 'directory', shellUrl: binding.directoryShellUrl });
+});
+
+test('the things the sign-in page loads are still answered, session or not', async () => {
+  for (const pathname of ['/src/shell-runtime.js', '/boot']) {
+    const decision = await resolveRuntimeInstance({
+      binding,
+      method: 'GET',
+      pathname,
+      headers: {},
+      verifySession: async () => ({ principal_ref: 'person:ana' }),
+      startWorkspace: async () => {
+        throw new Error('a program the page loads must not open a workspace');
+      },
+    });
+    assert.equal(decision.kind, 'directory', pathname);
+  }
+});
+
+// A directory that cannot answer must not make the sign-in page unreachable.
+test('the sign-in page is still served when the session cannot be checked', async () => {
+  const decision = await resolveRuntimeInstance({
+    binding,
+    method: 'GET',
+    pathname: '/sign-in',
+    headers: {},
+    verifySession: async () => { throw new Error('the directory is restarting'); },
+    startWorkspace: async () => {
+      throw new Error('the sign-in page must not open a workspace');
+    },
+  });
+  assert.equal(decision.kind, 'directory');
+});
+
+test('a visitor with no session is sent to sign in rather than into an instance', async () => {
+  const decision = await resolveRuntimeInstance({
+    binding,
+    method: 'GET',
+    pathname: '/',
+    headers: {},
+    verifySession: async () => ({}),
+    startWorkspace: async () => {
+      throw new Error('a visitor with no session must never reach a workspace');
+    },
+  });
+  assert.deepEqual(decision, { kind: 'sign-in', location: '/sign-in' });
+});

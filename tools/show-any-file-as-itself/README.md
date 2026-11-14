@@ -20,3 +20,15 @@ The screens that show a file in its own form: the file-content renderer (markdow
 ## The row
 
 `tool:choose-how-each-file-is-shown` reads only the names and media types it is given: it opens no file, draws nothing, sends nothing and does not ask the signed-in classification owner the screen asks first. Drawing the file, playing sound and video and editing the facts kept about a file stay with the screens.
+
+## Restored from bitfield-packages `file-content-renderer`
+
+The renderers already here are the later, evolved copies of the package's (the JSON view, the safe-download rule and the lazy highlighter are newer) and were kept. What was missing is moved: `show/FileHeader.tsx` (imported by `FileContentRenderer.tsx` and not in this tree), `show/mount-file-content-surface.tsx` (the module a placeable surface mounts) and the package's two tests.
+
+| File | Purpose |
+|------|---------|
+| `show/FileContentRenderer.test.tsx.held` | Held test: a React component test (jsdom, testing-library, vi.mock of `@bitfield/runtime-kit/protocol`) |
+| `show/FileHeader.tsx` | PURPOSE |
+| `show/mount-file-content-surface.tsx` | Surface adapter: mounts the generic FileContentRenderer viewer from a |
+| `show/render-markdown-html.test.ts.held` | Held test: loads this tree's own show/render-markdown-html.ts |
+| `from-bitfield-packages-file-content-renderer/moved-from.json` | Source path and commit of each file, identities, call rows, held tests, files that still call the retired runtime. |

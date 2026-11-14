@@ -1,0 +1,55 @@
+import { describe, expect, it } from '../../../test-helpers/vitest-shim.mjs';
+import packageData from '../things-to-store-and-run.json' with { type: 'json' };
+
+describe('publication reachability failure semantics', () => {
+  it('keeps the one publication write behind all materialize/seal/sign/apply/build/deploy stages', () => {
+    const workflow = (packageData.things as Array<{ address?: string; payload?: { steps?: unknown[]; edges?: unknown[] } }>)
+      .find((thing) => thing.address === 'package::hosted-public-app::workflow-action::publish-selected-experience')?.payload;
+    expect(workflow).toBeDefined();
+    expect(workflow?.steps?.filter((step: any) => step.kind === 'write')).toHaveLength(1);
+    expect(workflow?.edges).toContainEqual(expect.objectContaining({ from: 'create_hosted_projection_closure', to: 'build_closure_signing_payload' }));
+    expect(workflow?.edges).toContainEqual(expect.objectContaining({ from: 'build_closure_signing_payload', to: 'read_signing_credential_handle' }));
+    expect(workflow?.edges).toContainEqual(expect.objectContaining({ from: 'read_signing_credential_handle', to: 'sign_closure_payload' }));
+    expect(workflow?.edges).toContainEqual(expect.objectContaining({ from: 'sign_closure_payload', to: 'attach_hosted_projection_closure_signature' }));
+    expect(workflow?.edges).toContainEqual(expect.objectContaining({ from: 'attach_hosted_projection_closure_signature', to: 'run_publication_process_sequence' }));
+    expect(workflow?.edges).toContainEqual(expect.objectContaining({ from: 'run_publication_process_sequence', to: 'prepare_publication_records' }));
+    expect(workflow?.edges).toContainEqual(expect.objectContaining({ from: 'prepare_publication_records', to: 'stage_owner_carrier' }));
+    expect(workflow?.edges).toContainEqual(expect.objectContaining({ from: 'stage_owner_carrier', to: 'commit_publication' }));
+    expect(JSON.stringify(workflow)).not.toContain('publication_root');
+    expect(JSON.stringify(workflow)).not.toContain('apply_hosted_projection_closure');
+  });
+
+  it('requires the persisted request identity and routes every post-deploy failure through inverse work', () => {
+    const workflow = (packageData.things as Array<{ address?: string; payload?: { input_schema?: any; steps?: any[]; edges?: any[] } }>)
+      .find((thing) => thing.address === 'package::hosted-public-app::workflow-action::publish-selected-experience')?.payload;
+    expect(workflow).toBeDefined();
+    expect(workflow?.input_schema?.required).toContain('publication_request_ref');
+    expect(workflow?.input_schema?.properties?.publication_request_ref).toMatchObject({
+      type: 'object', additionalProperties: false, required: ['address', 'revision', 'object_hash'],
+    });
+    const compensation = workflow?.steps?.find((step) => step.id === 'compensate_external_destination');
+    expect(compensation).toMatchObject({
+      kind: 'action',
+      config: { definition_id: 'action:withdraw-selected-experience' },
+    });
+    for (const source of ['stage_owner_carrier', 'commit_publication', 'return_result']) {
+      expect(workflow?.edges).toContainEqual(expect.objectContaining({
+        from: source, to: 'compensate_external_destination', kind: 'on_failure',
+      }));
+    }
+    expect(workflow?.edges).toContainEqual(expect.objectContaining({
+      from: 'compensate_external_destination', to: 'abort_after_compensation', kind: 'on_result',
+    }));
+    expect(workflow?.edges).toContainEqual(expect.objectContaining({
+      from: 'compensate_external_destination', to: 'record_compensation_failure', kind: 'on_failure',
+    }));
+    expect(workflow?.edges).toContainEqual(expect.objectContaining({
+      from: 'record_compensation_failure', to: 'abort_after_compensation_failure', kind: 'on_result',
+    }));
+    expect(workflow?.steps?.find((step) => step.id === 'abort_after_compensation')).toMatchObject({ kind: 'fail' });
+    expect(workflow?.steps?.find((step) => step.id === 'abort_after_compensation_failure')).toMatchObject({ kind: 'fail' });
+    const serialized = JSON.stringify(workflow);
+    expect(serialized).toContain('deployment-result.json');
+    expect(serialized).not.toContain('output.stdout.text');
+  });
+});

@@ -1,0 +1,629 @@
+import { createHmac } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+import { createServer, type Server } from 'node:http';
+import { mkdirSync, mkdtempSync, readFileSync, symlinkSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { makeHashCodeHexFromBytes } from '@bitfield/slot-protocol';
+import { ownerValidatedProcessResultWire } from '../../../tests/fixtures/process-result-wire.ts';
+
+const playwrightModule = process.env.PLAYWRIGHT_TEST_MODULE;
+if (!playwrightModule) throw new Error('PLAYWRIGHT_TEST_MODULE must identify the recorded Playwright test runtime');
+const { expect, test } = await import(playwrightModule);
+const axeCoreScript = process.env.AXE_CORE_SCRIPT;
+
+const packageRoot = path.resolve(import.meta.dirname, '..');
+const packagesRoot = path.resolve(packageRoot, '../..');
+const artifactRoot = path.join(packageRoot, 'read-data', 'artifacts');
+const esbuild = path.resolve(process.cwd(), 'node_modules/.bin/esbuild');
+let server: Server;
+let origin = '';
+let bundle = '';
+let authority: any;
+const sessionSecret = '11'.repeat(32);
+const accountA = 'acct:a';
+const accountB = 'acct:b';
+const sessionCookieName = 'account_session';
+
+function artifact(name: string) {
+  return readFileSync(path.join(artifactRoot, name), 'utf8');
+}
+
+const canonical = (value: any): any => Array.isArray(value)
+  ? value.map(canonical)
+  : value && typeof value === 'object'
+    ? Object.fromEntries(Object.keys(value).sort().map((key) => [key, canonical(value[key])]))
+    : value;
+const hashPayload = (value: unknown) => makeHashCodeHexFromBytes(
+  new TextEncoder().encode(JSON.stringify(canonical(value))),
+);
+const hashBytes = (value: string) => makeHashCodeHexFromBytes(new TextEncoder().encode(value));
+const record = (address: string, payload: Record<string, unknown>, revision = 'r1') => ({
+  address, revision, object_hash: hashPayload(payload), payload,
+});
+const exact = (value: ReturnType<typeof record>) => ({
+  address: value.address, revision: value.revision, object_hash: value.object_hash,
+});
+
+function sessionToken(account: string, expiresAt = Math.floor(Date.now() / 1000) + 3600) {
+  const payload = Buffer.from(JSON.stringify({
+    accountId: account,
+    expiresAt,
+    issuedAt: Math.floor(Date.now() / 1000),
+    version: 1,
+  })).toString('base64url');
+  return `${payload}.${createHmac('sha256', Buffer.from(sessionSecret, 'hex')).update(payload).digest('base64url')}`;
+}
+
+function buildActualBuyerClient(): string {
+  const root = mkdtempSync(path.join(tmpdir(), 'hpa-t11-browser-'));
+  symlinkSync(path.join(packagesRoot, 'node_modules'), path.join(root, 'node_modules'));
+  writeFileSync(path.join(root, 'hosted-surface-client.tsx'), artifact('hosted-surface-client.tsx.txt'));
+  writeFileSync(path.join(root, 'hosted-target-carrier-client.tsx'), artifact('hosted-target-carrier-client.tsx.txt'));
+  writeFileSync(path.join(root, 'main.tsx'), `
+    import React from 'react';
+    import { createRoot } from 'react-dom/client';
+    import { HostedSurfaceClient } from './hosted-surface-client';
+    const publicationRef = location.pathname.slice(1);
+    void fetch('/api/experience/' + encodeURIComponent(publicationRef) + '/manifest', {cache:'no-store', credentials:'same-origin'})
+      .then(async response => response.ok ? response.json() : {})
+      .then(manifest => createRoot(document.getElementById('root')!).render(<HostedSurfaceClient publicationRef={publicationRef} manifest={manifest} />));
+  `);
+  const output = path.join(root, 'buyer.js');
+  execFileSync(esbuild, ['main.tsx', '--bundle', '--format=iife', '--platform=browser', '--loader:.tsx=tsx', `--outfile=${output}`], { cwd: root, stdio: 'pipe' });
+  return readFileSync(output, 'utf8');
+}
+
+function selectedModule(label: string): string {
+  const root = mkdtempSync(path.join(tmpdir(), 'hpa-t11-selected-'));
+  symlinkSync(path.join(packagesRoot, 'node_modules'), path.join(root, 'node_modules'));
+  writeFileSync(path.join(root, 'entry.tsx'), `import React from 'react'; import { createRoot } from 'react-dom/client'; export default async function mountSelected({ el }: { el: Element }) { const root = createRoot(el); root.render(<section data-selected=${JSON.stringify(label)}><h1>${label}</h1><button type="button">Continue</button></section>); return () => root.unmount(); }`);
+  const output = path.join(root, 'entry.mjs');
+  execFileSync(esbuild, ['entry.tsx', '--bundle', '--format=esm', '--platform=browser', '--loader:.tsx=tsx', `--outfile=${output}`], { cwd: root, stdio: 'pipe' });
+  return readFileSync(output, 'utf8');
+}
+
+const modules = { poker: selectedModule('Poker table'), workout: selectedModule('Your workout plan') };
+
+async function compileCheckedInAuthorityAndRoutes() {
+  const root = mkdtempSync(path.join(tmpdir(), 'hpa-t11-authority-routes-'));
+  symlinkSync(path.join(packagesRoot, 'node_modules'), path.join(root, 'node_modules'));
+  const ownerPackages = path.resolve(packageRoot, '..');
+  const authoritySource = artifact('hosted-experience-authority.ts.txt')
+    .replace('"./hosted-target-carrier-server"', '"./carrier.ts"')
+    + '\nexport { calls, setRecords, resetCalls } from "./carrier.ts"; export { runtimeCalls, setGrants } from "./runtime.ts";\n';
+  writeFileSync(path.join(root, 'authority.ts'), authoritySource);
+  writeFileSync(path.join(root, 'runtime.ts'), `
+    export const runtimeCalls=[]; export let grants={}; export function setGrants(value){grants=value}
+    export async function sendRequestToBitfieldTarget({target,payload}) {
+      runtimeCalls.push({target,payload});
+      if (target === 'slot::credentials-vault') {
+        const body = payload.operation === 'read' ? {handle:'one-time'} : {value:${JSON.stringify(sessionSecret)}};
+        return {payload:new TextEncoder().encode(JSON.stringify(body))};
+      }
+      if (target === 'signed-event-authority.list-effects') {
+        const effects = (grants[payload.subject] || []).map((object) => ({kind:'license_access',object}));
+        return {payload:new TextEncoder().encode(JSON.stringify({effects}))};
+      }
+      throw new Error('unexpected Runtime Kit target ' + target);
+    }
+  `);
+  const successfulProcessResult = JSON.stringify(ownerValidatedProcessResultWire());
+  writeFileSync(path.join(root, 'carrier.ts'), `
+    import { authorizeTransientSessionTarget } from ${JSON.stringify(path.join(ownerPackages, 'account-session/do-work/authorize-transient-session-target.ts'))};
+    import { authorizeAddressedExpiringValueScopeTarget } from ${JSON.stringify(path.join(ownerPackages, 'product-access/do-work/authorize-addressed-expiring-value-scope.ts'))};
+    export const calls=[]; export let records=new Map(); export function setRecords(value){records=value} export function resetCalls(){calls.length=0}
+    export async function invokeHostedTarget(target,payload) {
+      calls.push({target,payload});
+      if (target === 'slot::find-current-items') {
+        const requested = payload.addresses ?? payload.where?.all?.[0]?.in ?? [];
+        return {items:requested.map((address)=>records.get(address)).filter(Boolean)};
+      }
+      if (target === 'account-session.authorize-transient-session') return authorizeTransientSessionTarget(payload);
+      if (target === 'product-access.authorize-addressed-expiring-value-scope') return authorizeAddressedExpiringValueScopeTarget(payload);
+      if (target === 'compute.process') return ${successfulProcessResult};
+      if (target.startsWith('target:')) return {ok:true,target};
+      throw new Error('unexpected hosted target ' + target);
+    }
+  `);
+  const stagedRoutes = [
+    ['manifest.ts', 'app-api-experience-manifest-route.ts.txt'],
+    ['bytes.ts', 'app-api-experience-bytes-route.ts.txt'],
+    ['data.ts', 'app-api-experience-data-route.ts.txt'],
+    ['subscriptions.ts', 'app-api-experience-subscriptions-route.ts.txt'],
+    ['target.ts', 'hosted-target-route.ts.txt'],
+  ];
+  for (const [staged, source] of stagedRoutes) {
+    writeFileSync(
+      path.join(root, staged),
+      artifact(source).replace(
+        /from "(?:\.\.\/)+stored-artifacts\/hosted-experience-authority"/,
+        'from "./authority.ts"',
+      ),
+    );
+  }
+  writeFileSync(path.join(root, 'entry.ts'), `
+    export { GET as manifestGet } from './manifest.ts';
+    export { GET as bytesGet } from './bytes.ts';
+    export { GET as dataGet } from './data.ts';
+    export { POST as subscriptionsPost } from './subscriptions.ts';
+    export { POST as targetPost } from './target.ts';
+    export { calls, resetCalls, setGrants, setRecords } from './authority.ts';
+  `);
+  const output = path.join(root, 'authority-routes.mjs');
+  execFileSync(esbuild, [
+    'entry.ts', '--bundle', '--platform=node', '--format=esm',
+    `--alias:@bitfield/runtime-kit/protocol=${path.resolve(packagesRoot, '../bitfield-runtime-kit/packages/js/src/protocol/process-result.ts')}`,
+    `--alias:@bitfield/runtime-kit=${path.join(root, 'runtime.ts')}`,
+    `--alias:@bitfield/slot-protocol=${path.join(packagesRoot, 'node_modules/@bitfield/slot-protocol/index.js')}`,
+    `--outfile=${output}`,
+  ], { cwd: root, stdio: 'pipe' });
+  return import(`${pathToFileURL(output).href}?${Date.now()}`);
+}
+
+function experienceRecords(
+  publicationRef: string,
+  mode: 'account' | 'public',
+  requiredAccessRefs: string[],
+  modulePath: string[],
+  moduleBytes: string,
+) {
+  const data = record(`data:${publicationRef}`, { kind: 'published-experience-data', title: publicationRef });
+  const subscription = record(`subscription:${publicationRef}`, { kind: 'published-experience-subscription', value: 1 });
+  const target = record(`target:${publicationRef}`, { kind: 'package-target-descriptor', target: `target:${publicationRef}` });
+  const manifest = record(`manifest:${publicationRef}`, {
+    kind: 'experience-authority-manifest',
+    access_ref: `access:${publicationRef}`,
+    root_refs: [exact(data)],
+    data_address_refs: [exact(data)],
+    navigation_refs: [],
+    subscription_refs: [exact(subscription)],
+    target_refs: [exact(target)],
+    entry_byte_path: modulePath,
+    browser_import_map: {},
+  });
+  const policy = record(`policy:${publicationRef}`, {
+    kind: 'experience-access-policy',
+    mode,
+    access_ref: `access:${publicationRef}`,
+    required_access_refs: requiredAccessRefs,
+    sealed_closure_binary: 'bitfield-sealed-closure',
+    trusted_closure_keys: ['test-key'],
+    closure_signature_threshold: 1,
+  });
+  const proof = record(`proof:${publicationRef}`, {
+    format: 'bitfield.sealed-closure',
+    current_state_basis: { current_state_multihash: `basis:${publicationRef}` },
+    projected_files: [{
+      path: modulePath,
+      byte_count: Buffer.byteLength(moduleBytes),
+      executable: true,
+      multihash: hashBytes(moduleBytes),
+    }],
+  });
+  const closure = record(`closure:${publicationRef}`, { kind: 'bitfield.signed-sealed-closure' });
+  const publication = record(publicationRef, {
+    kind: 'published-experience-publication',
+    status: 'active',
+    access_ref: `access:${publicationRef}`,
+    authority_manifest_ref: exact(manifest),
+    access_policy_ref: exact(policy),
+    sealed_closure_ref: exact(closure),
+    signed_closure_multihash: closure.object_hash,
+    apply_proof_ref: exact(proof),
+    apply_proof_multihash: proof.object_hash,
+  });
+  return [publication, manifest, policy, proof, closure, data, subscription, target];
+}
+
+function response(body: string, status = 200, contentType = 'text/plain') {
+  return { body, status, headers: { 'content-type': contentType, 'cache-control': 'private, no-store' } };
+}
+
+test.beforeAll(async () => {
+  process.env.ACCOUNT_SESSION_COOKIE_NAME = sessionCookieName;
+  bundle = buildActualBuyerClient();
+  authority = await compileCheckedInAuthorityAndRoutes();
+  const projectionRoot = mkdtempSync(path.join(tmpdir(), 'hpa-t11-projection-'));
+  for (const [selected, bytes] of Object.entries(modules)) {
+    const directory = path.join(projectionRoot, selected);
+    mkdirSync(directory, { recursive: true });
+    writeFileSync(path.join(directory, 'entry.mjs'), bytes);
+  }
+  process.env.BITFIELD_PROJECTION_ROOT = projectionRoot;
+  const records = [
+    ...experienceRecords('poker', 'public', [], ['poker', 'entry.mjs'], modules.poker),
+    ...experienceRecords('paid', 'account', ['access:paid'], ['workout', 'entry.mjs'], modules.workout),
+    ...experienceRecords('expired', 'account', ['access:expired'], ['workout', 'entry.mjs'], modules.workout),
+  ];
+  authority.setRecords(new Map(records.map((item) => [item.address, item])));
+  authority.setGrants({ [accountA]: ['access:paid'], [accountB]: [] });
+
+  server = createServer((request, reply) => void (async () => {
+    const url = new URL(request.url ?? '/', 'http://buyer.invalid');
+    const send = (value: ReturnType<typeof response>) => { reply.writeHead(value.status, value.headers); reply.end(value.body); };
+    const sendWebResponse = async (value: Response) => {
+      reply.writeHead(value.status, Object.fromEntries(value.headers.entries()));
+      reply.end(Buffer.from(await value.arrayBuffer()));
+    };
+    const body = await new Promise<Buffer>((resolve) => {
+      const chunks: Buffer[] = [];
+      request.on('data', (chunk) => chunks.push(Buffer.from(chunk)));
+      request.on('end', () => resolve(Buffer.concat(chunks)));
+    });
+    const headers = new Headers();
+    for (const [name, value] of Object.entries(request.headers)) {
+      if (Array.isArray(value)) headers.set(name, value.join(', '));
+      else if (value !== undefined) headers.set(name, value);
+    }
+    const webRequest = new Request(`http://127.0.0.1${url.pathname}${url.search}`, {
+      method: request.method,
+      headers,
+      ...(request.method === 'GET' || request.method === 'HEAD'
+        ? {}
+        : { body: new Uint8Array(body), duplex: 'half' }),
+    } as RequestInit);
+    if (url.pathname === '/buyer.js') return send(response(bundle, 200, 'text/javascript'));
+    if (['/poker', '/paid', '/expired'].includes(url.pathname)) {
+      if (url.searchParams.has('surface')) return send(response('<!doctype html><html lang="en"><head><title>Experience unavailable</title></head><body><main class="buyer-state" role="alert">This experience is not available.</main></body></html>', 200, 'text/html'));
+      return send(response('<!doctype html><html lang="en"><head><title>Your experience</title></head><body><main id="root"></main><script src="/buyer.js"></script></body></html>', 200, 'text/html'));
+    }
+    const manifestMatch = url.pathname.match(/^\/api\/experience\/([^/]+)\/manifest$/);
+    if (manifestMatch) {
+      return sendWebResponse(await authority.manifestGet(webRequest, {
+        params: Promise.resolve({ experienceRef: decodeURIComponent(manifestMatch[1]) }),
+      }));
+    }
+    const bytesMatch = url.pathname.match(/^\/api\/experience\/([^/]+)\/bytes\/(.+)$/);
+    if (bytesMatch) {
+      return sendWebResponse(await authority.bytesGet(webRequest, {
+        params: Promise.resolve({
+          experienceRef: decodeURIComponent(bytesMatch[1]),
+          byteRef: bytesMatch[2].split('/').map(decodeURIComponent),
+        }),
+      }));
+    }
+    const dataMatch = url.pathname.match(/^\/api\/experience\/([^/]+)\/data$/);
+    if (dataMatch) {
+      return sendWebResponse(await authority.dataGet(webRequest, {
+        params: Promise.resolve({ experienceRef: decodeURIComponent(dataMatch[1]) }),
+      }));
+    }
+    const subscriptionsMatch = url.pathname.match(/^\/api\/experience\/([^/]+)\/subscriptions$/);
+    if (subscriptionsMatch) {
+      return sendWebResponse(await authority.subscriptionsPost(webRequest, {
+        params: Promise.resolve({ experienceRef: decodeURIComponent(subscriptionsMatch[1]) }),
+      }));
+    }
+    const targetMatch = url.pathname.match(/^\/bitfield-target\/(.+)$/);
+    if (targetMatch) {
+      return sendWebResponse(await authority.targetPost(webRequest, {
+        params: Promise.resolve({ target: [decodeURIComponent(targetMatch[1])] }),
+      }));
+    }
+    return send(response('Not found', 404));
+  })().catch((error) => {
+    reply.writeHead(500, { 'content-type': 'application/json', 'cache-control': 'private, no-store' });
+    reply.end(JSON.stringify({ ok: false, message: 'This experience is not available.' }));
+    console.error(error);
+  }));
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+  const address = server.address();
+  origin = `http://127.0.0.1:${typeof address === 'object' && address ? address.port : 0}`;
+});
+
+test.beforeEach(() => {
+  authority.setGrants({ [accountA]: ['access:paid'], [accountB]: [] });
+  authority.resetCalls();
+});
+
+test.afterAll(async () => { if (server) await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve())); });
+
+async function assertBuyerOnly(page: any) {
+  await expect(page.locator('main#root')).toHaveCount(1);
+  await expect(page.locator('aside, [data-screen-arrangement], [data-package-catalog]')).toHaveCount(0);
+  await expect(page.getByText(/screen arrangement|package catalog|share\/sell|runtime kit|envelope/i)).toHaveCount(0);
+}
+
+async function assertNoSeriousOrCriticalAxeViolations(page: any, state: string) {
+  if (!axeCoreScript) {
+    throw new Error(
+      'AXE_CORE_SCRIPT must identify an exact axe-core axe.min.js runtime; the accessibility gate never skips',
+    );
+  }
+  await page.addScriptTag({ path: axeCoreScript });
+  const violations = await page.evaluate(async () => {
+    const axe = (window as typeof window & {
+      axe: {
+        run: (
+          root: Document,
+          options: { resultTypes: string[] },
+        ) => Promise<{ violations: Array<{ id: string; impact: string | null; nodes: unknown[] }> }>;
+      };
+    }).axe;
+    const result = await axe.run(document, { resultTypes: ['violations'] });
+    return result.violations
+      .filter(({ impact }) => impact === 'serious' || impact === 'critical')
+      .map(({ id, impact, nodes }) => ({ id, impact, node_count: nodes.length }));
+  });
+  expect(violations, `${state} axe serious/critical violations`).toEqual([]);
+}
+
+test('public poker and paid workout receive separate selected modules with no Studio shell', async ({ browser }) => {
+  const poker = await browser.newPage();
+  await poker.goto(`${origin}/poker`); await expect(poker.locator('[data-selected="Poker table"]')).toBeVisible(); await assertBuyerOnly(poker);
+  const paidContext = await browser.newContext();
+  await paidContext.addCookies([{ name: sessionCookieName, value: sessionToken(accountA), url: origin }]);
+  const workout = await paidContext.newPage();
+  await workout.goto(`${origin}/paid`); await expect(workout.locator('[data-selected="Your workout plan"]')).toBeVisible(); await assertBuyerOnly(workout);
+  expect(authority.calls.some((call: any) => call.target === 'account-session.authorize-transient-session')).toBeTruthy();
+  expect(authority.calls.some((call: any) => call.target === 'product-access.authorize-addressed-expiring-value-scope')).toBeTruthy();
+  await poker.close(); await paidContext.close();
+});
+
+test('expired authority and active-session revocation deny every next protected operation and unmount content', async ({ browser }) => {
+  const expiredContext = await browser.newContext();
+  await expiredContext.addCookies([{ name: sessionCookieName, value: sessionToken(accountA), url: origin }]);
+  const expiredPage = await expiredContext.newPage();
+  await expiredPage.goto(`${origin}/expired`);
+  await expect(expiredPage.locator('[role="alert"]')).toHaveText(/not available/i);
+  await expect(expiredPage.locator('[data-selected]')).toHaveCount(0);
+  await expiredContext.close();
+
+  const paidContext = await browser.newContext();
+  await paidContext.addCookies([{ name: sessionCookieName, value: sessionToken(accountA), url: origin }]);
+  const page = await paidContext.newPage();
+  await page.goto(`${origin}/paid`);
+  await expect(page.locator('[data-selected="Your workout plan"]')).toBeVisible();
+  authority.setGrants({ [accountA]: [], [accountB]: [] });
+  const denied = [
+    await page.request.get(`${origin}/api/experience/paid/bytes/workout/entry.mjs`),
+    await page.request.get(`${origin}/api/experience/paid/data?ref=data%3Apaid`),
+    await page.request.post(`${origin}/api/experience/paid/subscriptions`, { data: { refs: ['subscription:paid'] } }),
+    await page.request.post(`${origin}/bitfield-target/target%3Apaid`, {
+      data: {},
+      headers: { 'x-bitfield-experience-ref': 'paid' },
+    }),
+  ];
+  for (const result of denied) {
+    expect(result.status()).toBe(403);
+    expect(await result.text()).not.toMatch(/package|slot|envelope|cas|workflow|closure|projection/i);
+  }
+  const deniedOwnerOperations = authority.calls
+    .filter((call: any) => call.target === 'product-access.authorize-addressed-expiring-value-scope')
+    .slice(-4)
+    .map((call: any) => call.payload.operation);
+  expect(deniedOwnerOperations).toEqual(['bytes', 'data', 'subscription', 'target']);
+  await page.evaluate(async () => {
+    const hooks = (globalThis as any).__BITFIELD_BOOT_HOOKS__;
+    const { transport } = await hooks.connect();
+    try { await transport.invoke('target:paid', new TextEncoder().encode('{}')); } catch {}
+  });
+  const notice = page.locator('[role="alert"]');
+  await expect(notice).toHaveText(/access is no longer active/i);
+  await expect(page.locator('[data-selected]')).toHaveCount(0);
+  await paidContext.close();
+});
+
+test('direct byte/data/target/subscription/query attacks stay outside the selected closure', async ({ page }) => {
+  await page.goto(`${origin}/poker?surface=studio&grant_ref=forged`); await expect(page.locator('[data-selected]')).toHaveCount(0);
+  for (const address of [
+    '/bitfield-target/unselected', '/api/experience/not-publication/bytes/unselected.js',
+    '/api/experience/not-publication/data?ref=unselected', '/api/experience/not-publication/subscriptions',
+  ]) {
+    const result = await page.request.post(`${origin}${address}`, { data: { grant_ref: 'forged', refs: ['unselected'] } });
+    expect(result.ok()).toBeFalsy(); expect(await result.text()).not.toMatch(/studio|catalog|unselected surface/i);
+  }
+});
+
+test('independent contexts, private state, keyboard, 320px/200% zoom, and reduced motion keep buyer scope intact', async ({ browser }) => {
+  const a = await browser.newContext(); const b = await browser.newContext();
+  await a.addCookies([{ name: sessionCookieName, value: sessionToken(accountA), url: origin }]);
+  await b.addCookies([{ name: sessionCookieName, value: sessionToken(accountB), url: origin }]);
+  const aPage = await a.newPage(); const bPage = await b.newPage();
+  await aPage.goto(`${origin}/paid`); await bPage.goto(`${origin}/paid`);
+  await expect(aPage.locator('[data-selected="Your workout plan"]')).toBeVisible();
+  await expect(bPage.locator('[role="alert"]')).toHaveText(/not available/i);
+  expect(await aPage.evaluate(async () => [
+    localStorage.length,
+    sessionStorage.length,
+    (await indexedDB.databases()).length,
+  ])).toEqual([0, 0, 0]);
+
+  const parallelPoker = await a.newPage();
+  await parallelPoker.goto(`${origin}/poker`);
+  await expect(parallelPoker.locator('[data-selected="Poker table"]')).toBeVisible();
+  await expect(aPage.locator('[data-selected="Your workout plan"]')).toBeVisible();
+  const parallelIsolation = await Promise.all([
+    aPage.evaluate(async () => {
+      const ownData = await fetch('/api/experience/paid/data?ref=data%3Apaid').then((response) => response.json());
+      const ownSubscription = await fetch('/api/experience/paid/subscriptions', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ refs: ['subscription:paid'] }),
+      }).then((response) => response.json());
+      const crossData = await fetch('/api/experience/paid/data?ref=data%3Apoker');
+      const crossSubscription = await fetch('/api/experience/paid/subscriptions', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ refs: ['subscription:poker'] }),
+      });
+      return {
+        own_data_title: ownData.title,
+        own_subscription_addresses: ownSubscription.items.map((item: any) => item.address),
+        cross_data_status: crossData.status,
+        cross_subscription_status: crossSubscription.status,
+      };
+    }),
+    parallelPoker.evaluate(async () => {
+      const ownData = await fetch('/api/experience/poker/data?ref=data%3Apoker').then((response) => response.json());
+      const ownSubscription = await fetch('/api/experience/poker/subscriptions', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ refs: ['subscription:poker'] }),
+      }).then((response) => response.json());
+      const crossData = await fetch('/api/experience/poker/data?ref=data%3Apaid');
+      const crossSubscription = await fetch('/api/experience/poker/subscriptions', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ refs: ['subscription:paid'] }),
+      });
+      return {
+        own_data_title: ownData.title,
+        own_subscription_addresses: ownSubscription.items.map((item: any) => item.address),
+        cross_data_status: crossData.status,
+        cross_subscription_status: crossSubscription.status,
+      };
+    }),
+  ]);
+  expect(parallelIsolation).toEqual([
+    {
+      own_data_title: 'paid',
+      own_subscription_addresses: ['subscription:paid'],
+      cross_data_status: 404,
+      cross_subscription_status: 404,
+    },
+    {
+      own_data_title: 'poker',
+      own_subscription_addresses: ['subscription:poker'],
+      cross_data_status: 404,
+      cross_subscription_status: 404,
+    },
+  ]);
+  await aPage.emulateMedia({ reducedMotion: 'reduce' }); await aPage.setViewportSize({ width: 320, height: 900 }); await aPage.keyboard.press('Tab');
+  await expect(aPage.locator(':focus')).toHaveCount(1); await aPage.evaluate(() => { document.body.style.zoom = '2'; });
+  expect(await aPage.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBeTruthy();
+  expect(await aPage.evaluate(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)).toBeTruthy();
+  const focusPresentation = await aPage.locator(':focus').evaluate((element) => {
+    const style = getComputedStyle(element);
+    return { role: element.getAttribute('role') ?? element.tagName.toLowerCase(), name: element.textContent?.trim(), outline_style: style.outlineStyle };
+  });
+  expect(focusPresentation).toMatchObject({ role: 'button', name: 'Continue' });
+  expect(focusPresentation.outline_style).not.toBe('none');
+  const beforeEscape = await aPage.locator('[data-selected]').getAttribute('data-selected');
+  await aPage.keyboard.press('Escape');
+  expect(await aPage.locator('[data-selected]').getAttribute('data-selected')).toBe(beforeEscape);
+  await expect(aPage.locator('[role="dialog"], [aria-modal="true"]')).toHaveCount(0);
+  await a.clearCookies();
+  await aPage.reload();
+  await expect(aPage.locator('[role="alert"]')).toHaveText(/not available/i);
+  await a.addCookies([{ name: sessionCookieName, value: sessionToken(accountB), url: origin }]);
+  await aPage.reload();
+  await expect(aPage.locator('[role="alert"]')).toHaveText(/not available/i);
+  const privateContext = await browser.newContext();
+  const privatePage = await privateContext.newPage();
+  const privatePaidResponses: Array<{ path: string; status: number }> = [];
+  privatePage.on('response', (response) => {
+    const url = new URL(response.url());
+    if (url.pathname.includes('/api/experience/paid/')) {
+      privatePaidResponses.push({ path: url.pathname, status: response.status() });
+    }
+  });
+  await privatePage.goto(`${origin}/paid`);
+  await expect(privatePage.locator('[role="alert"]')).toHaveText(/not available/i);
+  await expect(privatePage.locator('[data-selected]')).toHaveCount(0);
+  expect(privatePaidResponses).toContainEqual({ path: '/api/experience/paid/manifest', status: 401 });
+  expect(privatePaidResponses.some(({ path }) => path.includes('/bytes/'))).toBeFalsy();
+  const privatePaidOperations = await privatePage.evaluate(async () => {
+    const data = await fetch('/api/experience/paid/data?ref=data%3Apaid');
+    const subscription = await fetch('/api/experience/paid/subscriptions', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ refs: ['subscription:paid'] }),
+    });
+    return {
+      data_status: data.status,
+      data_body: await data.json(),
+      subscription_status: subscription.status,
+      subscription_body: await subscription.json(),
+    };
+  });
+  expect(privatePaidOperations).toMatchObject({
+    data_status: 401,
+    data_body: { ok: false, message: 'Sign in to continue.' },
+    subscription_status: 401,
+    subscription_body: { ok: false, message: 'Sign in to continue.' },
+  });
+  await privatePage.goto(`${origin}/poker`);
+  await expect(privatePage.locator('[data-selected="Poker table"]')).toBeVisible();
+  await parallelPoker.close();
+  await privateContext.close();
+  await a.close(); await b.close();
+});
+
+test('buyer access states have stable name/role/value output and zero serious/critical axe violations', async ({ page }) => {
+  await page.context().addCookies([{ name: sessionCookieName, value: sessionToken(accountA), url: origin }]);
+  for (const state of ['poker', 'paid', 'expired', 'revoked']) {
+    authority.setGrants(state === 'revoked'
+      ? { [accountA]: [], [accountB]: [] }
+      : { [accountA]: ['access:paid'], [accountB]: [] });
+    await page.goto(`${origin}/${state === 'revoked' ? 'paid' : state}`);
+    if (state === 'poker' || state === 'paid') {
+      await expect(page.locator('[data-selected]')).toBeVisible();
+    } else {
+      await expect(page.locator('[role="alert"]')).toBeVisible();
+    }
+    const ariaSnapshot = await page.locator('main').ariaSnapshot();
+    if (state === 'poker') {
+      expect(ariaSnapshot).toContain('heading "Poker table"');
+      expect(ariaSnapshot).toContain('button "Continue"');
+    }
+    if (state === 'paid') {
+      expect(ariaSnapshot).toContain('heading "Your workout plan"');
+      expect(ariaSnapshot).toContain('button "Continue"');
+    }
+    if (state === 'expired' || state === 'revoked') {
+      expect(ariaSnapshot).toContain('alert');
+      expect(ariaSnapshot).toContain('not available');
+    }
+    await assertNoSeriousOrCriticalAxeViolations(page, state);
+    console.log(JSON.stringify({ event: 'buyer.accessibility_snapshot', state, aria_snapshot: ariaSnapshot }));
+  }
+});
+
+test('T14 owner-backed mobile/desktop access matrix records selected-closure requests and identity-bearing proof', async ({ browser }, testInfo) => {
+  testInfo.setTimeout(60_000);
+  const cases = [
+    { id: 'public-signed-out', publication: 'poker', account: null, allowed: true },
+    { id: 'paid-account-a', publication: 'paid', account: accountA, allowed: true },
+    { id: 'paid-account-b', publication: 'paid', account: accountB, allowed: false },
+    { id: 'paid-private', publication: 'paid', account: null, allowed: false },
+    { id: 'paid-cookie-swapped', publication: 'paid', account: accountB, allowed: false },
+    { id: 'paid-revoked', publication: 'paid', account: accountA, allowed: false, revoked: true },
+  ] as const;
+  for (const viewport of [{ id: 'desktop', width: 1440, height: 960 }, { id: 'mobile', width: 320, height: 900 }]) {
+    for (const matrixCase of cases) {
+      const caseIdentity = `t14-${matrixCase.id}-worker-t14-project-chromium-attempt-0001-${viewport.id}`;
+      authority.setGrants(matrixCase.revoked ? { [accountA]: [], [accountB]: [] } : { [accountA]: ['access:paid'], [accountB]: [] });
+      const context = await browser.newContext({ viewport: { width: viewport.width, height: viewport.height } });
+      if (matrixCase.account) await context.addCookies([{ name: sessionCookieName, value: sessionToken(matrixCase.account), url: origin }]);
+      const requests: string[] = [];
+      context.on('request', request => requests.push(new URL(request.url()).pathname));
+      await context.tracing.start({ screenshots: true, snapshots: true });
+      const page = await context.newPage();
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      await page.goto(`${origin}/${matrixCase.publication}`);
+      if (matrixCase.allowed) {
+        await expect(page.locator('[data-selected]')).toBeVisible();
+        await page.keyboard.press('Tab'); await expect(page.locator(':focus')).toHaveCount(1);
+        await page.evaluate(() => { document.body.style.zoom = '2'; });
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBeTruthy();
+      } else {
+        await expect(page.locator('[role="alert"]')).toBeVisible();
+        await expect(page.locator('[data-selected]')).toHaveCount(0);
+      }
+      expect(requests.some(path => /studio|catalog|unselected/i.test(path)), caseIdentity).toBeFalsy();
+      await page.screenshot({ path: testInfo.outputPath(`${caseIdentity}.png`) });
+      writeFileSync(testInfo.outputPath(`${caseIdentity}.json`), JSON.stringify({
+        case_identity: caseIdentity,
+        requests,
+        reduced_motion: await page.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches),
+        document_no_horizontal_overflow: await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+        focused_role: await page.evaluate(() => {
+          const element = document.activeElement;
+          return element instanceof HTMLElement ? element.getAttribute('role') ?? element.tagName.toLowerCase() : null;
+        }),
+        aria_snapshot: await page.locator('main').ariaSnapshot(),
+      }, null, 2));
+      await context.tracing.stop({ path: testInfo.outputPath(`${caseIdentity}.zip`) });
+      console.log(JSON.stringify({ event: 't14.browser_case', case_identity: caseIdentity, requests }));
+      await context.close();
+    }
+  }
+});

@@ -1,0 +1,3954 @@
+{
+  "package": "hosted-public-app",
+  "things": [
+    {
+      "type": "stored_bytes",
+      "name": "package-preview-art",
+      "source_path": "package-preview.pfat.gz",
+      "media_type": "application/vnd.bitfield.pointillist-target-animation+gzip"
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::checks",
+      "path": [
+        "packages",
+        "hosted-public-app",
+        "checks"
+      ],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "processes/publish-current-document.test.mjs",
+          "processes/publish-reviewed-article.test.mjs",
+          "processes/article-substance-admission.test.mjs",
+          "__tests__/reading-a-public-page-stays-public.test.mjs",
+          "__tests__/restarting-is-not-rebuilding.test.mjs",
+          "__tests__/asking-twice-for-a-certificate-is-safe.test.mjs",
+          "__tests__/a-funnel-step-sells-the-price-option-it-names.test.mjs",
+          "read-data/__tests__/page-cta-price.test.ts",
+          "__tests__/a-produced-file-holds-what-the-module-returned.test.mjs",
+          "__tests__/a-recovering-host-serves-only-its-own-archive.test.mjs",
+          "__tests__/an-unreviewed-article-row-cannot-replace-the-archive.test.mjs",
+          "__tests__/a-description-names-its-files-where-it-lives.test.mjs",
+          "__tests__/a-tenant-with-no-island-still-gets-a-page.test.mjs",
+          "__tests__/a-release-does-not-shrink-the-machines.test.mjs",
+          "__tests__/every-target-ask-says-which-targets-are-running.test.mjs",
+          "__tests__/a-sign-in-page-can-load-its-own-code.test.mjs",
+          "__tests__/a-customer-socket-serves-only-its-own-request.test.mjs",
+          "__tests__/anonymous-app-routes-stay-out-of-the-directory.test.mjs",
+          "__tests__/a-tenants-authored-files-answer-where-no-route-did.test.mjs",
+          "__tests__/an-envelope-says-where-its-value-comes-from.test.mjs",
+          "__tests__/app-shell-survives-a-dead-engine.test.mjs",
+          "__tests__/buyer-artifact-absence.test.ts",
+          "__tests__/buyer-authority-boundaries.test.ts",
+          "__tests__/buyer-browser-context-isolation.test.ts",
+          "__tests__/buyer-data-footprint.test.ts",
+          "__tests__/buyer-identity-chain.test.ts",
+          "__tests__/buyer-network-escape.test.ts",
+          "__tests__/carrier-http-effect.test.mjs",
+          "__tests__/every-installed-package-set-description-renders.test.mjs",
+          "__tests__/execute-definition-authority.test.ts",
+          "__tests__/hosted-entry-projection-selection.test.mjs",
+          "__tests__/hosted-experience-authority-carrier.test.mjs",
+          "__tests__/hosted-public-app-backend.test.ts",
+          "__tests__/kept-prices-survive-a-dead-engine.test.mjs",
+          "__tests__/normalize-selected-publication-target.test.ts",
+          "__tests__/one-account-gets-one-workspace-it-can-reach.test.mjs",
+          "__tests__/one-binary-serves-two-tenants.test.mjs",
+          "__tests__/protected-route-authority-wiring.test.mjs",
+          "__tests__/public-landing-page-renders-without-an-engine.test.mjs",
+          "__tests__/publication-failure-semantics.test.ts",
+          "__tests__/sealed-closure-integrity.test.mjs",
+          "__tests__/selected-experience-offline-build.test.mjs",
+          "__tests__/selected-experience-publication-e2e.test.mjs",
+          "__tests__/selected-experience-publication.test.ts",
+          "__tests__/selected-publication-targets.test.ts",
+          "__tests__/seller-share-sell-flow.test.ts",
+          "__tests__/the-generic-server-names-no-tenant.test.mjs",
+          "__tests__/two-accounts-never-share-a-runtime-instance.test.mjs",
+          "do-work/public-selection-transition.test.ts",
+          "__tests__/a-page-with-words-is-never-blank.test.mjs",
+          "processes/materialize-hosted-projection-tree.test.mjs",
+          "processes/hosted-url-return-action.test.mjs",
+          "processes/prepare-publication-records.test.mjs",
+          "processes/offer-price-observations.test.mjs",
+          "processes/public-route-retirement.test.mjs",
+          "processes/flatten-current-container-base.test.mjs",
+          "processes/render-article-candidate.test.mjs",
+          "processes/compose-article-discovery.test.mjs",
+          "processes/run-provider-deploy.test.mjs",
+          "processes/prove-a-release-host.test.mjs"
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::contract",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-package-contract",
+        "package": "hosted-public-app",
+        "job": "Publish one selected interactive experience behind its exact logical, byte, identity, and access authority.",
+        "owns": [
+          "published-experience-intent",
+          "experience-authority-manifest",
+          "published-experience-publication",
+          "buyer runtime projection"
+        ],
+        "does_not_own": [
+          "account identity",
+          "grant state",
+          "checkout",
+          "sealed-closure membership",
+          "seller source records"
+        ],
+        "invariants": [
+          "Only a committed publication is buyer reachable.",
+          "Runtime Kit apply proof is the only projected-byte membership authority.",
+          "The logical authority manifest never copies projected byte membership.",
+          "Every protected operation reauthorizes current identity and access.",
+          "No package-set root, Studio shell, package catalog, or unrestricted target is projected."
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "app-page-tsx",
+      "source_path": "read-data/artifacts/app-page.tsx.txt"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "app-layout-tsx",
+      "source_path": "read-data/artifacts/app-layout.tsx.txt"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "app-globals-css",
+      "source_path": "read-data/artifacts/app-globals.css.txt"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "app-robots-ts",
+      "source_path": "read-data/artifacts/app-robots.ts.txt"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "app-sitemap-ts",
+      "source_path": "read-data/artifacts/app-sitemap.ts.txt"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "app-tsconfig-json",
+      "source_path": "read-data/artifacts/app-tsconfig.json.txt"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "app-next-config-mjs",
+      "source_path": "read-data/artifacts/app-next.config.mjs.txt"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "hosted-surface-page-tsx",
+      "source_path": "read-data/artifacts/hosted-surface-page.tsx.txt"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "hosted-surface-client-tsx",
+      "source_path": "read-data/artifacts/hosted-surface-client.tsx.txt"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "hosted-experience-authority-ts",
+      "source_path": "read-data/artifacts/hosted-experience-authority.ts.txt"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "hosted-target-carrier-server-ts",
+      "source_path": "read-data/artifacts/hosted-target-carrier-server.ts.txt"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "hosted-target-carrier-client-tsx",
+      "source_path": "read-data/artifacts/hosted-target-carrier-client.tsx.txt"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "hosted-target-route-ts",
+      "source_path": "read-data/artifacts/hosted-target-route.ts.txt"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "app-api-experience-manifest-route-ts",
+      "source_path": "read-data/artifacts/app-api-experience-manifest-route.ts.txt"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "app-api-experience-bytes-route-ts",
+      "source_path": "read-data/artifacts/app-api-experience-bytes-route.ts.txt"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "app-api-experience-data-route-ts",
+      "source_path": "read-data/artifacts/app-api-experience-data-route.ts.txt"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "app-api-experience-subscriptions-route-ts",
+      "source_path": "read-data/artifacts/app-api-experience-subscriptions-route.ts.txt"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "site-webmanifest",
+      "source_path": "read-data/artifacts/site.webmanifest.txt"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "materialize-hosted-projection-tree",
+      "source_path": "built-stored-bytes/materialize-hosted-projection-tree",
+      "build": {
+        "sequence": {
+          "inputs": [],
+          "input_trees": [],
+          "steps": [
+            {
+              "name": "build",
+              "process": {
+                "argv": [
+                  "node",
+                  "__PACKAGE_SET_ROOT__/packages/make-packages-match-their-source/do-work/build-node-process-bytes.mjs"
+                ],
+                "cwd": ".",
+                "timeout_ms": 120000,
+                "termination_grace_ms": 1000,
+                "expected_termination": {
+                  "kind": "exited",
+                  "code": 0
+                },
+                "env": {},
+                "inputs": [],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": ".bitfield-build-output"
+                  }
+                ],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              },
+              "workspace_bindings": {
+                "environment": [],
+                "arguments": []
+              },
+              "predecessor_outputs": []
+            }
+          ]
+        },
+        "output": {
+          "step": "build",
+          "mount_path": ".bitfield-build-output"
+        },
+        "request": {
+          "source_file": "processes/materialize-hosted-projection-tree.mjs",
+          "source_kind": "text/javascript"
+        }
+      },
+      "source_closure_receipt_path": "built-stored-bytes/materialize-hosted-projection-tree.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "prepare-publication-records",
+      "source_path": "built-stored-bytes/prepare-publication-records",
+      "build": {
+        "sequence": {
+          "inputs": [],
+          "input_trees": [],
+          "steps": [
+            {
+              "name": "build",
+              "process": {
+                "argv": [
+                  "node",
+                  "__PACKAGE_SET_ROOT__/packages/make-packages-match-their-source/do-work/build-node-process-bytes.mjs"
+                ],
+                "cwd": ".",
+                "timeout_ms": 120000,
+                "termination_grace_ms": 1000,
+                "expected_termination": {
+                  "kind": "exited",
+                  "code": 0
+                },
+                "env": {},
+                "inputs": [],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": ".bitfield-build-output"
+                  }
+                ],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              },
+              "workspace_bindings": {
+                "environment": [],
+                "arguments": []
+              },
+              "predecessor_outputs": []
+            }
+          ]
+        },
+        "output": {
+          "step": "build",
+          "mount_path": ".bitfield-build-output"
+        },
+        "request": {
+          "source_file": "processes/prepare-publication-records.mjs",
+          "source_kind": "text/javascript"
+        }
+      },
+      "source_closure_receipt_path": "built-stored-bytes/prepare-publication-records.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "public-entry-server",
+      "source_path": "built-stored-bytes/public-entry-server",
+      "why_this_exists": "The server that answers a public address was the one process in this package with no way to be built, so nothing could carry it to a machine and nothing started it. A host then answered every address from whatever sat behind it, which is how one shell served one document to every visitor and every person's work landed in the same place.",
+      "build": {
+        "sequence": {
+          "inputs": [],
+          "input_trees": [],
+          "steps": [
+            {
+              "name": "build",
+              "process": {
+                "argv": [
+                  "node",
+                  "__PACKAGE_SET_ROOT__/packages/make-packages-match-their-source/do-work/build-node-process-bytes.mjs"
+                ],
+                "cwd": ".",
+                "timeout_ms": 120000,
+                "termination_grace_ms": 1000,
+                "expected_termination": {
+                  "kind": "exited",
+                  "code": 0
+                },
+                "env": {},
+                "inputs": [],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": ".bitfield-build-output"
+                  }
+                ],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              },
+              "workspace_bindings": {
+                "environment": [],
+                "arguments": []
+              },
+              "predecessor_outputs": []
+            }
+          ]
+        },
+        "output": {
+          "step": "build",
+          "mount_path": ".bitfield-build-output"
+        },
+        "request": {
+          "source_file": "processes/public-entry-server-source.mjs",
+          "source_kind": "text/javascript"
+        }
+      },
+      "source_closure_receipt_path": "built-stored-bytes/public-entry-server.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "public-entry-server.css",
+      "source_path": "built-stored-bytes/public-entry-server.css",
+      "build": {
+        "sequence": {
+          "inputs": [],
+          "input_trees": [],
+          "steps": [
+            {
+              "name": "build",
+              "process": {
+                "argv": [
+                  "node",
+                  "__PACKAGE_SET_ROOT__/packages/make-packages-match-their-source/do-work/build-node-process-bytes.mjs"
+                ],
+                "cwd": ".",
+                "timeout_ms": 120000,
+                "termination_grace_ms": 1000,
+                "expected_termination": {
+                  "kind": "exited",
+                  "code": 0
+                },
+                "env": {},
+                "inputs": [],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": ".bitfield-build-output"
+                  }
+                ],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              },
+              "workspace_bindings": {
+                "environment": [],
+                "arguments": []
+              },
+              "predecessor_outputs": []
+            }
+          ]
+        },
+        "output": {
+          "step": "build",
+          "mount_path": ".bitfield-build-output"
+        },
+        "request": {
+          "source_file": "processes/public-entry-server-source.mjs",
+          "source_kind": "text/javascript",
+          "output_kind": "css"
+        }
+      },
+      "source_closure_receipt_path": "built-stored-bytes/public-entry-server.css.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "request-publish-selected-experience",
+      "source_path": "do-work/request-publish-live-site.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "request-seller-publication",
+      "source_path": "do-work/request-publish-live-site.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "resolve-selected-publication-request",
+      "source_path": "do-work/selected-publication-targets.ts"
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::schema::published-experience-intent",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "published-experience-intent",
+        "required_fields": [
+          "address",
+          "revision",
+          "object_hash",
+          "root_refs",
+          "access_ref",
+          "entry_byte_path"
+        ],
+        "invariants": [
+          "Every root is an exact address/revision/object-hash reference.",
+          "The entry byte path must be selected transitively.",
+          "No package-set identity is accepted."
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::input::publication-owner-binding",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "publication-owner-binding",
+        "value_address_label": "hosted-public-app.publication-owner-binding",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::schema::experience-authority-manifest",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "experience-authority-manifest",
+        "required_fields": [
+          "address",
+          "revision",
+          "object_hash",
+          "root_refs",
+          "access_ref",
+          "entry_byte_path",
+          "data_address_refs",
+          "subscription_refs",
+          "navigation_refs",
+          "target_refs"
+        ],
+        "optional_fields": [
+          "entry_projection_target_ref"
+        ],
+        "forbidden_fields": [
+          "sealed_closure_members",
+          "projected_files",
+          "component_bytes",
+          "artifact_bytes"
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::schema::published-experience-publication",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "published-experience-publication",
+        "required_fields": [
+          "address",
+          "revision",
+          "object_hash",
+          "status",
+          "intent_ref",
+          "authority_manifest_ref",
+          "sealed_closure_ref",
+          "signed_closure_multihash",
+          "apply_proof_ref",
+          "apply_proof_multihash",
+          "access_policy_ref",
+          "access_ref",
+          "root_refs",
+          "route_ref"
+        ],
+        "optional_fields": [
+          "entry_projection_target_ref"
+        ],
+        "invariants": [
+          "status active is written only after materialize/create/sign/apply/deploy succeed.",
+          "All linked records use exact address/revision/object-hash references."
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::schema::published-experience-route",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "published-experience-route/v1",
+        "required_fields": [
+          "address",
+          "revision",
+          "kind",
+          "request_id",
+          "publication_address",
+          "share_url"
+        ],
+        "invariants": [
+          "share_url is accepted only from the one validated publication-deployment-result/v1 artifact.",
+          "The publication stores an exact route_ref and never duplicates share_url."
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::schema::experience-access-policy",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "experience-access-policy",
+        "required_fields": [
+          "address",
+          "revision",
+          "object_hash",
+          "mode",
+          "access_ref",
+          "required_access_refs"
+        ],
+        "allowed_modes": [
+          "public",
+          "signed",
+          "account"
+        ],
+        "invariants": [
+          "Public policy has zero required access refs.",
+          "Signed policy names a verifier target.",
+          "Account policy accepts identity only from Account Session."
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::schema::materialization-input",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "hosted-experience-materialization-input/v1",
+        "required_fields": [
+          "schema",
+          "intent",
+          "materializer",
+          "limits",
+          "records"
+        ],
+        "invariants": [
+          "Records are caller-ready owner values.",
+          "The process never opens EEAF, a log, package folders, or owner-private storage."
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::buyer-runtime-template::selected-experience",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "selected-experience-buyer-runtime-template/v1",
+        "files": [
+          {
+            "stored_bytes": "app-page-tsx",
+            "path": [
+              "app",
+              "page.tsx"
+            ]
+          },
+          {
+            "stored_bytes": "app-layout-tsx",
+            "path": [
+              "app",
+              "layout.tsx"
+            ]
+          },
+          {
+            "stored_bytes": "app-globals-css",
+            "path": [
+              "app",
+              "globals.css"
+            ]
+          },
+          {
+            "stored_bytes": "app-robots-ts",
+            "path": [
+              "app",
+              "robots.ts"
+            ]
+          },
+          {
+            "stored_bytes": "app-sitemap-ts",
+            "path": [
+              "app",
+              "sitemap.ts"
+            ]
+          },
+          {
+            "stored_bytes": "app-tsconfig-json",
+            "path": [
+              "tsconfig.json"
+            ]
+          },
+          {
+            "stored_bytes": "app-next-config-mjs",
+            "path": [
+              "next.config.mjs"
+            ]
+          },
+          {
+            "stored_bytes": "hosted-surface-page-tsx",
+            "path": [
+              "app",
+              "stored-artifacts",
+              "hosted-surface-page.tsx"
+            ]
+          },
+          {
+            "stored_bytes": "hosted-surface-client-tsx",
+            "path": [
+              "app",
+              "stored-artifacts",
+              "hosted-surface-client.tsx"
+            ]
+          },
+          {
+            "stored_bytes": "hosted-experience-authority-ts",
+            "path": [
+              "app",
+              "stored-artifacts",
+              "hosted-experience-authority.ts"
+            ]
+          },
+          {
+            "stored_bytes": "hosted-target-carrier-server-ts",
+            "path": [
+              "app",
+              "stored-artifacts",
+              "hosted-target-carrier-server.ts"
+            ]
+          },
+          {
+            "stored_bytes": "hosted-target-carrier-client-tsx",
+            "path": [
+              "app",
+              "stored-artifacts",
+              "hosted-target-carrier-client.tsx"
+            ]
+          },
+          {
+            "stored_bytes": "hosted-target-route-ts",
+            "path": [
+              "app",
+              "bitfield-target",
+              "[...target]",
+              "route.ts"
+            ]
+          },
+          {
+            "stored_bytes": "app-api-experience-manifest-route-ts",
+            "path": [
+              "app",
+              "api",
+              "experience",
+              "[experienceRef]",
+              "manifest",
+              "route.ts"
+            ]
+          },
+          {
+            "stored_bytes": "app-api-experience-bytes-route-ts",
+            "path": [
+              "app",
+              "api",
+              "experience",
+              "[experienceRef]",
+              "bytes",
+              "[...byteRef]",
+              "route.ts"
+            ]
+          },
+          {
+            "stored_bytes": "app-api-experience-data-route-ts",
+            "path": [
+              "app",
+              "api",
+              "experience",
+              "[experienceRef]",
+              "data",
+              "route.ts"
+            ]
+          },
+          {
+            "stored_bytes": "app-api-experience-subscriptions-route-ts",
+            "path": [
+              "app",
+              "api",
+              "experience",
+              "[experienceRef]",
+              "subscriptions",
+              "route.ts"
+            ]
+          },
+          {
+            "stored_bytes": "site-webmanifest",
+            "path": [
+              "app",
+              "site.webmanifest"
+            ]
+          }
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::workflow-action::publish-selected-experience",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:publish-selected-experience",
+        "kind": "action",
+        "name": "publish-selected-experience",
+        "description": "Materialize caller-ready selected roots, seal and verify their exact bytes, deploy through the package-owned provider action, then write the buyer-reachable publication.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "intent_ref",
+            "request_id",
+            "publication_request_ref"
+          ],
+          "properties": {
+            "intent_ref": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "address",
+                "revision",
+                "object_hash"
+              ],
+              "properties": {
+                "address": {
+                  "type": "string"
+                },
+                "revision": {
+                  "type": "string"
+                },
+                "object_hash": {
+                  "type": "string"
+                }
+              }
+            },
+            "request_id": {
+              "type": "string"
+            },
+            "publication_request_ref": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "address",
+                "revision",
+                "object_hash"
+              ],
+              "properties": {
+                "address": {
+                  "type": "string"
+                },
+                "revision": {
+                  "type": "string"
+                },
+                "object_hash": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "resolve_selected_publication_request",
+            "kind": "ask",
+            "config": {
+              "name": "hosted-public-app.resolve-selected-publication-request",
+              "input": {
+                "intent_ref": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "intent_ref"
+                  }
+                },
+                "request_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "request_id"
+                  }
+                },
+                "publication_request_ref": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "publication_request_ref"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "materializer_source",
+            "kind": "read",
+            "config": {
+              "from": "package::hosted-public-app::stored-bytes::materialize-hosted-projection-tree"
+            }
+          },
+          {
+            "id": "provider_deploy_source",
+            "kind": "read",
+            "config": {
+              "from": "package::hosted-public-app::stored-bytes::run-provider-deploy"
+            }
+          },
+          {
+            "id": "materialize_hosted_projection_tree",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "node",
+                  "materialize-hosted-projection-tree.mjs",
+                  "--input-file",
+                  "materialization-input.json",
+                  "--source-file-set-output",
+                  "selected-source-files.json",
+                  "--authority-manifest-output",
+                  "experience-authority-manifest.json"
+                ],
+                "cwd": null,
+                "timeout_ms": 300000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "resolve_selected_publication_request",
+                    "path": "output.projection_process_inputs"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.append",
+                      "args": {
+                        "value": {
+                          "mount_path": "materialize-hosted-projection-tree.mjs",
+                          "content_type": "text/javascript",
+                          "source": {
+                            "kind": "blob_ref",
+                            "hash": {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "steps",
+                                "key": "materializer_source",
+                                "path": "output.content_hash"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "op": "op:core.append",
+                      "args": {
+                        "value": {
+                          "mount_path": "materialization-input.json",
+                          "content_type": "application/json",
+                          "source": {
+                            "kind": "inline",
+                            "bytes": {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "steps",
+                                "key": "resolve_selected_publication_request",
+                                "path": "output.materialization_input"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.stringify",
+                                  "args": {
+                                    "format": "json"
+                                  }
+                                },
+                                {
+                                  "op": "op:core.encode",
+                                  "args": {
+                                    "encoding": "base64"
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": "selected-source-files.json",
+                    "content_type": "application/json",
+                    "storage": "immutable_content"
+                  },
+                  {
+                    "mount_path": "experience-authority-manifest.json",
+                    "content_type": "application/json",
+                    "storage": "immutable_content"
+                  }
+                ],
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "construct_source_archive",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "resolve_selected_publication_request",
+                      "path": "output.closure.binary"
+                    }
+                  },
+                  "create-source-archive",
+                  "--source-file-set",
+                  "selected-source-files.json",
+                  "--source-archive-output",
+                  "selected-source-archive.json"
+                ],
+                "cwd": null,
+                "timeout_ms": 300000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "selected-source-files.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "step_bytes",
+                      "step": "materialize_hosted_projection_tree.outputs.0"
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": "selected-source-archive.json",
+                    "content_type": "application/json",
+                    "storage": "immutable_content"
+                  }
+                ],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "create_hosted_projection_closure",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "resolve_selected_publication_request",
+                      "path": "output.closure.binary"
+                    }
+                  },
+                  "create-from-source-archive-tree",
+                  "--source-archive",
+                  "selected-source-archive.json",
+                  "--closure-file",
+                  "hosted-projection.closure.json",
+                  "--current-state-basis-output",
+                  "current-state-basis.json"
+                ],
+                "cwd": null,
+                "timeout_ms": 300000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "selected-source-archive.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "step_bytes",
+                      "step": "construct_source_archive.outputs.0"
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": "hosted-projection.closure.json",
+                    "content_type": "application/json",
+                    "storage": "immutable_content"
+                  },
+                  {
+                    "mount_path": "current-state-basis.json",
+                    "content_type": "application/json",
+                    "storage": "immutable_content"
+                  }
+                ],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "build_closure_signing_payload",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "resolve_selected_publication_request",
+                      "path": "output.closure.binary"
+                    }
+                  },
+                  "signing-payload",
+                  "--closure-file",
+                  "hosted-projection.closure.json",
+                  "--message-output",
+                  "closure-signing-payload.bin"
+                ],
+                "cwd": null,
+                "timeout_ms": 300000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "hosted-projection.closure.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "step_bytes",
+                      "step": "create_hosted_projection_closure.outputs.0"
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": "closure-signing-payload.bin",
+                    "content_type": "application/octet-stream"
+                  }
+                ],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "read_signing_credential_handle",
+            "kind": "ask",
+            "config": {
+              "name": "slot::credentials-vault",
+              "input": {
+                "operation": "read",
+                "key": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "resolve_selected_publication_request",
+                    "path": "output.closure.credential_key"
+                  }
+                },
+                "handle_ttl_seconds": 300
+              }
+            }
+          },
+          {
+            "id": "sign_closure_payload",
+            "kind": "ask",
+            "config": {
+              "name": "slot::credentials-vault",
+              "input": {
+                "operation": "sign",
+                "handle": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "read_signing_credential_handle",
+                    "path": "output.handle"
+                  }
+                },
+                "message_b64": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "build_closure_signing_payload",
+                    "path": "output.outputs.0.bytes.base64"
+                  }
+                },
+                "scheme": "ed25519",
+                "key_encoding": "hex",
+                "output_encoding": "hex"
+              }
+            }
+          },
+          {
+            "id": "attach_hosted_projection_closure_signature",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "resolve_selected_publication_request",
+                      "path": "output.closure.binary"
+                    }
+                  },
+                  "attach-signature",
+                  "--closure-file",
+                  "hosted-projection.closure.json",
+                  "--key-id",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "resolve_selected_publication_request",
+                      "path": "output.closure.key_id"
+                    }
+                  },
+                  "--signature-hex",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "sign_closure_payload",
+                      "path": "output.signature"
+                    }
+                  },
+                  "--signed-closure-output",
+                  "hosted-projection.signed-closure.json"
+                ],
+                "cwd": null,
+                "timeout_ms": 300000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "hosted-projection.closure.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "step_bytes",
+                      "step": "create_hosted_projection_closure.outputs.0"
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": "hosted-projection.signed-closure.json",
+                    "content_type": "application/json",
+                    "storage": "immutable_content"
+                  }
+                ],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "run_publication_process_sequence",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process_sequence",
+              "input": {
+                "inputs": [
+                  {
+                    "mount_path": "selected-source-archive.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "step_bytes",
+                      "step": "construct_source_archive.outputs.0"
+                    }
+                  },
+                  {
+                    "mount_path": "hosted-projection.signed-closure.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "step_bytes",
+                      "step": "attach_hosted_projection_closure_signature.outputs.0"
+                    }
+                  },
+                  {
+                    "mount_path": "current-state-basis.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "step_bytes",
+                      "step": "create_hosted_projection_closure.outputs.1"
+                    }
+                  },
+                  {
+                    "mount_path": "run-provider-deploy.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "provider_deploy_source",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "steps": {
+                  "$kind": "binding",
+                  "resolve_nested_bindings": false,
+                  "select": {
+                    "from": "steps",
+                    "key": "resolve_selected_publication_request",
+                    "path": "output.publication_process_steps"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "prepare_publication_records_source",
+            "kind": "read",
+            "config": {
+              "from": "package::hosted-public-app::stored-bytes::prepare-publication-records"
+            }
+          },
+          {
+            "id": "prepare_publication_records",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "node",
+                  "prepare-publication-records.mjs",
+                  "--config-file",
+                  "publication-commit-input.json",
+                  "--authority-manifest-file",
+                  "experience-authority-manifest.json",
+                  "--signed-closure-file",
+                  "hosted-projection.signed-closure.json",
+                  "--apply-proof-file",
+                  "apply-proof.json",
+                  "--deployment-result-file",
+                  "deployment-result.json",
+                  "--authority-manifest-record-output",
+                  "authority-manifest-record.json",
+                  "--sealed-closure-record-output",
+                  "signed-closure-record.json",
+                  "--apply-proof-record-output",
+                  "apply-proof-record.json",
+                  "--route-record-output",
+                  "route-record.json",
+                  "--publication-record-output",
+                  "publication-record.json"
+                ],
+                "cwd": null,
+                "timeout_ms": 300000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "prepare-publication-records.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "prepare_publication_records_source",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "publication-commit-input.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "inline",
+                      "bytes": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "resolve_selected_publication_request",
+                          "path": "output.publication_commit_input"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.stringify",
+                            "args": {
+                              "format": "json"
+                            }
+                          },
+                          {
+                            "op": "op:core.encode",
+                            "args": {
+                              "encoding": "base64"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "experience-authority-manifest.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "step_bytes",
+                      "step": "materialize_hosted_projection_tree.outputs.1"
+                    }
+                  },
+                  {
+                    "mount_path": "hosted-projection.signed-closure.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "step_bytes",
+                      "step": "attach_hosted_projection_closure_signature.outputs.0"
+                    }
+                  },
+                  {
+                    "mount_path": "apply-proof.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "step_bytes",
+                      "step": "run_publication_process_sequence.steps.0.process_result.outputs.0"
+                    }
+                  },
+                  {
+                    "mount_path": "deployment-result.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "step_bytes",
+                      "step": "run_publication_process_sequence.steps.1.process_result.outputs.0"
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": "authority-manifest-record.json",
+                    "content_type": "application/json"
+                  },
+                  {
+                    "mount_path": "signed-closure-record.json",
+                    "content_type": "application/json"
+                  },
+                  {
+                    "mount_path": "apply-proof-record.json",
+                    "content_type": "application/json"
+                  },
+                  {
+                    "mount_path": "route-record.json",
+                    "content_type": "application/json"
+                  },
+                  {
+                    "mount_path": "publication-record.json",
+                    "content_type": "application/json"
+                  }
+                ],
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "commit_publication",
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "resolve_selected_publication_request",
+                      "path": "output.publication.authority_manifest_address"
+                    }
+                  },
+                  "address_mode": "identity_text",
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload_bytes": {
+                    "kind": "bytes",
+                    "ref": "prepare_publication_records.outputs.0"
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "resolve_selected_publication_request",
+                      "path": "output.publication.sealed_closure_address"
+                    }
+                  },
+                  "address_mode": "identity_text",
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload_bytes": {
+                    "kind": "bytes",
+                    "ref": "prepare_publication_records.outputs.1"
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "resolve_selected_publication_request",
+                      "path": "output.publication.apply_proof_address"
+                    }
+                  },
+                  "address_mode": "identity_text",
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload_bytes": {
+                    "kind": "bytes",
+                    "ref": "prepare_publication_records.outputs.2"
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "resolve_selected_publication_request",
+                      "path": "output.publication.address"
+                    }
+                  },
+                  "address_mode": "identity_text",
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload_bytes": {
+                    "kind": "bytes",
+                    "ref": "prepare_publication_records.outputs.4"
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "resolve_selected_publication_request",
+                      "path": "output.publication.policy_binding_address"
+                    }
+                  },
+                  "address_mode": "identity_text",
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "resolve_selected_publication_request",
+                      "path": "output.reachability_records.policy_binding"
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "resolve_selected_publication_request",
+                      "path": "output.publication.offer_address"
+                    }
+                  },
+                  "address_mode": "identity_text",
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "resolve_selected_publication_request",
+                      "path": "output.reachability_records.offer"
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "resolve_selected_publication_request",
+                      "path": "output.publication.route_address"
+                    }
+                  },
+                  "address_mode": "identity_text",
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload_bytes": {
+                    "kind": "bytes",
+                    "ref": "prepare_publication_records.outputs.3"
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "resolve_selected_publication_request",
+                      "path": "output.publication.state_address"
+                    }
+                  },
+                  "address_mode": "identity_text",
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "resolve_selected_publication_request",
+                      "path": "output.reachability_records.state"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "id": "return_result",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "prepare_publication_records",
+                  "path": "output.outputs.3.bytes.base64"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.decode",
+                    "args": {
+                      "encoding": "base64"
+                    }
+                  },
+                  {
+                    "op": "op:core.json_parse"
+                  },
+                  {
+                    "op": "op:core.lookup",
+                    "args": {
+                      "key": "share_url"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "stage_owner_carrier",
+            "kind": "action",
+            "config": {
+              "definition_id": "action:public-product-carrier.write-public-carrier",
+              "inputs": {
+                "experience_ref": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "resolve_selected_publication_request",
+                    "path": "output.intent_ref"
+                  }
+                },
+                "request_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "request_id"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "from": "resolve_selected_publication_request",
+            "to": "materializer_source",
+            "kind": "on_result"
+          },
+          {
+            "from": "materializer_source",
+            "to": "materialize_hosted_projection_tree",
+            "kind": "on_result"
+          },
+          {
+            "from": "materialize_hosted_projection_tree",
+            "to": "construct_source_archive",
+            "kind": "on_result",
+            "config": {
+              "$kind": "binding",
+              "select": {
+                "from": "input",
+                "path": "output.termination.code"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": 0
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "from": "construct_source_archive",
+            "to": "create_hosted_projection_closure",
+            "kind": "on_result",
+            "config": {
+              "$kind": "binding",
+              "select": {
+                "from": "input",
+                "path": "output.termination.code"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": 0
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "from": "create_hosted_projection_closure",
+            "to": "build_closure_signing_payload",
+            "kind": "on_result",
+            "config": {
+              "$kind": "binding",
+              "select": {
+                "from": "input",
+                "path": "output.termination.code"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": 0
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "from": "build_closure_signing_payload",
+            "to": "read_signing_credential_handle",
+            "kind": "on_result",
+            "config": {
+              "$kind": "binding",
+              "select": {
+                "from": "input",
+                "path": "output.termination.code"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": 0
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "from": "read_signing_credential_handle",
+            "to": "sign_closure_payload",
+            "kind": "on_result"
+          },
+          {
+            "from": "sign_closure_payload",
+            "to": "attach_hosted_projection_closure_signature",
+            "kind": "on_result"
+          },
+          {
+            "from": "attach_hosted_projection_closure_signature",
+            "to": "run_publication_process_sequence",
+            "kind": "on_result",
+            "config": {
+              "$kind": "binding",
+              "select": {
+                "from": "input",
+                "path": "output.termination.code"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": 0
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "from": "provider_deploy_source",
+            "to": "run_publication_process_sequence",
+            "kind": "on_result"
+          },
+          {
+            "from": "prepare_publication_records_source",
+            "to": "prepare_publication_records",
+            "kind": "on_result"
+          },
+          {
+            "from": "run_publication_process_sequence",
+            "to": "prepare_publication_records",
+            "kind": "on_result",
+            "config": {
+              "$kind": "binding",
+              "select": {
+                "from": "input",
+                "path": "output.steps.1.process_result.termination.code"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": 0
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "from": "prepare_publication_records",
+            "to": "stage_owner_carrier",
+            "kind": "on_result",
+            "config": {
+              "$kind": "binding",
+              "select": {
+                "from": "input",
+                "path": "output.termination.code"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": 0
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "from": "stage_owner_carrier",
+            "to": "commit_publication",
+            "kind": "on_result"
+          },
+          {
+            "from": "commit_publication",
+            "to": "return_result",
+            "kind": "on_result"
+          }
+        ],
+        "trigger_type": "manual",
+        "is_active": true,
+        "version": 1
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::target::resolve-selected-publication-request",
+      "path": [
+        "packages",
+        "hosted-public-app",
+        "targets",
+        "resolve-selected-publication-request"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "target": "hosted-public-app.resolve-selected-publication-request",
+        "entry_name": "resolve-selected-publication-request",
+        "export_name": "resolveSelectedPublicationRequestTarget",
+        "source_path": "do-work/selected-publication-targets.ts"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::target::reserve-public-selection-transition",
+      "path": [
+        "packages",
+        "hosted-public-app",
+        "targets",
+        "reserve-public-selection-transition"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "target": "hosted-public-app.reserve-public-selection-transition",
+        "entry_name": "reserve-public-selection-transition",
+        "export_name": "reservePublicSelectionTransitionTarget",
+        "source_path": "do-work/public-selection-transition.ts"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::target::finalize-public-selection-transition",
+      "path": [
+        "packages",
+        "hosted-public-app",
+        "targets",
+        "finalize-public-selection-transition"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "target": "hosted-public-app.finalize-public-selection-transition",
+        "entry_name": "finalize-public-selection-transition",
+        "export_name": "finalizePublicSelectionTransitionTarget",
+        "source_path": "do-work/public-selection-transition.ts"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::target::reconcile-public-selection-transition",
+      "path": [
+        "packages",
+        "hosted-public-app",
+        "targets",
+        "reconcile-public-selection-transition"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "target": "hosted-public-app.reconcile-public-selection-transition",
+        "entry_name": "reconcile-public-selection-transition",
+        "export_name": "reconcilePublicSelectionTransitionTarget",
+        "source_path": "do-work/public-selection-transition.ts"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::target::normalize-selected-experience-publication",
+      "path": [
+        "packages",
+        "hosted-public-app",
+        "targets",
+        "normalize-selected-experience-publication"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "target": "hosted-public-app.normalize-selected-experience-publication",
+        "entry_name": "normalize-selected-experience-publication",
+        "export_name": "normalizeSelectedExperiencePublicationTarget",
+        "source_path": "do-work/selected-publication-targets.ts"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::workflow-action::read-current-container-base",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record", "workflow-definition"],
+      "payload": {
+        "id": "action:hosted-public-app.read-current-container-base",
+        "kind": "action",
+        "name": "read-current-container-base",
+        "description": "Read the provider's current immutable container identity through the package-owned provider entrypoint.",
+        "input_schema": {"type": "object", "required": ["provider_application"]},
+        "steps": [
+          {
+            "id": "read_provider_deployer",
+            "kind": "read",
+            "config": {"from": "package::hosted-public-app::stored-bytes::run-provider-deploy"}
+          },
+          {
+            "id": "read_current_base",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "node",
+                  "run-provider-deploy.mjs",
+                  "--read-current-container-base",
+                  "--application",
+                  {"$kind": "binding", "select": {"from": "input", "path": "provider_application"}}
+                ],
+                "cwd": null,
+                "timeout_ms": 60000,
+                "termination_grace_ms": 1000,
+                "expected_termination": {"kind": "exited", "code": 0},
+                "env": {},
+                "inputs": [{
+                  "mount_path": "run-provider-deploy.mjs",
+                  "content_type": "text/javascript",
+                  "source": {
+                    "kind": "blob_ref",
+                    "hash": {"$kind": "binding", "select": {"from": "steps", "key": "read_provider_deployer", "path": "output.content_hash"}}
+                  }
+                }],
+                "input_trees": [],
+                "outputs": [{"mount_path": "current-container-base.json", "content_type": "application/json", "storage": "inline"}],
+                "network_access": "allowed",
+                "containment": {"kind": "descendant_effect_contained", "pipe_eof_timeout_ms": 1000, "publications": []},
+                "capture_fds": [1, 2],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "return",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {"from": "steps", "key": "read_current_base", "path": "output.outputs.0.bytes.base64"},
+                "transform": [
+                  {"op": "op:core.decode", "args": {"encoding": "base64"}},
+                  {"op": "op:core.json_parse"}
+                ]
+              }
+            }
+          }
+        ],
+        "edges": [
+          {"from": "read_provider_deployer", "to": "read_current_base", "kind": "on_result"},
+          {"from": "read_current_base", "to": "return", "kind": "on_result"}
+        ],
+        "trigger_type": "manual",
+        "is_active": true
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::workflow-action::retire-provider-application",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record", "workflow-definition"],
+      "payload": {
+        "id": "action:hosted-public-app.retire-provider-application",
+        "kind": "action",
+        "name": "retire-provider-application",
+        "description": "Retire one provider application through the package-owned provider entrypoint.",
+        "input_schema": {
+          "type": "object",
+          "required": ["provider_application"],
+          "properties": {"provider_application": {"type": "string"}},
+          "additionalProperties": false
+        },
+        "steps": [
+          {
+            "id": "read_provider_deployer",
+            "kind": "read",
+            "config": {"from": "package::hosted-public-app::stored-bytes::run-provider-deploy"}
+          },
+          {
+            "id": "retire",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process_sequence",
+              "input": {
+                "inputs": [{
+                  "mount_path": "run-provider-deploy.mjs",
+                  "content_type": "text/javascript",
+                  "source": {
+                    "kind": "blob_ref",
+                    "hash": {"$kind": "binding", "select": {"from": "steps", "key": "read_provider_deployer", "path": "output.content_hash"}}
+                  }
+                }],
+                "input_trees": [],
+                "steps": [
+                  {
+                    "name": "prepare",
+                    "process": {
+                      "argv": [
+                        "node",
+                        "run-provider-deploy.mjs",
+                        "--retire-provider-application",
+                        {"$kind": "binding", "select": {"from": "input", "path": "provider_application"}}
+                      ],
+                      "cwd": null,
+                      "timeout_ms": 60000,
+                      "termination_grace_ms": 1000,
+                      "expected_termination": {"kind": "exited", "code": 0},
+                      "env": {},
+                      "inputs": [],
+                      "input_trees": [],
+                      "outputs": [],
+                      "network_access": "allowed",
+                      "containment": {"kind": "descendant_effect_contained", "pipe_eof_timeout_ms": 1000, "publications": []},
+                      "capture_fds": [1, 2],
+                      "collected_files": []
+                    },
+                    "workspace_bindings": {"environment": [], "arguments": []},
+                    "predecessor_outputs": []
+                  },
+                  {
+                    "name": "retire",
+                    "process": {
+                      "argv": [
+                        "fly",
+                        "apps",
+                        "destroy",
+                        {"$kind": "binding", "select": {"from": "input", "path": "provider_application"}},
+                        "--yes"
+                      ],
+                      "cwd": null,
+                      "timeout_ms": 60000,
+                      "termination_grace_ms": 1000,
+                      "expected_termination": {"kind": "exited", "code": 0},
+                      "env": {"FLY_CONFIG_DIR": "fly-config"},
+                      "inputs": [],
+                      "input_trees": [],
+                      "outputs": [],
+                      "network_access": "allowed",
+                      "containment": {"kind": "descendant_effect_contained", "pipe_eof_timeout_ms": 1000, "publications": []},
+                      "capture_fds": [1, 2],
+                      "collected_files": []
+                    },
+                    "workspace_bindings": {"environment": [], "arguments": []},
+                    "predecessor_outputs": []
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "return",
+            "kind": "return",
+            "config": {
+              "value": {"$kind": "binding", "select": {"from": "steps", "key": "retire", "path": "output"}}
+            }
+          }
+        ],
+        "edges": [
+          {"from": "read_provider_deployer", "to": "retire", "kind": "on_result"},
+          {"from": "retire", "to": "return", "kind": "on_result"}
+        ],
+        "trigger_type": "manual",
+        "is_active": true
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::workflow-action::set-machine-size",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record", "workflow-definition"],
+      "payload": {
+        "id": "action:hosted-public-app.set-machine-size",
+        "kind": "action",
+        "name": "set-machine-size",
+        "description": "Set the CPU and memory for one hosted application without rebuilding it.",
+        "input_schema": {
+          "type": "object",
+          "required": ["provider_application", "vm_size", "memory_megabytes"],
+          "properties": {
+            "provider_application": {"type": "string"},
+            "vm_size": {"type": "string"},
+            "memory_megabytes": {"type": "string"}
+          },
+          "additionalProperties": false
+        },
+        "steps": [
+          {
+            "id": "read_provider_deployer",
+            "kind": "read",
+            "config": {"from": "package::hosted-public-app::stored-bytes::run-provider-deploy"}
+          },
+          {
+            "id": "set_machine_size",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "node",
+                  "run-provider-deploy.mjs",
+                  "--set-machine-size",
+                  "--provider-application",
+                  {"$kind": "binding", "select": {"from": "input", "path": "provider_application"}},
+                  "--vm-size",
+                  {"$kind": "binding", "select": {"from": "input", "path": "vm_size"}},
+                  "--memory-megabytes",
+                  {"$kind": "binding", "select": {"from": "input", "path": "memory_megabytes"}}
+                ],
+                "cwd": null,
+                "timeout_ms": 120000,
+                "termination_grace_ms": 1000,
+                "expected_termination": {"kind": "exited", "code": 0},
+                "env": {},
+                "inputs": [{
+                  "mount_path": "run-provider-deploy.mjs",
+                  "content_type": "text/javascript",
+                  "source": {
+                    "kind": "blob_ref",
+                    "hash": {"$kind": "binding", "select": {"from": "steps", "key": "read_provider_deployer", "path": "output.content_hash"}}
+                  }
+                }],
+                "input_trees": [],
+                "outputs": [],
+                "network_access": "allowed",
+                "containment": {"kind": "descendant_effect_contained", "pipe_eof_timeout_ms": 1000, "publications": []},
+                "capture_fds": [1, 2],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "return",
+            "kind": "return",
+            "config": {
+              "value": {"$kind": "binding", "select": {"from": "steps", "key": "set_machine_size", "path": "output"}}
+            }
+          }
+        ],
+        "edges": [
+          {"from": "read_provider_deployer", "to": "set_machine_size", "kind": "on_result"},
+          {"from": "set_machine_size", "to": "return", "kind": "on_result"}
+        ],
+        "trigger_type": "manual",
+        "is_active": true
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::workflow-action::advance-installed-app-process-environment",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record", "workflow-definition"],
+      "payload": {
+        "id": "action:hosted-public-app.advance-installed-app-process-environment",
+        "kind": "action",
+        "name": "advance-installed-app-process-environment",
+        "description": "Change one installed app process setting through its durable app log, then reopen that app.",
+        "input_schema": {
+          "type": "object",
+          "required": ["provider_application", "provider_credential_key", "app_id", "environment_name", "environment_value"],
+          "properties": {
+            "provider_application": {"type": "string"},
+            "provider_credential_key": {"type": "string"},
+            "app_id": {"type": "string"},
+            "environment_name": {"type": "string"},
+            "environment_value": {"type": "string"}
+          },
+          "additionalProperties": false
+        },
+        "steps": [
+          {
+            "id": "read_provider_deployer",
+            "kind": "read",
+            "config": {"from": "package::hosted-public-app::stored-bytes::run-provider-deploy"}
+          },
+          {
+            "id": "credential_mount",
+            "kind": "loop",
+            "config": {
+              "source": [{"$kind": "binding", "select": {"from": "input", "path": "provider_credential_key"}}],
+              "item_var": "vault_key",
+              "parallel": false,
+              "max_iterations": 1,
+              "definition_id": "action:resolve-one-credential-mount",
+              "inputs": {
+                "mount": {
+                  "vault_key": {"$kind": "binding", "select": {"from": "loop", "path": "vault_key"}},
+                  "mount_path": "fly-config/config.yml"
+                }
+              }
+            },
+            "join": "all"
+          },
+          {
+            "id": "prepare",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "node",
+                  "run-provider-deploy.mjs",
+                  "--prepare-installed-app-process-environment",
+                  "--provider-application",
+                  {"$kind": "binding", "select": {"from": "input", "path": "provider_application"}},
+                  "--app-id",
+                  {"$kind": "binding", "select": {"from": "input", "path": "app_id"}},
+                  "--environment-name",
+                  {"$kind": "binding", "select": {"from": "input", "path": "environment_name"}},
+                  "--environment-value",
+                  {"$kind": "binding", "select": {"from": "input", "path": "environment_value"}}
+                ],
+                "cwd": null,
+                "timeout_ms": 30000,
+                "termination_grace_ms": 1000,
+                "expected_termination": {"kind": "exited", "code": 0},
+                "env": {},
+                "inputs": [{
+                  "mount_path": "run-provider-deploy.mjs",
+                  "content_type": "text/javascript",
+                  "source": {
+                    "kind": "blob_ref",
+                    "hash": {"$kind": "binding", "select": {"from": "steps", "key": "read_provider_deployer", "path": "output.content_hash"}}
+                  }
+                }],
+                "input_trees": [],
+                "outputs": [{"mount_path": "installed-app-process-environment.json", "content_type": "application/json", "storage": "inline"}],
+                "containment": {"kind": "leaf"},
+                "capture_fds": [1, 2],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "advance_and_reopen",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process_sequence",
+              "input": {
+                "inputs": [{"$kind": "binding", "select": {"from": "steps", "key": "credential_mount", "path": "output.0"}}],
+                "input_trees": [],
+                "steps": [
+                  {
+                    "name": "advance",
+                    "process": {
+                      "argv": [
+                        "fly", "ssh", "console", "--app",
+                        {"$kind": "binding", "select": {"from": "input", "path": "provider_application"}},
+                        "--command",
+                        {
+                          "$kind": "binding",
+                          "select": {"from": "steps", "key": "prepare", "path": "output.outputs.0.bytes.base64"},
+                          "transform": [
+                            {"op": "op:core.decode", "args": {"encoding": "base64"}},
+                            {"op": "op:core.json_parse"},
+                            {"op": "op:core.lookup", "args": {"key": "advance_command"}}
+                          ]
+                        }
+                      ],
+                      "cwd": null,
+                      "timeout_ms": 60000,
+                      "termination_grace_ms": 1000,
+                      "expected_termination": {"kind": "exited", "code": 0},
+                      "env": {"FLY_CONFIG_DIR": "fly-config"},
+                      "inputs": [],
+                      "input_trees": [],
+                      "outputs": [],
+                      "network_access": "allowed",
+                      "containment": {"kind": "descendant_effect_contained", "pipe_eof_timeout_ms": 1000, "publications": []},
+                      "capture_fds": [1, 2],
+                      "collected_files": []
+                    },
+                    "workspace_bindings": {"environment": [], "arguments": []},
+                    "predecessor_outputs": []
+                  },
+                  {
+                    "name": "restart",
+                    "process": {
+                      "argv": [
+                        "fly", "apps", "restart",
+                        {"$kind": "binding", "select": {"from": "input", "path": "provider_application"}}
+                      ],
+                      "cwd": null,
+                      "timeout_ms": 60000,
+                      "termination_grace_ms": 1000,
+                      "expected_termination": {"kind": "exited", "code": 0},
+                      "env": {"FLY_CONFIG_DIR": "fly-config"},
+                      "inputs": [],
+                      "input_trees": [],
+                      "outputs": [],
+                      "network_access": "allowed",
+                      "containment": {"kind": "descendant_effect_contained", "pipe_eof_timeout_ms": 1000, "publications": []},
+                      "capture_fds": [1, 2],
+                      "collected_files": []
+                    },
+                    "workspace_bindings": {"environment": [], "arguments": []},
+                    "predecessor_outputs": []
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "return",
+            "kind": "return",
+            "config": {
+              "value": {"$kind": "binding", "select": {"from": "steps", "key": "advance_and_reopen", "path": "output"}}
+            }
+          }
+        ],
+        "edges": [
+          {"from": "read_provider_deployer", "to": "prepare", "kind": "on_result"},
+          {"from": "credential_mount", "to": "advance_and_reopen", "kind": "on_result"},
+          {"from": "prepare", "to": "advance_and_reopen", "kind": "on_result"},
+          {"from": "advance_and_reopen", "to": "return", "kind": "on_result"}
+        ],
+        "trigger_type": "manual",
+        "is_active": true
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::workflow-action::refresh-container-runtime",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record", "workflow-definition"],
+      "payload": {
+        "id": "action:hosted-public-app.refresh-container-runtime",
+        "kind": "action",
+        "name": "refresh-container-runtime",
+        "description": "Put the current shared runtime into an existing hosted application image without changing that application's bundle or volume.",
+        "input_schema": {
+          "type": "object",
+          "required": ["runtime_provider_application", "provider_application"],
+          "properties": {
+            "runtime_provider_application": {"type": "string"},
+            "provider_application": {"type": "string"}
+          }
+        },
+        "steps": [
+          {
+            "id": "read_runtime_image",
+            "kind": "action",
+            "config": {
+              "definition_id": "action:hosted-public-app.read-current-container-base",
+              "inputs": {
+                "provider_application": {
+                  "$kind": "binding",
+                  "select": {"from": "input", "path": "runtime_provider_application"}
+                }
+              }
+            }
+          },
+          {
+            "id": "read_application_image",
+            "kind": "action",
+            "config": {
+              "definition_id": "action:hosted-public-app.read-current-container-base",
+              "inputs": {
+                "provider_application": {
+                  "$kind": "binding",
+                  "select": {"from": "input", "path": "provider_application"}
+                }
+              }
+            }
+          },
+          {
+            "id": "build_container",
+            "kind": "ask",
+            "config": {
+              "name": "native-artifact.build-current-container-artifact",
+              "input": {
+                "runtime_base_artifact": {
+                  "$kind": "binding",
+                  "select": {"from": "steps", "key": "read_runtime_image", "path": "output"}
+                },
+                "application_base_artifact": {
+                  "$kind": "binding",
+                  "select": {"from": "steps", "key": "read_application_image", "path": "output"}
+                }
+              }
+            }
+          },
+          {
+            "id": "deploy_container",
+            "kind": "action",
+            "config": {
+              "definition_id": "action:hosted-public-app.deploy-container-artifact",
+              "inputs": {
+                "provider_application": {
+                  "$kind": "binding",
+                  "select": {"from": "input", "path": "provider_application"}
+                },
+                "container_artifact": {
+                  "$kind": "binding",
+                  "select": {"from": "steps", "key": "build_container", "path": "output"}
+                }
+              }
+            }
+          },
+          {
+            "id": "return",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {"from": "steps", "key": "deploy_container", "path": "output"}
+              }
+            }
+          }
+        ],
+        "edges": [
+          {"from": "read_runtime_image", "to": "build_container", "kind": "on_result"},
+          {"from": "read_application_image", "to": "build_container", "kind": "on_result"},
+          {"from": "build_container", "to": "deploy_container", "kind": "on_result"},
+          {"from": "deploy_container", "to": "return", "kind": "on_result"}
+        ],
+        "trigger_type": "manual",
+        "is_active": true
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::workflow-action::deploy-container-artifact",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record", "workflow-definition"],
+      "payload": {
+        "id": "action:hosted-public-app.deploy-container-artifact",
+        "kind": "action",
+        "name": "deploy-container-artifact",
+        "description": "Deploy one immutable container artifact through the package-owned provider entrypoint and return current boot state.",
+        "input_schema": {
+          "type": "object",
+          "required": ["provider_application", "container_artifact", "member_readiness_credential_key"]
+        },
+        "steps": [
+          {
+            "id": "read_provider_deployer",
+            "kind": "read",
+            "config": {"from": "package::hosted-public-app::stored-bytes::run-provider-deploy"}
+          },
+          {
+            "id": "member_readiness_mount",
+            "kind": "loop",
+            "config": {
+              "source": [{"$kind": "binding", "select": {"from": "input", "path": "member_readiness_credential_key"}}],
+              "item_var": "vault_key",
+              "parallel": false,
+              "max_iterations": 1,
+              "definition_id": "action:resolve-one-credential-mount",
+              "inputs": {"mount": {
+                "vault_key": {"$kind": "binding", "select": {"from": "loop", "path": "vault_key"}},
+                "mount_path": "member-readiness.json"
+              }}
+            }
+          },
+          {
+            "id": "deploy",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process_sequence",
+              "input": {
+                "inputs": [
+                  {
+                    "mount_path": "run-provider-deploy.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {"$kind": "binding", "select": {"from": "steps", "key": "read_provider_deployer", "path": "output.content_hash"}}
+                    }
+                  },
+                  {
+                    "mount_path": "container-artifact.tar",
+                    "content_type": "application/x-tar",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {"$kind": "binding", "select": {"from": "input", "path": "container_artifact.content_hash"}}
+                    }
+                  },
+                  {"$kind": "binding", "select": {"from": "steps", "key": "member_readiness_mount", "path": "output.0"}}
+                ],
+                "input_trees": [],
+                "steps": [
+                  {
+                    "name": "prepare",
+                    "process": {
+                      "argv": [
+                        "node",
+                        "run-provider-deploy.mjs",
+                        "--prepare-container-artifact",
+                        "container-artifact.tar",
+                        "--application",
+                        {"$kind": "binding", "select": {"from": "input", "path": "provider_application"}}
+                      ],
+                      "cwd": null,
+                      "timeout_ms": 60000,
+                      "termination_grace_ms": 1000,
+                      "expected_termination": {"kind": "exited", "code": 0},
+                      "env": {},
+                      "inputs": [],
+                      "input_trees": [],
+                      "outputs": [],
+                      "network_access": "allowed",
+                      "containment": {"kind": "descendant_effect_contained", "pipe_eof_timeout_ms": 1000, "publications": []},
+                      "capture_fds": [1, 2],
+                      "collected_files": []
+                    },
+                    "workspace_bindings": {"environment": [], "arguments": []},
+                    "predecessor_outputs": []
+                  },
+                  {
+                    "name": "read_current_configuration",
+                    "process": {
+                      "argv": [
+                        "fly", "config", "save",
+                        "--app",
+                        {"$kind": "binding", "select": {"from": "input", "path": "provider_application"}}
+                      ],
+                      "cwd": "site",
+                      "timeout_ms": 60000,
+                      "termination_grace_ms": 1000,
+                      "expected_termination": {"kind": "exited", "code": 0},
+                      "env": {"FLY_CONFIG_DIR": "fly-config"},
+                      "inputs": [],
+                      "input_trees": [],
+                      "outputs": [],
+                      "network_access": "allowed",
+                      "containment": {"kind": "descendant_effect_contained", "pipe_eof_timeout_ms": 1000, "publications": []},
+                      "capture_fds": [1, 2],
+                      "collected_files": []
+                    },
+                    "workspace_bindings": {"environment": [{"key": "FLY_CONFIG_DIR", "parts": [{"kind": "workspace_path", "segments": ["fly-config"]}]}], "arguments": []},
+                    "predecessor_outputs": []
+                  },
+                  {
+                    "name": "select_container_artifact_dockerfile",
+                    "process": {
+                      "argv": [
+                        "node", "run-provider-deploy.mjs",
+                        "--select-container-artifact-dockerfile", "site/fly.toml"
+                      ],
+                      "cwd": null,
+                      "timeout_ms": 60000,
+                      "termination_grace_ms": 1000,
+                      "expected_termination": {"kind": "exited", "code": 0},
+                      "env": {},
+                      "inputs": [],
+                      "input_trees": [],
+                      "outputs": [],
+                      "network_access": "denied",
+                      "containment": {"kind": "leaf"},
+                      "capture_fds": [1, 2],
+                      "collected_files": []
+                    },
+                    "workspace_bindings": {"environment": [], "arguments": []},
+                    "predecessor_outputs": []
+                  },
+                  {
+                    "name": "deploy",
+                    "process": {
+                      "argv": [
+                        "node", "run-provider-deploy.mjs", "--deploy-prepared-container-artifact",
+                        {"$kind": "binding", "select": {"from": "input", "path": "provider_application"}},
+                        "--member-readiness-file", "member-readiness.json"
+                      ],
+                      "cwd": null,
+                      "timeout_ms": 1800000,
+                      "termination_grace_ms": 30000,
+                      "expected_termination": {"kind": "exited", "code": 0},
+                      "env": {"FLY_CONFIG_DIR": "fly-config"},
+                      "inputs": [],
+                      "input_trees": [],
+                      "outputs": [{"mount_path": "deployment-result.json", "content_type": "application/json", "storage": "inline"}],
+                      "network_access": "allowed",
+                      "containment": {"kind": "descendant_effect_contained", "pipe_eof_timeout_ms": 30000, "publications": []},
+                      "capture_fds": [1, 2],
+                      "collected_files": []
+                    },
+                    "workspace_bindings": {"environment": [{"key": "FLY_CONFIG_DIR", "parts": [{"kind": "workspace_path", "segments": ["fly-config"]}]}], "arguments": []},
+                    "predecessor_outputs": []
+                  },
+                  {
+                    "name": "read_current",
+                    "process": {
+                      "argv": [
+                        "node",
+                        "run-provider-deploy.mjs",
+                        "--read-deployed-container",
+                        "--application",
+                        {"$kind": "binding", "select": {"from": "input", "path": "provider_application"}}
+                      ],
+                      "cwd": null,
+                      "timeout_ms": 240000,
+                      "termination_grace_ms": 1000,
+                      "expected_termination": {"kind": "exited", "code": 0},
+                      "env": {},
+                      "inputs": [],
+                      "input_trees": [],
+                      "outputs": [{"mount_path": "native-deployment-result.json", "content_type": "application/json", "storage": "inline"}],
+                      "network_access": "allowed",
+                      "containment": {"kind": "descendant_effect_contained", "pipe_eof_timeout_ms": 1000, "publications": []},
+                      "capture_fds": [1, 2],
+                      "collected_files": []
+                    },
+                    "workspace_bindings": {"environment": [], "arguments": []},
+                    "predecessor_outputs": []
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "return",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {"from": "steps", "key": "deploy", "path": "output.steps.4.process_result.outputs.0.bytes.base64"},
+                "transform": [
+                  {"op": "op:core.decode", "args": {"encoding": "base64"}},
+                  {"op": "op:core.json_parse"}
+                ]
+              }
+            }
+          }
+        ],
+        "edges": [
+          {"from": "read_provider_deployer", "to": "member_readiness_mount", "kind": "on_result"},
+          {"from": "member_readiness_mount", "to": "deploy", "kind": "on_result"},
+          {"from": "deploy", "to": "return", "kind": "on_result"}
+        ],
+        "trigger_type": "manual",
+        "is_active": true
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::entry::resolve-selected-publication-request",
+      "path": [
+        "packages",
+        "hosted-public-app",
+        "entries",
+        "resolve-selected-publication-request"
+      ],
+      "payload": {
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-resolve-selected-publication-request"
+        },
+        "kind": "bitfield-package-entry",
+        "entry_name": "resolve-selected-publication-request",
+        "export_name": "resolveSelectedPublicationRequestTarget",
+        "source_path": "do-work/selected-publication-targets.ts"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::entry::reserve-public-selection-transition",
+      "path": [
+        "packages",
+        "hosted-public-app",
+        "entries",
+        "reserve-public-selection-transition"
+      ],
+      "payload": {
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-reserve-public-selection-transition"
+        },
+        "kind": "bitfield-package-entry",
+        "entry_name": "reserve-public-selection-transition",
+        "export_name": "reservePublicSelectionTransitionTarget",
+        "source_path": "do-work/public-selection-transition.ts"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::entry::finalize-public-selection-transition",
+      "path": [
+        "packages",
+        "hosted-public-app",
+        "entries",
+        "finalize-public-selection-transition"
+      ],
+      "payload": {
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-finalize-public-selection-transition"
+        },
+        "kind": "bitfield-package-entry",
+        "entry_name": "finalize-public-selection-transition",
+        "export_name": "finalizePublicSelectionTransitionTarget",
+        "source_path": "do-work/public-selection-transition.ts"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::entry::reconcile-public-selection-transition",
+      "path": [
+        "packages",
+        "hosted-public-app",
+        "entries",
+        "reconcile-public-selection-transition"
+      ],
+      "payload": {
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-reconcile-public-selection-transition"
+        },
+        "kind": "bitfield-package-entry",
+        "entry_name": "reconcile-public-selection-transition",
+        "export_name": "reconcilePublicSelectionTransitionTarget",
+        "source_path": "do-work/public-selection-transition.ts"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::entry::normalize-selected-experience-publication",
+      "path": [
+        "packages",
+        "hosted-public-app",
+        "entries",
+        "normalize-selected-experience-publication"
+      ],
+      "payload": {
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-normalize-selected-experience-publication"
+        },
+        "kind": "bitfield-package-entry",
+        "entry_name": "normalize-selected-experience-publication",
+        "export_name": "normalizeSelectedExperiencePublicationTarget",
+        "source_path": "do-work/selected-publication-targets.ts"
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-resolve-selected-publication-request",
+      "source_path": "built-stored-bytes/entry-bytes-resolve-selected-publication-request",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-resolve-selected-publication-request.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-normalize-selected-experience-publication",
+      "source_path": "built-stored-bytes/entry-bytes-normalize-selected-experience-publication",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-normalize-selected-experience-publication.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::descriptor::action::publish-selected-experience",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "operational-record.action-materializer.v1",
+        "export_name": "requestPublishSelectedExperience",
+        "human_label": "Publish selected experience",
+        "owner_target": "slot::workflow",
+        "operation": "execute_definition",
+        "workflow_definition_address": "package::hosted-public-app::workflow-action::publish-selected-experience",
+        "include_output": true,
+        "include_steps": false,
+        "caller_input_contract": "Only the exact persisted publication-request identity, its exact selected intent identity, and its opaque request key cross this boundary. The owner exact-reads and cross-checks the request before resolving dependencies, policy, the bounded deployment request, roots, manifests, and publication results."
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::descriptor::action::share-or-sell-selected-experience",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "operational-record.action-materializer.v1",
+        "export_name": "requestSellerPublication",
+        "human_label": "Share or sell selected experience",
+        "owner_target": "slot::workflow",
+        "operation": "execute_definition",
+        "workflow_definition_address": "package::hosted-public-app::workflow-action::request-seller-publication",
+        "include_output": true,
+        "include_steps": false,
+        "caller_input_contract": "The creator supplies only a surface-owner materializer descriptor address, opaque owner-local selection input, materialization UUID, and canonical policy/destination addresses. Hosted Public App resolves current observations and exact authority records, generates the opaque publication request key, and persists the normalized request before admitted Workflow publication."
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|action:publish-selected-experience|type:action",
+      "path": [
+        "current-item",
+        "entity-type"
+      ],
+      "payload_text": "action:publish-selected-experience",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|action:publish-selected-experience",
+      "path": [
+        "current-item",
+        "entity"
+      ],
+      "payload_text": "action:publish-selected-experience",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::publish-control::request-publish-selected-experience",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "package-publish-control",
+        "label": "Publish selected experience",
+        "entry_name": "request-publish-selected-experience",
+        "stored_bytes": "request-publish-selected-experience"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::entry::request-publish-selected-experience",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "request-publish-selected-experience",
+        "export_name": "requestPublishSelectedExperience",
+        "source_path": "do-work/request-publish-live-site.ts",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-request-publish-selected-experience"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::publish-control::request-seller-publication",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "package-publish-control",
+        "label": "Share or sell selected experience",
+        "entry_name": "request-seller-publication",
+        "stored_bytes": "request-seller-publication"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::entry::request-seller-publication",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "request-seller-publication",
+        "export_name": "requestSellerPublication",
+        "source_path": "do-work/request-publish-live-site.ts",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-request-seller-publication"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::entry::package-store-metadata",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "package-store-metadata",
+        "export_name": "packageStoreMetadata",
+        "source_path": "read-data/package-store-metadata.ts",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-package-store-metadata"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::descriptor::metadata::package-store-metadata",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "operational-record.metadata-descriptor.v1",
+        "entry_name": "package-store-metadata",
+        "title": "Hosted experience",
+        "description": "Publish one selected experience without exposing the Studio workspace.",
+        "site_url": "https://experiences.bitfield.so",
+        "brand_name": "Bitfield",
+        "image_url": "/icon.png",
+        "image_alt": "Shared experience",
+        "image_height": 512,
+        "image_width": 512,
+        "locale": "en_US",
+        "manifest": "/site.webmanifest",
+        "icons": []
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::publish-control::publish-selected-experience",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "package-publish-control",
+        "publish": true,
+        "entry_names": [
+          "request-publish-selected-experience",
+          "request-seller-publication",
+          "package-store-metadata"
+        ],
+        "required_stored_bytes": [
+          "materialize-hosted-projection-tree",
+          "hosted-experience-authority-ts",
+          "hosted-target-carrier-server-ts",
+          "app-api-experience-manifest-route-ts",
+          "app-api-experience-bytes-route-ts",
+          "app-api-experience-data-route-ts",
+          "app-api-experience-subscriptions-route-ts",
+          "hosted-target-route-ts"
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::schema::selected-experience-publication-request",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "selected-experience-publication-request/v1",
+        "required_fields": [
+          "publication_request_key",
+          "selected_root_refs",
+          "selection_ref",
+          "materializer_descriptor_observation",
+          "policy_ref",
+          "seller_authority_ref",
+          "publication_destination_ref"
+        ],
+        "invariants": [
+          "publication_request_key is server-generated cryptographically random opaque state and is persisted on first normalization.",
+          "The caller never supplies publication_request_key, package-set identity, executable process data, closure inputs, route identity, offer identity, carrier identity, or result identity.",
+          "The package target descriptor is bound by its current Engine observation `{address, object_hash}`; target descriptors are not fabricated as semantic exact references.",
+          "A retry reads this request by its persisted canonical identity and requires exact equality of selected_root_refs, selection_ref, materializer_descriptor_observation, policy_ref, seller_authority_ref, and publication_destination_ref.",
+          "Same canonical request identity plus any normalized-field drift is a conflict."
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::workflow-action::request-seller-publication",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:request-seller-publication",
+        "kind": "action",
+        "name": "request-seller-publication",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "selection_materializer_descriptor_address",
+            "selection_materializer_input",
+            "materialization_id",
+            "policy_address",
+            "publication_destination_address"
+          ],
+          "properties": {
+            "selection_materializer_descriptor_address": {
+              "type": "string"
+            },
+            "selection_materializer_input": {
+              "type": "object"
+            },
+            "materialization_id": {
+              "type": "string"
+            },
+            "policy_address": {
+              "type": "string"
+            },
+            "publication_destination_address": {
+              "type": "string"
+            },
+            "offer_descriptor_address": {
+              "type": "string"
+            },
+            "new_offer": {
+              "type": "object"
+            },
+            "post_purchase_destination_address": {
+              "type": "string"
+            },
+            "publication_request_ref": {
+              "type": "object"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "normalize_seller_publication",
+            "kind": "ask",
+            "config": {
+              "name": "hosted-public-app.normalize-selected-experience-publication",
+              "input": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": ""
+                }
+              }
+            }
+          },
+          {
+            "id": "execute_admitted_publication",
+            "kind": "action",
+            "config": {
+              "definition_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "normalize_seller_publication",
+                  "path": "output.execution.definition_id"
+                }
+              },
+              "definition_refs": [
+                "action:publish-static-selected-experience",
+                "action:publish-selected-experience"
+              ],
+              "inputs": {
+                "intent_ref": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "normalize_seller_publication",
+                    "path": "output.intent_ref"
+                  }
+                },
+                "request_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "normalize_seller_publication",
+                    "path": "output.publication_request_key"
+                  }
+                },
+                "publication_request_ref": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "normalize_seller_publication",
+                    "path": "output.publication_request_ref"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "return_seller_publication",
+            "kind": "return",
+            "config": {
+              "value": {
+                "publication_request_ref": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "normalize_seller_publication",
+                    "path": "output.publication_request_ref"
+                  }
+                },
+                "publication_request_key": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "normalize_seller_publication",
+                    "path": "output.publication_request_key"
+                  }
+                },
+                "intent_ref": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "normalize_seller_publication",
+                    "path": "output.intent_ref"
+                  }
+                },
+                "share_url": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "execute_admitted_publication",
+                    "path": "output"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "from": "normalize_seller_publication",
+            "to": "execute_admitted_publication",
+            "kind": "on_result"
+          },
+          {
+            "from": "execute_admitted_publication",
+            "to": "return_seller_publication",
+            "kind": "on_result"
+          }
+        ],
+        "trigger_type": "manual",
+        "is_active": true,
+        "version": 1
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::workflow-action::publish-static-selected-experience",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:publish-static-selected-experience",
+        "kind": "action",
+        "name": "publish-static-selected-experience",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "intent_ref",
+            "request_id",
+            "publication_request_ref"
+          ],
+          "properties": {
+            "intent_ref": {
+              "type": "object"
+            },
+            "request_id": {
+              "type": "string"
+            },
+            "publication_request_ref": {
+              "type": "object"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "resolve_static_publication",
+            "kind": "ask",
+            "config": {
+              "name": "hosted-public-app.resolve-selected-publication-request",
+              "input": {
+                "intent_ref": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "intent_ref"
+                  }
+                },
+                "request_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "request_id"
+                  }
+                },
+                "publication_request_ref": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "publication_request_ref"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "create_public_capsule",
+            "kind": "ask",
+            "config": {
+              "name": "public-scene-share.create-capsule",
+              "input": {
+                "partitionMultihashCodeHex": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "context",
+                    "path": "partition_key"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "stage_owner_carrier",
+            "kind": "action",
+            "config": {
+              "definition_id": "action:public-product-carrier.write-public-carrier",
+              "inputs": {
+                "experience_ref": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "intent_ref"
+                  }
+                },
+                "request_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "request_id"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "commit_static_publication",
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "resolve_static_publication",
+                      "path": "output.publication.policy_binding_address"
+                    }
+                  },
+                  "address_mode": "identity_text",
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "resolve_static_publication",
+                      "path": "output.reachability_records.policy_binding"
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "resolve_static_publication",
+                      "path": "output.publication.route_address"
+                    }
+                  },
+                  "address_mode": "identity_text",
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "resolve_static_publication",
+                      "path": "output.reachability_records.route"
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "resolve_static_publication",
+                      "path": "output.publication.state_address"
+                    }
+                  },
+                  "address_mode": "identity_text",
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "resolve_static_publication",
+                      "path": "output.reachability_records.state"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "id": "return_static_publication",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "commit_static_publication",
+                  "path": "output"
+                }
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "from": "resolve_static_publication",
+            "to": "create_public_capsule",
+            "kind": "on_result"
+          },
+          {
+            "from": "create_public_capsule",
+            "to": "stage_owner_carrier",
+            "kind": "on_result",
+            "config": {
+              "$kind": "binding",
+              "select": {
+                "from": "input",
+                "path": "output.ok"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": true
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "from": "stage_owner_carrier",
+            "to": "commit_static_publication",
+            "kind": "on_result"
+          },
+          {
+            "from": "commit_static_publication",
+            "to": "return_static_publication",
+            "kind": "on_result"
+          }
+        ],
+        "trigger_type": "manual",
+        "is_active": true,
+        "version": 1
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::workflow-protocol::selected-experience-publication",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "selected-experience-publication-workflow/v1",
+        "owner": "hosted-public-app",
+        "entry_action": "action:publish-selected-experience",
+        "selection_normalization": {
+          "input": "a selected owner package-target-descriptor address, opaque materialization identity, and seller choice address labels",
+          "normalizer": "owner materializer invocation followed by exact root/authority readback",
+          "persisted_record_kind": "selected-experience-publication-request/v1",
+          "server_generated_field": "publication_request_key",
+          "forbidden_caller_fields": [
+            "publication_request_key",
+            "package_set",
+            "process",
+            "closure",
+            "route",
+            "carrier",
+            "workflow_execution_receipt"
+          ],
+          "offer_ingress": "one exact-read current Checkout offer descriptor address or one bounded HPA-authored new offer; never both."
+        },
+        "execution": "policy and destination exact-read owner data carry the matching Workflow execution descriptor; payment timing and currency remain Checkout-owned Society data.",
+        "states": [
+          "selection_validated",
+          "intent_committed",
+          "authority_manifest_verified",
+          "runtime_closure_verified",
+          "publication_staged",
+          "policy_bound",
+          "offer_staged",
+          "carrier_staged",
+          "route_ready",
+          "published"
+        ],
+        "state_transition_owner": "workflow",
+        "retry": {
+          "resume_at": "first absent verified output",
+          "reuse": "matching addressed records only",
+          "mismatch": "reject"
+        },
+        "reachability_commit": {
+          "single_final_batch": true,
+          "records": [
+            "offer",
+            "carrier",
+            "route",
+            "publication-state",
+            "workflow_execution_receipt"
+          ],
+          "unreachable_before_commit": [
+            "sealed-closure",
+            "offer",
+            "carrier",
+            "route",
+            "publication-state"
+          ]
+        },
+        "failure": {
+          "buyer_grant_created": false
+        },
+        "observability": [
+          "seller.experience_selection_normalized",
+          "seller.experience_intent_written",
+          "seller.experience_offer_linked",
+          "seller.experience_link_ready",
+          "seller.experience_publication_resumed"
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "run-provider-deploy",
+      "source_path": "built-stored-bytes/run-provider-deploy",
+      "build": {
+        "sequence": {
+          "inputs": [],
+          "input_trees": [],
+          "steps": [
+            {
+              "name": "build",
+              "process": {
+                "argv": [
+                  "node",
+                  "__PACKAGE_SET_ROOT__/packages/make-packages-match-their-source/do-work/build-node-process-bytes.mjs"
+                ],
+                "cwd": ".",
+                "timeout_ms": 120000,
+                "termination_grace_ms": 1000,
+                "expected_termination": {
+                  "kind": "exited",
+                  "code": 0
+                },
+                "env": {},
+                "inputs": [],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": ".bitfield-build-output"
+                  }
+                ],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              },
+              "workspace_bindings": {
+                "environment": [],
+                "arguments": []
+              },
+              "predecessor_outputs": []
+            }
+          ]
+        },
+        "output": {
+          "step": "build",
+          "mount_path": ".bitfield-build-output"
+        },
+        "request": {
+          "source_file": "processes/run-provider-deploy.mjs",
+          "source_kind": "text/javascript",
+          "optional_external_modules": ["fsevents", "playwright"]
+        }
+      },
+      "source_closure_receipt_path": "built-stored-bytes/run-provider-deploy.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::schema::deployment-request",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "hosted-public-app.deployment-request/v2",
+        "required_fields": [
+          "kind",
+          "schema",
+          "profile",
+          "parameters"
+        ],
+        "forbidden_fields": [
+          "command",
+          "args",
+          "steps",
+          "env_passthrough",
+          "result_extraction"
+        ],
+        "invariants": [
+          "package-set DATA selects a profile owned by hosted-public-app and supplies bounded parameter values only.",
+          "the generic package owns the executable, arguments, allowed environment variable names, and result extraction.",
+          "adding a provider capability changes the generic package and its tests, never an application package set.",
+          "materialization and deploy share one contained publication workspace; run-provider-deploy.mjs reads the selected site as a direct child and writes exactly one deployment-result.json under publication-deployment-result/v1."
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::workflow-action::reserve-public-selection-transition",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:hosted-public-app.reserve-public-selection-transition",
+        "kind": "action",
+        "name": "reserve-public-selection-transition",
+        "description": "CAS-reserve a generation+digest-bound public selection while preserving the stable release.",
+        "input_schema": {
+          "type": "object"
+        },
+        "steps": [
+          {
+            "id": "reserve",
+            "kind": "ask",
+            "config": {
+              "name": "hosted-public-app.reserve-public-selection-transition",
+              "input": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": ""
+                }
+              }
+            }
+          },
+          {
+            "id": "return",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "reserve",
+                  "path": "output"
+                }
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "from": "reserve",
+            "to": "return",
+            "kind": "on_result"
+          }
+        ],
+        "trigger_type": "manual",
+        "is_active": true,
+        "version": 1
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::workflow-action::finalize-public-selection-transition",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:hosted-public-app.finalize-public-selection-transition",
+        "kind": "action",
+        "name": "finalize-public-selection-transition",
+        "description": "CAS-finalize a reserved public selection only after exact provider commit and convergence evidence exist.",
+        "input_schema": {
+          "type": "object"
+        },
+        "steps": [
+          {
+            "id": "finalize",
+            "kind": "ask",
+            "config": {
+              "name": "hosted-public-app.finalize-public-selection-transition",
+              "input": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": ""
+                }
+              }
+            }
+          },
+          {
+            "id": "return",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "finalize",
+                  "path": "output"
+                }
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "from": "finalize",
+            "to": "return",
+            "kind": "on_result"
+          }
+        ],
+        "trigger_type": "manual",
+        "is_active": true,
+        "version": 1
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::hosted-public-app::workflow-action::reconcile-public-selection-transition",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:hosted-public-app.reconcile-public-selection-transition",
+        "kind": "action",
+        "name": "reconcile-public-selection-transition",
+        "description": "CAS-clear a failed or ambiguous reservation while retaining the previously stable public release.",
+        "input_schema": {
+          "type": "object"
+        },
+        "steps": [
+          {
+            "id": "reconcile",
+            "kind": "ask",
+            "config": {
+              "name": "hosted-public-app.reconcile-public-selection-transition",
+              "input": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": ""
+                }
+              }
+            }
+          },
+          {
+            "id": "return",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "reconcile",
+                  "path": "output"
+                }
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "from": "reconcile",
+            "to": "return",
+            "kind": "on_result"
+          }
+        ],
+        "trigger_type": "manual",
+        "is_active": true,
+        "version": 1
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-reserve-public-selection-transition",
+      "source_path": "built-stored-bytes/entry-bytes-reserve-public-selection-transition",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-reserve-public-selection-transition.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-finalize-public-selection-transition",
+      "source_path": "built-stored-bytes/entry-bytes-finalize-public-selection-transition",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-finalize-public-selection-transition.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-reconcile-public-selection-transition",
+      "source_path": "built-stored-bytes/entry-bytes-reconcile-public-selection-transition",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-reconcile-public-selection-transition.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-request-publish-selected-experience",
+      "source_path": "built-stored-bytes/entry-bytes-request-publish-selected-experience",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-request-publish-selected-experience.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-request-seller-publication",
+      "source_path": "built-stored-bytes/entry-bytes-request-seller-publication",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-request-seller-publication.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-package-store-metadata",
+      "source_path": "built-stored-bytes/entry-bytes-package-store-metadata",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-package-store-metadata.source-closure.json"
+    }
+  ]
+}

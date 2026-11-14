@@ -1,0 +1,15 @@
+{
+  "about": "Files restored byte for byte from the retired bitfield-packages repository (standing order: originals move wholesale, no rewrites from scratch).",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/marketplace/things-to-store-and-run.json",
+      "commit": "77012b8fb69f1780c79f64c3911144ead80100bc",
+      "to": "tools/browse-and-publish-what-my-ai-can-use/from-bitfield-packages-marketplace/things-to-store-and-run.json",
+      "source_identity": "1f:1edde4045d8d39afd53d0fb02b582ad2d937bbdcc61a87d1e4028cdded95cf13",
+      "identity": "1f:1edde4045d8d39afd53d0fb02b582ad2d937bbdcc61a87d1e4028cdded95cf13"
+    }
+  ]
+}

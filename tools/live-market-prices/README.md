@@ -47,3 +47,22 @@ A bars node that is an object holds one list per symbol; a list holds bars that 
 **Depends on:** Python 3's standard library, the two public APIs named in `sources/public-markets-api.json`, and for bars the person's own market-data account.
 
 **Depended on by:** `tool-rows.json`. `tools/trading` takes `latest` as the prices of a policy's market orders, through the caller; it does not copy these reads.
+
+## Restored from bitfield-packages `market-data-feed`
+
+The package drew a live market feed: the instrument board (`read-data/instrument-board.ts`), the market board (`read-data/market-board.ts`), the agent cycle (`read-data/agent-cycle-surface.ts`) and the feed surface descriptor, drawn by `show/MarketDataFeedPanel.tsx`. The price pulls above (`do-work/*.py`) feed prices; these files are the screen that shows them. Moved byte for byte and not yet wired to a tool row.
+
+| File | Purpose |
+|------|---------|
+| `from-bitfield-packages-market-data-feed/things-to-store-and-run.json` | Data the package carried as written. |
+| `read-data/README.md` | The package's own note, moved as written. |
+| `read-data/agent-cycle-surface.ts` | PURPOSE |
+| `read-data/instrument-board.ts` | PURPOSE |
+| `read-data/market-board.ts` | PURPOSE |
+| `read-data/market-data-feed-surface.ts` | The package's code, moved as written. |
+| `show/MarketDataFeedPanel.tsx` | PURPOSE |
+| `show/README.md` | The package's own note, moved as written. |
+| `show/mount-market-data-feed.tsx` | The package's code, moved as written. |
+| `from-bitfield-packages-market-data-feed/moved-from.json` | Source path and commit of each file, identities, call rows, held tests, files that still call the retired runtime. |
+
+Still on the retired runtime (original bytes, import paths changed): `read-data/agent-cycle-surface.ts`, `show/MarketDataFeedPanel.tsx`.

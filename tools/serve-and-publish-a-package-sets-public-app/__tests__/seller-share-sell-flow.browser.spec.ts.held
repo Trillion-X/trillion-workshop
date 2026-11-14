@@ -1,0 +1,183 @@
+import { createServer, type Server } from 'node:http';
+import { execFileSync } from 'node:child_process';
+import { mkdtempSync, readFileSync, symlinkSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+
+const playwrightModule = process.env.PLAYWRIGHT_TEST_MODULE;
+if (!playwrightModule) throw new Error('PLAYWRIGHT_TEST_MODULE must identify the recorded Playwright test runtime');
+const playwright = await import(playwrightModule);
+const { expect, test } = playwright.default ?? playwright;
+
+const packageRoot = path.resolve(import.meta.dirname, '..');
+const packagesRoot = path.resolve(packageRoot, '../..');
+const sourcePackages = path.join(packagesRoot, 'packages');
+const studioRecords = path.resolve(
+  packagesRoot,
+  '../ai-command-center/notes/projects/packages-and-package-sets/_shared/data/emergent-capability-experience-closure/selected-experience-publication-records.json',
+);
+const esbuild = path.resolve(packagesRoot, 'node_modules/.bin/esbuild');
+let server: Server;
+let origin = '';
+
+function buildActualSellerSurface(): string {
+  const root = mkdtempSync(path.join(tmpdir(), 'hpa-t13-seller-'));
+  symlinkSync(path.join(packagesRoot, 'node_modules'), path.join(root, 'node_modules'));
+  writeFileSync(path.join(root, 'main.tsx'), `
+    import React from 'react';
+    import { createRoot } from 'react-dom/client';
+    import records from ${JSON.stringify(studioRecords)};
+    import {
+      ActionForm,
+      buildDispatchPayload,
+      readActionAffordances,
+    } from ${JSON.stringify(path.join(sourcePackages, 'ui/show/action-affordance'))};
+    import { readPublishedRecords } from ${JSON.stringify(path.join(sourcePackages, 'ui/show/placeable-surface-intent/placeable-surface-record'))};
+    import {
+      affordanceSlashRows,
+      buildAffordanceRun,
+      ownerSelectionContext as compositionSelection,
+    } from ${JSON.stringify(path.join(sourcePackages, 'documents/read-data/affordance-materials'))};
+    import {
+      boardAffordanceContextActions,
+      ownerSelectionContext as groupSelection,
+    } from ${JSON.stringify(path.join(sourcePackages, 'group/show/board-action-affordances'))};
+    import {
+      visualDatabaseSelectionAffordances,
+      visualDatabaseSelectionAskFields,
+      visualDatabaseSelectionInvokeContext,
+    } from ${JSON.stringify(path.join(sourcePackages, 'visual-database/show/selection-action-affordances'))};
+
+    const affordances = readActionAffordances(readPublishedRecords(records.things));
+    const composition = affordanceSlashRows(affordances).find((row) => row.label === 'Share or sell selected experience')!;
+    let groupTool: any;
+    const groupAction = boardAffordanceContextActions(affordances, (tool) => { groupTool = tool; })
+      .find((entry) => entry.label === 'Share or sell selected experience')!;
+    groupAction.run?.({ family: 'group.board-item', parts: { member: 'note-a' } });
+    const visualDatabase = visualDatabaseSelectionAffordances(records.things)
+      .find((entry) => entry.label === 'Share or sell selected experience')!;
+
+    const selectedRecord = {
+      id: 'row-a', kind: 'record', raw: { address: 'package::visual-database::record::row-a' },
+      values: {}, fieldValues: {},
+    } as any;
+    const sourceEntries = [
+      {
+        owner: 'Documents',
+        fields: composition.trigger.ask!.fields!,
+        submitLabel: composition.trigger.ask!.submit_label!,
+        invoke: (answers: Record<string, unknown>) => buildAffordanceRun(composition, {
+          run: { id: 'composition-run' },
+          selection: compositionSelection('package::documents::documents::seller', ['node-a', 'node-b']),
+          answers,
+        }),
+      },
+      {
+        owner: 'Group',
+        fields: groupTool.formFields,
+        submitLabel: groupTool.formSubmitLabel,
+        invoke: (answers: Record<string, unknown>) => buildDispatchPayload(
+          groupTool.directAffordance.affordance,
+          groupTool.directAffordance.trigger.id,
+          {
+            run: { id: 'group-run' },
+            surface: { channel: groupTool.invokeChannel },
+            typed: { text: 'Selected board notes', items_text: 'note-a' },
+            answers,
+            selection: groupSelection({ address: 'package::group::root::seller' } as any, ['note-a', 'note-b']),
+          },
+        ),
+      },
+      {
+        owner: 'Visual Database',
+        fields: visualDatabaseSelectionAskFields(visualDatabase),
+        submitLabel: visualDatabase.trigger.ask!.submit_label!,
+        invoke: (answers: Record<string, unknown>) => buildDispatchPayload(
+          visualDatabase.affordance,
+          visualDatabase.trigger.id,
+          visualDatabaseSelectionInvokeContext(visualDatabase, [selectedRecord], 'visual-database-run', answers),
+        ),
+      },
+    ];
+
+    function SellerProof() {
+      const [active, setActive] = React.useState<any>(null);
+      const [last, setLast] = React.useState<any>(null);
+      return <main>
+        <h1>Share selected work</h1>
+        {sourceEntries.map((entry) => <button key={entry.owner} type="button" onClick={() => setActive(entry)}>
+          {entry.owner}: Share or sell selected experience
+        </button>)}
+        {last ? <output aria-label="Workflow request">{JSON.stringify(last)}</output> : null}
+        {active ? <ActionForm
+          open
+          title="Share or sell"
+          fields={active.fields}
+          submitLabel={active.submitLabel}
+          onCancel={() => setActive(null)}
+          onSubmit={(answers) => { setLast({ owner: active.owner, ...active.invoke(answers) }); setActive(null); }}
+        /> : null}
+      </main>;
+    }
+    createRoot(document.getElementById('root')!).render(<SellerProof />);
+  `);
+  const output = path.join(root, 'seller.js');
+  execFileSync(esbuild, [
+    'main.tsx', '--bundle', '--format=iife', '--platform=browser', '--loader:.tsx=tsx',
+    `--alias:@=${packagesRoot}`, `--outfile=${output}`,
+  ], { cwd: root, stdio: 'pipe' });
+  return readFileSync(output, 'utf8');
+}
+
+test.beforeAll(async () => {
+  const bundle = buildActualSellerSurface();
+  server = createServer((request, response) => {
+    if (request.url === '/seller.js') {
+      response.writeHead(200, { 'content-type': 'text/javascript' });
+      response.end(bundle);
+      return;
+    }
+    response.writeHead(200, { 'content-type': 'text/html' });
+    response.end('<!doctype html><html lang="en"><body><div id="root"></div><script src="/seller.js"></script></body></html>');
+  });
+  await new Promise<void>((resolve, reject) => {
+    server.once('error', reject);
+    server.listen(0, '127.0.0.1', resolve);
+  });
+  const address = server.address();
+  if (!address || typeof address === 'string') throw new Error('seller proof server did not bind');
+  origin = `http://127.0.0.1:${address.port}`;
+});
+
+test.afterAll(() => server ? new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve())) : undefined);
+
+test('actual Composition, Group, and Record Board affordances share the seller ActionForm and retain owner selection', async ({ page }: any) => {
+  await page.goto(origin);
+  for (const owner of ['Documents', 'Group', 'Record Board']) {
+    await page.getByRole('button', { name: `${owner}: Share or sell selected experience` }).click();
+    await expect(page.getByRole('dialog', { name: 'Share or sell' })).toBeVisible();
+    await expect(page.getByText('How should people access it?')).toBeVisible();
+    await expect(page.getByText('Where should it be published?')).toBeVisible();
+    await page.getByRole('button', { name: 'Cancel' }).click();
+  }
+  await page.getByRole('button', { name: 'Record Board: Share or sell selected experience' }).click();
+  await expect(page.getByText('Offer name', { exact: true })).toBeHidden();
+  await page.getByRole('button', { name: 'Access offer' }).click();
+  await page.getByText('Set my own price', { exact: true }).click();
+  await expect(page.getByText('Offer name', { exact: true })).toBeVisible();
+  await expect(page.getByText('What buyers get', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Access offer' }).click();
+  await page.getByText('Free', { exact: true }).click();
+  await expect(page.getByText('Offer name', { exact: true })).toBeHidden();
+  await page.getByRole('button', { name: 'How should people access it?' }).click();
+  await page.getByText('Interactive free', { exact: true }).click();
+  await page.getByRole('button', { name: 'Where should it be published?' }).click();
+  await page.getByText('Interactive hosted experience', { exact: true }).click();
+  await page.getByRole('button', { name: 'Publish', exact: true }).click();
+  const request = JSON.parse(await page.getByRole('status', { name: 'Workflow request' }).textContent() ?? '{}');
+  expect(request.owner).toBe('Record Board');
+  expect(request.target).toBe('slot::workflow');
+  expect(request.payload.input.selection_materializer_descriptor_address).toBe('package::visual-database::target::materialize-selection');
+  expect(request.payload.input.selection_materializer_input.selection_items).toEqual([{ address: 'package::visual-database::record::row-a' }]);
+  expect(JSON.stringify(request)).not.toContain('package-set');
+});

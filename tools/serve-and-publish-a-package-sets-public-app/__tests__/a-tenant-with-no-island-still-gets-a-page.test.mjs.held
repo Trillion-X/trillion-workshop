@@ -1,0 +1,155 @@
+#!/usr/bin/env node
+// A tenant with no island still gets a page when the engine is down.
+//
+// WHY THIS EXISTS. The recovery path chose between two surfaces by PATH: the root got the island
+// shell, everything else got the holding page built from `fallback_body_file`. That is right for a
+// tenant whose landing is a client-hydrated island and silently wrong for one whose landing is
+// server-rendered markup, because `islandShellHtml` emits `<div id="root"></div>` and a bundle tag,
+// and with no `bundle_url` declared the tenant gets an empty div at 200.
+//
+// Blank at 200 is the exact failure this whole plan is named after, and the recovery path's own
+// comment already said so three lines below the defect: "a blank body here would be the second
+// failure hiding the first". It was true and it was guarded only against `null`, which the island
+// shell never returns.
+//
+// So the choice is made by WHAT THE DESCRIPTION DECLARES rather than by which path was asked for.
+// An island is served when there is an island to serve.
+
+import { spawn } from 'node:child_process';
+import { mkdtemp, writeFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { createServer } from 'node:net';
+import { request as httpRequest } from 'node:http';
+import { theBuiltEntryServer } from './built-entry-server.mjs';
+
+const PUBLIC_HOST = 'public.entry-host.test';
+const BODY_MARKER = 'THE SERVER RENDERED LANDING OF A TENANT WITH NO ISLAND';
+
+async function freePort() {
+  return new Promise((resolve, reject) => {
+    const probe = createServer();
+    probe.on('error', reject);
+    probe.listen(0, '127.0.0.1', () => {
+      const { port } = probe.address();
+      probe.close(() => resolve(port));
+    });
+  });
+}
+
+function get(port, path, host) {
+  return new Promise((resolve, reject) => {
+    const req = httpRequest(
+      { host: '127.0.0.1', port, path, method: 'GET', headers: { Host: host, Accept: 'text/html' } },
+      (response) => {
+        let body = '';
+        response.setEncoding('utf8');
+        response.on('data', (chunk) => { body += chunk; });
+        response.on('end', () => resolve({ status: response.statusCode, body }));
+      },
+    );
+    req.on('error', reject);
+    req.end();
+  });
+}
+
+const failures = [];
+function check(name, condition, detail) {
+  if (condition) console.log(`  PASS  ${name}`);
+  else { console.log(`  FAIL  ${name}${detail ? `, ${detail}` : ''}`); failures.push(name); }
+}
+
+const { server: SERVER, note: serverNote, reason: noServerReason } = await theBuiltEntryServer();
+if (!SERVER) {
+  console.log(`FAIL: ${noServerReason}`);
+  process.exit(1);
+}
+console.log(serverNote);
+
+const staticDir = await mkdtemp(join(tmpdir(), 'no-island-static-'));
+const installRoot = await mkdtemp(join(tmpdir(), 'no-island-install-'));
+
+await writeFile(join(staticDir, 'index.html'),
+  '<!DOCTYPE html>\n<html><head></head><body>'
+  + '<!--BITFIELD_ENTRY_ROOT_START--><div id="root"></div><!--BITFIELD_ENTRY_ROOT_END-->'
+  + '</body></html>\n', 'utf8');
+
+const bodyFile = join(staticDir, 'landing-body.html');
+await writeFile(bodyFile, `<main><h1>${BODY_MARKER}</h1></main>\n`, 'utf8');
+
+// A description with NO island bundle. This is the tenant-fork shape: server-rendered markup, no
+// client-hydrated island. It declares the body it wants served, and nothing else.
+const descriptionFile = join(staticDir, 'page-description.json');
+await writeFile(descriptionFile, JSON.stringify({
+  kind: 'hosted-public-app.page-description',
+  pages: [{
+    language: 'en',
+    title: 'A tenant with no island',
+    meta_description: 'Server-rendered markup, no client bundle.',
+    fallback_body_file: bodyFile,
+  }],
+}), 'utf8');
+
+const port = await freePort();
+const deadEnginePort = await freePort();
+const child = spawn(process.execPath, [SERVER], {
+  env: {
+    ...process.env,
+    BITFIELD_PUBLIC_ENTRY_LISTEN_HOST: '127.0.0.1',
+    BITFIELD_PUBLIC_ENTRY_LISTEN_PORT: String(port),
+    BITFIELD_PUBLIC_ENTRY_SHELL_URL: `http://127.0.0.1:${deadEnginePort}`,
+    BITFIELD_BROWSER_STATIC_DIR: staticDir,
+    BITFIELD_HOST_ENTRY_SCENE_HOSTS: PUBLIC_HOST,
+    BITFIELD_PUBLIC_PAGE_DESCRIPTION_FILE: descriptionFile,
+    BITFIELD_INSTALL_ROOT: installRoot,
+    BITFIELD_BOOT_WAIT_MS: '1000',
+  },
+  stdio: ['ignore', 'pipe', 'pipe'],
+});
+let log = '';
+child.stdout.on('data', (data) => { log += data; });
+child.stderr.on('data', (data) => { log += data; });
+
+let exitCode = 0;
+try {
+  console.log('\na-tenant-with-no-island-still-gets-a-page');
+  let listening = false;
+  const deadline = Date.now() + 30000;
+  while (Date.now() < deadline) {
+    try { await get(port, '/', PUBLIC_HOST); listening = true; break; }
+    catch { await new Promise((resolve) => setTimeout(resolve, 200)); }
+  }
+  if (!listening) throw new Error(`server never listened on ${port}. log:\n${log}`);
+
+  const root = await get(port, '/', PUBLIC_HOST);
+  check('the root answers', root.status === 200, `status ${root.status}`);
+  // THE ONE THAT WAS RED. An empty mount div at 200 is a blank page, and a blank page served during
+  // a recovery is the second failure hiding the first.
+  check('the root carries the tenant real markup rather than an empty island mount',
+    root.body.includes(BODY_MARKER),
+    `body ${JSON.stringify(root.body.slice(0, 300))}`);
+  check('and it does not ship a mount point with nothing to fill it',
+    !(root.body.includes('id="root"') && !root.body.includes(BODY_MARKER)));
+
+  // The tenant that DOES declare an island must be unaffected: that path is what every other suite
+  // here exercises, and a fix that traded one tenant shape for the other would be no fix.
+  const nonRoot = await get(port, '/somewhere-else', PUBLIC_HOST);
+  check('a non-root path still serves the same body, as it always did',
+    nonRoot.body.includes(BODY_MARKER), `status ${nonRoot.status}`);
+
+  if (failures.length) {
+    console.log(`\nFAILED: ${failures.length} check(s): ${failures.join(', ')}`);
+    console.log(log.slice(-1500));
+    exitCode = 1;
+  } else {
+    console.log('\nALL CHECKS PASSED');
+  }
+} catch (error) {
+  console.log(`FAIL: ${error?.message ?? error}`);
+  exitCode = 1;
+} finally {
+  child.kill('SIGKILL');
+  await rm(staticDir, { recursive: true, force: true });
+  await rm(installRoot, { recursive: true, force: true });
+}
+process.exit(exitCode);

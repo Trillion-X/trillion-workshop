@@ -1,0 +1,119 @@
+{
+  "empty": {
+    "records": [],
+    "related": []
+  },
+  "sparse": {
+    "records": [
+      {
+        "record_id": "record.alpha",
+        "payload": {
+          "name": "Local gardening crew",
+          "summary": "Weekend hitting partners and match notes.",
+          "access_key": "open",
+          "participant_count": 12
+        }
+      },
+      {
+        "record_id": "record.beta",
+        "payload": {
+          "name": "Quiet builders",
+          "summary": "Focused build logs and weekly demos.",
+          "access_key": "invite",
+          "participant_count": 4
+        }
+      }
+    ],
+    "related": [
+      {
+        "subject_record_id": "record.alpha",
+        "actor_record_id": "person.1"
+      },
+      {
+        "subject_record_id": "record.alpha",
+        "actor_record_id": "person.2"
+      },
+      {
+        "subject_record_id": "record.beta",
+        "actor_record_id": "person.3"
+      }
+    ]
+  },
+  "dense": {
+    "records": [
+      {
+        "record_id": "record.001",
+        "payload": {
+          "name": "Morning session",
+          "summary": "Daily check-in",
+          "access_key": "open",
+          "participant_count": 18
+        }
+      },
+      {
+        "record_id": "record.002",
+        "payload": {
+          "name": "Launch circle",
+          "summary": "Shipping room",
+          "access_key": "request",
+          "participant_count": 31
+        }
+      },
+      {
+        "record_id": "record.003",
+        "payload": {
+          "name": "Private review",
+          "summary": "Invite discussion",
+          "access_key": "invite",
+          "participant_count": 6
+        }
+      }
+    ],
+    "related": []
+  },
+  "futureDomain": {
+    "records": [
+      {
+        "record_id": "record.future",
+        "payload": {
+          "name": "Waitlist room",
+          "summary": "A future state supplied by data.",
+          "access_key": "waitlist",
+          "participant_count": 7
+        }
+      }
+    ],
+    "related": []
+  },
+  "deleteResurrect": {
+    "events": [
+      {
+        "cursor": "001",
+        "op": "upsert",
+        "record": {
+          "record_id": "record.delta",
+          "payload": {
+            "name": "Delta room",
+            "access_key": "open"
+          }
+        }
+      },
+      {
+        "cursor": "002",
+        "op": "delete",
+        "recordId": "record.delta"
+      },
+      {
+        "cursor": "003",
+        "op": "upsert",
+        "record": {
+          "record_id": "record.delta",
+          "payload": {
+            "name": "Delta room restored",
+            "access_key": "request"
+          }
+        }
+      }
+    ]
+  }
+}

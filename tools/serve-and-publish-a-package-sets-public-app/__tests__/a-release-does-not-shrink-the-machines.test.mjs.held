@@ -1,0 +1,72 @@
+// A RELEASE MUST NOT CARRY AN OLD SIZE FORWARD.
+//
+// The saved provider configuration is read back from the running application
+// before every release, and it states how big the machines are. That statement
+// is a measurement of whenever it was last written, and the size for THIS
+// release is named separately, from the artifact. With both present the saved
+// one wins, so an application that had been made bigger comes back the size it
+// used to be, cannot finish opening its log, and is killed part way through
+// starting. From outside that is a hang.
+//
+// It cost an hour and forty minutes once, then twice more in the same night,
+// because the obvious recovery, making the machine bigger, does not change what
+// the application DECLARES, and every release returns to the declaration. The
+// test is here rather than beside the recovery because the recovery was never
+// the broken part.
+import { strict as assert } from 'node:assert';
+import test from 'node:test';
+
+import { configurationBuildingTheArtifactDockerfile } from '../processes/run-provider-deploy.mjs';
+
+const SAVED = [
+  'app = "an-application"',
+  'primary_region = "ord"',
+  '',
+  '[build]',
+  '  image = "registry.example/an-application:earlier"',
+  '',
+  '[env]',
+  '  PORT = "8080"',
+  '',
+  '[http_service]',
+  '  internal_port = 8080',
+  '',
+  '[[vm]]',
+  '  memory = "2gb"',
+  '  cpu_kind = "shared"',
+  '  cpus = 2',
+  '',
+].join('\n');
+
+test('the size the application used to be is not carried into the next release', () => {
+  const written = configurationBuildingTheArtifactDockerfile(SAVED, 'Dockerfile');
+  assert.equal(written.includes('2gb'), false, 'the old size survived into the new configuration');
+  assert.equal(written.includes('[[vm]]'), false, 'the old size block survived into the new configuration');
+  assert.equal(written.includes('cpu_kind'), false, 'the old processor class survived into the new configuration');
+});
+
+test('everything that keeps the application the same application is kept', () => {
+  const written = configurationBuildingTheArtifactDockerfile(SAVED, 'Dockerfile');
+  assert.ok(written.includes('app = "an-application"'));
+  assert.ok(written.includes('primary_region = "ord"'));
+  assert.ok(written.includes('[http_service]'));
+  assert.ok(written.includes('internal_port = 8080'));
+  assert.ok(written.includes('PORT = "8080"'));
+});
+
+test('the image it was last built from is replaced by the one being released', () => {
+  const written = configurationBuildingTheArtifactDockerfile(SAVED, 'Dockerfile');
+  assert.equal(written.includes('registry.example/an-application:earlier'), false);
+  assert.ok(written.includes('dockerfile = "Dockerfile"'));
+});
+
+// A configuration that states no size is already correct and must come through
+// untouched, otherwise this rule would be doing something on its own account
+// rather than removing a contradiction.
+test('a configuration that never stated a size is unchanged apart from the image', () => {
+  const noSize = ['app = "an-application"', '', '[http_service]', '  internal_port = 8080', ''].join('\n');
+  const written = configurationBuildingTheArtifactDockerfile(noSize, 'Dockerfile');
+  assert.ok(written.includes('app = "an-application"'));
+  assert.ok(written.includes('internal_port = 8080'));
+  assert.ok(written.includes('dockerfile = "Dockerfile"'));
+});

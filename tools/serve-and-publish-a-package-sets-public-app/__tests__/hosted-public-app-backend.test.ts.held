@@ -1,0 +1,156 @@
+import { describe, expect, it } from '../../../test-helpers/vitest-shim.mjs';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import packageData from '../things-to-store-and-run.json' with { type: 'json' };
+import { DescriptorActionError, materializeActionRequest } from '../do-work/request-publish-live-site.ts';
+
+const intent_ref = { address: 'intent:one', revision: 'r1', object_hash: '1f:intent' };
+const publication_request_ref = { address: 'publication-request:one', revision: 'r1', object_hash: '1f:request' };
+const request = { intent_ref, request_id: 'request:opaque-1', publication_request_ref };
+const source = JSON.stringify(packageData);
+const hostedAuthoritySource = readFileSync(path.resolve(import.meta.dirname, '..', 'read-data/artifacts/hosted-experience-authority.ts.txt'), 'utf8');
+const hostedCarrierSource = readFileSync(path.resolve(import.meta.dirname, '..', 'read-data/artifacts/hosted-target-carrier-server.ts.txt'), 'utf8');
+
+function workflow(): any {
+  return (packageData.things as any[]).find((thing) => thing.address === 'package::hosted-public-app::workflow-action::publish-selected-experience').payload;
+}
+
+describe('selected-experience workflow authority ingress', () => {
+  it('accepts only the exact normalized request identity, its selected intent, and opaque request key', () => {
+    const materialized = materializeActionRequest(request);
+    expect(materialized.target).toBe('slot::workflow');
+    expect(materialized.payload).toMatchObject({
+      definition_id: 'action:publish-selected-experience',
+      input: request,
+    });
+    expect(Object.keys(materialized.payload.input as object)).toEqual(['intent_ref', 'request_id', 'publication_request_ref']);
+    expect(materialized.payload.receipt).toMatchObject({
+      address: `workflow-receipt:publish-selected-experience:${intent_ref.address}:${intent_ref.revision}:${request.request_id}`,
+      evidence: request,
+    });
+  });
+
+  it('rejects every former caller-owned authority field before dispatch', () => {
+    for (const former of [
+      'node_binary', 'materialization_input', 'materialization_root', 'publication_record',
+      'create_hosted_projection_closure_process', 'sign_hosted_projection_closure_process',
+      'apply_hosted_projection_closure_process', 'build_live_site_process', 'deploy_live_site_process',
+      'trusted_key', 'current_state_basis_file', 'projection_root', 'build_argv', 'deploy_argv',
+    ]) {
+      expect(() => materializeActionRequest({ ...request, [former]: 'substitution' })).toThrow(DescriptorActionError);
+      expect(() => materializeActionRequest({ ...request, [former]: 'substitution' })).toThrow('UNTRUSTED_FIELD');
+    }
+    expect(() => materializeActionRequest({ ...request, intent_ref: { ...intent_ref, policy: 'forged' } })).toThrow('EXACT_REF_UNTRUSTED_FIELD');
+  });
+
+  it('has no active package-set/all-surface/catalog buyer root or caller executable process data', () => {
+    for (const retired of [
+      'package_set_root', 'package-records.json', 'catalog-data.json', 'browse-surface-config.json',
+      'action-capability-records.json', 'AppSidebar', 'PortalArrangement', 'action:publish-live-site',
+    ]) expect(source).not.toContain(retired);
+    expect(JSON.stringify(workflow().input_schema)).not.toContain('materialization_input');
+    expect(JSON.stringify(workflow().input_schema)).not.toContain('publication_record');
+  });
+});
+
+describe('hosted owner-action session admission conformance', () => {
+  it('rejects spoofed actor aliases and raw or undeclared targets before dispatch', () => {
+    for (const alias of ['actor_ref', 'actorRef', 'created_by', 'createdBy', 'active_actor_ref', 'activeActorRef']) {
+      expect(hostedAuthoritySource).toContain(`"${alias}"`);
+    }
+    expect(hostedAuthoritySource).toContain('assertNoCallerIdentity(browserPayload)');
+    expect(hostedAuthoritySource).toContain('declaredTargetDescriptor(authority, target)');
+    expect(hostedAuthoritySource).toContain('descriptor.target');
+    expect(hostedAuthoritySource).toContain('admittedTargetDescriptor(descriptor)');
+    expect(hostedAuthoritySource).toContain('invokeSessionAdmittedOwnerTarget');
+    expect(readFileSync(path.resolve(import.meta.dirname, '..', 'read-data/artifacts/hosted-target-route.ts.txt'), 'utf8')).toContain('trustedMutationOrigin(request)');
+  });
+
+  it('couples admitted owner dispatch to the opaque session and all current revision bases', () => {
+    expect(hostedAuthoritySource).toContain('account-session.authorize-transient-session');
+    expect(hostedAuthoritySource).toContain('session-missing-or-revoked');
+    expect(hostedAuthoritySource).toContain('stale-or-invalid-decision');
+    for (const field of ['authorized_action_refs', 'predicate_binding', 'subject_binding', 'resource_revision_binding', 'revision_guards']) {
+      expect(hostedAuthoritySource).toContain(field);
+    }
+    for (const revision of ['session_revision', 'policy_revision', 'membership_revision', 'resource_revision']) {
+      expect(hostedAuthoritySource).toContain(revision);
+    }
+    expect(hostedCarrierSource).toContain('Hosted owner request is missing server admission.');
+    expect(hostedCarrierSource).toContain('access_decision.revisions.session_revision');
+  });
+
+  it('returns stable public denial reason codes without session or credential bytes', () => {
+    expect(hostedAuthoritySource).toContain('safeAuthorityError');
+    expect(hostedAuthoritySource).toContain('{ ok: false, code:');
+    expect(hostedAuthoritySource).not.toContain('token: error');
+    expect(hostedAuthoritySource).not.toContain('cookie: error');
+  });
+});
+
+describe('selected-experience workflow closure chain', () => {
+  it('signs canonical bytes behind a vault handle and commits the validated deployment route with its publication', () => {
+    const definition = workflow();
+    const byId = new Map(definition.steps.map((step: any) => [step.id, step]));
+    for (const id of ['create_hosted_projection_closure', 'build_closure_signing_payload', 'attach_hosted_projection_closure_signature']) {
+      expect(JSON.stringify(byId.get(id))).toContain('step_bytes');
+    }
+    expect(JSON.stringify(byId.get('create_hosted_projection_closure'))).toContain('construct_source_archive.outputs.0');
+    expect(byId.get('read_signing_credential_handle')).toMatchObject({
+      kind: 'ask',
+      config: { name: 'slot::credentials-vault', input: { operation: 'read' } },
+    });
+    expect(byId.get('sign_closure_payload')).toMatchObject({
+      kind: 'ask',
+      config: {
+        name: 'slot::credentials-vault',
+        input: { operation: 'sign', scheme: 'ed25519', key_encoding: 'hex', output_encoding: 'hex' },
+      },
+    });
+    expect(byId.get('prepare_publication_records')).toBeDefined();
+    expect(byId.has('verify_signed_hosted_projection_closure')).toBe(false);
+    expect(byId.has('apply_hosted_projection_closure')).toBe(false);
+    expect(byId.has('verify_applied_hosted_projection_closure')).toBe(false);
+    expect(byId.get('commit_publication').config.items).toHaveLength(8);
+    expect(definition.edges).toContainEqual(expect.objectContaining({ from: 'create_hosted_projection_closure', to: 'build_closure_signing_payload' }));
+    expect(definition.edges).toContainEqual(expect.objectContaining({ from: 'build_closure_signing_payload', to: 'read_signing_credential_handle' }));
+    expect(definition.edges).toContainEqual(expect.objectContaining({ from: 'read_signing_credential_handle', to: 'sign_closure_payload' }));
+    expect(definition.edges).toContainEqual(expect.objectContaining({ from: 'sign_closure_payload', to: 'attach_hosted_projection_closure_signature' }));
+    expect(byId.get('run_publication_process_sequence')).toMatchObject({
+      kind: 'ask',
+      config: {
+        name: 'compute.process_sequence',
+        input: {
+          inputs: expect.arrayContaining([
+            expect.objectContaining({ mount_path: 'selected-source-archive.json' }),
+            expect.objectContaining({ mount_path: 'hosted-projection.signed-closure.json' }),
+            expect.objectContaining({ mount_path: 'current-state-basis.json' }),
+          ]),
+          input_trees: [],
+        },
+      },
+    });
+    expect(JSON.stringify(byId.get('run_publication_process_sequence'))).toContain('construct_source_archive');
+    expect(definition.edges).toContainEqual(expect.objectContaining({ from: 'attach_hosted_projection_closure_signature', to: 'run_publication_process_sequence' }));
+    expect(definition.edges).toContainEqual(expect.objectContaining({ from: 'run_publication_process_sequence', to: 'prepare_publication_records' }));
+    expect(byId.has('build_live_site')).toBe(false);
+    expect(byId.has('deploy_live_site')).toBe(false);
+    expect(definition.edges).toContainEqual(expect.objectContaining({ from: 'prepare_publication_records', to: 'stage_owner_carrier' }));
+    expect(JSON.stringify(byId.get('prepare_publication_records'))).toContain('deployment-result.json');
+    expect(JSON.stringify(byId.get('return_result'))).toContain('share_url');
+    expect(JSON.stringify(byId.get('prepare_publication_records'))).toContain('run_publication_process_sequence.steps.0.process_result.outputs.0');
+    expect(JSON.stringify(byId.get('prepare_publication_records'))).toContain('run_publication_process_sequence.steps.1.process_result.outputs.0');
+    expect(JSON.stringify(definition)).not.toContain('output.stdout.text');
+    expect(JSON.stringify(definition)).not.toContain('signing_seed_secret_ref');
+    expect(JSON.stringify(definition)).not.toContain('resolve_signing_seed_mount');
+    expect(JSON.stringify(definition)).not.toContain('--signing-seed-hex-file');
+  });
+
+  it('uses Runtime Kit archive commands rather than a mutable materialized tree', () => {
+    const text = JSON.stringify(workflow());
+    expect(text).toContain('create-from-source-archive-tree');
+    expect(text).toContain('create-from-source-archive-tree');
+    expect(text).not.toContain('selected_projection_tree_root');
+    expect(text).not.toContain('publication_root');
+  });
+});

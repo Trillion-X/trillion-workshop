@@ -1,0 +1,124 @@
+import assert from 'node:assert/strict';
+import {spawn} from 'node:child_process';
+import {createServer as createHttpServer, request as httpRequest} from 'node:http';
+import {mkdtemp, mkdir, writeFile, rm} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import test from 'node:test';
+import {theBuiltEntryServer} from './built-entry-server.mjs';
+
+const HOST = 'article-guard.entry-host.test';
+const ARTICLE = '/article/fixture-story';
+const SIBLING = '/article/unreviewed-sibling';
+const DOCUMENT = '/robots.txt';
+const exactRows = new Map([
+  [ARTICLE, {id: 'candidate', kind: 'public-sales-page', route_path: ARTICLE,
+    schema: {'@type': 'Article'}, content_type: 'text/html', body_text: 'FORGED-CANDIDATE',
+    materialized_artifacts: {validation_status: 'accepted'}}],
+  [SIBLING, {id: 'sibling', kind: 'public-sales-page', route_path: SIBLING,
+    schema: {'@type': 'Article'}, content_type: 'text/html', body_text: 'UNREVIEWED-SIBLING'}],
+  [DOCUMENT, {id: 'robots', kind: 'public-sales-page', route_path: DOCUMENT,
+    content_type: 'text/plain', body_text: 'User-agent: *\nDisallow: /private'}],
+]);
+
+async function listen(server) {
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+  return server.address().port;
+}
+
+function ask(port, path) {
+  return new Promise((resolve, reject) => {
+    const request = httpRequest({host: '127.0.0.1', port, path,
+      headers: {Host: HOST, Accept: 'text/html'}}, (response) => {
+      const chunks = [];
+      response.on('data', (chunk) => chunks.push(chunk));
+      response.on('end', () => resolve({status: response.statusCode,
+        body: Buffer.concat(chunks).toString('utf8')}));
+    });
+    request.on('error', reject);
+    request.end();
+  });
+}
+
+test('a changed Article row cannot replace the archived page or create a sibling route', async () => {
+  const temp = await mkdtemp(join(tmpdir(), 'article-archive-guard-'));
+  const staticDir = join(temp, 'static');
+  await mkdir(staticDir);
+  await writeFile(join(staticDir, 'index.html'),
+    '<!doctype html><html><head></head><body><!--BITFIELD_ENTRY_ROOT_START--><div id="root"></div><!--BITFIELD_ENTRY_ROOT_END--></body></html>');
+  const archive = join(temp, 'archive.json');
+  await writeFile(archive, JSON.stringify({rows: [{id: 'published', kind: 'public-sales-page',
+    route_path: ARTICLE, title: 'Published fixture', schema: {'@type': 'Article'},
+    blocks: [{kind: 'paragraph', text: 'ARCHIVED-APPROVED-ARTICLE'}]}]}));
+  const description = join(temp, 'description.json');
+  await writeFile(description, JSON.stringify({kind: 'hosted-public-app.page-description',
+    pages: [{hosts: [HOST], title: 'Fixture', language: 'en',
+      fallback_pages_file: archive}]}));
+
+  let engineAvailable = true;
+  const engine = createHttpServer(async (request, response) => {
+    response.setHeader('Content-Type', 'application/json');
+    if (!engineAvailable) {response.statusCode = 503; response.end('{}'); return;}
+    if (request.url === '/boot') {
+      response.end(JSON.stringify([{running_command_list_basis: 'test-basis'}])); return;
+    }
+    if (request.url === '/target/engine.operation.label-addressed') {
+      let body = '';
+      for await (const chunk of request) body += chunk;
+      const key = JSON.parse(body).address_label;
+      const prefix = 'package-set-records::public-sales-page-records::';
+      const row = key?.startsWith(prefix) ? exactRows.get(key.slice(prefix.length)) : null;
+      response.end(JSON.stringify(row ? {found: true, payload: row} : {found: false})); return;
+    }
+    response.end('[]');
+  });
+  const enginePort = await listen(engine);
+  const probe = createHttpServer();
+  const port = await listen(probe);
+  await new Promise((resolve) => probe.close(resolve));
+  const {server} = await theBuiltEntryServer();
+  const child = spawn(process.execPath, [server], {env: {...process.env,
+    BITFIELD_PUBLIC_ENTRY_LISTEN_HOST: '127.0.0.1',
+    BITFIELD_PUBLIC_ENTRY_LISTEN_PORT: String(port),
+    BITFIELD_PUBLIC_ENTRY_SHELL_URL: `http://127.0.0.1:${enginePort}`,
+    BITFIELD_HOST_ENTRY_SCENE_HOSTS: HOST,
+    BITFIELD_PUBLIC_PAGE_DESCRIPTION_FILE: description,
+    BITFIELD_BROWSER_STATIC_DIR: staticDir,
+    BITFIELD_INSTALL_ROOT: temp,
+    BITFIELD_BOOT_WAIT_MS: '1000'}, stdio: ['ignore', 'pipe', 'pipe']});
+  let serverLog = '';
+  child.stderr.on('data', (part) => {serverLog += part.toString();});
+  try {
+    let ready = false;
+    for (let i = 0; i < 60; i += 1) {
+      try {await ask(port, '/boot'); ready = true; break;}
+      catch {await new Promise((resolve) => setTimeout(resolve, 50));}
+    }
+    assert.equal(ready, true, 'the real entry server must start');
+    const normal = await ask(port, ARTICLE);
+    assert.equal(normal.status, 200, `${normal.body.slice(0, 300)} ${serverLog.slice(0, 1400)}`);
+    assert.match(normal.body, /data-sales-page="published"/);
+    assert.match(normal.body, /\.EditorialLinkCard_card\s*\{/, 'SSR must include the shared card CSS emitted beside the server');
+    assert.doesNotMatch(normal.body, /FORGED-CANDIDATE/);
+    const sibling = await ask(port, SIBLING);
+    assert.equal(sibling.status, 404);
+    assert.doesNotMatch(sibling.body, /UNREVIEWED-SIBLING/);
+    const unrelated = await ask(port, DOCUMENT);
+    assert.equal(unrelated.status, 200);
+    assert.match(unrelated.body, /Disallow: \/private/);
+    engineAvailable = false;
+    const recovery = await ask(port, ARTICLE);
+    assert.equal(recovery.status, 200);
+    assert.match(recovery.body, /data-sales-page="published"/);
+    assert.match(recovery.body, /\.EditorialLinkCard_card\s*\{/, 'recovery must include the same shared card CSS');
+    assert.doesNotMatch(recovery.body, /FORGED-CANDIDATE/);
+    const recoveringSibling = await ask(port, SIBLING);
+    assert.equal(recoveringSibling.status, 404);
+    assert.doesNotMatch(recoveringSibling.body, /UNREVIEWED-SIBLING/);
+  } finally {
+    child.kill('SIGTERM');
+    await new Promise((resolve) => child.once('exit', resolve));
+    await new Promise((resolve) => engine.close(resolve));
+    await rm(temp, {recursive: true, force: true});
+  }
+});

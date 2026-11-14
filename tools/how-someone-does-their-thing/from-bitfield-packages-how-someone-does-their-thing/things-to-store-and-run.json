@@ -1,0 +1,715 @@
+{
+  "package": "how-someone-does-their-thing",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::how-someone-does-their-thing::capability",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-package-capability",
+        "id": "capability:how-someone-does-their-thing",
+        "package": "how-someone-does-their-thing",
+        "label": "How someone does their thing",
+        "description": "Data-only profile primitive. A profile is one addressed record used both as validation input and draft-conditioning input. Extraction is delegated to ai-records-producer by Envelope workflow dispatch; validation is delegated to content-gate by policy reference.",
+        "owned_record_kinds": [
+          "profile"
+        ],
+        "reuses": [
+          "package::ai-records-producer::workflow-action::run-ai-records-production",
+          "package::content-gate::target::evaluate"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::how-someone-does-their-thing::instruction::build-profile",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-records-producer.instruction",
+        "id": "instr:how-someone-does-their-thing:build-profile",
+        "label": "Build profile facts",
+        "description": "Wrap instruction for deriving reusable profile facts from addressed subject records. The AI execution and provider/model selection are owned by ai-records-producer and its upstream AI substrate.",
+        "wrap_prefix": "Using only the supplied addressed subject records, derive self-describing profile facts for how the subject does their thing. Return only records that can condition future drafts and validate fit. Keep validation/generation/evaluation references as refs, not prose. Subject records: "
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::how-someone-does-their-thing::content-gate-spec::profile-fit",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "content-gate-spec",
+        "id": "content-gate-spec:profile-fit",
+        "rules": [
+          {
+            "id": "uses-profile-ref",
+            "evaluator": "has-addressed-reference",
+            "weight": 1,
+            "config": {
+              "required_ref_field": "profile_ref"
+            }
+          },
+          {
+            "id": "keeps-profile-as-conditioning-input",
+            "evaluator": "has-addressed-reference",
+            "weight": 1,
+            "config": {
+              "required_ref_field": "conditioning_profile_ref"
+            }
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|profile:default|prop:profile:subject_ref|type:profile",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:profile:subject_ref"
+      ],
+      "payload": {
+        "table": "attribute_fact",
+        "subject_id": "profile:default",
+        "property_id": "prop:profile:subject_ref",
+        "type_id": "type:profile",
+        "value_json": "\"subject:profile-source:current\""
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|profile:default|prop:profile:feature_schema_refs|type:profile",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:profile:feature_schema_refs"
+      ],
+      "payload": {
+        "table": "attribute_fact",
+        "subject_id": "profile:default",
+        "property_id": "prop:profile:feature_schema_refs",
+        "type_id": "type:profile",
+        "value_json": "[\"package::how-someone-does-their-thing::schema::profile-features\"]"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|profile:default|prop:profile:evaluator_refs|type:profile",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:profile:evaluator_refs"
+      ],
+      "payload": {
+        "table": "attribute_fact",
+        "subject_id": "profile:default",
+        "property_id": "prop:profile:evaluator_refs",
+        "type_id": "type:profile",
+        "value_json": "[\"package::content-gate::target::evaluate\"]"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|profile:default|prop:profile:generator_refs|type:profile",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:profile:generator_refs"
+      ],
+      "payload": {
+        "table": "attribute_fact",
+        "subject_id": "profile:default",
+        "property_id": "prop:profile:generator_refs",
+        "type_id": "type:profile",
+        "value_json": "[\"package::ai-records-producer::workflow-action::run-ai-records-production\"]"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|profile:default|prop:profile:validation_policy_ref|type:profile",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:profile:validation_policy_ref"
+      ],
+      "payload": {
+        "table": "attribute_fact",
+        "subject_id": "profile:default",
+        "property_id": "prop:profile:validation_policy_ref",
+        "type_id": "type:profile",
+        "value_json": "{\"gate_target_ref\":\"package::content-gate::target::evaluate\",\"gate_spec_ref\":\"package::how-someone-does-their-thing::content-gate-spec::profile-fit\"}"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|profile:default|type:profile",
+      "address_mode": "identity_text",
+      "path": [
+        "type:profile"
+      ],
+      "payload": {
+        "table": "entity_types",
+        "entity_id": "profile:default",
+        "type_id": "type:profile"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|profile:default",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": {
+        "table": "entity",
+        "entity_id": "profile:default"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|type:profile",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": {
+        "table": "entity",
+        "entity_id": "type:profile"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:profile|prop:profile:subject_ref",
+      "address_mode": "identity_text",
+      "path": [
+        "type:profile",
+        "prop:profile:subject_ref"
+      ],
+      "payload": {
+        "table": "type_properties",
+        "type_id": "type:profile",
+        "property_id": "prop:profile:subject_ref"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:profile|prop:profile:feature_schema_refs",
+      "address_mode": "identity_text",
+      "path": [
+        "type:profile",
+        "prop:profile:feature_schema_refs"
+      ],
+      "payload": {
+        "table": "type_properties",
+        "type_id": "type:profile",
+        "property_id": "prop:profile:feature_schema_refs"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:profile|prop:profile:evaluator_refs",
+      "address_mode": "identity_text",
+      "path": [
+        "type:profile",
+        "prop:profile:evaluator_refs"
+      ],
+      "payload": {
+        "table": "type_properties",
+        "type_id": "type:profile",
+        "property_id": "prop:profile:evaluator_refs"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:profile|prop:profile:generator_refs",
+      "address_mode": "identity_text",
+      "path": [
+        "type:profile",
+        "prop:profile:generator_refs"
+      ],
+      "payload": {
+        "table": "type_properties",
+        "type_id": "type:profile",
+        "property_id": "prop:profile:generator_refs"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:profile|prop:profile:validation_policy_ref",
+      "address_mode": "identity_text",
+      "path": [
+        "type:profile",
+        "prop:profile:validation_policy_ref"
+      ],
+      "payload": {
+        "table": "type_properties",
+        "type_id": "type:profile",
+        "property_id": "prop:profile:validation_policy_ref"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:profile|prop:profile:derived_items",
+      "address_mode": "identity_text",
+      "path": [
+        "type:profile",
+        "prop:profile:derived_items"
+      ],
+      "payload": {
+        "table": "type_properties",
+        "type_id": "type:profile",
+        "property_id": "prop:profile:derived_items"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::how-someone-does-their-thing::workflow-action::build-profile",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:build-profile",
+        "kind": "action",
+        "is_active": true,
+        "name": "build-profile",
+        "description": "Build or refresh one profile by gathering the subject's current records, dispatching ai-records-producer, then writing the returned profile items back as profile facts. The same profile record is used for validation and draft conditioning.",
+        "input_schema": {
+          "required": [
+            "request_id",
+            "profile_ref",
+            "subject_ref"
+          ],
+          "properties": {
+            "request_id": {
+              "type": "string"
+            },
+            "profile_ref": {
+              "type": "string"
+            },
+            "subject_ref": {
+              "type": "string"
+            },
+            "instruction_text": {
+              "type": "string"
+            },
+            "output_kind": {
+              "type": "string"
+            },
+            "wrap_instruction_ref": {
+              "type": "string"
+            }
+          }
+        },
+        "steps": [
+          {
+            "kind": "ask",
+            "config": {
+              "name": "slot::find-current-items",
+              "input": {
+                "operation": "find-current-items",
+                "in": "attribute_fact",
+                "select": [
+                  "subject_id",
+                  "property_id",
+                  "value_json"
+                ],
+                "where": {
+                  "all": [
+                    {
+                      "field": "subject_id",
+                      "eq": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "subject_ref"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "kind": "ask",
+            "config": {
+              "name": "slot::workflow",
+              "input": {
+                "operation": "execute_definition",
+                "definition_id": "action:run-ai-records-production",
+                "input": {
+                  "request_id": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "request_id"
+                    }
+                  },
+                  "target_group_ref": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "profile_ref"
+                    }
+                  },
+                  "instruction_text": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "instruction_text"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "steps",
+                              "key": "step_0",
+                              "path": "output.items"
+                            },
+                            "transform": [
+                              {
+                                "op": "op:core.stringify",
+                                "args": {
+                                  "format": "json"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "output_kind": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "output_kind"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": "profile-fact"
+                        }
+                      }
+                    ]
+                  },
+                  "wrap_instruction_ref": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "wrap_instruction_ref"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": "instr:how-someone-does-their-thing:build-profile"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "profile_ref"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "attribute_fact|",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "profile_ref"
+                              }
+                            },
+                            "|prop:profile:derived_items|type:profile"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "prop:profile:derived_items"
+                  ],
+                  "payload": {
+                    "table": "attribute_fact",
+                    "subject_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "profile_ref"
+                      }
+                    },
+                    "property_id": "prop:profile:derived_items",
+                    "type_id": "type:profile",
+                    "value_json": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "step_1",
+                        "path": "output.items"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.stringify",
+                          "args": {
+                            "format": "json"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "profile_ref"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "attribute_fact|",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "profile_ref"
+                              }
+                            },
+                            "|prop:profile:last_build_result_ref|type:profile"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "prop:profile:last_build_result_ref"
+                  ],
+                  "payload": {
+                    "table": "attribute_fact",
+                    "subject_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "profile_ref"
+                      }
+                    },
+                    "property_id": "prop:profile:last_build_result_ref",
+                    "type_id": "type:profile",
+                    "value_json": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "request_id"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.concat",
+                          "args": {
+                            "values": [
+                              "\"package::ai-records-producer::result::",
+                              {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "input",
+                                  "path": "request_id"
+                                }
+                              },
+                              "\""
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "version": 1,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|action:build-profile|type:action",
+      "address_mode": "identity_text",
+      "path": [
+        "type:action"
+      ],
+      "payload": {
+        "table": "entity_types",
+        "entity_id": "action:build-profile",
+        "type_id": "type:action"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|action:build-profile",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": {
+        "table": "entity",
+        "entity_id": "action:build-profile"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::how-someone-does-their-thing::input::profile-builds",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "profile-builds",
+        "is_default": true,
+        "value_address_label": "how-someone-does-their-thing-profile-builds",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          },
+          "projection": {
+            "op": "rows",
+            "fields": [
+              {
+                "column": 0,
+                "key": "profile_ref",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "subject_ref",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 2,
+                "key": "request_id",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 3,
+                "key": "instruction_text",
+                "required": false,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    }
+  ]
+}

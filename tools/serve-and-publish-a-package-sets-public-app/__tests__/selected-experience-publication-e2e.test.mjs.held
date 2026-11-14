@@ -1,0 +1,372 @@
+import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { createPrivateKey, createPublicKey, sign as signMessage } from 'node:crypto';
+import { blake3 } from '@noble/hashes/blake3.js';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import test from 'node:test';
+import { pathToFileURL } from 'node:url';
+
+import {
+  makeHashCodeHexFromBytes,
+  makeMultihashCodeHexFromEncodedBytes,
+} from '@bitfield/slot-protocol';
+import { materializeHostedProjectionTree } from '../processes/materialize-hosted-projection-tree.mjs';
+import { preparePublicationRecords } from '../processes/prepare-publication-records.mjs';
+import { buildPackageEntryBytes } from '../../make-packages-match-their-source/do-work/package-entry-byte-build-lib.mjs';
+import { runtimeKitBinary, runtimeKitRoot } from './runtime-kit-test-tools.mjs';
+
+const packageRoot = path.resolve(import.meta.dirname, '..');
+const resolverBytes = path.join(packageRoot, 'built-stored-bytes/entry-bytes-resolve-selected-publication-request');
+const publicationEntryNames = [
+  'resolve-selected-publication-request',
+  'normalize-selected-experience-publication',
+];
+const closure = runtimeKitBinary('bitfield-sealed-closure');
+const node = process.execPath;
+
+const hash = (bytes) => makeHashCodeHexFromBytes(bytes);
+const rawHash = (address) => Uint8Array.from([
+  0x1f,
+  0x20,
+  ...Buffer.from(
+    Buffer.from(address).toString('hex').padEnd(64, '0').slice(0, 64),
+    'hex',
+  ),
+]);
+const ref = (address) => ({
+  address,
+  revision: 'r1',
+  object_hash: makeMultihashCodeHexFromEncodedBytes(rawHash(address)),
+});
+function wire(value) {
+  const payload = Buffer.from(JSON.stringify(value)); const mh = Buffer.from(rawHash(value.address));
+  const out = Buffer.alloc(11 + payload.length + mh.length); out.set([1, 1, payload.length, payload.length >> 8, payload.length >> 16, payload.length >> 24]); payload.copy(out, 6); out[6 + payload.length] = 1; out.writeUInt32LE(mh.length, 7 + payload.length); mh.copy(out, 11 + payload.length); return out;
+}
+async function admittedResolver(root) {
+  const module = path.join(root, 'resolver.mjs'); writeFileSync(module, readFileSync(resolverBytes));
+  return import(`${pathToFileURL(module).href}?${Date.now()}`);
+}
+test('all admitted publication entry bytes exactly match their canonical scoped builds', async () => {
+  for (const entryName of publicationEntryNames) {
+    const expected = await buildPackageEntryBytes({ packageRoot, entryName });
+    const admitted = readFileSync(path.join(packageRoot, 'built-stored-bytes', `entry-bytes-${entryName}`));
+    assert.deepEqual(admitted, Buffer.from(expected), `${entryName} admitted bytes differ from its canonical scoped build`);
+  }
+  const text = readFileSync(resolverBytes, 'utf8');
+  assert.match(text, /credential_key/);
+  assert.doesNotMatch(text, /signing_seed_secret_ref/);
+  assert.doesNotMatch(text, /signing_seed_file/);
+});
+function closureProcess(stage, args, failure) {
+  if (failure === stage) {
+    try { execFileSync(closure, ['not-a-command'], { encoding: 'utf8', stdio: 'pipe' }); } catch { throw new Error(`injected process failure: ${stage}`); }
+  }
+  return execFileSync(closure, args, { encoding: 'utf8' });
+}
+function localProofStep(stage, { fail = false, delay = 0, timeout_ms = 30_000 } = {}) {
+  return {
+    name: stage,
+    process: {
+      argv: ['proof-worker', stage], cwd: stage === 'timeout' ? null : 'site', timeout_ms,
+      termination_grace_ms: 1_000, expected_termination: { kind: 'exited', code: 0 },
+      env: {
+        PROOF_STAGE: stage,
+        PROOF_FAIL: fail ? '1' : '0',
+        PROOF_DELAY_MS: String(delay),
+      },
+      inputs: [], input_trees: [],
+      outputs: stage === 'deploy'
+        ? [{ mount_path: 'site/deployment-result.json', content_type: 'application/json', storage: 'inline' }]
+        : [],
+      containment: { kind: 'leaf' }, capture_fds: [1, 2], collected_files: [],
+    },
+    workspace_bindings: { environment: [] },
+    predecessor_outputs: [],
+  };
+}
+
+// The admission policy names the executable by CONTENT HASH, and the hash is a multihash written
+// `<algo-code-hex>:<digest-hex>`, which for Blake3-256 is code `1f`. That format has exactly one
+// owner, `bitfield-crypto`'s `Multihash::to_code_hex`, and the engine decodes it strictly: it
+// rejects an unknown field rather than ignoring it, which is how this fixture's old `sha256` key
+// surfaced. It surfaced UNHELPFULLY, as `unknown field sha256`, which reads like the engine lost a
+// capability rather than like a fixture naming a field that has been replaced.
+function executableBinding(file) {
+  const absolutePath = realpathSync(file);
+  return {
+    absolute_path: absolutePath,
+    content_hash: `1f:${Buffer.from(blake3(readFileSync(absolutePath))).toString('hex')}`,
+    expected_unix_mode: statSync(absolutePath).mode & 0o777,
+  };
+}
+
+let cachedProcessHarness;
+function processHarnessBinaries() {
+  if (cachedProcessHarness) return cachedProcessHarness;
+  const architectRoot = path.resolve(runtimeKitRoot, '../architect');
+  const processEngineRoot = path.join(architectRoot, 'crates/process-engine');
+  // A STABLE harness directory, keyed by the crate paths it builds against. This was a fresh
+  // mkdtemp per run, so `target/` was empty every time and every run recompiled process-engine,
+  // execution-types, tokio and the rest from source: the build cache was being THROWN AWAY, not
+  // missing. Each generated file below is written only when its content actually differs, so
+  // cargo's fingerprints stay valid and an unchanged run is a no-op check instead of a full
+  // build. Editing the inline Rust still rewrites that file and still rebuilds, so the proof is
+  // unchanged; only the repeated compilation of identical sources is gone.
+  const harness = path.join(
+    tmpdir(),
+    `hpa-process-engine-harness-${makeHashCodeHexFromBytes(new TextEncoder().encode(`${architectRoot}\0${processEngineRoot}`)).replace(':', '-')}`,
+  );
+  mkdirSync(harness, { recursive: true });
+  const writeIfChanged = (absolutePath, contents) => {
+    if (existsSync(absolutePath) && readFileSync(absolutePath, 'utf8') === contents) return;
+    writeFileSync(absolutePath, contents);
+  };
+  writeIfChanged(path.join(harness, 'Cargo.toml'),`[package]\nname="hpa-process-proof"\nversion="0.0.0"\nedition="2021"\n[dependencies]\nprocess-engine={path=${JSON.stringify(processEngineRoot)}}\nexecution-types={path=${JSON.stringify(path.join(architectRoot, 'crates/execution-types'))}}\ntokio={version="1",features=["macros","rt-multi-thread"]}\nserde_json="1"\nsha2="0.10"\nhex="0.4"\nlibc="0.2"\n`);
+  mkdirSync(path.join(harness, 'src', 'bin'), { recursive: true });
+  writeIfChanged(path.join(harness, 'src', 'main.rs'),`use execution_types::ProcessSequenceDescriptor; use process_engine::{OsProcessBackend,ProcessAdmissionPolicy};\n#[tokio::main] async fn main()->Result<(),Box<dyn std::error::Error>>{let mut args=std::env::args().skip(1);let descriptor:ProcessSequenceDescriptor=serde_json::from_slice(&std::fs::read(args.next().ok_or("descriptor")?)?)?;let policy=ProcessAdmissionPolicy::from_json(&std::fs::read(args.next().ok_or("policy")?)?)?;let result=OsProcessBackend::new(policy).execute_process_sequence_result(&descriptor,None,None,None,None,None).await?;println!("{}",serde_json::to_string(&result)?);Ok(())}\n`);
+  // The authority binary is BUILT FROM ITS OWN CRATE, never copied in here.
+  //
+  // It used to be copied, with its `//!` lines stripped, into this synthetic package, whose
+  // dependency list is written by hand a few lines above. That made the hand-written list a second
+  // declaration of what the real binary needs, and the day the real crate reached for
+  // `bitfield-crypto` this check went red with two E0433s pointing at a temp directory. Nothing
+  // about that failure said "a dependency was added"; it read as a Rust error inside somebody
+  // else's refactor, and it was attributed that way for days.
+  //
+  // The proof is unchanged and is in fact stronger, because it now runs the SAME bytes the runtime
+  // runs rather than a re-compilation of a stripped copy. `hpa-process-proof` still needs to be its
+  // own package: it is a driver that exercises the process-engine API, and it has no equivalent in
+  // the crate.
+  //
+  // The harness directory is keyed by the crate paths and therefore SURVIVES between runs, so a
+  // copy left there by an older run would still be compiled by `--bins` and would still fail. It is
+  // removed here rather than left to a human, because on a machine that has run this before the
+  // symptom is identical to the one this change fixes.
+  const staleAuthorityCopy = path.join(harness, 'src', 'bin', 'bitfield-process-authority.rs');
+  if (existsSync(staleAuthorityCopy)) rmSync(staleAuthorityCopy);
+  writeIfChanged(path.join(harness, 'src', 'bin', 'proof-worker.rs'),`use std::{env,fs,process,thread,time::Duration};\nfn main(){let stage=env::args().nth(1).expect("stage");assert_eq!(env::var("PROOF_STAGE").unwrap(),stage);let delay=env::var("PROOF_DELAY_MS").unwrap().parse::<u64>().unwrap();if delay>0{thread::sleep(Duration::from_millis(delay));}if env::var("PROOF_FAIL").unwrap()=="1"{eprintln!("injected process failure: {stage}");process::exit(17);}if stage=="deploy"{fs::write("deployment-result.json",r#"{"schema":"publication-deployment-result/v1","share_url":"https://selected.example/"}"#).unwrap();}fs::write(format!("{stage}.marker"),stage).unwrap();}\n`);
+  execFileSync('cargo', ['build', '--offline', '--quiet', '--bins', '--manifest-path', path.join(harness, 'Cargo.toml')], { cwd: harness, stdio: 'pipe' });
+  execFileSync(
+    'cargo',
+    ['build', '--offline', '--quiet', '-p', 'process-engine', '--bin', 'bitfield-process-authority'],
+    { cwd: architectRoot, stdio: 'pipe' },
+  );
+  cachedProcessHarness = {
+    runner: path.join(harness, 'target', 'debug', 'hpa-process-proof'),
+    authority: path.join(architectRoot, 'target', 'debug', 'bitfield-process-authority'),
+    worker: path.join(harness, 'target', 'debug', 'proof-worker'),
+  };
+  return cachedProcessHarness;
+}
+
+function executeDeclaredProcessSequence(steps, inputs = []) {
+  const binaries = processHarnessBinaries();
+  const sourceDir = mkdtempSync(path.join(tmpdir(), 'hpa-process-sequence-'));
+  const descriptorFile = path.join(sourceDir, 'descriptor.json');
+  const policyFile = path.join(sourceDir, 'policy.json');
+  writeFileSync(descriptorFile, JSON.stringify({ inputs, input_trees: [], steps }));
+  writeFileSync(policyFile, JSON.stringify({
+    native_authority: executableBinding(binaries.authority),
+    runtime_aliases: {
+      'proof-worker': {
+        execution: {
+          kind: 'native_executable', executable: executableBinding(binaries.worker),
+          readable_roots: ['/System/Library', '/usr/lib', '/private/var/db/dyld'],
+        },
+        network_allowed: false,
+      },
+      'bitfield-sealed-closure': {
+        execution: {
+          kind: 'native_executable', executable: executableBinding(closure),
+          readable_roots: ['/System/Library', '/usr/lib', '/private/var/db/dyld'],
+        },
+        network_allowed: false,
+      },
+    },
+    external_providers: {}, publication_targets: {}, private_volumes: {},
+  }));
+  try {
+    return JSON.parse(execFileSync(binaries.runner, [descriptorFile, policyFile], {
+      encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
+    }));
+  } catch (error) {
+    const failure = new Error('declared process sequence failed');
+    failure.stderr = Buffer.from(error.stderr ?? '').toString('utf8');
+    throw failure;
+  }
+}
+async function publish({ failure, signer = 'ok', commitSink = [] } = {}) {
+  const root = mkdtempSync(path.join(tmpdir(), 'hpa-publication-e2e-'));
+  const source = path.join(root, 'source.mjs'); writeFileSync(source, 'export const selected = true;\n');
+  const signingSeed = Buffer.alloc(32, 0x11);
+  const signingKey = createPrivateKey({
+    key: Buffer.concat([Buffer.from('302e020100300506032b657004220420', 'hex'), signingSeed]),
+    format: 'der',
+    type: 'pkcs8',
+  });
+  const publicIdentity = createPublicKey(signingKey).export({ format: 'der', type: 'spki' }).subarray(-32).toString('hex');
+  const trustedKey = `test-key:${publicIdentity}`;
+  const intent = ref('intent:selected'), selection = ref('selection:selected'), dependency = ref('dependency:selected'), materializer = ref('materializer:selected'), policy = ref('policy:selected'), execution = ref('execution:selected'), destination = ref('destination:selected'), publicationRequest = ref('publication-request:selected'), deploymentRequest = ref('deployment-request:selected');
+  const publicationRequestKey = '026b1840-2d6f-4a41-ae96-8bf35f92409f';
+  const surface = ref('surface:selected');
+  const records = new Map([
+    [publicationRequest.address, { ...publicationRequest, publication_request_key: publicationRequestKey, intent_ref: intent }],
+    [intent.address, { ...intent, selection_ref: selection, dependency_ref: dependency, publication_destination_ref: destination, access_policy_ref: policy, access_ref: 'access:public', root_refs: [surface], entry_byte_path: ['app', 'entry.mjs'], publication: { address: 'publication:selected', revision: 'r1' } }],
+    [selection.address, { ...selection, records: [{ ...surface, kind_ref: 'selected', dependency_refs: [], projection_files: [{ path: ['app', 'entry.mjs'], source: { kind: 'inline', bytes: readFileSync(source).toString('base64') }, integrity_hash: hash(readFileSync(source)), executable: false }], browser_import_bindings: [{ specifier: '@selected/entry', path: ['app', 'entry.mjs'] }], authority: { data_refs: [], subscription_refs: [], target_refs: [], navigation_refs: [] } }] }],
+    [dependency.address, { ...dependency, materializer_ref: materializer, closure: { binary: 'bitfield-sealed-closure', credential_key: 'ephemeral', key_id: 'test-key', trusted_key: trustedKey }, deployment_request_ref: deploymentRequest, limits: { max_records: 4, max_files: 4, max_total_bytes: 4096 } }],
+    [materializer.address, { ...materializer, process: { node_binary: node, root: path.join(root, 'materialized') } }],
+    [policy.address, { ...policy, mode: 'public', execution_descriptor_ref: execution }],
+    [execution.address, { ...execution, kind: 'selected-experience-publication-execution/v1', definition_id: 'action:publish-selected-experience', definition_refs: ['action:publish-static-selected-experience', 'action:publish-selected-experience'] }],
+    [deploymentRequest.address, { ...deploymentRequest, kind: 'package-owned-deployment-request', schema: 'hosted-public-app.deployment-request/v2', profile: 'fly-remote-only', parameters: { application: 'example-public-app', config_file: 'fly.toml' } }],
+  ]);
+  let cursor = 0; const ordered = [publicationRequest.address, intent.address, selection.address, dependency.address, policy.address, execution.address, deploymentRequest.address];
+  const sender = async () => ({ payload: wire(records.get(ordered[cursor++])) });
+  const resolver = await admittedResolver(root);
+  const resolved = await resolver.resolveSelectedPublicationRequestTarget({ intent_ref: intent, request_id: publicationRequestKey, publication_request_ref: publicationRequest }, { packageData: { things: [{ path: ['x', 'publication-owner-binding'], payload_base64: Buffer.from(JSON.stringify({ partition_label: 'test' })).toString('base64') }] } }, sender);
+  assert.equal(resolved.publication_process_steps.length, 2);
+  assert.equal(resolved.publication_process_steps[0].name, 'materialize');
+  assert.deepEqual(resolved.publication_process_steps[0].process.argv.slice(1, 4), [
+    'apply-from-source-archive-tree', '--source-archive', 'selected-source-archive.json',
+  ]);
+  assert.equal(resolved.publication_process_steps[0].process.argv.at(-2), '--proof-output');
+  assert.equal(resolved.publication_process_steps[0].process.argv.at(-1), 'apply-proof.json');
+  assert.deepEqual(resolved.publication_process_steps[1].process.argv, [
+    'node', 'run-provider-deploy.mjs', '--request', JSON.stringify({
+      kind: 'package-owned-deployment-request',
+      schema: 'hosted-public-app.deployment-request/v2',
+      profile: 'fly-remote-only',
+      parameters: { application: 'example-public-app', config_file: 'fly.toml' },
+    }), '--site-root', 'site',
+  ]);
+  assert.equal(Object.hasOwn(resolved, 'publication_root'), false);
+  const vault = async (request) => {
+    if (signer === 'missing') throw new Error('credential missing');
+    if (signer === 'denied') throw new Error('credential denied');
+    if (request.operation === 'read') return { handle: 'opaque-one-time-handle' };
+    if (signer === 'expired') throw new Error('credential handle expired');
+    assert.deepEqual(request, {
+      operation: 'sign',
+      handle: 'opaque-one-time-handle',
+      message_b64: request.message_b64,
+      scheme: 'ed25519',
+      key_encoding: 'hex',
+      output_encoding: 'hex',
+    });
+    const signature = signMessage(null, Buffer.from(request.message_b64, 'base64'), signingKey).toString('hex');
+    return { success: true, signature, signature_encoding: 'hex', public_identity: publicIdentity };
+  };
+  if (failure === 'materialize') throw new Error('injected process failure: materialize');
+  const materializationWork = path.join(root, 'materialization-work');
+  mkdirSync(materializationWork, { recursive: true });
+  for (const input of resolved.projection_process_inputs) {
+    assert.equal(input.source.kind, 'inline');
+    writeFileSync(path.join(materializationWork, input.mount_path), Buffer.from(input.source.bytes, 'base64'));
+  }
+  const priorCwd = process.cwd();
+  process.chdir(materializationWork);
+  let mat;
+  try {
+    mat = materializeHostedProjectionTree(resolved.materialization_input, path.join(root, 'files.json'), path.join(root, 'manifest.json'));
+  } finally {
+    process.chdir(priorCwd);
+  }
+  assert.deepEqual(mat.authority_manifest.browser_import_map, { '@selected/entry': 'app/entry.mjs' });
+  const archive = path.join(root, 'archive.json'), unsigned = path.join(root, 'closure.json'), basis = path.join(root, 'basis.json'), signingPayload = path.join(root, 'signing-payload.bin'), signed = path.join(root, 'signed.json');
+  closureProcess('archive', ['create-source-archive', '--source-file-set', mat.source_file_set_file, '--source-archive-output', archive], failure);
+  closureProcess('create', ['create-from-source-archive-tree', '--source-archive', archive, '--closure-file', unsigned, '--current-state-basis-output', basis], failure);
+  closureProcess('signing-payload', ['signing-payload', '--closure-file', unsigned, '--message-output', signingPayload], failure);
+  const handle = await vault({ operation: 'read', key: resolved.closure.credential_key, handle_ttl_seconds: 300 });
+  const signedByVault = await vault({
+    operation: 'sign',
+    handle: handle.handle,
+    message_b64: readFileSync(signingPayload).toString('base64'),
+    scheme: 'ed25519',
+    key_encoding: 'hex',
+    output_encoding: 'hex',
+  });
+  assert.equal(signedByVault.public_identity, publicIdentity);
+  assert.doesNotMatch(JSON.stringify(signedByVault), new RegExp(signingSeed.toString('hex')));
+  closureProcess('attach', ['attach-signature', '--closure-file', unsigned, '--key-id', 'test-key', '--signature-hex', signedByVault.signature, '--signed-closure-output', signed], failure);
+  let sequence;
+  try {
+    const input = (mount_path, file) => ({
+      mount_path,
+      content_type: 'application/json',
+      source: { kind: 'inline', bytes: readFileSync(file).toString('base64') },
+    });
+    const materialize = structuredClone(resolved.publication_process_steps[0]);
+    if (failure === 'apply') materialize.process.argv[0] = 'not-a-runtime-alias';
+    sequence = executeDeclaredProcessSequence([
+      materialize,
+      localProofStep('deploy', { fail: failure === 'deploy' }),
+    ], [
+      input('selected-source-archive.json', archive),
+      input('hosted-projection.signed-closure.json', signed),
+      input('current-state-basis.json', basis),
+    ]);
+  } catch (error) {
+    if (failure === 'apply' || failure === 'deploy') throw new Error(`injected process failure: ${failure}`);
+    throw error;
+  }
+  assert.equal(sequence.steps.length, 2);
+  assert.equal(sequence.steps[0].process_result.termination.kind, 'exited');
+  assert.equal(sequence.steps[0].process_result.termination.code, 0);
+  // ⛔ THIS ASSERTION WAS SILENTLY VACUOUS. It read `predecessor_result_sha256` and
+  // `process_result_sha256`, both of which the process-sequence owner renamed to
+  // `*_content_hash`, so it compared `undefined` to `undefined` and PASSED while checking
+  // nothing. That is the quiet failure mode of a rename in a dynamic language: the test does not
+  // break, it stops testing, and a green run is exactly what it looks like.
+  //
+  // The chain binding is the whole point of this line, so it now asserts the values EXIST before
+  // comparing them. An assertion that cannot fail on absent data is not an assertion.
+  assert.ok(sequence.steps[0].process_result_content_hash, 'step 0 must carry a content hash');
+  assert.equal(sequence.steps[1].predecessor_result_content_hash, sequence.steps[0].process_result_content_hash);
+  const deployment = sequence.steps[1].process_result;
+  assert.equal(deployment.termination.kind, 'exited');
+  assert.equal(deployment.termination.code, 0);
+  assert.equal(deployment.outputs.length, 1);
+  if (failure === 'prepare') throw new Error('injected process failure: prepare');
+  const prepared = preparePublicationRecords(
+    resolved.publication_commit_input,
+    readFileSync(mat.authority_manifest_output_file),
+    readFileSync(signed),
+    Buffer.from(sequence.steps[0].process_result.outputs[0].bytes, 'base64'),
+    Buffer.from(deployment.outputs[0].bytes, 'base64'),
+  );
+  [prepared.authorityManifest, prepared.sealedClosure, prepared.applyProof, prepared.route, prepared.publication]
+    .forEach((record) => commitSink.push({ address: record.ref.address, bytes: record.bytes }));
+  return { commit: commitSink.map((entry) => entry.bytes), refs: [prepared.authorityManifest.ref, prepared.sealedClosure.ref, prepared.applyProof.ref, prepared.route.ref, prepared.publication.ref] };
+}
+
+test('admitted resolver → opaque vault signature → real Runtime Kit closure → validated deployment result commits five byte-identified records', async () => {
+  const first = await publish(); const retry = await publish();
+  assert.equal(first.commit.length, 5);
+  assert.deepEqual(first.commit, retry.commit);
+  for (let index = 0; index < 5; index += 1) assert.equal(hash(first.commit[index]), first.refs[index].object_hash);
+});
+
+test('missing, denied, expired signers and every publication process failure commit nothing', async () => {
+  for (const signer of ['missing', 'denied', 'expired']) {
+    const commitSink = []; await assert.rejects(() => publish({ signer, commitSink }), /secret|credential/); assert.equal(commitSink.length, 0);
+  }
+  for (const failure of ['materialize', 'archive', 'create', 'signing-payload', 'attach', 'apply', 'prepare', 'deploy']) {
+    const commitSink = []; await assert.rejects(() => publish({ failure, commitSink }), /injected process failure/); assert.equal(commitSink.length, 0);
+  }
+});
+
+test('the process-engine seam enforces descriptor timeout instead of ignoring it', () => {
+  assert.throws(
+    () => executeDeclaredProcessSequence([
+      // Give native process admission time to observe the exec before the
+      // descriptor deadline; a 500 ms deadline can race admission on a busy
+      // machine and report a containment failure instead of testing timeout.
+      localProofStep('timeout', { delay: 5_000, timeout_ms: 2_000 }),
+    ]),
+    (error) => {
+      assert.match(error.stderr, /Timeout \{ timeout_ms: 2000 \}|timeout_ms/);
+      return true;
+    },
+  );
+});

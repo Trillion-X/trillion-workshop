@@ -1,0 +1,5 @@
+/* Chrome for the test tenant, as a PLAIN CSS FILE with no export.
+   The live set's chrome is a module exporting a template literal, so these two fixtures
+   between them exercise both branches of chromeCssFor: named export, and file-is-the-css.
+   The marker below is what a test asserts reached the page. */
+.entry-host-test-tenant-chrome { --proof: "chrome-css-4b19e7"; }

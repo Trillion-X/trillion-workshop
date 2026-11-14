@@ -1,0 +1,208 @@
+#!/usr/bin/env node
+// Prices kept on disk must reach the page when the engine is gone.
+//
+// WHY THIS EXISTS. The landing page's offer lookup was a third hand-rolled copy of
+// keep-the-last-good-answer, and it was replaced with the package on 2026-09-04. The two
+// dead-engine tests next door both stayed green through that rewrite, because neither of them
+// ever seeds a kept price: they run with an empty install root, so they only ever exercise the
+// nothing-was-ever-kept branch. The rewrite touched the branch NO test reached.
+//
+// That is the same defect this package keeps producing in other shapes: a required thing
+// written where nothing keeps it. Here the thing was a test.
+//
+// It seeds the kept file directly rather than standing up an engine. That is deliberate and it
+// is a real boundary, not a shortcut: the kept tier's contract is that whatever was last known
+// good reaches the page, and the derivation of a price FROM engine records is a different
+// question owned by different functions. Seeding lets the assertions name an exact value that
+// could not have come from anywhere else, which a live-engine fixture would not.
+
+import { spawn } from 'node:child_process';
+import { mkdtemp, writeFile, rm, readFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { createServer } from 'node:net';
+import { request as httpRequest } from 'node:http';
+import { theBuiltEntryServer } from './built-entry-server.mjs';
+
+const PUBLIC_HOST = 'public.entry-host.test';
+
+// A value no code path could invent. If it appears on the page it came from the kept file.
+// The `offerId` fields are not decoration. Offers became per tenant on 2026-09-05, and the file
+// seeded below is the LEGACY process-wide one, which carries no owner. A tenant may claim it only
+// when the ids inside are the ids that tenant declares, otherwise a first boot would serve every
+// tenant whoever kept last. Every file the old code actually wrote carried these ids, because
+// both projections set `offerId` from the offer they found; this fixture did not, which is the
+// gap that made this suite fail on a correct change. Fixture values come from the real producer.
+const KEPT_OFFER_IDS = { patronPolicy: 'offer:kept-patron-7f3a91', systemOffer: 'offer:kept-system-7f3a91' };
+const KEPT_PATRON = { status: 'ready', offerId: KEPT_OFFER_IDS.patronPolicy, marker: 'kept-patron-7f3a91', amount_cents: 111100 };
+const KEPT_SYSTEM = { status: 'ready', offerId: KEPT_OFFER_IDS.systemOffer, marker: 'kept-system-7f3a91', amount_cents: 222200 };
+
+async function freePort() {
+  return new Promise((resolve, reject) => {
+    const probe = createServer();
+    probe.on('error', reject);
+    probe.listen(0, '127.0.0.1', () => {
+      const { port } = probe.address();
+      probe.close(() => resolve(port));
+    });
+  });
+}
+
+// node:http, NOT fetch: `Host` is a forbidden header name in fetch, so a fetch-based probe
+// silently arrives as 127.0.0.1 and never matches a configured host.
+function get(port, path, host) {
+  return new Promise((resolve, reject) => {
+    const req = httpRequest(
+      { host: '127.0.0.1', port, path, method: 'GET', headers: { Host: host, Accept: 'text/html' } },
+      (response) => {
+        let body = '';
+        response.setEncoding('utf8');
+        response.on('data', (c) => { body += c; });
+        response.on('end', () => resolve({ status: response.statusCode, body }));
+      },
+    );
+    req.on('error', reject);
+    req.end();
+  });
+}
+
+const failures = [];
+function check(name, condition, detail) {
+  if (condition) console.log(`  PASS  ${name}`);
+  else { console.log(`  FAIL  ${name}${detail ? `, ${detail}` : ''}`); failures.push(name); }
+}
+
+const { server: SERVER, note: serverNote, reason: noServerReason } = await theBuiltEntryServer();
+if (!SERVER) {
+  // Exit 1 rather than skip. A test that passes when its subject is absent cannot fail, and
+  // one that silently picks among several subjects is worse: it reports green about a binary
+  // you did not build.
+  console.log(`FAIL: ${noServerReason}`);
+  process.exit(1);
+}
+console.log(serverNote);
+
+const staticDir = await mkdtemp(join(tmpdir(), 'kept-prices-static-'));
+
+// Written here rather than checked in, because chrome_css_file must be ABSOLUTE and putting an
+// absolute path in a fixture is the defect T2 just removed from the server.
+const here = (name) => new URL(`./${name}`, import.meta.url).pathname;
+const descriptionFile = join(staticDir, 'page-description.json');
+const descriptionBase = JSON.parse(await readFile(here('page-description-for-tests.json'), 'utf8'));
+await writeFile(descriptionFile, JSON.stringify({
+  ...descriptionBase,
+  // The tenant declares the ids its kept file carries, which is what lets it claim that file.
+  pages: descriptionBase.pages.map((page) => ({
+    ...page,
+    chrome_css_file: here('chrome-for-tests.css'),
+    landing_offers: {
+      patronPolicy: { offer_id: KEPT_OFFER_IDS.patronPolicy, fields: { policy: { from: 'price_option', key: 'voluntary_amount_policy' } } },
+      systemOffer: {
+        offer_id: KEPT_OFFER_IDS.systemOffer,
+        fields: {
+          amountCents: { from: 'price_option', key: 'amount_cents' },
+          currency: { from: 'price_option', key: 'currency' },
+        },
+      },
+    },
+  })),
+}), 'utf8');
+await writeFile(join(staticDir, 'index.html'),
+  '<!DOCTYPE html>\n<html><head></head><body><div id="root"></div></body></html>\n', 'utf8');
+
+// Boot one server against a dead engine with a pre-seeded kept file, and read the page once.
+async function pageWithKeptOffers(keptFileContents) {
+  const installRoot = await mkdtemp(join(tmpdir(), 'kept-prices-install-'));
+  if (keptFileContents !== null) {
+    await writeFile(join(installRoot, 'landing-offers-cache.json'), keptFileContents, 'utf8');
+  }
+  const port = await freePort();
+  const deadEnginePort = await freePort();
+  const child = spawn(process.execPath, [SERVER], {
+    env: {
+      ...process.env,
+      BITFIELD_PUBLIC_ENTRY_LISTEN_HOST: '127.0.0.1',
+      BITFIELD_PUBLIC_ENTRY_LISTEN_PORT: String(port),
+      BITFIELD_PUBLIC_ENTRY_SHELL_URL: `http://127.0.0.1:${deadEnginePort}`,
+      BITFIELD_BROWSER_STATIC_DIR: staticDir,
+      BITFIELD_HOST_ENTRY_SCENE_HOSTS: PUBLIC_HOST,
+      // New REQUIRED input since the shells stopped naming a product. Every assertion below is
+      // unchanged, and the marker checks still read the state envelopes, whose GLOBAL NAMES now
+      // come from this description rather than from the server.
+      BITFIELD_PUBLIC_PAGE_DESCRIPTION_FILE: descriptionFile,
+      BITFIELD_INSTALL_ROOT: installRoot,
+      BITFIELD_BOOT_WAIT_MS: '1000',
+    },
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  let log = '';
+  child.stdout.on('data', (d) => { log += d; });
+  child.stderr.on('data', (d) => { log += d; });
+  try {
+    const deadline = Date.now() + 30000;
+    while (Date.now() < deadline) {
+      try { return { ...(await get(port, '/', PUBLIC_HOST)), log }; }
+      catch { await new Promise((r) => setTimeout(r, 200)); }
+    }
+    throw new Error('server never listened');
+  } finally {
+    child.kill('SIGKILL');
+    await rm(installRoot, { recursive: true, force: true });
+  }
+}
+
+let exitCode = 0;
+try {
+  console.log('\nkept prices reach the page when the engine is gone');
+  const good = await pageWithKeptOffers(JSON.stringify({
+    patronPolicy: KEPT_PATRON,
+    systemOffer: KEPT_SYSTEM,
+    persisted_at: new Date().toISOString(),
+  }));
+  check('the page renders with no engine behind it', good.status === 200, `got ${good.status}`);
+  check('the kept patron price is on the page', good.body.includes(KEPT_PATRON.marker));
+  check('the kept system price is on the page', good.body.includes(KEPT_SYSTEM.marker));
+  check('and they are marked ready, not unavailable',
+    !/__testTenantPatronPolicy__=\{"status":"unavailable"/.test(good.body));
+
+  // A kept file is only worth serving when BOTH halves priced. Half of a price renders a card
+  // with a dead buy button, which is worse for a visitor than the honest unavailable state.
+  console.log('\na half-priced kept file is refused rather than half-served');
+  const half = await pageWithKeptOffers(JSON.stringify({
+    patronPolicy: KEPT_PATRON,
+    systemOffer: { status: 'unavailable' },
+  }));
+  check('the page still renders', half.status === 200, `got ${half.status}`);
+  check('the half-kept price is NOT served', !half.body.includes(KEPT_PATRON.marker));
+  check('the page says unavailable instead',
+    /__testTenantPatronPolicy__=\{"status":"unavailable"/.test(half.body));
+
+  // The file lives on a volume that survives deploys. Anything that can be truncated mid-write
+  // or hand-edited will eventually be, and a landing page must not 500 over its own cache.
+  console.log('\na corrupt kept file costs prices, never the page');
+  const corrupt = await pageWithKeptOffers('{"patronPolicy": {"status": "rea');
+  check('the page still renders', corrupt.status === 200, `got ${corrupt.status}`);
+  check('it falls back to unavailable rather than 500',
+    /__testTenantPatronPolicy__=\{"status":"unavailable"/.test(corrupt.body));
+  check('and the corruption was logged, not swallowed',
+    /kept landing offers unreadable/.test(corrupt.log), 'no log line about the unreadable file');
+
+  console.log('\nno kept file at all is a normal first boot, not a fault');
+  const fresh = await pageWithKeptOffers(null);
+  check('the page renders', fresh.status === 200, `got ${fresh.status}`);
+  check('a missing file is NOT logged as unreadable',
+    !/kept landing offers unreadable/.test(fresh.log), 'ENOENT was treated as an error');
+} catch (error) {
+  console.log(`  FAIL  harness, ${error?.message ?? error}`);
+  failures.push('harness');
+} finally {
+  await rm(staticDir, { recursive: true, force: true });
+}
+
+if (failures.length) {
+  console.log(`\nFAIL: ${failures.length} check(s): ${failures.join(', ')}`);
+  exitCode = 1;
+} else {
+  console.log('\nPASS: the last good prices outlive the engine that produced them');
+}
+process.exit(exitCode);

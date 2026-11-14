@@ -1,0 +1,209 @@
+import { describe, expect, it } from '../../../test-helpers/vitest-shim.mjs';
+import { resolveSelectedPublicationRequestTarget } from '../do-work/selected-publication-targets.ts';
+import {
+  makeHashCodeHexFromBytes,
+} from '@bitfield/runtime-kit/protocol';
+import {
+  makeMultihashCodeHexFromEncodedBytes,
+} from '@bitfield/slot-protocol';
+import packageData from '../things-to-store-and-run.json' with { type: 'json' };
+
+const rawHash = (address: string) => Uint8Array.from([
+  0x1f,
+  0x20,
+  ...Buffer.from(
+    Buffer.from(address).toString('hex').padEnd(64, '0').slice(0, 64),
+    'hex',
+  ),
+]);
+const ref = (address: string, revision = 'r1') => ({
+  address,
+  revision,
+  object_hash: makeMultihashCodeHexFromEncodedBytes(rawHash(address)),
+});
+const intentRef = ref('intent:selected');
+const policyRef = ref('policy:selected');
+const selectionRef = ref('selection:selected');
+const dependencyRef = ref('dependency:selected');
+const materializerRef = ref('materializer:selected');
+const executionRef = ref('execution:selected');
+const destinationRef = ref('destination:selected');
+const deploymentRequestRef = ref('deployment-request:selected');
+const rootRef = ref('root:selected');
+const publicationRequestRef = ref('publication-request:selected');
+const requestId = '026b1840-2d6f-4a41-ae96-8bf35f92409f';
+const entryBytesHash = makeHashCodeHexFromBytes(rawHash('entry:selected'));
+
+function wire(record: any): Uint8Array {
+  const payload = new TextEncoder().encode(JSON.stringify(record));
+  const multihash = rawHash(record.address);
+  const bytes = new Uint8Array(11 + payload.length + multihash.length);
+  bytes.set([1, 1, payload.length & 255, (payload.length >>> 8) & 255, (payload.length >>> 16) & 255, (payload.length >>> 24) & 255]);
+  bytes.set(payload, 6);
+  const offset = 6 + payload.length;
+  bytes[offset] = 1;
+  bytes.set([multihash.length, 0, 0, 0], offset + 1);
+  bytes.set(multihash, offset + 5);
+  return bytes;
+}
+
+const records = new Map([
+  [publicationRequestRef.address, { ...publicationRequestRef, publication_request_key: requestId, intent_ref: intentRef }],
+  [intentRef.address, { address: intentRef.address, revision: intentRef.revision, selection_ref: selectionRef, dependency_ref: dependencyRef, publication_destination_ref: destinationRef, access_policy_ref: policyRef, access_ref: 'access:selected', root_refs: [rootRef], entry_byte_path: ['app', 'entry.mjs'], publication: { address: 'publication:selected', revision: 'r1' } }],
+  [selectionRef.address, { ...selectionRef, records: [{
+    ...rootRef,
+    kind_ref: 'selected-root/v1',
+    dependency_refs: [],
+    projection_files: [{
+      path: ['app', 'entry.mjs'],
+      source: { kind: 'blob_ref', hash: entryBytesHash },
+      integrity_hash: entryBytesHash,
+      executable: false,
+    }],
+    browser_import_bindings: [{ specifier: '@selected/root', path: ['app', 'entry.mjs'] }],
+    authority: { data_refs: [], subscription_refs: [], target_refs: [], navigation_refs: [] },
+  }], entry_byte_path: ['app', 'entry.mjs'] }],
+  [dependencyRef.address, { ...dependencyRef, materializer_ref: materializerRef, closure: { binary: 'bitfield-sealed-closure', credential_key: 'owner-signing-seed', key_id: 'owner-key', trusted_key: 'owner-key:d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a' }, deployment_request_ref: deploymentRequestRef, limits: { max_records: 1, max_files: 1, max_total_bytes: 1000 } }],
+  [policyRef.address, { ...policyRef, mode: 'account', execution_descriptor_ref: executionRef, offer_required: false }],
+  [executionRef.address, { ...executionRef, kind: 'selected-experience-publication-execution/v1', definition_id: 'action:publish-selected-experience', definition_refs: ['action:publish-static-selected-experience', 'action:publish-selected-experience'] }],
+  [deploymentRequestRef.address, {
+    ...deploymentRequestRef,
+    kind: 'package-owned-deployment-request',
+    schema: 'hosted-public-app.deployment-request/v2',
+    profile: 'fly-remote-only',
+    parameters: { application: 'example-public-app', config_file: 'fly.toml' },
+  }],
+]);
+
+const sender = async () => ({ payload: wire(records.get([...records.keys()][calls++])!) });
+let calls = 0;
+const reset = () => { calls = 0; };
+const context = { packageData: { things: [{ path: ['package-input-values', 'hosted-public-app', 'publication-owner-binding'], payload_base64: Buffer.from(JSON.stringify({ partition_label: 'owner-partition' })).toString('base64') }] } };
+describe('selected publication owner targets', () => {
+  it('owner-reads canonical selection/dependency/policy and emits only package-owned process behavior', async () => {
+    reset();
+    const output = await resolveSelectedPublicationRequestTarget({ intent_ref: intentRef, request_id: requestId, publication_request_ref: publicationRequestRef }, context, sender as any);
+    expect(output).not.toHaveProperty('materializer');
+    expect(output).not.toHaveProperty('publication_root');
+    expect(output).not.toHaveProperty('build_process');
+    expect(output).not.toHaveProperty('deploy_process');
+    expect(output.publication_process_steps).toEqual([
+      {
+        name: 'materialize',
+        process: expect.objectContaining({
+          argv: expect.arrayContaining(['apply-from-source-archive-tree', '--projection-root', 'site']),
+          cwd: null,
+          expected_termination: { kind: 'exited', code: 0 },
+          inputs: [],
+          input_trees: [],
+        }),
+        workspace_bindings: { environment: [] },
+        predecessor_outputs: [],
+      },
+      {
+        name: 'deploy',
+        process: expect.objectContaining({
+          argv: [
+            'node', 'run-provider-deploy.mjs', '--request',
+            JSON.stringify({
+              kind: 'package-owned-deployment-request',
+              schema: 'hosted-public-app.deployment-request/v2',
+              profile: 'fly-remote-only',
+              parameters: { application: 'example-public-app', config_file: 'fly.toml' },
+            }),
+            '--site-root', 'site',
+          ],
+          cwd: null,
+          inputs: [],
+          input_trees: [],
+          outputs: [{ mount_path: 'deployment-result.json', content_type: 'application/json', storage: 'immutable_content' }],
+          expected_termination: { kind: 'exited', code: 0 },
+          capture_fds: [2],
+        }),
+        workspace_bindings: { environment: [] },
+        predecessor_outputs: [],
+      },
+    ]);
+    expect(output.materialization_input).toMatchObject({ schema: 'hosted-experience-materialization-input/v1' });
+    expect((output.materialization_input as any).intent).toMatchObject(intentRef);
+    expect((output.materialization_input.records as any[])[0].browser_import_bindings).toEqual([{ specifier: '@selected/root', path: ['app', 'entry.mjs'] }]);
+    expect(output.publication).toMatchObject({ address: 'publication:selected', revision: 'r1' });
+    expect(output.closure).toMatchObject({
+      credential_key: 'owner-signing-seed',
+      key_id: 'owner-key',
+      trusted_key: 'owner-key:d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a',
+    });
+    expect(output.publication_destination_ref).toEqual(destinationRef);
+    expect(output.deployment_request_ref).toEqual(deploymentRequestRef);
+    expect(output.deployment_request).toEqual({
+      kind: 'package-owned-deployment-request',
+      schema: 'hosted-public-app.deployment-request/v2',
+      profile: 'fly-remote-only',
+      parameters: { application: 'example-public-app', config_file: 'fly.toml' },
+    });
+    expect(output.execution).toEqual({ definition_id: 'action:publish-selected-experience', definition_refs: ['action:publish-static-selected-experience', 'action:publish-selected-experience'], offer_required: false });
+  });
+
+  it('rejects former fields, stale identities, and dependency-policy substitution', async () => {
+    await expect(resolveSelectedPublicationRequestTarget({ intent_ref: intentRef, request_id: requestId, publication_request_ref: publicationRequestRef, publication_root: '/attacker' }, context, sender as any)).rejects.toThrow('UNTRUSTED_FIELD');
+    reset();
+    await expect(resolveSelectedPublicationRequestTarget({ intent_ref: { ...intentRef, object_hash: `1f:${'a'.repeat(64)}` }, request_id: requestId, publication_request_ref: publicationRequestRef }, context, sender as any)).rejects.toThrow('STALE_OR_SUBSTITUTED_REF');
+  });
+
+  it('rejects credential aliases and trusted keys that cannot reach the vault/verifier owners', async () => {
+    const original = records.get(dependencyRef.address)!;
+    records.set(dependencyRef.address, {
+      ...original,
+      closure: { ...(original as any).closure, credential_key: 'secret:owner-signing-seed' },
+    });
+    reset();
+    await expect(resolveSelectedPublicationRequestTarget(
+      { intent_ref: intentRef, request_id: requestId, publication_request_ref: publicationRequestRef },
+      context,
+      sender as any,
+    )).rejects.toThrow('CREDENTIAL_KEY_INVALID');
+
+    records.set(dependencyRef.address, {
+      ...original,
+      closure: { ...(original as any).closure, trusted_key: 'owner-public-key' },
+    });
+    reset();
+    await expect(resolveSelectedPublicationRequestTarget(
+      { intent_ref: intentRef, request_id: requestId, publication_request_ref: publicationRequestRef },
+      context,
+      sender as any,
+    )).rejects.toThrow('TRUSTED_KEY_INVALID');
+    records.set(dependencyRef.address, original);
+  });
+
+  it('rejects every attempt to inject executable behavior through deployment DATA', async () => {
+    const original = records.get(deploymentRequestRef.address)!;
+    records.set(deploymentRequestRef.address, { ...original, command: 'attacker' });
+    reset();
+    await expect(resolveSelectedPublicationRequestTarget(
+      { intent_ref: intentRef, request_id: requestId, publication_request_ref: publicationRequestRef }, context, sender as any,
+    )).rejects.toThrow('UNTRUSTED_FIELD');
+    records.set(deploymentRequestRef.address, { ...original, parameters: { application: 'example-public-app', config_file: 'fly.toml', argv: ['attacker'] } });
+    reset();
+    await expect(resolveSelectedPublicationRequestTarget(
+      { intent_ref: intentRef, request_id: requestId, publication_request_ref: publicationRequestRef }, context, sender as any,
+    )).rejects.toThrow('INVALID_VALUE');
+    records.set(deploymentRequestRef.address, original);
+  });
+
+  it('execute_definition registry exposes only the owner resolver; final commit remains Workflow-owned', async () => {
+    const descriptors = new Map((packageData.things as any[])
+      .filter((thing) => thing.payload?.kind === 'package-target-descriptor')
+      .map((thing) => [thing.payload.target, thing.payload.export_name]));
+    expect(descriptors.get('hosted-public-app.resolve-selected-publication-request')).toBe('resolveSelectedPublicationRequestTarget');
+    expect(descriptors.has('hosted-public-app.finalize-selected-publication')).toBe(false);
+    reset();
+    const registry = new Map<string, (value: unknown) => Promise<unknown>>([
+      ['hosted-public-app.resolve-selected-publication-request', (value) => resolveSelectedPublicationRequestTarget(value, context, sender as any)],
+    ]);
+    const input = { intent_ref: intentRef, request_id: requestId, publication_request_ref: publicationRequestRef };
+    const resolved = await registry.get('hosted-public-app.resolve-selected-publication-request')!(input);
+    expect((resolved as any).materialization_input.intent).toMatchObject(intentRef);
+    expect(JSON.stringify(packageData)).not.toContain('hosted-public-app.finalize-selected-publication');
+  });
+});

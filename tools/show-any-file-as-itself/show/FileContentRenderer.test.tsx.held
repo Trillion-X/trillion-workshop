@@ -1,0 +1,63 @@
+/** @vitest-environment jsdom */
+import React from 'react';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from '../../../test-helpers/vitest-shim.mjs';
+
+vi.mock('@bitfield/runtime-kit/protocol', () => ({
+  makeHashCodeHexFromBytes: (bytes: Uint8Array) => `1f:${[...bytes].join('.')}`,
+}));
+
+import { FileContentRenderer } from './FileContentRenderer.tsx';
+import { GuardedArtifactFileContent } from './GuardedArtifactFileContent.tsx';
+
+afterEach(cleanup);
+
+describe('guarded artifact rendering', () => {
+  it.each(['application/pdf', 'text/html', 'image/svg+xml', 'application/x-unknown'])(
+    'forces %s through the safe download path',
+    (media_type) => {
+      render(
+        <FileContentRenderer
+          filePath="ignored"
+          bytes={new Uint8Array([1])}
+          artifactRef={{ media_type, display_name: 'proof.bin', byte_length: 1 }}
+        />,
+      );
+      expect(screen.getByText('This file is available as a safe download.')).toBeTruthy();
+      expect(screen.getByText('Download')).toBeTruthy();
+    },
+  );
+
+  it('renders guarded Markdown without exposing retrieval identity', () => {
+    render(
+      <FileContentRenderer
+        filePath="ignored"
+        content="# Proof"
+        artifactRef={{ media_type: 'text/markdown', display_name: 'proof.md', byte_length: 7 }}
+      />,
+    );
+    expect(screen.getByText('Proof')).toBeTruthy();
+  });
+
+  it('uses the guarded relation adapter for Markdown and binary delivery, never a raw storage coordinate', async () => {
+    vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:guarded');
+    vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
+    const markdownDispatch = vi.fn(async () => ({
+      bytes_base64: 'IyBQcm9vZg==', byte_length: 7, integrity_hash: '1f:35.32.80.114.111.111.102',
+      media_type: 'text/markdown', display_name: 'proof.md', decision_ref: 'decision:1',
+    }));
+    const mounted = render(<GuardedArtifactFileContent relationRef="relation:proof" dispatch={markdownDispatch} />);
+    await waitFor(() => expect(screen.getByText('Proof')).toBeTruthy());
+    expect(markdownDispatch).toHaveBeenCalledWith({
+      target: 'content-media-evidence.read-guarded-artifact', payload: { relation_ref: 'relation:proof' },
+    });
+    mounted.unmount();
+
+    const binaryDispatch = vi.fn(async () => ({
+      bytes_base64: 'AQID', byte_length: 3, integrity_hash: '1f:1.2.3',
+      media_type: 'application/pdf', display_name: 'proof.pdf', decision_ref: 'decision:1',
+    }));
+    render(<GuardedArtifactFileContent relationRef="relation:binary" dispatch={binaryDispatch} />);
+    await waitFor(() => expect(screen.getByText('This file is available as a safe download.')).toBeTruthy());
+  });
+});

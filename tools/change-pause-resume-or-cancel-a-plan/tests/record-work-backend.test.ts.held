@@ -1,0 +1,187 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { describe, expect, it } from '../../../test-helpers/vitest-shim.mjs';
+import { buildRecordWorkActionRequest } from '../do-work/request-record-work-action.ts';
+import { readRecordWorkModel, type DescriptorSet } from '../read-data/record-work-model.ts';
+
+const DESCRIPTORS: DescriptorSet = {
+  fields: [
+    { id: 'label', label: 'Name', paths: [['label'], ['name']] },
+    { id: 'state', label: 'State', paths: [['state', 'label'], ['stage', 'label'], ['status', 'label']] },
+    { id: 'next', label: 'Next', paths: [['renewal', 'label'], ['next_step', 'label']] },
+    { id: 'amount', label: 'Amount', paths: [['price', 'label'], ['value', 'label']] },
+  ],
+  relationships: [
+    { id: 'options', label: 'Options', fromRole: 'subjects', toRole: 'options', fromField: 'id', toField: 'subject_id' },
+  ],
+  projections: [
+    {
+      id: 'record-work-projection:test',
+      label: 'Work records',
+      sourceRole: 'subjects',
+      titleField: 'label',
+      detailFields: ['state', 'next', 'amount'],
+      summaryFields: ['state', 'next'],
+      relationshipIds: ['options'],
+      empty: { title: 'Nothing here', detail: 'Records arrive from configured sources.' },
+    },
+  ],
+  rules: [
+    { id: 'needs-subject', message: 'No subject is ready.', when: { missingRole: 'subjects' } },
+    {
+      id: 'blocked-by-owner',
+      message: 'The owner says this is unavailable.',
+      when: { fieldEquals: { role: 'subjects', path: ['locked'], value: true } },
+    },
+  ],
+  ownerTargets: [
+    {
+      id: 'owner-target:test',
+      target: 'slot::workflow',
+      operation: 'execute_definition',
+      definitionId: 'action:test-owner.handle-request',
+      includeOutput: true,
+    },
+  ],
+  actions: [
+    {
+      id: 'ask-owner',
+      label: 'Ask owner',
+      ownerTargetId: 'owner-target:test',
+      subjectRole: 'subjects',
+      requiredRuleIds: ['needs-subject', 'blocked-by-owner'],
+      copy: [
+        { key: 'subject_id', from: 'subject.id' },
+        { key: 'answer', from: 'answers.answer' },
+      ],
+      input: { requested_work: 'configured-work' },
+    },
+  ],
+};
+
+const planRows = [
+  {
+    role: 'subjects',
+    payload: {
+      id: 'account-plan:starter',
+      label: 'Starter',
+      state: { label: 'Active' },
+      renewal: { label: 'Renews July 1' },
+      price: { label: '$29 / month' },
+    },
+  },
+  { role: 'options', payload: { id: 'account-plan:pro', subject_id: 'account-plan:starter', label: 'Pro' } },
+];
+
+const unrelatedRows = [
+  {
+    role: 'subjects',
+    payload: {
+      id: 'lead:gardening-owner',
+      label: 'Gardening owner',
+      stage: { label: 'Won' },
+      next_step: { label: 'Send onboarding note' },
+      value: { label: '$4,000' },
+    },
+  },
+  { role: 'options', payload: { id: 'event:follow-up', subject_id: 'lead:gardening-owner', label: 'Follow-up event' } },
+];
+
+describe('plan-lifecycle generic record work backend', () => {
+  it('parses the package boundary JSON', () => {
+    const boundary = JSON.parse(
+      readFileSync(join(process.cwd(), 'packages/plan-lifecycle/things-to-store-and-run.json'), 'utf8'),
+    );
+
+    expect(boundary.package).toBe('plan-lifecycle');
+    expect(boundary.things.some((thing: { payload?: { kind?: string } }) => thing.payload?.kind === 'record-work.action-descriptors')).toBe(true);
+  });
+
+  it('projects plan-labeled data without a lifecycle backend family', () => {
+    const model = readRecordWorkModel({ rows: planRows, descriptors: DESCRIPTORS });
+
+    expect(model.title).toBe('Work records');
+    expect(model.items[0]?.title).toBe('Starter');
+    expect(model.summary.map((value) => value.text)).toContain('Active');
+    expect(model.items[0]?.relationships[0]?.targets).toEqual(['account-plan:pro']);
+    expect(model.actions[0]?.blocked).toBe(false);
+  });
+
+  it('projects unrelated labels through the same descriptors without new code', () => {
+    const model = readRecordWorkModel({ rows: unrelatedRows, descriptors: DESCRIPTORS });
+
+    expect(model.items[0]?.title).toBe('Gardening owner');
+    expect(model.items[0]?.detail).toContain('Won');
+    expect(model.items[0]?.detail).toContain('Send onboarding note');
+    expect(model.items[0]?.relationships[0]?.targets).toEqual(['event:follow-up']);
+  });
+
+  it('loads descriptors from the same row feed as records', () => {
+    const model = readRecordWorkModel({
+      rows: [
+        { role: 'fields', payload: { kind: 'record-work.field-descriptors', fields: DESCRIPTORS.fields } },
+        { role: 'relationships', payload: { kind: 'record-work.relationship-descriptors', relationships: DESCRIPTORS.relationships } },
+        { role: 'projections', payload: { kind: 'record-work.projection-descriptors', projections: DESCRIPTORS.projections } },
+        { role: 'rules', payload: { kind: 'record-work.rule-descriptors', rules: DESCRIPTORS.rules } },
+        { role: 'owner-targets', payload: { kind: 'record-work.owner-target-descriptors', ownerTargets: DESCRIPTORS.ownerTargets } },
+        { role: 'actions', payload: { kind: 'record-work.action-descriptors', actions: DESCRIPTORS.actions } },
+        ...planRows,
+      ],
+    });
+
+    expect(model.proof.descriptorCount).toBeGreaterThan(0);
+    expect(model.items[0]?.title).toBe('Starter');
+    expect(model.actions[0]?.ownerTarget.target).toBe('slot::workflow');
+  });
+
+  it('blocks unavailable actions through data-defined rules', () => {
+    const model = readRecordWorkModel({
+      rows: [{ role: 'subjects', payload: { id: 'subject:locked', label: 'Locked', locked: true } }],
+      descriptors: DESCRIPTORS,
+    });
+
+    expect(model.blockers.map((blocker) => blocker.ruleId)).toContain('blocked-by-owner');
+    expect(model.actions[0]).toMatchObject({
+      blocked: true,
+      blockedReason: 'The owner says this is unavailable.',
+    });
+  });
+
+  it('builds workflow owner requests with supplied correlation and no clock reads', () => {
+    const model = readRecordWorkModel({ rows: planRows, descriptors: DESCRIPTORS });
+    const request = buildRecordWorkActionRequest(model.actions[0]!, {
+      subject: model.items[0],
+      answers: { answer: 'selected-option' },
+      actor: { id: 'person:one' },
+      correlationId: 'correlation:one',
+    });
+
+    expect(request).toMatchObject({
+      target: 'slot::workflow',
+      payload: {
+        operation: 'execute_definition',
+        definition_id: 'action:test-owner.handle-request',
+        include_output: true,
+        input: {
+          action_id: 'ask-owner',
+          correlation_id: 'correlation:one',
+          requested_work: 'configured-work',
+          subject_id: 'account-plan:starter',
+          answer: 'selected-option',
+        },
+      },
+    });
+  });
+
+  it('keeps the superseded backend family names out of active source code', () => {
+    const activeSource = [
+      'read-data/record-work-model.ts',
+      'do-work/request-record-work-action.ts',
+      'index.ts',
+    ].map((file) => readFileSync(join(process.cwd(), 'packages/plan-lifecycle', file), 'utf8')).join('\n');
+
+    expect(activeSource).not.toMatch(/LifecycleSubjectDescriptor|LifecycleStateSnapshot|LifecycleActionDescriptor|LifecycleIntentEnvelope/);
+    expect(activeSource).not.toMatch(/subscription|campaign|lead|calendar|mail|provider|pause|resume|cancel/);
+    expect(activeSource).not.toMatch(/Date\.now\(|new Date\(\)/);
+  });
+});

@@ -1,0 +1,60 @@
+import {
+  invokeSessionAdmittedTarget,
+  resolveHostedExperienceAuthority,
+  safeAuthorityError,
+} from "../../stored-artifacts/hosted-experience-authority";
+
+export const dynamic = "force-dynamic";
+
+function trustedMutationOrigin(request: Request): boolean {
+  const origin = request.headers.get("origin");
+  if (!origin) return false;
+  try {
+    return new URL(origin).origin === new URL(request.url).origin;
+  } catch {
+    return false;
+  }
+}
+
+function decodeBody(bytes: Uint8Array): unknown {
+  if (bytes.byteLength === 0) return {};
+  const text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+  return JSON.parse(text);
+}
+
+export async function POST(
+  request: Request,
+  context: { params: Promise<{ target?: string[] }> },
+) {
+  try {
+    if (!trustedMutationOrigin(request)) {
+      return Response.json({ ok: false, code: "origin-denied" }, { status: 403 });
+    }
+    const publicationRef = request.headers.get("x-bitfield-experience-ref") ?? "";
+    const { target = [] } = await context.params;
+    if (target.length !== 1 || !target[0] || target[0].includes("/") || target[0].startsWith("slot::")) {
+      return Response.json({ ok: false, code: "raw-or-malformed-target" }, { status: 400 });
+    }
+    const targetRef = target[0];
+    const body = decodeBody(new Uint8Array(await request.arrayBuffer()));
+    const authority = await resolveHostedExperienceAuthority(
+      request,
+      publicationRef,
+      "target",
+      body,
+    );
+    return Response.json(
+      await invokeSessionAdmittedTarget(authority, targetRef, body, request),
+      {
+        headers: {
+          "Cache-Control": "private, no-store",
+          "X-Bitfield-Target-Status": "0",
+        },
+      },
+    );
+  } catch (error) {
+    const response = safeAuthorityError(error);
+    response.headers.set("X-Bitfield-Target-Status", "1");
+    return response;
+  }
+}

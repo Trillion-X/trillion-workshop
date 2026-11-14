@@ -1,0 +1,16 @@
+import { describe, expect, it } from '../../../test-helpers/vitest-shim.mjs';
+import { parseMarkdown, parseMarkdownAsync } from './render-markdown-html.ts';
+
+describe('safe artifact Markdown', () => {
+  it('escapes active HTML and neutralizes executable URLs', () => {
+    const html = parseMarkdown('<script>alert(1)</script>\n[x](javascript:alert(2))');
+    expect(html).not.toContain('<script');
+    expect(html).not.toContain('javascript:');
+    expect(html).toContain('href="#"');
+  });
+
+  it('preserves safe links after asynchronous highlighting', async () => {
+    const html = await parseMarkdownAsync('[proof](https://example.com)');
+    expect(html).toContain('href="https://example.com"');
+  });
+});

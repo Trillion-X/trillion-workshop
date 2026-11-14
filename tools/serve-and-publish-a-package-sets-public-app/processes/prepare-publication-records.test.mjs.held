@@ -1,0 +1,183 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { makeHashCodeHexFromBytes } from '@bitfield/slot-protocol';
+
+import {
+  preparePublicationRecords,
+  PublicationRecordPreparationError,
+} from './prepare-publication-records.mjs';
+
+const hash = (value) => makeHashCodeHexFromBytes(Buffer.from(value));
+const ref = (address) => ({ address, revision: 'r1', object_hash: hash(address) });
+const canonical = (value) => {
+  if (Array.isArray(value)) return value.map(canonical);
+  if (!value || typeof value !== 'object') return value;
+  return Object.fromEntries(Object.keys(value).sort().map((key) => [key, canonical(value[key])]));
+};
+
+function fixture() {
+  const intentRef = ref('intent:selected');
+  const rootRef = ref('root:selected');
+  const withoutHash = {
+    schema: 'experience-authority-manifest/v1',
+    intent_address: intentRef.address,
+    intent_revision: intentRef.revision,
+    intent_object_hash: intentRef.object_hash,
+    root_refs: [rootRef],
+    data_address_refs: [ref('data:selected')],
+    subscription_refs: [],
+    target_refs: [],
+    navigation_refs: [],
+    access_ref: 'access:selected',
+    entry_byte_path: ['app', 'entry.js'],
+    browser_import_map: {},
+    projection_provenance: {},
+    diagnostics: {},
+  };
+  const manifest = {
+    ...withoutHash,
+    authority_manifest_object_hash: makeHashCodeHexFromBytes(
+      Buffer.from(JSON.stringify(canonical(withoutHash))),
+    ),
+  };
+  return {
+    config: {
+      schema: 'hosted-experience-publication-commit-input/v1',
+      request_id: 'request:stable',
+      intent_ref: intentRef,
+      access_policy_ref: ref('policy:selected'),
+      publication: {
+        address: 'publication:selected',
+        revision: 'r1',
+        access_ref: 'access:selected',
+        root_refs: [rootRef],
+        authority_manifest_address: 'publication:selected::authority-manifest',
+        sealed_closure_address: 'publication:selected::sealed-closure',
+        apply_proof_address: 'publication:selected::apply-proof',
+        route_address: 'publication:selected::route',
+      },
+    },
+    manifest: Buffer.from(`${JSON.stringify(manifest)}\n`),
+    signed: Buffer.from(`${JSON.stringify({
+      format: 'bitfield.signed-sealed-closure',
+      closure: { format: 'bitfield.sealed-closure' },
+      signatures: [],
+    })}\n`),
+    proof: Buffer.from(`${JSON.stringify({
+      format: 'bitfield.sealed-closure',
+      current_state_basis: { current_state_multihash: hash('basis') },
+      projected_files: [],
+    })}\n`),
+    deployment: Buffer.from(`${JSON.stringify({
+      schema: 'publication-deployment-result/v1',
+      share_url: 'https://selected.example/',
+    })}\n`),
+  };
+}
+
+function prepare(input = fixture()) {
+  return preparePublicationRecords(input.config, input.manifest, input.signed, input.proof, input.deployment);
+}
+
+test('builds five immutable records whose publication and route refs match exact output bytes', () => {
+  const output = prepare();
+  for (const record of [
+    output.authorityManifest,
+    output.sealedClosure,
+    output.applyProof,
+    output.route,
+    output.publication,
+  ]) {
+    assert.equal(makeHashCodeHexFromBytes(record.bytes), record.ref.object_hash);
+    assert.deepEqual(
+      { address: JSON.parse(record.bytes).address, revision: JSON.parse(record.bytes).revision },
+      { address: record.ref.address, revision: record.ref.revision },
+    );
+  }
+  const publication = JSON.parse(output.publication.bytes);
+  assert.deepEqual(publication.authority_manifest_ref, output.authorityManifest.ref);
+  assert.deepEqual(publication.sealed_closure_ref, output.sealedClosure.ref);
+  assert.deepEqual(publication.apply_proof_ref, output.applyProof.ref);
+  assert.deepEqual(publication.route_ref, output.route.ref);
+  assert.deepEqual(JSON.parse(output.route.bytes), {
+    address: 'publication:selected::route',
+    revision: 'r1',
+    kind: 'published-experience-route/v1',
+    request_id: 'request:stable',
+    publication_address: 'publication:selected',
+    share_url: 'https://selected.example/',
+  });
+});
+
+test('same owner inputs resume to byte-identical output and changed authority conflicts by identity', () => {
+  const first = prepare();
+  const resumed = prepare();
+  assert.deepEqual(resumed.publication.bytes, first.publication.bytes);
+  assert.deepEqual(resumed.publication.ref, first.publication.ref);
+
+  const changed = fixture();
+  changed.config.publication.access_ref = 'access:substituted';
+  assert.throws(
+    () => prepare(changed),
+    (error) => error instanceof PublicationRecordPreparationError
+      && error.code === 'HPA_PUBLICATION_0011_MANIFEST_AUTHORITY_MISMATCH',
+  );
+});
+
+test('binds the optional entry projection selector to the exact manifest member', () => {
+  const selected = fixture();
+  const target = ref('target:selected-entry');
+  const manifest = JSON.parse(selected.manifest);
+  manifest.target_refs = [target];
+  manifest.entry_projection_target_ref = target;
+  const { authority_manifest_object_hash: _oldHash, ...manifestFields } = manifest;
+  manifest.authority_manifest_object_hash = hash(JSON.stringify(canonical(manifestFields)));
+  selected.manifest = Buffer.from(`${JSON.stringify(manifest)}\n`);
+  selected.config.publication.entry_projection_target_ref = target;
+  const output = prepare(selected);
+  assert.deepEqual(JSON.parse(output.publication.bytes).entry_projection_target_ref, target);
+
+  const mismatched = fixture();
+  mismatched.config.publication.entry_projection_target_ref = target;
+  assert.throws(
+    () => prepare(mismatched),
+    (error) => error instanceof PublicationRecordPreparationError
+      && error.code === 'HPA_PUBLICATION_0011_MANIFEST_AUTHORITY_MISMATCH',
+  );
+});
+
+test('rejects manifest, signed-closure, and proof substitutions before any record output exists', () => {
+  const manifestSubstitution = fixture();
+  manifestSubstitution.manifest = Buffer.from(
+    manifestSubstitution.manifest.toString('utf8').replace('data:selected', 'data:other'),
+  );
+  assert.throws(() => prepare(manifestSubstitution), /HPA_PUBLICATION_0010_MANIFEST_HASH_MISMATCH/);
+
+  const closureSubstitution = fixture();
+  closureSubstitution.signed = Buffer.from('{}');
+  assert.throws(() => prepare(closureSubstitution), /HPA_PUBLICATION_0012_SIGNED_CLOSURE_FORMAT/);
+
+  const proofSubstitution = fixture();
+  proofSubstitution.proof = Buffer.from('{}');
+  assert.throws(() => prepare(proofSubstitution), /HPA_PUBLICATION_0013_APPLY_PROOF_FORMAT/);
+});
+
+test('accepts only the one canonical bounded deployment result and never derives a route from stdout', () => {
+  for (const deployment of [
+    {},
+    { schema: 'publication-deployment-result/v1' },
+    { schema: 'publication-deployment-result/v1', share_url: 'https://selected.example/', extra: true },
+    { schema: 'publication-deployment-result/v1', share_url: 'http://selected.example/' },
+    { schema: 'publication-deployment-result/v1', share_url: 'https://selected.example/' },
+    { schema: 'publication-deployment-result/v1', share_url: 'https://selected.example/#fragment' },
+    { schema: 'publication-deployment-result/v1', share_url: 'https://selected.example' },
+    { schema: 'publication-deployment-result/v1', share_url: ' https://selected.example/' },
+  ]) {
+    const invalid = fixture();
+    invalid.deployment = Buffer.from(JSON.stringify(deployment));
+    assert.throws(() => prepare(invalid), /HPA_PUBLICATION_00(19|20|21)/);
+  }
+  const oversized = fixture();
+  oversized.deployment = Buffer.alloc(8193, 0x20);
+  assert.throws(() => prepare(oversized), /HPA_PUBLICATION_0017_DEPLOYMENT_RESULT_LIMIT/);
+});

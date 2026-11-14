@@ -1,0 +1,64 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-SERVE-AND-PUBLISH-A-PACKAGE-SETS-PUBLIC-APP-DO-WORK-PUBLIC-SELECTION-TRANSITION-FROM-BITFIELD-PACKAGES",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "census-and-restore lane 6, 2026-11-13: no rewrites from scratch; originals move wholesale",
+    "message_multihash": "1f:31cfaef8fe1b095bcdda0c309aeb261d0b928f36c81425a5d444f4f86483ec45",
+    "quote": "standing order: NO rewrites from scratch. Originals move wholesale (byte for byte, with moved-from receipts)"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "bitfield-packages",
+      "commit": "7ee1b76995ac4b9f4a5c52d974d132ab8a0541aa",
+      "path": "packages/hosted-public-app/do-work/public-selection-transition.ts",
+      "multihash": "1f:123b8950cad9177fedb25caa62501f16b514465cb63892d426c6abc390bafdc1",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-17T06:20:59Z",
+        "deleted_with": "the change that lands this move: the package file leaves bitfield-packages in the same change"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/serve-and-publish-a-package-sets-public-app/do-work/public-selection-transition.ts"
+    }
+  ],
+  "preserve": [
+    "the file is the original package file, moved with its import paths changed to this tree and nothing else",
+    "what the file did in the package: its exports, its rules and its edge cases are not rewritten here"
+  ],
+  "allowed_deltas": [
+    "import paths and the file header name the file's new place"
+  ],
+  "banned_substitutions": [
+    "a second implementation of the same job beside this file",
+    "a rewrite from scratch of what the package file does"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:123b8950cad9177fedb25caa62501f16b514465cb63892d426c6abc390bafdc1",
+    "target_multihash_at_baseline": "1f:123b8950cad9177fedb25caa62501f16b514465cb63892d426c6abc390bafdc1",
+    "recorded_at": "2026-11-14T06:21:59Z",
+    "rows": [
+      {
+        "path": "tools/serve-and-publish-a-package-sets-public-app/do-work/public-selection-transition.ts",
+        "source_multihash": "1f:123b8950cad9177fedb25caa62501f16b514465cb63892d426c6abc390bafdc1",
+        "target_multihash_at_baseline": "1f:123b8950cad9177fedb25caa62501f16b514465cb63892d426c6abc390bafdc1"
+      }
+    ],
+    "commit": "3bbe947faece13d844f5d1a90ff9f5ea462aee4e"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "export class PublicSelectionTransitionError extends Error",
+      "function trustedPartition(context: RuntimeContext | undefined): string"
+    ],
+    "test_refs": [],
+    "render_refs": [],
+    "originality_ref": null
+  }
+}

@@ -1,0 +1,14 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { requireAcceptedReview, publishCurrentDocument } from './publish-current-document.mjs';
+
+test('publication refuses caller-authored page or approvals before transport', async () => {
+  for(const input of [{document_ref:'wrong'},{document_ref:'package::documents::documents::draft',accepted:true},{document_ref:'package::documents::documents::draft',page:{}}]) {
+    await assert.rejects(publishCurrentDocument(input,{session:null}), /Only a Documents reference/);
+  }
+});
+test('design verdicts require acceptance and every explicitly returned finding resolved', () => {
+  for(const result of [null,{}, {accepted:false},{accepted:true,findings:null},{accepted:true,findings:{}},{accepted:true,findings:[{resolved:false}]}]) assert.throws(()=>requireAcceptedReview(result));
+  assert.equal(requireAcceptedReview({accepted:true}).accepted,true);
+  assert.equal(requireAcceptedReview({accepted:true,findings:[{resolved:true}]}).accepted,true);
+});

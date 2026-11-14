@@ -1,0 +1,173 @@
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import vm from 'node:vm';
+import { describe, expect, it } from '../../../test-helpers/vitest-shim.mjs';
+import contract from '../things-to-store-and-run.json';
+import { readPlanLifecycleSurfaceDescriptor } from '../show/plan-lifecycle-surface-descriptor.ts';
+import type { DescriptorSet } from '../read-data/record-work-model.ts';
+
+const here = dirname(fileURLToPath(import.meta.url));
+const source = readFileSync(join(here, 'mount-plan-lifecycle-jscore.js'), 'utf8');
+
+const descriptors: DescriptorSet = {
+  fields: [
+    { id: 'label', label: 'Name', paths: [['label']] },
+    { id: 'state', label: 'State', paths: [['state', 'label']] },
+    { id: 'next', label: 'Next', paths: [['renewal', 'label']] },
+  ],
+  projections: [
+    {
+      id: 'record-work-projection:test',
+      label: 'Account work',
+      sourceRole: 'subjects',
+      titleField: 'label',
+      detailFields: ['state', 'next'],
+      summaryFields: ['state', 'next'],
+      empty: { title: 'Nothing ready', detail: 'Rows arrive from owner records.' },
+    },
+  ],
+  rules: [{ id: 'blocked-by-owner', message: 'Owner says wait.', when: { fieldEquals: { role: 'subjects', path: ['locked'], value: true } } }],
+  ownerTargets: [{ id: 'owner-target:test', target: 'slot::workflow', operation: 'execute_definition', definitionId: 'action:test' }],
+  actions: [
+    {
+      id: 'ask-owner',
+      label: 'Ask owner',
+      ownerTargetId: 'owner-target:test',
+      requiredRuleIds: ['blocked-by-owner'],
+      input: { intent: 'primary' },
+    },
+  ],
+};
+
+interface NativeNode {
+  kind: string;
+  props: Record<string, unknown>;
+  children: NativeNode[];
+}
+
+interface NativeSnapshot {
+  schema: string;
+  descriptor_schema: string;
+  coverage: {
+    section_kinds: string[];
+    section_kind_contract: string[];
+    action_ids: string[];
+  };
+  root: NativeNode;
+}
+
+function loadRuntime() {
+  const sandbox: Record<string, unknown> = {};
+  sandbox.globalThis = sandbox;
+  vm.createContext(sandbox);
+  vm.runInContext(source, sandbox);
+  return {
+    api: sandbox.PlanLifecycleJscore as {
+      renderDescriptorNativeSnapshot(descriptor: unknown, lifecycleKey?: string): NativeSnapshot;
+      sectionKindContract: string[];
+    },
+    mount: sandbox.bitfieldMount as (record: unknown, bridge: ReturnType<typeof fakeBridge>) => { dispose(): void },
+  };
+}
+
+function fakeBridge() {
+  const operations: { operation: string; payload: unknown }[] = [];
+  let snapshot: NativeSnapshot | null = null;
+  return {
+    snapshot: () => snapshot,
+    operations: () => operations,
+    invoke(operation: string, payloadText: string) {
+      const payload = JSON.parse(payloadText);
+      operations.push({ operation, payload });
+      if (operation === 'native.view.snapshot.replace') snapshot = payload;
+      return '';
+    },
+  };
+}
+
+function allNodes(node: NativeNode | undefined, out: NativeNode[] = []): NativeNode[] {
+  if (!node) return out;
+  out.push(node);
+  for (const child of node.children || []) allNodes(child, out);
+  return out;
+}
+
+function allText(node: NativeNode | undefined): string[] {
+  return allNodes(node)
+    .filter((entry) => entry.kind === 'text' && typeof entry.props.text === 'string')
+    .map((entry) => entry.props.text as string);
+}
+
+describe('plan-lifecycle iOS JSCore descriptor renderer', () => {
+  it('renders the same descriptor produced by the TypeScript record-work mapper', () => {
+    const descriptor = readPlanLifecycleSurfaceDescriptor({
+      descriptors,
+      rows: [
+        { role: 'subjects', payload: { id: 'subject:any', label: 'Starter', state: { label: 'Future owner state' }, renewal: { label: 'Renews later' } } },
+      ],
+    });
+    const { api } = loadRuntime();
+    const snapshot = api.renderDescriptorNativeSnapshot(descriptor, 'component:plan-lifecycle:jscore');
+    const texts = allText(snapshot.root);
+
+    expect(snapshot.schema).toBe('bitfield.native.view.snapshot');
+    expect(snapshot.descriptor_schema).toBe('plan-lifecycle.surface-descriptor.v1');
+    expect(snapshot.coverage.section_kinds).toEqual(['header', 'summaryStrip', 'detailGroup', 'actionRail']);
+    expect(snapshot.coverage.section_kind_contract).toEqual(api.sectionKindContract);
+    expect(snapshot.coverage.action_ids).toEqual(['ask-owner']);
+    expect(texts).toContain('Future owner state');
+    expect(texts).toContain('Ask owner');
+    expect(source).not.toMatch(/\bReact\b|from ['"]react['"]|react-dom|document\.|window\./);
+  });
+
+  it('preserves disabled reasons from descriptor data without status branches', () => {
+    const descriptor = readPlanLifecycleSurfaceDescriptor({
+      descriptors,
+      rows: [
+        { role: 'subjects', payload: { id: 'subject:any', label: 'Starter', state: { label: 'Any future state' }, locked: true } },
+      ],
+    });
+    const { api } = loadRuntime();
+    const snapshot = api.renderDescriptorNativeSnapshot(descriptor);
+    const buttons = allNodes(snapshot.root).filter((entry) => entry.props.disabledReason === 'Owner says wait.');
+
+    expect(buttons).toHaveLength(1);
+    expect(source).not.toMatch(/case\s+['"](active|paused|cancelled|pause|resume|cancel|change-plan|pause-plan|resume-plan|cancel-plan)['"]/);
+    expect(source).not.toMatch(/state\s*[!=]==|status\s*[!=]==/);
+  });
+
+  it('mounts and disposes through sealed native operations', () => {
+    const descriptor = readPlanLifecycleSurfaceDescriptor({
+      descriptors,
+      rows: [
+        { role: 'subjects', payload: { id: 'subject:any', label: 'Starter', state: { label: 'Ready' } } },
+      ],
+    });
+    const { mount } = loadRuntime();
+    const bridge = fakeBridge();
+    const mounted = mount({ lifecycle_key: 'component:plan-lifecycle:jscore', props: { surfaceDescriptor: descriptor } }, bridge);
+    mounted.dispose();
+
+    expect(bridge.operations().map((entry) => entry.operation)).toEqual([
+      'native.view.snapshot.replace',
+      'native.view.snapshot.dispose',
+    ]);
+    expect(bridge.snapshot()?.coverage.action_ids).toEqual(['ask-owner']);
+  });
+
+  it('declares the native screen command entry in package data', () => {
+    const nativeEntry = contract.things.find((thing) => thing.address === 'package::plan-lifecycle::native-screen-command-entry');
+    const storedBytes = contract.things.find((thing) => thing.name === 'plan-lifecycle-ios-jscore');
+
+    expect(nativeEntry?.payload).toMatchObject({
+      kind: 'bitfield-native-screen-command-entry',
+      source_path: 'show-ios-jscore/mount-plan-lifecycle-jscore.js',
+      readme_path: 'show-ios-jscore/README.md',
+    });
+    expect(storedBytes).toMatchObject({
+      type: 'stored_bytes',
+      source_path: 'show-ios-jscore/mount-plan-lifecycle-jscore.js',
+    });
+  });
+});

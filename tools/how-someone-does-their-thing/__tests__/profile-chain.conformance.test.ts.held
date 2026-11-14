@@ -1,0 +1,178 @@
+// packages/how-someone-does-their-thing/__tests__/profile-chain.conformance.test.ts
+//
+// Cross-package DATA CONFORMANCE for the PROFILE / RESEARCH loop, WITHOUT a live engine.
+// Locks the wiring (and the 2026-06-28 flat-dispatch fix) for:
+//   action:profile-creator-or-topic   (profile-a-creator-or-topic pkg)
+//     -> writes the profile envelope (attribute_fact rows for the profile_ref)
+//     -> dispatches action:build-profile  (this pkg) with output_kind="creator-profile-fact",
+//        wrap_instruction_ref="instr:research-creator"  (FLAT, top-level)
+//   action:build-profile
+//     -> step 0: gather the subject's records (find-current-items where subject_id == subject_ref)
+//     -> step 1: dispatch action:run-ai-records-production by ADDRESS (no god package)
+//     -> step 2: write the returned items back as `prop:profile:derived_items` profile facts
+//
+// THE BUG THIS LOCKS (fixed): build-profile's producer dispatch nested output_kind +
+// wrap_instruction_ref under a SECOND `input` key. The producer reads FLAT top-level keys,
+// so it saw them as ABSENT -> wrote kind:note with no research wrap. The dispatch input must
+// be FLAT: { request_id, target_group_ref, instruction_text, output_kind, wrap_instruction_ref }
+// with NO nested `input` wrapper.
+
+import { describe, it, expect } from '../../../test-helpers/vitest-shim.mjs';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const loadThings = (pkgRel: string): any[] =>
+  JSON.parse(readFileSync(path.resolve(HERE, '..', '..', pkgRel, 'things-to-store-and-run.json'), 'utf8')).things;
+
+const HSDT = loadThings('how-someone-does-their-thing');
+const PROFILE = loadThings('profile-a-creator-or-topic');
+
+const actionById = (things: any[], id: string) =>
+  things.find((r) => r?.payload?.kind === 'action' && r.payload.id === id)?.payload;
+
+const buildProfile = actionById(HSDT, 'action:build-profile');
+const profileEntry = actionById(PROFILE, 'action:profile-creator-or-topic');
+
+// An `ask slot::workflow` step wraps an execute_definition op:
+//   config: { name: 'slot::workflow', input: { operation, definition_id, input: <DISPATCH PAYLOAD> } }
+// So the dispatched definition id is at config.input.definition_id and the payload at config.input.input.
+const dispatchPayload = (action: any, definitionId: string) =>
+  (action.steps as any[]).find(
+    (s) => s?.config?.input?.definition_id === definitionId,
+  )?.config?.input?.input;
+
+const producerDispatch = (action: any) =>
+  dispatchPayload(action, 'action:run-ai-records-production');
+
+describe('profile / research loop — cross-package DATA conformance', () => {
+  it('both actions exist', () => {
+    expect(buildProfile).toBeTruthy();
+    expect(profileEntry).toBeTruthy();
+  });
+
+  it('build-profile step 0 gathers the SUBJECT records by subject_ref (research input)', () => {
+    const gather = (buildProfile.steps as any[])[0];
+    expect(gather.config.name).toBe('slot::find-current-items');
+    const where = gather.config.input.where.all;
+    const subjectFilter = where.find((w: any) => w.field === 'subject_id');
+    expect(subjectFilter.eq.select.from).toBe('input');
+    expect(subjectFilter.eq.select.path).toBe('subject_ref');
+  });
+
+  it('build-profile dispatches the producer with a FLAT input — NO nested `input` wrapper (the bug)', () => {
+    const inp = producerDispatch(buildProfile);
+    expect(inp).toBeTruthy();
+    // FLAT: the producer reads top-level keys; a nested `input` key would hide them.
+    expect(Object.prototype.hasOwnProperty.call(inp, 'input')).toBe(false);
+    expect(Object.keys(inp).sort()).toEqual(
+      ['instruction_text', 'output_kind', 'request_id', 'target_group_ref', 'wrap_instruction_ref'].sort(),
+    );
+  });
+
+  it('build-profile producer dispatch: output_kind + wrap default via if_null (a WIRED op — op:core.or is NOT)', () => {
+    const inp = producerDispatch(buildProfile);
+    // output_kind = if_null(input.output_kind, "profile-fact")
+    const ok = inp.output_kind;
+    expect(ok.select.path).toBe('output_kind');
+    expect(ok.transform[0].op).toBe('op:core.if_null');
+    expect(ok.transform[0].args.value).toBe('profile-fact');
+    // wrap_instruction_ref = if_null(input.wrap_instruction_ref, "instr:how-someone-does-their-thing:build-profile")
+    const wr = inp.wrap_instruction_ref;
+    expect(wr.select.path).toBe('wrap_instruction_ref');
+    expect(wr.transform[0].op).toBe('op:core.if_null');
+    expect(wr.transform[0].args.value).toBe('instr:how-someone-does-their-thing:build-profile');
+  });
+
+  it('build-profile producer dispatch: instruction_text falls back to the gathered subject records via if_null(binding)', () => {
+    const inp = producerDispatch(buildProfile);
+    const it = inp.instruction_text;
+    expect(it.transform[0].op).toBe('op:core.if_null');
+    // if_null fallback (value) is a binding that stringifies step_0.output.items (the subject's gathered records)
+    const fallback = it.transform[0].args.value;
+    expect(fallback?.select?.from).toBe('steps');
+    expect(fallback?.select?.key).toBe('step_0');
+    expect(fallback.transform[0].op).toBe('op:core.stringify');
+  });
+
+  it('no step in build-profile uses the unwired op:core.or transform', () => {
+    const text = JSON.stringify(buildProfile);
+    expect(text.includes('op:core.or')).toBe(false);
+  });
+
+  it('build-profile writes the producer items back as prop:profile:derived_items profile facts (no Gap C read)', () => {
+    const write = (buildProfile.steps as any[]).find((s) => s.kind === 'write');
+    expect(write).toBeTruthy();
+    const item = write.config.items[0];
+    expect(item.payload.table).toBe('attribute_fact');
+    expect(item.payload.property_id).toBe('prop:profile:derived_items');
+    expect(item.payload.value_json.select.key).toBe('step_1'); // the producer step output
+    // there is NO direct read of an identity_text record (Gap C structurally impossible)
+    expect((buildProfile.steps as any[]).some((s) => s.kind === 'read')).toBe(false);
+  });
+
+  it('profile-creator-or-topic dispatches build-profile with creator-specific output_kind + research wrap (FLAT)', () => {
+    const disp = dispatchPayload(profileEntry, 'action:build-profile');
+    expect(disp).toBeTruthy();
+    expect(disp.output_kind).toBe('creator-profile-fact');
+    expect(disp.wrap_instruction_ref).toBe('instr:research-creator');
+    expect(disp.profile_ref.select.path).toBe('profile_ref');
+    expect(disp.subject_ref.select.path).toBe('subject_ref');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// A3 DELETION TEST (L069 generative primitive): build-profile is the generic
+// "profile ANY subject" engine. Creator is just ONE DATA configuration of it.
+// A voice profiler or a movement profiler is ONE new entry action carrying
+// different DATA (output_kind + wrap_instruction_ref + subject_ref) — ZERO edits
+// to build-profile. If this holds, the named example (creator) can be deleted and
+// the mechanism still works for a completely different domain dropped in as DATA.
+// ---------------------------------------------------------------------------
+describe('A3 deletion test — build-profile is a domain-agnostic generative primitive', () => {
+  const DOMAIN_WORDS = [
+    'creator', 'gardening', 'voice', 'movement', 'example-person', 'coach',
+    'athlete', 'singer', 'speaker', 'workout', 'recipe',
+  ];
+
+  it('build-profile names NO subject domain — every domain word is absent from its source', () => {
+    const text = JSON.stringify(buildProfile).toLowerCase();
+    const leaks = DOMAIN_WORDS.filter((w) => text.includes(w));
+    expect(leaks).toEqual([]);
+  });
+
+  it('build-profile takes the discriminants (subject_ref, output_kind, wrap_instruction_ref) as DATA inputs', () => {
+    const req = buildProfile.input_schema.required as string[];
+    const props = Object.keys(buildProfile.input_schema.properties);
+    // The subject to profile is DATA (required), not a hardcoded entity.
+    expect(req).toContain('subject_ref');
+    expect(req).toContain('profile_ref');
+    // The kind of fact produced + the research instruction are DATA (optional, defaulted).
+    expect(props).toContain('output_kind');
+    expect(props).toContain('wrap_instruction_ref');
+  });
+
+  it('the producer dispatch threads ALL discriminants from input — swapping domains needs ZERO build-profile edits', () => {
+    const inp = producerDispatch(buildProfile);
+    // subject is gathered by the input subject_ref (step 0), instruction/kind/wrap all come from input.
+    expect(inp.output_kind.select.path).toBe('output_kind');
+    expect(inp.wrap_instruction_ref.select.path).toBe('wrap_instruction_ref');
+    expect(inp.instruction_text.select.path).toBe('instruction_text');
+    // No literal domain string is baked into any dispatched value.
+    const inpText = JSON.stringify(inp).toLowerCase();
+    expect(DOMAIN_WORDS.filter((w) => inpText.includes(w))).toEqual([]);
+  });
+
+  it('creator is purely a DATA config: only the ENTRY action names creator specifics, never the engine', () => {
+    // The engine (build-profile) is generic; the creator-ness lives ONLY in the entry action's literals.
+    const entryText = JSON.stringify(profileEntry).toLowerCase();
+    expect(entryText).toContain('creator'); // the entry IS allowed to name its domain
+    // ...but it expresses that domain as DATA passed to the generic engine, not as new steps:
+    const disp = dispatchPayload(profileEntry, 'action:build-profile');
+    expect(disp.output_kind).toBe('creator-profile-fact'); // DATA literal
+    expect(disp.wrap_instruction_ref).toBe('instr:research-creator'); // DATA literal
+    // A `profile-a-voice` entry would be the SAME shape with output_kind:"voice-profile-fact",
+    // wrap_instruction_ref:"instr:research-voice" — and build-profile would be untouched.
+  });
+});

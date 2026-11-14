@@ -1,0 +1,753 @@
+// Server-only authority for one published experience.
+// Projected from Bitfield stored bytes; never import this module into a client component.
+
+import { randomUUID } from "node:crypto";
+import { Buffer } from "node:buffer";
+import { readFile } from "node:fs/promises";
+import { resolve, sep } from "node:path";
+import { makeHashCodeHexFromBytes } from "@bitfield/slot-protocol";
+import { decodeProcessResultWireShape, processExitedCode } from "@bitfield/runtime-kit/protocol";
+import { invokeHostedTarget, invokeSessionAdmittedOwnerTarget } from "./hosted-target-carrier-server";
+
+const encoder = new TextEncoder();
+const CLAIM_FIELDS = new Set([
+  "access_ref",
+  "grant",
+  "grant_ref",
+  "policy",
+  "policy_ref",
+  "principal",
+  "principal_ref",
+  "scope",
+  "session",
+  "session_ref",
+]);
+const MANIFEST_ARRAYS = [
+  "data_address_refs",
+  "navigation_refs",
+  "subscription_refs",
+  "target_refs",
+] as const;
+const MAX_REF_BYTES = 4 * 1024;
+const MAX_SIGNED_EVIDENCE_BYTES = 8 * 1024;
+
+type JsonRecord = Record<string, unknown>;
+type ExactRef = { address: string; revision: string; object_hash: string };
+type AuthorityOperation = "bytes" | "data" | "manifest" | "subscription" | "target";
+type AppliedFile = {
+  byte_count: number;
+  executable: boolean;
+  multihash: string;
+  path: string[];
+};
+
+export type HostedExperienceAuthority = {
+  accessAuthorizationRequest: JsonRecord;
+  accessPolicy: JsonRecord;
+  authorityManifest: JsonRecord;
+  identity: { principal_ref: string; session_ref: string };
+  membershipRevision: string;
+  operation: AuthorityOperation;
+  policyRevision: string;
+  publication: JsonRecord;
+  publicationRef: string;
+  projectedFiles: AppliedFile[];
+};
+
+export type SessionAdmittedTargetScope = {
+  payload: unknown;
+  ambient_actor: { actor_ref: string; session_ref: string; session_revision: string };
+  access_decision: JsonRecord;
+};
+
+export class HostedAuthorityDenied extends Error {
+  readonly status: number;
+  readonly code: string;
+
+  constructor(message = "This experience is not available.", status = 404, code = "authority-denied") {
+    super(message);
+    this.name = "HostedAuthorityDenied";
+    this.status = status;
+    this.code = code;
+  }
+}
+
+function deny(message?: string, status?: number, code?: string): never {
+  throw new HostedAuthorityDenied(message, status, code);
+}
+
+function isRecord(value: unknown): value is JsonRecord {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function requiredText(value: unknown, label: string, maximum = MAX_REF_BYTES): string {
+  if (typeof value !== "string") deny();
+  const normalized = value.trim();
+  if (!normalized || encoder.encode(normalized).byteLength > maximum) deny();
+  return normalized;
+}
+
+function exactRef(value: unknown): ExactRef {
+  if (!isRecord(value)) deny();
+  const keys = Object.keys(value).sort();
+  if (keys.length !== 3 || keys[0] !== "address" || keys[1] !== "object_hash" || keys[2] !== "revision") deny();
+  const object_hash = requiredText(value.object_hash, "object_hash");
+  if (!/^1f:[0-9a-f]{64}$/i.test(object_hash)) deny();
+  return {
+    address: requiredText(value.address, "address"),
+    revision: requiredText(value.revision, "revision"),
+    object_hash,
+  };
+}
+
+function canonical(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonical);
+  if (!isRecord(value)) return value;
+  return Object.fromEntries(
+    Object.keys(value).sort().map((key) => [key, canonical(value[key])]),
+  );
+}
+
+function payloadHash(payload: JsonRecord): string {
+  return makeHashCodeHexFromBytes(encoder.encode(JSON.stringify(canonical(payload))));
+}
+
+function replyItems(value: unknown): unknown[] {
+  if (Array.isArray(value)) return value;
+  if (!isRecord(value)) return [];
+  if (Array.isArray(value.items)) return value.items;
+  if (Array.isArray(value.results)) return value.results;
+  return [];
+}
+
+function normalizedCurrentRecord(value: unknown): {
+  address: string;
+  object_hash: string;
+  payload: JsonRecord;
+  revision: string;
+} {
+  if (!isRecord(value)) deny();
+  let rawPayload: Uint8Array | null = null;
+  if (typeof value.payload_base64 === "string") {
+    try { rawPayload = Uint8Array.from(Buffer.from(value.payload_base64, "base64")); } catch { deny(); }
+  }
+  let parsedPayload: unknown = value.payload;
+  if (!isRecord(parsedPayload) && rawPayload) {
+    try { parsedPayload = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(rawPayload)); } catch { deny(); }
+  }
+  const payload = isRecord(parsedPayload) ? parsedPayload : value;
+  const address = requiredText(value.address ?? payload.address, "record.address");
+  const revision = requiredText(value.revision ?? payload.revision, "record.revision");
+  const objectHash = requiredText(value.object_hash ?? payload.object_hash, "record.object_hash");
+  const computedHash = rawPayload ? makeHashCodeHexFromBytes(rawPayload) : payloadHash(payload);
+  if (computedHash !== objectHash) deny();
+  return { address, revision, object_hash: objectHash, payload };
+}
+
+async function readOneCurrent(address: string, kind: string): Promise<ReturnType<typeof normalizedCurrentRecord>> {
+  const reply = await invokeHostedTarget("slot::find-current-items", {
+    operation: "find-current-items",
+    in: "published-record",
+    include: ["address", "revision", "object_hash", "payload", "payload_base64"],
+    limit: 2,
+    where: {
+      all: [
+        { field: "address", in: [address] },
+      ],
+    },
+  });
+  const matches = replyItems(reply).map(normalizedCurrentRecord);
+  if (
+    matches.length !== 1
+    || matches[0].address !== address
+    || (matches[0].payload.kind !== kind && matches[0].payload.format !== kind)
+  ) deny();
+  return matches[0];
+}
+
+async function readExact(refValue: unknown, kind: string): Promise<JsonRecord> {
+  const ref = exactRef(refValue);
+  const record = await readOneCurrent(ref.address, kind);
+  if (record.revision !== ref.revision || record.object_hash !== ref.object_hash) deny();
+  return record.payload;
+}
+
+function assertNoBrowserClaims(request: Request, payload?: unknown): void {
+  const url = new URL(request.url);
+  for (const key of url.searchParams.keys()) {
+    if (CLAIM_FIELDS.has(key)) deny();
+  }
+  if (!isRecord(payload)) return;
+  for (const key of Object.keys(payload)) {
+    if (CLAIM_FIELDS.has(key)) deny();
+  }
+}
+
+function stringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) deny();
+  const output = value.map((item) => requiredText(item, "manifest ref"));
+  if (new Set(output).size !== output.length) deny();
+  return output;
+}
+
+function manifestRefs(manifest: JsonRecord, field: typeof MANIFEST_ARRAYS[number]): ExactRef[] {
+  if (!Array.isArray(manifest[field])) deny();
+  if ((manifest[field] as unknown[]).length > 128) deny();
+  const refs = (manifest[field] as unknown[]).map(exactRef);
+  const identities = refs.map((ref) => JSON.stringify(ref));
+  if (new Set(identities).size !== identities.length) deny();
+  return refs;
+}
+
+async function declaredTargetDescriptor(
+  authority: HostedExperienceAuthority,
+  requestedTarget: string,
+): Promise<{ descriptor: JsonRecord; ref: ExactRef }> {
+  const target = requiredText(requestedTarget, "target");
+  const matches: Array<{ descriptor: JsonRecord; ref: ExactRef }> = [];
+  for (const ref of manifestRefs(authority.authorityManifest, "target_refs")) {
+    const descriptor = await readExact(ref, "package-target-descriptor");
+    if (
+      descriptor.exposure !== "owner-to-owner-only"
+      && requiredText(descriptor.target, "descriptor.target") === target
+    ) matches.push({ descriptor, ref });
+  }
+  if (matches.length !== 1) deny("The requested action is unavailable.", 403, "undeclared-action");
+  return matches[0];
+}
+
+function cookieEvidence(request: Request): { headers: Array<{ name: string; value: string }> } {
+  const cookie = request.headers.get("cookie");
+  return { headers: cookie ? [{ name: "cookie", value: cookie }] : [] };
+}
+
+async function accountIdentity(request: Request): Promise<{ principal_ref: string; session_ref: string }> {
+  const reply = await invokeHostedTarget(
+    "account-session.authorize-transient-session",
+    cookieEvidence(request),
+  );
+  if (!isRecord(reply) || reply.authorized !== true) deny("Sign in to continue.", 401);
+  return {
+    principal_ref: requiredText(reply.principal_ref, "principal_ref"),
+    session_ref: requiredText(reply.session_ref, "session_ref"),
+  };
+}
+
+async function signedIdentity(
+  request: Request,
+  policy: JsonRecord,
+): Promise<{ principal_ref: string; session_ref: string }> {
+  const token = request.headers.get("x-bitfield-signed-link");
+  if (!token || encoder.encode(token).byteLength > MAX_SIGNED_EVIDENCE_BYTES) deny();
+  const verifier = requiredText(policy.verifier_target, "policy.verifier_target");
+  const reply = await invokeHostedTarget(verifier, {
+    operation: "verify",
+    evidence: { token },
+  });
+  if (!isRecord(reply) || reply.authorized !== true) deny();
+  return {
+    principal_ref: requiredText(reply.principal_ref, "principal_ref"),
+    session_ref: requiredText(reply.session_ref, "session_ref"),
+  };
+}
+
+function publicIdentity(policy: JsonRecord): { principal_ref: string; session_ref: string } {
+  if (stringArray(policy.required_access_refs ?? []).length !== 0) deny();
+  const requestRef = randomUUID();
+  return {
+    principal_ref: `anonymous-request:${requestRef}`,
+    session_ref: `anonymous-request-session:${requestRef}`,
+  };
+}
+
+async function verifiedIdentity(
+  request: Request,
+  policy: JsonRecord,
+): Promise<{ principal_ref: string; session_ref: string }> {
+  if (policy.mode === "public") return publicIdentity(policy);
+  if (policy.mode === "signed") return signedIdentity(request, policy);
+  if (policy.mode === "account") return accountIdentity(request);
+  deny();
+}
+
+function projectedFile(value: unknown): AppliedFile {
+  if (!isRecord(value) || !Array.isArray(value.path)) deny();
+  const path = value.path.map((segment) => {
+    const text = requiredText(segment, "projected path");
+    if (text === "." || text === ".." || text.includes("/") || text.includes("\\") || text.includes("\0")) deny();
+    return text;
+  });
+  const byteCount = value.byte_count;
+  if (!Number.isSafeInteger(byteCount) || Number(byteCount) < 0) deny();
+  return {
+    byte_count: Number(byteCount),
+    executable: value.executable === true,
+    multihash: requiredText(value.multihash, "projected multihash"),
+    path,
+  };
+}
+
+async function verifiedApplyProof(publication: JsonRecord, policy: JsonRecord): Promise<AppliedFile[]> {
+  const proofRef = exactRef(publication.apply_proof_ref);
+  if (proofRef.object_hash !== requiredText(publication.apply_proof_multihash, "publication.apply_proof_multihash")) deny();
+  const proof = await readExact(proofRef, "bitfield.sealed-closure");
+  if (!isRecord(proof) || proof.format !== "bitfield.sealed-closure") deny();
+  if (!isRecord(proof.current_state_basis) || !requiredText(
+    proof.current_state_basis.current_state_multihash,
+    "current_state_multihash",
+  )) deny();
+  const closureRef = exactRef(publication.sealed_closure_ref);
+  if (closureRef.object_hash !== requiredText(publication.signed_closure_multihash, "publication.signed_closure_multihash")) deny();
+  const signedClosure = await readExact(closureRef, "bitfield.signed-sealed-closure");
+  if (!Array.isArray(proof.projected_files)) deny();
+  const binary = requiredText(policy.sealed_closure_binary, "policy.sealed_closure_binary");
+  const trustedKeys = stringArray(policy.trusted_closure_keys);
+  const threshold = policy.closure_signature_threshold;
+  if (!Number.isSafeInteger(threshold) || Number(threshold) < 1 || trustedKeys.length < Number(threshold)) deny();
+  const signedBytes = encoder.encode(JSON.stringify(signedClosure));
+  const proofBytes = encoder.encode(JSON.stringify(proof));
+  const processReply = await invokeHostedTarget("compute.process", {
+    argv: [
+      binary,
+      "verify-applied-proof",
+      "--signed-closure-file", "signed-closure.json",
+      "--apply-proof-file", "apply-proof.json",
+      ...trustedKeys.flatMap((key) => ["--trusted-key", key]),
+      "--signature-threshold", String(threshold),
+    ],
+    cwd: null,
+    timeout_ms: 30_000,
+    termination_grace_ms: 1_000,
+    expected_termination: null,
+    env: {},
+    inputs: [
+      {
+        mount_path: "signed-closure.json",
+        content_type: "application/json",
+        source: { kind: "inline", bytes: Buffer.from(signedBytes).toString("base64") },
+      },
+      {
+        mount_path: "apply-proof.json",
+        content_type: "application/json",
+        source: { kind: "inline", bytes: Buffer.from(proofBytes).toString("base64") },
+      },
+    ],
+    input_trees: [],
+    outputs: [],
+    containment: { kind: "leaf" },
+    capture_fds: [1, 2],
+    collected_files: [],
+  });
+  const processResult = decodeProcessResultWireShape(
+    encoder.encode(JSON.stringify(processReply)),
+  );
+  if (processExitedCode(processResult) !== 0) deny();
+  const files = proof.projected_files.map(projectedFile);
+  const identities = files.map((item) => JSON.stringify(item.path));
+  if (new Set(identities).size !== identities.length) deny();
+  // `bitfield-sealed-closure apply` produced this exact proof. Hosted Public
+  // App only intersects its declared paths; it never parses signatures or
+  // reimplements Runtime Kit closure membership verification.
+  return files;
+}
+
+function publicationActive(publication: JsonRecord): void {
+  if (publication.status !== "active" || publication.kind !== "published-experience-publication") deny();
+}
+
+export async function resolveHostedExperienceAuthority(
+  request: Request,
+  publicationRef: string,
+  operation: AuthorityOperation,
+  browserPayload?: unknown,
+): Promise<HostedExperienceAuthority> {
+  assertNoBrowserClaims(request, browserPayload);
+  const publicationRecord = await readOneCurrent(
+    requiredText(publicationRef, "publicationRef"),
+    "published-experience-publication",
+  );
+  publicationActive(publicationRecord.payload);
+  const publication = publicationRecord.payload;
+  const authorityManifest = await readExact(
+    publication.authority_manifest_ref,
+    "experience-authority-manifest",
+  );
+  const accessPolicy = await readExact(
+    publication.access_policy_ref,
+    "experience-access-policy",
+  );
+  const policyRevision = exactRef(publication.access_policy_ref).revision;
+  if (
+    requiredText(authorityManifest.access_ref, "manifest.access_ref")
+    !== requiredText(publication.access_ref, "publication.access_ref")
+    || requiredText(accessPolicy.access_ref, "policy.access_ref")
+    !== requiredText(publication.access_ref, "publication.access_ref")
+  ) deny();
+  for (const field of MANIFEST_ARRAYS) manifestRefs(authorityManifest, field);
+  const identity = await verifiedIdentity(request, accessPolicy);
+  const requiredAccessRefs = stringArray(accessPolicy.required_access_refs ?? []);
+  const scope = {
+    schema: "addressed-expiring-value-scope/v1",
+    value_ref: publicationRecord.address,
+    instance_ref: publicationRecord.revision,
+    required_access_refs: requiredAccessRefs,
+  };
+  const accessAuthorizationRequest = {
+    principal_ref: identity.principal_ref,
+    session_ref: identity.session_ref,
+    operation,
+    scope: Array.from(encoder.encode(JSON.stringify(scope))),
+  };
+  const accessReply = await invokeHostedTarget(
+    "product-access.authorize-addressed-expiring-value-scope",
+    accessAuthorizationRequest,
+  );
+  if (!isRecord(accessReply) || accessReply.authorized !== true) deny("Access is no longer active.", 403);
+  const membershipRevision = requiredText(accessReply.membership_revision, "membership_revision");
+  const projectedFiles = await verifiedApplyProof(publication, accessPolicy);
+  return {
+    accessAuthorizationRequest,
+    accessPolicy,
+    authorityManifest,
+    identity,
+    membershipRevision,
+    operation,
+    policyRevision,
+    publication,
+    publicationRef: publicationRecord.address,
+    projectedFiles,
+  };
+}
+
+function requireManifestRef(
+  authority: HostedExperienceAuthority,
+  field: typeof MANIFEST_ARRAYS[number],
+  requestedRef: string,
+): ExactRef {
+  const address = requiredText(requestedRef, "requestedRef");
+  const matches = manifestRefs(authority.authorityManifest, field)
+    .filter((ref) => ref.address === address);
+  if (matches.length !== 1) deny();
+  return matches[0];
+}
+
+export function publicExperienceManifest(authority: HostedExperienceAuthority): JsonRecord {
+  const entryBytePath = authority.authorityManifest.entry_byte_path;
+  if (!Array.isArray(entryBytePath)) deny();
+  const entryKey = JSON.stringify(entryBytePath);
+  if (!authority.projectedFiles.some((item) => JSON.stringify(item.path) === entryKey)) deny();
+  return {
+    schema: "hosted-buyer-manifest/v1",
+    publication_ref: authority.publicationRef,
+    root_refs: authority.authorityManifest.root_refs,
+    data_refs: manifestRefs(authority.authorityManifest, "data_address_refs"),
+    navigation_refs: manifestRefs(authority.authorityManifest, "navigation_refs"),
+    subscription_refs: manifestRefs(authority.authorityManifest, "subscription_refs"),
+    target_refs: manifestRefs(authority.authorityManifest, "target_refs"),
+    entry_byte_path: entryBytePath,
+    browser_import_map: authority.authorityManifest.browser_import_map,
+  };
+}
+
+export async function readAuthorizedBytes(
+  authority: HostedExperienceAuthority,
+  requestedPath: string[],
+): Promise<{ bytes: Uint8Array; contentType: string; multihash: string }> {
+  const pathKey = JSON.stringify(requestedPath);
+  const member = authority.projectedFiles.find((item) => JSON.stringify(item.path) === pathKey);
+  if (!member) deny();
+  const root = resolve(requiredText(process.env.BITFIELD_PROJECTION_ROOT, "BITFIELD_PROJECTION_ROOT"));
+  const file = resolve(root, ...member.path);
+  if (file !== root && !file.startsWith(`${root}${sep}`)) deny();
+  const bytes = new Uint8Array(await readFile(file));
+  if (bytes.byteLength !== member.byte_count || makeHashCodeHexFromBytes(bytes) !== member.multihash) deny();
+  const extension = member.path.at(-1)?.split(".").at(-1)?.toLowerCase();
+  const contentType = extension === "js" || extension === "mjs"
+    ? "text/javascript; charset=utf-8"
+    : extension === "css"
+      ? "text/css; charset=utf-8"
+      : extension === "json"
+        ? "application/json; charset=utf-8"
+        : "application/octet-stream";
+  return { bytes, contentType, multihash: member.multihash };
+}
+
+export async function readAuthorizedData(
+  authority: HostedExperienceAuthority,
+  requestedRef: string,
+): Promise<unknown> {
+  const ref = requireManifestRef(authority, "data_address_refs", requestedRef);
+  return readExact(ref, "published-experience-data");
+}
+
+export async function readAuthorizedSubscriptions(
+  authority: HostedExperienceAuthority,
+  requestedRefs: string[],
+): Promise<JsonRecord> {
+  if (!Array.isArray(requestedRefs) || requestedRefs.length > 128) deny();
+  const exactRefs = requestedRefs.map((ref) =>
+    requireManifestRef(authority, "subscription_refs", ref)
+  );
+  // `find-current-items` owns canonical state reads.  The carrier client folds
+  // these current snapshots and emits only changed exact addresses; it never
+  // receives a Studio-wide feed or a browser-supplied selector.
+  const reply = await invokeHostedTarget("slot::find-current-items", {
+    operation: "find-current-items",
+    in: "published-record",
+    addresses: exactRefs.map((ref) => ref.address),
+    include: ["address", "revision", "object_hash", "payload"],
+  });
+  const items = replyItems(reply).map(normalizedCurrentRecord);
+  for (const item of items) {
+    const expected = exactRefs.find((ref) => ref.address === item.address);
+    if (!expected || expected.revision !== item.revision || expected.object_hash !== item.object_hash) deny();
+  }
+  if (items.length !== exactRefs.length) deny();
+  return { schema: "authorized-subscription-current/v1", refs: exactRefs, items };
+}
+
+export async function invokeAuthorizedTarget(
+  authority: HostedExperienceAuthority,
+  target: string,
+  payload: unknown,
+): Promise<unknown> {
+  const { descriptor } = await declaredTargetDescriptor(authority, target);
+  return invokeHostedTarget(requiredText(descriptor.target, "descriptor.target"), payload);
+}
+
+const CALLER_IDENTITY_ALIASES = new Set([
+  "actor", "actor_ref", "actorRef", "active_actor_ref", "activeActorRef",
+  "created_by", "createdBy", "principal", "principal_ref", "session", "session_ref",
+]);
+
+function assertNoCallerIdentity(value: unknown): void {
+  if (Array.isArray(value)) {
+    value.forEach(assertNoCallerIdentity);
+    return;
+  }
+  if (!isRecord(value)) return;
+  for (const [key, item] of Object.entries(value)) {
+    if (CALLER_IDENTITY_ALIASES.has(key)) deny("The request was rejected.", 400, "caller-identity-alias");
+    assertNoCallerIdentity(item);
+  }
+}
+
+function admittedTargetDescriptor(value: JsonRecord): {
+  action_ref: string;
+  authorized_action_refs: string[];
+  constraints: JsonRecord;
+  owner_target: string;
+  predicate_binding: JsonRecord;
+  predicate_ref: string;
+  resource_revision_binding: JsonRecord;
+  subject_binding: JsonRecord;
+  admission_target: string;
+} {
+  const admission = value.admission;
+  if (!isRecord(admission)) deny("The requested action is unavailable.", 403, "undeclared-action");
+  const action_ref = requiredText(admission.action_ref, "admission.action_ref");
+  const authorized_action_refs = stringArray(admission.authorized_action_refs);
+  if (!authorized_action_refs.includes(action_ref) || !isRecord(admission.constraints) || Object.prototype.hasOwnProperty.call(admission.constraints, "revision_guards") || !isRecord(admission.predicate_binding) || !isRecord(admission.subject_binding) || !isRecord(admission.resource_revision_binding)) deny("The requested action is unavailable.", 403, "invalid-admission-descriptor");
+  return {
+    action_ref,
+    authorized_action_refs,
+    constraints: admission.constraints,
+    owner_target: requiredText(value.target, "descriptor.target"),
+    predicate_binding: admission.predicate_binding,
+    predicate_ref: requiredText(admission.predicate_ref, "admission.predicate_ref"),
+    resource_revision_binding: admission.resource_revision_binding,
+    subject_binding: admission.subject_binding,
+    admission_target: requiredText(admission.target, "admission.target"),
+  };
+}
+
+async function evaluateAdmissionBinding(binding: JsonRecord, context: JsonRecord, label: string): Promise<unknown> {
+  const reply = await invokeHostedTarget("slot::formula-engine", { binding, context });
+  if (!isRecord(reply) || !("result" in reply)) deny("The request was rejected.", 403, `invalid-${label}`);
+  return reply.result;
+}
+
+function admittedDecision(
+  value: unknown,
+  expected: { action_ref: string; actor_ref: string; authorized_action_refs: string[]; constraints: JsonRecord; membership_revision: string; policy_revision: string; predicate_ref: string; resource_revision: string; session_ref: string; session_revision: string; subject_ref: string },
+): JsonRecord {
+  if (!isRecord(value) || value.decision !== "allow") deny("The request was rejected.", 403, "access-denied");
+  if (
+    requiredText(value.actor_ref, "decision.actor_ref") !== expected.actor_ref
+    || requiredText(value.session_ref, "decision.session_ref") !== expected.session_ref
+    || requiredText(value.action_ref, "decision.action_ref") !== expected.action_ref
+    || JSON.stringify(value.authorized_action_refs) !== JSON.stringify(expected.authorized_action_refs)
+    || JSON.stringify(canonical(value.constraints)) !== JSON.stringify(canonical(expected.constraints))
+    || requiredText(value.subject_ref, "decision.subject_ref") !== expected.subject_ref
+    || requiredText(value.predicate_ref, "decision.predicate_ref") !== expected.predicate_ref
+    || !isRecord(value.revisions)
+    || !["session_revision", "policy_revision", "membership_revision", "resource_revision"].every((key) => requiredText(value.revisions[key], `decision.revisions.${key}`))
+    || requiredText(value.revisions.session_revision, "decision.revisions.session_revision") !== expected.session_revision
+    || requiredText(value.revisions.membership_revision, "decision.revisions.membership_revision") !== expected.membership_revision
+    || requiredText(value.revisions.policy_revision, "decision.revisions.policy_revision") !== expected.policy_revision
+    || requiredText(value.revisions.resource_revision, "decision.revisions.resource_revision") !== expected.resource_revision
+    || !requiredText(value.decision_proof, "decision.decision_proof")
+  ) deny("The request was rejected.", 403, "stale-or-invalid-decision");
+  return value;
+}
+
+/**
+ * A target name is only a routing reference.  Its descriptor declares the
+ * action/predicate/subject and the access owner returns a current decision.
+ * Browser bytes never provide actor identity or a proof.
+ */
+export async function resolveSessionAdmittedTargetScope(
+  authority: HostedExperienceAuthority,
+  target: string,
+  browserPayload: unknown,
+  request: Request,
+): Promise<SessionAdmittedTargetScope> {
+  assertNoCallerIdentity(browserPayload);
+  const { descriptor } = await declaredTargetDescriptor(authority, target);
+  const declared = admittedTargetDescriptor(descriptor);
+  const sessionReply = await invokeHostedTarget("account-session.authorize-transient-session", {
+    ...cookieEvidence(request),
+  });
+  if (!isRecord(sessionReply) || sessionReply.authorized !== true) {
+    deny("Sign in to continue.", 401, "session-missing-or-revoked");
+  }
+  const actor_ref = requiredText(sessionReply.principal_ref, "session.principal_ref");
+  const session_ref = requiredText(sessionReply.session_ref, "session.session_ref");
+  const session_revision = String(sessionReply.session_revision ?? "");
+  if (!session_revision.trim()) deny("The request was rejected.", 403, "session-revision-missing");
+  const bindingContext = { payload: browserPayload, actor_ref, session_ref, session_revision, target: declared.owner_target };
+  const subject_ref = requiredText(await evaluateAdmissionBinding(declared.subject_binding, bindingContext, "subject-binding"), "admission.subject_ref");
+  const resource_revision = requiredText(String(await evaluateAdmissionBinding(declared.resource_revision_binding, bindingContext, "resource-revision-binding")), "admission.resource_revision");
+  const constraints = {
+    ...declared.constraints,
+    revision_guards: [{
+      target: "account-session.verify-session-revision",
+      payload: { actor_ref, session_ref, session_revision },
+      expected_reply: { verified: true, session_revision },
+    }, {
+      target: "product-access.authorize-addressed-expiring-value-scope",
+      payload: authority.accessAuthorizationRequest,
+      expected_reply: { authorized: true, membership_revision: authority.membershipRevision },
+    }],
+  };
+  const revisions = {
+    session_revision,
+    policy_revision: authority.policyRevision,
+    membership_revision: authority.membershipRevision,
+    resource_revision,
+  };
+  const formulaContext = { ...bindingContext, subject_ref, resource_revision };
+  const decision = admittedDecision(await invokeHostedTarget(declared.admission_target, {
+    kind: "access-decision-request/v1",
+    correlation_id: randomUUID(),
+    subject_ref,
+    action_ref: declared.action_ref,
+    authorized_action_refs: declared.authorized_action_refs,
+    constraints,
+    predicate_ref: declared.predicate_ref,
+    predicate_binding: declared.predicate_binding,
+    context: formulaContext,
+    ambient_actor: { actor_ref, session_ref, session_revision },
+    revisions,
+  }), {
+    actor_ref,
+    action_ref: declared.action_ref,
+    authorized_action_refs: declared.authorized_action_refs,
+    constraints,
+    membership_revision: authority.membershipRevision,
+    policy_revision: authority.policyRevision,
+    predicate_ref: declared.predicate_ref,
+    resource_revision,
+    session_ref,
+    session_revision,
+    subject_ref,
+  });
+  console.info(`[hosted.admission] request=${decision.provenance && isRecord(decision.provenance) ? decision.provenance.correlation_id : "unknown"} session_revision=${session_revision} action=${declared.action_ref} subject=${subject_ref} result=allow reason=allowed`);
+  return {
+    payload: browserPayload,
+    ambient_actor: { actor_ref, session_ref, session_revision },
+    access_decision: decision,
+  };
+}
+
+export async function invokeSessionAdmittedTarget(
+  authority: HostedExperienceAuthority,
+  target: string,
+  browserPayload: unknown,
+  request: Request,
+): Promise<unknown> {
+  const admitted = await resolveSessionAdmittedTargetScope(authority, target, browserPayload, request);
+  const result = await invokeSessionAdmittedOwnerTarget(target, admitted);
+  const decision = admitted.access_decision;
+  const actor_ref = requiredText(admitted.ambient_actor.actor_ref, "ambient_actor.actor_ref");
+  console.info(`[hosted.dispatch] request=${decision.decision_proof} actor=${actor_ref} owner=${target} action=${decision.action_ref} result=accepted`);
+  return result;
+}
+
+function entryProjectionTarget(authority: HostedExperienceAuthority): string | null {
+  const selectedValue = authority.authorityManifest.entry_projection_target_ref;
+  if (selectedValue === undefined) return null;
+  const selected = exactRef(selectedValue);
+  const matches = manifestRefs(authority.authorityManifest, "target_refs")
+    .filter((candidate) => JSON.stringify(candidate) === JSON.stringify(selected));
+  if (matches.length !== 1) deny("This experience is not available.", 404, "entry-projection-target-invalid");
+  return selected.address;
+}
+
+function admittedProjectionScope(value: JsonRecord): JsonRecord {
+  if (!isRecord(value.revisions)) deny("This experience is not available.", 404, "entry-projection-scope-invalid");
+  return {
+    action_ref: requiredText(value.action_ref, "decision.action_ref"),
+    actor_ref: requiredText(value.actor_ref, "decision.actor_ref"),
+    decision_proof: requiredText(value.decision_proof, "decision.decision_proof"),
+    revisions: {
+      membership_revision: requiredText(value.revisions.membership_revision, "decision.revisions.membership_revision"),
+      policy_revision: requiredText(value.revisions.policy_revision, "decision.revisions.policy_revision"),
+      resource_revision: requiredText(value.revisions.resource_revision, "decision.revisions.resource_revision"),
+      session_revision: requiredText(value.revisions.session_revision, "decision.revisions.session_revision"),
+    },
+    session_ref: requiredText(value.session_ref, "decision.session_ref"),
+    subject_ref: requiredText(value.subject_ref, "decision.subject_ref"),
+  };
+}
+
+export async function invokeEntryProjectionTarget(
+  authority: HostedExperienceAuthority,
+  request: Request,
+): Promise<JsonRecord> {
+  const selectedRef = entryProjectionTarget(authority);
+  if (!selectedRef) return {};
+  const { descriptor } = await declaredTargetDescriptor(authority, requiredText((await readExact(
+    authority.authorityManifest.entry_projection_target_ref,
+    "package-target-descriptor",
+  )).target, "entry_projection_target.target"));
+  const admission = admittedTargetDescriptor(descriptor);
+  const subjectSelect = isRecord(admission.subject_binding.select) ? admission.subject_binding.select : null;
+  if (subjectSelect?.from !== "literal" || !requiredText(subjectSelect.value, "entry_projection_target.subject")) {
+    deny("This experience is not available.", 404, "entry-projection-subject-not-literal");
+  }
+  const admitted = await resolveSessionAdmittedTargetScope(authority, admission.owner_target, {}, request);
+  const raw = await invokeSessionAdmittedOwnerTarget(admission.owner_target, admitted);
+  if (!isRecord(raw)) deny("This experience is not available.", 404, "entry-projection-reply-invalid");
+  const keys = Object.keys(raw).sort();
+  const expectedKeys = ["admitted_scope", "scoped_group_page_items", "scoped_group_pages", "scoped_subject_surfaces"];
+  if (JSON.stringify(keys) !== JSON.stringify(expectedKeys)
+    || !Array.isArray(raw.scoped_group_pages)
+    || !Array.isArray(raw.scoped_group_page_items)
+    || !Array.isArray(raw.scoped_subject_surfaces)
+    || JSON.stringify(raw.admitted_scope) !== JSON.stringify(admittedProjectionScope(admitted.access_decision))) {
+    deny("This experience is not available.", 404, "entry-projection-reply-invalid");
+  }
+  return raw;
+}
+
+export function safeAuthorityError(error: unknown): Response {
+  const status = error instanceof HostedAuthorityDenied ? error.status : 404;
+  const message = error instanceof HostedAuthorityDenied
+    ? error.message
+    : "This experience is not available.";
+  return Response.json({ ok: false, code: error instanceof HostedAuthorityDenied ? error.code : "authority-denied", message }, {
+    status,
+    headers: { "Cache-Control": "private, no-store" },
+  });
+}

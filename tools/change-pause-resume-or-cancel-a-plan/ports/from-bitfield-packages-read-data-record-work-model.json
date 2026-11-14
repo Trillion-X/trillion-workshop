@@ -1,0 +1,64 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-CHANGE-PAUSE-RESUME-OR-CANCEL-A-PLAN-READ-DATA-RECORD-WORK-MODEL-FROM-BITFIELD-PACKAGES",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "census-and-restore lane 6, 2026-11-13: no rewrites from scratch; originals move wholesale",
+    "message_multihash": "1f:31cfaef8fe1b095bcdda0c309aeb261d0b928f36c81425a5d444f4f86483ec45",
+    "quote": "standing order: NO rewrites from scratch. Originals move wholesale (byte for byte, with moved-from receipts)"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "bitfield-packages",
+      "commit": "23ef84d75546817174a290a16c32d4f80adf5042",
+      "path": "packages/plan-lifecycle/read-data/record-work-model.ts",
+      "multihash": "1f:9430117b880525214806a97f7893a083376f59eb6497019d54ed71090891f3c9",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-17T06:20:59Z",
+        "deleted_with": "the change that lands this move: the package file leaves bitfield-packages in the same change"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/change-pause-resume-or-cancel-a-plan/read-data/record-work-model.ts"
+    }
+  ],
+  "preserve": [
+    "the file is the original package file, moved with its import paths changed to this tree and nothing else",
+    "what the file did in the package: its exports, its rules and its edge cases are not rewritten here"
+  ],
+  "allowed_deltas": [
+    "import paths and the file header name the file's new place"
+  ],
+  "banned_substitutions": [
+    "a second implementation of the same job beside this file",
+    "a rewrite from scratch of what the package file does"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:9430117b880525214806a97f7893a083376f59eb6497019d54ed71090891f3c9",
+    "target_multihash_at_baseline": "1f:9430117b880525214806a97f7893a083376f59eb6497019d54ed71090891f3c9",
+    "recorded_at": "2026-11-14T06:21:59Z",
+    "rows": [
+      {
+        "path": "tools/change-pause-resume-or-cancel-a-plan/read-data/record-work-model.ts",
+        "source_multihash": "1f:9430117b880525214806a97f7893a083376f59eb6497019d54ed71090891f3c9",
+        "target_multihash_at_baseline": "1f:9430117b880525214806a97f7893a083376f59eb6497019d54ed71090891f3c9"
+      }
+    ],
+    "commit": "3bbe947faece13d844f5d1a90ff9f5ea462aee4e"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "export function isJsonObject(value: unknown): value is JsonObject",
+      "function rowsFrom(raw: unknown): RecordWorkRow[]"
+    ],
+    "test_refs": [],
+    "render_refs": [],
+    "originality_ref": null
+  }
+}

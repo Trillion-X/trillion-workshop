@@ -1,0 +1,5 @@
+/* The page-shell stylesheet for the test tenant, deliberately unlike the live site's so a pass
+   cannot come from accidental agreement with production copy. Its marker is what proves the
+   shell css was read, distinct from the chrome marker in chrome-for-tests.css: the two are
+   different stylesheets for different markup and a single marker could not tell them apart. */
+.entry-host-test-tenant-shell { --proof: "shell-css-7c3d15"; }

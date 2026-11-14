@@ -1,0 +1,62 @@
+// Converging packages changes what a running app HOLDS. It does not change
+// what a long-lived process is still serving from memory, and the trillion
+// machine had been up since 2026-09-16 while its engine moved on beneath it.
+// Restarting is the instrument for that; replacing the image is not, because
+// the native executable has not changed.
+//
+// The PLAN is tested rather than the run, because what matters is the exact
+// command that would reach production, and that is knowable without reaching
+// it.
+//
+// This lives against the one declared deployment entrypoint on purpose. A
+// wrapper in a sibling file would be a second road that mutates a hosting
+// provider, which is the same defect however small the wrapper is.
+
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+
+import { packageOwnedDeploymentPlan } from '../processes/run-provider-deploy.mjs';
+
+function request(parameters) {
+  return { kind: 'package-owned-deployment-request', profile: 'fly-restart', parameters };
+}
+
+test('naming no instance restarts every instance of the app', () => {
+  // The honest reading of "restart this app". Silently restarting one
+  // arbitrary instance would leave the app half on its old state.
+  const plan = packageOwnedDeploymentPlan(request({ application: 'trillion' }));
+  assert.deepEqual(plan.steps, [{ command: 'fly', args: ['apps', 'restart', 'trillion'] }]);
+});
+
+test('naming one instance restarts only that one', () => {
+  const plan = packageOwnedDeploymentPlan(request({ application: 'trillion', instance: 'd8956e5b766d08' }));
+  assert.deepEqual(plan.steps, [{
+    command: 'fly',
+    args: ['machine', 'restart', 'd8956e5b766d08', '--app', 'trillion'],
+  }]);
+});
+
+test('refuses an application or instance name that is not one', () => {
+  // An unvalidated identifier here is an argument injected into a process that
+  // acts on production.
+  for (const bad of ['-rf', 'trillion; rm', 'Trillion', 'a'.repeat(64)]) {
+    assert.throws(() => packageOwnedDeploymentPlan(request({ application: bad })), /invalid/);
+    assert.throws(
+      () => packageOwnedDeploymentPlan(request({ application: 'trillion', instance: bad })),
+      /invalid/,
+    );
+  }
+});
+
+test('a restart still obeys the package-owned request contract', () => {
+  // A package set supplies bounded values, never a command or arguments.
+  assert.throws(
+    () => packageOwnedDeploymentPlan({
+      kind: 'package-owned-deployment-request',
+      profile: 'fly-restart',
+      parameters: { application: 'trillion' },
+      steps: [{ command: 'rm', args: ['-rf', '/'] }],
+    }),
+    /only kind, schema, profile, and parameters/,
+  );
+});

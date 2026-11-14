@@ -1,0 +1,31 @@
+import { beforeEach, describe, expect, it, vi } from '../../../test-helpers/vitest-shim.mjs';
+
+vi.mock('@bitfield/runtime-kit', () => ({
+  sendRequestToBitfieldTarget: vi.fn(),
+}));
+
+import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
+import { revealLocalPath } from './reveal-local-path.ts';
+
+const textEncoder = new TextEncoder();
+
+beforeEach(() => {
+  vi.mocked(sendRequestToBitfieldTarget).mockReset();
+  vi.mocked(sendRequestToBitfieldTarget).mockResolvedValue({
+    payload: textEncoder.encode(JSON.stringify({ success: true, operation: 'reveal' })),
+  });
+});
+
+describe('revealLocalPath', () => {
+  it('dispatches reveal to the native device-files capability without a process selector', async () => {
+    await revealLocalPath('/workspace/Documents/example.txt');
+
+    expect(sendRequestToBitfieldTarget).toHaveBeenCalledExactlyOnceWith({
+      target: 'local.files',
+      payload: {
+        operation: 'reveal',
+        path: '/workspace/Documents/example.txt',
+      },
+    });
+  });
+});

@@ -1,0 +1,87 @@
+import { readFileSync, readdirSync } from 'node:fs';
+import { describe, expect, it } from '../../test-helpers/vitest-shim.mjs';
+
+const packageRoot = `${process.cwd()}/packages/local-files`;
+
+function sourceFiles(folder: string): string[] {
+  return readdirSync(`${packageRoot}/${folder}`, { withFileTypes: true })
+    .flatMap((entry) => {
+      const relative = `${folder}/${entry.name}`;
+      if (entry.isDirectory()) return sourceFiles(relative);
+      if (!/\.(?:ts|tsx)$/.test(entry.name) || entry.name.endsWith('.test.ts') || entry.name.endsWith('.test.tsx')) {
+        return [];
+      }
+      return [relative];
+    });
+}
+
+function objectTree(value: unknown): Record<string, unknown>[] {
+  if (Array.isArray(value)) return value.flatMap(objectTree);
+  if (!value || typeof value !== 'object') return [];
+  const record = value as Record<string, unknown>;
+  return [record, ...Object.values(record).flatMap(objectTree)];
+}
+
+describe('Local Files native capability boundary', () => {
+  it('keeps device filesystem operations out of compute.process', () => {
+    for (const relative of [...sourceFiles('read-data'), ...sourceFiles('do-work'), ...sourceFiles('show')]) {
+      const source = readFileSync(`${packageRoot}/${relative}`, 'utf8');
+      expect(source, relative).not.toMatch(/target\s*:\s*['"]compute\.process['"]/);
+      expect(source, relative).not.toMatch(/argv\s*:\s*\[\s*['"](?:sh|bash|mkdir|touch|mv|rm)['"]/);
+    }
+  });
+
+  it('declares bounded recursive scan through the native owner', () => {
+    const descriptor = JSON.parse(
+      readFileSync(`${packageRoot}/things-to-store-and-run.json`, 'utf8'),
+    ) as { things: unknown[] };
+    const text = JSON.stringify(descriptor);
+    expect(text).toContain('action:scan-local-files');
+    expect(text).toContain('"operation":"scan_files"');
+    expect(text).toContain('"maximum":512');
+  });
+
+  it('declares stable held-file bytes for isolated workflow materialization', () => {
+    const descriptor = JSON.parse(
+      readFileSync(`${packageRoot}/things-to-store-and-run.json`, 'utf8'),
+    ) as { things: unknown[] };
+    const nativeTarget = objectTree(descriptor).find(
+      (record) => record.target === 'local.files' && Array.isArray(record.operations),
+    );
+    const stableRead = (nativeTarget?.operations as Record<string, unknown>[] | undefined)?.find(
+      (operation) => operation.id === 'read_stable_file_bytes',
+    );
+    expect(stableRead).toMatchObject({
+      max_range_bytes: 16_777_216,
+      reply_shape: 'the reply payload IS the complete stable file',
+    });
+  });
+
+  it('uses the admitted node runtime in leaf containment for evidence verification', () => {
+    const descriptor = JSON.parse(
+      readFileSync(`${packageRoot}/things-to-store-and-run.json`, 'utf8'),
+    ) as { things: unknown[] };
+    const text = JSON.stringify(descriptor);
+    const verifierDescriptors = objectTree(descriptor).filter((record) => (
+      Array.isArray(record.argv)
+      && record.argv[0] === 'node'
+      && record.argv[1] === 'verify.mjs'
+    ));
+    expect(text).toContain('verify.mjs');
+    expect(text).toContain('"argv":["node","verify.mjs"');
+    expect(verifierDescriptors).toHaveLength(1);
+    expect(verifierDescriptors[0].env).toEqual({ OPENSSL_CONF: '' });
+    expect(verifierDescriptors[0].containment).toEqual({ kind: 'leaf' });
+    expect(text).not.toContain('verify.py');
+  });
+
+  it('labels the recoverable action as Move to Trash throughout the visible surface', () => {
+    const source = readFileSync(`${packageRoot}/show/LocalFileTree.tsx`, 'utf8');
+    expect(source).toContain('title="Move to Trash?"');
+    expect(source).toContain('You can restore this item from Trash in Finder.');
+    expect(source).toContain("trashPendingPath ? 'Moving…' : 'Move to Trash'");
+    expect(source).toContain('disabled={Boolean(trashPendingPath)}');
+    expect(source).not.toContain('Delete this file/folder?');
+    expect(source).not.toContain('Failed to delete:');
+  });
+});

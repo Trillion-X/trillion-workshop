@@ -1,0 +1,26 @@
+{
+  "_why_this_file_is_here": "A TEST fixture, not a default. Until 2026-09-09 the suites had no archive of their own: they asserted the recovery path by asking for /article/advanced-footwork-patterns, a route belonging to a real tenant whose 4.4 MB archive was imported into this generic package and bundled into every tenant's binary. So the test proving 'an archived article serves with no engine' was proving it with somebody else's article, which is the same defect the code had. Tests need an archive to be, so they bring their own.",
+  "_deliberately_not_the_live_one": "The route and every word below are invented, so a test cannot pass by accidentally reading production content.",
+  "archived_at": "2026-09-09",
+  "source": "written for the suites in this folder",
+  "count": 1,
+  "rows": [
+    {
+      "id": "public-sales-page:article-how-to-season-a-cast-iron-pan",
+      "kind": "public-sales-page",
+      "route_path": "/article/how-to-season-a-cast-iron-pan",
+      "title": "How to season a cast iron pan",
+      "meta_description": "A fixture article that belongs to nobody real.",
+      "blocks": [
+        {
+          "kind": "paragraph",
+          "parts": [{ "strong": true, "text": "archived-article-marker-5c2a1f" }]
+        },
+        {
+          "kind": "paragraph",
+          "text": "Heat the pan, wipe it with a thin film of oil, and let it cool. Repeat until the surface is dark and even."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,194 @@
+"use client";
+
+import React from "react";
+
+type AddressByteSegmentCallback = (
+  bytes: Uint8Array,
+  byteOffset: number,
+  byteLength: number,
+) => void;
+
+function requestBody(payload: Uint8Array): ArrayBuffer {
+  const body = new ArrayBuffer(payload.byteLength);
+  new Uint8Array(body).set(payload);
+  return body;
+}
+
+class PublicationBoundTargetTransport {
+  private readonly addressListeners = new Map<string, Set<(payload: Uint8Array) => void>>();
+  private readonly authorityDeniedListeners = new Set<() => void>();
+  private readonly byteListeners = new Map<string, Set<AddressByteSegmentCallback>>();
+  private readonly reconnectListeners = new Set<() => void>();
+  private readonly snapshots = new Map<string, string>();
+  private pollTimer: ReturnType<typeof setTimeout> | undefined;
+  private closed = false;
+  private wasDisconnected = false;
+
+  constructor(private readonly publicationRef: string) {}
+
+  async invoke(
+    target: string,
+    payload: Uint8Array,
+    signal?: AbortSignal,
+  ): Promise<Uint8Array> {
+    const response = await fetch(`/bitfield-target/${encodeURIComponent(target)}`, {
+      method: "POST",
+      body: requestBody(payload),
+      cache: "no-store",
+      credentials: "same-origin",
+      headers: {
+        "Content-Type": "application/octet-stream",
+        "X-Bitfield-Experience-Ref": this.publicationRef,
+      },
+      signal,
+    });
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    if (!response.ok || response.headers.get("x-bitfield-target-status") !== "0") {
+      this.notifyAuthorityDenied();
+      throw new Error("The requested action is not available.");
+    }
+    return bytes;
+  }
+
+  async subscribe(addresses: string[]): Promise<void> {
+    const response = await fetch(
+      `/api/experience/${encodeURIComponent(this.publicationRef)}/subscriptions`,
+      {
+        method: "POST",
+        body: JSON.stringify({ refs: addresses }),
+        cache: "no-store",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+      },
+    );
+    if (!response.ok) {
+      this.notifyAuthorityDenied();
+      throw new Error("Updates are not available.");
+    }
+    const reply: unknown = await response.json();
+    if (!reply || typeof reply !== "object" || Array.isArray(reply)) throw new Error("Updates are not available.");
+    const items = (reply as { items?: unknown }).items;
+    if (!Array.isArray(items)) throw new Error("Updates are not available.");
+    const allowed = new Set(addresses);
+    for (const item of items) {
+      if (!item || typeof item !== "object" || Array.isArray(item)) throw new Error("Updates are not available.");
+      const address = (item as { address?: unknown }).address;
+      if (typeof address !== "string" || !allowed.has(address)) throw new Error("Updates are not available.");
+      const payload = new TextEncoder().encode(JSON.stringify(item));
+      const prior = this.snapshots.get(address);
+      const fingerprint = JSON.stringify(item);
+      this.snapshots.set(address, fingerprint);
+      if (prior === fingerprint) continue;
+      for (const callback of this.addressListeners.get(address) ?? []) callback(payload);
+      for (const callback of this.byteListeners.get(address) ?? []) callback(payload, 0, payload.byteLength);
+    }
+  }
+
+  private activeAddresses(): string[] {
+    return [...new Set([...this.addressListeners.keys(), ...this.byteListeners.keys()])].sort();
+  }
+
+  private schedulePoll(delay = 0): void {
+    if (this.closed || this.pollTimer) return;
+    this.pollTimer = setTimeout(async () => {
+      this.pollTimer = undefined;
+      const addresses = this.activeAddresses();
+      if (!addresses.length || this.closed) return;
+      try {
+        await this.subscribe(addresses);
+        if (this.wasDisconnected) {
+          this.wasDisconnected = false;
+          for (const callback of this.reconnectListeners) callback();
+        }
+        this.schedulePoll(1000);
+      } catch {
+        // Every retry re-authorizes and reads current state, so expiry and
+        // revocation close the buyer transport instead of replaying stale data.
+        this.wasDisconnected = true;
+        this.schedulePoll(1000);
+      }
+    }, delay);
+  }
+
+  private attach<T>(table: Map<string, Set<T>>, address: string, callback: T): () => void {
+    let listeners = table.get(address);
+    if (!listeners) table.set(address, listeners = new Set());
+    listeners.add(callback);
+    this.schedulePoll();
+    return () => {
+      listeners?.delete(callback);
+      if (listeners?.size === 0) table.delete(address);
+    };
+  }
+
+  onAddressUpdate(address: string, callback: (payload: Uint8Array) => void): () => void {
+    return this.attach(this.addressListeners, address, callback);
+  }
+
+  onAddressByteSegmentUpdate(address: string, callback: AddressByteSegmentCallback): () => void {
+    return this.attach(this.byteListeners, address, callback);
+  }
+
+  onAddressByteSegmentUpdateSlot(address: string, callback: AddressByteSegmentCallback) {
+    let current = callback;
+    const release = this.onAddressByteSegmentUpdate(address, (bytes, offset, length) => current(bytes, offset, length));
+    return {
+      replace(next: AddressByteSegmentCallback): void { current = next; },
+      release,
+    };
+  }
+
+  onAddressByteSegmentObserve(address: string, callback: AddressByteSegmentCallback): () => void {
+    return this.onAddressByteSegmentUpdate(address, callback);
+  }
+
+  onReconnect(callback: () => void): () => void {
+    this.reconnectListeners.add(callback);
+    return () => this.reconnectListeners.delete(callback);
+  }
+
+  onAuthorityDenied(callback: () => void): () => void {
+    this.authorityDeniedListeners.add(callback);
+    return () => this.authorityDeniedListeners.delete(callback);
+  }
+
+  private notifyAuthorityDenied(): void {
+    for (const callback of this.authorityDeniedListeners) callback();
+  }
+
+  close(): void {
+    this.closed = true;
+    if (this.pollTimer) clearTimeout(this.pollTimer);
+    this.pollTimer = undefined;
+    this.addressListeners.clear();
+    this.authorityDeniedListeners.clear();
+    this.byteListeners.clear();
+    this.reconnectListeners.clear();
+    this.snapshots.clear();
+  }
+}
+
+function install(publicationRef: string, onAuthorityDenied: () => void): PublicationBoundTargetTransport {
+  const transport = new PublicationBoundTargetTransport(publicationRef);
+  transport.onAuthorityDenied(onAuthorityDenied);
+  (globalThis as { __BITFIELD_BOOT_HOOKS__?: unknown }).__BITFIELD_BOOT_HOOKS__ = {
+    boot: async () => {},
+    connect: async () => ({ transport }),
+    onReset: (callback: () => void) => transport.onReconnect(callback),
+  };
+  return transport;
+}
+
+export function HostedTargetCarrierBoot({
+  onAuthorityDenied,
+  publicationRef,
+}: {
+  onAuthorityDenied: () => void;
+  publicationRef: string;
+}) {
+  React.useEffect(() => {
+    const transport = install(publicationRef, onAuthorityDenied);
+    return () => transport.close();
+  }, [onAuthorityDenied, publicationRef]);
+  return null;
+}

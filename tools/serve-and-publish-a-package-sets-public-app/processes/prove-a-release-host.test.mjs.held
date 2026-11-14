@@ -1,0 +1,62 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { appHostFor, execMachineCommand } from './prove-a-release-starts-before-it-goes-live.mjs';
+
+test('release trial uses the provider app host when the machine has no declared public host', () => {
+  assert.equal(appHostFor({ env: {} }, 'example-school'), 'example-school.fly.dev');
+  assert.equal(appHostFor({ env: { ACCOUNT_PUBLIC_URL: 'https://example.com' } }, 'example-school'), 'example.com');
+  assert.equal(appHostFor({ env: { BITFIELD_APP_ENTRY_SCENE_HOSTS: 'custom.example.com,other.example.com' } }, 'example-school'), 'custom.example.com');
+});
+
+test('a refused machine exec read falls back to the same exact command through the deploy owner', async () => {
+  const command = ['/bin/sh', '-c', 'printf "ready"'];
+  const calls = [];
+  const result = await execMachineCommand(async () => { throw new Error('machine exec API unavailable'); },
+    'example-app', 'd895941f715258', command, (request) => {
+      calls.push(request);
+      return { stdout: '{"status":200,"summary":{"target_count":1}}' };
+    });
+  assert.equal(result.stdout, '{"status":200,"summary":{"target_count":1}}');
+  assert.deepEqual(calls, [{ application: 'example-app', machineId: 'd895941f715258', command }]);
+});
+
+test('a release is refused when the new version is over its footprint or wrote none', async () => {
+  const { footprintFromAnswer } = await import('./prove-a-release-starts-before-it-goes-live.mjs');
+  const over = footprintFromAnswer(JSON.stringify({
+    records: [{ footprint: 'over', entries: [{ path: 'runtime-kit/a-copy', allocated_bytes: 5, over: true }], duplicates: [] }],
+    memory_in_use_bytes: 1,
+  }));
+  assert.equal(over.ready, false);
+  assert.match(over.reason, /runtime-kit\/a-copy 5 bytes \(no owner declares it\)/);
+  assert.equal(footprintFromAnswer('{"records":[]}').ready, false);
+  const within = footprintFromAnswer(JSON.stringify({
+    records: [{ footprint: 'within', allocated_bytes: 7, memory: { opener_peak_bytes: 50 * 1048576 } }],
+    memory_in_use_bytes: 600 * 1048576,
+  }));
+  assert.equal(within.ready, true);
+  assert.deepEqual(within.measured, {
+    memory_in_use_bytes: 600 * 1048576, opener_peak_bytes: 50 * 1048576, allocated_bytes: 7,
+  });
+});
+
+test('a release sizes its machine from the measured need in both directions, never below the CPU floor', async () => {
+  const { configSizedFromMeasuredNeed } = await import('./run-provider-deploy.mjs');
+  const config = { vm: [{ memory: '16384mb', cpu_kind: 'performance', cpus: 2 }] };
+  const small = configSizedFromMeasuredNeed(config, { memory_in_use_bytes: 600 * 1048576, opener_peak_bytes: 50 * 1048576 });
+  assert.equal(small.memory_megabytes, 4096, 'floor of 2048 MB per performance CPU');
+  assert.equal(small.config.vm[0].memory, '4096mb');
+  assert.equal(small.config.vm[0].cpu_kind, 'performance');
+  const large = configSizedFromMeasuredNeed(config, { memory_in_use_bytes: 9000 * 1048576, opener_peak_bytes: 0 });
+  assert.equal(large.memory_megabytes, 18176, 'twice the need, rounded up to 256 MB');
+  const unmeasured = configSizedFromMeasuredNeed(config, null);
+  assert.equal(unmeasured.memory_megabytes, null);
+  assert.equal(unmeasured.config, config, 'no measurement keeps the size it has');
+});
+
+test('a release does not carry forward a setting the runtime no longer reads', async () => {
+  const { configWithCurrentServingSettings } = await import('./run-provider-deploy.mjs');
+  const carried = configWithCurrentServingSettings({ env: {} }, [{
+    config: { metadata: { fly_process_group: 'app' }, env: { BITFIELD_LOCAL_STORAGE_BUDGET_BYTES: '9663676416', KEPT: '1' } },
+  }]);
+  assert.deepEqual(carried.env, { KEPT: '1' });
+});

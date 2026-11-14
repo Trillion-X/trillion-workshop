@@ -1,0 +1,245 @@
+{
+  "about": "Files restored byte for byte from the retired bitfield-packages repository (standing order: originals move wholesale, no rewrites from scratch).",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "a-test-home-folder-made-neutral",
+      "find": "[/]Users[/]testus[e]r",
+      "replace": "/workspace",
+      "means": "A test path in a home folder named like a real one; a neutral folder instead."
+    },
+    {
+      "id": "a-test-home-folder-made-neutral-short",
+      "find": "[/]Users[/]test[/]",
+      "replace": "/workspace/",
+      "means": "A test path in a home folder; a neutral folder instead."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/local-files/README.md",
+      "commit": "2ebaa47dab3dca37ed731de6bab6c1cf26c21de8",
+      "to": "tools/choose-and-save-local-files/from-bitfield-packages-local-files/README.md",
+      "source_identity": "1f:8a4c1de19d6d9bd36152041004e49b9fb0ea323c03cf482acb2bbcf68b742e7d",
+      "identity": "1f:8a4c1de19d6d9bd36152041004e49b9fb0ea323c03cf482acb2bbcf68b742e7d"
+    },
+    {
+      "from": "packages/local-files/do-work/ask-local-file-content-digest.mjs",
+      "commit": "e0000f55145f80c5cc6b1406883b2d83b9ad45d2",
+      "to": "tools/choose-and-save-local-files/do-work/ask-local-file-content-digest.mjs",
+      "source_identity": "1f:690b2506e4787e504b1c450ddcf547d2fc71ef2591c5cafc86a22b9b397aa1d0",
+      "identity": "1f:690b2506e4787e504b1c450ddcf547d2fc71ef2591c5cafc86a22b9b397aa1d0"
+    },
+    {
+      "from": "packages/local-files/do-work/ask-local-file-content-digest.test.ts",
+      "commit": "7730ad4b3946c1056ffc1528bbcd0124465f274c",
+      "to": "tools/choose-and-save-local-files/do-work/ask-local-file-content-digest.test.ts",
+      "source_identity": "1f:bcabef7263bc4c578e15515a6557530d06d2326eb7255fd8484f7cbd8bd24b0f",
+      "identity": "1f:cf5c1c817f4a767c6b1ed5d8a4fca5a1a4a29af6e9af101c415ff22371e3d52e"
+    },
+    {
+      "from": "packages/local-files/do-work/ask-local-file-display.ts",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/choose-and-save-local-files/do-work/ask-local-file-display.ts",
+      "source_identity": "1f:8cc5086a739b76e1a64b2a2f7a416a0cae025d3afb3f2ec16ed23816f3fcc193",
+      "identity": "1f:8cc5086a739b76e1a64b2a2f7a416a0cae025d3afb3f2ec16ed23816f3fcc193"
+    },
+    {
+      "from": "packages/local-files/do-work/choose-local-folder.ts",
+      "commit": "3e8878ff1943c26a08fffbc3dcceda283dff3b31",
+      "to": "tools/choose-and-save-local-files/do-work/choose-local-folder.ts",
+      "source_identity": "1f:b95cc97d671091dd955ab30a7b3addd6f785f8302f2d6eca44d1c1388bbbaf0f",
+      "identity": "1f:8cb290143057dd3f6eec082219595ffc3973d9ece12d55c266c9b63a65d3a763"
+    },
+    {
+      "from": "packages/local-files/do-work/create-local-directory.ts",
+      "commit": "3e8878ff1943c26a08fffbc3dcceda283dff3b31",
+      "to": "tools/choose-and-save-local-files/do-work/create-local-directory.ts",
+      "source_identity": "1f:b85f9181634d79f6c4e7b3c28dbc6c209af1333923c2d3f4260ee8d652deb6d6",
+      "identity": "1f:a768ce746c1b87f6fae430b63aafbc5dda158b2e40032e4fc2c9de822cff44f7"
+    },
+    {
+      "from": "packages/local-files/do-work/create-local-empty-file.ts",
+      "commit": "3e8878ff1943c26a08fffbc3dcceda283dff3b31",
+      "to": "tools/choose-and-save-local-files/do-work/create-local-empty-file.ts",
+      "source_identity": "1f:7966153f159ca1346186990212d3409546b5e5488f0298d4fa1c0d04496f8eee",
+      "identity": "1f:3fa420e0e3ca49ca2fda1652d8f746adf0b15e81c9b923e285d38bcb88b37ba5"
+    },
+    {
+      "from": "packages/local-files/do-work/move-local-path-to-trash.ts",
+      "commit": "3e8878ff1943c26a08fffbc3dcceda283dff3b31",
+      "to": "tools/choose-and-save-local-files/do-work/move-local-path-to-trash.ts",
+      "source_identity": "1f:0771551f1cdc5fd28333b5bfa21db0938760ff1542d8e67a5c398b0813174eb4",
+      "identity": "1f:92213a66f6bc6382d4ba2f3eb5a787c05c163bf7326dd83db8dbf04d1560c8f0"
+    },
+    {
+      "from": "packages/local-files/do-work/rename-local-path.ts",
+      "commit": "3e8878ff1943c26a08fffbc3dcceda283dff3b31",
+      "to": "tools/choose-and-save-local-files/do-work/rename-local-path.ts",
+      "source_identity": "1f:77475d44b7639a434c39d7e9982042a9a6fefaff6f4a9a3fc79dea0abd0fbd40",
+      "identity": "1f:6cc16051b7a5e8e2d03c898e2373a15eceb01914b2db6b845d862586c24d4cbd"
+    },
+    {
+      "from": "packages/local-files/do-work/reveal-local-path.test.ts",
+      "commit": "7229c0c1d5311ff11cc55bb6ccf31843fe305b83",
+      "to": "tools/choose-and-save-local-files/do-work/reveal-local-path.test.ts.held",
+      "source_identity": "1f:66ace64a7742df32dd64da13d887e8706ea98c9b049af5e68a1e7ceeba6ff79b",
+      "identity": "1f:3c24734b3aaa39f7d3af51abe206ba5c8f84dd28e1b9247691b2bc2dd8e9705d",
+      "calls": [
+        "a-test-home-folder-made-neutral-short"
+      ]
+    },
+    {
+      "from": "packages/local-files/do-work/reveal-local-path.ts",
+      "commit": "3e8878ff1943c26a08fffbc3dcceda283dff3b31",
+      "to": "tools/choose-and-save-local-files/do-work/reveal-local-path.ts",
+      "source_identity": "1f:5520fc0556ecac4ccddb92c8e0ee8568437bbf995bd69c0221ab6a7958f5de8c",
+      "identity": "1f:8efef4bdd2df89cb53cefb3886d0a2fde17b90b060747a63983e19026adcd440"
+    },
+    {
+      "from": "packages/local-files/do-work/save-local-file-contract.test.ts",
+      "commit": "6a19a49ad6cd0d8cef1662329dcfaf2767575c7d",
+      "to": "tools/choose-and-save-local-files/do-work/save-local-file-contract.test.ts.held",
+      "source_identity": "1f:af1e7f14e4dda2ef07ec1eba2a3f62cbb8bd553ac9d672adc7900d8958f2abc3",
+      "identity": "1f:2f93b2fc8008d161e791744d71607049fcccf66026142e6a0548fbd811bad0e9"
+    },
+    {
+      "from": "packages/local-files/do-work/save-local-file-copy.test.ts",
+      "commit": "6a19a49ad6cd0d8cef1662329dcfaf2767575c7d",
+      "to": "tools/choose-and-save-local-files/do-work/save-local-file-copy.test.ts.held",
+      "source_identity": "1f:4d5e560d3b0091f191d18200bdd719629a5f4322284ab6580a15b5bb5b7e6087",
+      "identity": "1f:2294129aae69e679ea4061c94b32faa57b8d50ee2ae4e228ccf96962bc52a099"
+    },
+    {
+      "from": "packages/local-files/do-work/send-local-file-selection.ts",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/choose-and-save-local-files/do-work/send-local-file-selection.ts",
+      "source_identity": "1f:973b80bf6aa1a0e0fbfb2957b7858a4f29edae531408d4490446ac273aaf63bf",
+      "identity": "1f:973b80bf6aa1a0e0fbfb2957b7858a4f29edae531408d4490446ac273aaf63bf"
+    },
+    {
+      "from": "packages/local-files/do-work/verify-selected-addressed-evidence.mjs",
+      "commit": "10fbdc8e08f2a5c08f24c638d0948b1da64566f8",
+      "to": "tools/choose-and-save-local-files/do-work/verify-selected-addressed-evidence.mjs",
+      "source_identity": "1f:699832a011505001fafdab2268b8eacbece0466ba956b377584aff71ae139fd6",
+      "identity": "1f:699832a011505001fafdab2268b8eacbece0466ba956b377584aff71ae139fd6"
+    },
+    {
+      "from": "packages/local-files/do-work/verify-selected-addressed-evidence.test.ts",
+      "commit": "10fbdc8e08f2a5c08f24c638d0948b1da64566f8",
+      "to": "tools/choose-and-save-local-files/do-work/verify-selected-addressed-evidence.test.ts",
+      "source_identity": "1f:86458c30f15990e30876753c4c1e630da8c5c732c25fb9ae260893e4c6c0d903",
+      "identity": "1f:0e0d551f1068669d927e289b74098b29fc36ba89b0d2247b05af2515db963951"
+    },
+    {
+      "from": "packages/local-files/local-files-native-boundary.test.ts",
+      "commit": "5034e8ca2c80a7024f90df2df2bd57f87a3e1575",
+      "to": "tools/choose-and-save-local-files/local-files-native-boundary.test.ts.held",
+      "source_identity": "1f:a5420cd7b695e52a4e28d23c7d4191f0bdedb6ea65d039cfc2d52d9d16fcfea5",
+      "identity": "1f:9e6193d42aa7f1dbde91202e78f96b3d9ffa32ae5daacbb11859c39073bdf577"
+    },
+    {
+      "from": "packages/local-files/read-data/names-and-content-identities-from-a-folder-tree.mjs",
+      "commit": "40581c33b4045d98eb0b56d6fd2acacc0bb69e7f",
+      "to": "tools/choose-and-save-local-files/read-data/names-and-content-identities-from-a-folder-tree.mjs",
+      "source_identity": "1f:fd7d8922b15e641e237e413840f70265330eefe8f6fa6a7940955fa35fea422a",
+      "identity": "1f:fd7d8922b15e641e237e413840f70265330eefe8f6fa6a7940955fa35fea422a"
+    },
+    {
+      "from": "packages/local-files/read-data/names-and-content-identities-from-a-folder-tree.test.mjs",
+      "commit": "40581c33b4045d98eb0b56d6fd2acacc0bb69e7f",
+      "to": "tools/choose-and-save-local-files/read-data/names-and-content-identities-from-a-folder-tree.test.mjs",
+      "source_identity": "1f:7a17d60388e0da8952c0a3668d12d4a82685f06bc14c7c9bdd55a2c516536ba5",
+      "identity": "1f:7a17d60388e0da8952c0a3668d12d4a82685f06bc14c7c9bdd55a2c516536ba5"
+    },
+    {
+      "from": "packages/local-files/read-data/read-local-directory.ts",
+      "commit": "3e8878ff1943c26a08fffbc3dcceda283dff3b31",
+      "to": "tools/choose-and-save-local-files/read-data/read-local-directory.ts",
+      "source_identity": "1f:bcde7315c690752bb423130c76021079f5ee54fe36b047286ef39194d36d1115",
+      "identity": "1f:8ceb7722557b45f3d0ca0fe189ac4cbc43b3ffcf0621c67f151405486944fde1"
+    },
+    {
+      "from": "packages/local-files/read-data/read-local-file-roots.test.ts",
+      "commit": "7229c0c1d5311ff11cc55bb6ccf31843fe305b83",
+      "to": "tools/choose-and-save-local-files/read-data/read-local-file-roots.test.ts.held",
+      "source_identity": "1f:0c759a1b99bd85e9b206eafc2d7989fdc0542bd8a20ff4c00f5538949b10a045",
+      "identity": "1f:54c53bea7d2bd0796afc9675c85e74fdb9bb3f875582ec3bb43b341d6c96ff99",
+      "calls": [
+        "a-test-home-folder-made-neutral"
+      ]
+    },
+    {
+      "from": "packages/local-files/read-data/read-local-file-roots.ts",
+      "commit": "3e8878ff1943c26a08fffbc3dcceda283dff3b31",
+      "to": "tools/choose-and-save-local-files/read-data/read-local-file-roots.ts",
+      "source_identity": "1f:cfb5bfd3da5e3a79dd9e67239063e806380db023643255ec642ff2116b234968",
+      "identity": "1f:42eece5c61977604cc65b81f1092d67c11d4086f402e7bce8a3b97bf2555ea0f"
+    },
+    {
+      "from": "packages/local-files/show-ios-jscore/README.md",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/choose-and-save-local-files/show-ios-jscore/README.md",
+      "source_identity": "1f:ca99da1d913bb1aaeefd98b768daa42f821a9050bedb5648e9be4ec419df2a1d",
+      "identity": "1f:ca99da1d913bb1aaeefd98b768daa42f821a9050bedb5648e9be4ec419df2a1d"
+    },
+    {
+      "from": "packages/local-files/show-ios-jscore/mount-local-files-jscore.js",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/choose-and-save-local-files/show-ios-jscore/mount-local-files-jscore.js",
+      "source_identity": "1f:aa0c387b6e67e463fb89056c3fe42e53ef78942db5b311d4bea913cac7a22981",
+      "identity": "1f:aa0c387b6e67e463fb89056c3fe42e53ef78942db5b311d4bea913cac7a22981"
+    },
+    {
+      "from": "packages/local-files/show/LocalFileTree.test.tsx",
+      "commit": "c232fe605702fe1e951110c371ca15d1413abc21",
+      "to": "tools/choose-and-save-local-files/show/LocalFileTree.test.tsx.held",
+      "source_identity": "1f:66cfd060b3892e1c83a0270dc4117a8426a732efe46268dbbc58cefcd76c08ef",
+      "identity": "1f:6edaa8f0584bcf5915fa52eb67191a68e9dc1efa5ee70ed0fec4200ac3e84c14",
+      "calls": [
+        "a-test-home-folder-made-neutral"
+      ]
+    },
+    {
+      "from": "packages/local-files/show/LocalFileTree.tsx",
+      "commit": "7abfac7eeb96b63e38977e699df4c8c8208dcb54",
+      "to": "tools/choose-and-save-local-files/show/LocalFileTree.tsx",
+      "source_identity": "1f:9a7aba8dc61688010eacc3a698fbd8ac62882d7e298880d13d816840b5f48927",
+      "identity": "1f:2988cc8114a6a15d61c0768cd84b1c0a0cd2789e629bedae5550671cedd51c5d"
+    },
+    {
+      "from": "packages/local-files/show/mount-local-file-tree.tsx",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/choose-and-save-local-files/show/mount-local-file-tree.tsx",
+      "source_identity": "1f:919bdc7696a2c0a214bf5adb3ccf8aa55e1570ca903da40c3c0cdf573deec7ad",
+      "identity": "1f:9cadfa670ebba193c4abca1eb7f5f8b747b9591bc4690369399b8b3bc67e1823"
+    },
+    {
+      "from": "packages/local-files/things-to-store-and-run.json",
+      "commit": "52c0aa4bc0675c642c0a52c5e74c951961900b6b",
+      "to": "tools/choose-and-save-local-files/from-bitfield-packages-local-files/things-to-store-and-run.json",
+      "source_identity": "1f:c08a2a105213779d525ed84506017352321d5da294cf85cd3e0689374c24629d",
+      "identity": "1f:c08a2a105213779d525ed84506017352321d5da294cf85cd3e0689374c24629d"
+    }
+  ],
+  "held": {
+    "tools/choose-and-save-local-files/do-work/reveal-local-path.test.ts.held": "mocks and imports `@bitfield/runtime-kit` (retired package runtime); needs the records-door form of do-work/reveal-local-path.ts before it loads",
+    "tools/choose-and-save-local-files/do-work/save-local-file-contract.test.ts.held": "reads the package's things-to-store-and-run.json from the folder above do-work; the boundary file is carried at from-bitfield-packages-local-files/things-to-store-and-run.json and the test was not changed to read it there",
+    "tools/choose-and-save-local-files/do-work/save-local-file-copy.test.ts.held": "loads read-data/invoke-local-files-target.ts, this tree's evolved copy, which imports `#workspace-records` (not an import map entry of this repository)",
+    "tools/choose-and-save-local-files/local-files-native-boundary.test.ts.held": "walks `process.cwd()/packages/local-files`, the package's own folder, to prove no device operation goes through compute.process; in this tree the same files sit under tools/choose-and-save-local-files",
+    "tools/choose-and-save-local-files/read-data/read-local-file-roots.test.ts.held": "imports `@bitfield/runtime-kit` through read-data/read-local-file-roots.ts (retired package runtime); needs the records-door form first",
+    "tools/choose-and-save-local-files/show/LocalFileTree.test.tsx.held": "a React component test (jsdom, testing-library); this repository runs node tests only and the component imports the shared ui parts and FloatingPanel of the apps tree"
+  },
+  "still_calls": {
+    "tools/choose-and-save-local-files/do-work/ask-local-file-display.ts": [
+      "retired package runtime"
+    ],
+    "tools/choose-and-save-local-files/do-work/send-local-file-selection.ts": [
+      "retired package runtime"
+    ],
+    "tools/choose-and-save-local-files/read-data/read-local-file-roots.ts": [
+      "retired package runtime"
+    ]
+  }
+}

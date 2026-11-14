@@ -1,0 +1,33 @@
+import {
+  readAuthorizedBytes,
+  resolveHostedExperienceAuthority,
+  safeAuthorityError,
+} from "../../../../../stored-artifacts/hosted-experience-authority";
+
+export const dynamic = "force-dynamic";
+
+export async function GET(
+  request: Request,
+  context: {
+    params: Promise<{ byteRef: string[]; experienceRef: string }>;
+  },
+) {
+  try {
+    const { byteRef, experienceRef } = await context.params;
+    const authority = await resolveHostedExperienceAuthority(
+      request,
+      experienceRef,
+      "bytes",
+    );
+    const result = await readAuthorizedBytes(authority, byteRef);
+    return new Response(result.bytes, {
+      headers: {
+        "Cache-Control": "private, no-store",
+        "Content-Type": result.contentType,
+        "X-Content-Multihash": result.multihash,
+      },
+    });
+  } catch (error) {
+    return safeAuthorityError(error);
+  }
+}

@@ -1,0 +1,1008 @@
+{
+  "package": "market-data-feed",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::market-data-feed::placeable-surface::market-data-feed",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "icon": "Radar",
+        "id": "market-data-feed.panel",
+        "kind": "placeable-surface",
+        "label": "Market Data",
+        "material_target": "market-data-feed",
+        "factflow_ref": "package::market-data-feed::factflow::surface",
+        "order": 780,
+        "surface_id": "market-data-feed.panel",
+        "placement_labels": [
+          "trading-workspace"
+        ],
+        "placement_order_key": "000000780:market-data-feed.panel",
+        "package_entry": {
+          "package_name": "market-data-feed",
+          "entry_name": "market-data-feed"
+        },
+        "materialTarget": "market-data-feed",
+        "placementLabels": [
+          "trading-workspace"
+        ],
+        "orderKey": "000000780:market-data-feed.panel"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::market-data-feed::factflow::surface",
+      "address_mode": "identity_text",
+      "path": [
+        "package-primitive",
+        "factflow"
+      ],
+      "payload": {
+        "kind": "bitfield-eeaf-factflow",
+        "journal": {
+          "address_label": "market-data-feed.surface.journal"
+        },
+        "fact_sources": [
+          {
+            "address": "package::market-data-feed::primitive-contract"
+          },
+          {
+            "address": "package::market-data-feed::capability-operation-graph"
+          },
+          {
+            "address": "package::market-data-feed::signal::default-paper-cycle"
+          }
+        ],
+        "genesis": [
+          {
+            "address": "package::market-data-feed::placeable-surface::market-data-feed"
+          }
+        ],
+        "blockers": [
+          {
+            "address_label": "market-data-feed.blocker.account-portal"
+          },
+          {
+            "address_label": "market-data-feed.blocker.cpd-10f"
+          }
+        ],
+        "evidence": [
+          {
+            "address": "package::market-data-feed::entry::market-data-feed"
+          },
+          {
+            "address": "package::market-data-feed::primitive-contract"
+          },
+          {
+            "address": "package::market-data-feed::capability-operation-graph"
+          }
+        ],
+        "interpreter_facts": {
+          "facts": [
+            {
+              "address_label": "market-data-feed.facts.market-observation"
+            }
+          ],
+          "intents": [
+            {
+              "address_label": "market-data-feed.intent.sync-market-data"
+            }
+          ],
+          "effects": [
+            {
+              "address_label": "market-data-feed.effect.project-market-observation"
+            }
+          ],
+          "validation": [
+            {
+              "address_label": "market-data-feed.validation.provider-response"
+            }
+          ],
+          "permissions": [
+            {
+              "address_label": "market-data-feed.permission.credential-handle"
+            }
+          ],
+          "projections": [
+            {
+              "address_label": "market-data-feed.projection.surface"
+            }
+          ],
+          "materializations": [
+            {
+              "address_label": "market-data-feed.materialization.placeable-surface"
+            }
+          ]
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::market-data-feed::entry::market-data-feed",
+      "path": [
+        "packages",
+        "market-data-feed",
+        "entries",
+        "market-data-feed"
+      ],
+      "payload": {
+        "entry_name": "market-data-feed",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-market-data-feed.tsx",
+        "dynamic_read_selector_policy": "declared-provider-input-membership",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-market-data-feed"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::market-data-feed::input::market-bars",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "market-bars",
+        "is_default": true,
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "market-data-feed.market-bars"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "market-data-feed.market-bars",
+      "path": [
+        "packages",
+        "market-data-feed",
+        "generated-values",
+        "market-bars"
+      ],
+      "payload": null,
+      "payload_base64": "W10=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::market-data-feed::input::trading-agent-cycle",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "trading-agent-cycle",
+        "is_default": false,
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          },
+          "projection": {
+            "op": "path",
+            "path": [
+              0
+            ]
+          }
+        },
+        "value_address_label": "agent:trading-momentum.last-cycle"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::market-data-feed::primitive-contract",
+      "path": [
+        "package-primitive",
+        "contract"
+      ],
+      "payload": {
+        "kind": "bitfield-package-primitive-contract",
+        "version": 1,
+        "package": "market-data-feed",
+        "capability": "provider-neutral-market-observations",
+        "owns": [
+          "market_data_source",
+          "market_asset",
+          "market_quote",
+          "market_bar",
+          "market_calendar",
+          "watchlist"
+        ],
+        "reuses": [
+          "http-client",
+          "process-connectors",
+          "credentials-vault",
+          "connectable-services",
+          "observability"
+        ],
+        "blockers": [
+          "Provider connection",
+          "Connected account"
+        ],
+        "new_slot": false
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::market-data-feed::capability-operation-graph",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "capability-operation-graph"
+      ],
+      "payload": {
+        "kind": "bitfield-capability-operation-graph",
+        "version": 1,
+        "package": "market-data-feed",
+        "capability": "provider-neutral-market-observations",
+        "autonomy_boundary": "declares market observation operations; it never decides trades",
+        "operations": [
+          {
+            "id": "operation:market-data-feed.declare-market-sync-intent",
+            "owner": "market-data-feed",
+            "executes_via": [
+              "workflow",
+              "http-client",
+              "credentials-vault"
+            ],
+            "inputs": [
+              "source_ref",
+              "symbol_ref",
+              "interval_ref",
+              "credential_ref",
+              "idempotency_key"
+            ],
+            "produces": [
+              "market_data_sync_intent",
+              "source_fingerprint_ref",
+              "market_data_request"
+            ],
+            "blockers": [
+              "Provider connection",
+              "Connected account"
+            ]
+          },
+          {
+            "id": "operation:market-data-feed.project-market-observation",
+            "owner": "market-data-feed",
+            "executes_via": [
+              "record_from_matching_records"
+            ],
+            "inputs": [
+              "provider_response_ref",
+              "source_fingerprint_ref"
+            ],
+            "produces": [
+              "market_quote",
+              "market_bar",
+              "market_calendar",
+              "accepted_state_noop_ref"
+            ],
+            "blockers": [
+              "Provider connection"
+            ]
+          }
+        ],
+        "evidence_outputs": [
+          "source_fingerprint_ref",
+          "accepted_state_noop_ref",
+          "feed_freshness_ref"
+        ],
+        "execution_boundaries": {
+          "http-client": "owns provider HTTP",
+          "process-connectors": "owns process-backed vendor bridge declarations",
+          "workflow": "owns refresh sequencing",
+          "trade-order": "consumes market signal records without placing market-data decisions here"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::market-data-feed::strategy::default-paper-momentum",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "trading_strategy",
+        "strategy_ref": "strategy:default-paper-momentum",
+        "mode": "paper",
+        "name": "Default Paper Momentum",
+        "rules": {
+          "signal_source": "package-default-paper-mode",
+          "side": "buy",
+          "confidence_min": 0.7,
+          "max_notional": 1000
+        },
+        "risk_limits_ref": {
+          "address": "package::market-data-feed::risk-limits::default-paper"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::market-data-feed::risk-limits::default-paper",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "trade_risk_limits",
+        "risk_limits_ref": "risk-limits:default-paper",
+        "mode": "paper",
+        "max_order_notional": 1000,
+        "max_daily_notional": 5000,
+        "allowed_symbols": [
+          "AAPL"
+        ],
+        "live_money_allowed": false
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::market-data-feed::signal::default-paper-cycle",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "market_signal_candidate",
+        "event_type": "market_signal_candidate",
+        "cycle_id": "paper-cycle-default",
+        "strategy_ref": {
+          "address": "package::market-data-feed::strategy::default-paper-momentum"
+        },
+        "signal_ref": {
+          "address": "package::market-data-feed::signal::default-paper-cycle"
+        },
+        "account_ref": {
+          "address": "package::portfolio-connector::paper-account::default"
+        },
+        "permission_lease_ref": {
+          "address": "package::permission-lease::lease::default-paper-trading"
+        },
+        "instrument_ref": {
+          "symbol": "AAPL",
+          "asset_class": "equity"
+        },
+        "risk_limits_ref": {
+          "address": "package::market-data-feed::risk-limits::default-paper"
+        },
+        "idempotency_key": "paper-cycle-default",
+        "observed_at": "2026-05-15T00:00:00Z"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::market-data-feed::public-source::read-data",
+      "path": [
+        "packages",
+        "market-data-feed",
+        "public-sources",
+        "read-data"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "read-data"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::market-data-feed::feed-config::default",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "feed-config"
+      ],
+      "payload": {
+        "kind": "market_data_feed_config",
+        "connection_id": "service_connection:alpaca",
+        "watchlist": [
+          "AAPL",
+          "MSFT",
+          "NVDA",
+          "SPY"
+        ],
+        "timeframe": "5Min",
+        "bar_limit": 120,
+        "request": {
+          "url_template": "https://data.alpaca.markets/v2/stocks/bars?symbols={symbols}&timeframe={timeframe}&limit={limit}",
+          "method": "GET",
+          "headers": {
+            "accept": "application/json"
+          },
+          "timeout_ms": 30000,
+          "credential_injections": [
+            {
+              "field_id": "api_key_id",
+              "placement": {
+                "kind": "header",
+                "name": "APCA-API-KEY-ID"
+              }
+            },
+            {
+              "field_id": "api_secret_key",
+              "placement": {
+                "kind": "header",
+                "name": "APCA-API-SECRET-KEY"
+              }
+            }
+          ]
+        },
+        "bars_address": "market-data-feed.market-bars",
+        "status_address": "market-data-feed.feed-status"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::market-data-feed::workflow-action::pull-market-bars",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:pull-market-bars",
+        "kind": "action",
+        "name": "pull-market-bars",
+        "description": "Pull live market bars through the connected data service and publish them.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "feed_config_address"
+          ],
+          "properties": {
+            "feed_config_address": {
+              "type": "string"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "read_feed_config",
+            "kind": "ask",
+            "config": {
+              "name": "engine.operation.label-addressed",
+              "input": {
+                "operation_label": "engine.operation.read-current",
+                "address_label": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "feed_config_address"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "prepare_request",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "python3",
+                  "-c",
+                  "import json,sys\nout=sys.argv[1]; data=json.loads(sys.argv[2])\ncfg=(data.get('payload') if data.get('found') else None) or {}\nreq=cfg.get('request') or {}\nsymbols=','.join(cfg.get('watchlist') or [])\nurl=(req.get('url_template') or '').replace('{symbols}',symbols).replace('{timeframe}',str(cfg.get('timeframe',''))).replace('{limit}',str(cfg.get('bar_limit','')))\nhx=lambda s:''.join(format(b,'02x') for b in s.encode())\ninj=[{'secret_name':'service-connection-'+hx(cfg.get('connection_id',''))+'-field-'+hx(i.get('field_id','')),'placement':i.get('placement')} for i in (req.get('credential_injections') or [])]\nplan={'url':url,'method':req.get('method','GET'),'headers':req.get('headers') or {},'injections':inj,'bars_address':cfg.get('bars_address'),'status_address':cfg.get('status_address'),'timeout_ms':req.get('timeout_ms',30000),'config_found':bool(data.get('found'))}\njson.dump(plan,open(out,'w'))\nprint(json.dumps(plan))",
+                  "feed-plan.json",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "read_feed_config",
+                      "path": "output.text"
+                    }
+                  }
+                ],
+                "cwd": null,
+                "timeout_ms": 60000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": "feed-plan.json",
+                    "content_type": "application/json"
+                  }
+                ],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "mint_handles",
+            "kind": "loop",
+            "config": {
+              "source": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "prepare_request",
+                  "path": "output.captured_fds.0.bytes.base64"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.decode",
+                    "args": {
+                      "encoding": "base64"
+                    }
+                  },
+                  {
+                    "op": "op:core.json_parse"
+                  },
+                  {
+                    "op": "op:core.lookup",
+                    "args": {
+                      "key": "injections"
+                    }
+                  }
+                ]
+              },
+              "item_var": "injection",
+              "parallel": false,
+              "definition_id": "action:mint-credential-injection-handle"
+            }
+          },
+          {
+            "id": "assemble_request",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "python3",
+                  "-c",
+                  "import json,sys\nout=sys.argv[1];plan=json.loads(sys.argv[2]);handles=json.loads(sys.argv[3])\nif not isinstance(handles,list): handles=[handles]\ncred=[]\nfor i,inj in enumerate(plan.get('injections') or []):\n    h=handles[i] if i<len(handles) else {}\n    hv=h if isinstance(h,str) else (h.get('handle') if isinstance(h,dict) else None)\n    if not hv: raise SystemExit('missing credential handle for '+str(inj.get('secret_name')))\n    cred.append({'handle':hv,'placement':inj.get('placement')})\nreq={'url':plan['url'],'method':plan.get('method','GET'),'headers':plan.get('headers') or {},'credential_injections':cred,'timeout_ms':plan.get('timeout_ms',30000),'bars_address':plan.get('bars_address'),'status_address':plan.get('status_address')}\njson.dump(req,open(out,'w'))\nprint(json.dumps(req))",
+                  "bars-request.json",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "prepare_request",
+                      "path": "output.captured_fds.0.bytes.base64"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.decode",
+                        "args": {
+                          "encoding": "base64"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "mint_handles",
+                      "path": "output"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.stringify",
+                        "args": {
+                          "format": "json"
+                        }
+                      }
+                    ]
+                  }
+                ],
+                "cwd": null,
+                "timeout_ms": 60000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": "bars-request.json",
+                    "content_type": "application/json"
+                  }
+                ],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "http_fetch",
+            "kind": "ask",
+            "config": {
+              "name": "slot::http-client",
+              "output": {
+                "decode": "bytes"
+              },
+              "input": {
+                "url": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "prepare_request",
+                    "path": "output.captured_fds.0.bytes.base64"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "url"
+                      }
+                    }
+                  ]
+                },
+                "method": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "prepare_request",
+                    "path": "output.captured_fds.0.bytes.base64"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "method"
+                      }
+                    }
+                  ]
+                },
+                "headers": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "prepare_request",
+                    "path": "output.captured_fds.0.bytes.base64"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "headers"
+                      }
+                    }
+                  ]
+                },
+                "body": null,
+                "credential_injections": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "mint_handles",
+                    "path": "output"
+                  }
+                },
+                "timeout_ms": 30000
+              }
+            }
+          },
+          {
+            "id": "normalize_bars",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "python3",
+                  "-c",
+                  "import json\nout='bars-normalized.json'\ntry: resp=json.loads(open('http-response.json').read())\nexcept Exception: resp={}\nbody=resp.get('body') if isinstance(resp,dict) else None\nif isinstance(body,list):\n    try: body=bytes(body).decode('utf-8')\n    except Exception: body=None\nif isinstance(body,str):\n    try: body=json.loads(body)\n    except Exception: body=None\ndata=body if body is not None else resp\nbars=[]\ndef add(sym,b):\n    if not isinstance(b,dict): return\n    ts=b.get('t') if 't' in b else b.get('timestamp')\n    if isinstance(ts,str):\n        try: ts=int(__import__('datetime').datetime.fromisoformat(ts.replace('Z','+00:00')).timestamp()*1000)\n        except Exception: pass\n    bars.append({'symbol':sym or b.get('S') or b.get('symbol'),'timestamp':ts,'open':b.get('o') if 'o' in b else b.get('open'),'high':b.get('h') if 'h' in b else b.get('high'),'low':b.get('l') if 'l' in b else b.get('low'),'close':b.get('c') if 'c' in b else b.get('close'),'volume':b.get('v') if 'v' in b else b.get('volume')})\nnode=data.get('bars') if isinstance(data,dict) else data\nif isinstance(node,dict):\n    for sym,arr in node.items():\n        for b in (arr or []): add(sym,b)\nelif isinstance(node,list):\n    for b in node: add(None,b)\nsc=resp.get('status_code') if isinstance(resp,dict) else None\nstatus={'state':'live' if bars else 'error','bar_count':len(bars),'http_status':sc,'fetched_at':__import__('datetime').datetime.now(__import__('datetime').timezone.utc).isoformat()}\njson.dump({'bars':bars,'status':status},open(out,'w'))\nprint(json.dumps({'bars':bars,'status':status}))"
+                ],
+                "cwd": null,
+                "timeout_ms": 60000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "http-response.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "step_bytes",
+                      "step": "http_fetch"
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": "bars-normalized.json",
+                    "content_type": "application/json"
+                  }
+                ],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "write_bars",
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "prepare_request",
+                      "path": "output.captured_fds.0.bytes.base64"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.decode",
+                        "args": {
+                          "encoding": "base64"
+                        }
+                      },
+                      {
+                        "op": "op:core.json_parse"
+                      },
+                      {
+                        "op": "op:core.lookup",
+                        "args": {
+                          "key": "bars_address"
+                        }
+                      }
+                    ]
+                  },
+                  "path": [],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "normalize_bars",
+                      "path": "output.captured_fds.0.bytes.base64"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.decode",
+                        "args": {
+                          "encoding": "base64"
+                        }
+                      },
+                      {
+                        "op": "op:core.json_parse"
+                      },
+                      {
+                        "op": "op:core.lookup",
+                        "args": {
+                          "key": "bars"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "prepare_request",
+                      "path": "output.captured_fds.0.bytes.base64"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.decode",
+                        "args": {
+                          "encoding": "base64"
+                        }
+                      },
+                      {
+                        "op": "op:core.json_parse"
+                      },
+                      {
+                        "op": "op:core.lookup",
+                        "args": {
+                          "key": "status_address"
+                        }
+                      }
+                    ]
+                  },
+                  "path": [],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "normalize_bars",
+                      "path": "output.captured_fds.0.bytes.base64"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.decode",
+                        "args": {
+                          "encoding": "base64"
+                        }
+                      },
+                      {
+                        "op": "op:core.json_parse"
+                      },
+                      {
+                        "op": "op:core.lookup",
+                        "args": {
+                          "key": "status"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "id": "return_result",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "normalize_bars",
+                  "path": "output.captured_fds.0.bytes.base64"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.decode",
+                    "args": {
+                      "encoding": "base64"
+                    }
+                  },
+                  {
+                    "op": "op:core.json_parse"
+                  },
+                  {
+                    "op": "op:core.lookup",
+                    "args": {
+                      "key": "status"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::market-data-feed::trigger-rule::pull-market-bars-on-connection-change",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "id": "trigger:pull-market-bars-on-connection-change",
+        "topic": "attribute_changed",
+        "trigger_type": "delta",
+        "is_active": true,
+        "match_condition": {
+          "conditions": [
+            {
+              "$bind": {
+                "select": {
+                  "from": "change",
+                  "path": "property_id"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.in_list",
+                    "args": {
+                      "values": [
+                        "prop:connection:credential_handle",
+                        "prop:connection:connected_at"
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:pull-market-bars",
+            "include_steps": false,
+            "include_output": false,
+            "input": {
+              "feed_config_address": "package::market-data-feed::feed-config::default"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-market-data-feed",
+      "source_path": "built-stored-bytes/entry-bytes-market-data-feed",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-market-data-feed.source-closure.json"
+    }
+  ]
+}

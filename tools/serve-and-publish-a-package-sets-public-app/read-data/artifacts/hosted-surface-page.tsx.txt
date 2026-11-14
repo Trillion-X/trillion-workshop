@@ -1,0 +1,60 @@
+import {
+  publicExperienceManifest,
+  resolveHostedExperienceAuthority,
+} from "./hosted-experience-authority";
+import { HostedSurfaceClient } from "./hosted-surface-client";
+
+function importMap(manifest: Record<string, unknown>, publicationRef: string) {
+  const raw = manifest.browser_import_map;
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return { imports: {} };
+  const imports: Record<string, string> = {};
+  for (const [specifier, path] of Object.entries(raw)) {
+    if (
+      typeof specifier !== "string" || !specifier
+      || typeof path !== "string" || !path
+      || path.split("/").some((part) => !part || part === "." || part === ".." || part.includes("\\"))
+    ) continue;
+    imports[specifier] = `/api/experience/${encodeURIComponent(publicationRef)}/bytes/${path.split("/").map(encodeURIComponent).join("/")}`;
+  }
+  return { imports };
+}
+
+export async function HostedSurfacePage({
+  cookieHeader,
+  publicationRef,
+  signedEvidence,
+}: {
+  cookieHeader: string | null;
+  publicationRef: string;
+  signedEvidence: string | null;
+}) {
+  try {
+    const headers = new Headers();
+    if (cookieHeader) headers.set("cookie", cookieHeader);
+    if (signedEvidence) headers.set("x-bitfield-signed-link", signedEvidence);
+    const request = new Request("https://buyer-runtime.invalid/", { headers });
+    const authority = await resolveHostedExperienceAuthority(
+      request,
+      publicationRef,
+      "manifest",
+    );
+    const manifest = publicExperienceManifest(authority);
+    const imports = importMap(manifest, publicationRef);
+    return (
+      <main className="buyer-root" data-buyer-experience={publicationRef}>
+        <script type="importmap">{JSON.stringify(imports)}</script>
+        <HostedSurfaceClient
+          manifest={manifest}
+          projectionRequestPath={`/api/experience/${encodeURIComponent(publicationRef)}/manifest`}
+          publicationRef={publicationRef}
+        />
+      </main>
+    );
+  } catch {
+    return (
+      <main className="buyer-state" role="alert">
+        This experience is not available.
+      </main>
+    );
+  }
+}

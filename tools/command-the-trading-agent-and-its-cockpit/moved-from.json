@@ -1,0 +1,90 @@
+{
+  "about": "Files restored byte for byte from the retired bitfield-packages repository (standing order: originals move wholesale, no rewrites from scratch).",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/investment-command/do-work/run-investment-command-action.ts",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/command-the-trading-agent-and-its-cockpit/do-work/run-investment-command-action.ts",
+      "source_identity": "1f:acbfbef6ac2ce101761d82df89b1d5e1dced88e23f10050c1b67ef2946444460",
+      "identity": "1f:ac57ffed2d45078063cf9baa22dadb4854ec42175b3c9aa4434dee69930d0a8e"
+    },
+    {
+      "from": "packages/investment-command/read-data/README.md",
+      "commit": "9c1c1919cdaf9a6842c1751eb380337644e2c958",
+      "to": "tools/command-the-trading-agent-and-its-cockpit/read-data/README.md",
+      "source_identity": "1f:b749c0f12c884f80fab68745a75cf89401a57b5e0ddf81435766457595e00512",
+      "identity": "1f:b749c0f12c884f80fab68745a75cf89401a57b5e0ddf81435766457595e00512"
+    },
+    {
+      "from": "packages/investment-command/read-data/cockpit-board.ts",
+      "commit": "ac80a8a835867f7650df4e7e148a9025c0c1da22",
+      "to": "tools/command-the-trading-agent-and-its-cockpit/read-data/cockpit-board.ts",
+      "source_identity": "1f:55da8c6a22d2dfe6db405a52e64cf03c618ddeabee8fe4243c15427686b40d7d",
+      "identity": "1f:064fc9ead95b20c062f2cd24aad2cd2daa0ac809ff243af32df1cf74594e6b87"
+    },
+    {
+      "from": "packages/investment-command/read-data/investment-command-surface.ts",
+      "commit": "422e50317271fc2e6bc188c0ffc832202b142963",
+      "to": "tools/command-the-trading-agent-and-its-cockpit/read-data/investment-command-surface.ts",
+      "source_identity": "1f:aba7d698865f6ef0d5b061cf334e5199f50440db03d14c8ceda3c2d4855d4f92",
+      "identity": "1f:db3f2bd9d2f6eaffd1b5c6da3fa52e2382162f05a85e436649a3b2a2165d7c60"
+    },
+    {
+      "from": "packages/investment-command/read-data/read-trading-agent-cycle.ts",
+      "commit": "ac80a8a835867f7650df4e7e148a9025c0c1da22",
+      "to": "tools/command-the-trading-agent-and-its-cockpit/read-data/read-trading-agent-cycle.ts",
+      "source_identity": "1f:cd872467fd7da2a17b7440270a4913f226e7de2bf191f494afc961126b91b418",
+      "identity": "1f:cd872467fd7da2a17b7440270a4913f226e7de2bf191f494afc961126b91b418"
+    },
+    {
+      "from": "packages/investment-command/read-data/read-trading-workspace-layout-state.ts",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/command-the-trading-agent-and-its-cockpit/read-data/read-trading-workspace-layout-state.ts",
+      "source_identity": "1f:1f58dcaee48e23f12fd0e16c1e0b39ed0650146c906169aff04f510b6633e7e8",
+      "identity": "1f:4ddb26f6790d79d2178ae21d91db34fd5f5cc73c0f48b5128488500344813bf2"
+    },
+    {
+      "from": "packages/investment-command/show/InvestmentCommandPanel.tsx",
+      "commit": "ac80a8a835867f7650df4e7e148a9025c0c1da22",
+      "to": "tools/command-the-trading-agent-and-its-cockpit/show/InvestmentCommandPanel.tsx",
+      "source_identity": "1f:9ec43b89604b04bdf059122311cf582634a380d37019797d47066d17aadb8b04",
+      "identity": "1f:4e5fc19960153c34f60b96fb91b151e00401da475e3db8b15b0dbaa22bad3d11"
+    },
+    {
+      "from": "packages/investment-command/show/README.md",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/command-the-trading-agent-and-its-cockpit/show/README.md",
+      "source_identity": "1f:8d0d4a847408937bea3047426ab3bd5f38542ad8cb0efff2ddf8b8c22d5b1e6c",
+      "identity": "1f:8d0d4a847408937bea3047426ab3bd5f38542ad8cb0efff2ddf8b8c22d5b1e6c"
+    },
+    {
+      "from": "packages/investment-command/show/mount-investment-command.tsx",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/command-the-trading-agent-and-its-cockpit/show/mount-investment-command.tsx",
+      "source_identity": "1f:a8f9f8a7fae63662ba052856d2794d2522c6ae4c2fa1c6dc87e6a129d50ca8e1",
+      "identity": "1f:97bccab1d60090d6127b81943c8fff6809183a1a6f659cdb428e34a44513bb96"
+    },
+    {
+      "from": "packages/investment-command/things-to-store-and-run.json",
+      "commit": "9c1c1919cdaf9a6842c1751eb380337644e2c958",
+      "to": "tools/command-the-trading-agent-and-its-cockpit/things-to-store-and-run.json",
+      "source_identity": "1f:b719d2c446d384a5811b1337bf5b991e5f06aeb103c2727a97b2a41a8a6f27c7",
+      "identity": "1f:b719d2c446d384a5811b1337bf5b991e5f06aeb103c2727a97b2a41a8a6f27c7"
+    }
+  ],
+  "still_calls": {
+    "tools/command-the-trading-agent-and-its-cockpit/do-work/run-investment-command-action.ts": [
+      "retired package runtime"
+    ],
+    "tools/command-the-trading-agent-and-its-cockpit/read-data/read-trading-agent-cycle.ts": [
+      "a package path of the old app that is not in this tree"
+    ],
+    "tools/command-the-trading-agent-and-its-cockpit/show/InvestmentCommandPanel.tsx": [
+      "a package path of the old app that is not in this tree",
+      "retired package runtime"
+    ]
+  }
+}

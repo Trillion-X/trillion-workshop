@@ -1,0 +1,127 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { publishReviewedArticle, readCurrentImageArchive, replaceArchivedArticle } from './publish-reviewed-article.mjs';
+
+const existing = { id: 'page:article', kind: 'public-sales-page', route_path: '/article/one', schema: { '@type': 'Article' }, title: 'Old' };
+const other = { id: 'page:other', kind: 'public-sales-page', route_path: '/about', title: 'About' };
+const candidate = {
+  page: { ...existing, title: 'New', blocks: [{ kind: 'paragraph', text: 'Current candidate' }] },
+  route_path: existing.route_path,
+  input_bases: [{ address: 'document:one', revision: 'revision:current' }],
+};
+const archive = Buffer.from(JSON.stringify({ count: 2, rows: [existing, other] }));
+
+test('replaces only the matching Article row and preserves archive data and other rows', () => {
+  const updated = JSON.parse(replaceArchivedArticle(archive, candidate));
+  assert.equal(updated.count, 2);
+  assert.deepEqual(updated.rows[0], candidate.page);
+  assert.deepEqual(updated.rows[1], other);
+});
+
+test('refuses an ambiguous route and non-Article candidate', () => {
+  const appended = JSON.parse(replaceArchivedArticle(Buffer.from(JSON.stringify({count:1, rows:[other]})), candidate));
+  assert.deepEqual(appended.rows, [other,candidate.page]);
+  assert.equal(appended.count,2);
+  assert.throws(() => replaceArchivedArticle(Buffer.from(JSON.stringify({ rows: [existing, existing] })), candidate), /route conflicts/);
+  assert.throws(() => replaceArchivedArticle(archive, { ...candidate, page: { ...candidate.page, schema: undefined } }), /not one Article/);
+});
+
+test('image archive reader copies only the described files and removes its container', () => {
+  const root = mkdtempSync(join(tmpdir(), 'article-image-read-'));
+  const removed = [];
+  const description = JSON.stringify({ pages: [{ fallback_pages_file: 'content/pages.json' }] });
+  const rows = JSON.stringify({ rows: [existing] });
+  const run = (command, args, options) => {
+    if (command === 'fly') { assert.deepEqual(args, ['auth', 'docker']); return ''; }
+      if (command !== 'docker') throw new Error(`unexpected command ${command}`);
+    if (args[0] === 'create') return 'abcdef0123456789\n';
+    if (args[0] === 'cp') {
+      const source = args[1];
+      const destination = args[2];
+      writeFileSync(destination, source.endsWith('/app/page-description.json') ? description : rows);
+      return '';
+    }
+    if (args[0] === 'rm') { removed.push(args[2]); return ''; }
+    return '';
+  };
+  try {
+    const result = readCurrentImageArchive({ image: 'registry.fly.io/example:release-current', workspace: root, run });
+    assert.deepEqual(JSON.parse(result.archiveBytes), { rows: [existing] });
+    assert.equal(result.archivePath, 'content/pages.json');
+    assert.deepEqual(removed, ['abcdef0123456789']);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('deploy is impossible without an internal rendered review of the exact candidate', async () => {
+  let deployed = false;
+  await assert.rejects(publishReviewedArticle({ document_ref: 'documents::one' }, {
+    currentProviderApplication: async () => 'example',
+    prepareCurrentDocument: async () => candidate,
+    inputBasesAreCurrent: async () => true,
+    readBase: async (application) => ({ provider_application: application, image: 'registry.fly.io/example:release-current' }),
+    readArchive: async () => ({ description: { pages: [{ fallback_pages_file: 'pages.json' }] }, archivePath: 'pages.json', archiveBytes: archive }),
+    reviewRenderedCandidate: undefined,
+    deploy: async () => { deployed = true; },
+  }), /reviewRenderedCandidate owner is unavailable/);
+  assert.equal(deployed, false);
+});
+
+test('the exact reviewed archive deploys only after input bases are rechecked current', async () => {
+  const root = mkdtempSync(join(tmpdir(), 'article-publish-test-'));
+  let rendered;
+  let deployed;
+  const deps = {
+    currentProviderApplication: async () => 'example',
+    prepareCurrentDocument: async () => candidate,
+    inputBasesAreCurrent: async ({ input_bases }) => input_bases === candidate.input_bases,
+    createWorkspace: () => root,
+    removeWorkspace: () => {},
+    readBase: async (application) => ({ provider_application: application, image: 'registry.fly.io/example:release-current' }),
+    readArchive: async () => ({ description: { pages: [{ fallback_pages_file: 'content/pages.json' }] }, archivePath: 'content/pages.json', archiveBytes: deployed ? rendered.proposedArchive : archive }),
+    inspectImage: () => ({ Os: 'linux', Architecture: 'amd64', Config: { Env: [], Entrypoint: ['/serve'], WorkingDir: '/app' } }),
+    reviewRenderedCandidate: async (input) => {
+      rendered = input;
+      return {
+        status: 'passed', candidate_identity: JSON.stringify(candidate.page),
+        prospectiveArchiveBytes: input.proposedArchive,
+        verdicts: ['factual', 'writing', 'design'].map((kind) => ({ kind, status: 'passed' })),
+        screenshot: Buffer.from('captured screenshot'),
+      };
+    },
+    deploy: async (input) => {
+      deployed = input;
+      return { share_url: 'https://example.test' };
+    },
+  };
+  try {
+    const result = await publishReviewedArticle({ session: {}, send: () => {}, document_ref: 'documents::one' }, deps);
+    assert.equal(result.share_url, 'https://example.test');
+    assert.equal(result.article_readback.verified, true);
+    assert.equal(deployed.review.prospectiveArchiveBytes.toString('utf8'), rendered.proposedArchive.toString('utf8'));
+    assert.equal(readFileSync(join(deployed.siteRoot, 'content/pages.json'), 'utf8'), rendered.proposedArchive.toString('utf8'));
+    assert.match(readFileSync(join(deployed.siteRoot, 'Dockerfile'), 'utf8'), /FROM --platform=linux\/amd64 registry\.fly\.io\/example:release-current/);
+    assert.match(readFileSync(join(deployed.siteRoot, 'Dockerfile'), 'utf8'), /COPY content\/pages\.json \/app\/content\/pages\.json/);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('a stale input basis after review prevents deployment', async () => {
+  let deployed = false;
+  await assert.rejects(publishReviewedArticle({ document_ref: 'documents::one' }, {
+    currentProviderApplication: async () => 'example',
+    prepareCurrentDocument: async () => candidate,
+    inputBasesAreCurrent: async () => false,
+    readBase: async (application) => ({ provider_application: application, image: 'registry.fly.io/example:release-current' }),
+    readArchive: async () => ({ description: {}, archivePath: 'pages.json', archiveBytes: archive }),
+    reviewRenderedCandidate: async () => ({
+      status: 'passed', candidate_identity: JSON.stringify(candidate.page),
+      prospectiveArchiveBytes: Buffer.from(JSON.stringify({ count: 2, rows: [candidate.page, other] }) + '\n'),
+      verdicts: ['factual', 'writing', 'design'].map((kind) => ({ kind, status: 'passed' })),
+      screenshot: Buffer.from('captured screenshot'),
+    }),
+    deploy: async () => { deployed = true; },
+  }), /inputs changed/);
+  assert.equal(deployed, false);
+});

@@ -1,0 +1,33 @@
+import { headers } from "next/headers";
+import { HostedSurfacePage } from "./stored-artifacts/hosted-surface-page";
+
+function first(value: string | string[] | undefined): string | null {
+  return Array.isArray(value) ? value[0] ?? null : value ?? null;
+}
+
+function isAllowedBuyerQuery(params: Record<string, string | string[] | undefined>): boolean {
+  return Object.keys(params).every((key) => key === "token");
+}
+
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const publicationRef = process.env.BITFIELD_PUBLICATION_REF?.trim();
+  if (!publicationRef) {
+    return <main className="buyer-state">This experience is not available.</main>;
+  }
+  const requestHeaders = await headers();
+  const params = await searchParams;
+  if (!isAllowedBuyerQuery(params)) {
+    return <main className="buyer-state" role="alert">This experience is not available.</main>;
+  }
+  return (
+    <HostedSurfacePage
+      cookieHeader={requestHeaders.get("cookie")}
+      publicationRef={publicationRef}
+      signedEvidence={first(params.token)}
+    />
+  );
+}

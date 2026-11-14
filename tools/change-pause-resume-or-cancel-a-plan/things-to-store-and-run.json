@@ -1,0 +1,583 @@
+{
+  "package": "plan-lifecycle",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::plan-lifecycle::contract",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "plan-lifecycle"
+      ],
+      "payload": {
+        "kind": "package-boundary-contract",
+        "package": "plan-lifecycle",
+        "owns": [
+          "record work descriptor rows for the account-visible plan work surface",
+          "projection descriptors for current state and available actions",
+          "generic owner-action request materialization for package action descriptors"
+        ],
+        "does_not_own": [
+          "payment provider SDK behavior",
+          "checkout session execution",
+          "account identity internals",
+          "access entitlement storage",
+          "workflow internals",
+          "process runner internals",
+          "EEAF internals"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::plan-lifecycle::capability::record-work",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-package-capability",
+        "id": "capability:plan-lifecycle-record-work",
+        "package": "plan-lifecycle",
+        "label": "Change, pause, resume, or cancel",
+        "description": "Shows current account access and routes available account-owner actions through generic workflow owner targets without owning payment, account, or access internals.",
+        "owned_record_kinds": [
+          "record-work.field-descriptors",
+          "record-work.relationship-descriptors",
+          "record-work.projection-descriptors",
+          "record-work.rule-descriptors",
+          "record-work.owner-target-descriptors",
+          "record-work.action-descriptors"
+        ],
+        "reuses": [
+          "EEAF facts",
+          "record_from_matching_records",
+          "workflow owner actions",
+          "envelope routing",
+          "process-session",
+          "operation-records"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::plan-lifecycle::input::record-work-rows",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "recordWorkRows",
+        "kind": "bitfield-input-descriptor",
+        "is_default": true,
+        "label": "Plan work records",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          },
+          "projection": {
+            "op": "rows",
+            "fields": [
+              {
+                "column": 0,
+                "key": "role",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "payload",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              },
+              {
+                "column": 2,
+                "key": "address",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::plan-lifecycle::fields::current-account-work",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "record-work.field-descriptors",
+        "fields": [
+          {
+            "id": "label",
+            "label": "Current plan",
+            "paths": [
+              [
+                "label"
+              ],
+              [
+                "name"
+              ]
+            ],
+            "empty": "Not set"
+          },
+          {
+            "id": "state_text",
+            "label": "Status",
+            "paths": [
+              [
+                "state",
+                "label"
+              ],
+              [
+                "status",
+                "label"
+              ]
+            ],
+            "empty": "Not set"
+          },
+          {
+            "id": "renewal_text",
+            "label": "Renews",
+            "paths": [
+              [
+                "renewal",
+                "label"
+              ],
+              [
+                "next_step",
+                "label"
+              ]
+            ],
+            "empty": "No renewal date"
+          },
+          {
+            "id": "price_text",
+            "label": "Price",
+            "paths": [
+              [
+                "price",
+                "label"
+              ],
+              [
+                "amount",
+                "label"
+              ]
+            ],
+            "empty": "No price"
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::plan-lifecycle::relationships::current-account-work",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "record-work.relationship-descriptors",
+        "relationships": [
+          {
+            "id": "available-options",
+            "label": "Available options",
+            "fromRole": "subjects",
+            "toRole": "options",
+            "fromField": "id",
+            "toField": "subject_id"
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::plan-lifecycle::projection::current-account-work",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "record-work.projection-descriptors",
+        "projections": [
+          {
+            "id": "record-work-projection:current-account-work",
+            "label": "Plan and access",
+            "sourceRole": "subjects",
+            "titleField": "label",
+            "detailFields": [
+              "state_text",
+              "renewal_text",
+              "price_text"
+            ],
+            "summaryFields": [
+              "state_text",
+              "renewal_text",
+              "price_text"
+            ],
+            "relationshipIds": [
+              "available-options"
+            ],
+            "empty": {
+              "title": "No plan found",
+              "detail": "Plan details appear here when account records arrive."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::plan-lifecycle::rules::current-account-work",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "record-work.rule-descriptors",
+        "rules": [
+          {
+            "id": "needs-subject",
+            "message": "Plan details are not ready yet.",
+            "severity": "blocked",
+            "when": {
+              "missingRole": "subjects"
+            }
+          },
+          {
+            "id": "owner-says-action-unavailable",
+            "message": "This action is not available for the current plan.",
+            "severity": "blocked",
+            "when": {
+              "fieldEquals": {
+                "role": "subjects",
+                "path": [
+                  "action_locked"
+                ],
+                "value": true
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::plan-lifecycle::owner-targets::current-account-work",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "record-work.owner-target-descriptors",
+        "ownerTargets": [
+          {
+            "id": "owner-target:account-plan-work",
+            "target": "slot::workflow",
+            "operation": "execute_definition",
+            "definitionId": "action:account-plan-work.handle-request",
+            "includeSteps": false,
+            "includeOutput": true
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::plan-lifecycle::actions::current-account-work",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "record-work.action-descriptors",
+        "actions": [
+          {
+            "id": "change-plan",
+            "label": "Change plan",
+            "ownerTargetId": "owner-target:account-plan-work",
+            "subjectRole": "subjects",
+            "requiredRuleIds": [
+              "needs-subject",
+              "owner-says-action-unavailable"
+            ],
+            "copy": [
+              {
+                "key": "subject_id",
+                "from": "subject.id"
+              },
+              {
+                "key": "selected_option_id",
+                "from": "answers.selected_option_id"
+              }
+            ],
+            "input": {
+              "requested_work": "change-plan",
+              "intent": "primary"
+            }
+          },
+          {
+            "id": "pause-plan",
+            "label": "Pause",
+            "ownerTargetId": "owner-target:account-plan-work",
+            "subjectRole": "subjects",
+            "requiredRuleIds": [
+              "needs-subject",
+              "owner-says-action-unavailable"
+            ],
+            "copy": [
+              {
+                "key": "subject_id",
+                "from": "subject.id"
+              }
+            ],
+            "input": {
+              "requested_work": "pause",
+              "intent": "neutral"
+            }
+          },
+          {
+            "id": "resume-plan",
+            "label": "Resume",
+            "ownerTargetId": "owner-target:account-plan-work",
+            "subjectRole": "subjects",
+            "requiredRuleIds": [
+              "needs-subject",
+              "owner-says-action-unavailable"
+            ],
+            "copy": [
+              {
+                "key": "subject_id",
+                "from": "subject.id"
+              }
+            ],
+            "input": {
+              "requested_work": "resume",
+              "intent": "primary"
+            }
+          },
+          {
+            "id": "cancel-plan",
+            "label": "Cancel",
+            "ownerTargetId": "owner-target:account-plan-work",
+            "subjectRole": "subjects",
+            "requiredRuleIds": [
+              "needs-subject",
+              "owner-says-action-unavailable"
+            ],
+            "copy": [
+              {
+                "key": "subject_id",
+                "from": "subject.id"
+              },
+              {
+                "key": "confirmation_text",
+                "from": "answers.confirmation_text"
+              }
+            ],
+            "input": {
+              "requested_work": "cancel",
+              "intent": "destructive"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::plan-lifecycle::fixture::current-account-work",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "record-work.fixture",
+        "rows": [
+          {
+            "role": "subjects",
+            "payload": {
+              "id": "account-plan:starter",
+              "label": "Starter",
+              "state": {
+                "label": "Active"
+              },
+              "renewal": {
+                "label": "Renews July 1"
+              },
+              "price": {
+                "label": "$29 / month"
+              }
+            }
+          },
+          {
+            "role": "options",
+            "payload": {
+              "id": "account-plan:pro",
+              "subject_id": "account-plan:starter",
+              "label": "Pro"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "plan-lifecycle-ios-jscore",
+      "source_path": "show-ios-jscore/mount-plan-lifecycle-jscore.js"
+    },
+    {
+      "type": "record",
+      "address": "package::plan-lifecycle::entry::record-work-surface-descriptor",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "plan-lifecycle",
+        "entries",
+        "record-work-surface-descriptor"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "record-work-surface-descriptor",
+        "source_path": "show/plan-lifecycle-surface-descriptor.ts",
+        "export_name": "readPlanLifecycleSurfaceDescriptor",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-record-work-surface-descriptor"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::plan-lifecycle::entry::plan-lifecycle-ios-jscore",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "plan-lifecycle",
+        "entries",
+        "plan-lifecycle-ios-jscore"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "plan-lifecycle-ios-jscore",
+        "source_path": "show-ios-jscore/mount-plan-lifecycle-jscore.js",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-plan-lifecycle-ios-jscore"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::plan-lifecycle::native-screen-command-entry",
+      "address_mode": "identity_text",
+      "path": [
+        "package-primitive",
+        "native-screen-command-entry"
+      ],
+      "payload": {
+        "kind": "bitfield-native-screen-command-entry",
+        "source_path": "show-ios-jscore/mount-plan-lifecycle-jscore.js",
+        "readme_path": "show-ios-jscore/README.md"
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "read-portal-plan-state",
+      "source_path": "do-work/read-portal-plan-state.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "send-plan-lifecycle-event",
+      "source_path": "do-work/send-plan-lifecycle-event.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "plan-lifecycle-portal-surface",
+      "source_path": "show/app-shell/PlanLifecyclePortalSurface.tsx"
+    },
+    {
+      "type": "record",
+      "address": "package::plan-lifecycle::entry::plan-lifecycle-portal",
+      "build_source_path": "show/mount-plan-lifecycle-portal.tsx",
+      "path": [
+        "packages",
+        "plan-lifecycle",
+        "entries",
+        "plan-lifecycle-portal"
+      ],
+      "payload": {
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-plan-lifecycle-portal"
+        },
+        "entry_name": "plan-lifecycle-portal",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-plan-lifecycle-portal.tsx"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::plan-lifecycle::published-record::placeable-surface::plan",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "description": "Manage plan, billing, and account closure.",
+        "id": "plan",
+        "kind": "placeable-surface",
+        "label": "Plan & billing",
+        "material_target": "component:plan-lifecycle-actions",
+        "order": 50,
+        "package_entry": {
+          "entry_name": "plan-lifecycle-portal",
+          "package_name": "plan-lifecycle"
+        },
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000050:plan",
+        "section_id": "portal",
+        "section_label": "Portal",
+        "surface_id": "plan"
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-record-work-surface-descriptor",
+      "source_path": "built-stored-bytes/entry-bytes-record-work-surface-descriptor",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-record-work-surface-descriptor.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-plan-lifecycle-ios-jscore",
+      "source_path": "built-stored-bytes/entry-bytes-plan-lifecycle-ios-jscore",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-plan-lifecycle-ios-jscore.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-plan-lifecycle-portal",
+      "source_path": "built-stored-bytes/entry-bytes-plan-lifecycle-portal",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-plan-lifecycle-portal.source-closure.json"
+    }
+  ]
+}

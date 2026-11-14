@@ -1,0 +1,133 @@
+"use client";
+
+import React from "react";
+import { HostedTargetCarrierBoot } from "./hosted-target-carrier-client";
+
+type BuyerManifest = {
+  entry_byte_path?: unknown;
+  publication_ref?: unknown;
+  schema?: unknown;
+};
+
+function entryPath(manifest: BuyerManifest): string[] | null {
+  if (!Array.isArray(manifest.entry_byte_path)) return null;
+  const path = manifest.entry_byte_path.filter(
+    (item): item is string => typeof item === "string" && Boolean(item),
+  );
+  return path.length === manifest.entry_byte_path.length && path.length > 0
+    ? path
+    : null;
+}
+
+function entryUrl(publicationRef: string, path: string[]): string {
+  return `/api/experience/${encodeURIComponent(publicationRef)}/bytes/${
+    path.map(encodeURIComponent).join("/")
+  }`;
+}
+
+function MountedExperience({
+  publicationRef,
+  projectionRequestPath,
+  path,
+}: {
+  publicationRef: string;
+  projectionRequestPath: string;
+  path: string[];
+}) {
+  const mountRef = React.useRef<HTMLDivElement>(null);
+  const [failed, setFailed] = React.useState(false);
+
+  React.useEffect(() => {
+    let disposed = false;
+    let cleanup: (() => void) | undefined;
+    void fetch(projectionRequestPath, {
+      method: "POST",
+      cache: "no-store",
+      credentials: "same-origin",
+    }).then(async (response) => {
+      if (!response.ok) throw new Error("projection unavailable");
+      const privateProps: unknown = await response.json();
+      if (!privateProps || typeof privateProps !== "object" || Array.isArray(privateProps)) throw new Error("projection unavailable");
+      const module = await import(
+        /* webpackIgnore: true */
+        entryUrl(publicationRef, path)
+      );
+      if (disposed || typeof module.default !== "function" || !mountRef.current) {
+        if (!disposed) setFailed(true);
+        return;
+      }
+      const result = await module.default({ el: mountRef.current, props: privateProps });
+      if (typeof result === "function") cleanup = result;
+    }).catch(() => {
+      if (!disposed) setFailed(true);
+    });
+    return () => {
+      disposed = true;
+      cleanup?.();
+    };
+  }, [path.join("\0"), projectionRequestPath, publicationRef]);
+
+  return failed
+    ? <section className="buyer-state" role="alert">This experience could not be opened.</section>
+    : <div ref={mountRef} data-selected-experience-root="" />;
+}
+
+class BuyerErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { failed: boolean }
+> {
+  state = { failed: false };
+
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+
+  render() {
+    return this.state.failed
+      ? <section className="buyer-state" role="alert">This experience could not be opened.</section>
+      : this.props.children;
+  }
+}
+
+export function HostedSurfaceClient({
+  manifest,
+  projectionRequestPath,
+  publicationRef,
+}: {
+  manifest: BuyerManifest;
+  projectionRequestPath?: string;
+  publicationRef: string;
+}) {
+  const [accessDenied, setAccessDenied] = React.useState(false);
+  const [transportReady, setTransportReady] = React.useState(false);
+  const path = entryPath(manifest);
+  const denyAccess = React.useCallback(() => setAccessDenied(true), []);
+
+  if (accessDenied) {
+    return <section className="buyer-state" role="alert">Access is no longer active.</section>;
+  }
+
+  if (manifest.schema !== "hosted-buyer-manifest/v1" || !path) {
+    return <section className="buyer-state" role="alert">This experience is not available.</section>;
+  }
+
+  return (
+    <>
+      <HostedTargetCarrierBoot
+        onAuthorityDenied={denyAccess}
+        publicationRef={publicationRef}
+      />
+      <TransportReady onReady={() => setTransportReady(true)} />
+      <BuyerErrorBoundary>
+        {transportReady
+          ? <MountedExperience path={path} projectionRequestPath={projectionRequestPath ?? `/api/experience/${encodeURIComponent(publicationRef)}/manifest`} publicationRef={publicationRef} />
+          : <section className="buyer-state" aria-live="polite">Opening…</section>}
+      </BuyerErrorBoundary>
+    </>
+  );
+}
+
+function TransportReady({ onReady }: { onReady: () => void }) {
+  React.useEffect(onReady, [onReady]);
+  return null;
+}

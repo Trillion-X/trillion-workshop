@@ -1,0 +1,1851 @@
+import assert from 'node:assert/strict';
+import { EventEmitter } from 'node:events';
+import { createServer as createHttpServer } from 'node:http';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, readdirSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs'; // L136-EXEMPT: tests read their own workspace, no poller
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { PassThrough } from 'node:stream';
+import { spawnSync } from 'node:child_process';
+import test from 'node:test';
+import { chromium } from 'playwright';
+import { WebSocketServer } from 'ws';
+
+import { applyHostedProductDelta, configWithCurrentServingSettings, currentContainerBaseApplicationFromArgs, currentContainerBaseResult, deploymentRequestFromArgs, deploymentResultFromExtraction, installedAppProcessEnvironmentCommandsFromArgs, invokeHostedProductLogOperation, machineSizeRequestFromArgs, nativeContainerDeploymentRequestFromArgs, nativeContainerDeploymentResult, packageOwnedDeploymentPlan, providerEnvironmentSecret, retireProviderApplicationRequestFromArgs, runProviderDeployment, selectContainerArtifactDockerfileFromArgs } from './run-provider-deploy.mjs';
+
+test('a hosted derived-state refresh uses only the selected shared-product log', async () => {
+  const machine = { id: 'd8956e5b766d08', state: 'started', config: { env: {
+    BITFIELD_HOSTED_ACCOUNT_WORKER_JSON: JSON.stringify({ package_set: 'example', product_volume_name: 'product' }),
+    BITFIELD_PROCESS_WORKSPACE_MOUNTS_JSON: JSON.stringify({ product: { root: '/var/lib/bitfield/shared-product', access: 'read_only' } }),
+    BITFIELD_RUNTIME_KIT_HOME: '/opt/bitfield',
+  } } };
+  const commands = [];
+  const spawnChild = (_command, args) => {
+    commands.push(args);
+    const child = new EventEmitter();
+    child.stdout = new PassThrough();
+    child.stderr = new PassThrough();
+    setImmediate(() => {
+      child.stdout.end(args.some((part) => part.includes('--print-process-admission-policy')) ? '{"schema":"test.policy"}\n' : '');
+      child.stderr.end();
+      child.emit('close', 0, null);
+    });
+    return child;
+  };
+  const options = { fetchImplementation: async () => ({ ok: true, json: async () => [machine] }), readProviderCredential: () => 'held-by-owner', spawnChild, createId: () => 'chosen' };
+  const request = { operation_label: 'engine.operation.refresh-derived-state' };
+  assert.deepEqual(await invokeHostedProductLogOperation({ application: 'example', request }, options), { operation_label: request.operation_label, outcome: 'refreshed' });
+  assert.ok(commands.some((args) => args.some((part) => part.includes('--refresh-derived-state-in-log'))));
+  assert.ok(commands.some((args) => args.some((part) => part.includes('--print-process-admission-policy'))));
+  assert.ok(commands.some((args) => args.some((part) => part.includes('BITFIELD_PROCESS_ADMISSION_POLICY_JSON='))));
+  assert.ok(commands.some((args) => args.some((part) => part.includes('/var/lib/bitfield/shared-product/stored-data/envelope.log'))));
+  assert.ok(!commands.some((args) => args.some((part) => part.includes('engine-operation'))));
+  machine.config.env.BITFIELD_PROCESS_WORKSPACE_MOUNTS_JSON = JSON.stringify({ product: { root: '/var/lib/bitfield', access: 'read_only' } });
+  await assert.rejects(invokeHostedProductLogOperation({ application: 'example', request }, options), /isolated shared-product log/);
+});
+
+test('a hosted package delta uses the account worker product mount and the native atomic writer', async () => {
+  const request = { schema: 'bitfield.package_delta/v1', partition: 'example', package_ref: 'screen-arrangement', proposal_multihash: '1f:proposal', operations: [], ownership_proofs: [] };
+  const receipt = { schema: 'bitfield.package_delta_receipt/v1', partition: 'example', package_ref: request.package_ref, proposal_multihash: request.proposal_multihash, outcome: 'applied' };
+  const machine = { id: 'd8956e5b766d08', state: 'started', config: { env: {
+    BITFIELD_HOSTED_ACCOUNT_WORKER_JSON: JSON.stringify({ package_set: 'example', product_volume_name: 'product' }),
+    BITFIELD_PROCESS_WORKSPACE_MOUNTS_JSON: JSON.stringify({ product: { root: '/var/lib/bitfield/shared-product', access: 'read_only' } }),
+    BITFIELD_RUNTIME_KIT_HOME: '/opt/bitfield',
+  } } };
+  const commands = [];
+  const runnerHash = `1f:${'a'.repeat(64)}`;
+  const runnerPath = `/var/lib/bitfield/.bitfield/runtime-kit/app-log-storage-folders/app-log-storage-for-bitfield-app-${Buffer.from('example').toString('hex')}/runtime-kit/process-files-by-content-hash/app-state-from-log/bytes-${Buffer.from(runnerHash).toString('hex')}/bin/bitfield-runner`;
+  const installedStatus = { same_app_id: 'example', decision: 'already-open', requested_process_restart_fingerprint: {
+    executable_inputs: [{ name: 'shell-process-role.environment-path.BITFIELD_RUNNER_BINARY', path: runnerPath, multihash: runnerHash, byte_length: 100 }],
+  } };
+  const spawnChild = (_command, args) => {
+    commands.push(args);
+    const child = new EventEmitter();
+    child.stdout = new PassThrough();
+    child.stderr = new PassThrough();
+    setImmediate(() => {
+      if (args.some((part) => part.includes('--status-report-only'))) child.stdout.write(`${JSON.stringify(installedStatus)}\n`);
+      if (args.some((part) => part.includes('--apply-package-delta-to-log'))) child.stdout.write(`${JSON.stringify(receipt)}\n`);
+      child.stdout.end();
+      child.stderr.end();
+      child.emit('close', 0, null);
+    });
+    return child;
+  };
+  const options = { fetchImplementation: async () => ({ ok: true, json: async () => [machine] }), readProviderCredential: () => 'held-by-owner', spawnChild, createId: () => 'chosen' };
+  assert.deepEqual(await applyHostedProductDelta({ application: 'example', machine: machine.id, request }, options), receipt);
+  assert.equal(commands.length, 4);
+  assert.ok(commands[0].find((part) => part.includes('--status-report-only')));
+  assert.deepEqual(commands[1].slice(0, 3), ['ssh', 'sftp', 'put']);
+  assert.ok(commands[2].find((part) => part.includes('/var/lib/bitfield/shared-product/stored-data/envelope.log')));
+  assert.ok(commands[2].find((part) => part.includes(runnerPath)));
+  assert.ok(commands[3].find((part) => part.includes('rm -f')));
+  machine.config.env.BITFIELD_PROCESS_WORKSPACE_MOUNTS_JSON = JSON.stringify({ product: { root: '/var/lib/bitfield', access: 'read_only' } });
+  await assert.rejects(applyHostedProductDelta({ application: 'example', machine: machine.id, request }, options), /isolated shared-product log/);
+  assert.equal(commands.length, 4);
+});
+
+test('a signed layer uses the current serving image and the package-owned registry credential route', () => {
+  const parameters = {
+    application: 'example',
+    base_image: `registry.fly.io/example:serving@sha256:${'a'.repeat(64)}`,
+    image: 'registry.fly.io/example:stdout-isolated',
+    layer_file: 'signed-layer.tar',
+  };
+  const plan = packageOwnedDeploymentPlan({ kind: 'package-owned-deployment-request', profile: 'fly-append-image-layer', parameters });
+  assert.deepEqual(plan.steps, [
+    { current_image: parameters.base_image, application: 'example' },
+    { command: 'fly', args: ['auth', 'docker'] },
+    { command: 'crane', args: ['append', '--base', parameters.base_image, '--new_layer', 'signed-layer.tar', '--new_tag', parameters.image] },
+  ]);
+  assert.throws(() => packageOwnedDeploymentPlan({ kind: 'package-owned-deployment-request', profile: 'fly-append-image-layer', parameters: { ...parameters, layer_file: '../escape.tar' } }));
+  assert.throws(() => packageOwnedDeploymentPlan({ kind: 'package-owned-deployment-request', profile: 'fly-append-image-layer', parameters: { ...parameters, image: 'registry.fly.io/other:stdout-isolated' } }));
+  assert.deepEqual(deploymentResultFromExtraction(plan.result_extraction, {}), { schema: 'published-container-image/v1', image: parameters.image });
+});
+
+test('a machine image update names one machine and one app image', () => {
+  const plan = packageOwnedDeploymentPlan({ kind: 'package-owned-deployment-request', profile: 'fly-machine-image', parameters: { application: 'example', machine: 'd8956e5b766d08', image: 'registry.fly.io/example:stdout-isolated' } });
+  assert.deepEqual(plan.steps, [{ command: 'fly', args: ['machine', 'update', 'd8956e5b766d08', '--image', 'registry.fly.io/example:stdout-isolated', '--app', 'example', '--skip-health-checks', '--yes'] }]);
+});
+import { PUBLIC_FALLBACK_COMMAND, execMachineCommand, proveTheReleaseStarts, publicFallbackReadinessFromAnswer, readinessFromBootAnswer } from './prove-a-release-starts-before-it-goes-live.mjs';
+
+test('release readiness uses the same exact command through SSH when machine exec refuses it', async () => {
+  let observed;
+  const command = ['/opt/bitfield/bin/node', '-e', 'process.stdout.write("ready")'];
+  const reply = await execMachineCommand(async () => { throw new Error('machine exec refused'); },
+    'example-app', 'abc123def45678', command, async (request) => {
+      observed = request;
+      return { stdout: 'ready' };
+    });
+  assert.equal(reply.stdout, 'ready');
+  assert.deepEqual(observed, { application: 'example-app', machineId: 'abc123def45678', command });
+});
+import { verifyReleaseViewportPaint, viewportPaintDecision, viewportScene } from './verify-release-viewport-paint.mjs';
+
+test('a built image is tested before it can replace the serving image', () => {
+  const plan = packageOwnedDeploymentPlan({
+    kind: 'package-owned-deployment-request', profile: 'fly-built-image-trial',
+    parameters: { application: 'member-app' },
+  });
+  assert.equal(plan.site_root, 'required');
+  assert.deepEqual(plan.steps.map((step) => step.proof ?? (step.carry ? 'carry' : step.command)),
+    ['carry', 'fly', 'the-release-starts', 'fly']);
+  assert.ok(plan.steps[1].args.includes('--build-only'));
+  assert.ok(plan.steps[1].args.includes('--push'));
+  assert.equal(plan.steps[2].image, 'registry.fly.io/member-app:{release_label}');
+  assert.ok(plan.steps[3].args.includes('--image'));
+});
+
+test('the built-image trial refuses to build without a matching signed-in journey', async () => {
+  let spawned = false;
+  await assert.rejects(runProviderDeployment({
+    descriptor: { kind: 'package-owned-deployment-request', profile: 'fly-built-image-trial',
+      parameters: { application: 'member-app' } },
+    spawnChild: () => { spawned = true; throw new Error('should not build'); },
+    parentEnv: {},
+    resultFile: null,
+    releaseMemberReadiness: { application: 'another-app', storage: { session: 'present' },
+      authenticatedSelector: '[data-member-auth]', journeys: [{ name: 'Articles' }] },
+  }), /matching signed-in member journey/);
+  assert.equal(spawned, false);
+});
+
+test('the release browser paints through its private HTTP and WebSocket tunnel', async () => {
+  const server = createHttpServer((request, response) => {
+    response.setHeader('content-type', 'text/html');
+    response.end('<div id="root" aria-busy="true"></div><script>const ws=new WebSocket("ws://"+location.host+"/ws");ws.onopen=()=>ws.send("scene");ws.onmessage=()=>{document.querySelector("#root").removeAttribute("aria-busy");document.querySelector("#root").innerHTML="<svg width=300 height=200><circle cx=100 cy=100 r=80 fill=red /></svg>"}</script>');
+  });
+  const webSocketServer = new WebSocketServer({ server });
+  webSocketServer.on('connection', (socket) => socket.on('message', () => socket.send('ready')));
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+  try {
+    const answer = await verifyReleaseViewportPaint({
+      application: 'example', privateIp: 'fdaa::1', host: 'trial.example', waitMs: 3_000,
+      openTunnel: async () => ({ port: server.address().port, close: () => {} }),
+    });
+    assert.equal(answer.ready, true, answer.reason);
+  } finally {
+    for (const client of webSocketServer.clients) client.terminate();
+    await new Promise((resolve) => webSocketServer.close(resolve));
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
+test('the release browser refuses a painted missing-page-description error', async () => {
+  const server = createHttpServer((_request, response) => {
+    response.writeHead(503, { 'content-type': 'text/plain' });
+    response.end('This host has not been configured with a page description: no page description could be read at all.');
+  });
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+  try {
+    const answer = await verifyReleaseViewportPaint({
+      application: 'example', privateIp: 'fdaa::1', host: 'trial.example', waitMs: 3_000,
+      openTunnel: async () => ({ port: server.address().port, close: () => {} }),
+    });
+    assert.equal(answer.ready, false);
+    assert.match(answer.reason, /HTTP 503/);
+  } finally {
+    server.closeAllConnections();
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
+test('the candidate browser checks authenticated member panes when an owned fixture is supplied', async () => {
+  const server = createHttpServer((_request, response) => {
+    response.setHeader('content-type', 'text/html');
+    response.end(`<!doctype html><body style="background:#111;color:white"><main id="root"><svg width="300" height="200"><circle cx="100" cy="100" r="80" fill="red"/></svg><div id="member"></div></main><script>
+      if (localStorage.getItem('test-session') === 'active') {
+        const member = document.querySelector('#member');
+        member.innerHTML = '<div data-member-auth>Member home</div><button data-navigation-item class="nav-articles">Articles</button><button data-navigation-item class="nav-feed">Feed</button><section id="pane"></section>';
+        for (const name of ['articles', 'feed']) document.querySelector('.nav-' + name).addEventListener('click', () => {
+          document.querySelector('#pane').innerHTML = '<article id="' + name + '" style="width:320px;height:180px;background:linear-gradient(red,blue)">' + name + ' loaded</article>';
+        });
+      }
+    </script></body>`);
+  });
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+  try {
+    const readiness = {
+      storage: { 'test-session': 'active' },
+      authenticatedSelector: '[data-member-auth]',
+      journeys: [
+        { name: 'Articles', clickSelector: '.nav-articles', readySelector: '#articles', timeoutMs: 2_000 },
+        { name: 'Feed', clickSelector: '.nav-feed', readySelector: '#feed', timeoutMs: 2_000 },
+      ],
+    };
+    const answer = await verifyReleaseViewportPaint({
+      application: 'example', privateIp: 'fdaa::1', host: 'trial.example', waitMs: 3_000,
+      openTunnel: async () => ({ port: server.address().port, close: () => {} }),
+      memberReadiness: readiness,
+    });
+    assert.equal(answer.ready, true, answer.reason);
+    assert.deepEqual(answer.journeys, [{ name: 'Articles', ready: true }, { name: 'Feed', ready: true }]);
+    assert.equal(JSON.stringify(answer).includes('active'), false);
+
+    const failed = await verifyReleaseViewportPaint({
+      application: 'example', privateIp: 'fdaa::1', host: 'trial.example', waitMs: 3_000,
+      openTunnel: async () => ({ port: server.address().port, close: () => {} }),
+      memberReadiness: { ...readiness, journeys: [{ ...readiness.journeys[0], readySelector: '#missing', timeoutMs: 1_000 }] },
+    });
+    assert.equal(failed.ready, false);
+    assert.match(failed.reason, /member journey Articles failed/);
+  } finally {
+    server.closeAllConnections();
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
+test('the candidate browser refuses a signed-in account page that loops on HTTP 503', async () => {
+  const server = createHttpServer((request, response) => {
+    response.setHeader('content-type', 'text/html');
+    if (request.url === '/account') {
+      response.writeHead(503);
+      response.end('<meta http-equiv="refresh" content="3"><main>Opening your workspace. This page will continue on its own.</main>');
+      return;
+    }
+    response.end('<main id="root" style="background:#111;color:white;min-height:400px"><svg width="300" height="200"><circle cx="100" cy="100" r="80" fill="red"/></svg><div data-member-auth>Member home</div><a href="/account" id="account-link">Account</a></main>');
+  });
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+  try {
+    const answer = await verifyReleaseViewportPaint({
+      application: 'example', privateIp: 'fdaa::1', host: 'trial.example', waitMs: 3_000,
+      openTunnel: async () => ({ port: server.address().port, close: () => {} }),
+      memberReadiness: {
+        storage: { 'test-session': 'active' }, authenticatedSelector: '[data-member-auth]',
+        journeys: [{ name: 'Account', clickSelector: '#account-link', readySelector: '#account-ready', timeoutMs: 2_000 }],
+      },
+    });
+    assert.equal(answer.ready, false);
+    assert.match(answer.reason, /member journey Account failed: member page failed: \/account returned HTTP 503/);
+  } finally {
+    server.closeAllConnections();
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
+test('the candidate browser refuses an HTTP 200 error shell around a blank member scene', async () => {
+  const server = createHttpServer((request, response) => {
+    response.setHeader('content-type', 'text/html');
+    if (request.url === '/account') {
+      response.end('<body style="background:#111;color:white"><main><h1>Your workspace could not be shown</h1><p>Your workspace view is not available yet.</p><section id="workspace" style="display:block;width:800px;height:500px;background:#111"></section></main></body>');
+      return;
+    }
+    response.end('<body style="background:#fff;color:#111"><main id="root" style="margin:20px;padding:30px;background:#ddd;width:900px;height:600px"><div data-member-auth>Member home</div><a href="/account" id="account-link">Account</a></main></body>');
+  });
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+  try {
+    const answer = await verifyReleaseViewportPaint({
+      application: 'example', privateIp: 'fdaa::1', host: 'trial.example', waitMs: 3_000,
+      openTunnel: async () => ({ port: server.address().port, close: () => {} }),
+      memberReadiness: {
+        storage: { 'test-session': 'active' }, authenticatedSelector: '[data-member-auth]',
+        journeys: [{ name: 'Account', clickSelector: '#account-link', readySelector: '#workspace', timeoutMs: 2_000 }],
+      },
+    });
+    assert.equal(answer.ready, false);
+    assert.match(answer.reason, /selected member scene is blank/);
+  } finally {
+    server.closeAllConnections();
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
+test('the release paint predicate rejects offscreen content and accepts visible textless media', async () => {
+  const browser = await chromium.launch({ headless: true });
+  try {
+    const page = await browser.newPage({ viewport: { width: 800, height: 600 } });
+    await page.setContent('<div id="root"><div style="position:absolute;top:900px">Welcome back</div></div>');
+    assert.equal((await page.evaluate(viewportScene)).visibleContent, false);
+    assert.equal(viewportPaintDecision({ responseStatus: 200, visibleContent: false, busy: false, distinctColors: 20, foregroundFraction: 0.2 }).ready, false);
+    await page.setContent('<div id="root"><svg width="300" height="200"><circle cx="100" cy="100" r="80" fill="red"/></svg></div>');
+    assert.equal((await page.evaluate(viewportScene)).visibleContent, true);
+    assert.equal(viewportPaintDecision({ responseStatus: 200, visibleContent: true, busy: false, distinctColors: 20, foregroundFraction: 0.2 }).ready, true);
+    assert.equal(viewportPaintDecision({ responseStatus: 200, visibleContent: true, busy: true, distinctColors: 20, foregroundFraction: 0.2 }).ready, false);
+    assert.match(viewportPaintDecision({ responseStatus: 503, visibleContent: true, busy: false, distinctColors: 20, foregroundFraction: 0.2 }).reason, /HTTP 503/);
+  } finally {
+    await browser.close();
+  }
+});
+
+test('the release check accepts a bounded summary of a large healthy boot answer', () => {
+  assert.deepEqual(readinessFromBootAnswer(200, { target_count: 115 }), {
+    ready: true, status: 200, reason: 'ready with 115 targets', final: true,
+  });
+  assert.equal(readinessFromBootAnswer(200, { target_count: 0 }).ready, false);
+  assert.equal(readinessFromBootAnswer(503, { target_count: 0, boot_status: 'recovering', message: 'warming up' }).final, false);
+  assert.equal(readinessFromBootAnswer(503, { target_count: 0, code: 'BITFIELD_BOOT_RESTRICTED_RECOVERY' }).final, true);
+});
+
+test('a public recovery check refuses missing or unreadable fallback files', () => {
+  assert.equal(publicFallbackReadinessFromAnswer('{"ready":true,"reason":"public recovery files present"}').ready, true);
+  assert.equal(publicFallbackReadinessFromAnswer('{"ready":false,"reason":"page has no fallback_body_file"}').ready, false);
+  assert.equal(publicFallbackReadinessFromAnswer('').ready, false);
+});
+
+test('the trial command reads the actual page description and recovery files', () => {
+  const root = mkdtempSync(path.join(tmpdir(), 'public-recovery-trial-'));
+  try {
+    const description = path.join(root, 'page-description.json');
+    const body = path.join(root, 'fallback.html');
+    const archive = path.join(root, 'archive.json');
+    writeFileSync(body, '<main>Readable recovery page</main>');
+    writeFileSync(archive, JSON.stringify({ rows: [] }));
+    writeFileSync(description, JSON.stringify({ pages: [{ fallback_body_file: 'fallback.html', fallback_pages_file: 'archive.json' }] }));
+    const runCheck = () => {
+      const run = spawnSync(PUBLIC_FALLBACK_COMMAND[0], PUBLIC_FALLBACK_COMMAND.slice(1), {
+        encoding: 'utf8',
+        env: {
+          ...process.env,
+          BITFIELD_RUNTIME_KIT_HOME: path.dirname(path.dirname(process.execPath)),
+          BITFIELD_PUBLIC_PAGE_DESCRIPTION_FILE: description,
+        },
+      });
+      assert.equal(run.status, 0, run.stderr);
+      return publicFallbackReadinessFromAnswer(run.stdout);
+    };
+    assert.equal(runCheck().ready, true);
+    writeFileSync(description, JSON.stringify({ pages: [{ fallback_pages_file: 'archive.json' }] }));
+    assert.match(runCheck().reason, /no fallback_body_file/);
+    writeFileSync(description, JSON.stringify({ pages: [{ fallback_body_file: 'fallback.html', fallback_pages_file: 'archive.json' }] }));
+    writeFileSync(body, '');
+    assert.match(runCheck().reason, /fallback body is blank/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('trial boot can prove readiness while provider state still says created', async () => {
+  const live = {
+    id: 'live-machine', state: 'started', region: 'ord',
+    config: { image: 'registry.fly.io/example-public-app:before', metadata: { fly_process_group: 'app' } },
+  };
+  const trial = { id: 'trial-machine', state: 'created' };
+  const removed = [];
+  const kept = [];
+  let retainAnswer = JSON.stringify([{ app_id: 'example', kept: '/var/lib/bitfield/stored-data/files/1f' }]);
+  const fetchImplementation = async (url, options) => {
+    const pathname = new URL(url).pathname;
+    const method = options.method;
+    let answer;
+    if (method === 'GET' && pathname.endsWith('/machines')) answer = [live, trial];
+    else if (method === 'POST' && pathname.endsWith('/machines')) answer = trial;
+    else if (method === 'GET' && pathname.endsWith('/machines/trial-machine')) answer = trial;
+    else if (method === 'POST' && pathname.endsWith('/exec')) {
+      const command = JSON.stringify(JSON.parse(options.body).command);
+      answer = command.includes('fallback_body_file')
+        ? { stdout: JSON.stringify({ ready: true, reason: 'public recovery files present' }) }
+        : command.includes('runtime-app-footprint.json')
+          ? { stdout: JSON.stringify({ records: [{ footprint: 'within', allocated_bytes: 1 }], memory_in_use_bytes: 1 }) }
+          : command.includes('--retain-current-source')
+            ? (kept.push(pathname), { stdout: retainAnswer })
+            : { stdout: JSON.stringify({ status: 200, summary: { target_count: 1 } }) };
+    } else if (method === 'DELETE' && pathname.includes('/machines/trial-machine')) {
+      removed.push(pathname);
+      answer = {};
+    } else throw new Error(`unexpected provider request: ${method} ${pathname}`);
+    return { ok: true, text: async () => JSON.stringify(answer) };
+  };
+  const result = await proveTheReleaseStarts({
+    application: 'example-public-app', image: 'registry.fly.io/example-public-app:after',
+    credential: 'test-credential', fetchImplementation,
+    verifyPaint: async () => ({ ready: true, reason: 'visible test scene' }),
+    wait: async () => {}, attempts: 2, intervalMs: 0,
+  });
+  assert.equal(result.trial.ready, true);
+  assert.deepEqual(result.measured, { memory_in_use_bytes: 1, opener_peak_bytes: 0, allocated_bytes: 1 });
+  assert.equal(removed.length, 1);
+  // The live machine keeps its outgoing source before the image is swapped.
+  assert.deepEqual(kept, ['/v1/apps/example-public-app/machines/live-machine/exec']);
+  assert.deepEqual(result.retained, [{ app_id: 'example', kept: '/var/lib/bitfield/stored-data/files/1f' }]);
+
+  // A live machine that cannot keep it refuses the release.
+  kept.length = 0;
+  retainAnswer = 'Error: verify the kept copy';
+  await assert.rejects(proveTheReleaseStarts({
+    application: 'example-public-app', image: 'registry.fly.io/example-public-app:after',
+    credential: 'test-credential', fetchImplementation,
+    verifyPaint: async () => ({ ready: true, reason: 'visible test scene' }),
+    wait: async () => {}, attempts: 2, intervalMs: 0,
+  }), /did not keep its current source/);
+
+  // The same image again replaces nothing, so nothing is kept.
+  kept.length = 0;
+  const same = await proveTheReleaseStarts({
+    application: 'example-public-app', image: 'registry.fly.io/example-public-app:before',
+    credential: 'test-credential', fetchImplementation,
+    verifyPaint: async () => ({ ready: true, reason: 'visible test scene' }),
+    wait: async () => {}, attempts: 2, intervalMs: 0,
+  });
+  assert.equal(same.retained, null);
+  assert.deepEqual(kept, []);
+});
+
+test('a missing CAS hash refuses release and cleans the disposable trial', async () => {
+  const hash = `1f:${'f'.repeat(64)}`;
+  const live = {
+    id: 'live-machine', state: 'started', region: 'ord',
+    config: {
+      image: 'registry.fly.io/example-public-app:before',
+      metadata: { fly_process_group: 'app' },
+      env: {
+        BITFIELD_HOSTED_ACCOUNT_WORKER_JSON: JSON.stringify({ package_set: 'example', product_volume_name: 'product' }),
+        BITFIELD_PROCESS_WORKSPACE_MOUNTS_JSON: JSON.stringify({ product: { root: '/var/lib/bitfield/shared-product', access: 'read_only' } }),
+      },
+      mounts: [{ name: 'app_data', volume: 'live-volume', path: '/var/lib/bitfield' }],
+    },
+  };
+  const trial = { id: 'trial-machine', state: 'created' };
+  const events = [];
+  let trialExists = true;
+  let result;
+  const fetchImplementation = async (url, options) => {
+    const pathname = new URL(url).pathname;
+    const method = options.method;
+    let answer;
+    if (method === 'GET' && pathname.endsWith('/machines')) answer = trialExists ? [live, trial] : [live];
+    else if (method === 'POST' && pathname.endsWith('/volumes')) {
+      events.push('fork');
+      answer = { id: 'trial-volume', state: 'created' };
+    }
+    else if (method === 'POST' && pathname.endsWith('/machines')) answer = trial;
+    else if (method === 'GET' && pathname.endsWith('/machines/trial-machine')) answer = trial;
+    else if (method === 'POST' && pathname.endsWith('/exec')) {
+      const machineId = pathname.split('/').at(-2);
+      const command = JSON.parse(options.body).command;
+      if (command[0] === 'sync') {
+        assert.deepEqual(command, ['sync', '-f', '/var/lib/bitfield']);
+        events.push('flush');
+        answer = { stdout: '' };
+      } else if (command[0] === '/opt/bitfield/bin/node') {
+        const stdout = machineId === 'live-machine'
+          ? JSON.stringify({ status: 200, summary: { target_count: 1 } })
+          : JSON.stringify({ status: 503, summary: { target_count: 0, message: `missing content ${hash}` } });
+        events.push(`${machineId}:readiness`);
+        answer = { stdout };
+      } else if (command[0] === '/bin/sh') {
+        answer = { stdout: JSON.stringify({ ready: true, reason: 'public files present' }) };
+      } else {
+        assert.equal(command[0], '/opt/bitfield/bin/bitfield-stored-data');
+        assert.equal(command[1], 'storage');
+        assert.equal(command[3], '--bitfield-root');
+        assert.equal(command[4], '/var/lib/bitfield/shared-product');
+        assert.ok(command.includes(hash));
+        assert.ok(command.includes('inspect-hash') || command.includes('inspect-referenced'));
+        assert.equal(command.some((part) => ['--apply', 'seed', 'copy-hash'].includes(part)), false);
+        events.push(`${machineId}:${command[2]}`);
+        answer = { stdout: `storage.${command[2]}\n  requested_hash=${hash}\n  found=${machineId === 'live-machine'}\n` };
+      }
+    } else if (method === 'DELETE' && pathname.endsWith('/machines/trial-machine')) {
+      events.push('cleanup:machine');
+      trialExists = false;
+      answer = {};
+    } else if (method === 'DELETE' && pathname.endsWith('/volumes/trial-volume')) {
+      events.push('cleanup:volume');
+      answer = {};
+    } else throw new Error(`unexpected provider request: ${method} ${pathname}`);
+    return { ok: true, text: async () => JSON.stringify(answer) };
+  };
+  await assert.rejects(proveTheReleaseStarts({
+    application: 'example-public-app', image: 'registry.fly.io/example-public-app:after',
+    credential: 'test-credential', fetchImplementation,
+    verifyPaint: async () => ({ ready: true, reason: 'visible test scene' }),
+    wait: async () => {}, attempts: 1, intervalMs: 0,
+  }), (error) => {
+    result = error.result;
+    assert.match(error.message, /release refused/);
+    return true;
+  });
+  assert.match(result.trial.reason, /missing content/);
+  assert.ok(events.indexOf('flush') < events.indexOf('fork'));
+  assert.deepEqual(events.slice(-2), ['cleanup:machine', 'cleanup:volume']);
+});
+
+test('interrupting a release trial destroys its machine and fork', async () => {
+  const signalSource = new EventEmitter();
+  const removed = [];
+  let trialExists = true;
+  const live = { id: 'live', state: 'started', region: 'ord', config: {
+    image: 'registry.fly.io/example-public-app:before', metadata: { fly_process_group: 'app' },
+    mounts: [{ name: 'app_data', volume: 'live-volume', path: '/data' }],
+  } };
+  const trial = { id: 'trial', state: 'created' };
+  const fetchImplementation = async (url, options) => {
+    const pathname = new URL(url).pathname;
+    const method = options.method;
+    let answer;
+    if (method === 'GET' && pathname.endsWith('/machines')) answer = trialExists ? [live, trial] : [live];
+    else if (method === 'POST' && pathname.endsWith('/machines')) { answer = trial; signalSource.emit('SIGINT'); }
+    else if (method === 'POST' && pathname.endsWith('/volumes')) answer = { id: 'trial-volume', state: 'created' };
+    else if (method === 'DELETE' && pathname.endsWith('/machines/trial')) { removed.push('trial'); trialExists = false; answer = {}; }
+    else if (method === 'DELETE' && pathname.endsWith('/volumes/trial-volume')) { removed.push('trial-volume'); answer = {}; }
+    else if (method === 'POST' && pathname.endsWith('/exec')) answer = { stdout: JSON.stringify({ status: 200, summary: { target_count: 1 } }) };
+    else throw new Error(`unexpected provider request: ${method} ${pathname}`);
+    return { ok: true, text: async () => JSON.stringify(answer) };
+  };
+  await assert.rejects(proveTheReleaseStarts({
+    application: 'example-public-app', image: 'registry.fly.io/example-public-app:after',
+    credential: 'test-credential', fetchImplementation, signalSource,
+    wait: async () => {}, attempts: 2, intervalMs: 0,
+  }), /release trial interrupted/);
+  assert.deepEqual(removed, ['trial', 'trial-volume']);
+  assert.equal(signalSource.listenerCount('SIGINT'), 0);
+});
+
+test('a release trial reports the exact fork when Fly refuses every delete', async () => {
+  const signalSource = new EventEmitter();
+  let trialExists = true;
+  let deleteAttempts = 0;
+  const live = { id: 'live', state: 'started', region: 'ord', config: {
+    image: 'registry.fly.io/example-public-app:before', metadata: { fly_process_group: 'app' },
+    mounts: [{ name: 'app_data', volume: 'live-volume', path: '/data' }],
+  } };
+  const trial = { id: 'trial', state: 'created' };
+  const fetchImplementation = async (url, options) => {
+    const pathname = new URL(url).pathname;
+    const method = options.method;
+    if (method === 'DELETE' && pathname.endsWith('/volumes/trial-volume')) {
+      deleteAttempts += 1;
+      return { ok: false, status: 500, text: async () => 'volume still attached' };
+    }
+    let answer;
+    if (method === 'GET' && pathname.endsWith('/machines')) answer = trialExists ? [live, trial] : [live];
+    else if (method === 'POST' && pathname.endsWith('/machines')) { answer = trial; signalSource.emit('SIGINT'); }
+    else if (method === 'POST' && pathname.endsWith('/volumes')) answer = { id: 'trial-volume', state: 'created' };
+    else if (method === 'GET' && pathname.endsWith('/volumes/trial-volume')) answer = { id: 'trial-volume', state: 'created' };
+    else if (method === 'DELETE' && pathname.endsWith('/machines/trial')) { trialExists = false; answer = {}; }
+    else if (method === 'POST' && pathname.endsWith('/exec')) answer = { stdout: JSON.stringify({ status: 200, summary: { target_count: 1 } }) };
+    else throw new Error(`unexpected provider request: ${method} ${pathname}`);
+    return { ok: true, text: async () => JSON.stringify(answer) };
+  };
+  await assert.rejects(proveTheReleaseStarts({
+    application: 'example-public-app', image: 'registry.fly.io/example-public-app:after',
+    credential: 'test-credential', fetchImplementation, signalSource,
+    wait: async () => {}, attempts: 1, intervalMs: 0,
+  }), /release trial left volume trial-volume.*billable state/);
+  assert.equal(deleteAttempts, 12);
+  assert.equal(signalSource.listenerCount('SIGINT'), 0);
+});
+
+test('an unavailable live app does not excuse an unavailable trial release', async () => {
+  const live = {
+    id: 'live-machine', state: 'started', region: 'ord',
+    config: { image: 'registry.fly.io/example-public-app:before', metadata: { fly_process_group: 'app' } },
+  };
+  const trial = { id: 'trial-machine', state: 'created' };
+  const fetchImplementation = async (url, options) => {
+    const pathname = new URL(url).pathname;
+    const method = options.method;
+    let answer;
+    if (method === 'GET' && pathname.endsWith('/machines')) answer = [live, trial];
+    else if (method === 'POST' && pathname.endsWith('/machines')) answer = trial;
+    else if (method === 'GET' && pathname.endsWith('/machines/trial-machine')) answer = trial;
+    else if (method === 'POST' && pathname.endsWith('/exec')) {
+      answer = { stdout: JSON.stringify({ status: 503, summary: { target_count: 0, message: 'not ready' } }) };
+    } else if (method === 'DELETE' && pathname.includes('/machines/trial-machine')) answer = {};
+    else throw new Error(`unexpected provider request: ${method} ${pathname}`);
+    return { ok: true, text: async () => JSON.stringify(answer) };
+  };
+  await assert.rejects(proveTheReleaseStarts({
+    application: 'example-public-app', image: 'registry.fly.io/example-public-app:after',
+    credential: 'test-credential', fetchImplementation,
+    wait: async () => {}, attempts: 1, intervalMs: 0,
+  }), /release refused/);
+});
+
+test('a built image can be retried through the same trial and live confirmation owner', () => {
+  const image = 'registry.fly.io/example-public-app:release-abc123';
+  const plan = packageOwnedDeploymentPlan({
+    kind: 'package-owned-deployment-request', profile: 'fly-prebuilt-image',
+    parameters: { application: 'example-public-app', image },
+  });
+  assert.equal(plan.steps[1].proof, 'the-release-starts');
+  assert.equal(plan.steps[1].image, image);
+  assert.ok(plan.steps[2].args.includes(image));
+  assert.throws(() => packageOwnedDeploymentPlan({
+    kind: 'package-owned-deployment-request', profile: 'fly-prebuilt-image',
+    parameters: { application: 'example-public-app', image: 'registry.fly.io/other-app:release-abc123' },
+  }), /does not belong/);
+});
+
+function relativeStaticImportClosure(entrypoint) {
+  const visited = new Set();
+  const visit = (file) => {
+    const real = realpathSync(file);
+    if (visited.has(real)) return;
+    visited.add(real);
+    const source = readFileSync(real, 'utf8');
+    const imports = source.matchAll(/(?:import|export)\s+(?:[\s\S]*?\s+from\s+)?['"]([^'"]+)['"]/g);
+    for (const match of imports) {
+      if (!match[1].startsWith('.')) continue;
+      visit(path.resolve(path.dirname(real), match[1]));
+    }
+  };
+  visit(entrypoint);
+  return [...visited];
+}
+
+test('the provider deploy entrypoint static closure stays inside its owning package', () => {
+  const packageRoot = realpathSync(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'));
+  const closure = relativeStaticImportClosure(fileURLToPath(new URL('./run-provider-deploy.mjs', import.meta.url)));
+  assert.ok(closure.some((file) => file.endsWith('provider-credential.mjs')));
+  assert.ok(!closure.some((file) => file.endsWith('ask-the-host-provider-for-a-certificate.mjs')));
+  for (const file of closure) {
+    assert.ok(
+      file === packageRoot || file.startsWith(`${packageRoot}${path.sep}`),
+      `deploy entrypoint imported source outside hosted-public-app: ${file}`,
+    );
+  }
+});
+
+// Provider/application instances belong to package-set DATA, never this generic
+// package's manifest. These deliberately fictional fixtures exercise the open
+// descriptor seam without installing one customer's deploy into every set.
+const RELEASE_FIXTURES = {
+  vercel: {
+    kind: 'package-owned-deployment-request', schema: 'hosted-public-app.deployment-request/v2',
+    profile: 'vercel-prebuilt-production', parameters: {},
+  },
+  cloudflare: {
+    kind: 'package-owned-deployment-request', schema: 'hosted-public-app.deployment-request/v2',
+    profile: 'cloudflare-pages', parameters: { application: 'example-public-app', artifact_directory: 'artifact' },
+  },
+  fly: {
+    kind: 'package-owned-deployment-request', schema: 'hosted-public-app.deployment-request/v2',
+    profile: 'fly-remote-only', parameters: { application: 'example-public-app', config_file: 'fly.toml' },
+  },
+  railway: {
+    kind: 'package-owned-deployment-request', schema: 'hosted-public-app.deployment-request/v2',
+    profile: 'railway-service', parameters: { application: 'example-public-app', domain: 'example-public-app.invalid' },
+  },
+};
+
+function releaseRow(provider) {
+  const row = RELEASE_FIXTURES[provider];
+  assert.ok(row, `test release fixture for ${provider} must exist`);
+  return structuredClone(row);
+}
+
+function fixture() {
+  const root = mkdtempSync(path.join(tmpdir(), 'hosted-provider-deploy-'));
+  return { root, resultFile: path.join(root, 'deployment-result.json') };
+}
+
+function child() {
+  const result = new EventEmitter();
+  result.stdin = new PassThrough();
+  result.stdout = new PassThrough();
+  result.stderr = new PassThrough();
+  return result;
+}
+
+/** Spawn mock: records every invocation and drives each child to a clean exit
+ * on the next microtask so a multi-step release runs to completion. */
+function recordingSpawn(stdoutByStep = []) {
+  const spawned = [];
+  function spawnChild(command, args, options) {
+    const step = child();
+    spawned.push({ command, args, options });
+    const data = stdoutByStep[spawned.length - 1];
+    queueMicrotask(() => {
+      if (typeof data === 'string') step.stdout.end(data);
+      step.emit('close', 0, null);
+    });
+    return step;
+  }
+  return { spawned, spawnChild };
+}
+
+function tarWithFile(name, bytes, mode = 0o644) {
+  const content = Buffer.from(bytes);
+  const header = Buffer.alloc(512);
+  header.write(name, 0, 100, 'utf8');
+  header.write(`${mode.toString(8).padStart(7, '0')}\0`, 100, 8, 'ascii');
+  header.write(`${content.length.toString(8).padStart(11, '0')}\0`, 124, 12, 'ascii');
+  header[156] = '0'.charCodeAt(0);
+  header.write('ustar\0', 257, 6, 'ascii');
+  return Buffer.concat([
+    header,
+    content,
+    Buffer.alloc((512 - (content.length % 512)) % 512),
+    Buffer.alloc(1024),
+  ]);
+}
+
+test('deployment receives its bounded semantic request without an intermediary file', () => {
+  const root = mkdtempSync(path.join(tmpdir(), 'hosted-publication-workspace-'));
+  try {
+    const siteRoot = path.join(root, 'site');
+    mkdirSync(siteRoot);
+    assert.deepEqual(
+      deploymentRequestFromArgs(['--request', JSON.stringify(releaseRow('fly')), '--site-root', 'site'], root),
+      { descriptor: releaseRow('fly'), siteRoot: realpathSync(siteRoot) },
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('runtime diagnostics is a fixed read-only command, not a caller-authored remote shell', () => {
+  const descriptor = {
+    kind: 'package-owned-deployment-request',
+    profile: 'fly-runtime-diagnostics',
+    parameters: { application: 'example-public-app' },
+  };
+  const plan = packageOwnedDeploymentPlan(descriptor);
+  assert.deepEqual(plan.steps, [
+    {
+      command: 'fly',
+      args: [
+        'ssh', 'console', '--app', 'example-public-app', '--command',
+        "find /var/lib/bitfield -type f -name 'bitfield-runner-stderr.latest.log' -exec tail -200 {} \\;",
+      ],
+    },
+  ]);
+  const ignoredCallerCommand = packageOwnedDeploymentPlan({
+    ...descriptor,
+    parameters: { ...descriptor.parameters, command: 'id' },
+  });
+  assert.deepEqual(ignoredCallerCommand.steps, plan.steps);
+});
+
+test('retiring one Fly machine leaves the application and its volume owner intact', () => {
+  const descriptor = {
+    kind: 'package-owned-deployment-request',
+    profile: 'fly-retire-machine',
+    parameters: { application: 'example-public-app', machine: '080d296f246728' },
+  };
+  assert.deepEqual(packageOwnedDeploymentPlan(descriptor).steps, [{
+    command: 'fly',
+    args: ['machine', 'destroy', '080d296f246728', '--app', 'example-public-app', '--force'],
+  }]);
+  assert.throws(
+    () => packageOwnedDeploymentPlan({ ...descriptor, parameters: { ...descriptor.parameters, machine: '../all' } }),
+    /machine is invalid/,
+  );
+});
+
+test('retiring a detached Fly volume selects one exact volume', () => {
+  const descriptor = { kind: 'package-owned-deployment-request', profile: 'fly-retire-volume',
+    parameters: { application: 'example-public-app', volume: 'vol_4m36m598qm02n6gv' } };
+  assert.deepEqual(packageOwnedDeploymentPlan(descriptor).steps, [{
+    command: 'fly', args: ['volumes', 'destroy', 'vol_4m36m598qm02n6gv', '--app', 'example-public-app', '--yes'],
+  }]);
+  assert.throws(() => packageOwnedDeploymentPlan({ ...descriptor,
+    parameters: { ...descriptor.parameters, volume: '../all' } }), /volume is invalid/);
+});
+
+test('installed app status is a fixed read-only opener command', () => {
+  const descriptor = {
+    kind: 'package-owned-deployment-request',
+    profile: 'fly-installed-app-status',
+    parameters: { application: 'example-public-app', app_id: 'example-app' },
+  };
+  assert.deepEqual(packageOwnedDeploymentPlan(descriptor).steps, [{
+    command: 'fly',
+    args: [
+      'ssh', 'console', '--app', 'example-public-app', '--command',
+      "'env' 'BITFIELD_MACHINE_WIDE_HOME=/var/lib/bitfield' '/opt/bitfield/bin/open-bitfield-app' '--same-app-id' 'example-app' '--status-report-only'",
+    ],
+  }]);
+  assert.deepEqual(packageOwnedDeploymentPlan({ ...descriptor,
+    parameters: { ...descriptor.parameters, machine: 'd895941f715258' } }).steps[0].args.slice(0, 7),
+    ['ssh', 'console', '--app', 'example-public-app', '--machine', 'd895941f715258', '--command']);
+  assert.throws(
+    () => packageOwnedDeploymentPlan({ ...descriptor, parameters: { ...descriptor.parameters, app_id: '../other' } }),
+    /app_id is invalid/,
+  );
+  assert.deepEqual(
+    packageOwnedDeploymentPlan({
+      ...descriptor,
+      parameters: { ...descriptor.parameters, command: 'cat /etc/passwd' },
+    }).steps,
+    packageOwnedDeploymentPlan(descriptor).steps,
+  );
+});
+
+test('installed app process environment prepares fixed update and reopen commands', () => {
+  const hostileValue = "line one\n'$(touch /tmp/not-allowed)'; fly apps destroy victim";
+  assert.deepEqual(installedAppProcessEnvironmentCommandsFromArgs([
+    '--prepare-installed-app-process-environment',
+    '--provider-application', 'example-public-app',
+    '--app-id', 'example-app',
+    '--environment-name', 'EXAMPLE_VALUE',
+    '--environment-value', hostileValue,
+  ]), {
+    provider_application: 'example-public-app',
+    advance_command: "'env' 'BITFIELD_MACHINE_WIDE_HOME=/var/lib/bitfield' '/opt/bitfield/bin/open-bitfield-app' '--same-app-id' 'example-app' '--advance-log-owned-process-environment' 'EXAMPLE_VALUE=line one\n'\"'\"'$(touch /tmp/not-allowed)'\"'\"'; fly apps destroy victim'",
+  });
+  assert.equal(installedAppProcessEnvironmentCommandsFromArgs([]), null);
+  assert.throws(() => installedAppProcessEnvironmentCommandsFromArgs([
+    '--prepare-installed-app-process-environment',
+    '--provider-application', 'example-public-app',
+    '--app-id', 'example-app',
+    '--environment-name', 'ACCOUNT_PUBLIC_URL',
+    '--environment-value', 'https://app.example.invalid',
+    '--command', 'id',
+  ]), /accepts exactly one/);
+  for (const [application, appId, name, value, pattern] of [
+    ['--help', 'example-app', 'EXAMPLE_VALUE', 'ok', /application is invalid/],
+    ['example-public-app', '../other-app', 'EXAMPLE_VALUE', 'ok', /app_id is invalid/],
+    ['example-public-app', 'example-app', 'VALUE;touch', 'ok', /environment_name is invalid/],
+    ['example-public-app', 'example-app', 'EXAMPLE_VALUE', `before\0after`, /environment_value is invalid/],
+  ]) {
+    assert.throws(() => installedAppProcessEnvironmentCommandsFromArgs([
+      '--prepare-installed-app-process-environment',
+      '--provider-application', application,
+      '--app-id', appId,
+      '--environment-name', name,
+      '--environment-value', value,
+    ]), pattern);
+  }
+});
+
+test('provider machine environment is changed only through bounded semantic values', () => {
+  const descriptor = {
+    kind: 'package-owned-deployment-request',
+    profile: 'fly-machine-environment',
+    parameters: {
+      application: 'example-public-app',
+      machine: 'd8956e5b766d08',
+      environment_name: 'ACCOUNT_PUBLIC_URL',
+      environment_value: 'https://app.example.invalid',
+    },
+  };
+  assert.deepEqual(packageOwnedDeploymentPlan(descriptor).steps, [{
+    command: 'fly',
+    args: [
+      'machine', 'update', 'd8956e5b766d08',
+      '--env', 'ACCOUNT_PUBLIC_URL=https://app.example.invalid',
+      '--app', 'example-public-app', '--yes',
+    ],
+  }]);
+  for (const [field, value] of [
+    ['application', '--help'],
+    ['machine', '../other-machine'],
+    ['environment_name', 'VALUE;touch'],
+    ['environment_value', `before\0after`],
+  ]) {
+    assert.throws(
+      () => packageOwnedDeploymentPlan({
+        ...descriptor,
+        parameters: { ...descriptor.parameters, [field]: value },
+      }),
+      new RegExp(`${field} is invalid`),
+    );
+  }
+  assert.deepEqual(
+    packageOwnedDeploymentPlan({
+      ...descriptor,
+      parameters: { ...descriptor.parameters, command: 'fly apps destroy victim' },
+    }).steps,
+    packageOwnedDeploymentPlan(descriptor).steps,
+  );
+});
+
+test('machine size command accepts only semantic provider, CPU, and memory values', () => {
+  assert.deepEqual(machineSizeRequestFromArgs([
+    '--set-machine-size',
+    '--provider-application', 'example-public-app',
+    '--vm-size', 'shared-cpu-2x',
+    '--memory-megabytes', '4096',
+  ]), {
+    kind: 'package-owned-deployment-request',
+    profile: 'fly-machine-memory',
+    parameters: {
+      application: 'example-public-app',
+      vm_size: 'shared-cpu-2x',
+      megabytes: '4096',
+    },
+  });
+  assert.equal(machineSizeRequestFromArgs([]), null);
+  assert.throws(() => machineSizeRequestFromArgs([
+    '--set-machine-size',
+    '--provider-application', 'example-public-app',
+    '--vm-size', 'shared-cpu-2x',
+    '--memory-megabytes', '4096',
+    '--command', 'id',
+  ]), /accepts exactly one/);
+  assert.throws(() => machineSizeRequestFromArgs([
+    '--set-machine-size',
+    '--provider-application', 'example-public-app',
+    '--vm-size', '--help',
+    '--memory-megabytes', '4096',
+  ]), /vm_size is invalid/);
+});
+
+test('remote Fly deployment carries the declared machine size into the release', () => {
+  const plan = packageOwnedDeploymentPlan({
+    kind: 'package-owned-deployment-request',
+    profile: 'fly-remote-only',
+    parameters: {
+      application: 'example-public-app',
+      vm_size: 'shared-cpu-2x',
+      memory_megabytes: '4096',
+    },
+  });
+  const carried = 'fly.current-serving-settings.json';
+  assert.deepEqual(plan.steps[0], { carry: 'current-serving-settings', application: 'example-public-app', config_file: carried });
+  assert.deepEqual(plan.steps[1].args, [
+    'deploy', '--config', carried, '--app', 'example-public-app', '--remote-only', '--build-only', '--push',
+    '--image-label', '{release_label}',
+  ]);
+  assert.deepEqual(plan.steps[2], {
+    proof: 'the-release-starts', application: 'example-public-app', image: 'registry.fly.io/example-public-app:{release_label}',
+  });
+  assert.deepEqual(plan.steps[3].args, [
+    'deploy', '--config', carried, '--vm-size', 'shared-cpu-2x', '--vm-memory', '4096',
+    '--app', 'example-public-app', '--image', 'registry.fly.io/example-public-app:{release_label}', '--yes', '--now',
+  ]);
+  assert.deepEqual(plan.steps[4].args, [
+    'scale', 'vm', 'shared-cpu-2x', '--memory', '4096', '--app', 'example-public-app',
+  ]);
+  assert.throws(() => packageOwnedDeploymentPlan({
+    kind: 'package-owned-deployment-request',
+    profile: 'fly-remote-only',
+    parameters: { application: 'example-public-app', memory_megabytes: '4096' },
+  }), /requires vm_size and memory_megabytes together/);
+});
+
+test('Fly publication can build locally when the remote builder is unavailable', () => {
+  const plan = packageOwnedDeploymentPlan({
+    kind: 'package-owned-deployment-request',
+    profile: 'fly-remote-only',
+    parameters: { application: 'example-public-app', build_service: 'local' },
+  });
+  assert.deepEqual(plan.steps[1].args, [
+    'deploy', '--config', 'fly.current-serving-settings.json',
+    '--app', 'example-public-app', '--local-only', '--build-only', '--push',
+    '--image-label', '{release_label}',
+  ]);
+  assert.equal(plan.steps[2].proof, 'the-release-starts');
+});
+
+test('an immutable container artifact enters through the same provider deployment owner', () => {
+  const root = mkdtempSync(path.join(tmpdir(), 'hosted-native-container-workspace-'));
+  try {
+    writeFileSync(path.join(root, 'container-artifact.tar'), tarWithFile('Dockerfile', 'FROM example.invalid/base\n'));
+    const result = nativeContainerDeploymentRequestFromArgs([
+      '--prepare-container-artifact', 'container-artifact.tar',
+      '--application', 'example-public-app',
+    ], root, { credential: 'workspace-only-secret' });
+    assert.deepEqual(result, {
+      application: 'example-public-app',
+      descriptor: {
+        kind: 'package-owned-deployment-request',
+        profile: 'fly-remote-only',
+        parameters: { application: 'example-public-app' },
+      },
+      siteRoot: realpathSync(path.join(root, 'site')),
+    });
+    assert.equal(readFileSync(path.join(root, 'site', 'Dockerfile'), 'utf8'), 'FROM example.invalid/base\n');
+    assert.equal(
+      readFileSync(path.join(root, 'site', 'fly-config', 'config.yml'), 'utf8'),
+      'access_token: workspace-only-secret\nlast_login: 1970-01-01T00:00:00Z\n',
+    );
+    assert.equal(statSync(path.join(root, 'site', 'fly-config')).mode & 0o777, 0o755);
+    assert.equal(statSync(path.join(root, 'site', 'fly-config', 'config.yml')).mode & 0o777, 0o644);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('provider readback uses the HTTP API and never launches a descendant provider command', async () => {
+  assert.equal(currentContainerBaseApplicationFromArgs([
+    '--read-current-container-base', '--application', 'example-public-app',
+  ]), 'example-public-app');
+  const calls = [];
+  const result = await currentContainerBaseResult('example-public-app', {
+    credential: 'secret',
+    fetchImplementation: async (url, options) => {
+      calls.push({ url, options });
+      return { ok: true, json: async () => [{ id: 'machine-1', config: { image: 'registry.fly.io/example-public-app:current', metadata: { fly_release_version: '7' }, guest: { cpu_kind: 'performance', cpus: 2, memory_mb: 8192 } } }] };
+    },
+  });
+  assert.deepEqual(calls, [{
+    url: 'https://api.machines.dev/v1/apps/example-public-app/machines',
+    options: { headers: { authorization: 'Bearer secret' } },
+  }]);
+  assert.deepEqual(result, {
+    kind: 'hosted-current-container-base-handle',
+    owner_ref: 'hosted-public-app',
+    provider_application: 'example-public-app',
+    image: 'registry.fly.io/example-public-app:current',
+    release: '7',
+    machine: 'machine-1',
+    vm_size: 'performance-2x',
+    memory_megabytes: 8192,
+  });
+});
+
+test('provider base readback ignores a concurrent release trial', async () => {
+  const result = await currentContainerBaseResult('example-public-app', {
+    credential: 'secret',
+    fetchImplementation: async () => ({ ok: true, json: async () => [
+      { id: 'trial', config: { image: 'registry.fly.io/example-public-app:unreleased', metadata: { purpose: 'trial-start-of-a-release' }, guest: { cpu_kind: 'shared', cpus: 1, memory_mb: 1024 } } },
+      { id: 'serving', config: { image: 'registry.fly.io/example-public-app:current', metadata: { fly_process_group: 'app' }, guest: { cpu_kind: 'performance', cpus: 2, memory_mb: 8192 } } },
+    ] }),
+  });
+  assert.equal(result.image, 'registry.fly.io/example-public-app:current');
+  assert.equal(result.machine, 'serving');
+  assert.equal(result.memory_megabytes, 8192);
+});
+
+test('provider readback refuses to erase a machine shape it cannot preserve', async () => {
+  await assert.rejects(
+    currentContainerBaseResult('example-public-app', {
+      credential: 'secret',
+      fetchImplementation: async () => ({
+        ok: true,
+        json: async () => [{
+          id: 'machine-1',
+          config: {
+            image: 'registry.fly.io/example-public-app:current',
+            guest: { memory_mb: 8192 },
+          },
+        }],
+      }),
+    }),
+    /no supported current machine CPU and memory shape/,
+  );
+
+  await assert.rejects(
+    currentContainerBaseResult('example-public-app', {
+      credential: 'secret',
+      fetchImplementation: async () => ({
+        ok: true,
+        json: async () => [{
+          id: 'machine-1',
+          config: {
+            image: 'registry.fly.io/example-public-app:current',
+            guest: { cpu_kind: 'performance', cpus: 64, memory_mb: 1 },
+          },
+        }],
+      }),
+    }),
+    /no supported current machine CPU and memory shape/,
+  );
+
+  await assert.rejects(
+    currentContainerBaseResult('example-public-app', {
+      credential: 'secret',
+      fetchImplementation: async () => ({
+        ok: true,
+        json: async () => [{
+          id: 'machine-1',
+          config: {
+            image: 'registry.fly.io/example-public-app:current',
+            guest: { cpu_kind: 'shared-cpu', cpus: 2, memory_mb: 4096 },
+          },
+        }],
+      }),
+    }),
+    /no supported current machine CPU and memory shape/,
+  );
+});
+
+test('provider readback refuses to collapse different machine shapes into one deploy', async () => {
+  await assert.rejects(
+    currentContainerBaseResult('example-public-app', {
+      credential: 'secret',
+      fetchImplementation: async () => ({
+        ok: true,
+        json: async () => [
+          {
+            id: 'machine-1',
+            config: {
+              image: 'registry.fly.io/example-public-app:current',
+              guest: { cpu_kind: 'performance', cpus: 2, memory_mb: 8192 },
+            },
+          },
+          {
+            id: 'machine-2',
+            config: {
+              image: 'registry.fly.io/example-public-app:current',
+              guest: { cpu_kind: 'shared', cpus: 2, memory_mb: 4096 },
+            },
+          },
+        ],
+      }),
+    }),
+    /machines with different current CPU or memory shapes/,
+  );
+});
+
+test('runtime refresh reads two provider images, builds once, and deploys through existing owners', () => {
+  const packageRoot = realpathSync(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'));
+  const manifest = JSON.parse(readFileSync(path.join(packageRoot, 'things-to-store-and-run.json'), 'utf8'));
+  const workflow = manifest.things.find((thing) =>
+    thing?.payload?.id === 'action:hosted-public-app.refresh-container-runtime')?.payload;
+  assert.ok(workflow);
+  assert.deepEqual(workflow.input_schema.required, [
+    'runtime_provider_application',
+    'provider_application',
+  ]);
+  const byId = Object.fromEntries(workflow.steps.map((step) => [step.id, step]));
+  assert.equal(byId.read_runtime_image.kind, 'action');
+  assert.equal(byId.read_runtime_image.config.definition_id, 'action:hosted-public-app.read-current-container-base');
+  assert.equal(byId.read_application_image.kind, 'action');
+  assert.equal(byId.read_application_image.config.definition_id, 'action:hosted-public-app.read-current-container-base');
+  assert.equal(byId.build_container.config.name, 'native-artifact.build-current-container-artifact');
+  assert.equal(byId.deploy_container.kind, 'action');
+  assert.equal(byId.deploy_container.config.definition_id, 'action:hosted-public-app.deploy-container-artifact');
+  assert.doesNotMatch(JSON.stringify(workflow), /source_path|deployment_target|process_sequence|replace-current-native/);
+});
+
+test('post-deploy readback uses provider and boot HTTP endpoints without fly or curl children', async () => {
+  const urls = [];
+  const result = await nativeContainerDeploymentResult('example-public-app', {
+    credential: 'secret',
+    fetchImplementation: async (url) => {
+      urls.push(url);
+      if (url.includes('api.machines.dev')) {
+        return { ok: true, json: async () => [{ id: 'machine-1', config: { image: 'registry.fly.io/example-public-app:new', metadata: { fly_release_version: '8' } } }] };
+      }
+      return { ok: true, json: async () => [{ target: 'boot' }] };
+    },
+  });
+  assert.deepEqual(urls, [
+    'https://api.machines.dev/v1/apps/example-public-app/machines',
+    'https://example-public-app.fly.dev/boot',
+  ]);
+  assert.deepEqual(result, {
+    provider_application: 'example-public-app', image: 'registry.fly.io/example-public-app:new',
+    release: '8', machine: 'machine-1', boot_healthy: true, boot_target_count: 1,
+  });
+});
+
+test('native deployment requires a vault-mounted member trial before promoting the image', () => {
+  const manifest = JSON.parse(readFileSync(new URL('../things-to-store-and-run.json', import.meta.url), 'utf8'));
+  const definition = manifest.things.find((thing) => thing.address === 'package::hosted-public-app::workflow-action::deploy-container-artifact')?.payload;
+  assert.equal(definition.steps.some((step) => step.id === 'read_current_shape'), false);
+  const ask = definition.steps.find((step) => step.id === 'deploy');
+  assert.equal(ask.config.name, 'compute.process_sequence');
+  const [prepare, readConfiguration, selectDockerfile, deploy, readCurrent] = ask.config.input.steps;
+  assert.equal(prepare.process.argv[0], 'node');
+  assert.deepEqual(readConfiguration.process.argv.slice(0, 3), ['fly', 'config', 'save']);
+  assert.equal(readConfiguration.process.argv.includes('--config'), false);
+  assert.deepEqual(selectDockerfile.process.argv, [
+    'node', 'run-provider-deploy.mjs', '--select-container-artifact-dockerfile', 'site/fly.toml',
+  ]);
+  assert.deepEqual(deploy.process.argv, [
+    'node', 'run-provider-deploy.mjs', '--deploy-prepared-container-artifact',
+    { $kind: 'binding', select: { from: 'input', path: 'provider_application' } },
+    '--member-readiness-file', 'member-readiness.json',
+  ]);
+  assert.ok(definition.input_schema.required.includes('member_readiness_credential_key'));
+  assert.equal(definition.steps.find((step) => step.id === 'member_readiness_mount')?.config.definition_id,
+    'action:resolve-one-credential-mount');
+  assert.equal(ask.config.input.inputs[2].select.key, 'member_readiness_mount');
+  assert.equal(definition.edges.some((edge) => edge.from === 'read_current_shape'), false);
+  assert.equal(deploy.process.timeout_ms, 30 * 60 * 1000);
+  assert.deepEqual(deploy.process.env, { FLY_CONFIG_DIR: 'fly-config' });
+  assert.deepEqual(deploy.workspace_bindings.environment,
+    [{ key: 'FLY_CONFIG_DIR', parts: [{ kind: 'workspace_path', segments: ['fly-config'] }] }]);
+  assert.equal(readCurrent.process.argv[0], 'node');
+  assert.equal(JSON.stringify(definition).includes('/opt/homebrew'), false);
+  assert.equal(JSON.stringify(definition).includes('"PATH"'), false);
+
+  const role = JSON.parse(readFileSync(new URL('../../../package-sets/trillion/local-process-role.json', import.meta.url), 'utf8'));
+  const fly = role.process_roles[0].process_admission.runtime_aliases.fly;
+  assert.equal(fly.kind, 'external_provider');
+  assert.equal(fly.provider.provider_entrypoint[0], '/flyctl');
+  assert.match(fly.provider.immutable_runtime_artifact, /^docker\.io\/flyio\/flyctl@sha256:[0-9a-f]{64}$/);
+  assert.equal(Object.hasOwn(fly, 'executable_path'), false);
+  const selection = JSON.parse(readFileSync(new URL('../../../package-sets/trillion/local-process-role-selection.json', import.meta.url), 'utf8'));
+  assert.ok(selection.runtime_alias_selections.some((entry) => entry.name === 'fly' && entry.mode === 'add_external_provider'));
+});
+
+test('container deployment keeps provider configuration but replaces a retained image with the supplied Dockerfile', () => {
+  const root = mkdtempSync(path.join(tmpdir(), 'container-deploy-config-'));
+  try {
+    const config = path.join(root, 'site/fly.toml');
+    mkdirSync(path.join(root, 'site'));
+    writeFileSync(config, [
+      'app = "example-public-app"',
+      '[build]',
+      '  image = "registry.fly.io/example-public-app@sha256:deadbeef"',
+      '[mounts]',
+      '  source = "customer_data"',
+      '  destination = "/var/lib/customer"',
+      '',
+    ].join('\n'));
+    assert.deepEqual(selectContainerArtifactDockerfileFromArgs([
+      '--select-container-artifact-dockerfile', 'site/fly.toml',
+    ], root), { configuration: 'site/fly.toml', dockerfile: 'Dockerfile' });
+    const selected = readFileSync(config, 'utf8');
+    assert.match(selected, /\[build\]\n  dockerfile = "Dockerfile"/);
+    assert.doesNotMatch(selected, /registry\.fly\.io|\n\s*image\s*=/);
+    assert.match(selected, /source = "customer_data"/);
+    assert.match(selected, /destination = "\/var\/lib\/customer"/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('provider-state operations require no invented site directory or result file', async () => {
+  const root = mkdtempSync(path.join(tmpdir(), 'hosted-provider-operation-'));
+  const descriptor = {
+    kind: 'package-owned-deployment-request',
+    profile: 'fly-restart',
+    parameters: { application: 'example-public-app' },
+  };
+  try {
+    assert.deepEqual(
+      deploymentRequestFromArgs(['--request', JSON.stringify(descriptor)], root),
+      { descriptor, siteRoot: null },
+    );
+    assert.throws(
+      () => deploymentRequestFromArgs(['--request', JSON.stringify(descriptor), '--site-root', 'anything'], root),
+      /does not accept a site root/,
+    );
+    const { spawned, spawnChild } = recordingSpawn([]);
+    const result = await runProviderDeployment({
+      descriptor,
+      spawnChild,
+      parentEnv: { PATH: '/usr/bin', FLY_API_TOKEN: 'secret' },
+      resultFile: null,
+    });
+    assert.deepEqual(result, {
+      schema: 'publication-deployment-result/v1',
+      share_url: 'https://example-public-app.fly.dev/',
+    });
+    assert.deepEqual(spawned[0].options.env, { PATH: '/usr/bin', FLY_API_TOKEN: 'secret' });
+    assert.equal(readdirSync(root).length, 0); // L136-EXEMPT: a test reading its own workspace
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('a Fly secret reaches the provider only through stdin', async () => {
+  const descriptor = {
+    kind: 'package-owned-deployment-request',
+    profile: 'fly-secret-from-environment',
+    parameters: { application: 'example-public-app', secret_name: 'PROVIDER_SECRET' },
+  };
+  const { spawned, spawnChild } = recordingSpawn([]);
+  const input = [];
+  const wrappedSpawn = (...args) => {
+    const process = spawnChild(...args);
+    process.stdin.on('data', (chunk) => input.push(String(chunk)));
+    return process;
+  };
+  await runProviderDeployment({
+    descriptor,
+    spawnChild: wrappedSpawn,
+    parentEnv: {
+      HOME: '/home/example',
+      PATH: '/usr/bin',
+      FLY_API_TOKEN: 'fly-token',
+      PROVIDER_SECRET: 'provider-secret-value',
+    },
+    resultFile: null,
+    writeStdout() {},
+    writeStderr() {},
+  });
+  assert.deepEqual(spawned[0].args, ['secrets', 'import', '--app', 'example-public-app']);
+  assert.deepEqual(spawned[0].options.env, {
+    HOME: '/home/example', PATH: '/usr/bin', FLY_API_TOKEN: 'fly-token',
+  });
+  assert.deepEqual(spawned[0].options.stdio, ['pipe', 'pipe', 'pipe']);
+  assert.deepEqual(input, ['PROVIDER_SECRET=provider-secret-value\n']);
+  assert.equal(JSON.stringify(spawned).includes('provider-secret-value'), false);
+});
+
+test('a Fly secret operation fails before provider contact when its value is absent', async () => {
+  const descriptor = {
+    kind: 'package-owned-deployment-request',
+    profile: 'fly-secret-from-environment',
+    parameters: { application: 'example-public-app', secret_name: 'PROVIDER_SECRET' },
+  };
+  let spawned = false;
+  await assert.rejects(
+    runProviderDeployment({
+      descriptor,
+      spawnChild() { spawned = true; return child(); },
+      parentEnv: { PATH: '/usr/bin', FLY_API_TOKEN: 'fly-token' },
+      resultFile: null,
+    }),
+    /deployment secret environment PROVIDER_SECRET is missing/,
+  );
+  assert.equal(spawned, false);
+});
+
+test('a provider environment secret is read without returning provider error content', async () => {
+  const source = {
+    provider: 'vercel', project: 'prj_example1234', organization: 'team_example1234',
+    environment: 'production', name: 'SOURCE_SECRET', destination_name: 'DESTINATION_SECRET',
+  };
+  const calls = [];
+  assert.equal(await providerEnvironmentSecret(source, {
+    token: 'vercel-token',
+    fetchImplementation: async (url, options) => {
+      calls.push({ url: String(url), options });
+      return { ok: true, status: 200, json: async () => ({ env: { SOURCE_SECRET: 'secret-value' } }) };
+    },
+  }), 'secret-value');
+  assert.deepEqual(calls, [{
+    url: 'https://api.vercel.com/v3/env/pull/prj_example1234/production?source=hosted-public-app%3Acopy-provider-environment-secret&teamId=team_example1234',
+    options: { headers: { authorization: 'Bearer vercel-token' } },
+  }]);
+  await assert.rejects(
+    providerEnvironmentSecret(source, {
+      token: 'vercel-token',
+      fetchImplementation: async () => ({ ok: false, status: 403, text: async () => 'provider-secret-output' }),
+    }),
+    /status 403/,
+  );
+});
+
+test('a provider environment secret transfers directly to Fly stdin', async () => {
+  const descriptor = {
+    kind: 'package-owned-deployment-request',
+    profile: 'copy-provider-environment-secret',
+    parameters: {
+      source_provider: 'vercel',
+      source_project: 'prj_example1234',
+      source_organization: 'team_example1234',
+      source_environment: 'production',
+      source_secret_name: 'SOURCE_SECRET',
+      destination_provider: 'fly',
+      destination_application: 'example-public-app',
+      destination_secret_name: 'DESTINATION_SECRET',
+    },
+  };
+  const { spawned, spawnChild } = recordingSpawn([]);
+  const input = [];
+  const wrappedSpawn = (...args) => {
+    const process = spawnChild(...args);
+    process.stdin.on('data', (chunk) => input.push(String(chunk)));
+    return process;
+  };
+  const result = await runProviderDeployment({
+    descriptor,
+    spawnChild: wrappedSpawn,
+    parentEnv: { HOME: '/home/example', PATH: '/usr/bin', FLY_API_TOKEN: 'fly-token' },
+    fetchImplementation: async () => ({
+      ok: true, status: 200, json: async () => ({ env: { SOURCE_SECRET: 'provider-secret-value' } }),
+    }),
+    readVercelCredential: () => 'vercel-token',
+    resultFile: null,
+    writeStdout() {},
+    writeStderr() {},
+  });
+  assert.deepEqual(result, {
+    schema: 'publication-deployment-result/v1',
+    share_url: 'https://example-public-app.fly.dev/',
+  });
+  assert.deepEqual(spawned[0].args, ['secrets', 'import', '--app', 'example-public-app']);
+  assert.deepEqual(spawned[0].options.env, {
+    HOME: '/home/example', PATH: '/usr/bin', FLY_API_TOKEN: 'fly-token',
+  });
+  assert.deepEqual(input, ['DESTINATION_SECRET=provider-secret-value\n']);
+  assert.equal(JSON.stringify(spawned).includes('provider-secret-value'), false);
+  assert.equal(JSON.stringify(result).includes('provider-secret-value'), false);
+});
+
+test('deployment cannot follow a site-root link outside its contained workspace', () => {
+  const root = mkdtempSync(path.join(tmpdir(), 'hosted-publication-workspace-'));
+  const outside = mkdtempSync(path.join(tmpdir(), 'hosted-publication-outside-'));
+  try {
+    symlinkSync(outside, path.join(root, 'redirected-site'));
+    assert.throws(
+      () => deploymentRequestFromArgs(['--request', JSON.stringify(releaseRow('fly')), '--site-root', 'redirected-site'], root),
+      /ordinary directory/,
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+    rmSync(outside, { recursive: true, force: true });
+  }
+});
+
+function packageSourceFiles(root) {
+  const files = [];
+  for (const entry of readdirSync(root, { withFileTypes: true })) { // L136-EXEMPT: a test reading its own workspace
+    if (entry.isDirectory()) {
+      if (!['__tests__', 'built-stored-bytes', 'node_modules'].includes(entry.name)) {
+        files.push(...packageSourceFiles(path.join(root, entry.name)));
+      }
+    } else if (entry.isFile() && /\.(?:mjs|js|ts|tsx)$/.test(entry.name) && !entry.name.includes('.test.')) {
+      files.push(path.join(root, entry.name));
+    }
+  }
+  return files;
+}
+
+// Private workspaces are permitted inside the publication owner. The prohibited
+// lifecycle is caller-addressable build/output state, not temporary file IO.
+test('hosted-public-app source has no separately addressable app-build lifecycle', () => {
+  const packageRoot = realpathSync(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'));
+  const removedConcepts = [
+    '--artifact-root',
+    'build-input-identity',
+    'package-set-builds',
+    'disposable-hosted-build',
+    'preview-built-public-entry',
+    '--release-descriptor-file',
+  ];
+  for (const file of packageSourceFiles(packageRoot)) {
+    const source = readFileSync(file, 'utf8');
+    for (const removedConcept of removedConcepts) {
+      assert.equal(source.includes(removedConcept), false, `${file} reintroduced ${removedConcept}`);
+    }
+  }
+});
+
+test('extraction parity: one-https-url-on-stdout matches the retired Vercel rule exactly', () => {
+  const rule = { strategy: 'one-https-url-on-stdout', source: 'stdout' };
+  assert.deepEqual(
+    deploymentResultFromExtraction(rule, { stdout: 'https://published.example/\n', stderr: '' }),
+    { schema: 'publication-deployment-result/v1', share_url: 'https://published.example/' },
+  );
+  for (const stdout of [
+    '',
+    'https://one.example/ https://two.example/',
+    'https://published.example/',
+    'https://published.example/?token=secret',
+    'https://published.example/#fragment',
+    'https://published.example:8443/',
+  ]) {
+    assert.throws(() => deploymentResultFromExtraction(rule, { stdout, stderr: '' }));
+  }
+});
+
+test('the Vercel request reproduces the retired deploy behavior', async () => {
+  const { root, resultFile } = fixture();
+  writeFileSync(resultFile, 'stale\n');
+  const parentEnv = { PATH: '/usr/bin', VERCEL_TOKEN: 'redacted-secret' };
+  const { spawned, spawnChild } = recordingSpawn(['https://published.example/\n']);
+  const result = await runProviderDeployment({
+    descriptor: releaseRow('vercel'),
+    spawnChild,
+    parentEnv,
+    resultFile,
+    writeStdout() {},
+    writeStderr() {},
+    createId: () => 'test-id',
+  });
+
+  assert.deepEqual(result, { schema: 'publication-deployment-result/v1', share_url: 'https://published.example/' });
+  // Same command/args the pinned script used, and the full parent env (no
+  // env_passthrough on the Vercel row) — identical to the retired invocation.
+  assert.deepEqual(spawned, [{
+    command: 'npx',
+    args: ['--yes', 'vercel@56.4.1', 'deploy', '--prebuilt', '--prod', '--yes'],
+    options: { stdio: ['ignore', 'pipe', 'pipe'], env: { PATH: '/usr/bin', VERCEL_TOKEN: 'redacted-secret' } },
+  }]);
+  assert.deepEqual(JSON.parse(readFileSync(resultFile, 'utf8')), {
+    schema: 'publication-deployment-result/v1',
+    share_url: 'https://published.example/',
+  });
+  assert.deepEqual(readdirSync(root), ['deployment-result.json']); // L136-EXEMPT: a test reading its own workspace
+});
+
+test('an unseen Cloudflare request deploys through the same package owner', async () => {
+  const { resultFile } = fixture();
+  const parentEnv = { PATH: '/usr/bin', CLOUDFLARE_API_TOKEN: 'cf-secret', CLOUDFLARE_ACCOUNT_ID: 'acct', UNRELATED: 'nope' };
+  const { spawned, spawnChild } = recordingSpawn(['https://hosted-public-app.pages.dev/\n']);
+  const result = await runProviderDeployment({
+    descriptor: releaseRow('cloudflare'),
+    spawnChild,
+    parentEnv,
+    resultFile,
+    writeStdout() {},
+    writeStderr() {},
+  });
+  assert.deepEqual(result, { schema: 'publication-deployment-result/v1', share_url: 'https://hosted-public-app.pages.dev/' });
+  assert.equal(spawned[0].command, 'npx');
+  assert.deepEqual(spawned[0].args, ['--yes', 'wrangler', 'pages', 'deploy', 'artifact', '--project-name', 'example-public-app']);
+  // env_passthrough narrows the child env to exactly the declared names.
+  assert.deepEqual(spawned[0].options.env, { PATH: '/usr/bin', CLOUDFLARE_API_TOKEN: 'cf-secret', CLOUDFLARE_ACCOUNT_ID: 'acct' });
+});
+
+test('the Fly request extracts a fixed hostname with no output parsing', async () => {
+  const { resultFile } = fixture();
+  const parentEnv = { HOME: '/home/example', PATH: '/usr/bin', FLY_API_TOKEN: 'fly-secret', OTHER: 'x' };
+  const { spawned, spawnChild } = recordingSpawn([]);
+  const tried = [];
+  const result = await runProviderDeployment({
+    descriptor: releaseRow('fly'),
+    spawnChild,
+    parentEnv,
+    resultFile,
+    writeStdout() {},
+    writeStderr() {},
+    createId: () => 'ABC-123',
+    ...provenRelease(tried),
+  });
+  assert.deepEqual(result, { schema: 'publication-deployment-result/v1', share_url: 'https://example-public-app.fly.dev/' });
+  // Built and pushed under one label, tried, then that same image released.
+  assert.deepEqual(spawned[0].args, [
+    'deploy', '--config', 'fly.toml', '--app', 'example-public-app', '--remote-only', '--build-only', '--push',
+    '--image-label', 'release-abc123',
+  ]);
+  assert.deepEqual(tried, ['registry.fly.io/example-public-app:release-abc123']);
+  assert.deepEqual(spawned[1].args, [
+    'deploy', '--config', 'fly.toml', '--app', 'example-public-app',
+    '--image', 'registry.fly.io/example-public-app:release-abc123', '--yes', '--now',
+  ]);
+  assert.deepEqual(spawned[0].options.env, { HOME: '/home/example', PATH: '/usr/bin', FLY_API_TOKEN: 'fly-secret' });
+});
+
+test('the deployment owner passes its in-memory member fixture to the candidate trial', async () => {
+  const { spawned, spawnChild } = recordingSpawn([]);
+  const memberReadiness = {
+    storage: { 'fixture-session-key': 'fixture-session-value' },
+    authenticatedSelector: '[data-member-home]',
+    journeys: [{ name: 'Articles', clickSelector: '[data-navigation-item="articles"]', readySelector: '[data-articles-ready]' }],
+  };
+  let observed;
+  await runProviderDeployment({
+    descriptor: releaseRow('fly'), spawnChild, parentEnv: { PATH: '/usr/bin' }, resultFile: null,
+    writeStdout() {}, writeStderr() {},
+    ...provenRelease(), releaseMemberReadiness: memberReadiness,
+    proveRelease: async (input) => {
+      observed = input.memberReadiness;
+      return { application: 'example-public-app', image: input.image, previous_image: 'registry.fly.io/example-public-app:before', live: { ready: true }, trial: { ready: true } };
+    },
+  });
+  assert.deepEqual(observed, memberReadiness);
+  assert.equal(JSON.stringify(spawned).includes('fixture-session-value'), false);
+});
+
+function provenRelease(tried = [], { refuse = false, liveFailsAfter = false } = {}) {
+  return {
+    readProviderCredential: () => 'test-credential',
+    readCurrentServingImage: async () => 'registry.fly.io/example-public-app:before',
+    proveRelease: async ({ image }) => {
+      tried.push(image);
+      if (refuse) throw new Error('release refused, the new version did not fully start');
+      return { application: 'example-public-app', image, previous_image: 'registry.fly.io/example-public-app:before', live: { ready: true }, trial: { ready: true } };
+    },
+    confirmRelease: async ({ proof, restore }) => {
+      if (!liveFailsAfter) return { restored: false };
+      await restore(proof.previous_image);
+      throw new Error('the previous version was released back');
+    },
+  };
+}
+
+test('a newer serving image arriving during the trial is never overwritten', async () => {
+  const { spawned, spawnChild } = recordingSpawn([]);
+  await assert.rejects(runProviderDeployment({
+    descriptor: releaseRow('fly'), spawnChild, parentEnv: { PATH: '/usr/bin' }, resultFile: null,
+    writeStdout() {}, writeStderr() {}, ...provenRelease([]),
+    readCurrentServingImage: async () => 'registry.fly.io/example-public-app:newer',
+  }), /serving image changed during release trial/);
+  assert.equal(spawned.length, 1);
+  assert.ok(spawned[0].args.includes('--build-only'));
+});
+
+test('a release composed from an older image cannot replace a newer base', async () => {
+  const { spawned, spawnChild } = recordingSpawn([]);
+  await assert.rejects(runProviderDeployment({
+    descriptor: releaseRow('fly'), spawnChild, parentEnv: { PATH: '/usr/bin' }, resultFile: null,
+    writeStdout() {}, writeStderr() {}, ...provenRelease([]),
+    expectedServingImage: 'registry.fly.io/example-public-app:reviewed-base',
+  }), /serving image changed since the reviewed deployment was composed/);
+  assert.equal(spawned.length, 1);
+  assert.ok(spawned[0].args.includes('--build-only'));
+});
+
+test('a release whose trial start fails never reaches the live app', async () => {
+  const { spawned, spawnChild } = recordingSpawn([]);
+  await assert.rejects(runProviderDeployment({
+    descriptor: releaseRow('fly'), spawnChild, parentEnv: { PATH: '/usr/bin' }, resultFile: null,
+    writeStdout() {}, writeStderr() {}, ...provenRelease([], { refuse: true }),
+  }), /release refused/);
+  // Only the build ran; no command released anything.
+  assert.equal(spawned.length, 1);
+  assert.ok(spawned[0].args.includes('--build-only'));
+});
+
+test('a release that breaks live after going out puts the previous image back', async () => {
+  const { spawned, spawnChild } = recordingSpawn([]);
+  await assert.rejects(runProviderDeployment({
+    descriptor: releaseRow('fly'), spawnChild, parentEnv: { PATH: '/usr/bin' }, resultFile: null,
+    writeStdout() {}, writeStderr() {}, ...provenRelease([], { liveFailsAfter: true }),
+  }), /released back/);
+  const restored = spawned.at(-1).args;
+  assert.equal(restored[restored.indexOf('--image') + 1], 'registry.fly.io/example-public-app:before');
+});
+
+test('a release keeps the live machines serving settings and size over the stored config', () => {
+  const stored = {
+    app: 'example-public-app',
+    build: { dockerfile: 'Dockerfile' },
+    env: { EXISTING: 'kept' },
+    http_service: { internal_port: 8080, auto_stop_machines: true, auto_start_machines: true, min_machines_running: 0 },
+    vm: [{ memory: '4096mb', cpu_kind: 'shared', cpus: 2 }],
+  };
+  const serving = {
+    config: {
+      metadata: { fly_process_group: 'app' },
+      env: { BITFIELD_APP_ENTRY_SCENE_HOSTS: 'app.example.test', FLY_PROCESS_GROUP: 'app', PRIMARY_REGION: 'ord' },
+      services: [{ autostop: false, autostart: true, min_machines_running: 1 }],
+      guest: { cpu_kind: 'performance', cpus: 2, memory_mb: 8192 },
+    },
+  };
+  const trial = { config: { metadata: { purpose: 'trial-start-of-a-release' }, guest: { cpu_kind: 'shared', cpus: 1, memory_mb: 256 } } };
+  const carried = configWithCurrentServingSettings(stored, [trial, serving]);
+  assert.deepEqual(carried.http_service, { internal_port: 8080, auto_stop_machines: false, auto_start_machines: true, min_machines_running: 1 });
+  assert.deepEqual(carried.vm, [{ memory: '8192mb', cpu_kind: 'performance', cpus: 2 }]);
+  assert.deepEqual(carried.env, { EXISTING: 'kept', BITFIELD_APP_ENTRY_SCENE_HOSTS: 'app.example.test' });
+  assert.deepEqual(carried.build, stored.build);
+  // Nothing serving: the stored config is used as it is.
+  assert.equal(configWithCurrentServingSettings(stored, []), stored);
+  assert.throws(() => configWithCurrentServingSettings(null, []), /no stored config/);
+});
+
+test('retiring an application is one bounded provider step with the app name as its only argument', async () => {
+  const descriptor = {
+    kind: 'package-owned-deployment-request',
+    profile: 'fly-retire-application',
+    parameters: { application: 'example-public-app' },
+  };
+  const { spawned, spawnChild } = recordingSpawn([]);
+  await runProviderDeployment({
+    descriptor, spawnChild, parentEnv: { PATH: '/usr/bin', FLY_API_TOKEN: 'secret' }, resultFile: null,
+  });
+  assert.deepEqual(spawned[0].args, ['apps', 'destroy', 'example-public-app', '--yes']);
+  assert.throws(
+    () => packageOwnedDeploymentPlan({ ...descriptor, parameters: { application: 'x; fly apps list' } }),
+    /application is invalid/,
+  );
+});
+
+test('the retirement CLI constructs the fixed provider profile from one semantic application', () => {
+  assert.deepEqual(
+    retireProviderApplicationRequestFromArgs(['--retire-provider-application', 'example-public-app']),
+    {
+      kind: 'package-owned-deployment-request',
+      profile: 'fly-retire-application',
+      parameters: { application: 'example-public-app' },
+    },
+  );
+  assert.equal(retireProviderApplicationRequestFromArgs([]), null);
+  assert.throws(
+    () => retireProviderApplicationRequestFromArgs(['--retire-provider-application', 'x; fly apps list']),
+    /one semantic provider application/,
+  );
+  assert.throws(
+    () => retireProviderApplicationRequestFromArgs(['--retire-provider-application', 'example-public-app', '--request', '{}']),
+    /accepts only one/,
+  );
+});
+
+test('the running-app retirement action exposes only one semantic application binding', () => {
+  const manifest = JSON.parse(readFileSync(new URL('../things-to-store-and-run.json', import.meta.url), 'utf8'));
+  const definition = manifest.things.find((thing) =>
+    thing.address === 'package::hosted-public-app::workflow-action::retire-provider-application')?.payload;
+  assert.ok(definition);
+  assert.deepEqual(definition.input_schema, {
+    type: 'object',
+    required: ['provider_application'],
+    properties: { provider_application: { type: 'string' } },
+    additionalProperties: false,
+  });
+  const serialized = JSON.stringify(definition);
+  assert.match(serialized, /--retire-provider-application/);
+  assert.doesNotMatch(serialized, /--request|site-root|"profile"|"command"/);
+  const ask = definition.steps.find((step) => step.id === 'retire');
+  assert.equal(ask.config.name, 'compute.process_sequence');
+  const [prepare, retire] = ask.config.input.steps;
+  assert.deepEqual(prepare.process.argv.slice(0, 3), [
+    'node', 'run-provider-deploy.mjs', '--retire-provider-application',
+  ]);
+  assert.deepEqual(retire.process.argv.slice(0, 3), ['fly', 'apps', 'destroy']);
+  assert.equal(retire.process.argv.at(-1), '--yes');
+  assert.deepEqual(retire.process.env, { FLY_CONFIG_DIR: 'fly-config' });
+});
+
+test('the running-app environment action exposes semantic values, never a remote command', () => {
+  const manifest = JSON.parse(readFileSync(new URL('../things-to-store-and-run.json', import.meta.url), 'utf8'));
+  const definition = manifest.things.find((thing) =>
+    thing.address === 'package::hosted-public-app::workflow-action::advance-installed-app-process-environment')?.payload;
+  assert.ok(definition);
+  assert.deepEqual(definition.input_schema, {
+    type: 'object',
+    required: ['provider_application', 'provider_credential_key', 'app_id', 'environment_name', 'environment_value'],
+    properties: {
+      provider_application: { type: 'string' },
+      provider_credential_key: { type: 'string' },
+      app_id: { type: 'string' },
+      environment_name: { type: 'string' },
+      environment_value: { type: 'string' },
+    },
+    additionalProperties: false,
+  });
+  const mount = definition.steps.find((step) => step.id === 'credential_mount');
+  assert.equal(mount.config.definition_id, 'action:resolve-one-credential-mount');
+  assert.equal(mount.config.inputs.mount.mount_path, 'fly-config/config.yml');
+  const prepare = definition.steps.find((step) => step.id === 'prepare');
+  assert.equal(prepare.config.name, 'compute.process');
+  assert.deepEqual(prepare.config.input.argv.slice(0, 5), [
+    'node', 'run-provider-deploy.mjs', '--prepare-installed-app-process-environment',
+    '--provider-application',
+    { $kind: 'binding', select: { from: 'input', path: 'provider_application' } },
+  ]);
+  const process = definition.steps.find((step) => step.id === 'advance_and_reopen');
+  assert.equal(process.config.name, 'compute.process_sequence');
+  assert.deepEqual(process.config.input.steps.map((step) => step.process.argv.slice(0, 3)), [
+    ['fly', 'ssh', 'console'],
+    ['fly', 'apps', 'restart'],
+  ]);
+  assert.ok(process.config.input.steps.every((step) => step.process.env.FLY_CONFIG_DIR === 'fly-config'));
+  const serialized = JSON.stringify(definition);
+  assert.doesNotMatch(serialized, /open-bitfield-app|\/opt\/bitfield|"executable"/);
+});
+
+test('the running-app machine size action exposes only application, CPU, and memory', () => {
+  const manifest = JSON.parse(readFileSync(new URL('../things-to-store-and-run.json', import.meta.url), 'utf8'));
+  const definition = manifest.things.find((thing) =>
+    thing.address === 'package::hosted-public-app::workflow-action::set-machine-size')?.payload;
+  assert.ok(definition);
+  assert.deepEqual(definition.input_schema, {
+    type: 'object',
+    required: ['provider_application', 'vm_size', 'memory_megabytes'],
+    properties: {
+      provider_application: { type: 'string' },
+      vm_size: { type: 'string' },
+      memory_megabytes: { type: 'string' },
+    },
+    additionalProperties: false,
+  });
+  const process = definition.steps.find((step) => step.id === 'set_machine_size');
+  assert.equal(process.config.name, 'compute.process');
+  assert.deepEqual(process.config.input.argv.slice(0, 5), [
+    'node', 'run-provider-deploy.mjs', '--set-machine-size',
+    '--provider-application',
+    { $kind: 'binding', select: { from: 'input', path: 'provider_application' } },
+  ]);
+  assert.doesNotMatch(JSON.stringify(definition), /machine update|flyctl|"command"|"executable"/);
+});
+
+test('package-set DATA cannot smuggle executable behavior through the deployment owner', () => {
+  assert.throws(() => packageOwnedDeploymentPlan({
+    kind: 'package-owned-deployment-request', schema: 'hosted-public-app.deployment-request/v2',
+    profile: 'fly-remote-only',
+    parameters: { application: 'example-public-app', config_file: 'fly.toml' },
+    command: 'sh', args: ['-c', 'anything'],
+  }), /may contain only/);
+  assert.throws(() => packageOwnedDeploymentPlan({
+    kind: 'package-owned-deployment-request', schema: 'hosted-public-app.deployment-request/v2',
+    profile: 'unowned-provider', parameters: {},
+  }), /profile is not owned/);
+  assert.throws(() => packageOwnedDeploymentPlan({
+    kind: 'package-owned-deployment-request', schema: 'hosted-public-app.deployment-request/v2',
+    profile: 'fly-remote-only',
+    parameters: { application: 'example-public-app', config_file: '../../other/fly.toml' },
+  }), /config_file is invalid/);
+  assert.throws(() => packageOwnedDeploymentPlan({
+    kind: 'package-owned-deployment-request', schema: 'hosted-public-app.deployment-request/v2',
+    profile: 'fly-remote-only',
+    parameters: { application: 'example-public-app', config_file: 'fly.toml', argv: ['attacker'] },
+  }), /request contract/);
+});
+
+test('result extraction failure removes stale output', async () => {
+  // zero / two URLs
+  for (const stdout of ['', 'https://one.example/ https://two.example/']) {
+    const { resultFile } = fixture();
+    writeFileSync(resultFile, 'stale\n');
+    const { spawnChild } = recordingSpawn([stdout]);
+    await assert.rejects(
+      runProviderDeployment({ descriptor: releaseRow('vercel'), spawnChild, parentEnv: {}, resultFile, writeStdout() {}, writeStderr() {} }),
+      /exactly one valid deployment URL/,
+    );
+    assert.equal(existsSync(resultFile), false);
+  }
+  // missing template var
+  assert.throws(
+    () => deploymentResultFromExtraction({ strategy: 'fixed-hostname', hostname_template: 'https://{app_name}.fly.dev' }, { stdout: '', stderr: '' }),
+    /vars\.app_name is missing/,
+  );
+  // unsupported strategy
+  assert.throws(
+    () => deploymentResultFromExtraction({ strategy: 'guess-it' }, { stdout: '', stderr: '' }),
+    /strategy is not supported/,
+  );
+});
+
+test('a non-zero child exit rejects and never commits a result', async () => {
+  const { resultFile } = fixture();
+  writeFileSync(resultFile, 'stale\n');
+  function spawnChild() {
+    const step = child();
+    queueMicrotask(() => step.emit('close', 1, null));
+    return step;
+  }
+  await assert.rejects(
+    runProviderDeployment({ descriptor: releaseRow('vercel'), spawnChild, parentEnv: {}, resultFile, writeStdout() {}, writeStderr() {} }),
+    /deploy step exited 1/,
+  );
+  assert.equal(existsSync(resultFile), false);
+});
+
+test('deployment requests carry no secret value and results never leak environment values', async () => {
+  const secret = 'SUPER-SECRET-TOKEN-VALUE';
+  for (const provider of ['vercel', 'fly', 'cloudflare', 'railway']) {
+    const row = releaseRow(provider);
+    const serialized = JSON.stringify(row);
+    assert.ok(!serialized.includes(secret), `${provider} row must not contain a secret value`);
+    const plan = packageOwnedDeploymentPlan(row);
+    for (const name of plan.env_passthrough ?? []) {
+      // passthrough entries are variable NAMES (uppercase identifiers), never values.
+      assert.match(name, /^[A-Z][A-Z0-9_]*$/, `${provider} env_passthrough entry ${name} must be a bare env name`);
+    }
+  }
+  // A secret present in the parent env must not appear in the committed artifact.
+  const { resultFile } = fixture();
+  const result = await runProviderDeployment({
+    descriptor: releaseRow('fly'),
+    spawnChild: recordingSpawn([]).spawnChild,
+    parentEnv: { FLY_API_TOKEN: secret },
+    resultFile,
+    writeStdout() {},
+    writeStderr() {},
+    ...provenRelease(),
+  });
+  assert.ok(!JSON.stringify(result).includes(secret));
+  assert.ok(!readFileSync(resultFile, 'utf8').includes(secret));
+});

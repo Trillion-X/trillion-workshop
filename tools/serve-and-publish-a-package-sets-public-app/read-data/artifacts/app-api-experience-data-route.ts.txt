@@ -1,0 +1,27 @@
+import {
+  readAuthorizedData,
+  resolveHostedExperienceAuthority,
+  safeAuthorityError,
+} from "../../../../stored-artifacts/hosted-experience-authority";
+
+export const dynamic = "force-dynamic";
+
+export async function GET(
+  request: Request,
+  context: { params: Promise<{ experienceRef: string }> },
+) {
+  try {
+    const { experienceRef } = await context.params;
+    const requestedRef = new URL(request.url).searchParams.get("ref") ?? "";
+    const authority = await resolveHostedExperienceAuthority(
+      request,
+      experienceRef,
+      "data",
+    );
+    return Response.json(await readAuthorizedData(authority, requestedRef), {
+      headers: { "Cache-Control": "private, no-store" },
+    });
+  } catch (error) {
+    return safeAuthorityError(error);
+  }
+}

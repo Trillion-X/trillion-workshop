@@ -1,0 +1,139 @@
+import { strict as assert } from 'node:assert';
+import { spawn } from 'node:child_process';
+import { createServer as createHttpServer, request as httpRequest } from 'node:http';
+import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import test from 'node:test';
+
+import { theBuiltEntryServer } from './built-entry-server.mjs';
+
+const HOST = 'customer.example.test';
+
+async function listen(server) {
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+  return server.address().port;
+}
+
+function ask(port, path, method = 'GET', cookie = '') {
+  return new Promise((resolve, reject) => {
+    const request = httpRequest({
+      host: '127.0.0.1', port, path, method,
+      headers: { Host: HOST, Accept: 'text/html', ...(cookie ? { Cookie: cookie } : {}),
+        ...(method === 'POST' ? { 'Content-Type': 'application/json' } : {}) },
+    }, (response) => {
+      const chunks = [];
+      response.on('data', (chunk) => chunks.push(chunk));
+      response.on('end', () => resolve({ status: response.statusCode, location: response.headers.location,
+        body: Buffer.concat(chunks).toString('utf8') }));
+    });
+    request.on('error', reject);
+    request.end(method === 'POST' ? '{}' : undefined);
+  });
+}
+
+test('the running front door denies anonymous app and account reads while keeping the login action reachable', async () => {
+  const temp = await mkdtemp(join(tmpdir(), 'hosted-private-routes-'));
+  const staticDir = join(temp, 'static');
+  await mkdir(staticDir);
+  await writeFile(join(staticDir, 'index.html'), '<!doctype html><div id="root">shared directory scene</div>');
+  const bundledDir = join(temp, 'bundled');
+  await mkdir(join(bundledDir, 'assets', 'account-session'), { recursive: true });
+  await writeFile(join(bundledDir, 'assets', 'account-session', 'hosted-sign-in.js'), 'export const signInWorks = true;');
+  const directory = createHttpServer(async (request, response) => {
+    if (request.url === '/boot') {
+      response.setHeader('Content-Type', 'application/json');
+      response.end(JSON.stringify([{ running_command_list_basis: 'test-basis' }]));
+      return;
+    }
+    if (request.url === '/target/account-session.login-link') {
+      response.setHeader('Content-Type', 'application/json');
+      response.end('{"queued":true}');
+      return;
+    }
+    if (request.url === '/target/account-session.authorize-transient-session') {
+      let body = '';
+      for await (const chunk of request) body += chunk;
+      const evidence = JSON.parse(body).headers ?? [];
+      const cookie = evidence.find((header) => header.name.toLowerCase() === 'cookie')?.value;
+      response.setHeader('Content-Type', 'application/json');
+      response.end(cookie === 'session=ada'
+        ? '{"principal_ref":"principal:ada"}' : '{}');
+      return;
+    }
+    if (request.url === '/target/engine.operation.label-addressed') {
+      response.setHeader('Content-Type', 'application/json');
+      response.end('{"found":false}');
+      return;
+    }
+    response.setHeader('Content-Type', 'application/json');
+    response.end('{"private":"would leak if proxied"}');
+  });
+  const directoryPort = await listen(directory);
+  const descriptionFile = join(temp, 'page-description.json');
+  await writeFile(descriptionFile, JSON.stringify({
+    kind: 'hosted-public-app.page-description',
+    pages: [{ hosts: [HOST], language: 'en', title: 'Customer', meta_description: 'Customer',
+      public_sign_in_island: { bundle_url: '/assets/account-session/hosted-sign-in.js' },
+      per_account_runtime: {
+        directory_shell_url: `http://127.0.0.1:${directoryPort}`,
+        sign_in_route: '/sign-in',
+        directory_route_prefixes: ['/target/account-session.'],
+        public_directory_targets: ['/target/account-session.login-link'],
+        workspace: { root_directory: join(temp, 'workspaces') },
+      },
+    }],
+  }));
+  const { server } = await theBuiltEntryServer();
+  const probe = createHttpServer();
+  const port = await listen(probe);
+  await new Promise((resolve) => probe.close(resolve));
+  const child = spawn(process.execPath, [server], {
+    env: {
+      ...process.env,
+      BITFIELD_PUBLIC_ENTRY_LISTEN_HOST: '127.0.0.1',
+      BITFIELD_PUBLIC_ENTRY_LISTEN_PORT: String(port),
+      BITFIELD_PUBLIC_ENTRY_SHELL_URL: `http://127.0.0.1:${directoryPort}`,
+      BITFIELD_PUBLIC_PAGE_DESCRIPTION_FILE: descriptionFile,
+      BITFIELD_APP_ENTRY_SCENE_HOSTS: HOST,
+      BITFIELD_BROWSER_STATIC_DIR: staticDir,
+      BITFIELD_PUBLIC_BUNDLED_ASSET_DIR: bundledDir,
+      BITFIELD_INSTALL_ROOT: temp,
+      BITFIELD_BOOT_WAIT_MS: '1000',
+    },
+    stdio: 'ignore',
+  });
+  try {
+    let ready = false;
+    for (let attempt = 0; attempt < 60; attempt += 1) {
+      try { await ask(port, '/boot'); ready = true; break; } catch { await new Promise((resolve) => setTimeout(resolve, 50)); }
+    }
+    assert.equal(ready, true, 'entry server must start');
+    const root = await ask(port, '/');
+    assert.equal(root.status, 302);
+    assert.equal(root.location, '/sign-in');
+    const signIn = await ask(port, '/sign-in');
+    assert.equal(signIn.status, 200);
+    assert.match(signIn.body, /\/assets\/account-session\/hosted-sign-in\.js/);
+    const trailingSlash = await ask(port, '/sign-in/?returnPath=%2Faccount');
+    assert.equal(trailingSlash.status, 308);
+    assert.equal(trailingSlash.location, '/sign-in?returnPath=%2Faccount');
+    const island = await ask(port, '/assets/account-session/hosted-sign-in.js');
+    assert.equal(island.status, 200);
+    assert.match(island.body, /signInWorks/);
+    assert.equal((await ask(port, '/entry-scene')).status, 401);
+    assert.equal((await ask(port, '/target/account-session.read-browser-session', 'POST')).status, 401);
+    assert.equal((await ask(port, '/cas/customer-content')).status, 401);
+    const login = await ask(port, '/target/account-session.login-link', 'POST');
+    assert.equal(login.status, 200);
+    assert.deepEqual(JSON.parse(login.body), { queued: true });
+    const signedIn = await ask(port, '/', 'GET', 'session=ada');
+    assert.equal(signedIn.status, 503);
+    assert.match(signedIn.body, /requires a confined launcher owner/);
+  } finally {
+    child.kill('SIGTERM');
+    await new Promise((resolve) => child.once('exit', resolve));
+    await new Promise((resolve) => directory.close(resolve));
+    await rm(temp, { recursive: true, force: true });
+  }
+});

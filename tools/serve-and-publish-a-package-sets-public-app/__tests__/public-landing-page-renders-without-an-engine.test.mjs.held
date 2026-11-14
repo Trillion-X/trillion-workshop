@@ -1,0 +1,581 @@
+#!/usr/bin/env node
+// The public landing page must render from the built server with NO engine running.
+//
+// WHY THIS EXISTS, and it is not the reason it looks like. The entry server carries roughly
+// 50 identifiers named after one product: page shells, a thank-you page, an offer script, a
+// font loader. Those do not belong in a generic hosting package and are going to move. But
+// there was NO test on any of it, so the first refactor to touch that HTML would have been a
+// blind edit on a live landing page, and the dead-engine test next door covers the app host's
+// SCENE, not the public host's PAGE. It would have stayed green while the page broke.
+//
+// So this is a characterization test written BEFORE the split, to pin the behaviour that
+// exists today. It asserts the page's own structural markers rather than its wording, because
+// marketing copy is expected to change and structure is not. If a later refactor makes this
+// fail, that is the test doing its job.
+//
+// It deliberately asserts NOTHING about which product the page is for. The markers below are
+// what a rendered island shell is, not what it says.
+
+import { spawn } from 'node:child_process';
+import { mkdtemp, writeFile, mkdir, rm, readFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { createServer } from 'node:net';
+import { request as httpRequest } from 'node:http';
+import { theBuiltEntryServer } from './built-entry-server.mjs';
+import { liftPersistentEntryStyles } from '../processes/persistent-entry-styles.mjs';
+
+const PUBLIC_HOST = 'public.entry-host.test';
+
+async function freePort() {
+  return new Promise((resolve, reject) => {
+    const probe = createServer();
+    probe.on('error', reject);
+    probe.listen(0, '127.0.0.1', () => {
+      const { port } = probe.address();
+      probe.close(() => resolve(port));
+    });
+  });
+}
+
+// node:http, NOT fetch: `Host` is a forbidden header name in fetch, so a fetch-based probe
+// silently arrives as 127.0.0.1 and never matches a configured host.
+function get(port, path, host) {
+  return new Promise((resolve, reject) => {
+    const req = httpRequest(
+      { host: '127.0.0.1', port, path, method: 'GET', headers: { Host: host, Accept: 'text/html' } },
+      (response) => {
+        let body = '';
+        response.setEncoding('utf8');
+        response.on('data', (c) => { body += c; });
+        response.on('end', () => resolve({ status: response.statusCode, body, headers: response.headers }));
+      },
+    );
+    req.on('error', reject);
+    req.end();
+  });
+}
+
+function localScriptAndStylesheetReferences(html) {
+  const references = [];
+  for (const match of html.matchAll(/<script\b[^>]*\bsrc=(['"])([^'"]+)\1[^>]*>/gi)) {
+    if (match[2].startsWith('/')) references.push({ path: match[2], kind: 'script' });
+  }
+  for (const match of html.matchAll(/<link\b[^>]*>/gi)) {
+    const tag = match[0];
+    if (!/\brel=(['"])stylesheet\1/i.test(tag)) continue;
+    const href = tag.match(/\bhref=(['"])([^'"]+)\1/i)?.[2];
+    if (href?.startsWith('/')) references.push({ path: href, kind: 'stylesheet' });
+  }
+  return references;
+}
+
+const failures = [];
+function check(name, condition, detail) {
+  if (condition) console.log(`  PASS  ${name}`);
+  else { console.log(`  FAIL  ${name}${detail ? `, ${detail}` : ''}`); failures.push(name); }
+}
+
+const { server: SERVER, note: serverNote, reason: noServerReason } = await theBuiltEntryServer();
+if (!SERVER) {
+  // Exit 1 rather than skip. A test that passes when its subject is absent cannot fail, and
+  // one that silently picks among several subjects is worse: it reports green about a binary
+  // you did not build.
+  console.log(`FAIL: ${noServerReason}`);
+  process.exit(1);
+}
+console.log(serverNote);
+
+// The description a test serves. Built here rather than checked in complete, because
+// chrome_css_file must be an ABSOLUTE path and hardcoding one into a fixture is the exact
+// defect T2 removed from the server.
+const here = (name) => new URL(`./${name}`, import.meta.url).pathname;
+async function writeTestDescription(intoDir) {
+  const base = JSON.parse(await readFile(here('page-description-for-tests.json'), 'utf8'));
+  const path = join(intoDir, 'page-description.json');
+  await writeFile(path, JSON.stringify({
+    ...base,
+    pages: base.pages.map((page) => ({
+      ...page,
+      landing_offers: {
+        systemOffer: {
+          offer_id: packagedOfferId,
+          price_option_id: packagedPriceId,
+          fields: {
+            amountCents: { from: 'price_option', key: 'amount_cents' },
+            currency: { from: 'price_option', key: 'currency' },
+            postPurchaseRoutePath: { from: 'offer', key: 'post_purchase_route_path' },
+          },
+        },
+        patronPolicy: {
+          offer_id: packagedPatronOfferId,
+          price_option_id: packagedPatronPriceId,
+          fields: { policy: { from: 'price_option', key: 'voluntary_amount_policy' } },
+        },
+      },
+      chrome_css_file: here('chrome-for-tests.css'),
+      shell_css_file: here('page-shell-for-tests.css'),
+      fallback_body_file: here('fallback-body-for-tests.html'),
+      // The suite's OWN archive. It used to have none and asked for a real tenant's article route,
+      // which worked only because that tenant's 4.4 MB archive was imported into this generic
+      // package. The archive is the tenant's now, so a test that needs one brings one.
+      fallback_pages_file: here('archived-pages-for-tests.json'),
+      route_redirects: [{
+        from: '/welcome',
+        to: 'https://community.example.test/',
+        checkout_completion_target: 'checkout.complete-hosted-session',
+      }],
+    })),
+  }), 'utf8');
+  return path;
+}
+
+const staticDir = await mkdtemp(join(tmpdir(), 'public-page-proof-'));
+const installRoot = await mkdtemp(join(tmpdir(), 'public-page-install-'));
+const islandAssetDir = await mkdtemp(join(tmpdir(), 'public-page-island-assets-'));
+// The entry root markers are NOT decoration. injectRoot throws without them, and the article
+// recovery path catches that throw and silently falls through to the editorial body, so a
+// fixture missing them makes a whole rendering path look unreachable when it is merely broken
+// in the fixture. That is how the chrome read was recorded as unprovable twice.
+await writeFile(join(staticDir, 'index.html'),
+  '<!DOCTYPE html>\n<html><head></head><body>'
+  + '<!--BITFIELD_ENTRY_ROOT_START--><div id="root"></div><!--BITFIELD_ENTRY_ROOT_END-->'
+  + '</body></html>\n', 'utf8');
+const publicIconFile = join(staticDir, 'public-app-icon.png');
+await writeFile(publicIconFile, Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
+await mkdir(join(staticDir, 'assets'), { recursive: true });
+await writeFile(join(staticDir, 'assets', 'removed-shell-script.html'),
+  '<!DOCTYPE html><p>clean URL decoy that an asset request must never receive</p>\n', 'utf8');
+await mkdir(join(islandAssetDir, 'assets', 'test-tenant'), { recursive: true });
+await writeFile(join(islandAssetDir, 'assets', 'test-tenant', 'app.js'),
+  'document.documentElement.dataset.testTenantIsland = "mounted";\n', 'utf8');
+await writeFile(join(islandAssetDir, 'assets', 'test-tenant', 'app.css'),
+  'html { --test-tenant-island: ready; }\n', 'utf8');
+const packagedOfferId = 'offer:packaged-dead-engine-proof';
+const packagedPriceId = 'price:packaged-dead-engine-proof';
+const packagedPatronOfferId = 'offer:packaged-patron-proof';
+const packagedPatronPriceId = 'price:packaged-patron-proof';
+const packagedOffersFile = join(staticDir, 'commercial-offer-records.json');
+await writeFile(packagedOffersFile, JSON.stringify({
+  kind: 'package-set-records',
+  record_set: 'commercial-offer-records',
+  records: [{
+    kind: 'commercial-offer',
+    id: packagedOfferId,
+    label: 'Packaged offer proof',
+    summary: 'This offer came from the packaged fallback.',
+    access_refs: [],
+    benefits: ['Available while the engine is asleep'],
+    content_refs: [],
+    price_options: [{
+      id: packagedPriceId,
+      label: '$100 one time',
+      amount_cents: 10000,
+      currency: 'usd',
+      payment_timing: 'one_time',
+    }],
+    post_purchase_route_path: '/welcome',
+    sort_order: 1,
+  }, {
+    kind: 'commercial-offer',
+    id: packagedPatronOfferId,
+    label: 'Packaged patron proof',
+    summary: 'This patron offer came from the packaged fallback.',
+    access_refs: [],
+    benefits: ['Patron support remains available while the engine is asleep'],
+    content_refs: [],
+    price_options: [{
+      id: packagedPatronPriceId,
+      label: '$25 /month',
+      amount_cents: 2500,
+      currency: 'usd',
+      interval: 'month',
+      payment_timing: 'recurring',
+      voluntary_amount_policy: {
+        allow_custom: true,
+        currency: 'usd',
+        min_cents: 50,
+        suggested_cents: [2500],
+      },
+    }],
+    post_purchase_route_path: '/program',
+    sort_order: 2,
+  }],
+}), 'utf8');
+
+const port = await freePort();
+const deadEnginePort = await freePort();
+const child = spawn(process.execPath, [SERVER], {
+  env: {
+    ...process.env,
+    BITFIELD_PUBLIC_ENTRY_LISTEN_HOST: '127.0.0.1',
+    BITFIELD_PUBLIC_ENTRY_LISTEN_PORT: String(port),
+    BITFIELD_PUBLIC_ENTRY_SHELL_URL: `http://127.0.0.1:${deadEnginePort}`,
+    BITFIELD_BROWSER_STATIC_DIR: staticDir,
+    BITFIELD_PUBLIC_ENTRY_STATIC_SITE_DIR: staticDir,
+    BITFIELD_PUBLIC_ENTRY_ICON_FILE: publicIconFile,
+    BITFIELD_ISLAND_ASSET_DIR: islandAssetDir,
+    BITFIELD_HOST_ENTRY_SCENE_HOSTS: PUBLIC_HOST,
+    // The server ships with NO page description, so a test must say who it is serving. This is
+    // a new REQUIRED input rather than a retrofit: a run without it would boot a server that no
+    // longer exists. Every assertion below is unchanged.
+    BITFIELD_PUBLIC_PAGE_DESCRIPTION_FILE: await writeTestDescription(staticDir),
+    BITFIELD_COMMERCIAL_OFFERS_FILE: packagedOffersFile,
+    BITFIELD_INSTALL_ROOT: installRoot,
+    BITFIELD_BOOT_WAIT_MS: '1000',
+  },
+  stdio: ['ignore', 'pipe', 'pipe'],
+});
+let log = '';
+child.stdout.on('data', (d) => { log += d; });
+child.stderr.on('data', (d) => { log += d; });
+
+let exitCode = 0;
+try {
+  console.log('\npublic-landing-page-renders-without-an-engine');
+  let listening = false;
+  const deadline = Date.now() + 30000;
+  while (Date.now() < deadline) {
+    try { await get(port, '/', PUBLIC_HOST); listening = true; break; }
+    catch { await new Promise((r) => setTimeout(r, 200)); }
+  }
+  check('the server listens with no engine behind it', listening);
+  if (!listening) throw new Error('server never listened');
+
+  const page = await get(port, '/', PUBLIC_HOST);
+  check('the public host answers 200, not 502', page.status === 200, `got ${page.status}`);
+  check('it is a complete HTML document', /<!DOCTYPE html>/i.test(page.body) && /<\/html>/i.test(page.body));
+  check('it has a head and a body', /<head[\s>]/i.test(page.body) && /<body[\s>]/i.test(page.body));
+  check('it carries a title', /<title>[^<]+<\/title>/i.test(page.body));
+  check('the public page links the standard app icon route',
+    page.body.includes('<link rel="icon" href="/favicon.ico" type="image/png">'));
+  const favicon = await get(port, '/favicon.ico', PUBLIC_HOST);
+  check('the standard app icon route returns image bytes rather than the HTML page',
+    favicon.status === 200
+      && favicon.headers['content-type'] === 'image/png'
+      && !favicon.body.includes('<!DOCTYPE html>'),
+    `got ${favicon.status} ${favicon.headers['content-type'] || 'without a content type'}`);
+  check('the one-time packaged offer reaches the landing page with no engine',
+    page.body.includes(`"offerId":"${packagedOfferId}"`)
+      && page.body.includes(`"priceOptionId":"${packagedPriceId}"`)
+      && page.body.includes('"amountCents":10000'),
+    'the one-time offer was rendered unavailable');
+  check('the packaged patron policy reaches the landing page with no engine',
+    page.body.includes(`"offerId":"${packagedPatronOfferId}"`)
+      && page.body.includes(`"priceOptionId":"${packagedPatronPriceId}"`)
+      && page.body.includes('"allow_custom":true'),
+    'the patron policy was rendered unavailable');
+
+  const welcome = await get(port, '/welcome?checkout=success&session_id=cs_test_dead_engine', PUBLIC_HOST);
+  check('a checkout return redirects to the package-set destination with no engine',
+    welcome.status === 302 && welcome.headers.location === 'https://community.example.test/',
+    `got ${welcome.status} ${welcome.headers.location || ''}`);
+  const queuedCompletions = await readFile(join(installRoot, 'pending-checkout-completions.jsonl'), 'utf8');
+  check('the checkout session is durably queued for the existing grant target',
+    queuedCompletions.includes('cs_test_dead_engine')
+      && queuedCompletions.includes('checkout.complete-hosted-session'));
+
+  const checkout = await get(port, `/checkout?offer=${encodeURIComponent(packagedOfferId)}`, PUBLIC_HOST);
+  check('the packaged offer keeps direct checkout available with no engine',
+    checkout.status === 200, `got ${checkout.status}`);
+  check('direct checkout selects the requested packaged offer',
+    checkout.body.includes(`"selectedOfferId":"${packagedOfferId}"`)
+      && checkout.body.includes(`"offerIds":["${packagedOfferId}"]`),
+    'the requested offer was not the one checkout selected');
+
+  // A BYTE-COUNT CHECK LIVED HERE AND IT WAS WRONG. It asserted the page must exceed 2000
+  // bytes, on the assumption that a small response meant a blank page. The real response is
+  // about 850 bytes and that is CORRECT: this page is a client-hydrated island that loads
+  // /assets/tenant-landing/app.js, so a small server response is the design rather than a
+  // symptom. Reading the renderer settled it in under a minute, and the check had been about
+  // to be reported as an incident.
+  //
+  // The lesson is kept because the check was the problem, not the number: a size threshold is
+  // a HEURISTIC, and a heuristic fails in whichever direction the design happens to move. The
+  // replacements below are PROPERTIES, each one a thing the page must be for a visitor to get
+  // anything at all.
+  check('it mounts a client island rather than nothing',
+    /<div id="[^"]*root[^"]*"><\/div>/i.test(page.body), 'no mount root element');
+  check('and it ships the bundle that fills that island',
+    /<script[^>]+src="[^"]+\.js"/i.test(page.body), 'no client bundle referenced');
+  const localAssets = localScriptAndStylesheetReferences(page.body);
+  check('every local script and stylesheet reference is visible to the asset gate',
+    localAssets.length === 2,
+    `found ${localAssets.map((asset) => `${asset.kind}:${asset.path}`).join(', ') || 'none'}`);
+  for (const asset of localAssets) {
+    const response = await get(port, asset.path, PUBLIC_HOST);
+    const contentType = String(response.headers['content-type'] || '');
+    const expectedType = asset.kind === 'script' ? 'application/javascript' : 'text/css';
+    check(`${asset.path} serves its real ${asset.kind} bytes`,
+      response.status === 200 && contentType.startsWith(expectedType),
+      `got ${response.status} ${contentType || 'without a content type'}`);
+  }
+  check('and it carries its data server-side rather than making the browser fetch it',
+    /window\.__[A-Za-z]+__=\{/.test(page.body), 'no inlined state envelope');
+  check('a no-script visitor is given somewhere to go',
+    /<noscript>/i.test(page.body), 'no noscript fallback');
+
+  // AND THAT SOMEWHERE IS FETCHED. The check above passes while the destination is a 503,
+  // which is the only interesting way for it to be wrong. Swept into every suite that made
+  // this assertion after the two-tenant suite was found green over a broken /classic.
+  const noscriptRoute = JSON.parse(await readFile(here('page-description-for-tests.json'), 'utf8'))
+    .pages[0].island.noscript_route;
+  const noscriptPage = await get(port, noscriptRoute, PUBLIC_HOST);
+  check('and that somewhere actually serves', noscriptPage.status === 200,
+    `${noscriptRoute} answered ${noscriptPage.status}`);
+
+  // THE CHROME CSS IS READ, and this was recorded TWICE as unreachable before anyone checked.
+  //
+  // The claim was that chrome renders only through routes needing engine records. It is not
+  // true: styleBlockFor is called by renderRecoveryPublicEntry, which serves from the BAKED
+  // archive and therefore works with no engine at all. Any archived article route reaches it.
+  // A blocker inherited from a note is not a blocker until it is re-run.
+  const archived = await get(port, '/article/how-to-season-a-cast-iron-pan', PUBLIC_HOST);
+  check('an archived article serves with no engine', archived.status === 200,
+    `got ${archived.status}`);
+  check('and it is the ARCHIVED ARTICLE, not the editorial body fallback',
+    !archived.body.includes('We repair enamel kettles'),
+    'the route fell through to the fallback body instead of rendering the archive');
+  check('and the tenant\'s chrome css was read and inlined',
+    archived.body.includes('chrome-css-4b19e7'),
+    'the chrome file contributed nothing to the page');
+  const headEndsAt = archived.body.indexOf('</head>');
+  const entryRootStartsAt = archived.body.indexOf('<!--BITFIELD_ENTRY_ROOT_START-->');
+  const entryRootEndsAt = archived.body.indexOf('<!--BITFIELD_ENTRY_ROOT_END-->');
+  const documentHead = archived.body.slice(0, headEndsAt);
+  const replaceableEntryRoot = archived.body.slice(entryRootStartsAt, entryRootEndsAt);
+  const persistentStyleCount = documentHead.match(/data-bitfield-entry-critical/gi)?.length ?? 0;
+  check('and critical chrome css survives when the browser replaces the entry root',
+    persistentStyleCount === 3
+      && documentHead.includes('nonce="test-nonce" data-bitfield-entry-critical media="screen"')
+      && documentHead.includes('data-bitfield-entry-critical media="all"')
+      && !replaceableEntryRoot.includes('data-bitfield-entry-critical'),
+    `${persistentStyleCount} marked style(s) were in head or a marker remained in the entry root`);
+
+  check('and malformed marked styles are refused instead of left for hydration to delete',
+    (() => {
+      try {
+        liftPersistentEntryStyles('<style nonce="x" data-bitfield-entry-critical>unclosed');
+        return false;
+      } catch (error) {
+        return /complete style element/.test(String(error?.message ?? error));
+      }
+    })(),
+    'an unclosed marked style was accepted');
+
+  const repeat = await get(port, '/', PUBLIC_HOST);
+  check('it renders the same on a second request', repeat.status === 200 && repeat.body.length === page.body.length,
+    `${repeat.status}, ${repeat.body.length} vs ${page.body.length} bytes`);
+
+  const missing = await get(port, '/this-route-does-not-exist', PUBLIC_HOST);
+  check('an unknown route does not 5xx', missing.status < 500, `got ${missing.status}`);
+
+  const missingAsset = await get(port, '/assets/removed-shell-script.js', PUBLIC_HOST);
+  check('a missing asset cannot masquerade as a successful HTML response',
+    missingAsset.status === 404
+      && !String(missingAsset.headers['content-type'] || '').includes('text/html')
+      && !missingAsset.body.includes('<!DOCTYPE html>'),
+    `got ${missingAsset.status} ${missingAsset.headers['content-type'] || 'without a content type'}`);
+  const extensionlessMissingAsset = await get(port, '/assets/removed-shell-script', PUBLIC_HOST);
+  check('an extensionless asset cannot resolve through a same-name HTML clean URL',
+    extensionlessMissingAsset.status === 404
+      && !String(extensionlessMissingAsset.headers['content-type'] || '').includes('text/html')
+      && !extensionlessMissingAsset.body.includes('clean URL decoy'),
+    `got ${extensionlessMissingAsset.status} ${extensionlessMissingAsset.headers['content-type'] || 'without a content type'}`);
+
+  // THE BODY FILE IS READ, and this is the first check that could ever have caught it not being.
+  //
+  // The editorial body used to be compiled into the server, so it could not be absent. It is a
+  // tenant-supplied file now, and an unread file renders a page whose head, title, shell and
+  // status are all still correct: every check above stays green while a visitor sees nothing
+  // inside <main>. So the marker is taken from the FIXTURE's body, which no other source in
+  // this suite contains.
+  check('the tenant\'s own body file reached the page',
+    missing.body.includes('data-proof-marker="body-file-was-read"'),
+    'the body file content is absent from a page that returned 200');
+  // Two markers, not one. The chrome and the shell are different stylesheets for different
+  // markup, so a single marker could not tell "both were read" from "one was read twice".
+  check('the tenant\'s page-shell css was read and inlined',
+    missing.body.includes('shell-css-7c3d15'),
+    'the shell stylesheet contributed nothing to the page');
+  check('and it is that tenant\'s copy, not a default baked into the server',
+    missing.body.includes('We repair enamel kettles.') && !missing.body.includes('Federer'),
+    'the server served copy the fixture never supplied');
+
+  // NO CHROME-CSS CHECK HERE, and the reason is worth more than the check would have been.
+  //
+  // T2 replaced a build-time import of an absolute machine path with a runtime read named by
+  // the description. An empty read is SILENT: every assertion above passes against a page with
+  // no styling at all. So a marker check was written, aimed at /classic, and it FAILED. Good.
+  // It failed because /classic renders holdingPageHtml, whose styling is its own separate
+  // inline block, and the chrome css is only reachable through renderPublicEntry,
+  // renderRecoveryPublicEntry and renderDirectCheckoutEntry, all of which need engine records.
+  //
+  // So THIS harness, whose entire premise is a dead engine, structurally cannot reach it. The
+  // check was removed rather than retargeted at something weaker, because a check that asserts
+  // the absence of an error log would pass against a stylesheet that never loads, which is the
+  // failure being guarded against.
+  //
+  // T2 is therefore IMPLEMENTED AND NOT PROVEN, recorded that way in the plan rather than
+  // rounded up. What proves it is a live-engine route, which the app-shell suite already knows
+  // how to stand up.
+  //
+  // The larger finding, which is the real reason this is written out: ONE TENANT HAS TWO
+  // STYLESHEETS. holdingPageHtml carries a big inline block and the sales pages load the chrome
+  // file, both styling the same tenant. That is a second source of truth hiding behind a
+  // routing difference, and merging them is a visual change to a live page that does not
+  // belong in a 3am refactor.
+
+  // A HOST TOLD NOTHING MUST SAY SO RATHER THAN SERVE A BLANK PAGE.
+  //
+  // This exists because the change that made the shells generic introduced exactly this
+  // failure: with no description they render an empty title, no brand, no bundle and an empty
+  // mount point, which returns 200 and satisfies every structural check above while being
+  // blank to a visitor. That is worse than the hardcoded copy it replaced, since the hardcoded
+  // version could not fail this way. The silence was the defect, not the missing file.
+  console.log('\na host with no page description refuses rather than serving a blank page');
+  const unconfiguredStatic = await mkdtemp(join(tmpdir(), 'public-page-unconfigured-'));
+  const unconfiguredInstall = await mkdtemp(join(tmpdir(), 'public-page-unconfigured-install-'));
+  await writeFile(join(unconfiguredStatic, 'index.html'),
+    '<!DOCTYPE html>\n<html><head></head><body><div id="root"></div></body></html>\n', 'utf8');
+  const bareport = await freePort();
+  const bareEnginePort = await freePort();
+  const bare = spawn(process.execPath, [SERVER], {
+    env: {
+      ...process.env,
+      BITFIELD_PUBLIC_ENTRY_LISTEN_HOST: '127.0.0.1',
+      BITFIELD_PUBLIC_ENTRY_LISTEN_PORT: String(bareport),
+      BITFIELD_PUBLIC_ENTRY_SHELL_URL: `http://127.0.0.1:${bareEnginePort}`,
+      BITFIELD_BROWSER_STATIC_DIR: unconfiguredStatic,
+      BITFIELD_HOST_ENTRY_SCENE_HOSTS: PUBLIC_HOST,
+      BITFIELD_INSTALL_ROOT: unconfiguredInstall,
+      BITFIELD_BOOT_WAIT_MS: '1000',
+      BITFIELD_PUBLIC_PAGE_DESCRIPTION_FILE: '',
+    },
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  let bareLog = '';
+  bare.stdout.on('data', (d) => { bareLog += d; });
+  bare.stderr.on('data', (d) => { bareLog += d; });
+  try {
+    let bareUp = null;
+    const bareDeadline = Date.now() + 30000;
+    while (Date.now() < bareDeadline) {
+      try { bareUp = await get(bareport, '/', PUBLIC_HOST); break; }
+      catch { await new Promise((r) => setTimeout(r, 200)); }
+    }
+    check('it answers rather than hanging', Boolean(bareUp));
+    check('it refuses with 503 instead of a 200 blank page',
+      bareUp?.status === 503, `got ${bareUp?.status}`);
+    check('it says what is missing, in words a reader can act on',
+      /page description/i.test(bareUp?.body ?? ''), 'body did not name the missing thing');
+    // The refusal has TWO causes and this suite owns the "none readable" one. The two-tenant
+    // suite owns the other, "some exist but none lists this host". Asserting only one side
+    // would let a message that always said the same thing pass both.
+    check('and it says the cause is that none could be read, not a host mismatch',
+      /could be read at all/.test(bareUp?.body ?? ''), `body was: ${(bareUp?.body ?? '').trim()}`);
+    check('and it names both places a description can come from',
+      /BITFIELD_PUBLIC_PAGE_DESCRIPTION_FILE/.test(bareLog)
+      && /public-page-description-records/.test(bareLog), 'log did not name both sources');
+    check('it names no tenant, because it has not been told one',
+      !/zzname|gardening/i.test(bareUp?.body ?? ''), 'the refusal leaked a product name');
+  } finally {
+    bare.kill('SIGKILL');
+    await rm(unconfiguredStatic, { recursive: true, force: true });
+    await rm(unconfiguredInstall, { recursive: true, force: true });
+  }
+
+  // An older serving process kept a raw array even though its own recovery
+  // reader expected {pages}. Reproduce that exact live shape with no engine.
+  const historicalInstall = await mkdtemp(join(tmpdir(), 'public-page-historical-install-'));
+  const historicalDescription = JSON.parse(await readFile(join(staticDir, 'page-description.json'), 'utf8'));
+  await writeFile(join(historicalInstall, 'last-good-page-description.json'),
+    JSON.stringify(historicalDescription.pages));
+  const historicalPort = await freePort();
+  const historicalEnginePort = await freePort();
+  const historical = spawn(process.execPath, [SERVER], {
+    env: {
+      ...process.env,
+      BITFIELD_PUBLIC_ENTRY_LISTEN_HOST: '127.0.0.1',
+      BITFIELD_PUBLIC_ENTRY_LISTEN_PORT: String(historicalPort),
+      BITFIELD_PUBLIC_ENTRY_SHELL_URL: `http://127.0.0.1:${historicalEnginePort}`,
+      BITFIELD_BROWSER_STATIC_DIR: staticDir,
+      BITFIELD_PUBLIC_ENTRY_STATIC_SITE_DIR: staticDir,
+      BITFIELD_ISLAND_ASSET_DIR: islandAssetDir,
+      BITFIELD_HOST_ENTRY_SCENE_HOSTS: PUBLIC_HOST,
+      BITFIELD_PUBLIC_PAGE_DESCRIPTION_FILE: '',
+      BITFIELD_COMMERCIAL_OFFERS_FILE: packagedOffersFile,
+      BITFIELD_INSTALL_ROOT: historicalInstall,
+      BITFIELD_BOOT_WAIT_MS: '1000',
+    },
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  try {
+    let recovered = null;
+    const deadline = Date.now() + 8000;
+    while (Date.now() < deadline && !recovered) {
+      try {
+        recovered = await Promise.race([
+          get(historicalPort, '/', PUBLIC_HOST),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('retained page timed out')), 4000)),
+        ]);
+      } catch { await new Promise((resolve) => setTimeout(resolve, 100)); }
+    }
+    check('a historical retained page paints without waiting for the engine',
+      recovered?.status === 200 && /<!DOCTYPE html>/i.test(recovered?.body ?? ''),
+      `got ${recovered?.status ?? 'no response'}`);
+  } finally {
+    historical.kill('SIGKILL');
+    await rm(historicalInstall, { recursive: true, force: true });
+  }
+} catch (error) {
+  console.log(`  FAIL  harness, ${error?.message ?? error}`);
+  failures.push('harness');
+} finally {
+  child.kill('SIGKILL');
+  await rm(staticDir, { recursive: true, force: true });
+  await rm(installRoot, { recursive: true, force: true });
+  await rm(islandAssetDir, { recursive: true, force: true });
+}
+
+// The check above proves an untold host names no tenant in what it SAYS. This one proves it
+// names none in how it ROUTES, which is the half that went wrong for a year without anyone
+// seeing it, because a wrong route is silent where a wrong page is loud.
+//
+// Three constants naming one tenant fed `config.partition`, `config.publicHosts` and
+// `config.appEntryHosts`. Two were dead, since every live deploy sets them. The third was
+// not: neither deploy set the app-entry hosts, so tenant-fork treated one of gardening's
+// domains as its own. The defect a default creates here is never a crash, it is a host
+// quietly becoming whichever tenant's values were typed in first.
+//
+// This reads the SOURCE and not the built server, and it is scoped to the `config` literal
+// on purpose. The rest of the file still carries one tenant's landing body, which T1 left
+// deliberately and which T2's comment names. Asserting over the whole file would fail for a
+// reason that is already written down, so it would get weakened or deleted rather than fixed.
+// Scoped here, it fails only for a NEW default, which is exactly the class worth catching.
+try {
+  const source = await readFile(new URL('../processes/public-entry-server-source.mjs', import.meta.url), 'utf8');
+  const start = source.indexOf('const config = {');
+  const configBlock = start === -1 ? '' : source.slice(start, source.indexOf('\n};', start));
+  check('the server source has a config block to check', Boolean(configBlock),
+    'could not find `const config = {`, so this guard was silently checking nothing');
+  const tenantNames = configBlock.match(/\b\w*(?:zzname|gardening|trillion)\w*\b/gi) ?? [];
+  // Env var NAMES are allowed to carry the prefix; a rename needs both sides moved at once
+  // and is not this change. What is refused is a tenant appearing as a VALUE.
+  const asValues = tenantNames.filter((name) => !/^[A-Z0-9_]+$/.test(name));
+  check('no default in the config block names a tenant',
+    asValues.length === 0,
+    `config would boot as somebody: ${[...new Set(asValues)].join(', ')}`);
+} catch (error) {
+  console.log(`  FAIL  routing-identity guard, ${error?.message ?? error}`);
+  failures.push('routing-identity guard');
+}
+
+if (failures.length) {
+  console.log(`\nFAIL: ${failures.length} check(s): ${failures.join(', ')}`);
+  console.log('--- server log ---\n' + log.slice(-1500));
+  exitCode = 1;
+} else {
+  console.log('\nPASS: the public landing page renders with no engine behind it');
+}
+process.exit(exitCode);

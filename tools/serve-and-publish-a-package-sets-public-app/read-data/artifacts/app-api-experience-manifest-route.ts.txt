@@ -1,0 +1,42 @@
+import {
+  invokeEntryProjectionTarget,
+  publicExperienceManifest,
+  resolveHostedExperienceAuthority,
+  safeAuthorityError,
+} from "../../../../stored-artifacts/hosted-experience-authority";
+
+export const dynamic = "force-dynamic";
+
+export async function GET(
+  request: Request,
+  context: { params: Promise<{ experienceRef: string }> },
+) {
+  try {
+    const { experienceRef } = await context.params;
+    const authority = await resolveHostedExperienceAuthority(
+      request,
+      experienceRef,
+      "manifest",
+    );
+    return Response.json(publicExperienceManifest(authority), {
+      headers: { "Cache-Control": "private, no-store" },
+    });
+  } catch (error) {
+    return safeAuthorityError(error);
+  }
+}
+
+export async function POST(
+  request: Request,
+  context: { params: Promise<{ experienceRef: string }> },
+) {
+  try {
+    const { experienceRef } = await context.params;
+    const authority = await resolveHostedExperienceAuthority(request, experienceRef, "target");
+    return Response.json(await invokeEntryProjectionTarget(authority, request), {
+      headers: { "Cache-Control": "private, no-store" },
+    });
+  } catch (error) {
+    return safeAuthorityError(error);
+  }
+}

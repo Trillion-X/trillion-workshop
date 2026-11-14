@@ -1,0 +1,265 @@
+// @vitest-environment node
+import { beforeEach, describe, expect, it, vi } from '../../../test-helpers/vitest-shim.mjs';
+import { blake3 } from '@noble/hashes/blake3.js';
+
+vi.mock('@bitfield/runtime-kit', () => ({ sendRequestToBitfieldTarget: vi.fn() }));
+vi.mock('@bitfield/runtime-kit/protocol', () => {
+  return {
+    buildEngineReadCurrentRequestFromLabels: (_partition: string, address: string) => ({ kind: 'read', address }),
+    buildEngineWriteBatchRequestFromLabels: (writes: unknown[]) => ({ kind: 'write', writes }),
+    decodeEngineReadCurrentReply: (bytes: Uint8Array) => {
+      const decoded = JSON.parse(new TextDecoder().decode(bytes));
+      return decoded?.found && decoded.payload && typeof decoded.payload === 'object'
+        ? { ...decoded, payload: Uint8Array.from(Object.values(decoded.payload) as number[]) }
+        : decoded;
+    },
+    makeHashCodeHexFromBytes: (bytes: Uint8Array) => `1f:${Buffer.from(blake3(new Uint8Array(bytes))).toString('hex')}`,
+  };
+});
+
+import { normalizeSelectedExperiencePublicationTarget } from '../do-work/selected-publication-targets.ts';
+
+type Json = Record<string, unknown>;
+type Stored = { value: Json; hash: string };
+const encoder = new TextEncoder();
+const uuid = '11111111-1111-4111-8111-111111111111';
+const materializationId = '22222222-2222-4222-8222-222222222222';
+const hash = (value: unknown) => `1f:${Buffer.from(blake3(new Uint8Array(encoder.encode(JSON.stringify(value))))).toString('hex')}`;
+const ref = (address: string, revision: string, object_hash: string) => ({ address, revision, object_hash });
+const binding = {
+  packageData: { things: [{ path: ['package', 'publication-owner-binding'], payload_base64: Buffer.from(JSON.stringify({ partition_label: 'trusted-partition' })).toString('base64') }] },
+  // ⛔ THE AMBIENT FACTS WERE MISSING AND THREE TESTS HERE HAD NEVER PASSED. This object is the
+  // owner's `context`, and it carried only packageData, which is enough for trustedPartition and
+  // not for requestScopedKey: that one calls readTrustedRuntimeEntropyHex, which THROWS rather
+  // than reaching for a local generator, because a substituted source of entropy is
+  // indistinguishable from a trusted one afterwards. So every test reaching the write path died
+  // on "the runtime supplied no trusted entropy" and nobody knew, because this suite was not in
+  // the package's declared checks and therefore nothing ever ran it. Found on 2026-09-10 by
+  // declaring it.
+  //
+  // FIXED values, not random ones, which is the same reason the reader refuses to invent any: a
+  // test that draws fresh entropy makes the same log replay differently on the same day, and the
+  // minted key is asserted below. 64 hex characters exactly, because the reader's pattern is
+  // /^[0-9a-f]{64}$/ and a 32-character value fails it.
+  //
+  // THE VALUE IS DERIVED FROM THE KEY THIS SUITE ALREADY EXPECTS rather than chosen for looks.
+  // The neighbouring packages all use `'ab'.repeat(32)`, and copying it here mints a different
+  // uuid than the `uuid` constant above, so the tests then failed on the assertion instead of on
+  // the entropy: the same three tests, one step further along, which is the honest way to find
+  // out that the constant is the specification. requestScopedKey takes the first 32 hex
+  // characters, forces index 12 to '4', and rewrites index 16 as `'89ab'[parseInt(c, 16) % 4]`.
+  // So to mint 11111111-1111-4111-8111-111111111111 every character is '1' EXCEPT index 16,
+  // which must be a digit whose value mod 4 is 0 for that expression to yield '8'.
+  runtime: {
+    ambient: { time_unix_ms: 1_700_000_000_000, entropy_hex: `${'1'.repeat(16)}0${'1'.repeat(47)}` },
+  },
+};
+
+function projection(root: ReturnType<typeof ref>): Json {
+  const entryHash = hash('selected-entry-bytes');
+  return {
+    ...root,
+    kind_ref: 'owner.selection-projection/v1', dependency_refs: [],
+    projection_files: [{ path: ['app', 'entry.mjs'], source: { kind: 'blob_ref', hash: entryHash }, integrity_hash: entryHash, executable: true }],
+    browser_import_bindings: [], authority: { data_refs: [], subscription_refs: [], target_refs: [], navigation_refs: [] },
+  };
+}
+
+function setup(overrides: { materialized?: Json; mutate?: (records: Map<string, Stored>, ids: ReturnType<typeof ids>) => void } = {}) {
+  const entryHash = hash('selected-entry-bytes');
+  const rootPayload = {
+    address: 'owner:projection', revision: 'root-r1', kind: 'owner-selection-projection/v1',
+    kind_ref: 'owner.selection-projection/v1', dependency_refs: [],
+    projection_files: [{ path: ['app', 'entry.mjs'], source: { kind: 'blob_ref', hash: entryHash }, integrity_hash: entryHash, executable: true }],
+    browser_import_bindings: [], authority: { data_refs: [], subscription_refs: [], target_refs: [], navigation_refs: [] },
+  };
+  const root = ref(rootPayload.address, rootPayload.revision, hash(rootPayload));
+  const authorityPayload = {
+    address: 'owner:authority', revision: 'authority-r1', kind: 'selection-materialization-authority/v1', version: 1,
+    materialization_id: materializationId, materializer: 'owner.materialize-selection', root_refs: [root], record_refs: [root],
+    entry_byte_path: ['app', 'entry.mjs'], source_observations: [{ address: 'owner:source', object_hash: hash('owner-source') }],
+  };
+  const authority = ref(authorityPayload.address, authorityPayload.revision, hash(authorityPayload));
+  const executionPayload = { address: 'hpa:execution', revision: 'execution-r1', kind: 'selected-experience-publication-execution/v1', definition_id: 'action:publish', definition_refs: ['action:publish'] };
+  const execution = ref(executionPayload.address, executionPayload.revision, hash(executionPayload));
+  const dependencyPayload = { address: 'hpa:dependency', revision: 'dependency-r1' };
+  const dependency = ref(dependencyPayload.address, dependencyPayload.revision, hash(dependencyPayload));
+  const policyPayload = { address: 'hpa:policy', revision: 'policy-r1', kind: 'selected-experience-publication-policy/v1', access_ref: 'access:public', execution_descriptor_ref: execution, offer_required: false };
+  const policy = ref(policyPayload.address, policyPayload.revision, hash(policyPayload));
+  const destinationPayload = { address: 'hpa:destination', revision: 'destination-r1', kind: 'selected-experience-publication-destination/v1', dependency_ref: dependency, execution_descriptor_ref: execution };
+  const destination = ref(destinationPayload.address, destinationPayload.revision, hash(destinationPayload));
+  const descriptorPayload = { kind: 'package-target-descriptor', target: 'owner.materialize-selection' }; // deliberately lacks address/revision
+  const records = new Map<string, Stored>();
+  const put = (address: string, value: Json) => records.set(address, { value, hash: hash(value) });
+  put(root.address, rootPayload); put(authority.address, authorityPayload); put(execution.address, executionPayload);
+  put(dependency.address, dependencyPayload); put(policy.address, policyPayload); put(destination.address, destinationPayload); put('owner:target', descriptorPayload);
+  put('hpa:post', { address: 'hpa:post', revision: 'post-r1', post_purchase_route_path: '/after-payment' });
+  const identity = ids({ root, authority, execution, dependency, policy, destination });
+  overrides.mutate?.(records, identity);
+  const materialized = overrides.materialized ?? { schema: 'selection-materialization-result/v1', root_refs: [root], records: [projection(root)], entry_byte_path: ['app', 'entry.mjs'], authority_ref: authority };
+  const targetCalls: Json[] = [];
+  const writes: Array<{ addressLabel: string; payloadBytes: Uint8Array; expectedCurrent: unknown }> = [];
+  const sender = vi.fn(async (request: Json) => {
+    if (request.kind === 'read') {
+      const stored = records.get(request.address as string);
+      const payload = encoder.encode(JSON.stringify(stored ? { found: true, payload: encoder.encode(JSON.stringify(stored.value)), contentHash: stored.hash } : { found: false }));
+      return { payload };
+    }
+    if (request.kind === 'write') {
+      for (const write of request.writes as typeof writes) {
+        writes.push(write);
+        if (records.has(write.addressLabel)) throw new Error('create conflict');
+        const value = JSON.parse(new TextDecoder().decode(write.payloadBytes)) as Json;
+        records.set(write.addressLabel, { value, hash: hash(value) });
+      }
+      return { payload: new Uint8Array() };
+    }
+    targetCalls.push(request);
+    if (!request.target) throw new Error(`unexpected engine request ${JSON.stringify(request)}`);
+    return { payload: encoder.encode(JSON.stringify(materialized)) };
+  });
+  return { sender, records, writes, targetCalls, materialized, ...identity };
+}
+
+function ids<T extends Json>(value: T): T { return value; }
+
+function request(extra: Json = {}): Json {
+  return {
+    selection_materializer_descriptor_address: 'owner:target',
+    selection_materializer_input: { selection: { opaque: 'owner-local-only' } },
+    materialization_id: materializationId,
+    policy_address: 'hpa:policy', publication_destination_address: 'hpa:destination',
+    ...extra,
+  };
+}
+
+const customOffer = {
+  label: 'First-Principles Training Plan',
+  summary: 'A guided workout and nutrition experience.',
+  price_options: [{
+    id: 'one-time',
+    label: 'Lifetime access',
+    amount_cents: 4900,
+    currency: 'USD',
+    payment_timing: 'one_time',
+  }],
+};
+
+describe('normalizeSelectedExperiencePublicationTarget', () => {
+  beforeEach(() => vi.spyOn(crypto, 'randomUUID').mockReturnValue(uuid));
+
+  it('normalizes a valid owner projection, injects trusted identity, and persists only server-owned request records', async () => {
+    const runtime = setup();
+    const result = await normalizeSelectedExperiencePublicationTarget(request(), binding, runtime.sender as never);
+    expect(runtime.targetCalls).toEqual([{ target: 'owner.materialize-selection', payload: { selection: { opaque: 'owner-local-only' }, partition_label: 'trusted-partition', materialization_id: materializationId } }]);
+    expect(result).toMatchObject({ publication_request_key: uuid, resumed: false, materializer_descriptor_observation: { address: 'owner:target', object_hash: hash({ kind: 'package-target-descriptor', target: 'owner.materialize-selection' }) } });
+    expect((result.materializer_descriptor_observation as Json)).not.toHaveProperty('revision');
+    expect(runtime.writes).toHaveLength(3);
+    expect(runtime.writes.every((write) => JSON.stringify(write.expectedCurrent) === JSON.stringify({ payloadHash: null }))).toBe(true);
+  });
+
+  it('rejects forged projection bytes and every mismatched authority closure leg before HPA persistence', async () => {
+    const badIntegrity = setup({ materialized: (() => {
+      const base = setup().materialized; const record = base.records as Json[];
+      return { ...base, records: [{ ...record[0], projection_files: [{ ...(record[0].projection_files as Json[])[0], integrity_hash: `1f:${'0'.repeat(64)}` }] }] };
+    })() });
+    await expect(normalizeSelectedExperiencePublicationTarget(request(), binding, badIntegrity.sender as never)).rejects.toThrow('PROJECTION_SOURCE_HASH_MISMATCH');
+    expect(badIntegrity.writes).toHaveLength(0);
+    const mismatch = setup();
+    const authority = mismatch.records.get(mismatch.authority.address)!;
+    authority.value.root_refs = [{ ...mismatch.root, revision: 'forged' }]; authority.hash = hash(authority.value);
+    (mismatch.materialized.authority_ref as Json).object_hash = authority.hash;
+    await expect(normalizeSelectedExperiencePublicationTarget(request(), binding, mismatch.sender as never)).rejects.toThrow('MATERIALIZER_AUTHORITY_MISMATCH');
+    expect(mismatch.writes).toHaveLength(0);
+    for (const mutateAuthority of [
+      (value: Json, runtime: ReturnType<typeof setup>) => { value.record_refs = [{ ...runtime.root, revision: 'forged-record' }]; },
+      (value: Json) => { value.entry_byte_path = ['app', 'other.mjs']; },
+    ]) {
+      const variant = setup();
+      const stored = variant.records.get(variant.authority.address)!;
+      mutateAuthority(stored.value, variant); stored.hash = hash(stored.value);
+      (variant.materialized.authority_ref as Json).object_hash = stored.hash;
+      await expect(normalizeSelectedExperiencePublicationTarget(request(), binding, variant.sender as never)).rejects.toThrow('MATERIALIZER_AUTHORITY_MISMATCH');
+      expect(variant.writes).toHaveLength(0);
+    }
+  });
+
+  it('rejects a persisted projection whose canonical bytes differ from the owner result', async () => {
+    const runtime = setup({ mutate(records, identity) {
+      const stored = records.get(identity.root.address)!;
+      stored.value.payload = 'forged-after-materialization'; stored.hash = hash(stored.value);
+    } });
+    await expect(normalizeSelectedExperiencePublicationTarget(request(), binding, runtime.sender as never)).rejects.toThrow('STALE_OR_SUBSTITUTED_REF');
+    expect(runtime.writes).toHaveLength(0);
+  });
+
+  it('denies commercial ingress on a static policy and unadmitted dynamic workflow data', async () => {
+    const commerce = setup();
+    await expect(normalizeSelectedExperiencePublicationTarget(request({ post_purchase_destination_address: 'hpa:post' }), binding, commerce.sender as never)).rejects.toThrow('STATIC_PUBLICATION_COMMERCE_FORBIDDEN');
+    const dynamic = setup({ mutate(records, identity) {
+      const stored = records.get(identity.execution.address)!;
+      stored.value.definition_refs = ['action:another']; stored.hash = hash(stored.value);
+      const policy = records.get(identity.policy.address)!; policy.value.execution_descriptor_ref = { ...identity.execution, object_hash: stored.hash }; policy.hash = hash(policy.value);
+      const destination = records.get(identity.destination.address)!; destination.value.execution_descriptor_ref = { ...identity.execution, object_hash: stored.hash }; destination.hash = hash(destination.value);
+    } });
+    await expect(normalizeSelectedExperiencePublicationTarget(request(), binding, dynamic.sender as never)).rejects.toThrow('EXECUTION_DEFINITION_UNADMITTED');
+  });
+
+  it('accepts an exact seller-authored offer and persists only its bounded commercial fields', async () => {
+    const commerce = setup({ mutate(records, identity) {
+      const policy = records.get(identity.policy.address)!;
+      policy.value.offer_required = true;
+      policy.hash = hash(policy.value);
+    } });
+    const result = await normalizeSelectedExperiencePublicationTarget(request({
+      new_offer: customOffer,
+      post_purchase_destination_address: 'hpa:post',
+    }), binding, commerce.sender as never);
+    expect(result.new_offer).toEqual({
+      ...customOffer,
+      price_options: [{ ...customOffer.price_options[0], currency: 'usd' }],
+    });
+    const persistedIntentWrite = commerce.writes.find((write) => write.addressLabel.includes('published-experience-intent'))!;
+    const persistedIntent = JSON.parse(new TextDecoder().decode(persistedIntentWrite.payloadBytes)) as Json;
+    expect(persistedIntent.new_offer).toEqual({
+      kind: 'commercial-offer',
+      id: `hosted-public-app:${uuid}`,
+      label: customOffer.label,
+      summary: customOffer.summary,
+      price_options: [{ ...customOffer.price_options[0], currency: 'usd' }],
+      access_refs: ['access:public'],
+      post_purchase_route_path: '/after-payment',
+      sort_order: 0,
+    });
+  });
+
+  it.each([
+    ['top-level hostile field', { ...customOffer, command: 'rm -rf /' }, 'UNTRUSTED_FIELD'],
+    ['price hostile field', { ...customOffer, price_options: [{ ...customOffer.price_options[0], webhook: 'https://attacker.invalid' }] }, 'UNTRUSTED_FIELD'],
+    ['fractional amount', { ...customOffer, price_options: [{ ...customOffer.price_options[0], amount_cents: 49.5 }] }, 'NEW_OFFER_INVALID'],
+    ['negative amount', { ...customOffer, price_options: [{ ...customOffer.price_options[0], amount_cents: -1 }] }, 'NEW_OFFER_INVALID'],
+    ['invalid currency', { ...customOffer, price_options: [{ ...customOffer.price_options[0], currency: 'USDX' }] }, 'NEW_OFFER_INVALID'],
+    ['missing summary', { label: customOffer.label, price_options: customOffer.price_options }, 'INVALID_VALUE'],
+  ])('rejects %s without persisting any publication records', async (_label, new_offer, error) => {
+    const commerce = setup({ mutate(records, identity) {
+      const policy = records.get(identity.policy.address)!;
+      policy.value.offer_required = true;
+      policy.hash = hash(policy.value);
+    } });
+    await expect(normalizeSelectedExperiencePublicationTarget(request({
+      new_offer,
+      post_purchase_destination_address: 'hpa:post',
+    }), binding, commerce.sender as never)).rejects.toThrow(error);
+    expect(commerce.writes).toHaveLength(0);
+  });
+
+  it('resumes an exact persisted request and rejects a changed retry', async () => {
+    const runtime = setup();
+    const first = await normalizeSelectedExperiencePublicationTarget(request(), binding, runtime.sender as never);
+    const resumed = await normalizeSelectedExperiencePublicationTarget(request({ publication_request_ref: first.publication_request_ref as Json }), binding, runtime.sender as never);
+    expect(resumed).toMatchObject({ resumed: true, publication_request_key: uuid, publication_request_ref: first.publication_request_ref });
+    const policyB = { address: 'hpa:policy-b', revision: 'policy-b-r1', kind: 'selected-experience-publication-policy/v1', access_ref: 'access:public', execution_descriptor_ref: runtime.execution, offer_required: false };
+    runtime.records.set(policyB.address, { value: policyB, hash: hash(policyB) });
+    await expect(normalizeSelectedExperiencePublicationTarget(request({ publication_request_ref: first.publication_request_ref as Json, policy_address: policyB.address }), binding, runtime.sender as never)).rejects.toThrow('PUBLICATION_REQUEST_CONFLICT');
+  });
+});

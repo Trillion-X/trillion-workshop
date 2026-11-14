@@ -1,0 +1,239 @@
+import assert from 'node:assert/strict';
+import { createHmac } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import test from 'node:test';
+import { pathToFileURL } from 'node:url';
+import { makeHashCodeHexFromBytes } from '@bitfield/slot-protocol';
+import { ownerValidatedProcessResultWire } from '../../../tests/fixtures/process-result-wire.ts';
+
+const root = path.resolve(import.meta.dirname, '..');
+const packages = path.resolve(root, '..');
+const esbuild = path.resolve(process.cwd(), 'node_modules/.bin/esbuild');
+const secret = '11'.repeat(32);
+const canonical = (value) => Array.isArray(value) ? value.map(canonical) : value && typeof value === 'object' ? Object.fromEntries(Object.keys(value).sort().map((key) => [key, canonical(value[key])])) : value;
+const hash = (value) => makeHashCodeHexFromBytes(new TextEncoder().encode(JSON.stringify(canonical(value))));
+const record = (address, payload, revision = 'r1') => ({ address, revision, object_hash: hash(payload), payload });
+const exact = (value) => ({ address: value.address, revision: value.revision, object_hash: value.object_hash });
+
+async function compiledHarness() {
+  const dir = mkdtempSync(path.join(tmpdir(), 'hpa-carrier-'));
+  const authority = readFileSync(path.join(root, 'read-data/artifacts/hosted-experience-authority.ts.txt'), 'utf8')
+    .replace('"./hosted-target-carrier-server"', '"./carrier.ts"')
+    + '\nexport { calls, setRecords, resetCalls, setAdmissionMode } from "./carrier.ts"; export { runtimeCalls, setGrants, setSessionAuthorities } from "./runtime.ts";\n';
+  writeFileSync(path.join(dir, 'authority.ts'), authority);
+  // Re-export the REAL runtime kit, then override only what this test deliberately fakes. The
+  // stub used to list the exports it provided, which made it a closed set of whatever the bundled
+  // sources happened to import on the day it was written. It went red the moment a package moved
+  // its clock read to the trusted runtime surface (`d29ccaa9b`), a change that is correct and has
+  // nothing to do with this test, and the failure named `readTrustedRuntimeClockMs` rather than
+  // naming the fixture. Adding that one name would buy exactly one more owner-surface function.
+  //
+  // `export *` skips any name also exported locally, so the fakes below still win. Anything this
+  // test does not care about now comes from the real module and can never go missing.
+  const realRuntimeKit = path.resolve(process.cwd(), '../bitfield-runtime-kit/packages/js/src/index.ts');
+  writeFileSync(path.join(dir, 'runtime.ts'), `
+export * from ${JSON.stringify(realRuntimeKit)};
+export const runtimeCalls=[]; export let grants={}; export let sessionAuthorities=new Map(); export function setGrants(v){grants=v} export function setSessionAuthorities(v){sessionAuthorities=v}
+export async function sendRequestToBitfieldTarget({target,payload}){runtimeCalls.push({target,payload});
+ if(target==='slot::credentials-vault'){ const body=payload.operation==='read'?{handle:'h'}:{value:'${secret}'}; return {payload:new TextEncoder().encode(JSON.stringify(body))}; }
+ if(target==='engine.operation.label-addressed'&&payload.operation_label==='engine.operation.read-current'){ const body={found:sessionAuthorities.get(payload.address_label)!==undefined,payload:sessionAuthorities.get(payload.address_label)}; return {payload:new TextEncoder().encode(JSON.stringify(body))}; }
+ if(target==='signed-event-authority.list-effects'){ return {payload:new TextEncoder().encode(JSON.stringify({effects:(grants[payload.subject]||[]).map(object=>({kind:'license_access',object}))}))}; }
+ throw new Error('unexpected runtime target '+target); }
+`);
+  const successfulProcessResult = JSON.stringify(ownerValidatedProcessResultWire());
+  writeFileSync(path.join(dir, 'carrier.ts'), `
+import { authorizeTransientSessionTarget, verifySessionRevisionTarget } from ${JSON.stringify(path.join(packages, 'account-session/do-work/authorize-transient-session-target.ts'))};
+import { authorizeAddressedExpiringValueScopeTarget } from ${JSON.stringify(path.join(packages, 'product-access/do-work/authorize-addressed-expiring-value-scope.ts'))};
+export const calls=[]; export let records=new Map(); export let admissionMode='allow'; export function setRecords(v){records=v} export function resetCalls(){calls.length=0} export function setAdmissionMode(v){admissionMode=v}
+// The runtime context the real runner hands every target. Targets that need the time or entropy
+// read them from HERE and refuse when they are absent, because a target reaching for the system
+// clock makes the same log replay to a different answer on another day. Fixed values, not
+// Date.now(), for the same reason: a fixture that moves with the wall clock is not a fixture.
+const runtimeContext = { runtime: { ambient: { time_unix_ms: 1757030400000, entropy_hex: '00112233445566778899aabbccddeeff' } } };
+export async function invokeHostedTarget(target,payload){calls.push({target,payload});
+ if(target==='slot::find-current-items'){ const a=payload.where?.all?.[0]?.in?.[0]; return {items:a?[records.get(a)].filter(Boolean):[]}; }
+ if(target==='slot::formula-engine'){ const select=payload.binding?.select; if(select?.from==='literal') return {result:select.value}; if(select?.from==='context'){ const path=String(select.path||'').split('.'); return {result:path.reduce((value,key)=>value?.[key],payload.context)}; } return {result:null}; }
+ if(target==='account-session.authorize-transient-session') return authorizeTransientSessionTarget(payload,runtimeContext);
+ if(target==='account-session.verify-session-revision') return verifySessionRevisionTarget(payload,runtimeContext);
+ if(target==='product-access.authorize-addressed-expiring-value-scope') return authorizeAddressedExpiringValueScopeTarget(payload,runtimeContext);
+ if(target==='access-rule.evaluate'&&['stale-membership','stale-policy','stale-resource'].includes(admissionMode)) { const actor=payload.ambient_actor; const revisions={...payload.revisions}; if(admissionMode==='stale-membership') revisions.membership_revision='membership:stale'; if(admissionMode==='stale-policy') revisions.policy_revision='policy:stale'; if(admissionMode==='stale-resource') revisions.resource_revision='resource:stale'; return {kind:'access-decision',decision:'allow',decision_proof:'decision:stale',actor_ref:actor.actor_ref,session_ref:actor.session_ref,subject_ref:payload.subject_ref,action_ref:payload.action_ref,authorized_action_refs:payload.authorized_action_refs,constraints:payload.constraints,predicate_ref:payload.predicate_ref,revisions,provenance:{correlation_id:payload.correlation_id}}; }
+ if(target==='access-rule.evaluate') { if(admissionMode==='deny') return {decision:'deny'}; const actor=payload.ambient_actor; return {kind:'access-decision/v1',decision:'allow',decision_proof:'decision:admitted',actor_ref:actor.actor_ref,session_ref:admissionMode==='stale'?'session:stale':actor.session_ref,subject_ref:payload.subject_ref,action_ref:payload.action_ref,authorized_action_refs:payload.authorized_action_refs,constraints:payload.constraints,predicate_ref:payload.predicate_ref,revisions:{...payload.revisions,session_revision:admissionMode==='stale'?'session:stale':actor.session_revision},provenance:{correlation_id:payload.correlation_id}}; }
+ if(target==='target:allowed') return {received:payload};
+ if(target==='group-page.read-projection') { const decision=payload.access_decision; return {admitted_scope:{action_ref:decision.action_ref,actor_ref:decision.actor_ref,decision_proof:decision.decision_proof,revisions:{membership_revision:decision.revisions.membership_revision,policy_revision:decision.revisions.policy_revision,resource_revision:decision.revisions.resource_revision,session_revision:decision.revisions.session_revision},session_ref:decision.session_ref,subject_ref:decision.subject_ref},scoped_group_pages:[],scoped_group_page_items:[{kind:'group-post',body:'PROTECTED_CANARY_ROW'}],scoped_subject_surfaces:[]}; }
+ if(target==='verify.signed') return {authorized:true,principal_ref:'signed:p',session_ref:'signed:s'};
+ if(target==='compute.process') return ${successfulProcessResult}; throw new Error('unexpected hosted target '+target); }
+export async function invokeSessionAdmittedOwnerTarget(target,payload){return invokeHostedTarget(target,payload)}
+`);
+  const output = path.join(dir, 'bundle.mjs');
+  execFileSync(esbuild, ['authority.ts','--bundle','--platform=node','--format=esm',`--alias:@bitfield/runtime-kit/protocol=${path.resolve(process.cwd(),'../bitfield-runtime-kit/packages/js/src/protocol/process-result.ts')}`,`--alias:@bitfield/runtime-kit=${path.join(dir,'runtime.ts')}`,`--alias:@bitfield/slot-protocol=${path.resolve(process.cwd(),'node_modules/@bitfield/slot-protocol/index.js')}`,`--outfile=${output}`], { cwd: dir });
+  return import(`${pathToFileURL(output).href}?${Date.now()}`);
+}
+
+const SESSION_ID = '00000000-0000-4000-8000-000000000001';
+function token(account, expires = 2_000_000_000, sessionRevision = 1) { const payload=Buffer.from(JSON.stringify({accountId:account,expiresAt:expires,issuedAt:1,sessionId:SESSION_ID,sessionRevision,version:2})).toString('base64url'); return `${payload}.${createHmac('sha256',Buffer.from(secret,'hex')).update(payload).digest('base64url')}`; }
+function activeSessionAuthority(account, expires = 2_000_000_000, sessionRevision = 1) { return new Map([[`package::account-session::session-authority::${SESSION_ID}`, { actor_ref: account, expires_at_milliseconds: expires * 1000, session_ref: `account-session:${SESSION_ID}`, session_revision: sessionRevision, state: 'active' }]]); }
+function fixture(mode='account', refs=['access:paid']) {
+ const manifest=record('manifest',{kind:'experience-authority-manifest',access_ref:'access:x',root_refs:[],data_address_refs:[],navigation_refs:[],subscription_refs:[],target_refs:[],entry_byte_path:[]});
+ const policy=record('policy',{kind:'experience-access-policy',mode,access_ref:'access:x',required_access_refs:refs,sealed_closure_binary:'sealed',trusted_closure_keys:['key'],closure_signature_threshold:1,...(mode==='signed'?{verifier_target:'verify.signed'}:{})});
+ const proof=record('proof',{format:'bitfield.sealed-closure',current_state_basis:{current_state_multihash:'basis'},projected_files:[]});
+ const closure=record('closure',{kind:'bitfield.signed-sealed-closure'});
+ const publication=record('publication',{kind:'published-experience-publication',status:'active',access_ref:'access:x',authority_manifest_ref:exact(manifest),access_policy_ref:exact(policy),sealed_closure_ref:exact(closure),signed_closure_multihash:closure.object_hash,apply_proof_ref:exact(proof),apply_proof_multihash:proof.object_hash});
+ return new Map([[publication.address,publication],[manifest.address,manifest],[policy.address,policy],[proof.address,proof],[closure.address,closure]]);
+}
+function actionFixture() {
+ const descriptor=record('package::demo-owner::target::allowed',{kind:'package-target-descriptor',target:'target:allowed',admission:{action_ref:'action:write',authorized_action_refs:['action:write'],constraints:{},predicate_ref:'predicate:write',predicate_binding:{$kind:'binding',select:{from:'literal',value:true}},subject_binding:{$kind:'binding',select:{from:'context',path:'payload.scope_ref'}},resource_revision_binding:{$kind:'binding',select:{from:'context',path:'payload.expected_revision'}},target:'access-rule.evaluate'}});
+ const manifest=record('manifest',{kind:'experience-authority-manifest',access_ref:'access:x',root_refs:[],data_address_refs:[],navigation_refs:[],subscription_refs:[],target_refs:[exact(descriptor)],entry_byte_path:[]});
+ const policy=record('policy',{kind:'experience-access-policy',mode:'account',access_ref:'access:x',required_access_refs:['access:paid'],sealed_closure_binary:'sealed',trusted_closure_keys:['key'],closure_signature_threshold:1});
+ const proof=record('proof',{format:'bitfield.sealed-closure',current_state_basis:{current_state_multihash:'basis'},projected_files:[]});
+ const closure=record('closure',{kind:'bitfield.signed-sealed-closure'});
+ const publication=record('publication',{kind:'published-experience-publication',status:'active',access_ref:'access:x',authority_manifest_ref:exact(manifest),access_policy_ref:exact(policy),sealed_closure_ref:exact(closure),signed_closure_multihash:closure.object_hash,apply_proof_ref:exact(proof),apply_proof_multihash:proof.object_hash});
+ return new Map([[publication.address,publication],[manifest.address,manifest],[policy.address,policy],[proof.address,proof],[closure.address,closure],[descriptor.address,descriptor]]);
+}
+function entryProjectionFixture() {
+ const descriptor=record('package::group-page::target::read-projection',{kind:'package-target-descriptor',target:'group-page.read-projection',exposure:'hosted-session-admitted',admission:{action_ref:'group-page.read-projection',authorized_action_refs:['group-page.read-projection','item-record.read-space-items'],constraints:{},predicate_ref:'predicate:member',predicate_binding:{$kind:'binding',select:{from:'literal',value:true}},subject_binding:{$kind:'binding',select:{from:'literal',value:'community:trillion-community'}},resource_revision_binding:{$kind:'binding',select:{from:'literal',value:'community-feed-projection'}},target:'access-rule.evaluate'}});
+ const manifest=record('manifest',{kind:'experience-authority-manifest',access_ref:'access:x',root_refs:[],data_address_refs:[],navigation_refs:[],subscription_refs:[],target_refs:[exact(descriptor)],entry_projection_target_ref:exact(descriptor),entry_byte_path:[]});
+ const policy=record('policy',{kind:'experience-access-policy',mode:'account',access_ref:'access:x',required_access_refs:['access:paid'],sealed_closure_binary:'sealed',trusted_closure_keys:['key'],closure_signature_threshold:1});
+ const proof=record('proof',{format:'bitfield.sealed-closure',current_state_basis:{current_state_multihash:'basis'},projected_files:[]});
+ const closure=record('closure',{kind:'bitfield.signed-sealed-closure'});
+ const publication=record('publication',{kind:'published-experience-publication',status:'active',access_ref:'access:x',authority_manifest_ref:exact(manifest),access_policy_ref:exact(policy),sealed_closure_ref:exact(closure),signed_closure_multihash:closure.object_hash,apply_proof_ref:exact(proof),apply_proof_multihash:proof.object_hash});
+ return new Map([[publication.address,publication],[manifest.address,manifest],[policy.address,policy],[proof.address,proof],[closure.address,closure],[descriptor.address,descriptor]]);
+}
+function duplicateActionFixture() {
+ const records=actionFixture();
+ const duplicate=record('package::other-owner::target::allowed',{...records.get('package::demo-owner::target::allowed').payload});
+ records.set(duplicate.address,duplicate);
+ records.get('manifest').payload.target_refs.push(exact(duplicate));
+ records.get('manifest').object_hash=hash(records.get('manifest').payload);
+ records.get('publication').payload.authority_manifest_ref=exact(records.get('manifest'));
+ records.get('publication').object_hash=hash(records.get('publication').payload);
+ return records;
+}
+function ownerOnlyActionFixture() {
+ const records=actionFixture();
+ records.get('package::demo-owner::target::allowed').payload.exposure='owner-to-owner-only';
+ records.get('package::demo-owner::target::allowed').object_hash=hash(records.get('package::demo-owner::target::allowed').payload);
+ records.get('manifest').payload.target_refs=[exact(records.get('package::demo-owner::target::allowed'))];
+ records.get('manifest').object_hash=hash(records.get('manifest').payload);
+ records.get('publication').payload.authority_manifest_ref=exact(records.get('manifest'));
+ records.get('publication').object_hash=hash(records.get('publication').payload);
+ return records;
+}
+function targets(mod){ return mod.calls.map((call)=>call.target); }
+
+test('compiled authority carrier uses real Account Session and Product Access with narrowed Cookie-only authority', async () => {
+ const mod=await compiledHarness(); process.env.ACCOUNT_SESSION_COOKIE_NAME='__Host_account_session';
+ for (const [name,refs] of [['account',[]],['free',['access:free']],['paid',['access:paid']]]) {
+   mod.setRecords(fixture('account',refs)); mod.setSessionAuthorities(activeSessionAuthority('acct:a')); mod.setGrants({'acct:a':['access:free','access:paid']}); mod.resetCalls(); mod.runtimeCalls.length=0;
+   const value=await mod.resolveHostedExperienceAuthority(new Request('https://buyer/?ignored=x',{headers:{cookie:`__Host_account_session=${token('acct:a')}; other=1`}}),'publication','manifest');
+   assert.equal(value.identity.principal_ref,'acct:a'); assert.deepEqual(targets(mod),['slot::find-current-items','slot::find-current-items','slot::find-current-items','account-session.authorize-transient-session','product-access.authorize-addressed-expiring-value-scope','slot::find-current-items','slot::find-current-items','compute.process'],name);
+   assert.deepEqual(mod.calls[3].payload,{headers:[{name:'cookie',value:`__Host_account_session=${token('acct:a')}; other=1`}]});
+   assert.deepEqual(Object.keys(mod.calls[4].payload).sort(),['operation','principal_ref','scope','session_ref']);
+ }
+});
+
+test('forgery and invalid/revoked/private account contexts deny before Product Access', async () => {
+ const mod=await compiledHarness(); process.env.ACCOUNT_SESSION_COOKIE_NAME='__Host_account_session'; mod.setRecords(fixture()); mod.setSessionAuthorities(activeSessionAuthority('acct:a')); mod.setGrants({'acct:a':['access:paid']});
+ for (const request of [new Request('https://buyer/?principal=forged'),new Request('https://buyer/',{method:'POST',body:JSON.stringify({grant_ref:'forged'})}),new Request('https://buyer/'),new Request('https://buyer/',{headers:{cookie:`__Host_account_session=${token('acct:a',1)}`}})]) { mod.resetCalls(); await assert.rejects(()=>mod.resolveHostedExperienceAuthority(request,'publication','manifest')); assert.equal(targets(mod).includes('product-access.authorize-addressed-expiring-value-scope'),false); }
+ mod.setGrants({'acct:a':[]}); mod.resetCalls(); await assert.rejects(()=>mod.resolveHostedExperienceAuthority(new Request('https://buyer/',{headers:{cookie:`__Host_account_session=${token('acct:a')}`}}),'publication','manifest')); assert.deepEqual(targets(mod).slice(3),['account-session.authorize-transient-session','product-access.authorize-addressed-expiring-value-scope']);
+});
+
+test('account switching, signed, public, scope mismatch, and tampered closure/proof remain fail-closed', async () => {
+ const mod=await compiledHarness(); process.env.ACCOUNT_SESSION_COOKIE_NAME='__Host_account_session'; mod.setRecords(fixture()); mod.setGrants({'acct:a':['access:paid'],'acct:b':['access:paid'],'signed:p':['access:paid']});
+ for(const account of ['acct:a','acct:b']) { mod.setSessionAuthorities(activeSessionAuthority(account)); mod.resetCalls(); const value=await mod.resolveHostedExperienceAuthority(new Request('https://buyer/',{headers:{cookie:`__Host_account_session=${token(account)}`}}),'publication','data'); assert.equal(value.identity.principal_ref,account); assert.equal(mod.calls[4].payload.principal_ref,account); }
+ mod.setRecords(fixture('signed',['access:paid'])); mod.resetCalls(); await mod.resolveHostedExperienceAuthority(new Request('https://buyer/',{headers:{'x-bitfield-signed-link':'ok'}}),'publication','manifest'); assert.equal(targets(mod).includes('account-session.authorize-transient-session'),false); assert.deepEqual(targets(mod).slice(3,5),['verify.signed','product-access.authorize-addressed-expiring-value-scope']);
+ mod.setRecords(fixture('public',[])); mod.resetCalls(); const anonymous=await mod.resolveHostedExperienceAuthority(new Request('https://buyer/'),'publication','manifest'); assert.match(anonymous.identity.principal_ref,/^anonymous-request:/); assert.deepEqual(targets(mod).slice(3,4),['product-access.authorize-addressed-expiring-value-scope']); assert.deepEqual(JSON.parse(new TextDecoder().decode(Uint8Array.from(mod.calls[3].payload.scope))).required_access_refs,[]);
+ mod.setRecords(fixture('public',['access:paid'])); await assert.rejects(()=>mod.resolveHostedExperienceAuthority(new Request('https://buyer/'),'publication','manifest'));
+ const bad=fixture(); bad.get('publication').payload.access_ref='other'; mod.setRecords(bad); await assert.rejects(()=>mod.resolveHostedExperienceAuthority(new Request('https://buyer/',{headers:{cookie:`__Host_account_session=${token('acct:a')}`}}),'publication','manifest'));
+ const tampered=fixture(); tampered.get('proof').payload.projected_files=[{path:['x'],byte_count:0,executable:false,multihash:'bad'}]; mod.setRecords(tampered); await assert.rejects(()=>mod.resolveHostedExperienceAuthority(new Request('https://buyer/',{headers:{cookie:`__Host_account_session=${token('acct:a')}`}}),'publication','manifest'));
+});
+
+test('hosted owner actions admit only a current opaque server actor, declared target, and revision-bound decision', async () => {
+ const mod=await compiledHarness(); process.env.ACCOUNT_SESSION_COOKIE_NAME='__Host_account_session';
+ mod.setRecords(actionFixture()); mod.setGrants({'acct:a':['access:paid']}); mod.setSessionAuthorities(activeSessionAuthority('acct:a')); mod.setAdmissionMode('allow');
+ const request=new Request('https://buyer/',{headers:{cookie:`__Host_account_session=${token('acct:a')}`}});
+ const authority=await mod.resolveHostedExperienceAuthority(request,'publication','target');
+ mod.resetCalls();
+ const actionPayload={scope_ref:'subject:one',expected_revision:7,body:'server-only'};
+ const allowed=await mod.invokeSessionAdmittedTarget(authority,'target:allowed',actionPayload,request);
+ assert.deepEqual(allowed.received.payload,actionPayload); assert.deepEqual(allowed.received.ambient_actor,{actor_ref:'acct:a',session_ref:`account-session:${SESSION_ID}`,session_revision:'1'});
+ const decision=allowed.received.access_decision; assert.equal(typeof decision.provenance.correlation_id,'string');
+ assert.deepEqual(decision,{kind:'access-decision/v1',decision:'allow',decision_proof:'decision:admitted',actor_ref:'acct:a',session_ref:`account-session:${SESSION_ID}`,subject_ref:'subject:one',action_ref:'action:write',authorized_action_refs:['action:write'],constraints:{revision_guards:[{target:'account-session.verify-session-revision',payload:{actor_ref:'acct:a',session_ref:`account-session:${SESSION_ID}`,session_revision:'1'},expected_reply:{verified:true,session_revision:'1'}},{target:'product-access.authorize-addressed-expiring-value-scope',payload:authority.accessAuthorizationRequest,expected_reply:{authorized:true,membership_revision:authority.membershipRevision}}]},predicate_ref:'predicate:write',revisions:{session_revision:'1',policy_revision:'r1',membership_revision:authority.membershipRevision,resource_revision:'7'},provenance:{correlation_id:decision.provenance.correlation_id}});
+ for (const [target,payload] of [['target:missing',{}],['target:allowed',{actor_ref:'forged'}],['target:allowed',{nested:{createdBy:'forged'}}]]) { mod.resetCalls(); await assert.rejects(()=>mod.invokeSessionAdmittedTarget(authority,target,payload,request)); assert.equal(targets(mod).filter((entry)=>entry==='target:allowed').length,0); }
+ mod.setAdmissionMode('stale'); mod.resetCalls(); await assert.rejects(()=>mod.invokeSessionAdmittedTarget(authority,'target:allowed',{},request)); assert.equal(targets(mod).filter((entry)=>entry==='target:allowed').length,0);
+ for(const mode of ['stale-membership','stale-policy','stale-resource']) { mod.setAdmissionMode(mode); mod.resetCalls(); await assert.rejects(()=>mod.invokeSessionAdmittedTarget(authority,'target:allowed',{},request)); assert.equal(targets(mod).filter((entry)=>entry==='target:allowed').length,0); }
+ mod.setAdmissionMode('allow'); mod.setSessionAuthorities(new Map([[`package::account-session::session-authority::${SESSION_ID}`, { ...activeSessionAuthority('acct:a').values().next().value, state:'revoked', session_revision:2 }]])); mod.resetCalls(); await assert.rejects(()=>mod.invokeSessionAdmittedTarget(authority,'target:allowed',{},request)); assert.equal(targets(mod).includes('access-rule.evaluate'),false);
+});
+
+test('a target string declared by two exact descriptors is ambiguous and never dispatches', async () => {
+ const mod=await compiledHarness(); process.env.ACCOUNT_SESSION_COOKIE_NAME='__Host_account_session';
+ mod.setRecords(duplicateActionFixture()); mod.setGrants({'acct:a':['access:paid']}); mod.setSessionAuthorities(activeSessionAuthority('acct:a'));
+ const request=new Request('https://buyer/',{headers:{cookie:`__Host_account_session=${token('acct:a')}`}});
+ const authority=await mod.resolveHostedExperienceAuthority(request,'publication','target');
+ mod.resetCalls();
+ await assert.rejects(()=>mod.invokeSessionAdmittedTarget(authority,'target:allowed',{},request));
+ assert.equal(targets(mod).filter((entry)=>entry==='target:allowed').length,0);
+ assert.equal(targets(mod).includes('access-rule.evaluate'),false);
+});
+
+test('owner-to-owner-only targets remain unreachable even when a manifest mistakenly references them', async () => {
+ const mod=await compiledHarness(); process.env.ACCOUNT_SESSION_COOKIE_NAME='__Host_account_session';
+ mod.setRecords(ownerOnlyActionFixture()); mod.setGrants({'acct:a':['access:paid']}); mod.setSessionAuthorities(activeSessionAuthority('acct:a'));
+ const request=new Request('https://buyer/',{headers:{cookie:`__Host_account_session=${token('acct:a')}`}});
+ const authority=await mod.resolveHostedExperienceAuthority(request,'publication','target');
+ mod.resetCalls();
+ await assert.rejects(()=>mod.invokeSessionAdmittedTarget(authority,'target:allowed',{},request));
+ assert.equal(targets(mod).includes('target:allowed'),false);
+ assert.equal(targets(mod).includes('access-rule.evaluate'),false);
+});
+
+test('entry projection keeps protected rows private and revocation denies the next request before owner dispatch', async () => {
+ const mod=await compiledHarness(); process.env.ACCOUNT_SESSION_COOKIE_NAME='__Host_account_session';
+ mod.setRecords(entryProjectionFixture()); mod.setGrants({'acct:a':['access:paid']}); mod.setSessionAuthorities(activeSessionAuthority('acct:a'));
+ const request=new Request('https://buyer/',{headers:{cookie:`__Host_account_session=${token('acct:a')}`}});
+ const authority=await mod.resolveHostedExperienceAuthority(request,'publication','manifest');
+ const privateProjection=await mod.invokeEntryProjectionTarget(authority,request);
+ assert.equal(privateProjection.scoped_group_page_items[0].body,'PROTECTED_CANARY_ROW');
+ authority.authorityManifest.entry_byte_path=['app','entry.js'];
+ authority.projectedFiles=[{path:['app','entry.js'],byte_count:1,executable:false,multihash:hash('entry')}];
+ const publicOutput=JSON.stringify(mod.publicExperienceManifest(authority));
+ for(const protectedValue of ['PROTECTED_CANARY_ROW','entry_projection_target_ref','admitted_scope','access_decision']) assert.equal(publicOutput.includes(protectedValue),false);
+
+ mod.setGrants({'acct:a':[]}); mod.resetCalls();
+ await assert.rejects(()=>mod.resolveHostedExperienceAuthority(request,'publication','manifest'));
+ assert.equal(targets(mod).includes('group-page.read-projection'),false);
+});
+
+test('entry projection rejects a non-member selector and non-literal subject before access evaluation or owner dispatch', async () => {
+ const mod=await compiledHarness(); process.env.ACCOUNT_SESSION_COOKIE_NAME='__Host_account_session';
+ mod.setGrants({'acct:a':['access:paid']}); mod.setSessionAuthorities(activeSessionAuthority('acct:a'));
+ const request=new Request('https://buyer/',{headers:{cookie:`__Host_account_session=${token('acct:a')}`}});
+
+ const nonMember=entryProjectionFixture();
+ nonMember.get('manifest').payload.entry_projection_target_ref=exact(record('package::other::target::read-projection',{kind:'package-target-descriptor'}));
+ nonMember.get('manifest').object_hash=hash(nonMember.get('manifest').payload);
+ nonMember.get('publication').payload.authority_manifest_ref=exact(nonMember.get('manifest'));
+ nonMember.get('publication').object_hash=hash(nonMember.get('publication').payload);
+ mod.setRecords(nonMember);
+ let authority=await mod.resolveHostedExperienceAuthority(request,'publication','manifest'); mod.resetCalls();
+ await assert.rejects(()=>mod.invokeEntryProjectionTarget(authority,request));
+ assert.equal(targets(mod).includes('access-rule.evaluate'),false);
+ assert.equal(targets(mod).includes('group-page.read-projection'),false);
+
+ const dynamicSubject=entryProjectionFixture();
+ const descriptor=dynamicSubject.get('package::group-page::target::read-projection');
+ descriptor.payload.admission.subject_binding={$kind:'binding',select:{from:'context',path:'payload.scope_ref'}};
+ descriptor.object_hash=hash(descriptor.payload);
+ dynamicSubject.get('manifest').payload.target_refs=[exact(descriptor)];
+ dynamicSubject.get('manifest').payload.entry_projection_target_ref=exact(descriptor);
+ dynamicSubject.get('manifest').object_hash=hash(dynamicSubject.get('manifest').payload);
+ dynamicSubject.get('publication').payload.authority_manifest_ref=exact(dynamicSubject.get('manifest'));
+ dynamicSubject.get('publication').object_hash=hash(dynamicSubject.get('publication').payload);
+ mod.setRecords(dynamicSubject);
+ authority=await mod.resolveHostedExperienceAuthority(request,'publication','manifest'); mod.resetCalls();
+ await assert.rejects(()=>mod.invokeEntryProjectionTarget(authority,request));
+ assert.equal(targets(mod).includes('access-rule.evaluate'),false);
+ assert.equal(targets(mod).includes('group-page.read-projection'),false);
+});

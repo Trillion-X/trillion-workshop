@@ -1,0 +1,118 @@
+{
+  "projection": {
+    "id": "group-list.directory",
+    "source": {
+      "address": "package::group-list::records",
+      "mode": "current"
+    },
+    "fields": [
+      {
+        "id": "title",
+        "role": "primary-label",
+        "path": ["payload", "name"],
+        "display": {
+          "empty": "Untitled"
+        }
+      },
+      {
+        "id": "summary",
+        "role": "supporting-text",
+        "path": ["payload", "summary"],
+        "display": {
+          "empty": ""
+        }
+      },
+      {
+        "id": "access",
+        "role": "status-key",
+        "path": ["payload", "access_key"],
+        "display": {
+          "vocabulary": "package::group-list::status-vocabulary::access"
+        }
+      },
+      {
+        "id": "participant_count",
+        "role": "metric",
+        "path": ["payload", "participant_count"],
+        "display": {
+          "format": "number"
+        }
+      }
+    ],
+    "filters": [
+      {
+        "id": "not-archived",
+        "method": "field.notEquals",
+        "params": {
+          "field": ["payload", "archived"],
+          "value": true
+        }
+      }
+    ],
+    "relationships": [
+      {
+        "id": "participants",
+        "method": "related.count",
+        "params": {
+          "from": "record_id",
+          "to": "subject_record_id"
+        }
+      }
+    ],
+    "actions": [
+      {
+        "id": "open-record",
+        "target": "slot::workflow",
+        "operation": "execute_definition",
+        "definition_id": "workflow::group-list::open-record",
+        "input": {
+          "intent": "open"
+        },
+        "copy": [
+          {
+            "key": "record_id",
+            "from": "row.recordId"
+          }
+        ]
+      },
+      {
+        "id": "request-record-action",
+        "target": "slot::workflow",
+        "operation": "execute_definition",
+        "definition_id": "workflow::group-list::request-action",
+        "input": {
+          "intent": "request"
+        },
+        "copy": [
+          {
+            "key": "record_id",
+            "from": "row.recordId"
+          }
+        ],
+        "enabledWhen": {
+          "method": "field.notEquals",
+          "params": {
+            "field": ["values", "access", "raw"],
+            "value": "closed"
+          }
+        }
+      }
+    ]
+  },
+  "statusVocabulary": {
+    "package::group-list::status-vocabulary::access": {
+      "open": {
+        "label": "Open community",
+        "tone": "positive"
+      },
+      "invite": {
+        "label": "Invite only",
+        "tone": "muted"
+      },
+      "request": {
+        "label": "Ask to join",
+        "tone": "attention"
+      }
+    }
+  }
+}

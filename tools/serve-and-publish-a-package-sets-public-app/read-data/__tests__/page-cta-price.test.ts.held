@@ -1,0 +1,35 @@
+import { describe, expect, it } from '../../../../test-helpers/vitest-shim.mjs';
+import { pageCtaPrice } from '../page-cta-price.mjs';
+
+describe('pageCtaPrice', () => {
+  const offers = [{
+    id: 'offer:membership',
+    price_options: [
+      { id: 'price:monthly', amount_cents: 9900, currency: 'usd' },
+      { id: 'price:annual', amount_cents: 90000, currency: 'usd' },
+    ],
+  }];
+
+  it('uses the current offer amount named by the page for server-rendered CTA copy', () => {
+    expect(pageCtaPrice(offers, {
+      checkout_offer_id: 'offer:membership',
+      checkout_price_option_id: 'price:monthly',
+    })).toEqual({ price: '$99', offerId: 'offer:membership' });
+  });
+
+  it('refuses stale or unnamed multi-option prices instead of guessing by position', () => {
+    expect(pageCtaPrice(offers, {
+      checkout_offer_id: 'offer:membership',
+      checkout_price_option_id: 'price:removed',
+    })).toEqual({ price: undefined, offerId: 'offer:membership' });
+    expect(pageCtaPrice(offers, { checkout_offer_id: 'offer:membership' }))
+      .toEqual({ price: undefined, offerId: 'offer:membership' });
+  });
+
+  it('accepts the only option when the page has not needed to name a choice', () => {
+    expect(pageCtaPrice([{ id: 'offer:single', price_options: [
+      { id: 'price:only', amount_cents: 1234, currency: 'usd' },
+    ] }], { checkout_offer_id: 'offer:single' }))
+      .toEqual({ price: '$12.34', offerId: 'offer:single' });
+  });
+});

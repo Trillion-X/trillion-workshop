@@ -1,0 +1,17 @@
+import { describe, expect, it } from '../../../test-helpers/vitest-shim.mjs';
+import data from '../things-to-store-and-run.json';
+
+describe('new local file action contract', () => {
+  it('allows empty bytes and dispatches only the declared no-replace operation', () => {
+    const things = data.things as Array<{ address?: string; payload?: any }>;
+    const action = things.find((row) => row.address === 'package::local-files::workflow-action::write-new-local-file')!.payload;
+    expect(action.input_schema.required).toContain('content_base64');
+    expect(action.input_schema.properties.content_base64).toEqual({ type: 'string' });
+    expect(action.steps[0].config.name).toBe('local.files');
+    expect(action.steps[0].config.input.operation).toBe('write_new_file');
+    const contract = things.find((row) => row.address === 'package::local-files::contract::operations')!.payload;
+    expect(contract.operations.find((operation: any) => operation.id === 'write_new_file')).toMatchObject({
+      parameters: ['path', 'content_base64'], max_write_bytes: 16777216,
+    });
+  });
+});

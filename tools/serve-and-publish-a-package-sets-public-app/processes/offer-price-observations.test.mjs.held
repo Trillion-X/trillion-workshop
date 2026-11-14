@@ -1,0 +1,145 @@
+// packages/hosted-public-app/processes/offer-price-observations.test.mjs
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { readCheckoutOffers } from '../../checkout/read-data/read-offers.ts';
+import { countPaidCheckouts, createOfferPriceObservations, withObservedCounts } from './offer-price-observations.mjs';
+
+const offers = {
+  records: [
+    {
+      id: 'offer:membership', kind: 'commercial-offer', label: 'Membership', access_refs: [],
+      price_options: [{
+        id: 'price:membership:monthly', label: 'Monthly', amount_cents: 5000, currency: 'usd',
+        interval: 'month', payment_timing: 'recurring',
+        voluntary_amount_policy: {
+          allow_custom: true, currency: 'usd',
+          price_discovery: { start_cents: 5000, sales_to_double: 1, target_win_rate: 0.05, suggested_multiples: [1, 2] },
+        },
+      }],
+    },
+    {
+      id: 'offer:fixed', kind: 'commercial-offer', label: 'Fixed', access_refs: [],
+      price_options: [{ id: 'price:fixed', label: 'Once', amount_cents: 10000, currency: 'usd', payment_timing: 'one_time' }],
+    },
+  ],
+};
+
+function memoryDisk() {
+  const files = new Map();
+  return {
+    files,
+    readText: async (path) => { if (!files.has(path)) throw Object.assign(new Error('missing'), { code: 'ENOENT' }); return files.get(path); },
+    appendText: async (path, text) => { files.set(path, (files.get(path) ?? '') + text); },
+    writeText: async (path, text) => { files.set(path, text); },
+  };
+}
+
+function provider(pages) {
+  let call = 0;
+  const seen = [];
+  return {
+    seen,
+    fetchImplementation: async (url) => {
+      seen.push(String(url));
+      const page = pages[call++];
+      return { ok: true, status: 200, json: async () => page };
+    },
+  };
+}
+
+test('a person who reached the price is counted once per offer, however many times they send it', async () => {
+  const disk = memoryDisk();
+  const store = createOfferPriceObservations({
+    file: 'reached', saltFile: 'salt', ...disk, randomBytes: () => new Uint8Array(32).fill(7),
+    providerSecret: null, fetchImplementation: null,
+  });
+  const known = ['offer:membership'];
+  assert.equal(await store.recordReachedPrice({ address: '203.0.113.9', offerIds: ['offer:membership'], knownOfferIds: known }), 1);
+  // Same address, new "visitor": still the same person.
+  assert.equal(await store.recordReachedPrice({ address: '203.0.113.9', offerIds: ['offer:membership'], knownOfferIds: known }), 0);
+  assert.equal(await store.recordReachedPrice({ address: '198.51.100.4', offerIds: ['offer:membership', 'offer:unknown'], knownOfferIds: known }), 1);
+  assert.equal((await store.counts()).get('offer:membership').reached_price, 2);
+  // The raw address is never written down.
+  assert.doesNotMatch(disk.files.get('reached'), /203\.0\.113\.9|198\.51\.100\.4/);
+});
+
+test('counts survive a restart and a torn last line', async () => {
+  const disk = memoryDisk();
+  const options = { file: 'reached', saltFile: 'salt', ...disk, randomBytes: () => new Uint8Array(32).fill(3), providerSecret: null, fetchImplementation: null };
+  const first = createOfferPriceObservations(options);
+  await first.recordReachedPrice({ address: 'a', offerIds: ['offer:membership'], knownOfferIds: ['offer:membership'] });
+  disk.files.set('reached', `${disk.files.get('reached')}{"offer_id":"offer:memb`);
+  const second = createOfferPriceObservations(options);
+  assert.equal((await second.counts()).get('offer:membership').reached_price, 1);
+  // Same salt after restart, so the same person is still one person.
+  assert.equal(await second.recordReachedPrice({ address: 'a', offerIds: ['offer:membership'], knownOfferIds: ['offer:membership'] }), 0);
+});
+
+test('sales are paid checkouts per offer, across every page the provider returns', async () => {
+  const { fetchImplementation, seen } = provider([
+    { has_more: true, data: [
+      { id: 'cs_1', payment_status: 'paid', metadata: { offer_id: 'offer:membership' } },
+      { id: 'cs_2', payment_status: 'unpaid', metadata: { offer_id: 'offer:membership' } },
+    ] },
+    { has_more: false, data: [
+      { id: 'cs_3', payment_status: 'paid', metadata: { offer_id: 'offer:membership' } },
+      { id: 'cs_4', payment_status: 'paid', metadata: {} },
+    ] },
+  ]);
+  const counts = await countPaidCheckouts({ secret: 'k', fetchImplementation });
+  assert.equal(counts.get('offer:membership'), 2);
+  assert.match(seen[1], /starting_after=cs_2/);
+});
+
+test('observed counts reach the derived price, and offers without a rule are untouched', async () => {
+  const counts = new Map([['offer:membership', { sales: 1, reached_price: 1 }]]);
+  const observed = withObservedCounts(offers, counts);
+  assert.equal(observed.records[1], offers.records[1]);
+  const membership = readCheckoutOffers(observed).find((offer) => offer.id === 'offer:membership');
+  assert.equal(membership.price_options[0].voluntary_amount_policy.min_cents, 10000);
+  // No count yet: the start price.
+  const unobserved = readCheckoutOffers(withObservedCounts(offers, new Map())).find((offer) => offer.id === 'offer:membership');
+  assert.equal(unobserved.price_options[0].voluntary_amount_policy.min_cents, 5000);
+});
+
+test('a price can count paid sales from other named offers without counting one offer twice', () => {
+  const linked = structuredClone(offers);
+  linked.records[0].price_options[0].voluntary_amount_policy.price_discovery.sales_offer_ids = [
+    'offer:presale', 'offer:presale', 'offer:membership',
+  ];
+  const counts = new Map([
+    ['offer:presale', { sales: 2, reached_price: 0 }],
+    ['offer:membership', { sales: 0, reached_price: 1 }],
+  ]);
+  const observed = withObservedCounts(linked, counts);
+  const rule = observed.records[0].price_options[0].voluntary_amount_policy.price_discovery;
+  assert.equal(rule.sales, 2);
+  assert.equal(rule.reached_price, 3);
+  const membership = readCheckoutOffers(observed).find((offer) => offer.id === 'offer:membership');
+  assert.ok(membership.price_options[0].voluntary_amount_policy.min_cents < 20000);
+  assert.ok(membership.price_options[0].voluntary_amount_policy.min_cents > 5000);
+
+  counts.set('offer:membership', { sales: 0, reached_price: 5 });
+  const fiveRejections = withObservedCounts(linked, counts).records[0]
+    .price_options[0].voluntary_amount_policy.price_discovery;
+  assert.equal(fiveRejections.sales, 2);
+  assert.equal(fiveRejections.reached_price, 7);
+  assert.equal(fiveRejections.reached_price - fiveRejections.sales, 5);
+});
+
+test('a provider outage keeps the last good sales count instead of resetting the price', async () => {
+  let fail = false;
+  let clock = 0;
+  const store = createOfferPriceObservations({
+    file: 'reached', saltFile: 'salt', ...memoryDisk(), randomBytes: () => new Uint8Array(32),
+    providerSecret: 'k', now: () => clock, salesRefreshMs: 10,
+    fetchImplementation: async () => {
+      if (fail) throw new Error('down');
+      return { ok: true, status: 200, json: async () => ({ has_more: false, data: [{ id: 'cs', payment_status: 'paid', metadata: { offer_id: 'offer:membership' } }] }) };
+    },
+  });
+  assert.equal((await store.counts()).get('offer:membership').sales, 1);
+  fail = true;
+  clock = 100;
+  assert.equal((await store.counts()).get('offer:membership').sales, 1);
+});

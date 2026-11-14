@@ -1,0 +1,77 @@
+import { describe, expect, it } from '../../../test-helpers/vitest-shim.mjs';
+import packageData from '../things-to-store-and-run.json' with { type: 'json' };
+import { materializeActionRequest } from '../do-work/request-publish-live-site.ts';
+
+const request = {
+  intent_ref: { address: 'intent:hostile', revision: 'r7', object_hash: '1f:exact' },
+  request_id: 'request:opaque-hostile',
+  publication_request_ref: { address: 'publication-request:hostile', revision: 'r7', object_hash: '1f:request' },
+};
+
+function definition(): any {
+  return (packageData.things as any[]).find((thing) => thing.address === 'package::hosted-public-app::workflow-action::publish-selected-experience').payload;
+}
+
+describe('execute_definition hostile authority contract', () => {
+  it('refuses caller substitutions for every retired authority input before it can reach Workflow', () => {
+    const substitutions = {
+      node_binary: '/tmp/evil-node', materialization_input: { records: ['extra'] }, materialization_root: '/tmp/other-root',
+      publication_record: { status: 'active' }, create_hosted_projection_closure_process: { argv: ['skip'] },
+      sign_hosted_projection_closure_process: { argv: ['skip'] }, apply_hosted_projection_closure_process: { argv: ['skip'] },
+      build_live_site_process: { argv: ['skip'] }, deploy_live_site_process: { argv: ['skip'] }, trusted_key: 'attacker:00',
+      sealed_closure_signing_seed_hex_file: '/tmp/key', current_state_basis_file: '/tmp/state', projection_root: '/tmp/public',
+      hosted_projection_signed_closure_file: '/tmp/closure', apply_proof_file: '/tmp/proof', build_argv: ['retired-caller-binary'], deploy_argv: ['retired-caller-binary'],
+    };
+    for (const [key, value] of Object.entries(substitutions)) {
+      expect(() => materializeActionRequest({ ...request, [key]: value })).toThrow('UNTRUSTED_FIELD');
+    }
+    expect(() => materializeActionRequest({ ...request, user_id: 'caller-forged' })).toThrow('UNTRUSTED_FIELD');
+    expect(materializeActionRequest(request).payload).not.toHaveProperty('user_id');
+  });
+
+  it('rejects identity widening and preserves no caller-selected policy, dependency, manifest, or root', () => {
+    for (const key of ['policy_ref', 'access_ref', 'root_refs', 'dependency_refs', 'authority_manifest_ref', 'sealed_closure_ref']) {
+      expect(() => materializeActionRequest({ ...request, intent_ref: { ...request.intent_ref, [key]: 'forged' } })).toThrow('EXACT_REF_UNTRUSTED_FIELD');
+    }
+    const payload = materializeActionRequest(request).payload.input as Record<string, unknown>;
+    expect(payload).toEqual(request);
+  });
+
+  it('makes step skips, stale artifacts, altered closures, and extra bytes unreachable from the commit', () => {
+    const graph = definition();
+    const edgePairs = new Set(graph.edges.map((edge: any) => `${edge.from}->${edge.to}`));
+    const required = [
+      'materialize_hosted_projection_tree->construct_source_archive',
+      'construct_source_archive->create_hosted_projection_closure',
+      'create_hosted_projection_closure->build_closure_signing_payload',
+      'build_closure_signing_payload->read_signing_credential_handle',
+      'read_signing_credential_handle->sign_closure_payload',
+      'sign_closure_payload->attach_hosted_projection_closure_signature',
+      'attach_hosted_projection_closure_signature->verify_signed_hosted_projection_closure',
+      'verify_signed_hosted_projection_closure->apply_hosted_projection_closure',
+      'apply_hosted_projection_closure->verify_applied_hosted_projection_closure',
+      'verify_applied_hosted_projection_closure->run_publication_process_sequence',
+      'run_publication_process_sequence->prepare_publication_records',
+      'prepare_publication_records->stage_owner_carrier',
+      'stage_owner_carrier->commit_publication',
+    ];
+    for (const edge of required) expect(edgePairs).toContain(edge);
+    const serialized = JSON.stringify(graph);
+    expect(serialized).toContain('materialize_hosted_projection_tree.outputs.0');
+    expect(serialized).toContain('create_hosted_projection_closure.outputs.0');
+    expect(serialized).toContain('attach_hosted_projection_closure_signature.outputs.0');
+    expect(serialized).toContain('credential_key');
+    expect(serialized).not.toContain('signing_seed_secret_ref');
+    expect(serialized).not.toContain('--signing-seed-hex-file');
+    expect(serialized).toContain('publication_commit_input');
+    expect(serialized).not.toContain('finalize-selected-publication');
+    expect(serialized).not.toContain('selected_projection_tree_root');
+    expect(serialized).toContain('create-from-source-archive-tree');
+    expect(serialized).toContain('deployment-result.json');
+    expect(serialized).toContain('compute.process_sequence');
+    expect(serialized).toContain('run_publication_process_sequence.steps.1.process_result.outputs.0');
+    expect(serialized).not.toContain('"id":"build_live_site"');
+    expect(serialized).not.toContain('"id":"deploy_live_site"');
+    expect(serialized).not.toContain('output.stdout.text');
+  });
+});

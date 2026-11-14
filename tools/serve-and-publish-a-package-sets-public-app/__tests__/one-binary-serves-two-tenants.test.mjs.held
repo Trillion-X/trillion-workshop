@@ -1,0 +1,514 @@
+#!/usr/bin/env node
+// ONE built server, TWO hosts, TWO different tenants, at the same time.
+//
+// WHY THIS EXISTS. The build plan claims "one source serves many package sets" and the split
+// plan claims a second tenant costs zero code. Both were ASSERTIONS: exactly one package set
+// builds this server, and until T3 a description was a single object, so a process could only
+// ever BE one tenant. A claim nothing exercises is a hypothesis wearing the shape of a feature,
+// which is a defect this package has produced repeatedly.
+//
+// It also picks up two branches that had no way to run:
+//   - the chrome css read named by the description (T2 shipped it unproven, because the
+//     dead-engine harness cannot reach a route that renders server-side chrome)
+//   - pickDescriptionForHost's MANY-entries path, which the single-tenant fixtures never take
+//
+// The two tenants share NOTHING: different titles, brands, mount points, bundles, state
+// envelope global names and thank-you copy. If any of it leaked between them, the page for one
+// host would carry the other's markers, and that is what the assertions look for.
+
+import { spawn } from 'node:child_process';
+import { mkdtemp, writeFile, readFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { createServer } from 'node:net';
+import { request as httpRequest } from 'node:http';
+import { theBuiltEntryServer } from './built-entry-server.mjs';
+
+const FIRST_HOST = 'first-tenant.entry-host.test';
+const SECOND_HOST = 'second-tenant.entry-host.test';
+const UNKNOWN_HOST = 'nobody.entry-host.test';
+
+// Markers no code path could invent. Their presence proves which description was chosen.
+const FIRST = {
+  hosts: [FIRST_HOST],
+  language: 'en',
+  theme: 'paper',
+  title: 'First Tenant 8c1d02',
+  meta_description: 'The first tenant, which knows nothing about the second.',
+  brand: 'First Tenant 8c1d02',
+  island: {
+    mount_element_id: 'first-tenant-root-8c1d02',
+    bundle_url: '/assets/first-tenant-8c1d02/app.js',
+    stylesheet_url: '/assets/first-tenant-8c1d02/app.css',
+    inline_css: 'html,body{margin:0}',
+    noscript_route: '/classic',
+    state_envelopes: { __firstTenantPolicy8c1d02__: 'patronPolicy' },
+  },
+  thank_you: { title: 'Thanks, First 8c1d02', heading: 'Thank you.', body: 'First tenant body.' },
+  landing_offers: {
+    systemOffer: {
+      offer_id: 'offer:first-system-8c1d02',
+      fields: {
+        amountCents: { from: 'price_option', key: 'amount_cents' },
+        currency: { from: 'price_option', key: 'currency' },
+        postPurchaseRoutePath: { from: 'offer', key: 'post_purchase_route_path' },
+      },
+    },
+    patronPolicy: {
+      offer_id: 'offer:first-patron-8c1d02',
+      fields: { policy: { from: 'price_option', key: 'voluntary_amount_policy' } },
+    },
+  },
+  lead_capture: {
+    contact_source: 'first-tenant-application-8c1d02',
+    contact_source_ref: 'application:first-tenant-8c1d02',
+    activity_ref_prefix: 'first-tenant-8c1d02-',
+    note: 'Applied to the first tenant 8c1d02',
+    channel: 'website-application',
+  },
+};
+const SECOND = {
+  hosts: [SECOND_HOST],
+  language: 'fr',
+  theme: 'ink',
+  title: 'Second Tenant 4f9b73',
+  meta_description: 'The second tenant, which knows nothing about the first.',
+  brand: 'Second Tenant 4f9b73',
+  island: {
+    mount_element_id: 'second-tenant-root-4f9b73',
+    bundle_url: '/assets/second-tenant-4f9b73/app.js',
+    stylesheet_url: '/assets/second-tenant-4f9b73/app.css',
+    inline_css: 'html,body{margin:0}',
+    noscript_route: '/classic',
+    state_envelopes: { __secondTenantPolicy4f9b73__: 'foundingMemberOffer4f9b73' },
+  },
+  thank_you: { title: 'Thanks, Second 4f9b73', heading: 'Merci.', body: 'Second tenant body.' },
+  // A KEY THE SERVER HAS NEVER HEARD OF, and only one of it. The envelope key set used to be the
+  // literal pair `patronPolicy` and `systemOffer`, written into the projection, the readiness test
+  // and the legacy-claim test, so a tenant adding a third would have been silently dropped by all
+  // three. This tenant declares a single envelope under a name that appears nowhere in the server,
+  // which is the whole claim: a new envelope is a data row here plus one in state_envelopes.
+  landing_offers: {
+    foundingMemberOffer4f9b73: {
+      offer_id: 'offer:second-founding-4f9b73',
+      fields: {
+        amountCents: { from: 'price_option', key: 'amount_cents' },
+        currency: { from: 'price_option', key: 'currency' },
+      },
+    },
+  },
+  // DELIBERATELY PARTIAL. The first tenant describes all five values, this one describes one, so
+  // a single run proves three things instead of one: a described value wins, an undescribed value
+  // falls back to the mechanism-only default rather than to the OTHER tenant's value, and the
+  // fallback is per-key rather than all-or-nothing. A suite where both tenants are fully
+  // described would never execute the fallback at all.
+  lead_capture: { note: 'Applied to the second tenant 4f9b73' },
+};
+
+async function freePort() {
+  return new Promise((resolve, reject) => {
+    const probe = createServer();
+    probe.on('error', reject);
+    probe.listen(0, '127.0.0.1', () => {
+      const { port } = probe.address();
+      probe.close(() => resolve(port));
+    });
+  });
+}
+
+// node:http, NOT fetch: `Host` is a forbidden header name in fetch, so a fetch-based probe
+// silently arrives as 127.0.0.1 and never matches a configured host. This whole test is about
+// the Host header, so that detail is the difference between proving something and proving
+// nothing.
+// A form POST, because the thank-you page is only reachable by submitting one and no suite here
+// had ever reached it. Same shape as get(), including returning headers.
+function postForm(port, path, host, fields) {
+  const payload = new URLSearchParams(fields).toString();
+  return new Promise((resolve, reject) => {
+    const req = httpRequest(
+      {
+        host: '127.0.0.1',
+        port,
+        path,
+        method: 'POST',
+        headers: {
+          Host: host,
+          Accept: 'text/html',
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Length': Buffer.byteLength(payload),
+        },
+      },
+      (response) => {
+        let body = '';
+        response.setEncoding('utf8');
+        response.on('data', (c) => { body += c; });
+        response.on('end', () => resolve({ status: response.statusCode, headers: response.headers, body }));
+      },
+    );
+    req.on('error', reject);
+    req.write(payload);
+    req.end();
+  });
+}
+
+function get(port, path, host) {
+  return new Promise((resolve, reject) => {
+    const req = httpRequest(
+      { host: '127.0.0.1', port, path, method: 'GET', headers: { Host: host, Accept: 'text/html' } },
+      (response) => {
+        let body = '';
+        response.setEncoding('utf8');
+        response.on('data', (c) => { body += c; });
+        // Headers are returned because a tenant name can hide in a header as easily as in the
+        // body, and an assertion against an undefined field would have passed silently.
+        response.on('end', () => resolve({ status: response.statusCode, headers: response.headers, body }));
+      },
+    );
+    req.on('error', reject);
+    req.end();
+  });
+}
+
+const failures = [];
+function check(name, condition, detail) {
+  if (condition) console.log(`  PASS  ${name}`);
+  else { console.log(`  FAIL  ${name}${detail ? `, ${detail}` : ''}`); failures.push(name); }
+}
+
+const { server: SERVER, note: serverNote, reason } = await theBuiltEntryServer();
+if (!SERVER) {
+  console.log(`FAIL: ${reason}`);
+  process.exit(1);
+}
+console.log(serverNote);
+
+const staticDir = await mkdtemp(join(tmpdir(), 'two-tenants-static-'));
+const installRoot = await mkdtemp(join(tmpdir(), 'two-tenants-install-'));
+await writeFile(join(staticDir, 'index.html'),
+  '<!DOCTYPE html>\n<html><head></head><body><div id="root"></div></body></html>\n', 'utf8');
+
+// Each tenant's editorial body, written here because the path must be ABSOLUTE and a checked-in
+// fixture cannot know this machine's temp dir. Two files, not one shared file: a single body
+// would pass every presence check while proving nothing about SELECTION.
+const firstBodyFile = join(staticDir, 'first-body-8c1d02.html');
+const secondBodyFile = join(staticDir, 'second-body-4f9b73.html');
+await writeFile(firstBodyFile, '<h1>First tenant editorial 8c1d02</h1>\n', 'utf8');
+await writeFile(secondBodyFile, '<h1>Second tenant editorial 4f9b73</h1>\n', 'utf8');
+
+// A stylesheet each, for the same reason as a body each: one shared file would satisfy every
+// presence check while proving nothing about SELECTION.
+const firstShellCss = join(staticDir, 'first-shell-8c1d02.css');
+const secondShellCss = join(staticDir, 'second-shell-4f9b73.css');
+await writeFile(firstShellCss, '.first-tenant-shell{--proof:"shell-8c1d02"}\n', 'utf8');
+await writeFile(secondShellCss, '.second-tenant-shell{--proof:"shell-4f9b73"}\n', 'utf8');
+
+const descriptionFile = join(staticDir, 'page-description.json');
+await writeFile(descriptionFile, JSON.stringify({
+  kind: 'hosted-public-app.page-description',
+  pages: [
+    { ...FIRST, fallback_body_file: firstBodyFile, shell_css_file: firstShellCss },
+    { ...SECOND, fallback_body_file: secondBodyFile, shell_css_file: secondShellCss },
+  ],
+}), 'utf8');
+
+const port = await freePort();
+const deadEnginePort = await freePort();
+const child = spawn(process.execPath, [SERVER], {
+  env: {
+    ...process.env,
+    BITFIELD_PUBLIC_ENTRY_LISTEN_HOST: '127.0.0.1',
+    BITFIELD_PUBLIC_ENTRY_LISTEN_PORT: String(port),
+    BITFIELD_PUBLIC_ENTRY_SHELL_URL: `http://127.0.0.1:${deadEnginePort}`,
+    BITFIELD_BROWSER_STATIC_DIR: staticDir,
+    // BOTH hosts, one process. The environment says which hosts this process answers for; the
+    // description says who each host IS. Two different questions, which is why neither is
+    // derived from the other.
+    BITFIELD_HOST_ENTRY_SCENE_HOSTS: `${FIRST_HOST},${SECOND_HOST},${UNKNOWN_HOST}`,
+    BITFIELD_PUBLIC_PAGE_DESCRIPTION_FILE: descriptionFile,
+    BITFIELD_INSTALL_ROOT: installRoot,
+    BITFIELD_BOOT_WAIT_MS: '1000',
+  },
+  stdio: ['ignore', 'pipe', 'pipe'],
+});
+let log = '';
+child.stdout.on('data', (d) => { log += d; });
+child.stderr.on('data', (d) => { log += d; });
+
+let exitCode = 0;
+try {
+  console.log('\none binary serves two tenants');
+  let listening = false;
+  const deadline = Date.now() + 30000;
+  while (Date.now() < deadline) {
+    try { await get(port, '/', FIRST_HOST); listening = true; break; }
+    catch { await new Promise((r) => setTimeout(r, 200)); }
+  }
+  check('the server listens', listening);
+  if (!listening) throw new Error('server never listened');
+
+  const first = await get(port, '/', FIRST_HOST);
+  const second = await get(port, '/', SECOND_HOST);
+
+  check('the first host answers 200', first.status === 200, `got ${first.status}`);
+  check('the second host answers 200', second.status === 200, `got ${second.status}`);
+
+  check('the first host gets the FIRST tenant', first.body.includes(FIRST.title));
+  check('the second host gets the SECOND tenant', second.body.includes(SECOND.title));
+
+  // The assertions that would catch a leak, which the positive ones alone cannot.
+  check('the first tenant is nowhere on the second host', !second.body.includes(FIRST.title));
+  check('the second tenant is nowhere on the first host', !first.body.includes(SECOND.title));
+
+  check('each host mounts its OWN island', first.body.includes(FIRST.island.mount_element_id)
+    && second.body.includes(SECOND.island.mount_element_id));
+  check('each host ships its OWN bundle', first.body.includes(FIRST.island.bundle_url)
+    && second.body.includes(SECOND.island.bundle_url));
+  check('each host names its OWN state envelope global',
+    first.body.includes('__firstTenantPolicy8c1d02__')
+    && second.body.includes('__secondTenantPolicy4f9b73__'));
+  check('and neither carries the other\'s envelope global',
+    !first.body.includes('__secondTenantPolicy4f9b73__')
+    && !second.body.includes('__firstTenantPolicy8c1d02__'));
+
+  // Per-tenant document attributes, not just per-tenant copy. These come from the same
+  // description and prove the whole record is selected, not a couple of interpolated strings.
+  check('the document language is per tenant', /<html lang="en"/.test(first.body)
+    && /<html lang="fr"/.test(second.body));
+  check('the theme is per tenant', /data-theme="paper"/.test(first.body)
+    && /data-theme="ink"/.test(second.body));
+
+  // THE NOSCRIPT ROUTE IS FOLLOWED, not merely found in the markup.
+  //
+  // Every suite here asserted that a page CONTAINS a <noscript> pointing somewhere, and none
+  // ever requested that somewhere. A link-exists check cannot fail while the destination is
+  // broken, which is the only interesting way for it to be wrong. It was in fact broken for
+  // both tenants the moment the editorial body became a per-tenant file: the route answered
+  // 503 and every check in this suite stayed green.
+  const firstNoscript = await get(port, FIRST.island.noscript_route, FIRST_HOST);
+  const secondNoscript = await get(port, SECOND.island.noscript_route, SECOND_HOST);
+  check('the route a no-script visitor is sent to actually serves',
+    firstNoscript.status === 200 && secondNoscript.status === 200,
+    `${firstNoscript.status} and ${secondNoscript.status}`);
+  check('each tenant gets its OWN editorial body there',
+    firstNoscript.body.includes('First tenant editorial 8c1d02')
+    && secondNoscript.body.includes('Second tenant editorial 4f9b73'));
+  check('and neither is served the other\'s editorial body',
+    !firstNoscript.body.includes('Second tenant editorial 4f9b73')
+    && !secondNoscript.body.includes('First tenant editorial 8c1d02'));
+
+  // THE THANK-YOU PAGE, which no suite had ever requested.
+  //
+  // Both tenants carried thank_you copy and nothing rendered it, so the route was live, tenant
+  // specific, and completely uncovered. It became async when the shell stylesheet moved to a
+  // file, and a missed await there was verified by removing one: the request does NOT return a
+  // page reading "[object Promise]" as expected, it CRASHES with a socket hang up, because
+  // res.end() throws on a promise. Worse than predicted and caught either way, so both checks
+  // stay. An untested route is not low risk because the route is simple; it is exactly where a
+  // mechanical refactor lands without resistance.
+  const firstThanks = await postForm(port, '/apply', FIRST_HOST,
+    { name: 'A Person', email: 'a@example.test' });
+  const secondThanks = await postForm(port, '/apply', SECOND_HOST,
+    { name: 'B Person', email: 'b@example.test' });
+  check('a lead who applies is thanked rather than erroring',
+    firstThanks.status === 200 && secondThanks.status === 200,
+    `${firstThanks.status} and ${secondThanks.status}`);
+  check('and the page was awaited, not stringified from a promise',
+    !firstThanks.body.includes('[object Promise]')
+    && !secondThanks.body.includes('[object Promise]'));
+  check('each tenant is thanked in its OWN words',
+    firstThanks.body.includes(FIRST.thank_you.heading)
+    && secondThanks.body.includes(SECOND.thank_you.heading));
+  check('and neither is thanked in the other\'s words',
+    !firstThanks.body.includes(SECOND.thank_you.heading)
+    && !secondThanks.body.includes(FIRST.thank_you.heading));
+
+  // WHOSE LEAD IT IS, which is decided at capture and cannot be recovered later.
+  //
+  // The two POSTs above just queued two leads in ONE file, which is the exact situation that
+  // makes process-level attribution wrong: the drain runs at startup and on a timer with no
+  // request in hand, so whatever it reads from config would label BOTH of these with one
+  // tenant's name. That is why the attribution is stamped onto the record here instead.
+  //
+  // The engine is dead in this suite so the drain cannot reach the CRM, and that is fine: the
+  // claim under test is what got WRITTEN DOWN, not what the CRM did with it.
+  const queuedLeads = (await readFile(join(installRoot, 'pending-leads.jsonl'), 'utf8'))
+    .split('\n').filter((line) => line.trim()).map((line) => JSON.parse(line));
+  const firstLead = queuedLeads.find((lead) => lead.email === 'a@example.test');
+  const secondLead = queuedLeads.find((lead) => lead.email === 'b@example.test');
+  check('both leads were durably queued', Boolean(firstLead && secondLead),
+    `found ${queuedLeads.length} record(s)`);
+  if (firstLead && secondLead) {
+    check('a fully described tenant stamps all five of its own values',
+      firstLead.lead_capture?.contact_source === FIRST.lead_capture.contact_source
+      && firstLead.lead_capture?.contact_source_ref === FIRST.lead_capture.contact_source_ref
+      && firstLead.lead_capture?.activity_ref_prefix === FIRST.lead_capture.activity_ref_prefix
+      && firstLead.lead_capture?.note === FIRST.lead_capture.note,
+      JSON.stringify(firstLead.lead_capture));
+    check('a partially described tenant keeps the one value it declared',
+      secondLead.lead_capture?.note === SECOND.lead_capture.note,
+      JSON.stringify(secondLead.lead_capture));
+    check('and its undeclared values fall back to nothing rather than to the other tenant',
+      secondLead.lead_capture?.contact_source !== FIRST.lead_capture.contact_source
+      && secondLead.lead_capture?.activity_ref_prefix !== FIRST.lead_capture.activity_ref_prefix,
+      'the second tenant inherited the first tenant\'s attribution');
+    check('and neither lead carries the other\'s note',
+      firstLead.lead_capture?.note !== SECOND.lead_capture.note
+      && secondLead.lead_capture?.note !== FIRST.lead_capture.note);
+  }
+
+  // OFFERS ARE PER TENANT, and until 2026-09-05 they were per PROCESS: one cache file, one
+  // in-memory value, one throttle, one keeper built at module scope with no request in hand. Two
+  // tenants on one binary shared one set of prices and whichever resolved first won for both.
+  //
+  // It was invisible because the two offer ids were hardcoded, so a process could only ever mean
+  // one tenant. This seeds a kept cache under the FIRST tenant's key only, so the second tenant
+  // has none. Under the old shape both tenants read the one shared file and both rendered the
+  // seeded values; the second tenant reading them is the collision, stated as a check.
+  const seeded = {
+    patronPolicy: { status: 'ready', offerId: FIRST.landing_offers.patronPolicy.offer_id, priceOptionId: 'p-8c1d02', policy: { seeded: 'first-tenant-policy-8c1d02' } },
+    systemOffer: { status: 'ready', offerId: FIRST.landing_offers.systemOffer.offer_id, priceOptionId: 's-8c1d02', amountCents: 8102, currency: 'usd', postPurchaseRoutePath: '/welcome-8c1d02' },
+  };
+  await writeFile(join(installRoot, `landing-offers-cache.${FIRST_HOST.toLowerCase()}.json`),
+    JSON.stringify(seeded), 'utf8');
+
+  const firstLanding = await get(port, '/', FIRST_HOST);
+  const secondLanding = await get(port, '/', SECOND_HOST);
+  check('the tenant whose prices were kept is served them',
+    firstLanding.body.includes('first-tenant-policy-8c1d02'),
+    'its own kept offers did not reach its own page');
+  check('and the OTHER tenant is not served them',
+    !secondLanding.body.includes('first-tenant-policy-8c1d02')
+    && !secondLanding.body.includes('/welcome-8c1d02'),
+    'one tenant was served another tenant\'s prices, which is the process-wide offers cache');
+
+  // AN ENVELOPE KEY THE SERVER HAS NEVER HEARD OF IS SERVED, which is the positive half of the
+  // claim. The checks above prove the first tenant's values do not leak, which absence alone
+  // could satisfy. This seeds the second tenant's OWN cache under its OWN novel key and requires
+  // it on the page, so "a new envelope is a data row and zero code" is proven by a value arriving
+  // rather than by nothing going wrong.
+  const secondKey = Object.keys(SECOND.landing_offers)[0];
+  await writeFile(join(installRoot, `landing-offers-cache.${SECOND_HOST.toLowerCase()}.json`),
+    JSON.stringify({
+      [secondKey]: {
+        status: 'ready',
+        offerId: SECOND.landing_offers[secondKey].offer_id,
+        priceOptionId: 'novel-4f9b73',
+        amountCents: 4973,
+        currency: 'novel-currency-4f9b73',
+      },
+    }), 'utf8');
+  const secondNovel = await get(port, '/', SECOND_HOST);
+  check('an envelope key this server never names is served to the tenant that declared it',
+    secondNovel.body.includes('novel-currency-4f9b73')
+    && secondNovel.body.includes('__secondTenantPolicy4f9b73__'),
+    `${secondKey} did not reach the page, so the envelope key set is still hardcoded somewhere`);
+
+  // THE LEGACY SHARED FILE IS CLAIMED, NOT INHERITED, and this check exists because writing the
+  // falsification for the one above found the hole. A deploy carrying prices kept under the old
+  // process-wide name must not lose them, so that file is still read; but if ANY tenant could
+  // read it, first boot would serve every tenant whoever kept last, which is the exact collision
+  // being removed. It carries the offer ids it was built from, so only the tenant declaring those
+  // ids may take it. Seeded with the FIRST tenant's ids, so the second must refuse it.
+  const legacySeed = {
+    patronPolicy: { status: 'ready', offerId: FIRST.landing_offers.patronPolicy.offer_id, priceOptionId: 'legacy-p', policy: { seeded: 'legacy-shared-cache-3f21a9' } },
+    systemOffer: { status: 'ready', offerId: FIRST.landing_offers.systemOffer.offer_id, priceOptionId: 'legacy-s', amountCents: 3219, currency: 'usd', postPurchaseRoutePath: '/legacy-3f21a9' },
+  };
+  await writeFile(join(installRoot, 'landing-offers-cache.json'), JSON.stringify(legacySeed), 'utf8');
+  const secondAfterLegacy = await get(port, '/', SECOND_HOST);
+  check('a tenant does not inherit the legacy shared cache it never wrote',
+    !secondAfterLegacy.body.includes('legacy-shared-cache-3f21a9')
+    && !secondAfterLegacy.body.includes('/legacy-3f21a9'),
+    'the second tenant claimed prices kept under the old process-wide name');
+
+  check('each tenant gets its OWN page-shell stylesheet',
+    firstNoscript.body.includes('shell-8c1d02')
+    && secondNoscript.body.includes('shell-4f9b73'));
+  check('and neither is styled with the other\'s stylesheet',
+    !firstNoscript.body.includes('shell-4f9b73')
+    && !secondNoscript.body.includes('shell-8c1d02'));
+
+  console.log('\na host nobody described is an error, not a guess');
+  const unknown = await get(port, '/', UNKNOWN_HOST);
+  check('it refuses with 503 rather than picking a tenant at random',
+    unknown.status === 503, `got ${unknown.status}`);
+  check('and it serves neither tenant\'s copy',
+    !unknown.body.includes(FIRST.title) && !unknown.body.includes(SECOND.title));
+
+  // THE REFUSAL MUST TELL THE TWO CAUSES APART. Descriptions exist here and none names this
+  // host, which is what a typo in a `hosts` entry looks like. A message saying "set the file"
+  // would send an operator to look at the one thing that is already correct, so the check is
+  // that it says the OTHER thing, and names the host it could not place.
+  check('the refusal says descriptions exist but none lists this host',
+    /none of them lists the host/.test(unknown.body), `body was: ${unknown.body.trim()}`);
+  check('and it names the host it could not place',
+    unknown.body.includes(UNKNOWN_HOST) || log.includes(UNKNOWN_HOST),
+    'neither the body nor the log named the unmatched host');
+  check('it does NOT tell the operator to set a file they already set',
+    !/BITFIELD_PUBLIC_PAGE_DESCRIPTION_FILE/.test(unknown.body), 'sent them to the wrong place');
+
+  // A DROPPED ENTRY MUST BE ANNOUNCED. The reader ignores any entry without a title, which is
+  // the right rule and was silent: a tenant whose title key is misspelled simply vanished, and
+  // the operator was then told their host was not listed, sending them to inspect `hosts` when
+  // the fault was two lines above it. A rule that discards input has to say so.
+  console.log('\na malformed entry is announced rather than silently dropped');
+  const withJunkDir = await mkdtemp(join(tmpdir(), 'two-tenants-junk-'));
+  const junkFile = join(withJunkDir, 'page-description.json');
+  await writeFile(junkFile, JSON.stringify({
+    kind: 'hosted-public-app.page-description',
+    pages: [FIRST, { hosts: [SECOND_HOST], titel: 'typo, so this entry has no title' }],
+  }), 'utf8');
+  const junkPort = await freePort();
+  const junkChild = spawn(process.execPath, [SERVER], {
+    env: {
+      ...process.env,
+      BITFIELD_PUBLIC_ENTRY_LISTEN_HOST: '127.0.0.1',
+      BITFIELD_PUBLIC_ENTRY_LISTEN_PORT: String(junkPort),
+      BITFIELD_PUBLIC_ENTRY_SHELL_URL: `http://127.0.0.1:${deadEnginePort}`,
+      BITFIELD_BROWSER_STATIC_DIR: staticDir,
+      BITFIELD_HOST_ENTRY_SCENE_HOSTS: `${FIRST_HOST},${SECOND_HOST}`,
+      BITFIELD_PUBLIC_PAGE_DESCRIPTION_FILE: junkFile,
+      BITFIELD_INSTALL_ROOT: installRoot,
+      BITFIELD_BOOT_WAIT_MS: '1000',
+    },
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  let junkLog = '';
+  junkChild.stdout.on('data', (d) => { junkLog += d; });
+  junkChild.stderr.on('data', (d) => { junkLog += d; });
+  try {
+    let junkFirst = null;
+    const junkDeadline = Date.now() + 30000;
+    while (Date.now() < junkDeadline) {
+      try { junkFirst = await get(junkPort, '/', FIRST_HOST); break; }
+      catch { await new Promise((r) => setTimeout(r, 200)); }
+    }
+    check('the good entry still serves', junkFirst?.body?.includes(FIRST.title));
+    check('the dropped entry was announced with its position',
+      /ignored 1 page description entry at position\(s\) 1/.test(junkLog),
+      `log did not announce the drop: ${junkLog.slice(-300)}`);
+  } finally {
+    junkChild.kill('SIGKILL');
+    await rm(withJunkDir, { recursive: true, force: true });
+  }
+
+  // The tenant name is out of the PROTOCOL surface too, not just the page. A header named after
+  // one customer means every other customer is served a header about somebody else.
+  check('response headers name no tenant',
+    !/x-tenant/i.test(JSON.stringify(first.headers ?? {})), 'a tenant name survived in a header');
+} catch (error) {
+  console.log(`  FAIL  harness, ${error?.message ?? error}`);
+  failures.push('harness');
+} finally {
+  child.kill('SIGKILL');
+  await rm(staticDir, { recursive: true, force: true });
+  await rm(installRoot, { recursive: true, force: true });
+}
+
+if (failures.length) {
+  console.log(`\nFAIL: ${failures.length} check(s): ${failures.join(', ')}`);
+  console.log('--- server log ---\n' + log.slice(-1500));
+  exitCode = 1;
+} else {
+  console.log('\nPASS: one binary served two tenants and refused a third it was never told about');
+}
+process.exit(exitCode);

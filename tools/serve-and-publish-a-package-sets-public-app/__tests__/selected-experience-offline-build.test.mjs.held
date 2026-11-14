@@ -1,0 +1,74 @@
+import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import test from 'node:test';
+
+import { makeHashCodeHexFromBytes } from '@bitfield/slot-protocol';
+
+import { materializeHostedProjectionTree } from '../processes/materialize-hosted-projection-tree.mjs';
+import { runtimeKitBinary } from './runtime-kit-test-tools.mjs';
+
+const sealedClosureBinary = runtimeKitBinary('bitfield-sealed-closure');
+
+function exact(address, revision = 'r1') {
+  return { address, revision, object_hash: `1f:${'1'.repeat(64)}` };
+}
+
+function projection(pathSegments, mountedPath) {
+  return {
+    path: pathSegments,
+    mounted_path: mountedPath,
+    integrity_hash: makeHashCodeHexFromBytes(readFileSync(mountedPath)),
+  };
+}
+
+test('a selected materialized tree is built only through the Runtime Kit sealed-closure owner, offline', () => {
+  const root = mkdtempSync(path.join(tmpdir(), 'hosted-selected-offline-build-'));
+  const selectedSource = path.join(root, 'selected-source');
+  const projectionRoot = path.join(root, 'projection');
+  const sourceArchive = path.join(root, 'selected-source-archive.json');
+  const sourceFileSet = path.join(root, 'selected-source-files.json');
+  const closure = path.join(root, 'closure.json');
+  const signedClosure = path.join(root, 'signed-closure.json');
+  const basis = path.join(root, 'basis.json');
+  const applyProof = path.join(root, 'apply-proof.json');
+  const seed = path.join(root, 'seed.hex');
+  mkdirSync(path.join(selectedSource, 'app'), { recursive: true });
+  const layout = path.join(selectedSource, 'app', 'layout.tsx');
+  const page = path.join(selectedSource, 'app', 'page.tsx');
+  writeFileSync(layout, 'export default function Layout({ children }) { return <html><body>{children}</body></html>; }\n');
+  writeFileSync(page, 'export default function Page() { return <main>selected</main>; }\n');
+  writeFileSync(seed, `${'11'.repeat(32)}\n`);
+
+  const rootRef = exact('surface:selected');
+  const materialized = materializeHostedProjectionTree({
+    schema: 'hosted-experience-materialization-input/v1',
+    intent: { ...exact('intent:selected'), root_refs: [rootRef], access_ref: 'access:public' },
+    materializer: exact('descriptor:materialize'),
+    limits: { max_records: 2, max_files: 12000, max_total_bytes: 1024 * 1024 },
+    records: [{
+      ...rootRef,
+      kind_ref: 'kind:selected-experience',
+      dependency_refs: [],
+      projection_files: [
+        projection(['app', 'layout.tsx'], layout),
+        projection(['app', 'page.tsx'], page),
+      ],
+      authority: { data_refs: [], subscription_refs: [], target_refs: [], navigation_refs: [] },
+    }],
+  }, path.join(root, 'materialized'), undefined, sourceFileSet);
+
+  // `bitfield-sealed-closure` is Runtime Kit's canonical generic build/apply
+  // owner. No deleted browser adapter, package manager, or network participates.
+  execFileSync(sealedClosureBinary, ['create-source-archive', '--source-file-set', materialized.source_file_set_file, '--source-archive-output', sourceArchive]);
+  execFileSync(sealedClosureBinary, ['create-from-source-archive-tree', '--source-archive', sourceArchive, '--closure-file', closure, '--current-state-basis-output', basis]);
+  const publicKey = execFileSync(sealedClosureBinary, ['public-key', '--signing-seed-hex-file', seed], { encoding: 'utf8' }).trim();
+  execFileSync(sealedClosureBinary, ['sign', '--closure-file', closure, '--signing-seed-hex-file', seed, '--key-id', 'test-key', '--signed-closure-output', signedClosure]);
+  execFileSync(sealedClosureBinary, ['apply-from-source-archive-tree', '--source-archive', sourceArchive, '--signed-closure-file', signedClosure, '--trusted-key', `test-key:${publicKey}`, '--signature-threshold', '1', '--projection-root', projectionRoot, '--current-state-basis', basis, '--proof-output', applyProof]);
+
+  assert.equal(readFileSync(path.join(projectionRoot, 'app', 'layout.tsx'), 'utf8'), readFileSync(layout, 'utf8'));
+  assert.equal(readFileSync(path.join(projectionRoot, 'app', 'page.tsx'), 'utf8'), readFileSync(page, 'utf8'));
+  assert.equal(JSON.parse(readFileSync(applyProof, 'utf8')).format, 'bitfield.sealed-closure');
+});

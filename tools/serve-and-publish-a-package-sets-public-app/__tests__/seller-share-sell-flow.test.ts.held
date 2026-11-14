@@ -1,0 +1,91 @@
+import { describe, expect, it } from '../../../test-helpers/vitest-shim.mjs';
+import packageData from '../things-to-store-and-run.json' with { type: 'json' };
+import { requestSellerPublication } from '../do-work/request-publish-live-site.ts';
+
+const sellerInput = () => ({
+  selection_materializer_descriptor_address: 'package::group::target::materialize-selection-target',
+  selection_materializer_input: {
+    selection: {
+      root_ref: { family: 'group.board', parts: { board: 'fitness' } },
+      member_ids: ['member:workout-plan'],
+    },
+  },
+  materialization_id: '00000000-0000-4000-8000-000000000001',
+  policy_address: 'package::studio::policy::interactive',
+  publication_destination_address: 'package::studio::destination::interactive',
+});
+const workflow = (id: string) => (packageData.things as Array<any>).find((thing) => thing.payload?.id === id)?.payload;
+
+describe('seller share/sell publication workflow', () => {
+  it('starts with owner normalization and can only dynamically choose the admitted static or interactive owner action', () => {
+    const action = workflow('action:request-seller-publication');
+    expect(action.steps[0]).toMatchObject({ id: 'normalize_seller_publication', kind: 'ask', config: { name: 'hosted-public-app.normalize-selected-experience-publication' } });
+    const nested = action.steps[1];
+    expect(nested).toMatchObject({ id: 'execute_admitted_publication', kind: 'action' });
+    expect(nested.config.definition_id).toEqual({ $kind: 'binding', select: { from: 'steps', key: 'normalize_seller_publication', path: 'output.execution.definition_id' } });
+    expect(nested.config.definition_refs).toEqual(['action:publish-static-selected-experience', 'action:publish-selected-experience']);
+    expect(nested.config.inputs).toMatchObject({ intent_ref: expect.any(Object), request_id: expect.any(Object) });
+    expect(action.steps.find((step: any) => step.id === 'return_seller_publication')).toMatchObject({
+      kind: 'return',
+      config: {
+        value: {
+          publication_request_ref: { $kind: 'binding', select: { from: 'steps', key: 'normalize_seller_publication', path: 'output.publication_request_ref' } },
+          publication_request_key: { $kind: 'binding', select: { from: 'steps', key: 'normalize_seller_publication', path: 'output.publication_request_key' } },
+          intent_ref: { $kind: 'binding', select: { from: 'steps', key: 'normalize_seller_publication', path: 'output.intent_ref' } },
+          share_url: { $kind: 'binding', select: { from: 'steps', key: 'execute_admitted_publication', path: 'output' } },
+        },
+      },
+    });
+  });
+
+  it('keeps static publication offer-free, gates Public Scene Share, nests carrier staging, and commits only HPA reachability records', () => {
+    const action = workflow('action:publish-static-selected-experience');
+    expect(JSON.stringify(action)).toContain('public-scene-share.create-capsule');
+    expect(action.steps.find((step: any) => step.id === 'stage_owner_carrier').config.definition_id).toBe('action:public-product-carrier.write-public-carrier');
+    expect(action.steps.find((step: any) => step.id === 'create_public_capsule').config.input).toEqual({
+      partitionMultihashCodeHex: {
+        $kind: 'binding',
+        select: { from: 'context', path: 'partition_key' },
+      },
+    });
+    const commit = action.steps.find((step: any) => step.id === 'commit_static_publication');
+    expect(commit.kind).toBe('write');
+    expect(JSON.stringify(commit)).not.toContain('offer_address');
+    expect(action.edges.find((edge: any) => edge.from === 'create_public_capsule' && edge.to === 'stage_owner_carrier').config).toEqual(expect.objectContaining({ $kind: 'binding' }));
+  });
+
+  it('keeps interactive carrier staging nested before its sole final HPA batch, and withdrawal invokes both owner inverses', () => {
+    const interactive = workflow('action:publish-selected-experience');
+    expect(interactive.steps.filter((step: any) => step.kind === 'write')).toHaveLength(1);
+    expect(interactive.steps.find((step: any) => step.id === 'stage_owner_carrier').config.definition_id).toBe('action:public-product-carrier.write-public-carrier');
+    const withdrawal = workflow('action:withdraw-selected-experience');
+    expect(withdrawal.steps.find((step: any) => step.id === 'withdraw_owner_carrier').config.definition_id).toBe('action:public-product-carrier.withdraw-public-carrier');
+    expect(withdrawal.input_schema).toMatchObject({
+      required: ['publication_request_ref', 'deployment_url'],
+      properties: {
+        publication_request_ref: { additionalProperties: false, required: ['address', 'revision', 'object_hash'] },
+      },
+    });
+  });
+
+  it('accepts no forged seller publication fields and dispatches one Workflow request', async () => {
+    const calls: Array<{ target: string; payload: any }> = [];
+    (globalThis as any).__BITFIELD_BOOT_HOOKS__ = { connect: async () => ({ transport: { invoke: async (target: string, payload: Uint8Array) => {
+      calls.push({ target, payload: JSON.parse(new TextDecoder().decode(payload)) });
+      return new TextEncoder().encode(JSON.stringify({ status: 'completed', output: {
+        publication_request_ref: { address: 'publication-request:one', revision: 'initial', object_hash: '1f:request' },
+        publication_request_key: '00000000-0000-4000-8000-000000000001',
+        intent_ref: { address: 'intent:one', revision: 'initial', object_hash: '1f:intent' },
+        share_url: 'https://selected.example/',
+      } }));
+    } } }) };
+    await expect(requestSellerPublication(sellerInput())).resolves.toEqual({
+      publication_request_ref: { address: 'publication-request:one', revision: 'initial', object_hash: '1f:request' },
+      publication_request_key: '00000000-0000-4000-8000-000000000001',
+      intent_ref: { address: 'intent:one', revision: 'initial', object_hash: '1f:intent' },
+      share_url: 'https://selected.example/',
+    });
+    expect(calls).toEqual([{ target: 'slot::workflow', payload: expect.objectContaining({ definition_id: 'action:request-seller-publication', input: sellerInput() }) }]);
+    await expect(requestSellerPublication({ ...sellerInput(), publication_request_key: 'forged' } as any)).rejects.toMatchObject({ code: 'SELLER_PUBLICATION_UNTRUSTED_FIELD' });
+  });
+});

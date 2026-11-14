@@ -1,0 +1,1712 @@
+{
+  "package": "local-files",
+  "things": [
+    {
+      "type": "stored_bytes",
+      "name": "save-local-file-copy-source",
+      "source_path": "do-work/save-local-file-copy.ts"
+    },
+    {
+      "type": "record",
+      "address": "package::local-files::workflow-action::streaming-multihash",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record", "workflow-definition"],
+      "payload": {
+        "id": "action:local-file-streaming-multihash",
+        "kind": "action",
+        "name": "local-file-streaming-multihash",
+        "description": "Hash a selected allowed regular file through the canonical native held-file hash owner using bounded memory. Return only path, length, multihash and matching before/after revision identities; refuse concurrent changes. No whole-file copy or content is returned.",
+        "input_schema": {"type": "object", "additionalProperties": false, "required": ["path"], "properties": {"path": {"type": "string", "minLength": 1}}},
+        "steps": [
+          {"id": "hash", "kind": "ask", "config": {"name": "local.files", "input": {"operation": "hash_file", "path": {"$kind": "binding", "select": {"from": "input", "path": "path"}}}}},
+          {"id": "done", "kind": "return", "config": {"value": {"$kind": "binding", "select": {"from": "steps", "key": "hash", "path": "output"}}}}
+        ],
+        "edges": [{"from": "hash", "to": "done", "kind": "on_result"}],
+        "trigger_type": "manual", "trigger_source": "", "is_active": true, "version": 0, "extra": {}
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::local-files::checks",
+      "path": [
+        "packages",
+        "local-files",
+        "checks"
+      ],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "do-work/save-local-file-copy.test.ts",
+          "do-work/save-local-file-contract.test.ts",
+          "do-work/ask-local-file-content-digest.test.ts",
+          "read-data/names-and-content-identities-from-a-folder-tree.test.mjs",
+          "do-work/reveal-local-path.test.ts",
+          "do-work/verify-selected-addressed-evidence.test.ts",
+          "local-files-native-boundary.test.ts",
+          "read-data/read-local-file-roots.test.ts",
+          "show/LocalFileTree.test.tsx"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::local-files::published-record::placeable-surface::tree",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "icon": "FolderOpen",
+        "id": "local-files.tree",
+        "kind": "placeable-surface",
+        "label": "Local Files",
+        "material_target": "component:local-files-tree",
+        "order": 10,
+        "surface_id": "local-files.tree",
+        "package_entry": {
+          "package_name": "local-files",
+          "entry_name": "local-files-tree"
+        },
+        "listed": false
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:local-files-tree|prop:extension:instance_props|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:instance_props"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6ZXh0ZW5zaW9uOmluc3RhbmNlX3Byb3BzIiwic3ViamVjdF9pZCI6ImNvbXBvbmVudDpsb2NhbC1maWxlcy10cmVlIiwidGFibGUiOiJhdHRyaWJ1dGVfZmFjdCIsInR5cGVfaWQiOiJ0eXBlOmV4dGVuc2lvbiIsInZhbHVlX2pzb24iOiJ7XCJmbG9hdGluZ19mcmFtZVwiOntcInRvcF9weFwiOjk2LFwibGVmdF9weFwiOjI0LFwid2lkdGhfcHhcIjozMjAsXCJib3R0b21fcHhcIjoyNCxcInpfaW5kZXhcIjo2NX0sXCJzZWxlY3Rpb25fdGFyZ2V0XCI6e1widGFyZ2V0XCI6XCJzbG90Ojp3b3JrZmxvd1wiLFwiZGVmaW5pdGlvbl9pZFwiOlwiYWN0aW9uOnVwZGF0ZS1maWxlcy1zZWxlY3RlZC1maWxlXCIsXCJpbnB1dF9maWVsZFwiOlwicGF0aFwifX0ifQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:local-files-tree|prop:extension:name|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:name"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6ZXh0ZW5zaW9uOm5hbWUiLCJzdWJqZWN0X2lkIjoiY29tcG9uZW50OmxvY2FsLWZpbGVzLXRyZWUiLCJ0YWJsZSI6ImF0dHJpYnV0ZV9mYWN0IiwidHlwZV9pZCI6InR5cGU6ZXh0ZW5zaW9uIiwidmFsdWVfanNvbiI6IlwiTG9jYWxGaWxlc1RyZWVcIiJ9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:local-files-tree|prop:extension:source_path|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:source_path"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6ZXh0ZW5zaW9uOnNvdXJjZV9wYXRoIiwic3ViamVjdF9pZCI6ImNvbXBvbmVudDpsb2NhbC1maWxlcy10cmVlIiwidGFibGUiOiJhdHRyaWJ1dGVfZmFjdCIsInR5cGVfaWQiOiJ0eXBlOmV4dGVuc2lvbiIsInZhbHVlX2pzb24iOiJcInBhY2thZ2VzL2xvY2FsLWZpbGVzL3Nob3cvbW91bnQtbG9jYWwtZmlsZS10cmVlLnRzeFwiIn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:local-files-tree|prop:extension:status|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:status"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6ZXh0ZW5zaW9uOnN0YXR1cyIsInN1YmplY3RfaWQiOiJjb21wb25lbnQ6bG9jYWwtZmlsZXMtdHJlZSIsInRhYmxlIjoiYXR0cmlidXRlX2ZhY3QiLCJ0eXBlX2lkIjoidHlwZTpleHRlbnNpb24iLCJ2YWx1ZV9qc29uIjoiXCJhY3RpdmVcIiJ9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:local-files-tree|prop:extension:version|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:version"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6ZXh0ZW5zaW9uOnZlcnNpb24iLCJzdWJqZWN0X2lkIjoiY29tcG9uZW50OmxvY2FsLWZpbGVzLXRyZWUiLCJ0YWJsZSI6ImF0dHJpYnV0ZV9mYWN0IiwidHlwZV9pZCI6InR5cGU6ZXh0ZW5zaW9uIiwidmFsdWVfanNvbiI6IlwiMS4wLjBcIiJ9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:local-files-tree|prop:resource:compiler_config|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:resource:compiler_config"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6cmVzb3VyY2U6Y29tcGlsZXJfY29uZmlnIiwic3ViamVjdF9pZCI6ImNvbXBvbmVudDpsb2NhbC1maWxlcy10cmVlIiwidGFibGUiOiJhdHRyaWJ1dGVfZmFjdCIsInR5cGVfaWQiOiJ0eXBlOmV4dGVuc2lvbiIsInZhbHVlX2pzb24iOiJ7XCJhcmd2XCI6W1wiLi90b29sXCIsXCJfX1NPVVJDRV9QQVRIX19cIixcIi0tYnVuZGxlXCIsXCItLWZvcm1hdD1janNcIixcIi0tb3V0ZmlsZT1fX09VVFBVVF8wX19cIixcIi0tcGxhdGZvcm09YnJvd3NlclwiLFwiLS10YXJnZXQ9ZXMyMDIwXCIsXCItLWpzeD1hdXRvbWF0aWNcIixcIi0tbG9hZGVyOi50c3g9dHN4XCIsXCItLWxvYWRlcjoudHM9dHNcIixcIi0tcmVzb2x2ZS1leHRlbnNpb25zPS50cywudHN4LC5qcywuanN4XCIsXCItLWFsaWFzOkA9LlwiLFwiLS1hbGlhczpAYml0ZmllbGQvcnVudGltZS1raXQvcmVhY3Q9Li9wYWNrYWdlcy9sb2NhbC1maWxlcy8uYml0ZmllbGQtZW50cnktc2NvcGUvZW50cnktNmM2ZjYzNjE2YzJkNjY2OTZjNjU3MzJkNzQ3MjY1NjUvcnVudGltZS1raXQtcmVhY3QudHNcIixcIi0tcHJlc2VydmUtc3ltbGlua3NcIixcIi0tZXh0ZXJuYWw6cmVhY3RcIixcIi0tZXh0ZXJuYWw6cmVhY3QtZG9tXCIsXCItLWV4dGVybmFsOnJlYWN0LWRvbS9jbGllbnRcIixcIi0tZXh0ZXJuYWw6cmVhY3QvanN4LXJ1bnRpbWVcIixcIi0tZXh0ZXJuYWw6cmVhY3QvanN4LWRldi1ydW50aW1lXCIsXCItLWV4dGVybmFsOnNjaGVkdWxlclwiXSxcImN3ZFwiOlwiLlwiLFwidGltZW91dF9tc1wiOjEyMDAwMCxcInRlcm1pbmF0aW9uX2dyYWNlX21zXCI6MTAwMCxcImV4cGVjdGVkX3Rlcm1pbmF0aW9uXCI6bnVsbCxcImVudlwiOnt9LFwiaW5wdXRzXCI6W10sXCJpbnB1dF90cmVlc1wiOltdLFwib3V0cHV0c1wiOlt7XCJjb250ZW50X3R5cGVcIjpcImFwcGxpY2F0aW9uL2phdmFzY3JpcHRcIixcIm1vdW50X3BhdGhcIjpcIm91dHB1dC5qc1wifV0sXCJjb250YWlubWVudFwiOntcImtpbmRcIjpcImRlc2NlbmRhbnRfZWZmZWN0X2NvbnRhaW5lZFwiLFwicGlwZV9lb2ZfdGltZW91dF9tc1wiOjEwMDAsXCJwdWJsaWNhdGlvbnNcIjpbXX0sXCJjYXB0dXJlX2Zkc1wiOlsxLDJdLFwiY29sbGVjdGVkX2ZpbGVzXCI6W10sXCJvdXRwdXRfbWFwcGluZ1wiOlt7XCJjb250ZW50X3R5cGVcIjpcImFwcGxpY2F0aW9uL2phdmFzY3JpcHRcIixcImhhc2hfcHJvcGVydHlfaWRcIjpcInByb3A6ZXh0ZW5zaW9uOmludGVncml0eV9oYXNoXCIsXCJvdXRwdXRfcGF0aFwiOlwib3V0cHV0LmpzXCIsXCJwcm9wZXJ0eV9pZFwiOlwicHJvcDpleHRlbnNpb246YnVuZGxlXCIsXCJ0eXBlX2lkXCI6XCJ0eXBlOmV4dGVuc2lvblwifV19In0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:local-files-tree|prop:resource:compiler_resource|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:resource:compiler_resource"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6cmVzb3VyY2U6Y29tcGlsZXJfcmVzb3VyY2UiLCJzdWJqZWN0X2lkIjoiY29tcG9uZW50OmxvY2FsLWZpbGVzLXRyZWUiLCJ0YWJsZSI6ImF0dHJpYnV0ZV9mYWN0IiwidHlwZV9pZCI6InR5cGU6ZXh0ZW5zaW9uIiwidmFsdWVfanNvbiI6IlwicmVzb3VyY2U6ZXNidWlsZFwiIn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|component:local-files-tree|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "type:extension"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJlbnRpdHlfaWQiOiJjb21wb25lbnQ6bG9jYWwtZmlsZXMtdHJlZSIsInRhYmxlIjoiZW50aXR5X3R5cGVzIiwidHlwZV9pZCI6InR5cGU6ZXh0ZW5zaW9uIn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|component:local-files-tree",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJpZCI6ImNvbXBvbmVudDpsb2NhbC1maWxlcy10cmVlIiwidGFibGUiOiJlbnRpdHkifQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::local-files::evidence-pipeline::config",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "content-media.evidence-pipeline.config",
+        "package": "local-files",
+        "roles": {
+          "source_refs": [
+            "local-files.source-ref"
+          ]
+        },
+        "artifact_roles": {
+          "source": [
+            "artifact-ref",
+            "stored-bytes"
+          ],
+          "outputs": [
+            "package-visible-source-ref"
+          ]
+        },
+        "execution_capabilities": [
+          "workflow",
+          "compute.process",
+          "stored_bytes"
+        ],
+        "projection_lanes": [
+          "source_refs"
+        ],
+        "maintained_projection_label": "local-files-content-media-evidence",
+        "source_ref_contract": {
+          "required_fields": [
+            "source_id",
+            "label",
+            "source_ref"
+          ],
+          "source_ref_required_fields": [
+            "artifact_ref"
+          ],
+          "source_ref_optional_fields": [
+            "media_type",
+            "display_name",
+            "byte_length"
+          ]
+        },
+        "proof_gates": [
+          "CPD-10F"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::local-files::contract::source-ref",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "local-files.source-ref",
+        "required_fields": [
+          "source_id",
+          "label",
+          "source_ref"
+        ],
+        "optional_fields": [
+          "media_type",
+          "metadata"
+        ],
+        "source_ref_contract": "Local source refs published to production contain durable artifact or stored-bytes refs. Machine-specific file names and selectors remain local-files internals."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::local-files::entry::local-files-tree",
+      "path": [
+        "packages",
+        "local-files",
+        "entries",
+        "local-files-tree"
+      ],
+      "payload": {
+        "entry_name": "local-files-tree",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-local-file-tree.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-local-files-tree"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::local-files::native-screen-command-entry",
+      "path": [
+        "package-primitive",
+        "native-screen-command-entry"
+      ],
+      "payload": {
+        "kind": "bitfield-native-screen-command-entry",
+        "source_path": "show-ios-jscore/mount-local-files-jscore.js",
+        "readme_path": "show-ios-jscore/README.md"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "built-show-mount-local-file-tree",
+      "build": {
+        "sequence": {
+          "inputs": [],
+          "input_trees": [],
+          "steps": [
+            {
+              "name": "build",
+              "process": {
+                "argv": [
+                  "node",
+                  "__PACKAGE_SET_ROOT__/packages/make-packages-match-their-source/do-work/copy-source-file-bytes.mjs"
+                ],
+                "cwd": ".",
+                "timeout_ms": 120000,
+                "termination_grace_ms": 1000,
+                "expected_termination": {
+                  "kind": "exited",
+                  "code": 0
+                },
+                "env": {},
+                "inputs": [],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": ".bitfield-build-output"
+                  }
+                ],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              },
+              "workspace_bindings": {
+                "environment": [],
+                "arguments": []
+              },
+              "predecessor_outputs": []
+            }
+          ]
+        },
+        "output": {
+          "step": "build",
+          "mount_path": ".bitfield-build-output"
+        },
+        "request": {
+          "source_file": "show/mount-local-file-tree.tsx",
+          "source_kind": "text/typescript-jsx"
+        }
+      },
+      "source_path": "built-stored-bytes/built-show-mount-local-file-tree",
+      "source_closure_receipt_path": "built-stored-bytes/built-show-mount-local-file-tree.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "built-show-ios-jscore-mount-local-files-jscore",
+      "build": {
+        "sequence": {
+          "inputs": [],
+          "input_trees": [],
+          "steps": [
+            {
+              "name": "build",
+              "process": {
+                "argv": [
+                  "node",
+                  "__PACKAGE_SET_ROOT__/packages/make-packages-match-their-source/do-work/copy-source-file-bytes.mjs"
+                ],
+                "cwd": ".",
+                "timeout_ms": 30000,
+                "termination_grace_ms": 1000,
+                "expected_termination": {
+                  "kind": "exited",
+                  "code": 0
+                },
+                "env": {},
+                "inputs": [],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": ".bitfield-build-output"
+                  }
+                ],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              },
+              "workspace_bindings": {
+                "environment": [],
+                "arguments": []
+              },
+              "predecessor_outputs": []
+            }
+          ]
+        },
+        "output": {
+          "step": "build",
+          "mount_path": ".bitfield-build-output"
+        },
+        "request": {
+          "source_file": "show-ios-jscore/mount-local-files-jscore.js",
+          "source_kind": "application/javascript"
+        }
+      },
+      "source_path": "built-stored-bytes/built-show-ios-jscore-mount-local-files-jscore",
+      "source_closure_receipt_path": "built-stored-bytes/built-show-ios-jscore-mount-local-files-jscore.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:local-files-tree|prop:extension:things_to_put_on_screen|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:things_to_put_on_screen"
+      ],
+      "payload_template": {
+        "payload": {
+          "property_id": "prop:extension:things_to_put_on_screen",
+          "subject_id": "component:local-files-tree",
+          "table": "attribute_fact",
+          "type_id": "type:extension",
+          "value_json": [
+            {
+              "artifact": {
+                "hash": ""
+              },
+              "required_capabilities": [
+                "can-put-thing-on-screen-using-screen-element"
+              ],
+              "lifecycle_key": "component:local-files-tree:screen-element"
+            },
+            {
+              "artifact": {
+                "hash": ""
+              },
+              "required_capabilities": [
+                "can-put-thing-on-screen-using-screen-commands"
+              ],
+              "lifecycle_key": "component:local-files-tree:screen-commands",
+              "props": {
+                "entry_function": "bitfieldMount"
+              },
+              "environment": {},
+              "dependencies": {}
+            }
+          ]
+        },
+        "replacements": [
+          {
+            "path": [
+              "value_json",
+              "0",
+              "artifact",
+              "hash"
+            ],
+            "value": {
+              "type": "stored_bytes_content_hash",
+              "name": "built-show-mount-local-file-tree",
+              "encoding": "string"
+            }
+          },
+          {
+            "path": [
+              "value_json",
+              "1",
+              "artifact",
+              "hash"
+            ],
+            "value": {
+              "type": "stored_bytes_content_hash",
+              "name": "built-show-ios-jscore-mount-local-files-jscore",
+              "encoding": "string"
+            }
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::local-files::public-source::do-work",
+      "path": [
+        "packages",
+        "local-files",
+        "public-sources",
+        "do-work"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "do-work"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::local-files::public-source::read-data",
+      "path": [
+        "packages",
+        "local-files",
+        "public-sources",
+        "read-data"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "read-data"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::local-files::contract::selected-addressed-evidence",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "local-files.selected-addressed-evidence",
+        "required_fields": [
+          "evidence_ref",
+          "source_ref",
+          "source_ref",
+          "artifact_ref",
+          "content_digest",
+          "byte_length",
+          "media_type_ref"
+        ],
+        "optional_fields": [
+          "display_name",
+          "selection_ref"
+        ],
+        "invariants": [
+          "artifact bytes are immutable evidence",
+          "machine-local path is never published",
+          "digest is calculated from selected bytes"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::local-files::surface-reachability::tree",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "surface.reachability",
+        "surface_id": "local-files.tree",
+        "entry": {
+          "from": "surface-picker",
+          "query": "file"
+        },
+        "vocabulary": [
+          "file",
+          "files",
+          "folder",
+          "directory",
+          "local",
+          "document"
+        ],
+        "must_see": [
+          "file-list",
+          "file-browser"
+        ],
+        "must_act": [
+          "open-file"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::local-files::workflow-action::record-selected-addressed-evidence",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:record-selected-addressed-evidence",
+        "kind": "action",
+        "name": "record-selected-addressed-evidence",
+        "is_active": true,
+        "description": "Create the durable Local Files custody receipt for one already-staged immutable artifact. The receipt is create-only and binds evidence identity to artifact identity, digest, byte length, and media type.",
+        "input_schema": {
+          "required": [
+            "evidence_ref",
+            "source_ref",
+            "artifact_ref",
+            "content_digest",
+            "byte_length",
+            "media_type_ref"
+          ],
+          "properties": {
+            "evidence_ref": {
+              "type": "string"
+            },
+            "source_ref": {
+              "type": "string"
+            },
+            "artifact_ref": {
+              "type": "object"
+            },
+            "content_digest": {
+              "type": "string"
+            },
+            "byte_length": {
+              "type": "number"
+            },
+            "media_type_ref": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "steps": [
+          {
+            "id": "script",
+            "kind": "read",
+            "config": {
+              "from": "package::local-files::stored-bytes::verify-selected-addressed-evidence-script"
+            }
+          },
+          {
+            "id": "verify",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "node",
+                  "verify.mjs",
+                  "request.json",
+                  "evidence.bin",
+                  "receipt.json"
+                ],
+                "cwd": null,
+                "timeout_ms": 30000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {
+                  "OPENSSL_CONF": ""
+                },
+                "inputs": [
+                  {
+                    "mount_path": "verify.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "script",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "request.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "inline",
+                      "bytes": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.stringify",
+                            "args": {
+                              "format": "json"
+                            }
+                          },
+                          {
+                            "op": "op:core.encode",
+                            "args": {
+                              "encoding": "base64"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "evidence.bin",
+                    "content_type": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "media_type_ref"
+                      }
+                    },
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "artifact_ref.cas_address"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.if_null",
+                            "args": {
+                              "fallback": {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "input",
+                                  "path": "artifact_ref.multihash"
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": "receipt.json",
+                    "content_type": "application/json"
+                  }
+                ],
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "record",
+            "kind": "ask",
+            "config": {
+              "name": "engine.operation.label-addressed",
+              "input": {
+                "operation_label": "engine.operation.write-batch",
+                "writes": [
+                  {
+                    "address_label": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "evidence_ref"
+                      }
+                    },
+                    "address_mode": "identity_text",
+                    "path_labels": [
+                      "current-item",
+                      "published-record"
+                    ],
+                    "payload": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "verify",
+                        "path": "output.outputs.0.bytes.base64"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.decode",
+                          "args": {
+                            "encoding": "base64"
+                          }
+                        },
+                        {
+                          "op": "op:core.json_parse"
+                        }
+                      ]
+                    },
+                    "remove": false,
+                    "expected_current": {
+                      "payload_hash_base64": null
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "done",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "verify",
+                  "path": "output.outputs.0.bytes.base64"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.decode",
+                    "args": {
+                      "encoding": "base64"
+                    }
+                  },
+                  {
+                    "op": "op:core.json_parse"
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "from": "script",
+            "to": "verify",
+            "kind": "on_result"
+          },
+          {
+            "from": "verify",
+            "to": "record",
+            "kind": "on_result"
+          },
+          {
+            "from": "record",
+            "to": "done",
+            "kind": "on_result"
+          }
+        ]
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "verify-selected-addressed-evidence-script",
+      "source_path": "do-work/verify-selected-addressed-evidence.mjs"
+    },
+    {
+      "_comment": "Unregistered until 2026-09-05, which cost more than the row is worth: one day after this script shipped, a convergence was opened to BUILD it, because a file nothing declares is reachable only by somebody who already knows its name. The convergence returned DO NOT BUILD and found ten referrers plus a knowledge leaf prescribing it, none of which a package-set reader can see. A capability that exists and is undeclared reads exactly like a capability that is missing.",
+      "type": "stored_bytes",
+      "name": "ask-local-file-content-digest-script",
+      "source_path": "do-work/ask-local-file-content-digest.mjs"
+    },
+    {
+      "type": "record",
+      "address": "package::local-files::workflow-action::local-file-content-digest",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record", "workflow-definition"],
+      "payload": {
+        "id": "action:local-file-content-digest",
+        "kind": "action",
+        "name": "local-file-content-digest",
+        "is_active": true,
+        "description": "Return the byte length and caller-selected digest of one authorized inline-size local file without returning its bytes. The file is read only through local.files; its native inline-size refusal protects large assets, and a leaf process hashes one ephemeral mounted copy.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "path": {"type": "string", "minLength": 1},
+            "algorithm": {"type": "string", "minLength": 1, "default": "sha256"}
+          },
+          "required": ["path"]
+        },
+        "steps": [
+          {
+            "id": "read",
+            "kind": "ask",
+            "config": {
+              "name": "local.files",
+              "input": {
+                "operation": "read_file",
+                "path": {"$kind": "binding", "select": {"from": "input", "path": "path"}}
+              }
+            }
+          },
+          {
+            "id": "script",
+            "kind": "read",
+            "config": {"from": "package::local-files::stored-bytes::ask-local-file-content-digest-script"}
+          },
+          {
+            "id": "digest",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "node",
+                  "ask-local-file-content-digest.mjs",
+                  "selected.bytes",
+                  {"$kind": "binding", "select": {"from": "input", "path": "algorithm"}, "transform": [{"op": "op:core.if_null", "args": {"fallback": "sha256"}}]},
+                  {"$kind": "binding", "select": {"from": "input", "path": "path"}}
+                ],
+                "cwd": null,
+                "timeout_ms": 30000,
+                "termination_grace_ms": 1000,
+                "expected_termination": {"kind": "exited", "code": 0},
+                "env": {},
+                "inputs": [
+                  {"mount_path": "ask-local-file-content-digest.mjs", "content_type": "text/javascript", "source": {"kind": "blob_ref", "hash": {"$kind": "binding", "select": {"from": "steps", "key": "script", "path": "output.content_hash"}}}},
+                  {"mount_path": "selected.bytes", "content_type": "application/octet-stream", "source": {"kind": "inline", "bytes": {"$kind": "binding", "select": {"from": "steps", "key": "read", "path": "output.files.0.bytes_base64"}}}}
+                ],
+                "input_trees": [],
+                "outputs": [],
+                "containment": {"kind": "leaf"},
+                "capture_fds": [1, 2],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "done",
+            "kind": "return",
+            "config": {
+              "value": {"$kind": "binding", "select": {"from": "steps", "key": "digest", "path": "output.captured_fds.0.bytes.base64"}, "transform": [{"op": "op:core.decode", "args": {"encoding": "base64"}}, {"op": "op:core.json_parse"}]}
+            }
+          }
+        ],
+        "edges": [
+          {"from": "read", "to": "digest", "kind": "on_result"},
+          {"from": "script", "to": "digest", "kind": "on_result"},
+          {"from": "digest", "to": "done", "kind": "on_result"}
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-local-files-tree",
+      "source_path": "built-stored-bytes/entry-bytes-local-files-tree",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-local-files-tree.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::local-files::workflow-action::read-local-file",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:read-local-file",
+        "kind": "action",
+        "name": "read-local-file",
+        "is_active": true,
+        "description": "Read one authorized local file through the native local.files owner. The native target retains all path, picker, inline-size, and containment enforcement.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "path"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        },
+        "steps": [
+          {
+            "id": "read",
+            "kind": "ask",
+            "config": {
+              "name": "local.files",
+              "input": {
+                "operation": "read_file",
+                "path": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "path"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "done",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "read",
+                  "path": "output"
+                }
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "from": "read",
+            "to": "done",
+            "kind": "on_result"
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::local-files::workflow-action::read-local-file-range",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:read-local-file-range",
+        "kind": "action",
+        "name": "read-local-file-range",
+        "is_active": true,
+        "description": "Read a bounded range from one authorized local file through local.files. This is the declared replacement for agent-owned cat/sed/head/tail reads.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "path",
+            "offset",
+            "length"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1
+            },
+            "offset": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "length": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 16777216
+            }
+          },
+          "additionalProperties": false
+        },
+        "steps": [
+          {
+            "id": "read",
+            "kind": "ask",
+            "config": {
+              "name": "local.files",
+              "input": {
+                "operation": "read_file_range",
+                "path": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "path"
+                  }
+                },
+                "offset": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "offset"
+                  }
+                },
+                "length": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "length"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "done",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "read",
+                  "path": "output"
+                }
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "from": "read",
+            "to": "done",
+            "kind": "on_result"
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::local-files::workflow-action::list-local-directory",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:list-local-directory",
+        "kind": "action",
+        "name": "list-local-directory",
+        "is_active": true,
+        "description": "List one authorized local directory through local.files. This is the declared replacement for agent-owned ls/find path discovery.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "path"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        },
+        "steps": [
+          {
+            "id": "list",
+            "kind": "ask",
+            "config": {
+              "name": "local.files",
+              "input": {
+                "operation": "list_directory",
+                "path": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "path"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "done",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "list",
+                  "path": "output"
+                }
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "from": "list",
+            "to": "done",
+            "kind": "on_result"
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::local-files::workflow-action::scan-local-files",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:scan-local-files",
+        "kind": "action",
+        "name": "scan-local-files",
+        "is_active": true,
+        "description": "Recursively enumerate a bounded glob of authorized local files through the native local.files owner, newest first, with optional bounded inline bytes. The native owner retains path containment, traversal, symlink, count, depth, and byte-budget enforcement.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "glob"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1
+            },
+            "glob": {
+              "type": "string",
+              "minLength": 1
+            },
+            "include_bytes": {
+              "type": "boolean"
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 512
+            },
+            "max_total_bytes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 134217728
+            },
+            "max_entries": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000
+            },
+            "known_files": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "known_files_content_hash": {
+              "type": "string",
+              "minLength": 1
+            },
+            "output_storage": {
+              "type": "string",
+              "enum": ["immutable_content"]
+            },
+            "base": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "sub_path": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "additionalProperties": false,
+          "anyOf": [
+            {
+              "required": [
+                "path"
+              ]
+            },
+            {
+              "required": [
+                "base"
+              ]
+            }
+          ]
+        },
+        "steps": [
+          {
+            "id": "scan",
+            "kind": "ask",
+            "config": {
+              "name": "local.files",
+              "input": {
+                "operation": "scan_files",
+                "path": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "path"
+                  }
+                },
+                "glob": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "glob"
+                  }
+                },
+                "include_bytes": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "include_bytes"
+                  }
+                },
+                "limit": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "limit"
+                  }
+                },
+                "max_total_bytes": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "max_total_bytes"
+                  }
+                },
+                "max_entries": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "max_entries"
+                  }
+                },
+            "known_files": {
+              "$kind": "binding",
+              "select": {
+                "from": "input",
+                "path": "known_files"
+              }
+            },
+            "known_files_content_hash": {
+              "$kind": "binding",
+              "select": {
+                "from": "input",
+                "path": "known_files_content_hash"
+              }
+            },
+            "output_storage": {
+              "$kind": "binding",
+              "select": {
+                "from": "input",
+                "path": "output_storage"
+              }
+            },
+                "base": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "base"
+                  }
+                },
+                "sub_path": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "sub_path"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "done",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "scan",
+                  "path": "output"
+                }
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "from": "scan",
+            "to": "done",
+            "kind": "on_result"
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::local-files::workflow-action::move-local-path-to-trash",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:move-local-path-to-trash",
+        "kind": "action",
+        "name": "move-local-path-to-trash",
+        "is_active": true,
+        "description": "Move one authorized local path to the operating-system Trash through local.files. This is the declared replacement for raw rm/shell deletion.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "path"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        },
+        "steps": [
+          {
+            "id": "trash",
+            "kind": "ask",
+            "config": {
+              "name": "local.files",
+              "input": {
+                "operation": "trash",
+                "path": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "path"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "done",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "trash",
+                  "path": "output"
+                }
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "from": "trash",
+            "to": "done",
+            "kind": "on_result"
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::local-files::contract::operations",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-capability-descriptor",
+        "target": "local.files",
+        "operations": [
+          {
+            "id": "write_new_file",
+            "parameters": ["path", "content_base64"],
+            "max_write_bytes": 16777216,
+            "publication": "Atomic no-replace publication of synced sibling bytes; existing destinations are preserved and failed staging is retained for recovery."
+          },
+          {
+            "id": "write_file",
+            "parameters": [
+              "path",
+              "content_base64"
+            ],
+            "max_write_bytes": 16777216,
+            "publication": "atomic same-directory rename after full write and sync"
+          },
+          {
+            "id": "read_file_range",
+            "parameters": [
+              "path",
+              "offset",
+              "length"
+            ],
+            "max_range_bytes": 16777216
+          },
+          {
+            "id": "read_file_range_bytes",
+            "parameters": [
+              "path",
+              "offset",
+              "length"
+            ],
+            "max_range_bytes": 16777216,
+            "reply_shape": "the reply payload IS the requested range",
+            "why": "the JSON reply base64-encodes every byte, so a caller that wants bytes pays an encode, a JSON parse with UTF-8 validation over all of it, and a decode. This operation shares the same allowed-roots containment, the same clamp to end of file, and the same max_range_bytes."
+          },
+          {
+            "id": "read_stable_file_bytes",
+            "parameters": [
+              "path"
+            ],
+            "max_range_bytes": 16777216,
+            "reply_shape": "the reply payload IS the complete stable file",
+            "why": "A workflow that materializes selected local bytes must not reopen the host path inside an isolated process. The native owner opens one canonical non-symlink regular file, captures its complete bytes, re-reads the held descriptor, and rejects any descriptor or named-path identity change before returning bytes. A second hardlink does not weaken this: link count is pinned and a write through any name changes the held inode or bytes and is rejected."
+          }
+        ],
+        "max_inline_file_bytes": 134217728
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::local-files::workflow-action::write-local-file",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:write-local-file",
+        "kind": "action",
+        "name": "write-local-file",
+        "is_active": true,
+        "description": "Write bytes to one authorized local file through local.files. Atomic same-directory rename after full write and sync.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "path",
+            "content_base64"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1
+            },
+            "content_base64": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        },
+        "steps": [
+          {
+            "id": "write",
+            "kind": "ask",
+            "config": {
+              "name": "local.files",
+              "input": {
+                "operation": "write_file",
+                "path": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "path"
+                  }
+                },
+                "content_base64": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "content_base64"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "done",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "write",
+                  "path": "output"
+                }
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "from": "write",
+            "to": "done",
+            "kind": "on_result"
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::local-files::workflow-action::write-new-local-file",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:write-new-local-file",
+        "kind": "action",
+        "name": "write-new-local-file",
+        "is_active": true,
+        "description": "Save a new local file without replacing an existing file. Failed publication keeps the staged bytes for recovery.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "path",
+            "content_base64"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1
+            },
+            "content_base64": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "steps": [
+          {
+            "id": "write",
+            "kind": "ask",
+            "config": {
+              "name": "local.files",
+              "input": {
+                "operation": "write_new_file",
+                "path": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "path"
+                  }
+                },
+                "content_base64": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "content_base64"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "done",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "write",
+                  "path": "output"
+                }
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "from": "write",
+            "to": "done",
+            "kind": "on_result"
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    }
+  ]
+}

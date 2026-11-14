@@ -1,0 +1,198 @@
+#!/usr/bin/env node
+// A tenant's hand-authored files answer only where no route did.
+//
+// WHY THIS EXISTS. The fork this capability collapses (`tenant-fork/src/ethos-public-entry-server
+// .mjs`, 1,664 lines) served its static site EARLY, ahead of the dynamic routes, and paid for that
+// position with two hand-maintained closed sets: a reserved-prefix list ('boot', 'entry-scene',
+// 'ws', 'app', 'checkout', …) so a file could not shadow a route, and a regex of the tenant's own
+// page names (declaration|events|deck|book) so only those files were reachable. Both enumerate
+// things that change. A route added without a matching prefix row would have been shadowed by a
+// file silently, and that is the failure this suite exists to catch.
+//
+// The canonical serves the site LAST instead, immediately before the proxy, so neither list is
+// needed: a path a route wanted never reaches the site, and a path no route wanted is served if a
+// file answers to it. The first check below is the load-bearing one, because it is the only one
+// that would go red if someone moved the call earlier for a good-sounding reason.
+//
+// It asserts nothing about which files a tenant has. The fixture names are arbitrary on purpose.
+
+import { spawn } from 'node:child_process';
+import { mkdtemp, writeFile, mkdir, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { createServer } from 'node:net';
+import { request as httpRequest } from 'node:http';
+import { theBuiltEntryServer } from './built-entry-server.mjs';
+
+const PUBLIC_HOST = 'public.entry-host.test';
+const PREVIEW_HOST = 'preview.entry-host.test';
+
+async function freePort() {
+  return new Promise((resolve, reject) => {
+    const probe = createServer();
+    probe.on('error', reject);
+    probe.listen(0, '127.0.0.1', () => {
+      const { port } = probe.address();
+      probe.close(() => resolve(port));
+    });
+  });
+}
+
+// node:http, NOT fetch: `Host` is a forbidden header name in fetch, so a fetch-based probe
+// silently arrives as 127.0.0.1 and never matches a configured host.
+function get(port, path, host, method = 'GET') {
+  return new Promise((resolve, reject) => {
+    const req = httpRequest(
+      { host: '127.0.0.1', port, path, method, headers: { Host: host } },
+      (response) => {
+        let body = '';
+        response.setEncoding('utf8');
+        response.on('data', (chunk) => { body += chunk; });
+        response.on('end', () => resolve({
+          status: response.statusCode,
+          headers: response.headers,
+          body,
+        }));
+      },
+    );
+    req.on('error', reject);
+    req.end();
+  });
+}
+
+const failures = [];
+function check(name, condition, detail) {
+  if (condition) console.log(`  PASS  ${name}`);
+  else { console.log(`  FAIL  ${name}${detail ? `, ${detail}` : ''}`); failures.push(name); }
+}
+
+const { server: SERVER, note: serverNote, reason: noServerReason } = await theBuiltEntryServer();
+if (!SERVER) {
+  // Exit 1 rather than skip. A test that passes when its subject is absent cannot fail.
+  console.log(`FAIL: ${noServerReason}`);
+  process.exit(1);
+}
+console.log(serverNote);
+
+const siteDir = await mkdtemp(join(tmpdir(), 'authored-site-'));
+const shellStaticDir = await mkdtemp(join(tmpdir(), 'authored-shell-'));
+const installRoot = await mkdtemp(join(tmpdir(), 'authored-install-'));
+
+await writeFile(join(shellStaticDir, 'index.html'),
+  '<!DOCTYPE html>\n<html><head></head><body>'
+  + '<!--BITFIELD_ENTRY_ROOT_START--><div id="root"></div><!--BITFIELD_ENTRY_ROOT_END-->'
+  + '</body></html>\n', 'utf8');
+
+// The authored site. `declaration.html` is reachable only through the clean-URL rule; `entry-scene`
+// exists ONLY to be shadowed by the route of the same name.
+await writeFile(join(siteDir, 'declaration.html'), '<h1>authored declaration</h1>\n', 'utf8');
+await mkdir(join(siteDir, 'assets'), { recursive: true });
+const BRAND_CSS = 'body{color:#fff}\n';
+await writeFile(join(siteDir, 'assets', 'brand.css'), BRAND_CSS, 'utf8');
+await writeFile(join(siteDir, 'entry-scene'), 'A FILE WHERE A ROUTE LIVES\n', 'utf8');
+// Present for the same reason as `entry-scene`: to prove it is NOT reached. A tenant's site
+// directory holds an index.html and its home page is rendered, so a `/` that reads this file would
+// silently replace the rendered page with it.
+await writeFile(join(siteDir, 'index.html'), 'A FILE WHERE THE RENDERED HOME PAGE LIVES\n', 'utf8');
+
+const port = await freePort();
+const deadEnginePort = await freePort();
+const child = spawn(process.execPath, [SERVER], {
+  env: {
+    ...process.env,
+    BITFIELD_PUBLIC_ENTRY_LISTEN_HOST: '127.0.0.1',
+    BITFIELD_PUBLIC_ENTRY_LISTEN_PORT: String(port),
+    BITFIELD_PUBLIC_ENTRY_SHELL_URL: `http://127.0.0.1:${deadEnginePort}`,
+    BITFIELD_BROWSER_STATIC_DIR: shellStaticDir,
+    BITFIELD_HOST_ENTRY_SCENE_HOSTS: `${PUBLIC_HOST},${PREVIEW_HOST}`,
+    BITFIELD_PUBLIC_ENTRY_STATIC_SITE_DIR: siteDir,
+    BITFIELD_PUBLIC_ENTRY_NOINDEX_HOSTS: PREVIEW_HOST,
+    BITFIELD_INSTALL_ROOT: installRoot,
+    BITFIELD_BOOT_WAIT_MS: '1000',
+  },
+  stdio: ['ignore', 'pipe', 'pipe'],
+});
+let log = '';
+child.stdout.on('data', (data) => { log += data; });
+child.stderr.on('data', (data) => { log += data; });
+
+let exitCode = 0;
+try {
+  console.log('\na-tenants-authored-files-answer-where-no-route-did');
+  let listening = false;
+  const deadline = Date.now() + 30000;
+  while (Date.now() < deadline) {
+    try { await get(port, '/assets/brand.css', PUBLIC_HOST); listening = true; break; }
+    catch { await new Promise((resolve) => setTimeout(resolve, 200)); }
+  }
+  if (!listening) throw new Error(`server never listened on ${port}. log:\n${log}`);
+
+  // THE LOAD-BEARING ONE. `/entry-scene` is a route and a file of that name exists. The route must
+  // answer. If someone moves the site ahead of the routes, this is what goes red.
+  const shadowed = await get(port, '/entry-scene', PUBLIC_HOST);
+  check('a route still answers when a file shares its name',
+    !shadowed.body.includes('A FILE WHERE A ROUTE LIVES'),
+    `got status ${shadowed.status} body ${JSON.stringify(shadowed.body.slice(0, 60))}`);
+
+  // The sibling of the check above, and the one that came from a measurement rather than a design:
+  // every web server maps `/` to index.html, so writing that mapping was automatic, and it would
+  // have replaced this tenant's rendered home page with a file. A request names a file or it does
+  // not. `/` here has no description behind it, so the render refuses with 503, which is the
+  // rendered page's business either way and not this file's.
+  const root = await get(port, '/', PUBLIC_HOST);
+  check('the rendered home page is not replaced by a file called index.html',
+    !root.body.includes('A FILE WHERE THE RENDERED HOME PAGE LIVES'),
+    `got status ${root.status} body ${JSON.stringify(root.body.slice(0, 60))}`);
+  check('and that authored file is still reachable by its own name',
+    (await get(port, '/index.html', PUBLIC_HOST)).body.includes('A FILE WHERE THE RENDERED HOME PAGE LIVES'));
+
+  const asset = await get(port, '/assets/brand.css', PUBLIC_HOST);
+  check('an authored file answers where no route did',
+    asset.status === 200 && asset.body.includes('body{color:#fff}'),
+    `status ${asset.status}`);
+  check('the answer carries the type its extension names',
+    String(asset.headers['content-type'] || '').startsWith('text/css'),
+    `content-type ${asset.headers['content-type']}`);
+
+  const cleanUrl = await get(port, '/declaration', PUBLIC_HOST);
+  check('a link authored without .html reaches the .html file',
+    cleanUrl.status === 200 && cleanUrl.body.includes('authored declaration'),
+    `status ${cleanUrl.status}`);
+
+  const head = await get(port, '/assets/brand.css', PUBLIC_HOST, 'HEAD');
+  check('HEAD answers with the headers and no body',
+    head.status === 200 && head.body === ''
+      && head.headers['content-length'] === String(Buffer.byteLength(BRAND_CSS)),
+    `status ${head.status} length ${head.headers['content-length']} body ${JSON.stringify(head.body)}`);
+
+  check('a normal host is left indexable',
+    asset.headers['x-robots-tag'] === undefined,
+    `x-robots-tag ${asset.headers['x-robots-tag']}`);
+  const preview = await get(port, '/assets/brand.css', PREVIEW_HOST);
+  check('a host named as no-index says so on its answers',
+    String(preview.headers['x-robots-tag'] || '').includes('noindex'),
+    `x-robots-tag ${preview.headers['x-robots-tag']}`);
+
+  // Traversal is rejected before the pathname is joined to a directory on disk.
+  const escape = await get(port, '/../../etc/passwd', PUBLIC_HOST);
+  check('a traversal is not served',
+    !escape.body.includes('root:'),
+    `status ${escape.status}`);
+
+  if (failures.length) {
+    console.log(`\nFAILED: ${failures.length} check(s): ${failures.join(', ')}`);
+    console.log(log.slice(-2000));
+    exitCode = 1;
+  } else {
+    console.log('\nALL CHECKS PASSED');
+  }
+} catch (error) {
+  console.log(`FAIL: ${error?.message ?? error}`);
+  exitCode = 1;
+} finally {
+  child.kill('SIGKILL');
+  await rm(siteDir, { recursive: true, force: true });
+  await rm(shellStaticDir, { recursive: true, force: true });
+  await rm(installRoot, { recursive: true, force: true });
+}
+process.exit(exitCode);

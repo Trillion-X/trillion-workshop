@@ -1,0 +1,40 @@
+import { describe, expect, it } from '../../../test-helpers/vitest-shim.mjs';
+import { portalPlanFromEffects } from '../do-work/read-portal-plan-state.ts';
+
+const ACCOUNT = 'bitfield-account-test';
+
+describe('portalPlanFromEffects', () => {
+  it('picks the strongest plan effect and reads its label', () => {
+    const plan = portalPlanFromEffects(ACCOUNT, [
+      { kind: 'quote_reservation', material: { plan_id: 'starter' } },
+      { kind: 'license_access', object: 'contract:1', material: { canonical_plan_id: 'builder-plus', plan_label: 'Builder Plus' } },
+    ]);
+    expect(plan.planLabel).toBe('Builder Plus');
+    expect(plan.contractId).toBe('contract:1');
+    expect(plan.lifecycleState).toBe('active');
+  });
+
+  it('folds the newest lifecycle effect including plan.lifecycle events', () => {
+    const plan = portalPlanFromEffects(ACCOUNT, [
+      { kind: 'plan.lifecycle', material: { event_type: 'paused', occurred_at: '2026-07-01T00:00:00Z', resume_at: '2026-08-01T00:00:00Z' } },
+      { kind: 'plan.lifecycle', material: { event_type: 'resumed', occurred_at: '2026-07-05T00:00:00Z' } },
+    ]);
+    expect(plan.lifecycleState).toBe('resumed');
+  });
+
+  it('reads cancelled state with the cancellation time', () => {
+    const plan = portalPlanFromEffects(ACCOUNT, [
+      { kind: 'plan.lifecycle', material: { event_type: 'cancelled', occurred_at: '2026-07-10T00:00:00Z' } },
+    ]);
+    expect(plan.lifecycleState).toBe('cancelled');
+    expect(plan.cancelledAt).toBe('2026-07-10T00:00:00Z');
+  });
+
+  it('defaults honestly with no effects', () => {
+    const plan = portalPlanFromEffects(ACCOUNT, []);
+    expect(plan.planLabel).toBe('Signed access');
+    expect(plan.lifecycleState).toBe('active');
+    expect(plan.contractId).toBeNull();
+    expect(plan.cancelledAt).toBeNull();
+  });
+});

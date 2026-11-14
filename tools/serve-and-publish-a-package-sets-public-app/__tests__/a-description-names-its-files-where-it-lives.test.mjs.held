@@ -1,0 +1,201 @@
+#!/usr/bin/env node
+// A page description may name its files relative to its own folder, and an absolute path still wins.
+//
+// WHY THIS EXISTS. Both installed descriptions named every file they carry at
+// `/Users/<a person>/.bitfield/runtime-kit/package-sets/<set>/deploy/...`, the path whoever wrote
+// them happened to have. A description is DATA that travels: it is copied into a container by a
+// `COPY`, it is published as a record, it is kept as a last-good copy on a volume. An absolute host
+// path survives none of those, and the way it fails is the quiet way. A missing `fallback_body_file`
+// is a 503 that names itself, but a missing `shell_css_file` is one log line on a page that still
+// answers 200, so the only visible symptom is an unstyled page nobody attributes to a path.
+//
+// So relative-to-the-description is the portable form, and this pins BOTH directions: a relative
+// name resolves against the description's folder and NOT against whatever directory the process was
+// started in, and an absolute name is passed through untouched so a deploy that means one gets it.
+//
+// The cwd check is the one worth keeping. `resolve()` against a missing base silently uses the
+// process cwd, which on this machine is usually a folder that happens to contain the file, so the
+// wrong implementation passes locally and fails in the container. This suite starts the server in a
+// directory that holds a DECOY file of the same name, so resolving against the cwd is not merely
+// unproven, it produces the wrong bytes and the check names them.
+
+import { spawn } from 'node:child_process';
+import { mkdtemp, writeFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { createServer } from 'node:net';
+import { request as httpRequest } from 'node:http';
+import { theBuiltEntryServer } from './built-entry-server.mjs';
+
+const PUBLIC_HOST = 'public.entry-host.test';
+const BESIDE_MARKER = 'THE BODY THAT SITS BESIDE ITS DESCRIPTION';
+const DECOY_MARKER = 'THE DECOY BODY IN THE WORKING DIRECTORY';
+const CSS_MARKER = '.beside-its-description';
+const ABSOLUTE_MARKER = 'THE BODY NAMED BY AN ABSOLUTE PATH';
+
+async function freePort() {
+  return new Promise((resolve, reject) => {
+    const probe = createServer();
+    probe.on('error', reject);
+    probe.listen(0, '127.0.0.1', () => {
+      const { port } = probe.address();
+      probe.close(() => resolve(port));
+    });
+  });
+}
+
+function get(port, path, host) {
+  return new Promise((resolve, reject) => {
+    const req = httpRequest(
+      { host: '127.0.0.1', port, path, method: 'GET', headers: { Host: host, Accept: 'text/html' } },
+      (response) => {
+        let body = '';
+        response.setEncoding('utf8');
+        response.on('data', (chunk) => { body += chunk; });
+        response.on('end', () => resolve({ status: response.statusCode, body }));
+      },
+    );
+    req.on('error', reject);
+    req.end();
+  });
+}
+
+const failures = [];
+function check(name, condition, detail) {
+  if (condition) console.log(`  PASS  ${name}`);
+  else { console.log(`  FAIL  ${name}${detail ? `, ${detail}` : ''}`); failures.push(name); }
+}
+
+const { server: SERVER, note: serverNote, reason: noServerReason } = await theBuiltEntryServer();
+if (!SERVER) {
+  console.log(`FAIL: ${noServerReason}`);
+  process.exit(1);
+}
+console.log(serverNote);
+
+// Three directories on purpose. The description lives in one, the process is started in another
+// that holds a same-named decoy, and the absolute-path file lives in a third that neither of the
+// first two could reach by any relative rule.
+const describedDir = await mkdtemp(join(tmpdir(), 'described-files-'));
+const workingDir = await mkdtemp(join(tmpdir(), 'described-cwd-'));
+const elsewhere = await mkdtemp(join(tmpdir(), 'described-elsewhere-'));
+const installRoot = await mkdtemp(join(tmpdir(), 'described-install-'));
+
+await writeFile(join(describedDir, 'index.html'),
+  '<!DOCTYPE html>\n<html><head></head><body>'
+  + '<!--BITFIELD_ENTRY_ROOT_START--><div id="root"></div><!--BITFIELD_ENTRY_ROOT_END-->'
+  + '</body></html>\n', 'utf8');
+
+await writeFile(join(describedDir, 'landing-body.html'), `<main><h1>${BESIDE_MARKER}</h1></main>\n`, 'utf8');
+await writeFile(join(describedDir, 'page-chrome.css'), `${CSS_MARKER} { color: rebeccapurple; }\n`, 'utf8');
+// Same file name, different folder, different bytes. Only a cwd-based resolution can reach it.
+await writeFile(join(workingDir, 'landing-body.html'), `<main><h1>${DECOY_MARKER}</h1></main>\n`, 'utf8');
+await writeFile(join(elsewhere, 'absolute-body.html'), `<main><h1>${ABSOLUTE_MARKER}</h1></main>\n`, 'utf8');
+
+const descriptionFile = join(describedDir, 'page-description.json');
+await writeFile(descriptionFile, JSON.stringify({
+  kind: 'hosted-public-app.page-description',
+  pages: [{
+    language: 'en',
+    title: 'A description that names its files where it lives',
+    meta_description: 'Relative to itself, so the set survives being copied somewhere else.',
+    fallback_body_file: 'landing-body.html',
+    shell_css_file: 'page-chrome.css',
+  }],
+}), 'utf8');
+
+// The second tenant proves the absolute branch in the same process, so one server answers both
+// shapes and neither rule is a property of a whole deploy.
+const absoluteDescriptionFile = join(describedDir, 'absolute-page-description.json');
+await writeFile(absoluteDescriptionFile, JSON.stringify({
+  kind: 'hosted-public-app.page-description',
+  pages: [{
+    language: 'en',
+    title: 'A description that names an absolute file',
+    meta_description: 'A deploy that means an absolute path gets one.',
+    fallback_body_file: join(elsewhere, 'absolute-body.html'),
+  }],
+}), 'utf8');
+
+function startServer(port, deadEnginePort, description) {
+  return spawn(process.execPath, [SERVER], {
+    cwd: workingDir,
+    env: {
+      ...process.env,
+      BITFIELD_PUBLIC_ENTRY_LISTEN_HOST: '127.0.0.1',
+      BITFIELD_PUBLIC_ENTRY_LISTEN_PORT: String(port),
+      BITFIELD_PUBLIC_ENTRY_SHELL_URL: `http://127.0.0.1:${deadEnginePort}`,
+      BITFIELD_BROWSER_STATIC_DIR: describedDir,
+      BITFIELD_HOST_ENTRY_SCENE_HOSTS: PUBLIC_HOST,
+      BITFIELD_PUBLIC_PAGE_DESCRIPTION_FILE: description,
+      BITFIELD_INSTALL_ROOT: installRoot,
+      BITFIELD_BOOT_WAIT_MS: '1000',
+    },
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+}
+
+async function waitForIt(port) {
+  const deadline = Date.now() + 30000;
+  while (Date.now() < deadline) {
+    try { await get(port, '/', PUBLIC_HOST); return true; }
+    catch { await new Promise((resolve) => setTimeout(resolve, 200)); }
+  }
+  return false;
+}
+
+let log = '';
+const children = [];
+let exitCode = 0;
+try {
+  console.log('\na-description-names-its-files-where-it-lives');
+
+  const port = await freePort();
+  const relative = startServer(port, await freePort(), descriptionFile);
+  children.push(relative);
+  relative.stdout.on('data', (data) => { log += data; });
+  relative.stderr.on('data', (data) => { log += data; });
+  if (!await waitForIt(port)) throw new Error(`server never listened on ${port}. log:\n${log}`);
+
+  const root = await get(port, '/', PUBLIC_HOST);
+  check('a bare file name answers at all', root.status === 200, `status ${root.status}`);
+  check('and it is the body that sits beside the description',
+    root.body.includes(BESIDE_MARKER), `body ${JSON.stringify(root.body.slice(0, 300))}`);
+  // The check that separates a correct base from a lucky one.
+  check('never the same-named file in the directory the process was started in',
+    !root.body.includes(DECOY_MARKER));
+  check('a relative stylesheet is read the same way',
+    root.body.includes(CSS_MARKER), 'the shell css never reached the page');
+
+  const absolutePort = await freePort();
+  const absolute = startServer(absolutePort, await freePort(), absoluteDescriptionFile);
+  children.push(absolute);
+  absolute.stdout.on('data', (data) => { log += data; });
+  absolute.stderr.on('data', (data) => { log += data; });
+  if (!await waitForIt(absolutePort)) throw new Error(`second server never listened. log:\n${log}`);
+
+  const absoluteRoot = await get(absolutePort, '/', PUBLIC_HOST);
+  check('an absolute path is passed through untouched',
+    absoluteRoot.body.includes(ABSOLUTE_MARKER),
+    `status ${absoluteRoot.status}, body ${JSON.stringify(absoluteRoot.body.slice(0, 300))}`);
+  check('and it is not re-based onto the description folder, which holds no such file',
+    absoluteRoot.status === 200);
+
+  if (failures.length) {
+    console.log(`\nFAILED: ${failures.length} check(s): ${failures.join(', ')}`);
+    console.log(log.slice(-1500));
+    exitCode = 1;
+  } else {
+    console.log('\nALL CHECKS PASSED');
+  }
+} catch (error) {
+  console.log(`FAIL: ${error?.message ?? error}`);
+  exitCode = 1;
+} finally {
+  for (const child of children) child.kill('SIGKILL');
+  await rm(describedDir, { recursive: true, force: true });
+  await rm(workingDir, { recursive: true, force: true });
+  await rm(elsewhere, { recursive: true, force: true });
+  await rm(installRoot, { recursive: true, force: true });
+}
+process.exit(exitCode);

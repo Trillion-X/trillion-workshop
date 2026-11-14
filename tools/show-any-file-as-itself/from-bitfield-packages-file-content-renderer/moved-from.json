@@ -1,0 +1,63 @@
+{
+  "about": "Files restored byte for byte from the retired bitfield-packages repository (standing order: originals move wholesale, no rewrites from scratch).",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "guarded-adapter-has-its-own-file",
+      "find": "import \\{ FileContentRenderer, GuardedArtifactFileContent \\} from './FileContentRenderer';",
+      "replace": "import { FileContentRenderer } from './FileContentRenderer';\nimport { GuardedArtifactFileContent } from './GuardedArtifactFileContent';",
+      "means": "The guarded-artifact adapter lives in its own file in this tree (GuardedArtifactFileContent.tsx), so the test imports it from there."
+    },
+    {
+      "id": "home-path-in-a-doc-comment-made-generic",
+      "find": "[/]Users[/][b]rian/dev/bitfield-studio",
+      "replace": "/Users/example/dev/studio",
+      "means": "A path in one person's home folder in a documentation example; a made-up one stands in."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/file-content-renderer/show/FileHeader.tsx",
+      "commit": "cf505a116fc14449e6d359278a60ca8827cdb97b",
+      "to": "tools/show-any-file-as-itself/show/FileHeader.tsx",
+      "source_identity": "1f:22c93159b1e899b1ad9eef42a93659cf579cab61e1ad9ef37006dab60d344e85",
+      "identity": "1f:3973409494040d6b69679868dc4e9d209085544ed512de6558953fc50ff94e6b",
+      "calls": [
+        "home-path-in-a-doc-comment-made-generic"
+      ],
+      "identity_at_move": "1f:de0aa0590496b29093805aaaa2cece169bc0522d77f4330cc6ec3d09a31ef30e",
+      "byte_copy_commit": "daa5cc064aee3b91aa75fdb23b451077556784a8"
+    },
+    {
+      "from": "packages/file-content-renderer/show/mount-file-content-surface.tsx",
+      "commit": "40e4d68ef4dd345948acc30f4c29fb807d1a44ca",
+      "to": "tools/show-any-file-as-itself/show/mount-file-content-surface.tsx",
+      "source_identity": "1f:daa4e549e4f914b6ea1b837aacb39acf8637b23cb880bb192ff52bd88fe10351",
+      "identity": "1f:f9196aa63d3471df51e57fa2af8ae9619cb96383ff920309936eb779785816b3"
+    },
+    {
+      "from": "packages/file-content-renderer/show/FileContentRenderer.test.tsx",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/show-any-file-as-itself/show/FileContentRenderer.test.tsx.held",
+      "source_identity": "1f:c371e43f816e707aad589d929fdd3b6ac0d34288a661e1967b266aa08675884c",
+      "calls": [
+        "guarded-adapter-has-its-own-file"
+      ],
+      "identity": "1f:b2273d00dd0b66b1a377aae9d74813fd09373c08e2142a4a6359fe74e817a915",
+      "identity_at_move": "1f:017151e6dab9073879dd6dd1aec98541b3af03655166a47954d4fd00a109777c",
+      "byte_copy_commit": "daa5cc064aee3b91aa75fdb23b451077556784a8"
+    },
+    {
+      "from": "packages/file-content-renderer/show/render-markdown-html.test.ts",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/show-any-file-as-itself/show/render-markdown-html.test.ts.held",
+      "source_identity": "1f:51e8ff447233059be8eafb9f121cddba071e6957881d72416c86af7388384300",
+      "identity": "1f:c808429c2a79e6498dde1b9c72c9d8b07d1bd35862d9a512a297df8b7c0dfb6e"
+    }
+  ],
+  "held": {
+    "tools/show-any-file-as-itself/show/FileContentRenderer.test.tsx.held": "a React component test (jsdom, testing-library, vi.mock of `@bitfield/runtime-kit/protocol`); this repository runs node tests only and neither test library is a dependency",
+    "tools/show-any-file-as-itself/show/render-markdown-html.test.ts.held": "loads this tree's own show/render-markdown-html.ts, which imports `./highlight-code-html` without a file extension; Node refuses that (the web client's bundler resolves it). The test passes under a bundler"
+  }
+}

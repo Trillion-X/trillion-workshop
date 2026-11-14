@@ -40,3 +40,14 @@ The old build workflow (gather records, dispatch an AI producer, write facts bac
 **Depends on:** Node 24; the voice rows pack `tools/records-door` and `tools/content-identity`.
 
 **Depended on by:** `tool-rows.json`.
+
+## Restored from bitfield-packages `how-someone-does-their-thing`
+
+The package was records only; its boundary file is kept as written under `from-bitfield-packages-how-someone-does-their-thing/things-to-store-and-run.json`: the `profile` entity type with its six properties, the build-profile instruction (the wrapper words an AI is given with the subject's records), the profile-fit gate spec, and the build-profile workflow action (gather the subject's records, ask the records producer, write the items back as profile facts). The rows above carry the profile and voice rules in this tree; the build workflow itself needs the workflow-recipe form and is held. The package's conformance test of that workflow's wiring is kept as a held test.
+
+| File | Purpose |
+|------|---------|
+| `__tests__/profile-chain.conformance.test.ts.held` | Held test: reads the things-to-store-and-run.json of two sibling packages (how-someone-does-their-thing and profile-a-cre |
+| `from-bitfield-packages-how-someone-does-their-thing/README.md` | The package's own note, moved as written. |
+| `from-bitfield-packages-how-someone-does-their-thing/things-to-store-and-run.json` | Data the package carried as written. |
+| `from-bitfield-packages-how-someone-does-their-thing/moved-from.json` | Source path and commit of each file, identities, call rows, held tests, files that still call the retired runtime. |

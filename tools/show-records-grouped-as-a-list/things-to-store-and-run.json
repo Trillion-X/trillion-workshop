@@ -1,0 +1,111 @@
+{
+  "package": "group-list",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::group-list::capability::record-collection-projection",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-package-capability",
+        "id": "capability:group-list.record-collection-projection",
+        "package": "group-list",
+        "label": "Browse groups",
+        "description": "Projects data-described records into a list surface and routes data-described actions to owner targets.",
+        "owned_record_kinds": [
+          "record-projection-descriptor",
+          "record-projection-snapshot",
+          "record-action-request"
+        ],
+        "reuses": [
+          "eeaf",
+          "workflow",
+          "process-session",
+          "record_from_matching_records",
+          "owner-action"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::group-list::descriptor::directory",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "record-projection-descriptor",
+        "source_path": "data/record-projection-descriptors.json"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::group-list::input::group-list-records",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "group-list-records",
+        "is_default": true,
+        "value_address_label": "group-list-records",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "package": "group-list"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::group-list::entry::group-list",
+      "path": [
+        "packages",
+        "group-list",
+        "entries",
+        "group-list"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "group-list",
+        "source_path": "show/mount-group-list.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-group-list"
+        }
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-group-list",
+      "source_path": "built-stored-bytes/entry-bytes-group-list",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-group-list.source-closure.json"
+    },
+    {
+      "type": "stored-bytes",
+      "address": "package::group-list::source::read-record-projection",
+      "path": "read-data/read-record-projection.mjs"
+    },
+    {
+      "type": "stored-bytes",
+      "address": "package::group-list::source::maintained-projection",
+      "path": "read-data/maintained-projection.mjs"
+    },
+    {
+      "type": "stored-bytes",
+      "address": "package::group-list::source::invoke-record-action",
+      "path": "do-work/invoke-record-action.mjs"
+    },
+    {
+      "type": "stored-bytes",
+      "address": "package::group-list::source::read-process-session-proof",
+      "path": "do-work/read-process-session-proof.mjs"
+    }
+  ]
+}

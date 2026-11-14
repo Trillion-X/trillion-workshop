@@ -1,0 +1,228 @@
+import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import test from 'node:test';
+import { pathToFileURL } from 'node:url';
+
+import { makeHashCodeHexFromBytes } from '@bitfield/slot-protocol';
+import { ownerValidatedProcessResultWire } from '../../../tests/fixtures/process-result-wire.ts';
+import { runtimeKitBinary } from './runtime-kit-test-tools.mjs';
+
+const packageRoot = path.resolve(import.meta.dirname, '..');
+const authoritySource = path.join(
+  packageRoot,
+  'read-data/artifacts/hosted-experience-authority.ts.txt',
+);
+const carrierSource = path.join(
+  packageRoot,
+  'read-data/artifacts/hosted-target-carrier-server.ts.txt',
+);
+const slotProtocolSource = path.resolve(
+  process.cwd(),
+  'node_modules/@bitfield/slot-protocol/index.js',
+);
+const runtimeProtocolSource = path.resolve(
+  process.cwd(),
+  '../bitfield-runtime-kit/packages/js/src/protocol/process-result.ts',
+);
+const sealedClosureBinary = runtimeKitBinary('bitfield-sealed-closure');
+function canonical(value) {
+  if (Array.isArray(value)) return value.map(canonical);
+  if (!value || typeof value !== 'object') return value;
+  return Object.fromEntries(Object.keys(value).sort().map((key) => [key, canonical(value[key])]));
+}
+
+function bytes(value) {
+  return new TextEncoder().encode(JSON.stringify(canonical(value)));
+}
+
+function record(address, revision, payload) {
+  return {
+    address,
+    revision,
+    object_hash: makeHashCodeHexFromBytes(bytes(payload)),
+    payload,
+  };
+}
+
+function rawRecord(address, revision, payload, rawBytes) {
+  return {
+    address,
+    revision,
+    object_hash: makeHashCodeHexFromBytes(rawBytes),
+    payload,
+    payload_base64: Buffer.from(rawBytes).toString('base64'),
+  };
+}
+
+function exact(value) {
+  return {
+    address: value.address,
+    revision: value.revision,
+    object_hash: value.object_hash,
+  };
+}
+
+async function authorityModule() {
+  const root = mkdtempSync(path.join(tmpdir(), 'hosted-closure-authority-'));
+  const stagedAuthority = path.join(root, 'hosted-experience-authority.ts');
+  writeFileSync(
+    stagedAuthority,
+    readFileSync(authoritySource, 'utf8').replace(
+      '"./hosted-target-carrier-server"',
+      '"./hosted-target-carrier-server.ts"',
+    ),
+  );
+  writeFileSync(path.join(root, 'hosted-target-carrier-server.ts'), readFileSync(carrierSource));
+  const output = path.join(root, 'authority.mjs');
+  execFileSync(
+    path.join(process.cwd(), 'node_modules/.bin/esbuild'),
+    [
+      stagedAuthority,
+      '--bundle',
+      '--platform=node',
+      '--format=esm',
+      `--alias:@bitfield/slot-protocol=${slotProtocolSource}`,
+      `--alias:@bitfield/runtime-kit/protocol=${runtimeProtocolSource}`,
+      `--outfile=${output}`,
+    ],
+    { cwd: root, stdio: 'pipe' },
+  );
+  return import(`${pathToFileURL(output).href}?${Date.now()}`);
+}
+
+test('authorizes only an apply proof whose bytes and membership match the sealed signed-closure bytes', async () => {
+  const root = mkdtempSync(path.join(tmpdir(), 'hosted-closure-proof-'));
+  const sourceRoot = path.join(root, 'source');
+  const projectionRoot = path.join(root, 'projection');
+  mkdirSync(path.join(sourceRoot, 'app'), { recursive: true });
+  const projectedBytes = new TextEncoder().encode('selected buyer bytes');
+  writeFileSync(path.join(sourceRoot, 'app', 'entry.mjs'), projectedBytes);
+  const closureFile = path.join(root, 'closure.json');
+  const seedFile = path.join(root, 'seed.hex');
+  const signedClosureFile = path.join(root, 'signed-closure.json');
+  const basisFile = path.join(root, 'basis.json');
+  const applyProofFile = path.join(root, 'apply-proof.json');
+  writeFileSync(seedFile, `${'11'.repeat(32)}\n`);
+  execFileSync(sealedClosureBinary, ['create-from-tree', '--tree-root', sourceRoot, '--closure-file', closureFile]);
+  const closure = JSON.parse(readFileSync(closureFile, 'utf8'));
+  writeFileSync(basisFile, JSON.stringify(closure.current_state_basis));
+  const publicKey = execFileSync(sealedClosureBinary, ['public-key', '--signing-seed-hex-file', seedFile], { encoding: 'utf8' }).trim();
+  const trustedKey = `test-key:${publicKey}`;
+  execFileSync(sealedClosureBinary, ['sign', '--closure-file', closureFile, '--signing-seed-hex-file', seedFile, '--key-id', 'test-key', '--signed-closure-output', signedClosureFile]);
+  execFileSync(sealedClosureBinary, ['apply', '--signed-closure-file', signedClosureFile, '--trusted-key', trustedKey, '--closure-root', sourceRoot, '--projection-root', projectionRoot, '--current-state-basis', basisFile, '--proof-output', applyProofFile]);
+  const signedClosure = JSON.parse(readFileSync(signedClosureFile, 'utf8'));
+  const applyProof = JSON.parse(readFileSync(applyProofFile, 'utf8'));
+
+  const manifestPayload = {
+    kind: 'experience-authority-manifest',
+    access_ref: 'access:public',
+    root_refs: [],
+    data_address_refs: [],
+    navigation_refs: [],
+    subscription_refs: [],
+    target_refs: [],
+    entry_byte_path: ['app', 'entry.mjs'],
+  };
+  const policyPayload = {
+    kind: 'experience-access-policy',
+    mode: 'public',
+    access_ref: 'access:public',
+    required_access_refs: [],
+    sealed_closure_binary: 'bitfield-sealed-closure',
+    trusted_closure_keys: [trustedKey],
+    closure_signature_threshold: 1,
+  };
+  const manifest = record('manifest:one', 'r1', manifestPayload);
+  const policy = record('policy:public', 'r1', policyPayload);
+  const proofBytes = readFileSync(applyProofFile);
+  const signedBytes = readFileSync(signedClosureFile);
+  const proofRecord = rawRecord('proof:one', 'r1', applyProof, proofBytes);
+  const signedClosureMultihash = makeHashCodeHexFromBytes(new Uint8Array(
+    await import('node:fs/promises').then(({ readFile }) => readFile(signedClosureFile)),
+  ));
+  const applyProofMultihash = makeHashCodeHexFromBytes(new Uint8Array(
+    await import('node:fs/promises').then(({ readFile }) => readFile(applyProofFile)),
+  ));
+  const closureRecord = rawRecord('closure:one', 'r1', signedClosure, signedBytes);
+  const publicationPayload = {
+    kind: 'published-experience-publication',
+    status: 'active',
+    authority_manifest_ref: exact(manifest),
+    access_policy_ref: exact(policy),
+    access_ref: 'access:public',
+    sealed_closure_ref: exact(closureRecord),
+    signed_closure_multihash: signedClosureMultihash,
+    apply_proof_ref: exact(proofRecord),
+    apply_proof_multihash: applyProofMultihash,
+  };
+  const publication = record('publication:one', 'r1', publicationPayload);
+  const records = new Map([
+    [publication.address, publication],
+    [manifest.address, manifest],
+    [policy.address, policy],
+    [proofRecord.address, proofRecord],
+    [closureRecord.address, closureRecord],
+  ]);
+  for (const current of [publication, manifest, policy]) {
+    assert.equal(current.object_hash, makeHashCodeHexFromBytes(bytes(current.payload)));
+  }
+  const priorFetch = globalThis.fetch;
+  globalThis.fetch = async (input, init) => {
+    const url = String(input);
+    const payload = JSON.parse(new TextDecoder().decode(init.body));
+    if (url.includes('find-current-items')) {
+      const address = payload.where.all[0].in[0];
+      return new Response(JSON.stringify({ items: [records.get(address)] }));
+    }
+    if (url.endsWith('/target/product-access.authorize-addressed-expiring-value-scope')) {
+      return new Response(JSON.stringify({
+        authorized: true,
+        membership_revision: 'membership:r1',
+      }));
+    }
+    if (url.endsWith('/target/compute.process')) {
+      return new Response(JSON.stringify(ownerValidatedProcessResultWire()));
+    }
+    throw new Error(`unexpected target ${url}`);
+  };
+  process.env.BITFIELD_TARGET_CARRIER_URL = 'https://carrier.invalid';
+  process.env.BITFIELD_APPLY_PROOF_FILE = applyProofFile;
+  process.env.BITFIELD_SIGNED_CLOSURE_FILE = signedClosureFile;
+  process.env.BITFIELD_PROJECTION_ROOT = projectionRoot;
+  try {
+    const { resolveHostedExperienceAuthority, readAuthorizedBytes } = await authorityModule();
+    const authority = await resolveHostedExperienceAuthority(
+      new Request('https://buyer.invalid/'),
+      publication.address,
+      'bytes',
+    );
+    assert.deepEqual(
+      await readAuthorizedBytes(authority, ['app', 'entry.mjs']),
+      {
+        bytes: projectedBytes,
+        contentType: 'text/javascript; charset=utf-8',
+        multihash: makeHashCodeHexFromBytes(projectedBytes),
+      },
+    );
+
+    const tamperedProofBytes = Buffer.from(JSON.stringify({ ...applyProof, projected_files: [] }));
+    writeFileSync(applyProofFile, tamperedProofBytes);
+    records.set(
+      proofRecord.address,
+      rawRecord(proofRecord.address, proofRecord.revision, { ...applyProof, projected_files: [] }, tamperedProofBytes),
+    );
+    await assert.rejects(
+      () => resolveHostedExperienceAuthority(
+        new Request('https://buyer.invalid/'),
+        publication.address,
+        'bytes',
+      ),
+      /not available/,
+    );
+  } finally {
+    globalThis.fetch = priorFetch;
+  }
+});

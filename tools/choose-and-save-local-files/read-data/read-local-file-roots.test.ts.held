@@ -1,0 +1,147 @@
+// packages/local-files/read-data/read-local-file-roots.test.ts
+//
+// Proves listLocalRootShortcuts() is genuinely DATA-driven: with zero
+// `local-root-shortcut` rows admitted it falls back to the 5 authorized default
+// shortcuts; with rows admitted it uses ONLY those rows (plus resolved `~`
+// paths), never the hardcoded list — zero code path specific to any one
+// shortcut set. Mounted-volume/cloud-storage mirror discovery is proven
+// separately since it is dynamic, not descriptor-authored.
+
+import { describe, it, expect, vi, beforeEach } from '../../../test-helpers/vitest-shim.mjs';
+import { listLocalRootShortcuts } from './read-local-file-roots.ts';
+
+vi.mock('@bitfield/runtime-kit', () => ({
+  sendRequestToBitfieldTarget: vi.fn(),
+}));
+
+import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
+
+const textEncoder = new TextEncoder();
+
+function bytesReply(value: unknown): { payload: Uint8Array } {
+  return { payload: textEncoder.encode(JSON.stringify(value)) };
+}
+
+const HOME = '/workspace';
+
+function mockDispatch(options: {
+  descriptorRows?: Array<Record<string, unknown>>;
+  volumeNames?: string[];
+  cloudStorageNames?: string[];
+}) {
+  const descriptorRows = options.descriptorRows ?? [];
+  const volumeNames = options.volumeNames ?? [];
+  const cloudStorageNames = options.cloudStorageNames ?? [];
+
+  vi.mocked(sendRequestToBitfieldTarget).mockImplementation(async (request: unknown) => {
+    const req = request as { target?: string; payload?: Record<string, unknown> };
+
+    if (req.target === 'slot::find-current-items') {
+      return bytesReply({ items: descriptorRows });
+    }
+
+    if (req.target === 'local.files') {
+      if (req.payload?.operation === 'roots') {
+        return bytesReply({ success: true, operation: 'roots', home: HOME, roots: [HOME, '/Volumes'] });
+      }
+      if (req.payload?.operation === 'list_directory') {
+        const names = req.payload?.path === '/Volumes' ? volumeNames : cloudStorageNames;
+        return bytesReply({
+          success: true,
+          operation: 'list_directory',
+          entries: names.map((name) => ({ path: `${req.payload?.path}/${name}`, name, is_dir: true })),
+        });
+      }
+    }
+
+    throw new Error(`unexpected target in test: ${req.target}`);
+  });
+}
+
+beforeEach(() => {
+  vi.mocked(sendRequestToBitfieldTarget).mockReset();
+});
+
+describe('listLocalRootShortcuts', () => {
+  it('falls back to the 5 authorized default shortcuts when zero local-root-shortcut rows exist', async () => {
+    mockDispatch({ descriptorRows: [] });
+
+    const shortcuts = await listLocalRootShortcuts();
+
+    expect(shortcuts).toEqual([
+      { label: 'Home', path: HOME },
+      { label: 'Dev', path: `${HOME}/dev` },
+      { label: 'Desktop', path: `${HOME}/Desktop` },
+      { label: 'Documents', path: `${HOME}/Documents` },
+      { label: 'Downloads', path: `${HOME}/Downloads` },
+    ]);
+  });
+
+  it('uses ONLY admitted local-root-shortcut rows when any exist — zero hardcoded fallback leakage', async () => {
+    mockDispatch({
+      descriptorRows: [
+        { kind: 'local-root-shortcut', label: 'Screenshots', path: '~/Desktop/Screenshots' },
+        { kind: 'local-root-shortcut', label: 'Root', path: '~' },
+        { kind: 'unrelated-kind', label: 'Ignored', path: '/should/not/appear' },
+      ],
+    });
+
+    const shortcuts = await listLocalRootShortcuts();
+
+    expect(shortcuts).toEqual([
+      { label: 'Screenshots', path: `${HOME}/Desktop/Screenshots` },
+      { label: 'Root', path: HOME },
+    ]);
+  });
+
+  it('resolves the deletion test: a totally different domain of descriptor rows works identically', async () => {
+    // Deletion test (L063/L090): swap the local-root-shortcut rows for a
+    // completely unrelated set of paths/labels. Zero code change required —
+    // the reader has no knowledge of what a "Screenshots" or "Dev" folder is.
+    mockDispatch({
+      descriptorRows: [
+        { kind: 'local-root-shortcut', label: 'Legal Contracts', path: '/srv/legal/contracts' },
+        { kind: 'local-root-shortcut', label: 'Client Intake', path: '/srv/legal/intake' },
+      ],
+    });
+
+    const shortcuts = await listLocalRootShortcuts();
+
+    expect(shortcuts).toEqual([
+      { label: 'Legal Contracts', path: '/srv/legal/contracts' },
+      { label: 'Client Intake', path: '/srv/legal/intake' },
+    ]);
+  });
+
+  it('merges discovered mounted-volume and cloud-storage mirrors, deduped by resolved path', async () => {
+    mockDispatch({
+      descriptorRows: [],
+      volumeNames: ['Macintosh HD', 'Backup Drive'],
+      cloudStorageNames: ['Dropbox', 'GoogleDrive'],
+    });
+
+    const shortcuts = await listLocalRootShortcuts();
+
+    // Macintosh HD is filtered out (the boot volume, not a useful mirror).
+    expect(shortcuts).toContainEqual({ label: 'Backup Drive', path: '/Volumes/Backup Drive' });
+    expect(shortcuts).toContainEqual({ label: 'Dropbox', path: `${HOME}/Library/CloudStorage/Dropbox` });
+    expect(shortcuts).toContainEqual({ label: 'GoogleDrive', path: `${HOME}/Library/CloudStorage/GoogleDrive` });
+    // Defaults still present since zero descriptor rows were admitted.
+    expect(shortcuts).toContainEqual({ label: 'Home', path: HOME });
+  });
+
+  it('does not duplicate a mirror whose resolved path already matches a descriptor/default shortcut', async () => {
+    mockDispatch({
+      descriptorRows: [
+        { kind: 'local-root-shortcut', label: 'Backups', path: '/Volumes/Backup Drive' },
+      ],
+      volumeNames: ['Backup Drive'],
+    });
+
+    const shortcuts = await listLocalRootShortcuts();
+
+    const backupEntries = shortcuts.filter((shortcut) => shortcut.path === '/Volumes/Backup Drive');
+    expect(backupEntries).toHaveLength(1);
+    expect(backupEntries[0]?.label).toBe('Backups');
+  });
+});

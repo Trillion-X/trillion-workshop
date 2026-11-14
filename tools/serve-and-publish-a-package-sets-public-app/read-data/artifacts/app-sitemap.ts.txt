@@ -1,0 +1,6 @@
+import type { MetadataRoute } from "next";
+
+export default function sitemap(): MetadataRoute.Sitemap {
+  const publicUrl = process.env.BITFIELD_PUBLIC_URL?.trim();
+  return publicUrl ? [{ url: publicUrl, priority: 1 }] : [];
+}

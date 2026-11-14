@@ -1,0 +1,31 @@
+{
+  "_why_this_file_is_here": "A TEST fixture, not a default. The server ships with NO page description on purpose: a default inside the package would be one tenant's copy compiled back into the generic package, and a second tenant would still cost a code change. Tests need a tenant to be, so they bring their own. The values below are deliberately NOT the live site's, so a test cannot pass by accidentally reading production copy.",
+  "_chrome_note": "chrome_css_file is added by the test at runtime, as an absolute path to chrome-for-tests.css, because writing an absolute path into a checked-in fixture is the exact defect T2 removed from the server and would be hypocritical here. No chrome_css_export is set ON PURPOSE: the live set's chrome is a module exporting a template literal, this one is a plain .css file that IS the css, so between them both branches of chromeCssFor run and neither is a file-extension guess.",
+  "_one_entry": "One entry, so it serves whatever host the test configures and needs no `hosts` key. The two-tenant test writes its own file with two entries that DO declare hosts.",
+  "kind": "hosted-public-app.page-description",
+  "pages": [
+    {
+      "language": "en",
+      "theme": "paper",
+      "title": "Entry Host Test Tenant",
+      "meta_description": "A description supplied by a test, proving the host renders whoever it is told to render.",
+      "brand": "Entry Host Test Tenant",
+      "island": {
+        "mount_element_id": "test-tenant-root",
+        "bundle_url": "/assets/test-tenant/app.js",
+        "stylesheet_url": "/assets/test-tenant/app.css",
+        "inline_css": "html,body{margin:0;padding:0;background:#f5f5f5}",
+        "noscript_route": "/classic",
+        "state_envelopes": {
+          "__testTenantPatronPolicy__": "patronPolicy",
+          "__testTenantSystemOffer__": "systemOffer"
+        }
+      },
+      "thank_you": {
+        "title": "Thank you, Entry Host Test Tenant",
+        "heading": "Thank you.",
+        "body": "Your application is in."
+      }
+    }
+  ]
+}

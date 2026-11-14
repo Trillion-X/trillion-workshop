@@ -21,3 +21,12 @@ The Marketplace shelf: everything a person's AI can use, theirs and everyone's (
 |------|---------|
 | `web/src/workspace/marketplace-screen.tsx` | The Marketplace screen (`tool:screen-marketplace`): one shelf of everything a person's AI can use, read through the kinds in `marketplace-kinds.json`. Moved byte for byte from the web client (`moved-from.json`); it imports the web shell's files as it was written, and the client build answers those imports with the shell's files. |
 | `show/marketplace-mount.tsx` | The screen's module entry, the file its row names: `mount` is the screen's own mount function. |
+
+## Restored from bitfield-packages `marketplace`
+
+The package was one boundary file, kept as written under `from-bitfield-packages-marketplace/things-to-store-and-run.json`: the `marketplace-templates` input descriptor (a table of id, name, description, category, trigger type, config and published flag), the publish-marketplace-templates action and its two triggers (on a data change, on the workspace loading), and the marketplace landing page records. It has no code; the shelf in this folder reads the kinds file instead, and the publish action ran on the retired workflow engine.
+
+| File | Purpose |
+|------|---------|
+| `from-bitfield-packages-marketplace/things-to-store-and-run.json` | Data the package carried as written. |
+| `from-bitfield-packages-marketplace/moved-from.json` | Source path and commit of each file, identities, call rows, held tests, files that still call the retired runtime. |

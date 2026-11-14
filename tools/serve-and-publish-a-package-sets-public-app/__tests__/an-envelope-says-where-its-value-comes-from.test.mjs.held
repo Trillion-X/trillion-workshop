@@ -1,0 +1,194 @@
+#!/usr/bin/env node
+// An island envelope says where its value comes from, and a new source is a DATA row.
+//
+// WHY THIS EXISTS. `island.state_envelopes` mapped a browser global to one hardcoded source, the
+// landing-offer table. A closed set with a single member reads as no set at all, which is exactly
+// how it survived: nothing looked like an enumeration until a tenant needed an envelope filled from
+// somewhere else. The tenant-fork fork needed one (its hero tiles come from a readdirSync of the
+// site directory) and paid for it with 1,664 lines of forked server.
+//
+// So the VALUE is now self-describing, `{from, path}` or `{from, key}`, and one capability map binds
+// each `from` to a resolver. This suite pins the three things that makes true: a directory-sourced
+// envelope arrives filled, a file added to that directory appears with NO description change and no
+// code change, and the bare-string shorthand still resolves, because live descriptions carry it and
+// breaking them would take down a page that has nothing to do with this feature.
+//
+// It asserts nothing about mosaics. The envelope names below are arbitrary.
+
+import { spawn } from 'node:child_process';
+import { mkdtemp, writeFile, mkdir, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { createServer } from 'node:net';
+import { request as httpRequest } from 'node:http';
+import { theBuiltEntryServer } from './built-entry-server.mjs';
+
+const PUBLIC_HOST = 'public.entry-host.test';
+
+async function freePort() {
+  return new Promise((resolve, reject) => {
+    const probe = createServer();
+    probe.on('error', reject);
+    probe.listen(0, '127.0.0.1', () => {
+      const { port } = probe.address();
+      probe.close(() => resolve(port));
+    });
+  });
+}
+
+// node:http, NOT fetch: `Host` is a forbidden header name in fetch, so a fetch-based probe
+// silently arrives as 127.0.0.1 and never matches a configured host.
+function get(port, path, host) {
+  return new Promise((resolve, reject) => {
+    const req = httpRequest(
+      { host: '127.0.0.1', port, path, method: 'GET', headers: { Host: host, Accept: 'text/html' } },
+      (response) => {
+        let body = '';
+        response.setEncoding('utf8');
+        response.on('data', (chunk) => { body += chunk; });
+        response.on('end', () => resolve({ status: response.statusCode, body }));
+      },
+    );
+    req.on('error', reject);
+    req.end();
+  });
+}
+
+const failures = [];
+function check(name, condition, detail) {
+  if (condition) console.log(`  PASS  ${name}`);
+  else { console.log(`  FAIL  ${name}${detail ? `, ${detail}` : ''}`); failures.push(name); }
+}
+
+const { server: SERVER, note: serverNote, reason: noServerReason } = await theBuiltEntryServer();
+if (!SERVER) {
+  console.log(`FAIL: ${noServerReason}`);
+  process.exit(1);
+}
+console.log(serverNote);
+
+const siteDir = await mkdtemp(join(tmpdir(), 'envelope-site-'));
+const shellStaticDir = await mkdtemp(join(tmpdir(), 'envelope-shell-'));
+const installRoot = await mkdtemp(join(tmpdir(), 'envelope-install-'));
+
+await writeFile(join(shellStaticDir, 'index.html'),
+  '<!DOCTYPE html>\n<html><head></head><body>'
+  + '<!--BITFIELD_ENTRY_ROOT_START--><div id="root"></div><!--BITFIELD_ENTRY_ROOT_END-->'
+  + '</body></html>\n', 'utf8');
+
+const tilesDir = join(siteDir, 'assets', 'tiles');
+await mkdir(tilesDir, { recursive: true });
+// Written out of order, because the listing is sorted so that the same directory always yields the
+// same page. Directory order is not a choice anyone made.
+await writeFile(join(tilesDir, 'second.jpg'), 'x', 'utf8');
+await writeFile(join(tilesDir, 'first.jpg'), 'x', 'utf8');
+// A subdirectory, to pin that only FILES are listed. A browser asking for a directory gets nothing.
+await mkdir(join(tilesDir, 'nested'), { recursive: true });
+
+// Deliberately a tenant with NO island bundle, whose landing is server-rendered markup. That is the
+// shape this whole collapse is for, and it is the shape that proves the envelopes belong to the
+// PAGE rather than to the island: they were emitted only by the island shell, which stayed
+// invisible for as long as every tenant with envelopes also happened to have a bundle.
+const bodyFile = join(siteDir, 'landing-body.html');
+await writeFile(bodyFile, '<main><h1>server rendered, no bundle</h1></main>\n', 'utf8');
+
+const descriptionFile = join(siteDir, 'page-description.json');
+await writeFile(descriptionFile, JSON.stringify({
+  kind: 'hosted-public-app.page-description',
+  pages: [{
+    language: 'en',
+    title: 'Envelope sources under test',
+    meta_description: 'A page that exists to be read for its envelopes.',
+    fallback_body_file: bodyFile,
+    island: {
+      mount_element_id: 'test-root',
+      state_envelopes: {
+        __tilesForThisPage__: { from: 'served_directory', path: '/assets/tiles' },
+        __offerForThisPage__: 'anOfferKeyNothingProvides',
+        __fromNowhere__: { from: 'a-source-nothing-provides', key: 'whatever' },
+      },
+    },
+  }],
+}), 'utf8');
+
+const port = await freePort();
+const deadEnginePort = await freePort();
+const child = spawn(process.execPath, [SERVER], {
+  env: {
+    ...process.env,
+    BITFIELD_PUBLIC_ENTRY_LISTEN_HOST: '127.0.0.1',
+    BITFIELD_PUBLIC_ENTRY_LISTEN_PORT: String(port),
+    BITFIELD_PUBLIC_ENTRY_SHELL_URL: `http://127.0.0.1:${deadEnginePort}`,
+    BITFIELD_BROWSER_STATIC_DIR: shellStaticDir,
+    BITFIELD_HOST_ENTRY_SCENE_HOSTS: PUBLIC_HOST,
+    BITFIELD_PUBLIC_ENTRY_STATIC_SITE_DIR: siteDir,
+    BITFIELD_PUBLIC_PAGE_DESCRIPTION_FILE: descriptionFile,
+    BITFIELD_INSTALL_ROOT: installRoot,
+    BITFIELD_BOOT_WAIT_MS: '1000',
+  },
+  stdio: ['ignore', 'pipe', 'pipe'],
+});
+let log = '';
+child.stdout.on('data', (data) => { log += data; });
+child.stderr.on('data', (data) => { log += data; });
+
+let exitCode = 0;
+try {
+  console.log('\nan-envelope-says-where-its-value-comes-from');
+  let listening = false;
+  const deadline = Date.now() + 30000;
+  while (Date.now() < deadline) {
+    try { await get(port, '/', PUBLIC_HOST); listening = true; break; }
+    catch { await new Promise((resolve) => setTimeout(resolve, 200)); }
+  }
+  if (!listening) throw new Error(`server never listened on ${port}. log:\n${log}`);
+
+  const page = await get(port, '/', PUBLIC_HOST);
+  check('the page answers', page.status === 200, `status ${page.status}`);
+  check('a tenant with no island gets its own markup, not a mount point',
+    page.body.includes('server rendered, no bundle'),
+    `body ${JSON.stringify(page.body.slice(0, 200))}`);
+  check('a directory-sourced envelope arrives filled',
+    page.body.includes('"/assets/tiles/first.jpg"') && page.body.includes('"/assets/tiles/second.jpg"'),
+    `body ${JSON.stringify(page.body.slice(0, 400))}`);
+  check('and sorted, so the same directory is the same page',
+    page.body.indexOf('/assets/tiles/first.jpg') < page.body.indexOf('/assets/tiles/second.jpg'));
+  check('a subdirectory is not listed, because a browser cannot ask for one',
+    !page.body.includes('/assets/tiles/nested'));
+
+  check('the bare-string shorthand still resolves, so live descriptions keep working',
+    page.body.includes('window.__offerForThisPage__={"status":"unavailable"}'),
+    'the shorthand must reach the landing-offer source and yield an unavailable card');
+
+  check('an envelope naming a source nothing provides is unavailable, not a missing global',
+    page.body.includes('window.__fromNowhere__={"status":"unavailable"}'),
+    'a missing window global is a ReferenceError in someone browser instead');
+  check('and the server says which source it could not provide',
+    log.includes('a-source-nothing-provides'),
+    'silence would make a typo in a description look like an empty result');
+
+  // THE CLAIM THAT MAKES THIS A CAPABILITY RATHER THAN A FEATURE: a file added to the directory
+  // appears with no description change and no code change.
+  await writeFile(join(tilesDir, 'third.jpg'), 'x', 'utf8');
+  const afterAdd = await get(port, '/', PUBLIC_HOST);
+  check('a file added to the directory appears with no description change',
+    afterAdd.body.includes('"/assets/tiles/third.jpg"'),
+    'the listing is read per answer, so adding a tile is adding a file');
+
+  if (failures.length) {
+    console.log(`\nFAILED: ${failures.length} check(s): ${failures.join(', ')}`);
+    console.log(log.slice(-2000));
+    exitCode = 1;
+  } else {
+    console.log('\nALL CHECKS PASSED');
+  }
+} catch (error) {
+  console.log(`FAIL: ${error?.message ?? error}`);
+  exitCode = 1;
+} finally {
+  child.kill('SIGKILL');
+  await rm(siteDir, { recursive: true, force: true });
+  await rm(shellStaticDir, { recursive: true, force: true });
+  await rm(installRoot, { recursive: true, force: true });
+}
+process.exit(exitCode);

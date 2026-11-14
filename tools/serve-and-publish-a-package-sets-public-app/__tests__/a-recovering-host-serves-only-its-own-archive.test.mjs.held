@@ -1,0 +1,153 @@
+#!/usr/bin/env node
+// A recovering host serves only its OWN archived pages.
+//
+// WHY THIS EXISTS. `renderRecoveryPublicEntry` matched the requested path against an archive of
+// pages and served the winner. The match was `route_path === pathname` and nothing else: no host,
+// no partition, no tenant, no reference to the description that says who this host IS. The archive
+// it matched against was `processes/fallback-public-page-records.json`, 4.4 MB of ONE tenant's
+// articles shipped inside the generic package and bundled into EVERY tenant's binary, 385 routes of
+// it.
+//
+// So while the engine was recovering, which is the normal state after a deploy and the entire
+// reason this package exists, any host could be asked for one of those 385 paths and would answer
+// with another customer's page.
+//
+// The sibling suite `one-binary-serves-two-tenants` asserts that two tenants do not leak into each
+// other and passes, because it asks for each tenant's OWN routes. A leak that only appears on a
+// path neither tenant declared is invisible to a test that asks each tenant what it has.
+
+import { spawn } from 'node:child_process';
+import { mkdtemp, writeFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { createServer } from 'node:net';
+import { request as httpRequest } from 'node:http';
+import { theBuiltEntryServer } from './built-entry-server.mjs';
+
+const PUBLIC_HOST = 'unrelated-tenant.entry-host.test';
+// A route this tenant has never heard of, taken from the archive that used to ship in the package.
+const SOMEONE_ELSES_ROUTE = '/article/how-to-hit-a-gardening-forehand-for-beginners';
+const OWN_BODY_MARKER = 'THE ONLY CONTENT THIS TENANT HAS';
+
+async function freePort() {
+  return new Promise((resolve, reject) => {
+    const probe = createServer();
+    probe.on('error', reject);
+    probe.listen(0, '127.0.0.1', () => {
+      const { port } = probe.address();
+      probe.close(() => resolve(port));
+    });
+  });
+}
+
+function get(port, path, host) {
+  return new Promise((resolve, reject) => {
+    const req = httpRequest(
+      { host: '127.0.0.1', port, path, method: 'GET', headers: { Host: host, Accept: 'text/html' } },
+      (response) => {
+        let body = '';
+        response.setEncoding('utf8');
+        response.on('data', (chunk) => { body += chunk; });
+        response.on('end', () => resolve({ status: response.statusCode, body }));
+      },
+    );
+    req.on('error', reject);
+    req.end();
+  });
+}
+
+const failures = [];
+function check(name, condition, detail) {
+  if (condition) console.log(`  PASS  ${name}`);
+  else { console.log(`  FAIL  ${name}${detail ? `, ${detail}` : ''}`); failures.push(name); }
+}
+
+const { server: SERVER, note: serverNote, reason: noServerReason } = await theBuiltEntryServer();
+if (!SERVER) {
+  console.log(`FAIL: ${noServerReason}`);
+  process.exit(1);
+}
+console.log(serverNote);
+
+const staticDir = await mkdtemp(join(tmpdir(), 'own-archive-static-'));
+const installRoot = await mkdtemp(join(tmpdir(), 'own-archive-install-'));
+
+await writeFile(join(staticDir, 'index.html'),
+  '<!DOCTYPE html>\n<html><head></head><body>'
+  + '<!--BITFIELD_ENTRY_ROOT_START--><div id="root"></div><!--BITFIELD_ENTRY_ROOT_END-->'
+  + '</body></html>\n', 'utf8');
+
+const bodyFile = join(staticDir, 'landing-body.html');
+await writeFile(bodyFile, `<main><h1>${OWN_BODY_MARKER}</h1></main>\n`, 'utf8');
+
+// A tenant that declares NO archive of its own. It must not inherit anyone else's.
+const descriptionFile = join(staticDir, 'page-description.json');
+await writeFile(descriptionFile, JSON.stringify({
+  kind: 'hosted-public-app.page-description',
+  pages: [{
+    language: 'en',
+    title: 'An unrelated tenant',
+    meta_description: 'It has one page and no archive.',
+    fallback_body_file: bodyFile,
+  }],
+}), 'utf8');
+
+const port = await freePort();
+const deadEnginePort = await freePort();
+const child = spawn(process.execPath, [SERVER], {
+  env: {
+    ...process.env,
+    BITFIELD_PUBLIC_ENTRY_LISTEN_HOST: '127.0.0.1',
+    BITFIELD_PUBLIC_ENTRY_LISTEN_PORT: String(port),
+    BITFIELD_PUBLIC_ENTRY_SHELL_URL: `http://127.0.0.1:${deadEnginePort}`,
+    BITFIELD_BROWSER_STATIC_DIR: staticDir,
+    BITFIELD_HOST_ENTRY_SCENE_HOSTS: PUBLIC_HOST,
+    BITFIELD_PUBLIC_PAGE_DESCRIPTION_FILE: descriptionFile,
+    BITFIELD_INSTALL_ROOT: installRoot,
+    BITFIELD_BOOT_WAIT_MS: '1000',
+  },
+  stdio: ['ignore', 'pipe', 'pipe'],
+});
+let log = '';
+child.stdout.on('data', (data) => { log += data; });
+child.stderr.on('data', (data) => { log += data; });
+
+let exitCode = 0;
+try {
+  console.log('\na-recovering-host-serves-only-its-own-archive');
+  let listening = false;
+  const deadline = Date.now() + 30000;
+  while (Date.now() < deadline) {
+    try { await get(port, '/', PUBLIC_HOST); listening = true; break; }
+    catch { await new Promise((resolve) => setTimeout(resolve, 200)); }
+  }
+  if (!listening) throw new Error(`server never listened on ${port}. log:\n${log}`);
+
+  const foreign = await get(port, SOMEONE_ELSES_ROUTE, PUBLIC_HOST);
+  // THE ONE THAT WAS RED. Another customer's article, served by this tenant's host, during the
+  // recovery window that is the normal state after a deploy.
+  check('a route this tenant never declared does not serve another tenant page',
+    !/gardening|forehand/i.test(foreign.body),
+    `status ${foreign.status}, body ${JSON.stringify(foreign.body.slice(0, 240))}`);
+  check('it serves this tenant own content instead',
+    foreign.body.includes(OWN_BODY_MARKER),
+    `status ${foreign.status}`);
+
+  const own = await get(port, '/', PUBLIC_HOST);
+  check('and the tenant own landing is unaffected', own.body.includes(OWN_BODY_MARKER));
+
+  if (failures.length) {
+    console.log(`\nFAILED: ${failures.length} check(s): ${failures.join(', ')}`);
+    exitCode = 1;
+  } else {
+    console.log('\nALL CHECKS PASSED');
+  }
+} catch (error) {
+  console.log(`FAIL: ${error?.message ?? error}`);
+  exitCode = 1;
+} finally {
+  child.kill('SIGKILL');
+  await rm(staticDir, { recursive: true, force: true });
+  await rm(installRoot, { recursive: true, force: true });
+}
+process.exit(exitCode);

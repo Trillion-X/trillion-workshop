@@ -1,0 +1,507 @@
+import assert from 'node:assert/strict';
+import { makeHashCodeHexFromBytes } from '@bitfield/slot-protocol';
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  writeFileSync,
+} from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import test from 'node:test';
+
+import {
+  HostedExperienceMaterializationError,
+  materializeHostedProjectionTree,
+} from './materialize-hosted-projection-tree.mjs';
+
+function multihash(bytes) {
+  return makeHashCodeHexFromBytes(bytes);
+}
+
+function tempFixture() {
+  const root = mkdtempSync(path.join(tmpdir(), 'hosted-selected-experience-'));
+  const sources = path.join(root, 'mounted');
+  mkdirSync(sources);
+  const files = {
+    root: path.join(sources, 'root.txt'),
+    shared: path.join(sources, 'shared.txt'),
+    unselected: path.join(sources, 'unselected.txt'),
+  };
+  writeFileSync(files.root, 'selected root\n');
+  writeFileSync(files.shared, 'shared dependency\n');
+  writeFileSync(files.unselected, 'must never project\n');
+  return {
+    root,
+    output: path.join(root, 'candidate', 'experience-one'),
+    files,
+  };
+}
+
+function identity(address, revision = 'opaque-r1', object_hash = multihash(Buffer.from(address))) {
+  return { address, revision, object_hash };
+}
+
+function projectedFile(mountedPath, outputPath) {
+  const bytes = readFileSync(mountedPath);
+  return {
+    path: outputPath,
+    mounted_path: mountedPath,
+    integrity_hash: multihash(bytes),
+  };
+}
+
+function recordNode(ref, overrides = {}) {
+  return {
+    ...ref,
+    kind_ref: 'kind:placeable-value',
+    dependency_refs: [],
+    projection_files: [],
+    browser_import_bindings: [],
+    authority: {
+      data_refs: [],
+      subscription_refs: [],
+      target_refs: [],
+      navigation_refs: [],
+    },
+    ...overrides,
+  };
+}
+
+function inputFor(fixture, overrides = {}) {
+  const rootRef = identity('surface:selected');
+  const sharedRef = identity('component:shared', 'opaque-r2');
+  const unselectedRef = identity('surface:unselected', 'opaque-r9');
+  return {
+    schema: 'hosted-experience-materialization-input/v1',
+    intent: {
+      ...identity('intent:selected-experience'),
+      root_refs: [rootRef],
+      access_ref: 'access-policy:selected',
+    },
+    materializer: identity('descriptor:hosted-experience-materializer'),
+    limits: { max_records: 20, max_files: 20, max_total_bytes: 4096 },
+    records: [
+      recordNode(rootRef, {
+        dependency_refs: [sharedRef, sharedRef],
+        projection_files: [projectedFile(fixture.files.root, ['app', 'root.txt'])],
+        browser_import_bindings: [{ specifier: '@selected/shared', path: ['app', 'shared.txt'] }],
+        authority: {
+          data_refs: [identity('data:selected')],
+          subscription_refs: [identity('subscription:selected')],
+          target_refs: [identity('target:selected')],
+          navigation_refs: [identity('navigation:selected')],
+        },
+      }),
+      recordNode(sharedRef, {
+        projection_files: [projectedFile(fixture.files.shared, ['app', 'shared.txt'])],
+        authority: {
+          data_refs: [identity('data:shared'), identity('data:selected')],
+          subscription_refs: [],
+          target_refs: [],
+          navigation_refs: [],
+        },
+      }),
+      recordNode(unselectedRef, {
+        projection_files: [projectedFile(fixture.files.unselected, ['app', 'unselected.txt'])],
+        authority: {
+          data_refs: [identity('data:unselected')],
+          subscription_refs: [],
+          target_refs: [identity('target:unselected')],
+          navigation_refs: [],
+        },
+      }),
+    ],
+    ...overrides,
+  };
+}
+
+function expectCode(callback, code) {
+  assert.throws(callback, (error) => (
+    error instanceof HostedExperienceMaterializationError
+    && error.code === code
+  ));
+}
+
+test('selects only the exact transitive graph without creating a second projection tree', () => {
+  const fixture = tempFixture();
+  const fileSetOutput = path.join(fixture.root, 'selected-source-files.json');
+  const manifestOutput = path.join(fixture.root, 'experience-authority-manifest.json');
+  const result = materializeHostedProjectionTree(inputFor(fixture), fileSetOutput, manifestOutput);
+
+  assert.equal(result.selected_record_count, 2);
+  assert.equal(result.selected_file_count, 2);
+  assert.equal(existsSync(fixture.output), false);
+  const selectedFiles = JSON.parse(readFileSync(fileSetOutput, 'utf8'));
+  assert.deepEqual(selectedFiles.files.map((file) => file.path), [['app', 'root.txt'], ['app', 'shared.txt']]);
+
+  const manifest = JSON.parse(readFileSync(manifestOutput, 'utf8'));
+  assert.deepEqual(manifest.root_refs, [identity('surface:selected')]);
+  assert.deepEqual(manifest.data_address_refs, [identity('data:selected'), identity('data:shared')]);
+  assert.deepEqual(manifest.subscription_refs, [identity('subscription:selected')]);
+  assert.deepEqual(manifest.target_refs, [identity('target:selected')]);
+  assert.deepEqual(manifest.navigation_refs, [identity('navigation:selected')]);
+  assert.equal(manifest.access_ref, 'access-policy:selected');
+  assert.deepEqual(manifest.browser_import_map, { '@selected/shared': 'app/shared.txt' });
+  assert.match(manifest.authority_manifest_object_hash, /^1f:[0-9a-f]{64}$/);
+  const serialized = JSON.stringify(manifest);
+  for (const forbidden of ['projection_files', 'mounted_path', 'integrity_hash', 'sealed_closure_members']) {
+    assert.equal(serialized.includes(forbidden), false, `logical manifest copied byte membership field ${forbidden}`);
+  }
+});
+
+test('composes only declared selected browser import bindings', () => {
+  const fixture = tempFixture();
+  const result = materializeHostedProjectionTree(inputFor(fixture));
+  assert.deepEqual(result.authority_manifest.browser_import_map, { '@selected/shared': 'app/shared.txt' });
+});
+
+test('carries only one exact selected entry projection target member', () => {
+  const selectedFixture = tempFixture();
+  const selectedInput = inputFor(selectedFixture);
+  selectedInput.intent.entry_projection_target_ref = identity('target:selected');
+  const selected = materializeHostedProjectionTree(selectedInput);
+  assert.deepEqual(selected.authority_manifest.entry_projection_target_ref, identity('target:selected'));
+
+  const absentFixture = tempFixture();
+  const absent = materializeHostedProjectionTree(inputFor(absentFixture));
+  assert.equal(Object.hasOwn(absent.authority_manifest, 'entry_projection_target_ref'), false);
+
+  const missingFixture = tempFixture();
+  const missingInput = inputFor(missingFixture);
+  missingInput.intent.entry_projection_target_ref = identity('target:unselected');
+  expectCode(
+    () => materializeHostedProjectionTree(missingInput),
+    'HPA_MATERIALIZE_0037_ENTRY_PROJECTION_TARGET_INVALID',
+  );
+});
+
+test('rejects duplicate, ambiguous, and unselected browser import bindings', () => {
+  const duplicateFixture = tempFixture();
+  const duplicate = inputFor(duplicateFixture);
+  duplicate.records[1].browser_import_bindings = [{ specifier: '@selected/shared', path: ['app', 'shared.txt'] }];
+  expectCode(
+    () => materializeHostedProjectionTree(duplicate),
+    'HPA_MATERIALIZE_0035_BROWSER_IMPORT_DUPLICATE',
+  );
+
+  const ambiguousFixture = tempFixture();
+  const ambiguous = inputFor(ambiguousFixture);
+  ambiguous.records[1].browser_import_bindings = [{ specifier: '@selected/shared', path: ['app', 'root.txt'] }];
+  expectCode(
+    () => materializeHostedProjectionTree(ambiguous),
+    'HPA_MATERIALIZE_0029_BROWSER_IMPORT_AMBIGUOUS',
+  );
+
+  const missingFixture = tempFixture();
+  const missing = inputFor(missingFixture);
+  missing.records[0].browser_import_bindings = [{ specifier: '@selected/unselected', path: ['app', 'unselected.txt'] }];
+  expectCode(
+    () => materializeHostedProjectionTree(missing),
+    'HPA_MATERIALIZE_0036_BROWSER_IMPORT_TARGET_MISSING',
+  );
+});
+
+test('deduplicates identical selected files and rejects a same-path/different-byte conflict', () => {
+  const fixture = tempFixture();
+  const input = inputFor(fixture);
+  input.records[1].projection_files.push(projectedFile(fixture.files.shared, ['app', 'shared.txt']));
+  assert.equal(materializeHostedProjectionTree(input).selected_file_count, 2);
+
+  const conflictFixture = tempFixture();
+  const conflict = inputFor(conflictFixture);
+  conflict.records[1].projection_files.push(projectedFile(conflictFixture.files.unselected, ['app', 'root.txt']));
+  expectCode(
+    () => materializeHostedProjectionTree(conflict),
+    'HPA_MATERIALIZE_0017_FILE_PATH_CONFLICT',
+  );
+});
+
+test('rejects missing, stale, duplicate, and over-limit graphs before commit', () => {
+  const missingFixture = tempFixture();
+  const missing = inputFor(missingFixture);
+  missing.records = missing.records.filter((item) => item.address !== 'component:shared');
+  expectCode(
+    () => materializeHostedProjectionTree(missing),
+    'HPA_MATERIALIZE_0013_REFERENCE_MISSING',
+  );
+  assert.equal(existsSync(missingFixture.output), false);
+
+  const staleFixture = tempFixture();
+  const stale = inputFor(staleFixture);
+  stale.records[0].dependency_refs[0] = { ...stale.records[0].dependency_refs[0], object_hash: multihash(Buffer.from('stale')) };
+  expectCode(
+    () => materializeHostedProjectionTree(stale),
+    'HPA_MATERIALIZE_0014_REFERENCE_STALE',
+  );
+
+  const duplicateFixture = tempFixture();
+  const duplicate = inputFor(duplicateFixture);
+  duplicate.records.push({ ...duplicate.records[0] });
+  expectCode(
+    () => materializeHostedProjectionTree(duplicate),
+    'HPA_MATERIALIZE_0012_RECORD_DUPLICATE',
+  );
+
+  const boundedFixture = tempFixture();
+  const bounded = inputFor(boundedFixture);
+  bounded.limits.max_records = 2;
+  expectCode(
+    () => materializeHostedProjectionTree(bounded),
+    'HPA_MATERIALIZE_0011_RECORD_LIMIT',
+  );
+});
+
+test('rejects undeclared cycles and accepts one explicitly shared cycle semantics ref', () => {
+  const fixture = tempFixture();
+  const input = inputFor(fixture);
+  const root = input.records[0];
+  const shared = input.records[1];
+  shared.dependency_refs = [{ address: root.address, revision: root.revision, object_hash: root.object_hash }];
+  expectCode(
+    () => materializeHostedProjectionTree(input),
+    'HPA_MATERIALIZE_0015_CYCLE_UNDECLARED',
+  );
+
+  const declaredFixture = tempFixture();
+  const declared = inputFor(declaredFixture);
+  const declaredRoot = declared.records[0];
+  const declaredShared = declared.records[1];
+  declaredRoot.cycle_semantics_ref = 'cycle-semantics:shared-state';
+  declaredShared.cycle_semantics_ref = 'cycle-semantics:shared-state';
+  declaredRoot.dependency_refs = declaredRoot.dependency_refs.map((ref) => ({
+    ...ref,
+    cycle_semantics_ref: 'cycle-semantics:shared-state',
+  }));
+  declaredShared.dependency_refs = [{
+    address: declaredRoot.address,
+    revision: declaredRoot.revision,
+    object_hash: declaredRoot.object_hash,
+    cycle_semantics_ref: 'cycle-semantics:shared-state',
+  }];
+  assert.equal(materializeHostedProjectionTree(declared).selected_record_count, 2);
+});
+
+test('verifies mounted bytes and fails before exposing a candidate', () => {
+  const fixture = tempFixture();
+  const input = inputFor(fixture);
+  input.records[0].projection_files[0].integrity_hash = `1f:${'0'.repeat(64)}`;
+  expectCode(
+    () => materializeHostedProjectionTree(input),
+    'HPA_MATERIALIZE_0016_FILE_HASH_MISMATCH',
+  );
+  assert.equal(existsSync(fixture.output), false);
+});
+
+test('selection is deterministic and creates no separately addressable app tree', () => {
+  const fixture = tempFixture();
+  const input = inputFor(fixture);
+  const firstFiles = path.join(fixture.root, 'first-files.json');
+  const firstManifest = path.join(fixture.root, 'first-manifest.json');
+  const secondFiles = path.join(fixture.root, 'second-files.json');
+  const secondManifest = path.join(fixture.root, 'second-manifest.json');
+  materializeHostedProjectionTree(input, firstFiles, firstManifest);
+  materializeHostedProjectionTree(input, secondFiles, secondManifest);
+  assert.deepEqual(readFileSync(firstFiles), readFileSync(secondFiles));
+  assert.deepEqual(readFileSync(firstManifest), readFileSync(secondManifest));
+  assert.equal(existsSync(fixture.output), false);
+});
+
+test('emits an owner-neutral file set for the Runtime Kit archive constructor', () => {
+  const fixture = tempFixture();
+  const archive = path.join(fixture.root, 'selected-source-archive.json');
+  const manifestOutput = path.join(fixture.root, 'selected-authority-manifest.json');
+  materializeHostedProjectionTree(
+    inputFor(fixture),
+    archive,
+    manifestOutput,
+  );
+  const parsed = JSON.parse(readFileSync(archive, 'utf8'));
+  assert.equal(parsed.format, undefined);
+  assert.deepEqual(parsed.files.map((file) => file.path), [['app', 'root.txt'], ['app', 'shared.txt']]);
+  assert.equal(parsed.files.every((file) => file.multihash === undefined), true);
+  const manifest = JSON.parse(readFileSync(manifestOutput, 'utf8'));
+  assert.deepEqual(manifest.data_address_refs, [identity('data:selected'), identity('data:shared')]);
+});
+
+test('the process consumes caller-ready mounted records and contains no owner-private readers', () => {
+  const source = readFileSync(new URL('./materialize-hosted-projection-tree.mjs', import.meta.url), 'utf8');
+  for (const forbidden of [
+    'stored-data/envelope.log',
+    'things-to-store-and-run.json',
+    '--package-set-root',
+    'readPackageContracts',
+    'packageRecords',
+  ]) {
+    assert.equal(source.includes(forbidden), false, `process still contains owner-private reader ${forbidden}`);
+  }
+});
+
+test('the production materializer has no package-manager or source-text import inference', () => {
+  const source = readFileSync(new URL('./materialize-hosted-projection-tree.mjs', import.meta.url), 'utf8');
+  for (const forbidden of ['node_modules', 'package.json', 'matchAll(', 'JSON.parse(Buffer.from(file.bytes)']) {
+    assert.equal(source.includes(forbidden), false, `materializer still infers browser imports from ${forbidden}`);
+  }
+});
+
+test('uses the Runtime Kit multihash adapter rather than a package-local hash encoding', () => {
+  const source = readFileSync(new URL('./materialize-hosted-projection-tree.mjs', import.meta.url), 'utf8');
+  assert.match(source, /from '@bitfield\/slot-protocol'/);
+  assert.match(source, /makeHashCodeHexFromBytes/);
+  assert.equal(source.includes('createHash('), false);
+  assert.equal(source.includes('0x12:'), false);
+});
+
+// RENAMED 2026-09-05. It was 'isolated process scripts are source-built as self-contained stored
+// bytes', which described a build that ran at admission time from a manifest declaration. Commit
+// e0022dc3e removed that mechanism from 805 manifests, so the old name named a system this corpus
+// no longer has, and a test whose NAME is stale is worse than one whose body is: the body fails and
+// tells you, the name just quietly misleads whoever greps for it.
+test('isolated process scripts are served from build output that names what produced it', () => {
+  const boundary = JSON.parse(readFileSync(
+    new URL('../things-to-store-and-run.json', import.meta.url),
+    'utf8',
+  ));
+  const byName = new Map(
+    boundary.things
+      .filter((thing) => thing.type === 'stored_bytes')
+      .map((thing) => [thing.name, thing]),
+  );
+  for (const [name, sourceFile] of [
+    ['materialize-hosted-projection-tree', 'processes/materialize-hosted-projection-tree.mjs'],
+    ['prepare-publication-records', 'processes/prepare-publication-records.mjs'],
+  ]) {
+    const storedBytes = byName.get(name);
+    // THIS ASSERTION WAS REWRITTEN ON 2026-09-05 AFTER I GOT IT WRONG TWICE, and the history is the
+    // useful part because both wrong answers were reasonable.
+    //
+    // It used to assert `source_path === undefined` and then walk a `build.sequence`. That was how a
+    // blob said "I am produced, and here is how". It went red, and my first move was to soften it to
+    // accept any `built-stored-bytes/` path. My second move was to revert that, because the declared
+    // rule `a-built-blob-must-declare-what-produced-it` flags these same two entries and I read the
+    // agreement as proof the old assertion was right.
+    //
+    // BOTH WERE WRONG, and `git log -L` on the manifest lines settled it in one command. Commit
+    // `e0022dc3e` on 2026-09-02 moved this convention across the whole corpus: 13,659 files, 805
+    // manifest `build` blocks REMOVED, 1,644 `built-stored-bytes/` source paths ADDED, and
+    // `scripts/package-entry-byte-build-lib.mjs` rewritten underneath. A build declaration here is
+    // not the current shape and restoring one would fight the corpus.
+    //
+    // THE RULE IS STILL RIGHT, about something narrower than I credited it with. The new convention
+    // does record the producer: it writes a sibling `source_closure_receipt_path` naming a
+    // `.source-closure.json`. This manifest declares 13 entries served from `built-stored-bytes/`
+    // and 10 of them name a receipt, so THREE do not: this entry, `prepare-publication-records` and
+    // `run-provider-deploy`. The declared rule flags exactly three lines in this file, which is the
+    // same three.
+    //
+    // ⚠️ I FIRST WROTE "23 entries and 10 receipts, so 13 missing", and that was a counting error of
+    // the kind this repo keeps paying for: `grep -c "built-stored-bytes/"` counts the RECEIPT lines
+    // too, because a receipt path contains that folder name. 13 + 10 = 23. Count the thing you mean,
+    // not the string it shares with its sibling.
+    //
+    // AND THE THREE ARE NOT AN OVERSIGHT, WHICH RUNNING THE BUILDER PROVED. The declared owner
+    // `make-packages-match-their-source/do-work/build-entry-bytes-for-chosen-packages.mjs` was run
+    // against this package. It rebuilt all ten entry BUNDLES, repairing three that were stale, and
+    // it did not create a receipt for any of these three. That is because these are PROCESS SCRIPTS,
+    // not package entry bundles: they were produced by `build-node-process-bytes.mjs`, named in the
+    // build declaration that `e0022dc3e` deleted. So the convention move carried entry bundles to a
+    // new producer and left process scripts with none. That is the gap, and it is a producer that
+    // needs writing rather than a field that needs filling.
+    //
+    // So this now asserts the convention that exists rather than the one that used to: a blob served
+    // from build output must name what produced it. It is RED today for exactly that reason, which is
+    // the reason the rule gives, and it goes green when the receipt is written rather than when
+    // anyone edits this file.
+    //
+    // The tell that should have stopped my first softening: it failed DEEPER, on `build` being
+    // undefined. A repair that moves the error further down the same test is not a repair, it is the
+    // assertion finding a second thing wrong.
+    assert.match(
+      storedBytes.source_path ?? '',
+      /^built-stored-bytes\//,
+      `${name} should be served from build output under the convention commit e0022dc3e established`,
+    );
+    assert.equal(
+      typeof storedBytes.source_closure_receipt_path,
+      'string',
+      `${name} is served from built bytes and names nothing that produced them, so the blob is trusted on faith. This is the same defect the declared rule a-built-blob-must-declare-what-produced-it reports for this manifest.`,
+    );
+    // ⛔ TWELVE LINES DELETED HERE, and they were the meat of this test. They walked
+    // `storedBytes.build.sequence.steps`, pinning the step name, cwd, the exact argv
+    // `['node', '../../scripts/build-node-process-bytes.mjs']`, the workspace bindings and the
+    // output mount path. Every one of those assertions described a `build` block that commit
+    // `e0022dc3e` removed from 805 manifests, so they now assert the shape of something that does
+    // not exist in this corpus.
+    //
+    // They are DELETED rather than adapted, because there is nothing here to adapt them to: the
+    // build no longer happens at admission time from a declaration, it happened earlier and left
+    // bytes plus a receipt. Pinning a build sequence that is not there is not a weaker check, it is
+    // a check of a different system. What survives is the pair above, which is the whole of what
+    // this entry now promises: served from build output, and naming what produced it.
+    //
+    // The `sourceFile` values in the loop header are kept deliberately, because WHICH SOURCE a blob
+    // came from is still a real question once the build sequence is gone. It just has a better home
+    // now. The old assertion read `build.request.source_file`, one path on the manifest. The receipt
+    // records `package_local_inputs`, every input path with its multihash and sha256, so the same
+    // question is answered with the whole closure instead of one name. Asserting against the receipt
+    // is therefore stronger than what it replaces, which is the test to apply before deleting an
+    // assertion: does the replacement say more, or only less noisily?
+    const receipt = JSON.parse(readFileSync(
+      new URL(`../${storedBytes.source_closure_receipt_path}`, import.meta.url),
+      'utf8',
+    ));
+    const declaredInputs = receipt.package_local_inputs.map((input) => input.path);
+    assert.ok(
+      declaredInputs.includes(`package/${sourceFile}`),
+      `${name} has a source closure that does not list ${sourceFile}, so the receipt describes a different build than this entry claims. It lists: ${declaredInputs.join(', ')}`,
+    );
+  }
+});
+
+test('every process artifact mounted by a later step is transported by immutable CAS reference', () => {
+  const boundary = JSON.parse(readFileSync(
+    new URL('../things-to-store-and-run.json', import.meta.url),
+    'utf8',
+  ));
+  const workflow = boundary.things
+    .map((thing) => thing.payload)
+    .find((payload) => payload?.id === 'action:publish-selected-experience');
+  assert.ok(workflow, 'publication workflow must exist');
+  const steps = new Map(workflow.steps.map((step) => [step.id, step]));
+  const stepByteRefs = [];
+  const visit = (value) => {
+    if (Array.isArray(value)) return value.forEach(visit);
+    if (!value || typeof value !== 'object') return;
+    if (value.kind === 'step_bytes') stepByteRefs.push(value.step);
+    Object.values(value).forEach(visit);
+  };
+  visit(workflow);
+  assert.ok(stepByteRefs.length > 0, 'workflow must exercise addressed artifact handoffs');
+  for (const reference of new Set(stepByteRefs)) {
+    const direct = /^([^.]+)\.outputs\.(\d+)$/.exec(reference);
+    const sequence = /^([^.]+)\.steps\.(\d+)\.process_result\.outputs\.(\d+)$/.exec(reference);
+    assert.ok(direct || sequence,
+      `step_bytes reference must name a process or process-sequence artifact: ${reference}`);
+    const producerId = (direct ?? sequence)[1];
+    const producer = steps.get(producerId);
+    if (sequence) {
+      assert.equal(producer?.config?.name, 'compute.process_sequence',
+        `${reference} must come from compute.process_sequence`);
+      assert.equal(producer.config.input.steps?.$kind, 'binding',
+        `${reference} sequence steps must come from owner-resolved DATA`);
+      assert.equal(producer.config.input.steps?.resolve_nested_bindings, false,
+        `${reference} sequence steps must preserve runtime-owned nested bindings`);
+      continue;
+    }
+    const outputIndex = direct[2];
+    assert.equal(producer?.config?.name, 'compute.process', `${reference} must come from compute.process`);
+    const processInput = producer.config.input;
+    if (processInput?.$kind === 'binding') continue;
+    assert.equal(
+      processInput?.outputs?.[Number(outputIndex)]?.storage,
+      'immutable_content',
+      `${reference} would inline artifact bytes into Workflow`,
+    );
+  }
+});
