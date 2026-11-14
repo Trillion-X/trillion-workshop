@@ -56,3 +56,52 @@ test('differences name a missing file and a changed file, and match when equal',
     { path: '/etc/systemd/system/example-place.service', reason: 'missing on the computer' },
   ]);
 });
+
+// A computer whose layout row names the sign-in program: its unit (official Better Auth, tools/better-auth-official), its
+// settings file from the row, and the route block that sends the sign-in paths to it. Every value is the row's.
+const SITE_WITH_ROUTES = '{SITE} {\n{LAYOUT_ROUTES}\n\thandle {\n\t\treverse_proxy 127.0.0.1:{PORT}\n\t}\n}';
+const signIn = {
+  unit: 'example-sign-in.service', template: 'better-auth', description: 'Example sign-in', user: 'example-sign-in',
+  checkout: '/opt/example/workshop/tools/better-auth-official', node: '/usr/bin/node', npm: '/usr/bin/npm', npx: '/usr/bin/npx',
+  state: '/var/lib/example-sign-in', writable: '/var/lib/example-sign-in /opt/example/workshop/tools/better-auth-official',
+  secret_vault_key: 'example-better-auth-secret', settings_file: '/var/lib/example-sign-in/settings.json',
+  settings: { port: 7311, base_url: 'https://place.example.test', base_path: '/api/auth', database_path: '/var/lib/example-sign-in/auth.db' },
+};
+const withSignIn = { ...layout, caddy: { ...layout.caddy, routes: [{ route: 'better-auth', port: 7311 }] }, units: [...layout.units, signIn] };
+
+test('a layout row naming better-auth renders its unit, its settings file and its route', () => {
+  const files = renderLayout(withSignIn, SITE_WITH_ROUTES);
+  const unit = files.find(file => file.path === '/etc/systemd/system/example-sign-in.service')?.text;
+  assert.ok(unit, 'the better-auth unit is rendered');
+  assert.doesNotMatch(unit, /\{[a-z_]+\}/);
+  assert.match(unit, /^WorkingDirectory=\/opt\/example\/workshop\/tools\/better-auth-official$/m);
+  assert.match(unit, /^Environment=BETTER_AUTH_SETTINGS=\/var\/lib\/example-sign-in\/settings\.json$/m);
+  assert.match(unit, /^ExecStartPre=\/usr\/bin\/npm ci$/m);
+  assert.match(unit, /^ExecStart=.*\/usr\/bin\/node server\.mjs'$/m);
+  // The secret is named by its vault key only: systemd loads it from the credential store, the unit never holds its value.
+  assert.match(unit, /^LoadCredential=example-better-auth-secret$/m);
+  assert.match(unit, /BETTER_AUTH_SECRET="\$\(cat "\$CREDENTIALS_DIRECTORY\/example-better-auth-secret"\)"/);
+  const settings = files.find(file => file.path === '/var/lib/example-sign-in/settings.json');
+  assert.deepEqual(JSON.parse(settings.text), signIn.settings);
+  const [caddy] = files;
+  assert.match(caddy.text, /@better_auth path \/api\/auth\/\* \/\.well-known\/oauth-\*/);
+  assert.match(caddy.text, /handle @better_auth \{\n\t\treverse_proxy 127\.0\.0\.1:7311\n\t\}/);
+  assert.equal(caddy.text.match(/@better_auth path/g).length, 2, 'once per site name');
+  assert.ok(caddy.text.indexOf('handle @better_auth') < caddy.text.indexOf('reverse_proxy 127.0.0.1:7199'), 'before the catch-all');
+});
+
+test('a layout row without better-auth renders neither its unit nor its route', () => {
+  const files = renderLayout(layout, SITE_WITH_ROUTES);
+  assert.ok(!files.some(file => /sign-in/.test(file.path)));
+  assert.doesNotMatch(files[0].text, /better_auth|LAYOUT_ROUTES/);
+  const block = host => `${SITE_BLOCK.replace('{SITE}', host).replace('{PORT}', '7199')}\n`;
+  assert.equal(files[0].text, block('place.example.test') + block('www.example.test'), 'unchanged from a site block without the place');
+});
+
+test('refuses a route the row names without its values, or a route with no place in the site block', () => {
+  assert.throws(() => renderLayout({ ...withSignIn, caddy: { ...withSignIn.caddy, routes: [{ route: 'better-auth' }] } }, SITE_WITH_ROUTES), /needs port/);
+  assert.throws(() => renderLayout({ ...withSignIn, caddy: { ...withSignIn.caddy, routes: [{ route: 'nope', port: 1 }] } }, SITE_WITH_ROUTES), /unknown route/);
+  assert.throws(() => renderLayout(withSignIn, SITE_BLOCK), /no place for the layout's routes/);
+  const { secret_vault_key, ...noSecret } = signIn;
+  assert.throws(() => renderLayout({ ...withSignIn, units: [noSecret] }, SITE_WITH_ROUTES), /needs secret_vault_key/);
+});

@@ -1,0 +1,30 @@
+[Unit]
+Description={description}
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User={user}
+Group={user}
+WorkingDirectory={checkout}
+Environment=BETTER_AUTH_SETTINGS={settings_file}
+Environment=npm_config_cache={state}/npm-cache
+LoadCredential={secret_vault_key}
+ExecStartPre={npm} ci
+ExecStartPre=/bin/sh -c 'exec env BETTER_AUTH_SECRET="$(cat "$CREDENTIALS_DIRECTORY/{secret_vault_key}")" {npx} auth migrate --config auth.mjs -y'
+ExecStart=/bin/sh -c 'exec env BETTER_AUTH_SECRET="$(cat "$CREDENTIALS_DIRECTORY/{secret_vault_key}")" {node} server.mjs'
+Restart=on-failure
+RestartSec=3
+KillSignal=SIGTERM
+TimeoutStopSec=30
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths={writable}
+ProtectHome=true
+PrivateTmp=true
+LimitCORE=0
+
+[Install]
+WantedBy=multi-user.target

@@ -4,11 +4,18 @@
 // layout is that computer's row (request.host_layout, read at run time); the templates are read-data/unit-templates,
 // the units' own text with a {field} for each value a computer declares. A field the row does not give is refused,
 // so a template never renders half-filled.
-import { readFileSync } from 'node:fs';
+//
+// Every file in unit-templates is a template by its name: NAME.service a unit, NAME.conf a drop-in. Every file in caddy-routes
+// is a route block a layout may name in `caddy.routes` ({ route: NAME, ...its values }); the site block's {LAYOUT_ROUTES}
+// line is where they go, and a layout that names none renders that line away.
+import { readdirSync, readFileSync } from 'node:fs';
 
-const TEMPLATE = name => readFileSync(new URL(`../read-data/unit-templates/${name}`, import.meta.url), 'utf8');
-const UNITS = { 'serve-place': TEMPLATE('serve-place.service'), 'serve-computer': TEMPLATE('serve-computer.service'), 'serve-set-up': TEMPLATE('serve-set-up.service') };
-const DROP_INS = { nofile: TEMPLATE('nofile.conf'), 'product-settings': TEMPLATE('product-settings.conf') };
+const folder = name => new URL(`../read-data/${name}/`, import.meta.url);
+const byName = (dir, ending) => Object.fromEntries(readdirSync(folder(dir)).filter(file => file.endsWith(ending))
+  .map(file => [file.slice(0, -ending.length), readFileSync(new URL(file, folder(dir)), 'utf8')]));
+const UNITS = byName('unit-templates', '.service');
+const DROP_INS = byName('unit-templates', '.conf');
+const ROUTES = byName('caddy-routes', '.caddy');
 const SYSTEMD = '/etc/systemd/system';
 
 const fill = (template, values, where) => template.replace(/\{([a-z_]+)\}/g, (_, key) => {
@@ -18,14 +25,22 @@ const fill = (template, values, where) => template.replace(/\{([a-z_]+)\}/g, (_,
 
 /** The Caddy site file: one site block per name, each with the layout's port. `siteBlock` is the wrapper the set-up tool
  * uses, with {SITE} and {PORT} still to fill. */
-export const renderCaddy = (siteBlock, { site_hosts, port, releases }) => {
+export const renderCaddy = (siteBlock, { site_hosts, port, releases, routes = [] }) => {
   if (!Array.isArray(site_hosts) || !site_hosts.length) throw new Error('caddy.site_hosts needs at least one name');
   if (siteBlock.includes('{releases}') && !releases) throw new Error('caddy.releases needs the folder the /engine-releases/ route serves');
-  return site_hosts.map(host => `${siteBlock.replaceAll('{SITE}', host).replaceAll('{PORT}', String(port)).replaceAll('{releases}', releases ?? '')}\n`).join('');
+  if (routes.length && !siteBlock.includes('\n{LAYOUT_ROUTES}')) throw new Error("the site block has no place for the layout's routes ({LAYOUT_ROUTES})");
+  const blocks = routes.map(values => {
+    const where = `caddy route ${values.route}`;
+    if (ROUTES[values.route] === undefined) throw new Error(`${where} is an unknown route`);
+    return `\n${fill(ROUTES[values.route], values, where).trimEnd()}`;
+  }).join('');
+  const block = siteBlock.replace('\n{LAYOUT_ROUTES}', () => blocks);
+  return site_hosts.map(host => `${block.replaceAll('{SITE}', host).replaceAll('{PORT}', String(port)).replaceAll('{releases}', releases ?? '')}\n`).join('');
 };
 
 /** Every file a layout declares: { path, text }. A unit's drop-ins are the names it lists in `drop_ins`. With the product
- * settings' text (the verified product data), each unit that names a `product_settings` file declares that file too. */
+ * settings' text (the verified product data), each unit that names a `product_settings` file declares that file too. A unit
+ * whose row gives `settings` and a `settings_file` declares that file as the row's settings, as JSON. */
 export function renderLayout(layout, siteBlock, productSettings) {
   const files = [{ path: '/etc/caddy/Caddyfile', text: renderCaddy(siteBlock, layout.caddy) }];
   for (const unit of layout.units ?? []) {
@@ -34,6 +49,10 @@ export function renderLayout(layout, siteBlock, productSettings) {
     if (!template) throw new Error(`${where} names an unknown template ${unit.template}`);
     files.push({ path: `${SYSTEMD}/${unit.unit}`, text: fill(template, unit, where) });
     if (productSettings !== undefined && unit.product_settings) files.push({ path: unit.product_settings, text: productSettings });
+    if (unit.settings !== undefined) {
+      if (!unit.settings_file) throw new Error(`${where} gives settings but no settings_file`);
+      files.push({ path: unit.settings_file, text: `${JSON.stringify(unit.settings, null, 2)}\n` });
+    }
     for (const name of unit.drop_ins ?? []) {
       const dropIn = DROP_INS[name];
       if (!dropIn) throw new Error(`${where} names an unknown drop-in ${name}`);

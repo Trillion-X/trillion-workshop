@@ -33,9 +33,10 @@ const SETUP = fileURLToPath(new URL('./set-up-the-machine.sh', import.meta.url))
 const CAP_JOURNAL = fileURLToPath(new URL('./cap-the-journal.sh', import.meta.url));
 const UPDATE = fileURLToPath(new URL('./update-a-computer.sh', import.meta.url));
 const SETTINGS = JSON.parse(readFileSync(new URL('../read-data/settings.json', import.meta.url), 'utf8'));
-// Each name's Caddy site block: the wrapper with every route block the settings name, in order, each its own file.
+// Each name's Caddy site block: the wrapper with every route block the settings name, in order, each its own file, then the
+// {LAYOUT_ROUTES} line where the route blocks one computer's layout row names go (render-layout.mjs).
 export const SITE_BLOCK = readFileSync(new URL('../read-data/caddy-site-block.caddy', import.meta.url), 'utf8').trimEnd()
-  .replace('{ROUTES}', () => SETTINGS.caddy_routes.map(name => readFileSync(new URL(`../read-data/caddy-routes/${name}.caddy`, import.meta.url), 'utf8').trimEnd()).join('\n'));
+  .replace('{ROUTES}', () => [...SETTINGS.caddy_routes.map(name => readFileSync(new URL(`../read-data/caddy-routes/${name}.caddy`, import.meta.url), 'utf8').trimEnd()), '{LAYOUT_ROUTES}'].join('\n'));
 /** The launch setting that names the product settings file, and where that file is on the machine. */
 export const productSettings = { launch_setting: SETTINGS.product_settings.launch_setting, file: SETTINGS.product_settings.file };
 const q = text => `'${String(text).replace(/'/g, `'\\''`)}'`;
@@ -113,7 +114,8 @@ export async function applyHostLayout(machine, layout, run = onMachine, product)
   const accounts = await Promise.all(layout.units.map(unit => run(machine, `getent passwd ${q(unit.user)} >/dev/null || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })));
   if (accounts.includes(false)) await run(machine, `sh -s -- ${q(JSON.stringify(layout))}`, readFileSync(SETUP));
   // A product settings file is the unit's own: its user owns it and it is private (0600), as serve writes it.
-  const owner = path => layout.units.find(unit => unit.product_settings === path)?.user;
+  const ownedBy = path => layout.units.find(unit => unit.product_settings === path || unit.settings_file === path);
+  const owner = path => ownedBy(path)?.user;
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
   for (const { path, text } of writes) {
     if (live[path] !== undefined) await run(machine, `cp -p ${q(path)} ${q(`${path}.bak-${stamp}`)}`);
@@ -126,7 +128,7 @@ export async function applyHostLayout(machine, layout, run = onMachine, product)
       await run(machine, `install -d -m 0755 ${q(dirname(path))} && install -m 0644 -o root -g root /dev/stdin ${q(path)}`, text);
     }
   }
-  const unitOf = path => layout.units.find(unit => unit.product_settings === path)?.unit ?? path.match(/\/([^/]+\.service)(?:\.d\/[^/]+)?$/)?.[1];
+  const unitOf = path => ownedBy(path)?.unit ?? path.match(/\/([^/]+\.service)(?:\.d\/[^/]+)?$/)?.[1];
   const units = [...new Set(writes.map(({ path }) => unitOf(path)).filter(Boolean))];
   const running = new Set(writes.filter(({ path }) => live[path] !== undefined).map(({ path }) => unitOf(path)));
   if (units.length) await run(machine, 'systemctl daemon-reload');

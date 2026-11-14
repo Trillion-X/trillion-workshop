@@ -1,0 +1,4 @@
+	@better_auth path /api/auth/* /.well-known/oauth-*
+	handle @better_auth {
+		reverse_proxy 127.0.0.1:{port}
+	}

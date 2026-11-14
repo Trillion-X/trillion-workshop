@@ -102,3 +102,20 @@ test('a restarted unit must answer its health row on the machine, or the apply f
   const crashing = async (m, command) => command.includes('curl') ? '000' : healthy(m, command);
   await assert.rejects(applyHostLayout(machine, layout, crashing), /example-place\.service answered nothing on \/readyz, not 200/);
 });
+
+test('a sign-in unit\'s settings file from its row is owned by its user, and a changed one restarts only that unit', async () => {
+  const signIn = {
+    unit: 'example-sign-in.service', template: 'better-auth', description: 'Example sign-in', user: 'example-sign-in',
+    checkout: '/opt/example/workshop/tools/better-auth-official', node: '/usr/bin/node', npm: '/usr/bin/npm', npx: '/usr/bin/npx',
+    state: '/var/lib/example-sign-in', writable: ['/var/lib/example-sign-in'], secret_vault_key: 'example-better-auth-secret',
+    settings_file: '/var/lib/example-sign-in/settings.json', settings: { port: 7311, base_path: '/api/auth' },
+  };
+  const withSignIn = { ...layout, caddy: { ...layout.caddy, routes: [{ route: 'better-auth', port: 7311 }] }, units: [...layout.units, signIn] };
+  const live = Object.fromEntries(renderLayout(withSignIn, SITE_BLOCK).map(({ path, text }) => [path, text]));
+  live['/var/lib/example-sign-in/settings.json'] = '{"port":7000}\n';
+  const { run, commands } = computer(live);
+  const { written, restarted } = await applyHostLayout(machine, withSignIn, run);
+  assert.deepEqual(written, ['/var/lib/example-sign-in/settings.json']);
+  assert.deepEqual(restarted, ['example-sign-in.service']);
+  assert.ok(commands.some(({ command }) => command === "install -m 0600 -o 'example-sign-in' -g 'example-sign-in' /dev/stdin '/var/lib/example-sign-in/settings.json'"));
+});

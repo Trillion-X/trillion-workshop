@@ -16,6 +16,12 @@ A start request names `lease_file`, `machine`, `name`, `ssh`, `port`, `engine` a
 
 Updates back up replaced config, service unit, settings and release pointer. A failed service health check or sign-up response restores them. Explicit rollback uses the same backup and layout. Removal deletes only resources the saved lease owns; adopted machines are forgotten without deleting them.
 
+## Host layout rows
+
+A computer's layout row (`request.host_layout`) lists its `units` and its `caddy` site. Each unit names a `template`: any file `read-data/unit-templates/NAME.service`, filled from the row's own fields (a field the row does not give is refused). `caddy.routes` lists the route blocks this computer adds before its catch-all, each `{ route: NAME, ...its values }` from `read-data/caddy-routes/NAME.caddy`; a computer that names none renders exactly as before.
+
+Sign-in: a row that names a unit with template `better-auth` runs official Better Auth (`tools/better-auth-official`) from its `checkout`, after `npm ci` and `auth migrate`, with its `settings` written as JSON to its `settings_file`. The secret is named by `secret_vault_key` only: systemd loads it from the credential store (`LoadCredential=`, `/etc/credstore/KEY`) and the unit never holds its value. Its route, `{ route: 'better-auth', port }`, sends `/api/auth/*` and `/.well-known/oauth-*` to it. A row without them renders neither.
+
 ## Source and checks
 
 This is the existing canonical `start-a-computer` owner, recovered from its committed public origin implementation. Earlier product-filled DATA remains in that Git history; it is not a production default here. Recovery does not assert a new historical byte-copy baseline. The old `start-a-place` working files are outside this recovery's custody.
