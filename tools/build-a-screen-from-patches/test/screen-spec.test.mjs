@@ -6,8 +6,17 @@
 // lines as the person's tool, and the AI app bridge hands the growing arguments of a call to the view.
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { boundPath, checkElement, checkSpec, conditionHolds, resolveValue, specFromText, specStream } from '../read-data/screen-spec.mjs';
+import { setConditionEngine } from '../read-data/screen-spec.mjs';
+import { makeRowFilter } from 'trillion-workshop/tools/formula-engine/rules/filter-rows-by-rules.mjs';
+import operators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json' with { type: 'json' };
 import { applyPatch } from '../read-data/view-patch.mjs';
+
+// The formula engine decides every condition; the page fetches its bytes, this test reads them.
+const conditions = makeRowFilter({ operators, wasm: () => readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm'))) });
+await conditions.load();
+setConditionEngine(conditions.holdsNow);
 
 const line = value => JSON.stringify(value);
 const LINES = [
@@ -102,6 +111,37 @@ test('bound values are looked up, never run', () => {
   assert.equal(conditionHolds({ $or: [{ $state: '/missing' }, { $item: 'done' }] }, scope), true);
   assert.equal(conditionHolds([{ $state: '/name', eq: 'Ruth' }, { $index: true, lt: 1 }], scope), false);
   assert.equal(conditionHolds({ $state: '/rows', not: true }, scope), false);
+});
+
+// Each answer below is what the hand-written evaluator this engine replaced gave for the same condition and scope.
+test('conditions are decided by the formula engine, with the answers the hand-written evaluator gave', () => {
+  const scope = { state: { name: 'Ruth', rows: [{ title: 'A' }], none: [], n: 3, zero: 0, off: false, text: '4', obj: { k: 1 }, empty: '' }, item: { title: 'B', done: true, n: 2 }, index: 1 };
+  const cases = [
+    [undefined, true], [true, true], [false, false], ['x', true], ['', false], [0, false],
+    [[], true], [[{ $state: '/n', gt: 2 }, { $state: '/n', lt: 4 }], true], [[{ $state: '/n', gt: 2 }, { $state: '/n', lt: 3 }], false],
+    [{ $and: [] }, true], [{ $or: [] }, false], [{ $or: [{ $state: '/off' }, { $state: '/n' }] }, true],
+    [{ $state: '/name' }, true], [{ $state: '/missing' }, false], [{ $state: '/off' }, false], [{ $state: '/zero' }, false], [{ $state: '/empty' }, false],
+    [{ $state: '/rows' }, true], [{ $state: '/none' }, false], [{ $state: '/rows', not: true }, false], [{ $state: '/none', not: true }, true],
+    [{ $state: '/name', eq: 'Ruth' }, true], [{ $state: '/name', eq: 'Ruby' }, false], [{ $state: '/name', neq: 'Ruby' }, true], [{ $state: '/name', neq: 'Ruth' }, false],
+    [{ $state: '/n', eq: 3 }, true], [{ $state: '/n', eq: '3' }, false], [{ $state: '/off', eq: false }, true], [{ $state: '/empty', eq: '' }, true],
+    [{ $state: '/obj', eq: { k: 1 } }, true], [{ $state: '/rows', eq: [{ title: 'A' }] }, true], [{ $state: '/rows', eq: [{ title: 'B' }] }, false],
+    [{ $state: '/n', eq: { $state: '/n' } }, true], [{ $state: '/n', eq: { $state: '/zero' } }, false], [{ $state: '/n', neq: { $state: '/zero' } }, true],
+    [{ $state: '/missing', eq: { $state: '/alsomissing' } }, true], [{ $state: '/missing', neq: { $state: '/alsomissing' } }, false],
+    [{ $state: '/n', gt: 2 }, true], [{ $state: '/n', gt: 3 }, false], [{ $state: '/n', gte: 3 }, true], [{ $state: '/n', lt: 4 }, true], [{ $state: '/n', lt: 3 }, false], [{ $state: '/n', lte: 3 }, true],
+    [{ $state: '/text', gt: 3 }, true], [{ $state: '/text', lt: 3 }, false], [{ $state: '/n', gt: { $state: '/zero' } }, true], [{ $state: '/n', gt: 'abc' }, false],
+    [{ $state: '/missing', gt: -1 }, false], [{ $state: '/name', gt: 1 }, false], [{ $state: '/n', gt: 2, not: true }, false], [{ $state: '/n', gt: 9, not: true }, true],
+    [{ $item: 'done' }, true], [{ $item: 'title', eq: 'B' }, true], [{ $item: 'n', gte: 2 }, true], [{ $item: 'missing' }, false], [{ $item: '', eq: { title: 'B', done: true, n: 2 } }, true],
+    [{ $index: true, eq: 1 }, true], [{ $index: true, lt: 1 }, false], [{ $index: true }, true],
+    [{ $or: [{ $state: '/missing' }, { $item: 'done' }] }, true], [{ $and: [{ $item: 'done' }, { $state: '/name', eq: 'Ruth' }] }, true],
+    [{ $and: [{ $item: 'done' }, { $state: '/name', eq: 'Ruby' }] }, false],
+  ];
+  for (const [condition, answer] of cases) assert.equal(conditionHolds(condition, scope), answer, JSON.stringify(condition));
+});
+
+test('a condition nested past the depth limit does not hold', () => {
+  let nested = { $state: '/n' };
+  for (let level = 0; level < 40; level += 1) nested = { $and: [nested] };
+  assert.equal(conditionHolds(nested, { state: { n: 1 } }), false);
 });
 
 test('applyPatch changes only the path it touches and leaves the model given as it was', () => {

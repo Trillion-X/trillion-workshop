@@ -1,6 +1,6 @@
 {
   "schema": "formula-engine.rule-operators",
-  "description": "Every comparison a person can put in a filter rule, as DATA. A rule names a field, one operator id from this file and its params; compile-rules.mjs turns it into a composition-ast binding by filling the operator's template, and the formula engine evaluates that binding. Adding a comparison is one row here. `applies_to` lists the field kinds (a field descriptor's `kind`) that offer it, in menu order. `input` says what the person supplies: none, value (one), values (a list), text, or range (min and/or max). `param_form: glob` turns each text param (after param_case) from a pattern with * as the wildcard into the whole-text regular expression the template's pattern match reads. Template markers are objects: {\"$field\":\"path\"} is the field's path, {\"$param\":\"name\"} is a param. `each` repeats `binding` once per entry of a list param (bound to `as`) and joins the copies with `combine`; `parts` keeps only the parts whose `when` param is present and joins them with `combine`. `negate` appends op:core.not. `param_case: lower` lower-cases text params, matching a template that lower-cases the field.",
+  "description": "Every comparison a person can put in a filter rule, as DATA. A rule names a field, one operator id from this file and its params; compile-rules.mjs turns it into a composition-ast binding by filling the operator's template, and the formula engine evaluates that binding. Adding a comparison is one row here. `applies_to` lists the field kinds (a field descriptor's `kind`) that offer it, in menu order. `input` says what the person supplies: none, value (one), values (a list), text, or range (min and/or max). `param_form: glob` turns each text param (after param_case) from a pattern with * as the wildcard into the whole-text regular expression the template's pattern match reads. Template markers are objects: {\"$field\":\"path\"} is the field's path, {\"$param\":\"name\"} is a param. `each` repeats `binding` once per entry of a list param (bound to `as`) and joins the copies with `combine`; `parts` keeps only the parts whose `when` param is present and joins them with `combine`. `negate` appends op:core.not. `param_case: lower` lower-cases text params, matching a template that lower-cases the field. The kind `fact` is for the facts a tool reads from an event, a transcript row or a screen's state (filter-rows-by-rules.mjs holdsNow): a fact has no declared kind, so every comparison except the meaning and day, week and date-bucket ones takes it and reads the value as a field of that comparison's own kind.",
   "combinators": [
     {"id": "and", "label": "All", "sentence": "and", "op": "op:core.and"},
     {"id": "or", "label": "Any", "sentence": "or", "op": "op:core.or"}
@@ -8,7 +8,7 @@
   "operators": [
     {
       "id": "at_least_field", "label": "is at least field", "chip": "at least", "icon": "chevron-right", "input": "text",
-      "applies_to": ["number", "date", "duration", "bytes"],
+      "applies_to": ["number", "date", "duration", "bytes", "fact"],
       "field_params": ["text"],
       "binding": {"$kind": "binding", "select": {"from": "self"}, "transform": [{"op": "op:core.and", "args": {"values": [
         {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.is_null"}, {"op": "op:core.not"}]},
@@ -29,7 +29,7 @@
     },
     {
       "id": "matches_field", "label": "matches field exactly", "chip": "matches", "icon": "equal", "input": "text",
-      "applies_to": ["text", "choice", "number", "date", "boolean", "tags", "duration", "bytes", "meaning"],
+      "applies_to": ["text", "choice", "number", "date", "boolean", "tags", "duration", "bytes", "meaning", "fact"],
       "field_params": ["text"],
       "binding": {"$kind": "binding", "select": {"from": "self"}, "transform": [{"op": "op:core.and", "args": {"values": [
         {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.is_null"}, {"op": "op:core.not"}]},
@@ -45,93 +45,93 @@
     },
     {
       "id": "is_any_of", "label": "is any of", "chip": "is", "icon": "list-checks", "input": "values",
-      "applies_to": ["choice"],
+      "applies_to": ["choice", "fact"],
       "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.in_list", "args": {"values": {"$param": "values"}}}]}
     },
     {
       "id": "is_none_of", "label": "is none of", "chip": "is not", "icon": "list-x", "input": "values", "negate": true,
-      "applies_to": ["choice"],
+      "applies_to": ["choice", "fact"],
       "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.in_list", "args": {"values": {"$param": "values"}}}]}
     },
     {
       "id": "has_any_of", "label": "has any of", "chip": "has any of", "icon": "tags", "input": "values",
-      "applies_to": ["tags"],
+      "applies_to": ["tags", "fact"],
       "each": {"param": "values", "as": "value", "combine": "op:core.or"},
       "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.index_of", "args": {"value": {"$param": "value"}}}, {"op": "op:core.ge", "args": {"value": 0}}]}
     },
     {
       "id": "has_all_of", "label": "has all of", "chip": "has all of", "icon": "list-checks", "input": "values",
-      "applies_to": ["tags"],
+      "applies_to": ["tags", "fact"],
       "each": {"param": "values", "as": "value", "combine": "op:core.and"},
       "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.index_of", "args": {"value": {"$param": "value"}}}, {"op": "op:core.ge", "args": {"value": 0}}]}
     },
     {
       "id": "has_none_of", "label": "has none of", "chip": "has none of", "icon": "tag", "input": "values", "negate": true,
-      "applies_to": ["tags"],
+      "applies_to": ["tags", "fact"],
       "each": {"param": "values", "as": "value", "combine": "op:core.or"},
       "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.index_of", "args": {"value": {"$param": "value"}}}, {"op": "op:core.ge", "args": {"value": 0}}]}
     },
     {
       "id": "contains", "label": "contains", "chip": "contains", "icon": "text-search", "input": "text", "param_case": "lower",
-      "applies_to": ["text"],
+      "applies_to": ["text", "fact"],
       "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.lower"}, {"op": "op:core.contains", "args": {"value": {"$param": "text"}}}]}
     },
     {
       "id": "does_not_contain", "label": "does not contain", "chip": "does not contain", "icon": "search-x", "input": "text", "param_case": "lower", "negate": true,
-      "applies_to": ["text"],
+      "applies_to": ["text", "fact"],
       "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.lower"}, {"op": "op:core.contains", "args": {"value": {"$param": "text"}}}]}
     },
     {
       "id": "has_all_words", "label": "has all of these words", "chip": "has all of", "icon": "list-checks", "input": "words", "param_case": "lower",
-      "applies_to": ["text"],
+      "applies_to": ["text", "fact"],
       "each": {"param": "values", "as": "value", "combine": "op:core.and"},
       "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.lower"}, {"op": "op:core.contains", "args": {"value": {"$param": "value"}}}]}
     },
     {
       "id": "has_any_words", "label": "has any of these words", "chip": "has any of", "icon": "list-plus", "input": "words", "param_case": "lower",
-      "applies_to": ["text"],
+      "applies_to": ["text", "fact"],
       "each": {"param": "values", "as": "value", "combine": "op:core.or"},
       "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.lower"}, {"op": "op:core.contains", "args": {"value": {"$param": "value"}}}]}
     },
     {
       "id": "has_no_words", "label": "has none of these words", "chip": "has none of", "icon": "list-x", "input": "words", "param_case": "lower", "negate": true,
-      "applies_to": ["text"],
+      "applies_to": ["text", "fact"],
       "each": {"param": "values", "as": "value", "combine": "op:core.or"},
       "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.lower"}, {"op": "op:core.contains", "args": {"value": {"$param": "value"}}}]}
     },
     {
       "id": "is_text", "label": "is", "chip": "is", "icon": "equal", "input": "text", "param_case": "lower",
-      "applies_to": ["text"],
+      "applies_to": ["text", "fact"],
       "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.lower"}, {"op": "op:core.eq", "args": {"value": {"$param": "text"}}}]}
     },
     {
       "id": "is_true", "label": "is true", "chip": "true", "icon": "check", "input": "none",
-      "applies_to": ["boolean"],
+      "applies_to": ["boolean", "fact"],
       "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.eq", "args": {"value": true}}]}
     },
     {
       "id": "is_false", "label": "is false", "chip": "false", "icon": "x", "input": "none", "negate": true,
-      "applies_to": ["boolean"],
+      "applies_to": ["boolean", "fact"],
       "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.eq", "args": {"value": true}}]}
     },
     {
       "id": "is_not_text", "label": "is not", "chip": "is not", "icon": "equal-not", "input": "text", "param_case": "lower", "negate": true,
-      "applies_to": ["text"],
+      "applies_to": ["text", "fact"],
       "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.lower"}, {"op": "op:core.eq", "args": {"value": {"$param": "text"}}}]}
     },
     {
       "id": "starts_with", "label": "starts with", "chip": "starts with", "icon": "text-cursor-input", "input": "text", "param_case": "lower",
-      "applies_to": ["text"],
+      "applies_to": ["text", "fact"],
       "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.lower"}, {"op": "op:core.starts_with", "args": {"prefix": {"$param": "text"}}}]}
     },
     {
       "id": "has_one_containing", "label": "has one containing", "chip": "has one containing", "icon": "text-search", "input": "text", "param_case": "lower",
-      "applies_to": ["tags"],
+      "applies_to": ["tags", "fact"],
       "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.join", "args": {"delimiter": "\n"}}, {"op": "op:core.lower"}, {"op": "op:core.contains", "args": {"value": {"$param": "text"}}}]}
     },
     {
       "id": "has_none_containing", "label": "has none containing", "chip": "has none containing", "icon": "search-x", "input": "text", "param_case": "lower", "negate": true,
-      "applies_to": ["tags"],
+      "applies_to": ["tags", "fact"],
       "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.join", "args": {"delimiter": "\n"}}, {"op": "op:core.lower"}, {"op": "op:core.contains", "args": {"value": {"$param": "text"}}}]}
     },
     {
@@ -150,7 +150,7 @@
     },
     {
       "id": "between", "label": "is between", "chip": "between", "icon": "move-horizontal", "input": "range",
-      "applies_to": ["duration", "number", "bytes", "date"],
+      "applies_to": ["duration", "number", "bytes", "date", "fact"],
       "combine": "op:core.and",
       "parts": [
         {"when": "min", "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.ge", "args": {"value": {"$param": "min"}}}]}},
@@ -159,12 +159,12 @@
     },
     {
       "id": "greater_than", "label": "is more than", "chip": ">", "icon": "chevron-right", "input": "value",
-      "applies_to": ["duration", "number", "bytes"],
+      "applies_to": ["duration", "number", "bytes", "fact"],
       "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.gt", "args": {"value": {"$param": "value"}}}]}
     },
     {
       "id": "less_than", "label": "is less than", "chip": "<", "icon": "chevron-left", "input": "value",
-      "applies_to": ["duration", "number", "bytes"],
+      "applies_to": ["duration", "number", "bytes", "fact"],
       "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.lt", "args": {"value": {"$param": "value"}}}]}
     },
     {
@@ -199,40 +199,75 @@
     },
     {
       "id": "matches_glob", "label": "matches the pattern", "chip": "matches", "icon": "asterisk", "input": "text", "param_case": "lower", "param_form": "glob",
-      "applies_to": ["text"],
+      "applies_to": ["text", "fact"],
       "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.lower"}, {"op": "op:core.text_regex_match", "args": {"pattern": {"$param": "text"}}}]}
     },
     {
       "id": "matches_any_glob", "label": "matches any of these patterns", "chip": "matches any of", "icon": "asterisk", "input": "words", "param_case": "lower", "param_form": "glob",
-      "applies_to": ["text"],
+      "applies_to": ["text", "fact"],
       "each": {"param": "values", "as": "value", "combine": "op:core.or"},
       "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.lower"}, {"op": "op:core.text_regex_match", "args": {"pattern": {"$param": "value"}}}]}
     },
     {
       "id": "matches_no_glob", "label": "matches none of these patterns", "chip": "matches none of", "icon": "asterisk", "input": "words", "param_case": "lower", "param_form": "glob", "negate": true,
-      "applies_to": ["text"],
+      "applies_to": ["text", "fact"],
       "each": {"param": "values", "as": "value", "combine": "op:core.or"},
       "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.lower"}, {"op": "op:core.text_regex_match", "args": {"pattern": {"$param": "value"}}}]}
     },
     {
       "id": "is_known", "label": "is known", "chip": "is known", "icon": "circle-dot", "input": "none", "negate": true,
-      "applies_to": ["duration", "number", "bytes", "date"],
+      "applies_to": ["duration", "number", "bytes", "date", "fact"],
       "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.is_null"}]}
     },
     {
       "id": "is_unknown", "label": "is not measured", "chip": "not measured", "icon": "circle-dashed", "input": "none",
-      "applies_to": ["duration", "number", "bytes", "date"],
+      "applies_to": ["duration", "number", "bytes", "date", "fact"],
       "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.is_null"}]}
     },
     {
       "id": "is_not_empty", "label": "is not empty", "chip": "is not empty", "icon": "circle-dot", "input": "none", "negate": true,
-      "applies_to": ["text", "tags", "choice"],
+      "applies_to": ["text", "tags", "choice", "fact"],
       "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.is_empty"}]}
     },
     {
       "id": "is_empty", "label": "is empty", "chip": "is empty", "icon": "circle-dashed", "input": "none",
-      "applies_to": ["text", "tags", "choice"],
+      "applies_to": ["text", "tags", "choice", "fact"],
       "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.is_empty"}]}
+    },
+    {
+      "id": "equals", "label": "equals", "chip": "equals", "icon": "equal", "input": "any",
+      "applies_to": ["fact"],
+      "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.eq", "args": {"value": {"$param": "value"}}}]}
+    },
+    {
+      "id": "does_not_equal", "label": "does not equal", "chip": "is not", "icon": "equal-not", "input": "any", "negate": true,
+      "applies_to": ["fact"],
+      "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.eq", "args": {"value": {"$param": "value"}}}]}
+    },
+    {
+      "id": "begins_with", "label": "begins with", "chip": "begins with", "icon": "text-cursor-input", "input": "text",
+      "applies_to": ["fact"],
+      "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.starts_with", "args": {"prefix": {"$param": "text"}}}]}
+    },
+    {
+      "id": "matches_pattern", "label": "matches the pattern", "chip": "matches", "icon": "regex", "input": "text",
+      "applies_to": ["fact"],
+      "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.text_regex_match", "args": {"pattern": {"$param": "text"}}}]}
+    },
+    {
+      "id": "at_least", "label": "is at least", "chip": ">=", "icon": "chevron-right", "input": "value",
+      "applies_to": ["fact"],
+      "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.ge", "args": {"value": {"$param": "value"}}}]}
+    },
+    {
+      "id": "at_most", "label": "is at most", "chip": "<=", "icon": "chevron-left", "input": "value",
+      "applies_to": ["fact"],
+      "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.le", "args": {"value": {"$param": "value"}}}]}
+    },
+    {
+      "id": "is_truthy", "label": "is on", "chip": "on", "icon": "check", "input": "none",
+      "applies_to": ["fact"],
+      "binding": {"$kind": "binding", "select": {"from": "self", "path": {"$field": "path"}}, "transform": [{"op": "op:core.bool"}]}
     }
   ]
 }

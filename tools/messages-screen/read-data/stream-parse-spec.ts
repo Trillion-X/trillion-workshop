@@ -33,6 +33,7 @@
 // =============================================================================
 
 import type { AgentMessage, AgentMessageType } from './chat-message-types';
+import { conditionHolds } from 'trillion-workshop/tools/process-session/read-data/stream-output-text.ts';
 
 // ---------------------------------------------------------------------------
 // THE DATA SHAPE (carried on a participant's way-to-reach record)
@@ -153,14 +154,6 @@ export function parseToolInput(value: unknown): Record<string, unknown> {
 // ---------------------------------------------------------------------------
 // THE GENERIC INTERPRETER
 // ---------------------------------------------------------------------------
-
-function conditionHolds(event: unknown, cond: StreamMatchCondition): boolean {
-  const value = readPath(event, cond.path);
-  if (cond.exists === true && (value === undefined || value === null)) return false;
-  if (cond.exists === false && value !== undefined && value !== null) return false;
-  if (cond.equals !== undefined && value !== cond.equals) return false;
-  return true;
-}
 
 function readFirstText(event: unknown, paths: string[][]): string | null {
   for (const path of paths) {

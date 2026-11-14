@@ -89,3 +89,79 @@ test('in_iso_week and in_date_bucket place every day of four years in its week, 
   assert.equal(holds(field, 'in_iso_week', { text: '2026-W53' }, row('2026-12-31')), true, '2026 has 53 ISO weeks and its last Thursday is 2026-12-31');
   assert.equal(holds(field, 'in_iso_week', { text: '2027-W01' }, row('2027-01-03')), false, '2027-01-03 is a Sunday of 2026-W53');
 });
+
+// ---- a rule tree over ONE set of facts (filter-rows-by-rules.mjs holdsNow) ----
+// The comparisons the hand-written `holds` / `conditionHolds` evaluators of events, wake-stopped-chats, screen-spec and the
+// stream specs made, each decided by this engine, over blank facts (no account is read).
+import { makeRowFilter } from '../rules/filter-rows-by-rules.mjs';
+
+const factFilter = makeRowFilter({ operators, wasm: () => bytes });
+await factFilter.load();
+const rule = (field, operator, params = {}, extra = {}) => ({ kind: 'rule', field, operator, params, ...extra });
+const all = (...rules) => ({ kind: 'group', combinator: 'and', negate: false, rules });
+const any = (...rules) => ({ kind: 'group', combinator: 'or', negate: false, rules });
+const none = (...rules) => ({ kind: 'group', combinator: 'and', negate: true, rules });
+const factsHold = (tree, facts) => factFilter.holdsNow(tree, facts);
+
+test('facts: an empty or missing tree holds', () => {
+  assert.equal(factsHold(undefined, {}), true);
+  assert.equal(factsHold(all(), {}), true);
+});
+
+test('facts: equals compares any shape exactly, and does_not_equal is its opposite', () => {
+  assert.equal(factsHold(rule('a', 'equals', { value: 'x' }), { a: 'x' }), true);
+  assert.equal(factsHold(rule('a', 'equals', { value: 'x' }), { a: 'y' }), false);
+  assert.equal(factsHold(rule('a', 'equals', { value: 3 }), { a: 3 }), true);
+  assert.equal(factsHold(rule('a', 'equals', { value: false }), { a: false }), true);
+  assert.equal(factsHold(rule('a', 'equals', { value: '' }), { a: '' }), true);
+  assert.equal(factsHold(rule('a', 'equals', { value: ['p', 1] }), { a: ['p', 1] }), true);
+  assert.equal(factsHold(rule('a', 'equals', { value: ['p', 1] }), { a: ['p', 2] }), false);
+  assert.equal(factsHold(rule('a', 'equals', { value: { k: 1 } }), { a: { k: 1 } }), true);
+  assert.equal(factsHold(rule('a', 'does_not_equal', { value: 'x' }), { a: 'y' }), true);
+  assert.equal(factsHold(rule('a', 'does_not_equal', { value: 'x' }), { a: 'x' }), false);
+});
+
+test('facts: a missing fact', () => {
+  assert.equal(factsHold(rule('a', 'equals', { value: 'x' }), {}), false);
+  assert.equal(factsHold(rule('a', 'is_known'), {}), false);
+  assert.equal(factsHold(rule('a', 'is_unknown'), {}), true);
+  assert.equal(factsHold(rule('a', 'is_known'), { a: '' }), true);
+  assert.equal(factsHold(rule('a', 'is_not_empty'), { a: '' }), false);
+  assert.equal(factsHold(rule('a', 'is_not_empty'), { a: 'x' }), true);
+  console.log('does_not_equal over a missing fact:', factsHold(rule('a', 'does_not_equal', { value: 'x' }), {}));
+  console.log('negated group over a missing fact:', factsHold(none(rule('a', 'equals', { value: 'x' })), {}));
+});
+
+test('facts: one of, begins with, pattern, order', () => {
+  assert.equal(factsHold(rule('a', 'is_any_of', { values: ['p', 'q'] }), { a: 'q' }), true);
+  assert.equal(factsHold(rule('a', 'is_any_of', { values: ['p', 'q'] }), { a: 'z' }), false);
+  assert.equal(factsHold(rule('a', 'begins_with', { text: 'Ab' }), { a: 'Abc' }), true);
+  assert.equal(factsHold(rule('a', 'begins_with', { text: 'ab' }), { a: 'Abc' }), false);
+  assert.equal(factsHold(rule('a', 'matches_pattern', { text: '\\.example\\.com$' }), { a: 'host.example.com' }), true);
+  assert.equal(factsHold(rule('a', 'matches_pattern', { text: '\\.example\\.com$' }), { a: 'host.example.org' }), false);
+  assert.equal(factsHold(rule('a', 'greater_than', { value: 2 }), { a: 3 }), true);
+  assert.equal(factsHold(rule('a', 'greater_than', { value: 2 }), { a: 2 }), false);
+  assert.equal(factsHold(rule('a', 'at_least', { value: 2 }), { a: 2 }), true);
+  assert.equal(factsHold(rule('a', 'less_than', { value: 2 }), { a: 1 }), true);
+  assert.equal(factsHold(rule('a', 'at_most', { value: 2 }), { a: 2 }), true);
+  assert.equal(factsHold(rule('a', 'is_truthy'), { a: true }), true);
+  assert.equal(factsHold(rule('a', 'is_truthy'), { a: false }), false);
+  console.log('is_truthy of [] / [1] / "" / "x" / 0:', [[], [1], '', 'x', 0].map(a => factsHold(rule('a', 'is_truthy'), { a })));
+});
+
+test('facts: groups join and negate; a path is a field name', () => {
+  const tree = all(rule('/state/n', 'at_least', { value: 1 }), any(rule('/item/k', 'equals', { value: 'z' }), rule('/item/k', 'equals', { value: 'y' })));
+  assert.equal(factsHold(tree, { '/state/n': 1, '/item/k': 'y' }), true);
+  assert.equal(factsHold(tree, { '/state/n': 0, '/item/k': 'y' }), false);
+  assert.equal(factsHold(tree, id => ({ '/state/n': 2, '/item/k': 'z' })[id]), true);
+});
+
+test('facts: the existing kinds still work over facts (text lowers, choice lists)', () => {
+  assert.equal(factsHold(rule('t', 'contains', { text: 'hello' }, { field_kind: 'text' }), { t: 'Say HELLO' }), true);
+  assert.equal(factsHold(rule('c', 'is_none_of', { values: ['a'] }, { field_kind: 'choice' }), { c: 'b' }), true);
+});
+
+test('facts: a condition the engine cannot finish is refused, never read as holding', () => {
+  assert.throws(() => factsHold(rule('a', 'no_such_comparison', { value: 1 }), { a: 1 }), /could not finish/);
+  assert.throws(() => factsHold(rule('a', 'equals', {}), { a: 1 }), /could not finish/);
+});

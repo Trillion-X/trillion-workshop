@@ -57,7 +57,7 @@ import { effectsAt } from '../../ai-tool-catalog/read-data/declared-effects.ts';
 import { HOST_VERSION, compatibleRelease, oldestNeeded, withEarlierReleases } from './tool-releases.mjs';
 import { splitWriteOnly, joinHeld, heldTexts } from './write-only-input.mjs';
 import { validateModuleSurfaceRequests } from '../parts/ui/show/isolated-module-surface/module-surface-requests.mjs';
-import { PARTS_SCREEN, SCREEN_ONLY_LICENCE, checkSpec, screenOnly, screenSpecLimits } from './screen-spec.mjs';
+import { PARTS_SCREEN, SCREEN_ONLY_LICENCE, checkSpec, screenOnly, screenSpecLimits } from 'trillion-workshop/tools/build-a-screen-from-patches/read-data/screen-spec.mjs';
 
 const WAIT_SECONDS = { default: 20, max: 50 };
 const MAX_SAVED_BYTES = 20 * 1024 * 1024;

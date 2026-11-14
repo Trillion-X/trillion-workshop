@@ -19,7 +19,8 @@
 // from the handle (no HEAD-discovery delay → no cold-start loss); it falls back to
 // discovering the stream from the HEAD when a producer didn't supply it.
 
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import filterBytesAddress from 'trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm';
 import { useBitfieldData, useBitfieldFold } from '#workspace-records';
 import { readProcessSessionEventHead, type ProcessSessionState } from '../read-data/read-process-session-events';
 import {
@@ -29,11 +30,32 @@ import {
   type ProcessSessionOutputSnapshot,
   type ProcessSessionStreamHandle,
 } from '../read-data/accumulate-process-session-output';
-import { extractStreamText } from '../read-data/stream-output-text';
+import operators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json' with { type: 'json' };
+import { makeRowFilter } from 'trillion-workshop/tools/formula-engine/rules/filter-rows-by-rules.mjs';
+import { extractStreamText, streamConditionsLoaded, setStreamConditionEngine } from '../read-data/stream-output-text';
 
 /** Exact-address input owned by this hook's package. Importing entries declare
  * process-session in their dependency read scope; they do not rebind this hook. */
 const LIVE_EVENTS_INPUT = 'liveProcessSessionEvents';
+
+let conditionEngine: Promise<void> | null = null;
+
+/** True once the formula engine that decides a stream spec's conditions is loaded (from the bytes the page fetches for
+ * its filters); loads it the first time a hook asks. */
+function useStreamConditionsReady(): boolean {
+  const [ready, setReady] = useState(streamConditionsLoaded());
+  useEffect(() => {
+    if (ready) return undefined;
+    let live = true;
+    if (!conditionEngine) {
+      const filter = makeRowFilter({ operators, wasm: async () => new Uint8Array(await (await fetch(filterBytesAddress)).arrayBuffer()) });
+      conditionEngine = filter.load().then(() => setStreamConditionEngine(filter.holdsNow));
+    }
+    conditionEngine.then(() => { if (live) setReady(true); }, () => { conditionEngine = null; });
+    return () => { live = false; };
+  }, [ready]);
+  return ready;
+}
 
 const OUTPUT_TEXT_ENCODER = new TextEncoder();
 const OUTPUT_TEXT_DECODER = new TextDecoder();
@@ -85,9 +107,11 @@ export function useProcessSessionLiveOutput(handle: ProcessSessionStreamHandle |
   );
 
   const textSpec = handle?.textSpec;
+  // The spec's conditions are decided by the formula engine, so spec-read text waits until its bytes are loaded.
+  const conditionsReady = useStreamConditionsReady();
   const text = useMemo(
-    () => (textSpec ? extractStreamText(stream.outputText, textSpec) : stream.outputText),
-    [textSpec, stream.outputText],
+    () => (textSpec ? (conditionsReady ? extractStreamText(stream.outputText, textSpec) : '') : stream.outputText),
+    [textSpec, stream.outputText, conditionsReady],
   );
 
   const streamTerminal = isTerminal(stream.state);
@@ -120,8 +144,9 @@ export function useProcessSessionLiveOutput(handle: ProcessSessionStreamHandle |
   const terminalText = useMemo(() => {
     if (!terminalBytes || terminalBytes.length === 0) return null;
     const raw = OUTPUT_TEXT_DECODER.decode(terminalBytes);
+    if (textSpec && !conditionsReady) return null;
     return textSpec ? extractStreamText(raw, textSpec) : raw;
-  }, [terminalBytes, textSpec]);
+  }, [terminalBytes, textSpec, conditionsReady]);
 
   // The authoritative snapshot, when present, supersedes the live fold for both text and
   // completeness — its very existence proves the producer reached EOF+exit with the full

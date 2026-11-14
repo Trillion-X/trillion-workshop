@@ -32,7 +32,7 @@ import { VIEW_DATA, withSaid, withViewData } from './tool-reply.mjs';
 import { wornLook } from './page-look.mjs';
 import { lookDocumentCss } from 'trillion-workshop/tools/screen-look/read-data/look-document-css.js';
 import { EMBEDDED_SHELL_CSS } from 'trillion-workshop/tools/screen-look/embedded-shell-css.mjs';
-import { PARTS_SCREEN, partsGuide, screenSpecAi, screenSpecLimits, specFromText } from './screen-spec.mjs';
+import { PARTS_SCREEN, partsGuide, screenSpecAi, screenSpecLimits, specFromText } from 'trillion-workshop/tools/build-a-screen-from-patches/read-data/screen-spec.mjs';
 
 export const SCREEN_VIEW_URI = settings.view.uri;
 const VIEW_MIME_TYPE = 'text/html;profile=mcp-app';

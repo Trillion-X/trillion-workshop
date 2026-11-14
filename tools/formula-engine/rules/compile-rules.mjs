@@ -77,6 +77,8 @@ function ready(operator, params) {
   // A comparison repeated for each entry of a list param (tags, words) is
   // ready once the list holds one entry.
   if (operator.each) return Array.isArray(params[operator.each.param]) && params[operator.each.param].length > 0;
+  // `any` compares with one given value of any shape, empty text, false and null included.
+  if (operator.input === 'any') return Object.hasOwn(params, 'value');
   if (operator.input === 'values') return Array.isArray(params.values) && params.values.length > 0;
   // A comparison made of parts (a range, a day) is ready once any part is.
   if (operator.parts) return operator.parts.some(part => present(params[part.when]));

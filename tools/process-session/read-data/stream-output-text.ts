@@ -17,6 +17,7 @@
 // "text_delta", "assistant", "claude", "codex"). Those live ONLY in DATA specs.
 // Pure: no React, no DOM, no I/O. Deterministic input -> output.
 
+
 /** A condition tested against one raw event object, by explicit field path. */
 export interface StreamMatchCondition {
   /** Field path into the raw event, e.g. ["event", "delta", "type"]. */
@@ -78,12 +79,27 @@ export function firstText(value: unknown): string | null {
   return firstText(record.text) ?? firstText(record.content) ?? null;
 }
 
-function conditionHolds(event: unknown, cond: StreamMatchCondition): boolean {
-  const value = readPath(event, cond.path);
-  if (cond.exists === true && (value === undefined || value === null)) return false;
-  if (cond.exists === false && value !== undefined && value !== null) return false;
-  if (cond.equals !== undefined && value !== cond.equals) return false;
-  return true;
+// The formula engine decides every condition (rule-operators.json: is_known, is_unknown, equals); this module compares
+// nothing itself. The host gives the loaded engine with `setStreamConditionEngine` (the shape of filter-rows-by-rules.mjs
+// holdsNow); until then a condition throws rather than guess.
+type FactsHold = (tree: unknown, facts: (field: string) => unknown) => boolean;
+let holdsFacts: FactsHold | null = null;
+
+export const streamConditionsLoaded = (): boolean => holdsFacts !== null;
+
+export function setStreamConditionEngine(holds: FactsHold): void {
+  holdsFacts = holds;
+}
+
+/** Whether every part of one condition holds for a raw event: the value at `path` equals `equals`, is present
+ *  (`exists: true`) or is absent (`exists: false`). Shared by every reader of the spec shape (chat's included). */
+export function conditionHolds(event: unknown, cond: StreamMatchCondition): boolean {
+  if (!holdsFacts) throw new Error('The condition engine is not loaded: call setStreamConditionEngine first.');
+  const field = JSON.stringify(cond.path);
+  const rules: { kind: 'rule'; field: string; operator: string; params: Record<string, unknown> }[] = [];
+  if (cond.exists !== undefined) rules.push({ kind: 'rule', field, operator: cond.exists ? 'is_known' : 'is_unknown', params: {} });
+  if (cond.equals !== undefined) rules.push({ kind: 'rule', field, operator: 'equals', params: { value: cond.equals } });
+  return holdsFacts({ kind: 'group', combinator: 'and', negate: false, rules }, (id) => readPath(event, JSON.parse(id) as string[]));
 }
 
 function ruleTextPaths(rule: StreamTextRule): readonly (readonly string[])[] {

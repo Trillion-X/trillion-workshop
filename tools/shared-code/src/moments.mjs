@@ -40,6 +40,8 @@ import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
 import data from './moments.json' with { type: 'json' };
 import { handoffIdFor } from './agents.mjs';
+import operators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json' with { type: 'json' };
+import { makeRowFilter } from 'trillion-workshop/tools/formula-engine/rules/filter-rows-by-rules.mjs';
 
 export const MOMENTS_PATH = '/moments/gather';
 // What hand_off accepts as a job (src/agents.mjs handOff, src/inbound.mjs MAX_JOB).
@@ -64,24 +66,20 @@ export const wordsKey = text => String(text ?? '').toLowerCase().normalize('NFKD
 export const textKeyOf = (text, rows = data) => { const key = wordsKey(text); return key.length >= rows.same_text.min_characters && key.split(' ').length >= rows.same_text.min_words ? hash(key) : ''; };
 
 // ---- matching a rule tree (the shape src/metered-use.json uses) over facts, synchronously ----
-const lower = value => String(value ?? '').toLowerCase();
-const OPERATORS = {
-  is_any_of: (fact, params) => (params.values ?? []).map(String).includes(String(fact)),
-  is_none_of: (fact, params) => !(params.values ?? []).map(String).includes(String(fact)),
-  contains: (fact, params) => lower(fact).includes(lower(params.text)),
-  is_text: (fact, params) => lower(fact) === lower(params.text),
-  is_empty: fact => !nonempty(fact === null || fact === undefined ? '' : String(fact)),
-  is_not_empty: fact => nonempty(fact === null || fact === undefined ? '' : String(fact)),
-};
+// The formula engine decides every comparison (formula-engine/rules/rule-operators.json). A host that has loaded it gives
+// it with setConditionEngine(holds), the shape of filter-rows-by-rules.mjs holdsNow (tree, facts) -> boolean; a Node host gets it
+// loaded from the bytes the Workshop ships.
+let engine = null;
+export const setConditionEngine = given => { engine = given; };
+try {
+  const { readFileSync } = await import('node:fs');
+  const filter = makeRowFilter({ operators, wasm: () => readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm'))) });
+  await filter.load();
+  engine ??= filter.holdsNow;
+} catch { /* a host without files gives the engine with setConditionEngine */ }
 export function holds(tree, facts) {
-  if (!tree) return true;
-  if (tree.kind === 'group') {
-    const hit = tree.combinator === 'or' ? tree.rules.some(rule => holds(rule, facts)) : tree.rules.every(rule => holds(rule, facts));
-    return tree.negate ? !hit : hit;
-  }
-  const test = OPERATORS[tree.operator];
-  if (!test) throw new Error(`moments.json: no operator ${tree.operator}`);
-  return test(facts[tree.field], tree.params ?? {});
+  if (!engine) throw new Error('The condition engine is not loaded: call setConditionEngine first.');
+  return engine(tree, facts);
 }
 
 // ---- items: an arrival or an asked record seen as one member ----

@@ -10,6 +10,7 @@ import operators from 'trillion-workshop/tools/formula-engine/rules/rule-operato
 import { createRecordFilter } from '../../parts/formula-engine/rules/filter-records.mjs';
 import { makeRowFilter } from 'trillion-workshop/tools/formula-engine/rules/filter-rows-by-rules.mjs';
 import filterBytesAddress from 'trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm';
+import { setConditionEngine } from 'trillion-workshop/tools/build-a-screen-from-patches/read-data/screen-spec.mjs';
 import type { RecordViewsOptions } from '../../parts/ui/show/record-views/record-views';
 
 let fetching: Promise<Uint8Array> | null = null;
@@ -39,6 +40,20 @@ export function loadRecordFilter(): Promise<ReturnType<typeof createRecordFilter
       throw error;
     });
   return loading;
+}
+
+let conditions: Promise<void> | null = null;
+
+/** Loads the formula engine that decides a parts screen's conditions (screen-spec.mjs conditionHolds), from the same
+ * bytes every filter on this page shares. */
+export function loadScreenConditions(): Promise<void> {
+  rows ||= makeRowFilter({ operators, wasm: filterBytes });
+  const loaded = rows;
+  conditions ||= loaded.load().then(() => setConditionEngine(loaded.holdsNow)).catch(error => {
+    conditions = null;
+    throw error;
+  });
+  return conditions;
 }
 
 /** The formula engine's row filter over plain rows (`{ tree, fields, rows } -> { matches }`), as the Worker runs it

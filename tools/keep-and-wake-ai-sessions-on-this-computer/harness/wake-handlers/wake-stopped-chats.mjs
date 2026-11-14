@@ -37,6 +37,8 @@ import { homedir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { accountCaller } from '../take-open-work.mjs';
+import operators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json' with { type: 'json' };
+import { makeRowFilter, ruleTreeOfTests } from 'trillion-workshop/tools/formula-engine/rules/filter-rows-by-rules.mjs';
 
 const RULES_FILE = join(dirname(fileURLToPath(import.meta.url)), '..', 'wake-stopped-chats.json');
 export const readRules = () => JSON.parse(readFileSync(RULES_FILE, 'utf8'));
@@ -44,14 +46,13 @@ const expand = path => path.replace(/^~(?=\/|$)/, homedir());
 
 const at = (row, path) => path.reduce((value, key) => (value == null ? undefined : value[key]), row);
 
-/** One test of the DATA files' shape: { path, equals | one_of | present | starts_with }. */
+// The formula engine decides every test, from the bytes the Workshop ships.
+const conditions = makeRowFilter({ operators, wasm: () => readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm'))) });
+await conditions.load();
+
+/** One test of the DATA files' shape: { path, equals | one_of | present | starts_with }, decided by the formula engine. */
 export function holds(row, test) {
-  const value = at(row, test.path);
-  if ('equals' in test) return value === test.equals;
-  if ('one_of' in test) return test.one_of.includes(value);
-  if ('present' in test) return (value !== undefined && value !== null) === test.present;
-  if ('starts_with' in test) return typeof value === 'string' && value.startsWith(test.starts_with);
-  return false;
+  return conditions.holdsNow(ruleTreeOfTests([test]), id => at(row, JSON.parse(id)));
 }
 
 /** Parsed rows from text that may start mid-line (a tail): unreadable lines are left out. */

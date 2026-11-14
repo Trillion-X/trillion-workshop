@@ -29,9 +29,10 @@ import { ScreenState } from '../../parts/ui/show/screen-state';
 import {
   boundPath, checkElement, conditionHolds, declaredParts, pointerGet, pointerSet, readsState, resolveValue,
   screenSpecLimits, screenSpecWords, specStream,
-} from '../screen-spec.mjs';
+} from 'trillion-workshop/tools/build-a-screen-from-patches/read-data/screen-spec.mjs';
 import { declaredComponents } from './declared-parts';
 import { reasonOf } from './failure';
+import { loadScreenConditions } from './record-filter';
 import { onStoreChange } from './store-changes';
 import type { Unmount } from './lazy-screen';
 
@@ -178,6 +179,20 @@ function childrenOf(element: Element, here: Scope & { state: Record<string, unkn
   });
 }
 
+// Every element's visibility and choices are decided by the formula engine (screen-spec.mjs conditionHolds), so a screen
+// draws once the engine's bytes are loaded, the same bytes the page's record filters use; if they cannot be fetched the
+// screen says so rather than draw conditions it cannot decide.
+function ConditionsLoaded({ children }: { children: React.ReactNode }) {
+  const [state, setState] = React.useState<'loading' | 'ready' | 'failed'>('loading');
+  React.useEffect(() => {
+    let live = true;
+    loadScreenConditions().then(() => live && setState('ready'), () => live && setState('failed'));
+    return () => { live = false; };
+  }, []);
+  if (state === 'failed') return <Fallback />;
+  return state === 'ready' ? <>{children}</> : <ScreenState state={{ status: 'loading', label: screenSpecWords.loading, layout: 'rows' }} />;
+}
+
 function Screen({ host }: { host: Host }) {
   const root = React.useSyncExternalStore(host.store.subscribe, () => host.store.spec().root);
   const failure = React.useSyncExternalStore(host.store.subscribe, host.store.failure);
@@ -242,7 +257,7 @@ export function mountPartsScreen(element: HTMLElement, { call, requests = {} }: 
     if (key !== readsKey) { readsKey = key; void read(); }
     return answer;
   };
-  const mounted = mountReactSurface(element, <Screen host={{ store, run }} />);
+  const mounted = mountReactSurface(element, <ConditionsLoaded><Screen host={{ store, run }} /></ConditionsLoaded>);
   const changed = onStoreChange(read);
   const dispose = (() => { gone = true; changed(); queueMicrotask(() => mounted()); }) as PartsScreenHandle;
   dispose.push = text => take(stream.push(text));

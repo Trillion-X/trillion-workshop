@@ -340,28 +340,65 @@ export function checkSpec(spec, { requests = {}, parts = declaredParts, complete
   return { spec: { root, elements, state: object(spec?.state) ? spec.state : {}, reads }, fixes, problems };
 }
 
+// A condition is a rule tree (formula-engine/rules/compile-rules.mjs) the formula engine decides over the facts this
+// screen's scope gives; this file keeps no comparison of its own. The spec's short spelling ({ $state, eq, not }) is read
+// into the engine's rules here, and the host gives the loaded engine (the page fetches its bytes, a Node host reads them),
+// so this file loads no code of its own and a container that only checks a spec packs nothing more.
+const conditionEngine = { holdsNow: null };
+/** The host gives the loaded formula engine: `holds(tree, facts)`, the shape of filter-rows-by-rules.mjs holdsNow. Until it
+ * is given a condition throws rather than guess. */
+export function setConditionEngine(holds) {
+  conditionEngine.holdsNow = holds;
+}
+const rule = (field, operator, params = {}) => ({ kind: 'rule', field, operator, params });
+const group = (combinator, rules, negate = false) => ({ kind: 'group', combinator, negate, rules });
+// A fixed answer, as a fact the engine reads: constant:true, constant:false.
+const fixed = on => rule(`constant:${on}`, 'is_truthy');
+// The spelling's comparisons, each one a comparison row of rule-operators.json; the order ones read both sides as numbers.
+const COMPARISONS = { eq: 'equals', neq: 'does_not_equal', gt: 'greater_than', gte: 'at_least', lt: 'less_than', lte: 'at_most' };
+const ORDERED = new Set(['gt', 'gte', 'lt', 'lte']);
+
+/** The rule tree a condition means in `scope`; a field is "state:/pointer", "item:field", "index" or "number:" before one. */
+function conditionTree(condition, scope, depth) {
+  if (condition === undefined) return fixed(true);
+  if (typeof condition === 'boolean') return fixed(condition);
+  if (depth > limits.depth) return fixed(false);
+  if (Array.isArray(condition)) return group('and', condition.map(one => conditionTree(one, scope, depth + 1)));
+  if (!object(condition)) return fixed(Boolean(condition));
+  if (Array.isArray(condition.$and)) return group('and', condition.$and.map(one => conditionTree(one, scope, depth + 1)));
+  if (Array.isArray(condition.$or)) return group('or', condition.$or.length ? condition.$or.map(one => conditionTree(one, scope, depth + 1)) : [fixed(false)]);
+  const field = own(condition, '$state') ? `state:${condition.$state}` : own(condition, '$item') ? `item:${condition.$item}` : own(condition, '$index') ? 'index' : 'nothing';
+  const side = given => (object(given) && own(given, '$state') ? pointerGet(scope.state, given.$state) : given);
+  const compare = Object.keys(COMPARISONS).find(name => own(condition, name));
+  let found;
+  if (!compare) found = rule(field, 'is_truthy');
+  else if (ORDERED.has(compare)) {
+    const wanted = Number(side(condition[compare]));
+    found = Number.isNaN(wanted) ? fixed(false) : rule(`number:${field}`, COMPARISONS[compare], { value: wanted });
+  } else {
+    const wanted = side(condition[compare]);
+    // Nothing is the same as nothing: a comparison with an unset value asks whether the fact is unset.
+    if (wanted === undefined || wanted === null) found = rule(field, compare === 'eq' ? 'is_unknown' : 'is_known');
+    else found = rule(field, COMPARISONS[compare], { value: wanted });
+  }
+  return condition.not === true ? group('and', [found], true) : found;
+}
+
+const factIn = scope => function fact(name) {
+  if (name === 'constant:true') return true;
+  if (name === 'constant:false') return false;
+  if (name.startsWith('number:')) return Number(fact(name.slice('number:'.length)));
+  if (name.startsWith('state:')) return pointerGet(scope.state, name.slice('state:'.length));
+  if (name.startsWith('item:')) { const field = name.slice('item:'.length); return field === '' ? scope.item : pointerGet(scope.item, field); }
+  return name === 'index' ? scope.index : undefined;
+};
+
 /** Whether a visibility condition holds in `scope` ({ state, item, index }): true/false, one condition
  * ({ $state | $item | $index, eq | neq | gt | gte | lt | lte, not }), a list (all), { $and } or { $or }. */
 export function conditionHolds(condition, scope, depth = 0) {
   if (condition === undefined) return true;
-  if (typeof condition === 'boolean') return condition;
-  if (depth > limits.depth) return false;
-  if (Array.isArray(condition)) return condition.every(one => conditionHolds(one, scope, depth + 1));
-  if (!object(condition)) return Boolean(condition);
-  if (Array.isArray(condition.$and)) return condition.$and.every(one => conditionHolds(one, scope, depth + 1));
-  if (Array.isArray(condition.$or)) return condition.$or.some(one => conditionHolds(one, scope, depth + 1));
-  const value = own(condition, '$state') ? pointerGet(scope.state, condition.$state)
-    : own(condition, '$item') ? (condition.$item === '' ? scope.item : pointerGet(scope.item, condition.$item))
-      : own(condition, '$index') ? scope.index : undefined;
-  const side = given => (object(given) && own(given, '$state') ? pointerGet(scope.state, given.$state) : given);
-  const holds = own(condition, 'eq') ? JSON.stringify(value) === JSON.stringify(side(condition.eq))
-    : own(condition, 'neq') ? JSON.stringify(value) !== JSON.stringify(side(condition.neq))
-      : own(condition, 'gt') ? Number(value) > Number(side(condition.gt))
-        : own(condition, 'gte') ? Number(value) >= Number(side(condition.gte))
-          : own(condition, 'lt') ? Number(value) < Number(side(condition.lt))
-            : own(condition, 'lte') ? Number(value) <= Number(side(condition.lte))
-              : Array.isArray(value) ? value.length > 0 : Boolean(value);
-  return condition.not === true ? !holds : holds;
+  if (!conditionEngine.holdsNow) throw new Error('The condition engine is not loaded yet: call setConditionEngine first.');
+  return conditionEngine.holdsNow(conditionTree(condition, scope, depth), factIn(scope));
 }
 
 const itemValue = (scope, field) => (field === '' || field === undefined ? scope.item : pointerGet(scope.item, field));
