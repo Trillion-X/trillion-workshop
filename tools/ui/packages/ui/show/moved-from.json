@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/ui/show/format-money.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/packages/ui/show/format-money.ts",
+      "source_identity": "1f:d49d33743b61c6eaf0f7885218a8334f394f94cc8c14f5e29671a6e5b5c3c389",
+      "identity": "1f:d49d33743b61c6eaf0f7885218a8334f394f94cc8c14f5e29671a6e5b5c3c389"
+    }
+  ]
+}
