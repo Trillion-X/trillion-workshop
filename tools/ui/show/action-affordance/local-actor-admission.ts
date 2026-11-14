@@ -35,7 +35,7 @@ export type AdmittedOwnerWrapper = {
   readonly access_decision: JsonRecord;
 };
 
-const PRODUCT_ACCESS_AUTHORITY_TARGET = 'product-access.authorize-addressed-expiring-value-scope';
+const PRODUCT_ACCESS_AUTHORITY_TARGET = 'tool:check-a-buyer-may-open';
 const ACCESS_RULE_EVALUATE_TARGET = 'access-rule.evaluate';
 const SCOPE_SCHEMA = 'addressed-expiring-value-scope/v1';
 const UNGATED_MEMBERSHIP_REVISION = 'membership-revision:ungated';
@@ -195,7 +195,10 @@ function correlationIdFor(input: {
   return `local-admission:${makeHashCodeHexFromBytes(new TextEncoder().encode(identity))}`;
 }
 
-function authorityGuard(actor: typeof LOCAL_DESKTOP_ACTOR, target: string): JsonRecord {
+/** The one revision guard this carrier adds: tool:check-a-buyer-may-open answers that the local operator may open
+ * the local app's own (ungated) scope, and its `membership_revision` is the ungated one, so the admission fails
+ * closed if the answer ever changes. The tool takes the buyer as `subject` and the scope as an object. */
+function authorityGuard(actor: typeof LOCAL_DESKTOP_ACTOR): JsonRecord {
   const scope = {
     schema: SCOPE_SCHEMA,
     value_ref: 'access:local-app',
@@ -204,12 +207,7 @@ function authorityGuard(actor: typeof LOCAL_DESKTOP_ACTOR, target: string): Json
   };
   return {
     target: PRODUCT_ACCESS_AUTHORITY_TARGET,
-    payload: {
-      principal_ref: actor.actor_ref,
-      session_ref: actor.session_ref,
-      operation: target,
-      scope: Array.from(new TextEncoder().encode(JSON.stringify(scope))),
-    },
+    payload: { subject: actor.actor_ref, scope },
     expected_reply: { authorized: true, membership_revision: UNGATED_MEMBERSHIP_REVISION },
   };
 }
@@ -266,8 +264,8 @@ export function __resetLocalActorAdmissionForTests(): void {
 export async function localActorAdmittedWrapper(input: {
   readonly target: string;
   /** The saved value's authority may span several separately admitted actions.
-   * Product access still verifies this operation; it does not replace the
-   * decision's exact action, subject, or resource revision. */
+   * It is part of the policy revision the decision is bound to; it does not
+   * replace the decision's exact action, subject, or resource revision. */
   readonly authorityOperation?: string;
   readonly payload: JsonRecord;
   readonly recipe: AdmissionRecipe;
@@ -296,10 +294,7 @@ export async function localActorAdmittedWrapper(input: {
     resource_revision: resourceRevision,
   };
   const authorizedActionRefs = authorizedActions(input.recipe);
-  const constraints = admissionConstraints(
-    input.recipe,
-    authorityGuard(actor, input.authorityOperation ?? input.target),
-  );
+  const constraints = admissionConstraints(input.recipe, authorityGuard(actor));
   const request: JsonRecord = {
     kind: 'access-decision-request/v1',
     correlation_id: correlationIdFor({
