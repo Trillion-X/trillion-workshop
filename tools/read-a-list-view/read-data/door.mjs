@@ -28,6 +28,10 @@ import { wholeAnswer } from '../../records-door/read-data/byte-pages.mjs';
 const PROTOCOL = '2025-06-18';
 const BUSY_RETRIES = 5;
 const FIRST_WAIT_MS = 200;
+// Refusals that say the write never started because the store was busy: write_deadline_exceeded (the door's own time ran out
+// before the write began) and original_workspace_source_unavailable (the store answered DatabaseBusy: another writer held it,
+// seen refreshing the Library on Nov 13 under load 18). Only with outcome not_started: nothing was written, the same key is safe.
+const WAIT_AND_SEND_AGAIN = new Set(['write_deadline_exceeded', 'original_workspace_source_unavailable']);
 // The Workshop's tools folder, where a local tool's module is found.
 const TOOLS = new URL('../', new URL('../', import.meta.url));
 const wait = ms => new Promise(done => setTimeout(done, ms));
@@ -101,7 +105,7 @@ export async function openDoor(config, { keyOf = credentialKey } = {}) {
       // A write that ran past the door's own bound for one call (legacy_records Bounds elapsed, 5 s; a write measured 4 s
       // whatever its size, 1 row or 64) and says it never started wrote nothing: it is sent again with the same key. Splitting
       // it into smaller writes would only add calls, each paying the same fixed cost against the same bound.
-      if (answer?.code === 'write_deadline_exceeded' && answer?.outcome === 'not_started' && again) { await wait(FIRST_WAIT_MS * 2 ** attempt); continue; }
+      if (WAIT_AND_SEND_AGAIN.has(answer?.code) && answer?.outcome === 'not_started' && again) { await wait(FIRST_WAIT_MS * 2 ** attempt); continue; }
       // A door that counts this key's calls (sign_in_too_many_calls) says how long to wait; the same call is sent after it.
       if (answer?.code === 'sign_in_too_many_calls' && again) { await wait(1000 * (Number(answer.detail?.retry_after_seconds) || 60)); continue; }
       throw say(answer?.code ?? 'refused', `${method} was refused: ${JSON.stringify(answer).slice(0, 300)}`);

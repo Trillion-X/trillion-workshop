@@ -74,3 +74,26 @@ test('a write refused as over its time but possibly started is not sent again as
     await assert.rejects(door.write([{ id: 'record:loaf:rye', type: 'record:loaf', value: {} }], { key: 'k' }), /write_deadline_exceeded/);
   } finally { server.close(); }
 });
+
+test('a write refused because the store was busy and never started is sent again with the same request key', async () => {
+  const keys = [];
+  const server = createServer((request, response) => {
+    let body = '';
+    request.on('data', chunk => { body += chunk; });
+    request.on('end', () => {
+      const call = JSON.parse(body);
+      keys.push(call.params.arguments.request_key);
+      const result = keys.length < 2
+        ? { isError: true, structuredContent: { code: 'original_workspace_source_unavailable', outcome: 'not_started' } }
+        : { structuredContent: { changed: true, write_count: 1 } };
+      response.setHeader('content-type', 'application/json');
+      response.end(JSON.stringify({ jsonrpc: '2.0', id: call.id, result }));
+    });
+  });
+  await new Promise(done => server.listen(0, '127.0.0.1', done));
+  try {
+    const door = await openDoor({ ...CONFIG(server.address().port), records: { ...CONFIG(0).records, write_method: 'records:write' } }, { keyOf: async () => 'made-up-key-for-the-bakery' });
+    assert.deepEqual(await door.write([{ id: 'record:loaf:rye', type: 'record:loaf', value: {} }], { key: 'k2' }), { changed: true, write_count: 1 });
+    assert.deepEqual(keys, ['k2', 'k2']);
+  } finally { server.close(); }
+});
