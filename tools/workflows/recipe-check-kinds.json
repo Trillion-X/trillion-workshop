@@ -1,5 +1,5 @@
 {
-  "about": "The vocabulary of recipe checks. A check is { kind, says, ...the fields its kind row names }. Adding a check kind is adding a row here: the validator reads every rule from the row. Field shapes: path = a list of keys starting at one of the roots (and reading only earlier steps), words = a non-empty list of non-empty strings, count = a whole number above 0, catalog = one of the catalogs, list = any list.",
+  "about": "The vocabulary of recipe checks. A check is { kind, says, ...the fields its kind row names }. Adding a check kind is adding a row here: the validator reads every rule from the row. Field shapes: path = a list of keys starting at one of the roots (and reading only earlier steps); the `of` field of subset-of, covers and differs-from may also be a list of such paths, whose values are taken together, words = a non-empty list of non-empty strings, count = a whole number above 0, catalog = one of the catalogs, list = any list.",
   "roots": [
     { "root": "this", "meaning": "The output of the step the check belongs to." },
     { "root": "input", "meaning": "The input the person gave the workflow." },
@@ -15,7 +15,7 @@
   "kinds": [
     {
       "kind": "subset-of",
-      "meaning": "Every value at path is also a value at of.",
+      "meaning": "Every value at path is also a value at of (or at any of the paths of of, when of is a list of paths).",
       "fields": [
         { "field": "path", "shape": "path", "required": true, "refusal": "is required." },
         { "field": "of", "shape": "path", "required": true, "refusal": "is required." }
@@ -23,7 +23,7 @@
     },
     {
       "kind": "covers",
-      "meaning": "The values at path include every value at of, or every value listed in values.",
+      "meaning": "The values at path include every value at of (every path of it, when of is a list of paths), or every value listed in values.",
       "fields": [
         { "field": "path", "shape": "path", "required": true, "refusal": "is required." },
         { "field": "of", "shape": "path" },

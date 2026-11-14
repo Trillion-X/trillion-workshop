@@ -61,3 +61,17 @@ test('an unknown kind, and exists with no catalog, are not evaluated rather than
   assert.equal(exists.evaluated, false);
   assert.ok(!('passed' in unknown) && !('passed' in exists));
 });
+
+// `of` may be one path or a list of paths (the values at each are taken together): a citation may rest on any of several
+// earlier steps' findings, and a list of paths used to resolve to nothing, so every citation failed.
+test('subset-of, covers and differs-from take `of` as a list of paths and use the values at all of them', () => {
+  const context = { this: { cites: ['a1', 'b2', 'x9'], chosen: ['a1'] }, steps: { first: { items: [{ id: 'a1' }, { id: 'a2' }] }, second: { items: [{ id: 'b2' }] } } };
+  const of = [['steps', 'first', 'items', '*', 'id'], ['steps', 'second', 'items', '*', 'id']];
+  assert.deepEqual(CHECK_EVALUATORS['subset-of']({ path: ['this', 'cites', '*'], of }, context), ['x9'], 'x9 is in neither step; a1 and b2 are in one each');
+  assert.deepEqual(CHECK_EVALUATORS['subset-of']({ path: ['this', 'chosen', '*'], of }, context), []);
+  assert.deepEqual(CHECK_EVALUATORS.covers({ path: ['this', 'cites', '*'], of: [['this', 'chosen', '*'], ['steps', 'second', 'items', '*', 'id']] }, context), []);
+  assert.deepEqual(CHECK_EVALUATORS.covers({ path: ['this', 'chosen', '*'], of: [['this', 'cites', '*']] }, context), ['b2', 'x9']);
+  assert.deepEqual(CHECK_EVALUATORS['differs-from']({ path: ['this', 'cites', '*'], of }, context), ['a1', 'b2']);
+  // a single path still works as before
+  assert.deepEqual(CHECK_EVALUATORS['subset-of']({ path: ['this', 'cites', '*'], of: ['steps', 'first', 'items', '*', 'id'] }, context), ['b2', 'x9']);
+});

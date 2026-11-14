@@ -31,17 +31,21 @@ export function valuesAt(path, context) {
   return at.flatMap(value => (Array.isArray(value) ? value : [value])).filter(value => value !== undefined);
 }
 
+// The values at `of`, which is one path or a list of paths (the union of the values at each), for the checks that compare
+// against another set of values.
+const valuesAtAny = (of, context) => (Array.isArray(of) && Array.isArray(of[0]) ? of.flatMap(path => valuesAt(path, context)) : valuesAt(of, context));
+
 const textAt = (path, context) => valuesAt(path, context).map(value => (typeof value === 'string' ? value : same(value))).join('\n');
 const missingFrom = (values, from) => { const have = new Set(from.map(same)); return values.filter(value => !have.has(same(value))); };
 
 // One evaluator per row of recipe-check-kinds.json: (check, context, options) -> the values that fail it.
 export const CHECK_EVALUATORS = {
-  'subset-of': (check, c) => missingFrom(valuesAt(check.path, c), valuesAt(check.of, c)),
-  covers: (check, c) => missingFrom(check.values ?? valuesAt(check.of, c), valuesAt(check.path, c)),
+  'subset-of': (check, c) => missingFrom(valuesAt(check.path, c), valuesAtAny(check.of, c)),
+  covers: (check, c) => missingFrom(check.values ?? valuesAtAny(check.of, c), valuesAt(check.path, c)),
   'mentioned-in': (check, c) => { const text = textAt(check.in, c).toLowerCase(); return valuesAt(check.path, c).filter(value => !text.includes(String(value).toLowerCase())); },
   'excludes-words': (check, c) => { const text = textAt(check.path, c).toLowerCase(); return check.words.filter(word => text.includes(word.toLowerCase())); },
   'distinct-at-least': (check, c) => { const values = valuesAt(check.path, c); return new Set(values.map(same)).size >= check.count ? [] : values; },
-  'differs-from': (check, c) => { const of = new Set(valuesAt(check.of, c).map(same)); return valuesAt(check.path, c).filter(value => of.has(same(value))); },
+  'differs-from': (check, c) => { const of = new Set(valuesAtAny(check.of, c).map(same)); return valuesAt(check.path, c).filter(value => of.has(same(value))); },
   // One lane per agent of the step, each handed back with the id of its own job, and each such job one that ran: the
   // lane ids are the step's own (laneIds), a job's id is fixed by the run, step and lane (laneJobId) so no job stands
   // for two lanes, and `ran-job` is the catalog the caller looks a finished job up in, answering the taker that finished it (nothing when it did not run); a taker that finished two lanes fails both. The failing values are lane ids.
@@ -54,12 +58,12 @@ export const CHECK_EVALUATORS = {
       if (lanes.has(lane)) failing.add(lane); else lanes.set(lane, job);
       if (jobs.has(job)) failing.add(lane); else jobs.add(job);
     }
-    for (const lane of laneIds(step)) {
+    for (const lane of laneIds(step, c.steps)) {
       const job = lanes.get(lane);
       const own = c.run === undefined ? typeof job === 'string' && job.endsWith(`:${step.id}:${lane}`) : job === laneJobId(c.run, step.id, lane);
       if (!lanes.has(lane) || !own) failing.add(lane);
     }
-    for (const lane of lanes.keys()) if (!laneIds(step).includes(lane)) failing.add(lane);
+    for (const lane of lanes.keys()) if (!laneIds(step, c.steps).includes(lane)) failing.add(lane);
     if (failing.size) return [...failing];
     const ran = catalogs['ran-job'];
     if (typeof ran !== 'function') return { reason: 'no ran-job catalog was given to look the lanes\' jobs up in' };
