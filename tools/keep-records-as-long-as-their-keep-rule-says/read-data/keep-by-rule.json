@@ -1,0 +1,6 @@
+{
+  "_what": "Words and the one default of the keep tool (keep-by-rule.mjs). `resource` is the record store resource a rule row is read from and applied in when the person's wake declaration names none: the account's own records, where the person's lists live. `said` is what the tool says; {rule} and {resource} are filled in.",
+  "resource": "own-records",
+  "said": "Asked the engine to apply the keep rule {rule} in {resource}.",
+  "no_rule": "Say which keep rule: rule is the id of its row."
+}

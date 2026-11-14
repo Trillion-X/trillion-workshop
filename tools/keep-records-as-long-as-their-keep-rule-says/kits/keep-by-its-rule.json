@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:keep-by-its-rule's own row (its words, input schema and sample run) and what its sample run answered here; read it before relying on it",
+  "start_here": "Put a wake declaration of yours on tool:keep-by-its-rule with {\"rule\": \"<the id of your keep rule's row>\"} and the schedule you want; switch it on. Each firing asks your engine to apply that rule: it destroys, restorable for the undo window, the records of the rule's kind that the rule's row says have expired.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes the id of a keep rule's row and hands it to the engine, which reads the row; it keeps no row itself.",
+  "workflows": [],
+  "tools": [
+    "tool:keep-by-its-rule"
+  ],
+  "instructions": [
+    "1. Make a keep rule: a row of kind record:keep-rule with enabled, keeps_kind (the kind of record to keep), expire_when (the formula engine's rule tree and its fields; the fact age_ms is how long ago a record's newest write was, in milliseconds), page (records one firing destroys) and walk (records one firing looks at, at least the page).",
+    "2. Declare a wake of yours on tool:keep-by-its-rule with the input {\"rule\": \"<the row's id>\"} and the schedule you want (every hour, every night); it stays off until you switch it on.",
+    "3. Edit the row to change what is kept; the next firing reads it again. Turn enabled off to stop the rule. A record destroyed stays restorable until the undo window ends."
+  ],
+  "worked_examples": [
+    {
+      "title": "Ask the engine to apply one keep rule on its own sample",
+      "ask": "Apply my keep rule now",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-by-its-rule",
+            "input": {
+              "rule": "record:keep-rule:example"
+            }
+          }
+        }
+      },
+      "given": "The input {\"rule\": \"record:keep-rule:example\"}.",
+      "hands_back": "It answered {\"said\": \"Asked the engine to apply the keep rule record:keep-rule:example in own-records.\"} and the engine's keep effect for that rule."
+    }
+  ]
+}

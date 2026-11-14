@@ -18,6 +18,20 @@
   ],
   "capabilities": [
     {
+      "capability": "apply one of the person's keep rules from their own schedule: ask the engine to destroy, through its restorable erasure, the records of a kind that the rule's row says have expired",
+      "owner": [
+        "tools/keep-records-as-long-as-their-keep-rule-says/"
+      ],
+      "entry": "tools/keep-records-as-long-as-their-keep-rule-says/tool-rows.json",
+      "evidence": "The tool answers the engine's keep effect for the rule row it is given; the engine (trillion-rust src/wake.rs Effect::Keep, src/storage/record_store/keep.rs) reads the row, decides each record with the formula engine and destroys through RecordStore::erase_cascading. The person's wake declaration is the schedule; nothing here counts time or removes a record.",
+      "distinct_from": [
+        {
+          "job": "delete or archive a person's files and folders, put them back exactly as they were, set how long Recently Deleted and Archived keep things, and say what is due when",
+          "why": "That owner sets aside the person's files and folders by name for a per-person number of days; this one keeps any kind of the person's own records as long as a rule row of theirs says, by the formula the row holds, on the schedule the person declares."
+        }
+      ]
+    },
+    {
       "capability": "reconcile generic execution receipts with source, meter and provider-price revisions so missing evidence makes forecast coverage visibly incomplete or stale",
       "owner": [
         "tools/keep-measurements-current/"

@@ -1,0 +1,123 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:keep-records-as-long-as-their-keep-rule-says",
+        "needs": {
+          "expected_seconds": 2,
+          "priority": 5,
+          "network_egress": false
+        },
+        "id": "tool:keep-by-its-rule",
+        "listed_on": "2026-11-14T16:00:00Z",
+        "label": "Apply one of my keep rules",
+        "job": "Ask my engine to apply one of my keep rules now: it destroys, restorable for the undo window, the records of one kind that the rule's row says have expired; my own schedule says when",
+        "description": "A keep rule is a row of mine (record:keep-rule): which kind of record, when a record of it has expired (the formula engine's rule tree over the record's own values and its age), and how many records one firing may destroy and look at. A wake declaration of mine names this tool with {rule} (the row's id) and its own schedule; the run hands the engine the rule, and the engine reads the row, decides each record with the formula engine and destroys through its restorable erasure. This tool counts no time and removes nothing itself.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "rule"
+          ],
+          "properties": {
+            "rule": {
+              "type": "string",
+              "description": "The id of the keep rule's row."
+            },
+            "resource": {
+              "type": "string",
+              "description": "The store the rule's row and records are in; my own records when left out."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "computer",
+          "workdir": "/opt/keep-records-as-long-as-their-keep-rule-says",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/keep-records-as-long-as-their-keep-rule-says/read-data/keep-by-rule.mjs",
+            "keepByRule"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "keep-records-as-long-as-their-keep-rule-says",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/keep-records-as-long-as-their-keep-rule-says"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "rule": "record:keep-rule:example"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
