@@ -125,6 +125,19 @@ pub(crate) fn current(store: &Store<'_>, cookie_header: Option<&str>) -> Result<
     }))
 }
 
+/// The principal the live session row `id` acts as now, read without renewal or any write: how a run a signed-in page
+/// started is admitted again by its cause's own sign-in name (`session:<id>`), never by a copy of the cookie. An ended
+/// or expired session answers `None`, so the run stops at its next check.
+pub(crate) fn named(store: &Store<'_>, id: &str) -> Result<Option<Principal>> {
+    Ok(store.get::<Session>(Family::Sessions, id)?.map(|row| Principal {
+        sign_in: format!("{SESSION_SIGN_IN}{}", row.id),
+        account: row.account,
+        client_id: None,
+        scopes: contract().scopes.clone(),
+        expires_at_ms: row.expires_at,
+    }))
+}
+
 /// The session row named by a request's `Cookie` header, renewed if due: how and when it started, for a step that asks
 /// for a recent sign-in (`ways::may_change`).
 pub(crate) fn current_row(store: &Store<'_>, cookie_header: Option<&str>) -> Result<Option<Row<Session>>> {

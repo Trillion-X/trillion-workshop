@@ -88,9 +88,12 @@ pub(crate) fn scopes_known(scopes: &[String]) -> bool {
     scopes.iter().all(|scope| settings.scopes.contains(scope) || *scope == settings.account_scope)
 }
 
+/// How a principal names the personal key it signs in as: `key:<key id>`.
+pub(crate) const KEY_SIGN_IN: &str = "key:";
+
 /// How a principal names the personal key `id` it signs in as: `key:<key id>`.
 pub(crate) fn sign_in_name(id: &str) -> String {
-    format!("key:{id}")
+    format!("{KEY_SIGN_IN}{id}")
 }
 
 /// The keys of `account`.
@@ -126,6 +129,13 @@ pub(crate) fn check(store: &Store<'_>, key: &str) -> Result<Option<Principal>> {
 /// a replicated activity write; initial admission keeps that work in `check`.
 pub(crate) fn current(store: &Store<'_>, key: &str) -> Result<Option<Principal>> {
     Ok(key_row(store, key)?.map(principal))
+}
+
+/// The principal the live key `id` (its stored id, the BLAKE3 of the key) acts as now, read without its last-use note:
+/// how a run a key's holder started is admitted again by its cause's own sign-in name (`key:<id>`), never by a kept copy
+/// of the key. A key turned off answers `None`, so the run stops at its next check.
+pub(crate) fn named(store: &Store<'_>, id: &str) -> Result<Option<Principal>> {
+    Ok(store.get::<PersonalKey>(Family::PersonalKeys, id)?.map(principal))
 }
 
 fn key_row(store: &Store<'_>, key: &str) -> Result<Option<Row<PersonalKey>>> {

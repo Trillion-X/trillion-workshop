@@ -372,9 +372,9 @@ mod tests {
             assert!(sign_in.caller(app.access.as_bytes(),&principal,&call).is_err());
         }
         let app=connect_app_for_tests(&sign_in,"records tools");let oauth=sign_in.authenticate(app.access.as_bytes()).unwrap();
-        let caller=sign_in.caller(app.access.as_bytes(),&oauth,&call).unwrap();let kept=caller.may_keep_a_standing_grant().unwrap();
-        assert!(kept.descriptor.is_some());assert_eq!(kept.sealed.as_slice(),oauth.sign_in.as_bytes());
-        assert_ne!(kept.sealed.as_slice(),app.access.as_bytes(),"an access token is never kept as its parent");
+        let caller=sign_in.caller(app.access.as_bytes(),&oauth,&call).unwrap();let party=sign_in.party_of(&caller).unwrap();
+        assert_eq!(party,oauth.sign_in,"the keeper is kept as its party's name");
+        assert_ne!(party.as_bytes(),app.access.as_bytes(),"an access token is never kept as its parent");
         revoke_for_tests(&sign_in,&app.access);assert!(sign_in.caller(app.access.as_bytes(),&oauth,&call).is_err());
         let runs: serde_json::Value=serde_json::from_slice(include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/src/tool_runs/tools/tool-runs.json"))).unwrap();
         let child=format!("{}synthetic-keeper-denial",runs["runs"]["id_start"].as_str().unwrap());
