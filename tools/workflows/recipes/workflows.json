@@ -27224,6 +27224,40 @@
             "made_by": "derived",
             "state": "On",
             "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          },
+          {
+            "label": "someone asks for a name for a product, project, part or screen",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "naming-request"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "ai-judgment",
+            "state": "On",
+            "evidence": "Item 3 of the item of record:calendar-task:the-one-tree-has-a-fallback-and-specific-reply-and-task-conditions, lane every-workflow-is-a-branch, Nov 14 2026: the part \"the app side project needs a name ... something short\" ranked this workflow 6th of 10, behind workflows that only matched app-idea, and a fresh AI picked it."
           }
         ],
         "steps": [
@@ -30439,6 +30473,40 @@
             "made_by": "fires_when",
             "state": "On",
             "evidence": "Moved onto this workflow's own row from list tree-branches row record:tree-branches:personalized-reach-out and list tree-branch-conditions row record:tree-branch-conditions:personalized-reach-out--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch)."
+          },
+          {
+            "label": "a named person needs to be told something that changed",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "notify-a-person"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "ai-judgment",
+            "state": "On",
+            "evidence": "Item 1 of the item of record:calendar-task:the-one-tree-has-a-fallback-and-specific-reply-and-task-conditions, lane every-workflow-is-a-branch, Nov 14 2026: the part \"Priya needs to know about the Thursday clinic being moved\" matched nothing on a blank account; this workflow delivers useful words to a named person through a connected channel."
           }
         ],
         "steps": [
@@ -55224,8 +55292,43 @@
               }
             },
             "made_by": "derived",
+            "state": "Off",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words. Off since 2026-11-14: pricing-question also tags a customer asking what something costs (\"is the 10 session pack still 480\" ranked this workflow first in the 5:59 AM CST scratch rerun), which wants an answer, not a price test; replaced by the condition on price-test-request."
+          },
+          {
+            "label": "someone wants to test prices or versions of a page, or a page that changes per visitor",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "price-test-request",
+                        "landing-page-request"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "broad-rewrite",
             "state": "On",
-            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+            "evidence": "Item 2 of the item of record:calendar-task:the-one-tree-has-a-fallback-and-specific-reply-and-task-conditions, lane every-workflow-is-a-branch, Nov 14 2026: the earlier condition held pricing-question, which a customer question about a price also carries."
           }
         ],
         "steps": [

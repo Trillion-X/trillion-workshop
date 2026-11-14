@@ -142,3 +142,17 @@ test('the installed one tree, started inside its own run, is refused for a part 
 test('parts are required', async () => {
   await assert.rejects(chooseTheWorkflowsThatFire({ parts: [] }, { door: doorOver([]) }), /parts must be a list/);
 });
+
+test('on a blank account a customer asking a price is not sent to price testing, a request for a name reaches the naming method first, and a person to be told something reaches outreach', async () => {
+  // The three parts of the one-tree follow-up items 1 to 3 (Nov 14 2026), tagged as choose-branches tags them.
+  const parts = [
+    { words: 'is the 10 session pack still 480', kinds: ['pricing-question', 'thread-needs-answer'] },
+    { words: 'the side project needs a name, something short', kinds: ['naming-request', 'app-idea'] },
+    { words: 'someone needs to know the Thursday clinic moved', kinds: ['notify-a-person'], people: ['a coach'] },
+  ];
+  const answer = await chooseTheWorkflowsThatFire({ parts }, { door: doorOver([]) });
+  const of = part => answer.chosen.filter(choice => choice.part === part);
+  assert.ok(!of(0).some(choice => choice.workflow === 'workflow:test-prices-and-change-a-page-for-each-visitor'));
+  assert.equal(of(1)[0]?.workflow, 'workflow:method-name-things-by-what-they-do');
+  assert.ok(of(2).some(choice => choice.workflow === 'workflow:personalized-reach-out'));
+});
