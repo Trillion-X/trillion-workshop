@@ -2,7 +2,14 @@
   "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
   "source": "Trillion-X/bitfield-packages",
   "package": "trillion-workshop",
-  "calls": [],
+  "calls": [
+    {
+      "id": "made-up-offer-id",
+      "find": "premium-tennis-membership",
+      "replace": "premium-membership",
+      "means": "an offer id naming a real business line becomes a made-up one"
+    }
+  ],
   "files": [
     {
       "from": "packages/checkout/show/CheckoutFlow.tsx",
@@ -44,6 +51,230 @@
       "identity": "1f:902e38a7f0fdced9167a1bbaa8a85e9635822f0d4d03734048b598c6025a2414",
       "reused": true,
       "adapted": "take-payments holds this file in its evolved form; the old copy is not moved a second time"
+    },
+    {
+      "from": "packages/stripe-payment-provider/data/action-capability-records.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/data/action-capability-records.json",
+      "source_identity": "1f:b602d688bc6d530e83212c2295002de208ea9d10db2c21cfcc1e6b89325e2426",
+      "identity": "1f:b602d688bc6d530e83212c2295002de208ea9d10db2c21cfcc1e6b89325e2426"
+    },
+    {
+      "from": "packages/stripe-payment-provider/data/capability-descriptor-records.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/data/capability-descriptor-records.json",
+      "source_identity": "1f:f2c3e51b4fc3b590409f86408b2cee05215b3335af2db1bf4c9ba251cdee36be",
+      "identity": "1f:f2c3e51b4fc3b590409f86408b2cee05215b3335af2db1bf4c9ba251cdee36be"
+    },
+    {
+      "from": "packages/stripe-payment-provider/data/evidence-projection-descriptors.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/data/evidence-projection-descriptors.json",
+      "source_identity": "1f:d41dfe003586409f7f2d4508fc2ccfc975da4aed1b242e16a7dedc15f5edb271",
+      "identity": "1f:d41dfe003586409f7f2d4508fc2ccfc975da4aed1b242e16a7dedc15f5edb271"
+    },
+    {
+      "from": "packages/stripe-payment-provider/data/process-runner-descriptors.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/data/process-runner-descriptors.json",
+      "source_identity": "1f:dff0af8974023f17da4f61ab6f8dc9ba267f8e881b5d11268819406da1a4ed71",
+      "identity": "1f:dff0af8974023f17da4f61ab6f8dc9ba267f8e881b5d11268819406da1a4ed71"
+    },
+    {
+      "from": "packages/stripe-payment-provider/data/stripe-capability-descriptors.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/data/stripe-capability-descriptors.json",
+      "source_identity": "1f:40637d3ab99315111ddd5beb894387fc07db022104c6fe4de1f9812232ac1155",
+      "identity": "1f:40637d3ab99315111ddd5beb894387fc07db022104c6fe4de1f9812232ac1155"
+    },
+    {
+      "from": "packages/stripe-payment-provider/do-work/bind-capability-invocation.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/do-work/bind-capability-invocation.ts",
+      "source_identity": "1f:57e706677063dd4a5e188bc5df67f0d7507690744590731bd233bc115058090a",
+      "identity": "1f:57e706677063dd4a5e188bc5df67f0d7507690744590731bd233bc115058090a"
+    },
+    {
+      "from": "packages/stripe-payment-provider/do-work/create-hosted-session.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/do-work/create-hosted-session.ts",
+      "source_identity": "1f:ea4b14af6124600c7e97fe1bb871aebf1a674b258dc8b9a0c2931bb7fdbd1b7e",
+      "identity": "1f:ea4b14af6124600c7e97fe1bb871aebf1a674b258dc8b9a0c2931bb7fdbd1b7e"
+    },
+    {
+      "from": "packages/stripe-payment-provider/do-work/process-scripts/build-process-scripts.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/do-work/process-scripts/build-process-scripts.mjs",
+      "source_identity": "1f:269e53a8da8b8572d2339d2f13ac0e4167f9031c7433dfb04738dc2424a43b40",
+      "identity": "1f:269e53a8da8b8572d2339d2f13ac0e4167f9031c7433dfb04738dc2424a43b40"
+    },
+    {
+      "from": "packages/stripe-payment-provider/do-work/process-scripts/compare-and-map-stripe-cli.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/do-work/process-scripts/compare-and-map-stripe-cli.mjs",
+      "source_identity": "1f:3b5cccec4f8da78e7e0e45139165deb71cc5697d3f1aec43b25258bdda185de5",
+      "identity": "1f:3b5cccec4f8da78e7e0e45139165deb71cc5697d3f1aec43b25258bdda185de5"
+    },
+    {
+      "from": "packages/stripe-payment-provider/do-work/process-scripts/parse-stripe-signature-cli.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/do-work/process-scripts/parse-stripe-signature-cli.mjs",
+      "source_identity": "1f:1bebb630d891ac7d14768402319dfebb30a90fbfc5563062919d6fbe994389b9",
+      "identity": "1f:1bebb630d891ac7d14768402319dfebb30a90fbfc5563062919d6fbe994389b9"
+    },
+    {
+      "from": "packages/stripe-payment-provider/do-work/read-capability-evidence.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/do-work/read-capability-evidence.ts",
+      "source_identity": "1f:0c5f1290ea0bb5e04ce039bfe79284967ccda1118f2d856fb97563f25f510ff5",
+      "identity": "1f:0c5f1290ea0bb5e04ce039bfe79284967ccda1118f2d856fb97563f25f510ff5"
+    },
+    {
+      "from": "packages/stripe-payment-provider/do-work/run-capability-operation.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/do-work/run-capability-operation.ts",
+      "source_identity": "1f:33e26f080a274c5dd0d475f1e7a314c07de0dddb5725e92c8e275b8f20957a8d",
+      "identity": "1f:33e26f080a274c5dd0d475f1e7a314c07de0dddb5725e92c8e275b8f20957a8d"
+    },
+    {
+      "from": "packages/stripe-payment-provider/index.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/index.ts",
+      "source_identity": "1f:269edb9364e4322f4077f2cb129522e7aa4a24ecf65ead16c0a21b52fc5d1410",
+      "identity": "1f:269edb9364e4322f4077f2cb129522e7aa4a24ecf65ead16c0a21b52fc5d1410"
+    },
+    {
+      "from": "packages/stripe-payment-provider/process/stripe-capability-worker.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/process/stripe-capability-worker.mjs",
+      "source_identity": "1f:c881e7798ad07f3df2f6302e97ddc0d19a225213775990c815cea1c8e1f1bc30",
+      "identity": "1f:c881e7798ad07f3df2f6302e97ddc0d19a225213775990c815cea1c8e1f1bc30"
+    },
+    {
+      "from": "packages/stripe-payment-provider/processes/try-a-payment-schedule-in-test-mode.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/processes/try-a-payment-schedule-in-test-mode.mjs",
+      "source_identity": "1f:327f27ed1abd4434e38a6344f7edbbef0ce0701c75345a8c2627724e59702b97",
+      "identity": "1f:327f27ed1abd4434e38a6344f7edbbef0ce0701c75345a8c2627724e59702b97"
+    },
+    {
+      "from": "packages/stripe-payment-provider/processes/try-a-payment-schedule-in-test-mode.test.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/processes/try-a-payment-schedule-in-test-mode.test.mjs",
+      "source_identity": "1f:89cc055baf4411cec1a8fb2de6da9d0567dad29306eab219f7d14faa4526852d",
+      "identity": "1f:89cc055baf4411cec1a8fb2de6da9d0567dad29306eab219f7d14faa4526852d"
+    },
+    {
+      "from": "packages/stripe-payment-provider/read-data/capability-descriptors.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/read-data/capability-descriptors.ts",
+      "source_identity": "1f:f905c8b8db0885da9d5cf49d853528a68a34de508e35d87d701cad202fa08661",
+      "identity": "1f:f905c8b8db0885da9d5cf49d853528a68a34de508e35d87d701cad202fa08661"
+    },
+    {
+      "from": "packages/stripe-payment-provider/read-data/capability-invocations.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/read-data/capability-invocations.ts",
+      "source_identity": "1f:06d97decf7ed17b7b2abc39d93a7c17450fb8f7b77be35157697b04b109ec884",
+      "identity": "1f:06d97decf7ed17b7b2abc39d93a7c17450fb8f7b77be35157697b04b109ec884"
+    },
+    {
+      "from": "packages/stripe-payment-provider/read-data/capability-records.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/read-data/capability-records.ts",
+      "source_identity": "1f:7dd1c02ffd81d3e706265cca97c4355e3202ee5948397d48a417064824973b83",
+      "identity": "1f:7dd1c02ffd81d3e706265cca97c4355e3202ee5948397d48a417064824973b83"
+    },
+    {
+      "from": "packages/stripe-payment-provider/read-data/evidence-projections.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/read-data/evidence-projections.ts",
+      "source_identity": "1f:11b5ebc898b089bc335f64ebf0552a2182015e20896cfaeb6e6d43fcef31def1",
+      "identity": "1f:11b5ebc898b089bc335f64ebf0552a2182015e20896cfaeb6e6d43fcef31def1"
+    },
+    {
+      "from": "packages/stripe-payment-provider/read-data/execution-receipts.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/read-data/execution-receipts.ts",
+      "source_identity": "1f:76e6edfbc109c760de965049e1b156cb7c721636eeb266c790f0261b15ac08c3",
+      "identity": "1f:76e6edfbc109c760de965049e1b156cb7c721636eeb266c790f0261b15ac08c3"
+    },
+    {
+      "from": "packages/stripe-payment-provider/read-data/index.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/read-data/index.ts",
+      "source_identity": "1f:c96580eea583c5af376c21fba447c0315c4b70bb8d548060ba73263e959b8eeb",
+      "identity": "1f:c96580eea583c5af376c21fba447c0315c4b70bb8d548060ba73263e959b8eeb"
+    },
+    {
+      "from": "packages/stripe-payment-provider/read-data/provider-evidence-view.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/read-data/provider-evidence-view.ts",
+      "source_identity": "1f:28c4727645408389a1dda960dd3e9fceac67d167775f9959e1962b3885ae3fa6",
+      "identity": "1f:28c4727645408389a1dda960dd3e9fceac67d167775f9959e1962b3885ae3fa6"
+    },
+    {
+      "from": "packages/stripe-payment-provider/read-data/provider-object-refs-view.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/read-data/provider-object-refs-view.ts",
+      "source_identity": "1f:5ec375c40a66b31fc385df1553f2ccbe9d6d3a2185d084f2e4ad27ccf923e3d6",
+      "identity": "1f:5ec375c40a66b31fc385df1553f2ccbe9d6d3a2185d084f2e4ad27ccf923e3d6"
+    },
+    {
+      "from": "packages/stripe-payment-provider/read-data/provider-readiness-view.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/read-data/provider-readiness-view.ts",
+      "source_identity": "1f:f246ac6c45e1d22438711305824fe2f80b551c322a2b7ac806372abadf378eae",
+      "identity": "1f:f246ac6c45e1d22438711305824fe2f80b551c322a2b7ac806372abadf378eae"
+    },
+    {
+      "from": "packages/stripe-payment-provider/read-data/provider-surface-descriptor.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/read-data/provider-surface-descriptor.ts",
+      "source_identity": "1f:dfff6b61c312a5fc5294fb66067ac910c36724438c088316a82765aa598cc96b",
+      "identity": "1f:dfff6b61c312a5fc5294fb66067ac910c36724438c088316a82765aa598cc96b"
+    },
+    {
+      "from": "packages/stripe-payment-provider/read-data/redaction-policies.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/read-data/redaction-policies.ts",
+      "source_identity": "1f:8363ad1919e2deec8a3315e1272727e67708077b7601efcd000026c0438c641a",
+      "identity": "1f:8363ad1919e2deec8a3315e1272727e67708077b7601efcd000026c0438c641a"
+    },
+    {
+      "from": "packages/stripe-payment-provider/read-data/stripe-status-overrides.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/read-data/stripe-status-overrides.ts",
+      "source_identity": "1f:cdb0a1cc8fb0d1b1e20d9a9ef0426acd151b1f8f45209afafa69ef45eddc4ba8",
+      "identity": "1f:cdb0a1cc8fb0d1b1e20d9a9ef0426acd151b1f8f45209afafa69ef45eddc4ba8"
+    },
+    {
+      "from": "packages/stripe-payment-provider/reference/cross-surface-execution-contract.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/reference/cross-surface-execution-contract.md",
+      "source_identity": "1f:0de2761c0da8c56da1433a58a18fe3d556eb0adc49f15ed66b72d1ebffd5f711",
+      "identity": "1f:0de2761c0da8c56da1433a58a18fe3d556eb0adc49f15ed66b72d1ebffd5f711"
+    },
+    {
+      "from": "packages/stripe-payment-provider/show-ios-jscore/index.js",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/show-ios-jscore/index.js",
+      "source_identity": "1f:5538de500cfefec90298706adf569e44d1abf235696fdf58cb92df8d9746e48c",
+      "identity": "1f:5538de500cfefec90298706adf569e44d1abf235696fdf58cb92df8d9746e48c"
+    },
+    {
+      "from": "packages/stripe-payment-provider/show-ios-jscore/render-descriptor-jscore.js",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/show-ios-jscore/render-descriptor-jscore.js",
+      "source_identity": "1f:5e1d95767b9d300081b16585f06faba461b58a6d775553e8a80ab3ef69517f24",
+      "identity": "1f:5e1d95767b9d300081b16585f06faba461b58a6d775553e8a80ab3ef69517f24"
+    },
+    {
+      "from": "packages/stripe-payment-provider/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/things-to-store-and-run.json",
+      "source_identity": "1f:685197c330e92b5034a8a4e202d8390f376dbebfdeadb3b3d0352a46769b8cea",
+      "identity": "1f:685197c330e92b5034a8a4e202d8390f376dbebfdeadb3b3d0352a46769b8cea"
     }
   ]
 }

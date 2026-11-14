@@ -80,6 +80,90 @@
       "to": "tools/paid-access/packages/plan-lifecycle/show/README.md",
       "source_identity": "1f:4e35faea92b3c8b8a89633951565dd6fc76b6b0c06629bc0d9f74b5639826556",
       "identity": "1f:4e35faea92b3c8b8a89633951565dd6fc76b6b0c06629bc0d9f74b5639826556"
+    },
+    {
+      "from": "packages/product-access/do-work/authorize-addressed-expiring-value-scope.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-access/do-work/authorize-addressed-expiring-value-scope.ts",
+      "source_identity": "1f:8ce5addd4d07328eb23d00960ab077639fdeb68d3d8c8898c36b6290ce39ea5c",
+      "identity": "1f:8ce5addd4d07328eb23d00960ab077639fdeb68d3d8c8898c36b6290ce39ea5c"
+    },
+    {
+      "from": "packages/product-access/do-work/invoke-owner-action.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-access/do-work/invoke-owner-action.ts",
+      "source_identity": "1f:997fdb2dc26ff2e167d89068a40e4b38dcb8c2908d4dfdb69e2c230cf82871e5",
+      "identity": "1f:997fdb2dc26ff2e167d89068a40e4b38dcb8c2908d4dfdb69e2c230cf82871e5"
+    },
+    {
+      "from": "packages/product-access/do-work/read-account-granted-access-refs.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-access/do-work/read-account-granted-access-refs.ts",
+      "source_identity": "1f:c6750301b7494d705d96c061a901e168c78e8af9c6ad32460516f02337a5a3ed",
+      "identity": "1f:c6750301b7494d705d96c061a901e168c78e8af9c6ad32460516f02337a5a3ed"
+    },
+    {
+      "from": "packages/product-access/do-work/read-session-access.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-access/do-work/read-session-access.ts",
+      "source_identity": "1f:c2831afcd6b16dfb7971d22accb4236771f7f9eaad6c18b978150facb0c19c7c",
+      "identity": "1f:c2831afcd6b16dfb7971d22accb4236771f7f9eaad6c18b978150facb0c19c7c"
+    },
+    {
+      "from": "packages/product-access/index.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-access/index.ts",
+      "source_identity": "1f:84e69aaad6bcb541a288e7b435326c32063b744fa824119326c44aa43f1a3cc7",
+      "identity": "1f:84e69aaad6bcb541a288e7b435326c32063b744fa824119326c44aa43f1a3cc7"
+    },
+    {
+      "from": "packages/product-access/ios-jscore/product-access-proof-entry.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-access/ios-jscore/product-access-proof-entry.ts",
+      "source_identity": "1f:baa1740964e8c93042c31934d2ac068b5eed1b73844b8f357ac329a8a92110ba",
+      "identity": "1f:baa1740964e8c93042c31934d2ac068b5eed1b73844b8f357ac329a8a92110ba"
+    },
+    {
+      "from": "packages/product-access/read-data/access-control-projection.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-access/read-data/access-control-projection.ts",
+      "source_identity": "1f:efdb42a8cddb42881e9c7e27f13867ea1aba0482f9b8afeba796b5ad6c667011",
+      "identity": "1f:efdb42a8cddb42881e9c7e27f13867ea1aba0482f9b8afeba796b5ad6c667011"
+    },
+    {
+      "from": "packages/product-access/read-data/access-control-records.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-access/read-data/access-control-records.ts",
+      "source_identity": "1f:bd1aa166a820456d43a6c0f74a009ca499827d99154fffb089f62e43c93d66e9",
+      "identity": "1f:bd1aa166a820456d43a6c0f74a009ca499827d99154fffb089f62e43c93d66e9"
+    },
+    {
+      "from": "packages/product-access/read-data/read-product-access.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-access/read-data/read-product-access.ts",
+      "source_identity": "1f:a8722b5d29ee9a5318b408ce85ff0327159c270896099def2a35624e882ac5b7",
+      "identity": "1f:a8722b5d29ee9a5318b408ce85ff0327159c270896099def2a35624e882ac5b7"
+    },
+    {
+      "from": "packages/product-access/show-ios-jscore/mount-product-access-jscore.js",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-access/show-ios-jscore/mount-product-access-jscore.js",
+      "source_identity": "1f:0b1e25ec126431064712c4acba524315c0fda6ad09814a076808eb54870edbd9",
+      "identity": "1f:0b1e25ec126431064712c4acba524315c0fda6ad09814a076808eb54870edbd9"
+    },
+    {
+      "from": "packages/product-access/show/map-product-access-surface.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-access/show/map-product-access-surface.ts",
+      "source_identity": "1f:be7b61adf94b780795adfca6024491e9bab54929de344eb14e693602f254fe2a",
+      "identity": "1f:be7b61adf94b780795adfca6024491e9bab54929de344eb14e693602f254fe2a"
+    },
+    {
+      "from": "packages/product-access/show/product-access-surface-descriptor.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-access/show/product-access-surface-descriptor.ts",
+      "source_identity": "1f:355a823bd9d0f45c90d13b300d2a8984b13e42f73813b2746147298a49368bf3",
+      "identity": "1f:355a823bd9d0f45c90d13b300d2a8984b13e42f73813b2746147298a49368bf3"
     }
   ]
 }

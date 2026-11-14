@@ -1,0 +1,194 @@
+[
+ {
+  "kind": "capability-descriptor-record",
+  "id": "capability:stripe.checkout-session.create",
+  "label": "Checkout session create",
+  "operation_id": "operation:create-session",
+  "provider_ref": "provider:stripe",
+  "api_version_policy": "2026-05-27.dahlia",
+  "required_credential_ref": "credential-class:stripe-restricted-key",
+  "runner": {
+   "kind": "process",
+   "runner_id": "runner:stripe-capability-worker",
+   "target": "compute.process",
+   "timeout_ms": 30000,
+   "command": [
+    "node",
+    "packages/stripe-payment-provider/process/stripe-capability-worker.mjs"
+   ]
+  },
+  "input_schema": {
+   "required": [
+    "service_connection_ref",
+    "operation_subject"
+   ],
+   "properties": {
+    "service_connection_ref": "service-connection",
+    "operation_subject": "record"
+   }
+  },
+  "idempotency_policy": {
+   "source": "caller-provided",
+   "duplicate_behavior": "read-existing-receipt"
+  },
+  "redaction_policy_ref": "redaction-policy:provider-secrets",
+  "evidence_projection_ref": "evidence-projection:external-operation-readable-status",
+  "metadata": {
+   "integration_surface": "checkout-session",
+   "dynamic_payment_methods": true
+  }
+ },
+ {
+  "kind": "capability-descriptor-record",
+  "id": "capability:stripe.checkout-session.read",
+  "label": "Checkout session read",
+  "operation_id": "operation:read-session",
+  "provider_ref": "provider:stripe",
+  "api_version_policy": "2026-05-27.dahlia",
+  "required_credential_ref": "credential-class:stripe-restricted-key",
+  "runner": {
+   "kind": "http",
+   "runner_id": "runner:http-client",
+   "target": "http-client.request",
+   "timeout_ms": 30000,
+   "request": {
+    "method": "GET",
+    "url_template": "https://api.stripe.com/v1/checkout/sessions/{provider_object_ref}"
+   }
+  },
+  "input_schema": {
+   "required": [
+    "service_connection_ref",
+    "provider_object_ref"
+   ],
+   "properties": {
+    "service_connection_ref": "service-connection",
+    "provider_object_ref": "provider-object-ref"
+   }
+  },
+  "idempotency_policy": {
+   "source": "caller-provided",
+   "duplicate_behavior": "read-existing-receipt"
+  },
+  "redaction_policy_ref": "redaction-policy:provider-secrets",
+  "evidence_projection_ref": "evidence-projection:external-operation-readable-status",
+  "metadata": {
+   "integration_surface": "checkout-session-read"
+  }
+ },
+ {
+  "kind": "capability-descriptor-record",
+  "id": "capability:generic.webhook-observe",
+  "label": "Webhook observe",
+  "operation_id": "operation:observe-event",
+  "provider_ref": "provider:any",
+  "required_credential_ref": "credential-class:webhook-signing-secret",
+  "runner": {
+   "kind": "workflow",
+   "runner_id": "runner:workflow-owner-action",
+   "target": "slot::workflow",
+   "timeout_ms": 5000
+  },
+  "input_schema": {
+   "required": [
+    "service_connection_ref",
+    "event_payload_ref",
+    "event_signature_ref"
+   ],
+   "properties": {
+    "service_connection_ref": "service-connection",
+    "event_payload_ref": "opaque-bytes-ref",
+    "event_signature_ref": "signature-ref"
+   }
+  },
+  "idempotency_policy": {
+   "source": "event-id",
+   "duplicate_behavior": "read-existing-receipt"
+  },
+  "redaction_policy_ref": "redaction-policy:provider-secrets",
+  "evidence_projection_ref": "evidence-projection:external-operation-readable-status",
+  "metadata": {
+   "ack_behavior": "fast-ack-then-follow-up"
+  }
+ },
+ {
+  "kind": "capability-descriptor-record",
+  "id": "capability:stripe.transfer.create",
+  "label": "Transfer create",
+  "operation_id": "operation:create-transfer",
+  "provider_ref": "provider:stripe",
+  "api_version_policy": "2026-05-27.dahlia",
+  "required_credential_ref": "credential-class:stripe-restricted-key",
+  "runner": {
+   "kind": "process",
+   "runner_id": "runner:stripe-capability-worker",
+   "target": "compute.process",
+   "timeout_ms": 30000,
+   "command": [
+    "node",
+    "packages/stripe-payment-provider/process/stripe-capability-worker.mjs"
+   ]
+  },
+  "input_schema": {
+   "required": [
+    "service_connection_ref",
+    "operation_subject"
+   ],
+   "properties": {
+    "service_connection_ref": "service-connection",
+    "operation_subject": "record"
+   }
+  },
+  "idempotency_policy": {
+   "source": "caller-provided",
+   "duplicate_behavior": "read-existing-receipt",
+   "requires_explicit_flow_opt_in": true
+  },
+  "redaction_policy_ref": "redaction-policy:provider-secrets",
+  "evidence_projection_ref": "evidence-projection:external-operation-readable-status",
+  "metadata": {
+   "integration_surface": "transfer",
+   "connect_destination_charge_support": true,
+   "requires_explicit_flow_opt_in": true
+  }
+ },
+ {
+  "id": "capability:stripe.subscription-schedule.create",
+  "label": "Subscription schedule create",
+  "operation_id": "operation:create-subscription-schedule",
+  "provider_ref": "provider:stripe",
+  "api_version_policy": "2026-05-27.dahlia",
+  "required_credential_ref": "credential-class:stripe-restricted-key",
+  "runner": {
+   "kind": "process",
+   "runner_id": "runner:stripe-capability-worker",
+   "target": "compute.process",
+   "timeout_ms": 30000,
+   "command": [
+    "node",
+    "packages/stripe-payment-provider/process/stripe-capability-worker.mjs"
+   ]
+  },
+  "input_schema": {
+   "required": [
+    "service_connection_ref",
+    "operation_subject"
+   ],
+   "properties": {
+    "service_connection_ref": "service-connection",
+    "operation_subject": "record"
+   }
+  },
+  "idempotency_policy": {
+   "source": "caller-provided",
+   "duplicate_behavior": "read-existing-receipt",
+   "requires_explicit_flow_opt_in": true
+  },
+  "redaction_policy_ref": "redaction-policy:provider-secrets",
+  "evidence_projection_ref": "evidence-projection:external-operation-readable-status",
+  "metadata": {
+   "integration_surface": "subscription-schedule",
+   "requires_explicit_flow_opt_in": true
+  }
+ }
+]

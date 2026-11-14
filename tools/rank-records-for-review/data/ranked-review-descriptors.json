@@ -1,0 +1,161 @@
+{
+  "projection": {
+    "id": "suggested-match.ranked-review",
+    "source": {
+      "address": "suggested-match.ranked-review.records",
+      "mode": "log-owned-records"
+    },
+    "recordIdPath": ["record_ref"],
+    "rankPath": ["rank"],
+    "statusKeyPaths": {
+      "confidence": ["status_keys", "confidence"],
+      "action": ["status_keys", "action"]
+    },
+    "fields": [
+      {
+        "id": "primary",
+        "role": "primary-text",
+        "path": ["display", "primary"],
+        "display": {
+          "empty": "Untitled"
+        }
+      },
+      {
+        "id": "secondary",
+        "role": "secondary-text",
+        "path": ["display", "secondary"],
+        "display": {
+          "empty": ""
+        }
+      },
+      {
+        "id": "score",
+        "role": "rank-signal",
+        "path": ["score"],
+        "display": {
+          "format": "number",
+          "numberOptions": {
+            "maximumFractionDigits": 2
+          },
+          "empty": ""
+        }
+      },
+      {
+        "id": "reason",
+        "role": "supporting-reason",
+        "path": ["display", "reason"],
+        "display": {
+          "empty": ""
+        }
+      }
+    ],
+    "relationships": [
+      {
+        "id": "evidence-count",
+        "method": "refs.count",
+        "params": {
+          "field": ["evidence_refs"]
+        }
+      },
+      {
+        "id": "source-count",
+        "method": "refs.count",
+        "params": {
+          "field": ["source_record_refs"]
+        }
+      }
+    ],
+    "filters": [
+      {
+        "id": "has-record-ref",
+        "method": "field.exists",
+        "params": {
+          "field": ["record_ref"]
+        }
+      },
+      {
+        "id": "not-suppressed",
+        "method": "field.notEquals",
+        "params": {
+          "field": ["suppressed"],
+          "value": true
+        }
+      }
+    ],
+    "actions": [
+      {
+        "id": "primary-review-action",
+        "label": "Use",
+        "target": "slot::workflow",
+        "operation": "execute_definition",
+        "definition_id": "workflow::ranked-review::owner-action-request",
+        "input": {
+          "request_kind": "ranked-record-review-action"
+        },
+        "copy": [
+          {
+            "key": "record_ref",
+            "from": "row.recordId"
+          },
+          {
+            "key": "idempotency_ref",
+            "from": "row.source.idempotency_ref"
+          }
+        ]
+      },
+      {
+        "id": "secondary-review-action",
+        "label": "Skip",
+        "target": "slot::workflow",
+        "operation": "execute_definition",
+        "definition_id": "workflow::ranked-review::owner-action-request",
+        "input": {
+          "request_kind": "ranked-record-review-action"
+        },
+        "copy": [
+          {
+            "key": "record_ref",
+            "from": "row.recordId"
+          },
+          {
+            "key": "idempotency_ref",
+            "from": "row.source.idempotency_ref"
+          }
+        ]
+      }
+    ],
+    "refresh": {
+      "id": "suggested-match.refresh-ranked-review",
+      "target_ref": "compute.process_session",
+      "target": "slot::workflow",
+      "operation": "execute_definition",
+      "definition_id": "workflow::ranked-review::refresh"
+    }
+  },
+  "statusVocabulary": {
+    "confidence": {
+      "high": {
+        "label": "High",
+        "tone": "positive"
+      },
+      "medium": {
+        "label": "Medium",
+        "tone": "notice"
+      },
+      "review": {
+        "label": "Review",
+        "tone": "neutral"
+      }
+    },
+    "action": {
+      "ready": {
+        "label": "Ready",
+        "tone": "positive"
+      },
+      "queued": {
+        "label": "Queued",
+        "tone": "notice"
+      }
+    }
+  }
+}

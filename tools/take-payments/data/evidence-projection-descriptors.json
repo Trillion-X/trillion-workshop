@@ -1,0 +1,9 @@
+[
+  {
+    "kind": "evidence-projection-descriptor",
+    "id": "evidence-projection:external-operation-readable-status",
+    "public_output_keys": ["provider_request_id", "public_handoff_url", "public_client_token_ref", "observed_state"],
+    "relationship_keys": ["provider_object_refs"],
+    "forbidden_domain_authority": ["paid", "active", "trialing", "won", "lost"]
+  }
+]

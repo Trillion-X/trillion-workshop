@@ -1,0 +1,16 @@
+[
+  {
+    "kind": "process-runner-descriptor",
+    "id": "runner:stripe-capability-worker",
+    "target": "compute.process",
+    "command": ["node", "packages/stripe-payment-provider/process/stripe-capability-worker.mjs"],
+    "timeout_ms": 30000,
+    "credential_injection": "credential-handle-ref"
+  },
+  {
+    "kind": "http-runner-descriptor",
+    "id": "runner:http-client",
+    "target": "http-client.request",
+    "credential_injection": "credential-handle-ref"
+  }
+]

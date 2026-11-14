@@ -1,0 +1,12 @@
+{
+  "kind": "bitfield-entry-to-package-data-map",
+  "package": "travel-operations",
+  "package_data_path": "things-to-store-and-run.json",
+  "entries": [
+    {
+      "entry_name": "travel-operations",
+      "source_path": "show/mount-travel-operations.tsx",
+      "package_data_path": "things-to-store-and-run.json"
+    }
+  ]
+}

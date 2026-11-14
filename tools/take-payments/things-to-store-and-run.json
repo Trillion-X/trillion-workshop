@@ -1,0 +1,2217 @@
+{
+  "package": "stripe-payment-provider",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::contract",
+      "path": [
+        "packages",
+        "stripe-payment-provider"
+      ],
+      "payload": {
+        "kind": "package-boundary-contract",
+        "package": "stripe-payment-provider",
+        "owns": [
+          "provider capability descriptors",
+          "adapter executable material",
+          "redacted provider evidence",
+          "provider object references",
+          "provider API translation"
+        ],
+        "does_not_own": [
+          "quote policy",
+          "product access authority",
+          "account authority",
+          "payment-adapter routing",
+          "UI layout",
+          "browser cookies",
+          "paid conversion truth",
+          "CRM terms",
+          "campaign stages",
+          "marketing outcomes",
+          "raw credential secrets"
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::reaches-past-the-engine::environment",
+      "path": [
+        "current-item",
+        "reaches-past-the-engine"
+      ],
+      "payload": {
+        "kind": "reaches-past-the-engine",
+        "reach_class": "environment",
+        "why": "authenticating to Stripe as this carrier is the one thing this package is for, and the account-portal carrier mounts only slot::http-client, so the credentials-vault that would otherwise own STRIPE_SECRET_KEY is not present to hold it; the key is read in one function, placed on one outbound Authorization header, and never logged, returned or crossed into the provider-agnostic caller."
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "stripe-payment-provider-index",
+      "source_path": "index.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "stripe-capability-worker",
+      "source_path": "process/stripe-capability-worker.built.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "stripe-http-request-builder",
+      "source_path": "process/build-stripe-http-request.built.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "stripe-payment-provider-ios-jscore",
+      "source_path": "show-ios-jscore/render-descriptor-jscore.js"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "create-hosted-session",
+      "source_path": "do-work/create-hosted-session.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-create-hosted-session",
+      "source_path": "built-stored-bytes/entry-bytes-create-hosted-session",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-create-hosted-session.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-read-hosted-session",
+      "source_path": "built-stored-bytes/entry-bytes-read-hosted-session",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-read-hosted-session.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-find-completed-hosted-session",
+      "source_path": "built-stored-bytes/entry-bytes-find-completed-hosted-session",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-find-completed-hosted-session.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-inspect-hosted-configuration",
+      "source_path": "built-stored-bytes/entry-bytes-inspect-hosted-configuration",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-inspect-hosted-configuration.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-update-subscription-metadata",
+      "source_path": "built-stored-bytes/entry-bytes-update-subscription-metadata",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-update-subscription-metadata.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::native-screen-command-entry",
+      "path": [
+        "package-primitive",
+        "native-screen-command-entry"
+      ],
+      "payload": {
+        "kind": "bitfield-native-screen-command-entry",
+        "source_path": "show-ios-jscore/render-descriptor-jscore.js",
+        "readme_path": "show-ios-jscore/README.md",
+        "descriptor_schema": "stripe-payment-provider.surface-descriptor.v1",
+        "jscore_source_paths": [
+          "read-data/provider-surface-descriptor.ts",
+          "read-data/stripe-status-overrides.ts"
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::target::bind-capability-invocation",
+      "path": [
+        "packages",
+        "stripe-payment-provider",
+        "targets",
+        "bind-capability-invocation"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "bind-capability-invocation",
+        "source_path": "do-work/bind-capability-invocation.ts",
+        "export_name": "bindCapabilityInvocationTarget",
+        "target": "stripe-payment-provider.bind-capability-invocation"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::target::run-capability-operation",
+      "path": [
+        "packages",
+        "stripe-payment-provider",
+        "targets",
+        "run-capability-operation"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "run-capability-operation",
+        "source_path": "do-work/run-capability-operation.ts",
+        "export_name": "runCapabilityOperationTarget",
+        "target": "stripe-payment-provider.run-capability-operation"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::target::build-capability-process-descriptor",
+      "path": [
+        "packages",
+        "stripe-payment-provider",
+        "targets",
+        "build-capability-process-descriptor"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "build-capability-process-descriptor",
+        "source_path": "do-work/run-capability-operation.ts",
+        "export_name": "buildCapabilityProcessDescriptorTarget",
+        "target": "stripe-payment-provider.build-capability-process-descriptor"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::target::read-capability-evidence",
+      "path": [
+        "packages",
+        "stripe-payment-provider",
+        "targets",
+        "read-capability-evidence"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "read-capability-evidence",
+        "source_path": "do-work/read-capability-evidence.ts",
+        "export_name": "readCapabilityEvidenceTarget",
+        "target": "stripe-payment-provider.read-capability-evidence"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::target::create-hosted-session",
+      "path": [
+        "packages",
+        "stripe-payment-provider",
+        "targets",
+        "create-hosted-session"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "create-hosted-session",
+        "source_path": "do-work/create-hosted-session.ts",
+        "export_name": "createHostedSessionTarget",
+        "target": "stripe-payment-provider.create-hosted-session"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::entry::create-hosted-session",
+      "path": [
+        "packages",
+        "stripe-payment-provider",
+        "entries",
+        "create-hosted-session"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "create-hosted-session",
+        "export_name": "createHostedSessionTarget",
+        "source_path": "do-work/create-hosted-session.ts",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-create-hosted-session"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::target::read-hosted-session",
+      "path": [
+        "packages",
+        "stripe-payment-provider",
+        "targets",
+        "read-hosted-session"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "read-hosted-session",
+        "source_path": "do-work/create-hosted-session.ts",
+        "export_name": "readHostedSessionTarget",
+        "target": "stripe-payment-provider.read-hosted-session"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::entry::read-hosted-session",
+      "path": [
+        "packages",
+        "stripe-payment-provider",
+        "entries",
+        "read-hosted-session"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "read-hosted-session",
+        "export_name": "readHostedSessionTarget",
+        "source_path": "do-work/create-hosted-session.ts",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-read-hosted-session"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::target::find-completed-hosted-session",
+      "path": [
+        "packages",
+        "stripe-payment-provider",
+        "targets",
+        "find-completed-hosted-session"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "find-completed-hosted-session",
+        "source_path": "do-work/create-hosted-session.ts",
+        "export_name": "findCompletedHostedSessionTarget",
+        "target": "stripe-payment-provider.find-completed-hosted-session"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::entry::find-completed-hosted-session",
+      "path": [
+        "packages",
+        "stripe-payment-provider",
+        "entries",
+        "find-completed-hosted-session"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "find-completed-hosted-session",
+        "export_name": "findCompletedHostedSessionTarget",
+        "source_path": "do-work/create-hosted-session.ts",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-find-completed-hosted-session"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::target::inspect-hosted-configuration",
+      "path": [
+        "packages",
+        "stripe-payment-provider",
+        "targets",
+        "inspect-hosted-configuration"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "inspect-hosted-configuration",
+        "source_path": "do-work/create-hosted-session.ts",
+        "export_name": "inspectHostedStripeConfigurationTarget",
+        "target": "stripe-payment-provider.inspect-hosted-configuration"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::entry::inspect-hosted-configuration",
+      "path": [
+        "packages",
+        "stripe-payment-provider",
+        "entries",
+        "inspect-hosted-configuration"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "inspect-hosted-configuration",
+        "export_name": "inspectHostedStripeConfigurationTarget",
+        "source_path": "do-work/create-hosted-session.ts",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-inspect-hosted-configuration"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::workflow-action::start-checkout",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "action",
+        "id": "action:stripe-payment-provider.start-checkout",
+        "is_active": true,
+        "name": "stripe checkout — start: assemble create-session + call slot::http-client with vault-handle Bearer; return redacted evidence (LIVE path, mirrors read-checkout-session)",
+        "description": "Generic capability-run flow (http-kind, descriptor_id-configured): read the restricted-key handle from vault (key stripe-restricted-key), assemble the Stripe POST /v1/checkout/sessions request (generic build-stripe-http-request worker mounted by blob_ref, ZERO secret), call slot::http-client with the credential injected as a vault-handle Bearer (the secret never enters source/subprocess/workflow — SP4/7/8/9), and fold the redacted evidence projection. Mirrors action:stripe-payment-provider.read-checkout-session (the proven http-client pattern) keyed on capability:stripe.checkout-session.create; the only delta is the POST body binding. http-client stays a blind transport; Stripe knowledge stays in the request builder (no god package). PREREQUISITES to go live (owner-gated): slot::http-client deployed on this app + the sk_ secret sealed in this app's credentials-vault under stripe-restricted-key + dry-run path deactivated. Replaces the prior dry-run worker path (L030).",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "input_facts": {
+              "type": "object"
+            },
+            "idempotency_key": {
+              "type": "string"
+            },
+            "requested_at": {
+              "type": "string"
+            }
+          },
+          "required": [],
+          "additionalProperties": true
+        },
+        "steps": [
+          {
+            "id": "read_credential",
+            "join": "any",
+            "join_config": null,
+            "kind": "ask",
+            "config": {
+              "name": "slot::credentials-vault",
+              "input": {
+                "operation": "read",
+                "key": "stripe-restricted-key",
+                "handle_ttl_seconds": 300
+              }
+            }
+          },
+          {
+            "id": "read_request_builder",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::stripe-payment-provider::stored-bytes::stripe-http-request-builder"
+            }
+          },
+          {
+            "id": "bind",
+            "join": "any",
+            "join_config": null,
+            "kind": "ask",
+            "config": {
+              "name": "stripe-payment-provider.bind-capability-invocation",
+              "input": {
+                "descriptor_id": "capability:stripe.checkout-session.create",
+                "input_facts": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "start",
+                    "path": "input.input_facts"
+                  }
+                },
+                "idempotency_key": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "start",
+                    "path": "input.idempotency_key"
+                  }
+                },
+                "requested_at": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "start",
+                    "path": "input.requested_at"
+                  }
+                },
+                "credential_handle_ref": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "read_credential",
+                    "path": "output.handle"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "build_request",
+            "join": "any",
+            "join_config": null,
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "node",
+                  "stripe-http-request-builder.built.mjs",
+                  "--input-json",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "bind",
+                      "path": "output"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.stringify",
+                        "args": {
+                          "format": "json"
+                        }
+                      }
+                    ]
+                  }
+                ],
+                "cwd": null,
+                "timeout_ms": 30000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "stripe-http-request-builder.built.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_request_builder",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "http",
+            "join": "any",
+            "join_config": null,
+            "kind": "ask",
+            "config": {
+              "name": "slot::http-client",
+              "output": {
+                "decode": "bytes"
+              },
+              "input": {
+                "url": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "build_request",
+                    "path": "output.captured_fds.0.bytes.base64"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "url"
+                      }
+                    }
+                  ]
+                },
+                "method": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "build_request",
+                    "path": "output.captured_fds.0.bytes.base64"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "method"
+                      }
+                    }
+                  ]
+                },
+                "headers": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "build_request",
+                    "path": "output.captured_fds.0.bytes.base64"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "headers"
+                      }
+                    }
+                  ]
+                },
+                "body": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "build_request",
+                    "path": "output.captured_fds.0.bytes.base64"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "body"
+                      }
+                    }
+                  ]
+                },
+                "credential_injections": [
+                  {
+                    "handle": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "read_credential",
+                        "path": "output.handle"
+                      }
+                    },
+                    "placement": {
+                      "kind": "header",
+                      "name": "Authorization",
+                      "prefix": "Bearer ",
+                      "suffix": ""
+                    }
+                  }
+                ],
+                "timeout_ms": 30000
+              }
+            }
+          },
+          {
+            "id": "evidence",
+            "join": "any",
+            "join_config": null,
+            "kind": "ask",
+            "config": {
+              "name": "stripe-payment-provider.read-capability-evidence",
+              "input": {
+                "invocation": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "bind",
+                    "path": "output"
+                  }
+                },
+                "runner_session_ref": "http-session:start-checkout",
+                "state": "succeeded",
+                "observed_at": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "start",
+                    "path": "input.requested_at"
+                  }
+                },
+                "output": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "http",
+                    "path": "output.body"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "id": "return_projection",
+            "join": "any",
+            "join_config": null,
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "evidence",
+                  "path": "output.projection"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::target::update-subscription-metadata",
+      "path": [
+        "packages",
+        "stripe-payment-provider",
+        "targets",
+        "update-subscription-metadata"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "update-subscription-metadata",
+        "source_path": "do-work/create-hosted-session.ts",
+        "export_name": "updateSubscriptionMetadataTarget",
+        "target": "stripe-payment-provider.update-subscription-metadata"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::entry::update-subscription-metadata",
+      "path": [
+        "packages",
+        "stripe-payment-provider",
+        "entries",
+        "update-subscription-metadata"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "update-subscription-metadata",
+        "export_name": "updateSubscriptionMetadataTarget",
+        "source_path": "do-work/create-hosted-session.ts",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-update-subscription-metadata"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::workflow-action::read-checkout-session",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "action",
+        "id": "action:stripe-payment-provider.read-checkout-session",
+        "is_active": true,
+        "name": "stripe checkout — read: live GET a checkout session and return redacted evidence",
+        "description": "Generic capability-run flow (http-kind, descriptor_id-configured): read the restricted-key handle from vault, assemble the Stripe GET request (generic build-stripe-http-request worker mounted by blob_ref), call slot::http-client with the credential injected as a vault-handle Bearer (the secret never enters the workflow), and fold the redacted evidence projection (read-capability-evidence redacts via the policy). Complements the webhook completion path with immediate client-side payment confirmation. Real execution is owner-gated (restricted key in vault).",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "input_facts": {
+              "type": "object"
+            },
+            "idempotency_key": {
+              "type": "string"
+            },
+            "requested_at": {
+              "type": "string"
+            }
+          },
+          "required": [],
+          "additionalProperties": true
+        },
+        "steps": [
+          {
+            "id": "read_credential",
+            "join": "any",
+            "join_config": null,
+            "kind": "ask",
+            "config": {
+              "name": "slot::credentials-vault",
+              "input": {
+                "operation": "read",
+                "key": "stripe-restricted-key",
+                "handle_ttl_seconds": 300
+              }
+            }
+          },
+          {
+            "id": "read_request_builder",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::stripe-payment-provider::stored-bytes::stripe-http-request-builder"
+            }
+          },
+          {
+            "id": "bind",
+            "join": "any",
+            "join_config": null,
+            "kind": "ask",
+            "config": {
+              "name": "stripe-payment-provider.bind-capability-invocation",
+              "input": {
+                "descriptor_id": "capability:stripe.checkout-session.read",
+                "input_facts": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "start",
+                    "path": "input.input_facts"
+                  }
+                },
+                "idempotency_key": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "start",
+                    "path": "input.idempotency_key"
+                  }
+                },
+                "requested_at": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "start",
+                    "path": "input.requested_at"
+                  }
+                },
+                "credential_handle_ref": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "read_credential",
+                    "path": "output.handle"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "build_request",
+            "join": "any",
+            "join_config": null,
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "node",
+                  "stripe-http-request-builder.built.mjs",
+                  "--input-json",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "bind",
+                      "path": "output"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.stringify",
+                        "args": {
+                          "format": "json"
+                        }
+                      }
+                    ]
+                  }
+                ],
+                "cwd": null,
+                "timeout_ms": 30000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "stripe-http-request-builder.built.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_request_builder",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "http",
+            "join": "any",
+            "join_config": null,
+            "kind": "ask",
+            "config": {
+              "name": "slot::http-client",
+              "output": {
+                "decode": "bytes"
+              },
+              "input": {
+                "url": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "build_request",
+                    "path": "output.captured_fds.0.bytes.base64"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "url"
+                      }
+                    }
+                  ]
+                },
+                "method": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "build_request",
+                    "path": "output.captured_fds.0.bytes.base64"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "method"
+                      }
+                    }
+                  ]
+                },
+                "headers": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "build_request",
+                    "path": "output.captured_fds.0.bytes.base64"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "headers"
+                      }
+                    }
+                  ]
+                },
+                "credential_injections": [
+                  {
+                    "handle": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "read_credential",
+                        "path": "output.handle"
+                      }
+                    },
+                    "placement": {
+                      "kind": "header",
+                      "name": "Authorization",
+                      "prefix": "Bearer ",
+                      "suffix": ""
+                    }
+                  }
+                ],
+                "timeout_ms": 30000
+              }
+            }
+          },
+          {
+            "id": "evidence",
+            "join": "any",
+            "join_config": null,
+            "kind": "ask",
+            "config": {
+              "name": "stripe-payment-provider.read-capability-evidence",
+              "input": {
+                "invocation": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "bind",
+                    "path": "output"
+                  }
+                },
+                "runner_session_ref": "http-session:read-checkout-session",
+                "state": "succeeded",
+                "observed_at": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "start",
+                    "path": "input.requested_at"
+                  }
+                },
+                "output": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "http",
+                    "path": "output.body"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "id": "return_projection",
+            "join": "any",
+            "join_config": null,
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "evidence",
+                  "path": "output.projection"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::capability::checkout-session-create",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "capability-descriptor-record",
+        "id": "capability:stripe.checkout-session.create",
+        "label": "Checkout session create",
+        "operation_id": "operation:create-session",
+        "provider_ref": "provider:stripe",
+        "api_version_policy": "2026-05-27.dahlia",
+        "required_credential_ref": "credential-class:stripe-restricted-key",
+        "runner": {
+          "kind": "process",
+          "runner_id": "runner:stripe-capability-worker",
+          "target": "compute.process",
+          "timeout_ms": 30000,
+          "mount": {
+            "stored_bytes_address": "package::stripe-payment-provider::stored-bytes::stripe-capability-worker",
+            "mount_path": "stripe-capability-worker.built.mjs"
+          }
+        },
+        "input_schema": {
+          "required": [
+            "service_connection_ref",
+            "operation_subject"
+          ],
+          "properties": {
+            "service_connection_ref": "service-connection",
+            "operation_subject": "record"
+          }
+        },
+        "idempotency_policy": {
+          "source": "caller-provided",
+          "duplicate_behavior": "read-existing-receipt"
+        },
+        "redaction_policy_ref": "redaction-policy:provider-secrets",
+        "evidence_projection_ref": "evidence-projection:external-operation-readable-status",
+        "metadata": {
+          "integration_surface": "checkout-session",
+          "dynamic_payment_methods": true
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::capability::checkout-session-read",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "capability-descriptor-record",
+        "id": "capability:stripe.checkout-session.read",
+        "label": "Checkout session read",
+        "operation_id": "operation:read-session",
+        "provider_ref": "provider:stripe",
+        "api_version_policy": "2026-05-27.dahlia",
+        "required_credential_ref": "credential-class:stripe-restricted-key",
+        "runner": {
+          "kind": "http",
+          "runner_id": "runner:http-client",
+          "target": "http-client.request",
+          "timeout_ms": 30000,
+          "request": {
+            "method": "GET",
+            "url_template": "https://api.stripe.com/v1/checkout/sessions/{provider_object_ref}"
+          }
+        },
+        "input_schema": {
+          "required": [
+            "service_connection_ref",
+            "provider_object_ref"
+          ],
+          "properties": {
+            "service_connection_ref": "service-connection",
+            "provider_object_ref": "provider-object-ref"
+          }
+        },
+        "idempotency_policy": {
+          "source": "caller-provided",
+          "duplicate_behavior": "read-existing-receipt"
+        },
+        "redaction_policy_ref": "redaction-policy:provider-secrets",
+        "evidence_projection_ref": "evidence-projection:external-operation-readable-status",
+        "metadata": {
+          "integration_surface": "checkout-session-read"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::capability::webhook-observe",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "capability-descriptor-record",
+        "id": "capability:generic.webhook-observe",
+        "label": "Webhook observe",
+        "operation_id": "operation:observe-event",
+        "provider_ref": "provider:any",
+        "required_credential_ref": "credential-class:webhook-signing-secret",
+        "runner": {
+          "kind": "workflow",
+          "runner_id": "runner:workflow-owner-action",
+          "target": "slot::workflow",
+          "timeout_ms": 5000
+        },
+        "input_schema": {
+          "required": [
+            "service_connection_ref",
+            "event_payload_ref",
+            "event_signature_ref"
+          ],
+          "properties": {
+            "service_connection_ref": "service-connection",
+            "event_payload_ref": "opaque-bytes-ref",
+            "event_signature_ref": "signature-ref"
+          }
+        },
+        "idempotency_policy": {
+          "source": "event-id",
+          "duplicate_behavior": "read-existing-receipt"
+        },
+        "redaction_policy_ref": "redaction-policy:provider-secrets",
+        "evidence_projection_ref": "evidence-projection:external-operation-readable-status",
+        "metadata": {
+          "ack_behavior": "fast-ack-then-follow-up"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::capability::payment-intent-create",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "capability-descriptor-record",
+        "id": "capability:stripe.payment-intent.create",
+        "label": "Payment intent create",
+        "operation_id": "operation:create-payment-intent",
+        "provider_ref": "provider:stripe",
+        "api_version_policy": "2026-05-27.dahlia",
+        "required_credential_ref": "credential-class:stripe-restricted-key",
+        "runner": {
+          "kind": "process",
+          "runner_id": "runner:stripe-capability-worker",
+          "target": "compute.process",
+          "timeout_ms": 30000,
+          "mount": {
+            "stored_bytes_address": "package::stripe-payment-provider::stored-bytes::stripe-capability-worker",
+            "mount_path": "stripe-capability-worker.built.mjs"
+          }
+        },
+        "input_schema": {
+          "required": [
+            "service_connection_ref",
+            "operation_subject"
+          ],
+          "properties": {
+            "service_connection_ref": "service-connection",
+            "operation_subject": "record"
+          }
+        },
+        "idempotency_policy": {
+          "source": "caller-provided",
+          "duplicate_behavior": "read-existing-receipt",
+          "requires_explicit_flow_opt_in": true
+        },
+        "redaction_policy_ref": "redaction-policy:provider-secrets",
+        "evidence_projection_ref": "evidence-projection:external-operation-readable-status",
+        "metadata": {
+          "integration_surface": "payment-intent",
+          "requires_explicit_flow_opt_in": true,
+          "dynamic_payment_methods": true
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::capability::setup-intent-create",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "capability-descriptor-record",
+        "id": "capability:stripe.setup-intent.create",
+        "label": "Setup intent create",
+        "operation_id": "operation:create-setup-intent",
+        "provider_ref": "provider:stripe",
+        "api_version_policy": "2026-05-27.dahlia",
+        "required_credential_ref": "credential-class:stripe-restricted-key",
+        "runner": {
+          "kind": "process",
+          "runner_id": "runner:stripe-capability-worker",
+          "target": "compute.process",
+          "timeout_ms": 30000,
+          "mount": {
+            "stored_bytes_address": "package::stripe-payment-provider::stored-bytes::stripe-capability-worker",
+            "mount_path": "stripe-capability-worker.built.mjs"
+          }
+        },
+        "input_schema": {
+          "required": [
+            "service_connection_ref",
+            "operation_subject"
+          ],
+          "properties": {
+            "service_connection_ref": "service-connection",
+            "operation_subject": "record"
+          }
+        },
+        "idempotency_policy": {
+          "source": "caller-provided",
+          "duplicate_behavior": "read-existing-receipt"
+        },
+        "redaction_policy_ref": "redaction-policy:provider-secrets",
+        "evidence_projection_ref": "evidence-projection:external-operation-readable-status",
+        "metadata": {
+          "integration_surface": "setup-intent",
+          "dynamic_payment_methods": true
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::capability::connect-account-create",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "capability-descriptor-record",
+        "id": "capability:stripe.connect-account.create",
+        "label": "Connect account create",
+        "operation_id": "operation:create-connect-account",
+        "provider_ref": "provider:stripe",
+        "api_version_policy": "2026-05-27.dahlia",
+        "required_credential_ref": "credential-class:stripe-restricted-key",
+        "runner": {
+          "kind": "process",
+          "runner_id": "runner:stripe-capability-worker",
+          "target": "compute.process",
+          "timeout_ms": 30000,
+          "mount": {
+            "stored_bytes_address": "package::stripe-payment-provider::stored-bytes::stripe-capability-worker",
+            "mount_path": "stripe-capability-worker.built.mjs"
+          }
+        },
+        "input_schema": {
+          "required": [
+            "service_connection_ref",
+            "operation_subject"
+          ],
+          "properties": {
+            "service_connection_ref": "service-connection",
+            "operation_subject": "record"
+          }
+        },
+        "idempotency_policy": {
+          "source": "caller-provided",
+          "duplicate_behavior": "read-existing-receipt"
+        },
+        "redaction_policy_ref": "redaction-policy:provider-secrets",
+        "evidence_projection_ref": "evidence-projection:external-operation-readable-status",
+        "metadata": {
+          "integration_surface": "connect-account",
+          "uses_accounts_v2": true
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::capability::transfer-create",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "capability-descriptor-record",
+        "id": "capability:stripe.transfer.create",
+        "label": "Transfer create",
+        "operation_id": "operation:create-transfer",
+        "provider_ref": "provider:stripe",
+        "api_version_policy": "2026-05-27.dahlia",
+        "required_credential_ref": "credential-class:stripe-restricted-key",
+        "runner": {
+          "kind": "process",
+          "runner_id": "runner:stripe-capability-worker",
+          "target": "compute.process",
+          "timeout_ms": 30000,
+          "mount": {
+            "stored_bytes_address": "package::stripe-payment-provider::stored-bytes::stripe-capability-worker",
+            "mount_path": "stripe-capability-worker.built.mjs"
+          }
+        },
+        "input_schema": {
+          "required": [
+            "service_connection_ref",
+            "operation_subject"
+          ],
+          "properties": {
+            "service_connection_ref": "service-connection",
+            "operation_subject": "record"
+          }
+        },
+        "idempotency_policy": {
+          "source": "caller-provided",
+          "duplicate_behavior": "read-existing-receipt",
+          "requires_explicit_flow_opt_in": true
+        },
+        "redaction_policy_ref": "redaction-policy:provider-secrets",
+        "evidence_projection_ref": "evidence-projection:external-operation-readable-status",
+        "metadata": {
+          "integration_surface": "transfer",
+          "connect_destination_charge_support": true,
+          "requires_explicit_flow_opt_in": true
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::capability::stripe-webhook-verify-and-observe",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "capability-descriptor-record",
+        "id": "capability:stripe.webhook.verify-and-observe",
+        "label": "Webhook verify and observe",
+        "operation_id": "operation:observe-event",
+        "provider_ref": "provider:stripe",
+        "api_version_policy": "2026-05-27.dahlia",
+        "required_credential_ref": "credential-class:webhook-signing-secret",
+        "runner": {
+          "kind": "workflow",
+          "runner_id": "runner:workflow-owner-action",
+          "target": "slot::workflow",
+          "timeout_ms": 5000
+        },
+        "input_schema": {
+          "required": [
+            "service_connection_ref",
+            "event_payload_ref",
+            "event_signature_ref"
+          ],
+          "properties": {
+            "service_connection_ref": "service-connection",
+            "event_payload_ref": "opaque-bytes-ref",
+            "event_signature_ref": "signature-ref"
+          }
+        },
+        "idempotency_policy": {
+          "source": "event-id",
+          "duplicate_behavior": "read-existing-receipt"
+        },
+        "redaction_policy_ref": "redaction-policy:provider-secrets",
+        "evidence_projection_ref": "evidence-projection:external-operation-readable-status",
+        "metadata": {
+          "requires_signature_verification": true,
+          "ack_behavior": "fast-ack-then-follow-up"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::redaction-policy::provider-secrets",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "redaction-policy-record",
+        "id": "redaction-policy:provider-secrets",
+        "redacted_keys": [
+          "authorization",
+          "api_key",
+          "secret",
+          "client_secret",
+          "webhook_signing_secret",
+          "stripe_signature",
+          "signature"
+        ],
+        "redacted_patterns": [
+          "\\bsk_(live|test)_[A-Za-z0-9_]+\\b",
+          "\\brk_(live|test)_[A-Za-z0-9_]+\\b",
+          "\\bwhsec_[A-Za-z0-9_]+\\b"
+        ],
+        "public_output_keys": [
+          "provider_request_id",
+          "public_handoff_url",
+          "public_client_token_ref",
+          "observed_state"
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::projection::external-operation-readable-status",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "evidence-projection-descriptor",
+        "id": "evidence-projection:external-operation-readable-status",
+        "public_output_keys": [
+          "provider_request_id",
+          "public_handoff_url",
+          "public_client_token_ref",
+          "observed_state"
+        ],
+        "relationship_keys": [
+          "provider_object_refs"
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::stripe-payment-provider::published-records",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "cell_table",
+        "columns": [
+          {
+            "column": 0,
+            "source": {
+              "path": [
+                "record",
+                "address"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "non_empty_text"
+            }
+          },
+          {
+            "column": 1,
+            "source": {
+              "path": [
+                "record",
+                "payload_json_text"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "json_text"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "stripe-ingest-parse-script",
+      "source_path": "do-work/process-scripts/parse-stripe-signature-cli.built.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "stripe-ingest-compare-script",
+      "source_path": "do-work/process-scripts/compare-and-map-stripe-cli.built.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "stripe-webhook-event-map",
+      "source_path": "data/stripe-webhook-event-map.json"
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::workflow-action::ingest-webhook",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "action",
+        "id": "action:stripe-payment-provider.ingest-webhook",
+        "is_active": true,
+        "name": "stripe ingest — verify webhook signature (vault sign) and write revenue PaymentEvents",
+        "description": "Dispatched by the generic /ingest/{connection_id} route for a workflow_verified Stripe webhook connection with input {connection_id, body, raw_body, headers}. Verifies the Stripe-Signature WITHOUT the secret leaving credentials-vault: parse header+build message (compute) -> vault read->handle -> vault sign(hmac_sha256) -> compare expected vs v1 + DATA-map (compute) -> write revenue PaymentEvent records. Fail-closed: a bad signature / unmapped type writes ZERO records. The Stripe signature scheme lives ONLY in the package scripts (L098); the route + vault stay provider-blind.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "connection_id": {
+              "type": "string"
+            },
+            "body": {
+              "type": "object"
+            },
+            "raw_body": {
+              "type": "string"
+            },
+            "headers": {
+              "type": "object"
+            }
+          },
+          "required": [],
+          "additionalProperties": true
+        },
+        "steps": [
+          {
+            "id": "read_secret_handle",
+            "join": "any",
+            "join_config": null,
+            "kind": "ask",
+            "config": {
+              "name": "slot::credentials-vault",
+              "input": {
+                "operation": "read",
+                "key": "stripe-webhook-secret",
+                "handle_ttl_seconds": 300
+              }
+            }
+          },
+          {
+            "id": "read_parse_script",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::stripe-payment-provider::stored-bytes::stripe-ingest-parse-script"
+            }
+          },
+          {
+            "id": "parse",
+            "join": "any",
+            "join_config": null,
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "node",
+                  "packages/stripe-payment-provider/do-work/process-scripts/parse-stripe-signature-cli.built.mjs",
+                  "--input-json",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "start",
+                      "path": "input"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.stringify",
+                        "args": {
+                          "format": "json"
+                        }
+                      }
+                    ]
+                  },
+                  "--output-json",
+                  "parse-result.json"
+                ],
+                "cwd": null,
+                "timeout_ms": 30000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "packages/stripe-payment-provider/do-work/process-scripts/parse-stripe-signature-cli.built.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "path": "output.content_hash",
+                          "key": "read_parse_script"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": "parse-result.json",
+                    "content_type": "application/json"
+                  }
+                ],
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "parsed",
+            "join": "any",
+            "join_config": null,
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "path": "output.outputs.0.bytes.base64",
+                  "key": "parse"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.decode",
+                    "args": {
+                      "encoding": "base64"
+                    }
+                  },
+                  {
+                    "op": "op:core.json_parse"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "sign",
+            "join": "any",
+            "join_config": null,
+            "kind": "ask",
+            "config": {
+              "name": "slot::credentials-vault",
+              "input": {
+                "operation": "sign",
+                "handle": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "path": "output.handle",
+                    "key": "read_secret_handle"
+                  }
+                },
+                "message_b64": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "path": "output.messageB64",
+                    "key": "parsed"
+                  }
+                },
+                "scheme": "hmac_sha256",
+                "key_encoding": "raw",
+                "output_encoding": "hex_0x"
+              }
+            }
+          },
+          {
+            "id": "read_compare_script",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::stripe-payment-provider::stored-bytes::stripe-ingest-compare-script"
+            }
+          },
+          {
+            "id": "read_event_map",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::stripe-payment-provider::stored-bytes::stripe-webhook-event-map"
+            }
+          },
+          {
+            "id": "compare",
+            "join": "any",
+            "join_config": null,
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "node",
+                  "packages/stripe-payment-provider/do-work/process-scripts/compare-and-map-stripe-cli.built.mjs",
+                  "--expected-signature",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "path": "output.signature",
+                      "key": "sign"
+                    }
+                  },
+                  "--signatures-json",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "path": "output.signatures",
+                      "key": "parsed"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.stringify",
+                        "args": {
+                          "format": "json"
+                        }
+                      }
+                    ]
+                  },
+                  "--raw-body",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "start",
+                      "path": "input.raw_body"
+                    }
+                  },
+                  "--event-map",
+                  "event-map.json",
+                  "--output-json",
+                  "compare-result.json"
+                ],
+                "cwd": null,
+                "timeout_ms": 30000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "packages/stripe-payment-provider/do-work/process-scripts/compare-and-map-stripe-cli.built.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "path": "output.content_hash",
+                          "key": "read_compare_script"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "event-map.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "path": "output.content_hash",
+                          "key": "read_event_map"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": "compare-result.json",
+                    "content_type": "application/json"
+                  }
+                ],
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "compare_result",
+            "join": "any",
+            "join_config": null,
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "path": "output.outputs.0.bytes.base64",
+                  "key": "compare"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.decode",
+                    "args": {
+                      "encoding": "base64"
+                    }
+                  },
+                  {
+                    "op": "op:core.json_parse"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "write_events",
+            "join": "any",
+            "join_config": null,
+            "kind": "write",
+            "config": {
+              "items": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "path": "output.writes",
+                  "key": "compare_result"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-cancel-subscription",
+      "source_path": "built-stored-bytes/entry-bytes-cancel-subscription",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-cancel-subscription.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::target::cancel-subscription",
+      "path": [
+        "packages",
+        "stripe-payment-provider",
+        "targets",
+        "cancel-subscription"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "cancel-subscription",
+        "source_path": "do-work/create-hosted-session.ts",
+        "export_name": "cancelSubscriptionTarget",
+        "target": "stripe-payment-provider.cancel-subscription"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::entry::cancel-subscription",
+      "path": [
+        "packages",
+        "stripe-payment-provider",
+        "entries",
+        "cancel-subscription"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "cancel-subscription",
+        "export_name": "cancelSubscriptionTarget",
+        "source_path": "do-work/create-hosted-session.ts",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-cancel-subscription"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-advance-installment",
+      "source_path": "built-stored-bytes/entry-bytes-advance-installment",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-advance-installment.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::target::advance-installment",
+      "path": [
+        "packages",
+        "stripe-payment-provider",
+        "targets",
+        "advance-installment"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "advance-installment",
+        "source_path": "do-work/create-hosted-session.ts",
+        "export_name": "advanceInstallmentTarget",
+        "target": "stripe-payment-provider.advance-installment"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::entry::advance-installment",
+      "path": [
+        "packages",
+        "stripe-payment-provider",
+        "entries",
+        "advance-installment"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "advance-installment",
+        "export_name": "advanceInstallmentTarget",
+        "source_path": "do-work/create-hosted-session.ts",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-advance-installment"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::trigger-rule::advance-installment-on-paid-invoice",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "kind": "trigger-rule",
+        "id": "trigger:stripe-payment-provider.advance-installment-on-paid-invoice",
+        "topic": "data_state",
+        "trigger_type": "delta",
+        "is_active": true,
+        "match_condition": {
+          "conditions": [
+            {
+              "$bind": {
+                "select": {
+                  "from": "change",
+                  "path": "event_kind"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.equals",
+                    "args": {
+                      "value": "subscription.renewed"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "$bind": {
+                "select": {
+                  "from": "change",
+                  "path": "attributes.provider_event_id"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.if_null",
+                    "args": {
+                      "fallback": ""
+                    }
+                  },
+                  {
+                    "op": "op:core.not_equals",
+                    "args": {
+                      "value": ""
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "$bind": {
+                "select": {
+                  "from": "change",
+                  "path": "attributes.provider_object_ref"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.if_null",
+                    "args": {
+                      "fallback": ""
+                    }
+                  },
+                  {
+                    "op": "op:core.not_equals",
+                    "args": {
+                      "value": ""
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "stripe-payment-provider.advance-installment",
+          "output_template": {
+            "subscription_id": {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "attributes.provider_object_ref"
+              }
+            },
+            "invoice_id": {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "attributes.invoice_ref"
+              }
+            }
+          }
+        }
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::checks",
+      "path": [
+        "packages",
+        "stripe-payment-provider",
+        "checks"
+      ],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "do-work/stripe-phases-for-a-payment-schedule.test.ts",
+          "processes/try-a-payment-schedule-in-test-mode.test.mjs",
+          "read-data/provider-surface-descriptor.test.ts",
+          "show-ios-jscore/render-descriptor-jscore.test.ts",
+          "tests/boundary-contract.test.ts",
+          "tests/capability-records.test.ts",
+          "tests/connect-payees.test.ts",
+          "tests/compare-and-map-stripe-webhook.test.ts",
+          "tests/ensure-offer-payment-links.test.mjs",
+          "tests/create-hosted-session.test.ts",
+          "tests/cross-surface-contract.test.ts",
+          "tests/execution-composition.test.ts",
+          "tests/parse-stripe-signature.test.ts",
+          "tests/process-descriptor-adapter.test.ts",
+          "tests/stripe-capabilities.test.ts",
+          "tests/stripe-capability-worker.test.ts",
+          "tests/stripe-docs-policy.test.ts",
+          "tests/stripe-http-request.test.ts",
+          "tests/stripe-webhook-event-map.test.ts",
+          "tests/workflow-definitions.test.ts"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::stripe-payment-provider::capability::refund-create",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "capability-descriptor-record",
+        "id": "capability:stripe.refund.create",
+        "label": "Refund create",
+        "operation_id": "operation:create-refund",
+        "provider_ref": "provider:stripe",
+        "api_version_policy": "2026-05-27.dahlia",
+        "required_credential_ref": "credential-class:stripe-restricted-key",
+        "runner": {
+          "kind": "process",
+          "runner_id": "runner:stripe-capability-worker",
+          "target": "compute.process",
+          "timeout_ms": 30000,
+          "mount": {
+            "stored_bytes_address": "package::stripe-payment-provider::stored-bytes::stripe-capability-worker",
+            "mount_path": "stripe-capability-worker.built.mjs"
+          }
+        },
+        "input_schema": {
+          "required": [
+            "service_connection_ref",
+            "operation_subject",
+            "authority_receipt_ref"
+          ],
+          "properties": {
+            "service_connection_ref": "service-connection",
+            "operation_subject": "record",
+            "authority_receipt_ref": "authority-receipt"
+          }
+        },
+        "idempotency_policy": {
+          "source": "caller-provided",
+          "duplicate_behavior": "read-existing-receipt",
+          "requires_explicit_flow_opt_in": true
+        },
+        "redaction_policy_ref": "redaction-policy:provider-secrets",
+        "evidence_projection_ref": "evidence-projection:external-operation-readable-status",
+        "metadata": {
+          "integration_surface": "refund",
+          "requires_explicit_authority": true,
+          "requires_provider_payment_reference": true,
+          "requires_explicit_flow_opt_in": true
+        }
+      },
+      "remove": false
+    },
+    {"type": "record", "address": "package::stripe-payment-provider::public-source::process", "path": ["packages", "stripe-payment-provider", "public-sources", "process"], "payload": {"kind": "bitfield-package-public-source", "source_path": "process"}, "remove": false},
+    {"type": "record", "address": "package::stripe-payment-provider::public-source::data", "path": ["packages", "stripe-payment-provider", "public-sources", "data"], "payload": {"kind": "bitfield-package-public-source", "source_path": "data"}, "remove": false}
+  ]
+}

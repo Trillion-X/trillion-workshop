@@ -1,0 +1,250 @@
+{
+  "package": "suggested-match",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::suggested-match::contract",
+      "path": [
+        "packages",
+        "suggested-match"
+      ],
+      "payload": {
+        "kind": "package-boundary-contract",
+        "package": "suggested-match",
+        "owns": [
+          "ranked record review projection descriptors",
+          "ranked record review projection snapshots",
+          "owner-action request materialization for review rows",
+          "refresh request descriptors for process-session and workflow owners"
+        ],
+        "does_not_own": [
+          "relationship graph truth",
+          "profile storage",
+          "search execution",
+          "HTTP calls",
+          "credentials",
+          "notifications",
+          "workflow execution",
+          "process-session execution",
+          "slot lifecycle",
+          "device-specific storage"
+        ],
+        "reuses": [
+          "EEAF/log-owned records",
+          "record_from_matching_records",
+          "owner-action descriptors",
+          "workflow slot",
+          "process-session",
+          "ui",
+          "screen-look"
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::suggested-match::descriptor::ranked-review",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ranked-record-review-descriptor-ref",
+        "package": "suggested-match",
+        "source_path": "data/ranked-review-descriptors.json",
+        "read_entry": "fold-ranked-record-review-projection",
+        "action_entry": "build-owner-action-request",
+        "refresh_entry": "build-refresh-request"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::suggested-match::input::ranked-review-records",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "ranked-review-records",
+        "is_default": true,
+        "value_address_label": "suggested-match.ranked-review.records",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::suggested-match::entry::fold-ranked-record-review-projection",
+      "path": [
+        "packages",
+        "suggested-match",
+        "entries",
+        "fold-ranked-record-review-projection"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "fold-ranked-record-review-projection",
+        "source_path": "read-data/ranked-record-review-projection.js",
+        "export_name": "foldRankedRecordReviewProjection",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-fold-ranked-record-review-projection"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::suggested-match::entry::build-owner-action-request",
+      "path": [
+        "packages",
+        "suggested-match",
+        "entries",
+        "build-owner-action-request"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "build-owner-action-request",
+        "source_path": "do-work/owner-action-request.js",
+        "export_name": "buildOwnerActionRequest",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-build-owner-action-request"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::suggested-match::target::build-owner-action-request",
+      "path": [
+        "packages",
+        "suggested-match",
+        "targets",
+        "build-owner-action-request"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "build-owner-action-request",
+        "source_path": "do-work/owner-action-request.js",
+        "export_name": "buildOwnerActionRequest"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::suggested-match::entry::build-refresh-request",
+      "path": [
+        "packages",
+        "suggested-match",
+        "entries",
+        "build-refresh-request"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "build-refresh-request",
+        "source_path": "do-work/refresh-request-descriptor.js",
+        "export_name": "buildRefreshRequest",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-build-refresh-request"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::suggested-match::target::refresh-ranked-review",
+      "path": [
+        "packages",
+        "suggested-match",
+        "targets",
+        "refresh-ranked-review"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "build-refresh-request",
+        "source_path": "do-work/refresh-request-descriptor.js",
+        "export_name": "buildRefreshRequest",
+        "target_ref": "compute.process_session"
+      },
+      "remove": false
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::suggested-match::published-records",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "cell_table",
+        "columns": [
+          {
+            "column": 0,
+            "source": {
+              "path": [
+                "record",
+                "address"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "non_empty_text"
+            }
+          },
+          {
+            "column": 1,
+            "source": {
+              "path": [
+                "record",
+                "payload_json_text"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "json_text"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "stored-bytes",
+      "address": "package::suggested-match::source::ranked-record-review-projection",
+      "path": "read-data/ranked-record-review-projection.js"
+    },
+    {
+      "type": "stored-bytes",
+      "address": "package::suggested-match::source::owner-action-request",
+      "path": "do-work/owner-action-request.js"
+    },
+    {
+      "type": "stored-bytes",
+      "address": "package::suggested-match::source::refresh-request-descriptor",
+      "path": "do-work/refresh-request-descriptor.js"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-fold-ranked-record-review-projection",
+      "source_path": "built-stored-bytes/entry-bytes-fold-ranked-record-review-projection",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-fold-ranked-record-review-projection.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-build-owner-action-request",
+      "source_path": "built-stored-bytes/entry-bytes-build-owner-action-request",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-build-owner-action-request.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-build-refresh-request",
+      "source_path": "built-stored-bytes/entry-bytes-build-refresh-request",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-build-refresh-request.source-closure.json"
+    }
+  ]
+}

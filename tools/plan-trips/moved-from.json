@@ -17,6 +17,48 @@
       "to": "tools/plan-trips/packages/travel-operations/show/TravelOperationsPanel.tsx",
       "source_identity": "1f:4382d4af6e49868d2fba02a63bebe7ee09dff3430d046ea278d80f8a26ac29da",
       "identity": "1f:4382d4af6e49868d2fba02a63bebe7ee09dff3430d046ea278d80f8a26ac29da"
+    },
+    {
+      "from": "packages/travel-operations/do-work/travel-operation-requests.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/plan-trips/do-work/travel-operation-requests.ts",
+      "source_identity": "1f:f16d94e15c81d6c7efa9d5c97e7f359978620ebaddbb342d8668c5441d999f27",
+      "identity": "1f:f16d94e15c81d6c7efa9d5c97e7f359978620ebaddbb342d8668c5441d999f27"
+    },
+    {
+      "from": "packages/travel-operations/entry-to-package-data-map.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/plan-trips/entry-to-package-data-map.json",
+      "source_identity": "1f:4d27d143db02f1133344cbc40a517124a823cfcbe142205485370a7cbe51221d",
+      "identity": "1f:4d27d143db02f1133344cbc40a517124a823cfcbe142205485370a7cbe51221d"
+    },
+    {
+      "from": "packages/travel-operations/read-data/travel-operations.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/plan-trips/read-data/travel-operations.ts",
+      "source_identity": "1f:d35b11eead99b5ed9919243aba5b2543c2402b203a83511823c821fa43e7f5c0",
+      "identity": "1f:d35b11eead99b5ed9919243aba5b2543c2402b203a83511823c821fa43e7f5c0"
+    },
+    {
+      "from": "packages/travel-operations/show/TravelOperationsPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/plan-trips/show/TravelOperationsPanel.tsx",
+      "source_identity": "1f:4382d4af6e49868d2fba02a63bebe7ee09dff3430d046ea278d80f8a26ac29da",
+      "identity": "1f:4382d4af6e49868d2fba02a63bebe7ee09dff3430d046ea278d80f8a26ac29da"
+    },
+    {
+      "from": "packages/travel-operations/show/mount-travel-operations.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/plan-trips/show/mount-travel-operations.tsx",
+      "source_identity": "1f:d27a648ef9145e7a0a7a44a2cb217b486b7dd17143e847e919ebb5f82f1ccbc8",
+      "identity": "1f:d27a648ef9145e7a0a7a44a2cb217b486b7dd17143e847e919ebb5f82f1ccbc8"
+    },
+    {
+      "from": "packages/travel-operations/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/plan-trips/things-to-store-and-run.json",
+      "source_identity": "1f:6299fe5d5124aa5a8e527d4e48b0a7070c3e6ea8804d15e47283beb0db45350b",
+      "identity": "1f:6299fe5d5124aa5a8e527d4e48b0a7070c3e6ea8804d15e47283beb0db45350b"
     }
   ]
 }

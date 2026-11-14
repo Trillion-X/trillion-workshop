@@ -1,0 +1,59 @@
+[
+ {
+  "id": "capability:stripe.checkout-session.create",
+  "api_version_policy": "2026-05-27.dahlia",
+  "stripe_resource": "checkout.session",
+  "stripe_operation": "create",
+  "default_integration_surface": "checkout-session",
+  "dynamic_payment_methods": true
+ },
+ {
+  "id": "capability:stripe.payment-intent.create",
+  "api_version_policy": "2026-05-27.dahlia",
+  "stripe_resource": "payment_intent",
+  "stripe_operation": "create",
+  "requires_explicit_flow_opt_in": true,
+  "requires_idempotency_key": true,
+  "dynamic_payment_methods": true
+ },
+ {
+  "id": "capability:stripe.setup-intent.create",
+  "api_version_policy": "2026-05-27.dahlia",
+  "stripe_resource": "setup_intent",
+  "stripe_operation": "create",
+  "requires_idempotency_key": true,
+  "dynamic_payment_methods": true
+ },
+ {
+  "id": "capability:stripe.connect-account.create",
+  "api_version_policy": "2026-05-27.dahlia",
+  "stripe_resource": "v2.core.account",
+  "stripe_operation": "create",
+  "uses_accounts_v2": true
+ },
+ {
+  "id": "capability:stripe.webhook.verify-and-observe",
+  "api_version_policy": "2026-05-27.dahlia",
+  "stripe_resource": "event",
+  "stripe_operation": "verify-and-observe",
+  "requires_signature_verification": true,
+  "ack_behavior": "fast-ack-then-follow-up"
+ },
+ {
+  "id": "capability:stripe.transfer.create",
+  "api_version_policy": "2026-05-27.dahlia",
+  "stripe_resource": "transfer",
+  "stripe_operation": "create",
+  "requires_idempotency_key": true,
+  "connect_destination_charge_support": true
+ },
+ {
+  "id": "capability:stripe.refund.create",
+  "api_version_policy": "2026-05-27.dahlia",
+  "stripe_resource": "refund",
+  "stripe_operation": "create",
+  "requires_idempotency_key": true,
+  "requires_explicit_authority": true,
+  "requires_provider_payment_reference": true
+ }
+]

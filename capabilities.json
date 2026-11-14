@@ -916,7 +916,8 @@
       "capability": "measure traffic by where it came from: tracked links, visitors, leads and sales by source, ad return, conversions sent back to ad platforms",
       "owner": ["tools/traffic-attribution/"],
       "entry": "tools/traffic-attribution/tool-rows.json",
-      "evidence": "README.md:3 tracked links with UTM fields, visitors, leads and sales broken down by where they came from, what ad spend brings back"
+      "evidence": "README.md:3 tracked links with UTM fields, visitors, leads and sales broken down by where they came from, what ad spend brings back; the package's beacons, board screens, ingest transform, console delivery, pixel venues and tests carried byte for byte (receipt tools/traffic-attribution/moved-from.json)",
+      "source_still_in": {"repo_kind": "retired bitfield-packages repository", "paths": ["bitfield-packages/packages/traffic-attribution/"]}
     },
     {
       "capability": "transcribe recordings with a time for every word, and redo the places where the speech model looped; hear a recording in the person's files, or a link's video, into words on their own computer; read transcript and caption files (srt, vtt, txt, json, YouTube json3) into timed words and check quotes against them",

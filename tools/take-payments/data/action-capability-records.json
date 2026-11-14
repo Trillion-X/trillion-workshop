@@ -1,0 +1,23 @@
+[
+  {
+    "kind": "action",
+    "id": "action:stripe-payment-provider.start-checkout",
+    "name": "stripe-payment-provider.start-checkout",
+    "target": "stripe-payment-provider.bind-capability-invocation",
+    "capability_descriptor_ref": "capability:stripe.checkout-session.create"
+  },
+  {
+    "kind": "action",
+    "id": "action:stripe-payment-provider.read-checkout-session",
+    "name": "stripe-payment-provider.read-checkout-session",
+    "target": "stripe-payment-provider.read-capability-evidence",
+    "capability_descriptor_ref": "capability:stripe.checkout-session.read"
+  },
+  {
+    "kind": "action",
+    "id": "action:stripe-payment-provider.observe-webhook",
+    "name": "stripe-payment-provider.observe-webhook",
+    "target": "stripe-payment-provider.read-capability-evidence",
+    "capability_descriptor_ref": "capability:generic.webhook-observe"
+  }
+]

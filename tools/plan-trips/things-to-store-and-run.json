@@ -1,0 +1,374 @@
+{
+  "package": "travel-operations",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::travel-operations::placeable-surface::travel-operations",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "icon": "Route",
+        "id": "travel-operations.panel",
+        "kind": "placeable-surface",
+        "label": "Trip Board",
+        "material_target": "travel-operations",
+        "order": 740,
+        "factflow_ref": "package::travel-operations::factflow::surface",
+        "surface_id": "travel-operations.panel",
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000000740:travel-operations.panel",
+        "package_entry": {
+          "package_name": "travel-operations",
+          "entry_name": "travel-operations"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::travel-operations::entry::travel-operations",
+      "path": [
+        "packages",
+        "travel-operations",
+        "entries",
+        "travel-operations"
+      ],
+      "payload": {
+        "entry_name": "travel-operations",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-travel-operations.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-travel-operations"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::travel-operations::factflow::surface",
+      "path": [
+        "package-primitive",
+        "factflow"
+      ],
+      "payload": {
+        "kind": "bitfield-eeaf-factflow",
+        "version": 1,
+        "package": "travel-operations",
+        "journal": {
+          "address_label": "travel-operations.journal"
+        },
+        "fact_sources": [
+          {
+            "address": "itinerary.surface-state",
+            "role": "itinerary owner state"
+          },
+          {
+            "address": "packing-list.surface-state",
+            "role": "packing owner state"
+          },
+          {
+            "address": "reservation-tracker.surface-state",
+            "role": "reservation owner state"
+          },
+          {
+            "address": "travel-operations.evidence-state",
+            "role": "rough trip note state"
+          },
+          {
+            "address": "package::travel-operations::entry::travel-operations",
+            "role": "surface materialization source"
+          }
+        ],
+        "genesis": [
+          {
+            "address": "package::travel-operations::placeable-surface::travel-operations"
+          }
+        ],
+        "blockers": [
+          {
+            "address": "package::travel-operations::blocker::owner-writes-only",
+            "message": "Travel operations may launch owner workflow actions but must not directly mutate owner facts"
+          }
+        ],
+        "evidence": [
+          {
+            "address": "package::operation-records::primitive-contract"
+          },
+          {
+            "address": "package::itinerary::primitive-contract"
+          },
+          {
+            "address": "package::packing-list::primitive-contract"
+          },
+          {
+            "address": "package::reservation-tracker::primitive-contract"
+          }
+        ],
+        "interpreter_facts": {
+          "facts": [
+            {
+              "descriptor": "operation_record"
+            },
+            {
+              "descriptor": "operation_descriptor"
+            },
+            {
+              "descriptor": "operation_transition"
+            }
+          ],
+          "intents": [
+            {
+              "descriptor": "route_owner_transition",
+              "write_target": "slot::workflow"
+            },
+            {
+              "descriptor": "review_candidate_fact",
+              "write_target": "slot::workflow"
+            }
+          ],
+          "effects": [
+            {
+              "descriptor": "owner_workflow_request"
+            }
+          ],
+          "validation": [
+            {
+              "descriptor": "travel-operations.owner-boundary",
+              "rule": "canonical writes stay in owner packages"
+            }
+          ],
+          "permissions": [
+            {
+              "descriptor": "travel-operations.workflow-launch",
+              "rule": "surface may launch declared owner workflow actions"
+            }
+          ],
+          "projections": [
+            {
+              "address_label": "travel_operations.now"
+            },
+            {
+              "address_label": "travel_operations.next"
+            },
+            {
+              "address_label": "travel_operations.review"
+            },
+            {
+              "address_label": "travel_operations.timeline"
+            },
+            {
+              "address_label": "travel_operations.inventory"
+            },
+            {
+              "address_label": "travel_operations.risks"
+            }
+          ],
+          "materializations": [
+            {
+              "input_name": "itinerary-state",
+              "address_label": "itinerary.surface-state",
+              "bytes_to_value": "json"
+            },
+            {
+              "input_name": "packing-list-state",
+              "address_label": "packing-list.surface-state",
+              "bytes_to_value": "json"
+            },
+            {
+              "input_name": "reservation-state",
+              "address_label": "reservation-tracker.surface-state",
+              "bytes_to_value": "json"
+            },
+            {
+              "input_name": "evidence-state",
+              "address_label": "travel-operations.evidence-state",
+              "bytes_to_value": "json"
+            }
+          ]
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::travel-operations::bitfield-input::itinerary-state",
+      "path": [
+        "package-primitive",
+        "factflow",
+        "materialization"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "itinerary-state",
+        "is_default": true,
+        "value_address_label": "itinerary.surface-state",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::travel-operations::bitfield-input::packing-list-state",
+      "path": [
+        "package-primitive",
+        "factflow",
+        "materialization"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "packing-list-state",
+        "is_default": false,
+        "value_address_label": "packing-list.surface-state",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::travel-operations::bitfield-input::reservation-state",
+      "path": [
+        "package-primitive",
+        "factflow",
+        "materialization"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "reservation-state",
+        "is_default": false,
+        "value_address_label": "reservation-tracker.surface-state",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::travel-operations::bitfield-input::evidence-state",
+      "path": [
+        "package-primitive",
+        "factflow",
+        "materialization"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "evidence-state",
+        "is_default": false,
+        "value_address_label": "travel-operations.evidence-state",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::travel-operations::primitive-contract",
+      "path": [
+        "package-primitive",
+        "contract"
+      ],
+      "payload": {
+        "kind": "bitfield-package-primitive-contract",
+        "version": 1,
+        "package": "travel-operations",
+        "capability": "generic-trip-board",
+        "owns": [
+          "trip-board-surface-projection",
+          "current-trip-item-selection",
+          "owner-transition-routing",
+          "rough-trip-note-capture"
+        ],
+        "does_not_own": [
+          "trip-schedule-state",
+          "packing-state",
+          "reservation-state",
+          "booking-provider-credentials",
+          "payment-execution",
+          "account-session"
+        ],
+        "reuse": {
+          "itinerary": "schedule owner input",
+          "packing-list": "packing owner input",
+          "reservation-tracker": "booking owner input",
+          "workflow": "owner action execution through slot::workflow"
+        },
+        "new_slot": false
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::travel-operations::workflow-action::write-evidence",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:travel-operations:write-evidence",
+        "kind": "action",
+        "name": "travel-operations-save-note",
+        "description": "Save a rough trip note without changing itinerary, packing, or booking facts directly.",
+        "input_schema": {},
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": "travel-operations.evidence-state",
+                  "path": [
+                    "package-primitive",
+                    "factflow",
+                    "evidence"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": ""
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-travel-operations",
+      "source_path": "built-stored-bytes/entry-bytes-travel-operations",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-travel-operations.source-closure.json"
+    }
+  ]
+}

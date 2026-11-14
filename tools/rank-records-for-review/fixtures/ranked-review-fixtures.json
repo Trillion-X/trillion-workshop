@@ -1,0 +1,152 @@
+{
+  "empty": {
+    "records": [],
+    "related": []
+  },
+  "sparse": {
+    "records": [
+      {
+        "record_ref": "record.alpha",
+        "candidate_record_refs": ["record.beta"],
+        "source_record_refs": ["source.one"],
+        "evidence_refs": ["evidence.one", "evidence.two"],
+        "rule_refs": ["rule.one"],
+        "display_descriptor_refs": ["display.primary"],
+        "owner_action_descriptor_refs": ["action.primary-review-action"],
+        "process_session_ref": "process_session:refresh-alpha",
+        "idempotency_ref": "idempotency:alpha",
+        "rank": 1,
+        "score": 0.91,
+        "status_keys": {
+          "confidence": "high",
+          "action": "ready"
+        },
+        "display": {
+          "primary": "Alpha record",
+          "secondary": "Beta record",
+          "reason": "Shared context appears in multiple source records."
+        }
+      },
+      {
+        "record_ref": "record.gamma",
+        "candidate_record_refs": ["record.delta"],
+        "source_record_refs": ["source.two"],
+        "evidence_refs": [],
+        "rule_refs": ["rule.two"],
+        "display_descriptor_refs": ["display.primary"],
+        "owner_action_descriptor_refs": ["action.secondary-review-action"],
+        "process_session_ref": "process_session:refresh-gamma",
+        "idempotency_ref": "idempotency:gamma",
+        "rank": 2,
+        "score": 0.47,
+        "status_keys": {
+          "confidence": "review",
+          "action": "queued"
+        },
+        "display": {
+          "primary": "Gamma record",
+          "secondary": "Delta record",
+          "reason": "Sparse evidence still remains inspectable."
+        }
+      }
+    ],
+    "related": []
+  },
+  "dense": {
+    "records": [
+      {
+        "record_ref": "record.third",
+        "rank": 3,
+        "score": 0.31,
+        "source_record_refs": ["source.c"],
+        "evidence_refs": ["evidence.c"],
+        "idempotency_ref": "idempotency:third",
+        "display": {
+          "primary": "Third",
+          "reason": "Lowest rank."
+        }
+      },
+      {
+        "record_ref": "record.first",
+        "rank": 1,
+        "score": 0.99,
+        "source_record_refs": ["source.a"],
+        "evidence_refs": ["evidence.a"],
+        "idempotency_ref": "idempotency:first",
+        "display": {
+          "primary": "First",
+          "reason": "Highest rank."
+        }
+      },
+      {
+        "record_ref": "record.second",
+        "rank": 2,
+        "score": 0.72,
+        "source_record_refs": ["source.b"],
+        "evidence_refs": ["evidence.b"],
+        "idempotency_ref": "idempotency:second",
+        "display": {
+          "primary": "Second",
+          "reason": "Middle rank."
+        }
+      }
+    ],
+    "related": []
+  },
+  "futureDomain": {
+    "records": [
+      {
+        "record_ref": "record.future",
+        "candidate_record_refs": ["record.future-candidate"],
+        "source_record_refs": ["source.future"],
+        "evidence_refs": ["evidence.future"],
+        "rule_refs": ["rule.future"],
+        "display_descriptor_refs": ["display.future"],
+        "owner_action_descriptor_refs": ["action.future"],
+        "process_session_ref": "process_session:future",
+        "idempotency_ref": "idempotency:future",
+        "rank": 7,
+        "score": 0.88,
+        "status_keys": {
+          "confidence": "brand_new_signal",
+          "action": "future_operation_state"
+        },
+        "display": {
+          "primary": "Future record",
+          "secondary": "Future counterpart",
+          "reason": "Future vocabulary stays data."
+        }
+      }
+    ],
+    "related": []
+  },
+  "events": [
+    {
+      "op": "upsert",
+      "cursor": "001",
+      "record": {
+        "record_ref": "record.to-delete",
+        "rank": 1,
+        "display": {
+          "primary": "Delete me"
+        }
+      }
+    },
+    {
+      "op": "delete",
+      "cursor": "002",
+      "record_ref": "record.to-delete"
+    },
+    {
+      "op": "upsert",
+      "cursor": "003",
+      "record": {
+        "record_ref": "record.restored",
+        "rank": 1,
+        "display": {
+          "primary": "Restored"
+        }
+      }
+    }
+  ]
+}
