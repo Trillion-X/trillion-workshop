@@ -466,7 +466,7 @@ export function trillionClient({ door, credential, fetchImpl = fetch, rules = se
     const result = await rpc('initialize', { protocolVersion: rules.engine.protocol_version, capabilities: {}, clientInfo: { name: rules.client_name, version: rules.client_version } });
     const account = result?._meta?.[rules.engine.account_meta]?.account_id;
     if (typeof account !== 'string' || !account) throw new TrillionError(fill(rules.words.no_account, { door: door.name }), { status: 4 });
-    return { account, server: result.serverInfo ?? null };
+    return { account, server: result.serverInfo ?? null, capabilities: result.capabilities ?? {} };
   }
   return { rpc, tool, op, whoami, door, credential, wait };
 }
@@ -1043,7 +1043,10 @@ const leaves = (value, path = '', out = {}) => {
 };
 
 /** What a records:write would do, read and not sent: per row its current value (records:read), the new value, the field-by-field
- *  diff, the fields the write drops, and `removes` for a value null. Nothing is written: the engine has no validate-only route. */
+ *  diff, the fields the write drops, and `removes` for a value null. When the engine says it can check a write without committing it
+ *  (capabilities.experimental[rule.capability]) the same records are also sent once as `check_only`, under a fresh request key, and
+ *  `engine_check` is what the engine answered or the refusal the write would meet; an engine that does not say so is never sent it,
+ *  because it would ignore the field and commit. */
 export async function dryRunWrite(client, request, { rules = settings } = {}) {
   const rule = rules.direct_calls.dry_run_reads_first;
   const rows = [];
@@ -1059,7 +1062,17 @@ export async function dryRunWrite(client, request, { rules = settings } = {}) {
       action: next === null ? (current === null ? 'nothing to remove' : rule.removes) : current === null ? 'creates this row' : diff.length ? 'replaces this row' : 'no change',
       current, new: next, diff, dropped_fields: diff.filter(entry => entry.change === 'dropped').map(entry => entry.field) });
   }
-  return { dry_run: true, sent: false, request, rows, note: rule.no_validate_route };
+  let engineCheck = null;
+  if ((await client.whoami()).capabilities?.experimental?.[rule.capability] === true) {
+    try {
+      const answer = await client.op(request.address, request.method, { ...request.input, check_only: true }, { requestKey: randomUUID() });
+      engineCheck = answer?.check_only === true ? { would_refuse: false, changed: answer.changed, write_count: answer.write_count } : { would_refuse: null, warning: rule.not_honored, answer };
+    } catch (error) {
+      if (!(error instanceof TrillionError)) throw error;
+      engineCheck = { would_refuse: true, refusal: error.message };
+    }
+  }
+  return { dry_run: true, sent: false, request, rows, engine_check: engineCheck, ...(engineCheck === null ? { note: rule.no_validate_route } : {}) };
 }
 
 /** Runs one command line; answers the text to print. `seams` carries what tests replace: store, grants, state, open, env,

@@ -55,7 +55,9 @@
       "method": "records:write",
       "read_method": "records:read",
       "removes": "REMOVES THIS ROW",
-      "no_validate_route": "The engine has no validate-only route for records:write (own-record-writes.json input_schema holds only records), so this preview cannot say whether the engine would refuse the write."
+      "capability": "records_write_check_only",
+      "no_validate_route": "This engine does not say it can check a write without committing it (initialize capabilities.experimental.records_write_check_only), so this preview cannot say whether the engine would refuse the write.",
+      "not_honored": "THE ENGINE DID NOT HONOR check_only: its answer is not a check, so the write may have been applied. Read the rows."
     }
   },
   "install": {
