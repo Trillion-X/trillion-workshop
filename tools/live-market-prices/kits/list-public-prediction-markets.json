@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:list-public-prediction-markets's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:list-public-prediction-markets with nothing more.\" See which prediction markets are open right now, what each asks, its outcomes, their prices and its trading volume",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:list-public-prediction-markets",
+    "tool:read-prediction-market-order-book"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:list-public-prediction-markets\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-public-prediction-markets and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.status.state contains \"live\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "List public prediction markets on a sample input",
+      "ask": "Run tool:list-public-prediction-markets.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:list-public-prediction-markets",
+            "input": {
+              "limit": 1
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.status.state contains \"live\"."
+    }
+  ]
+}

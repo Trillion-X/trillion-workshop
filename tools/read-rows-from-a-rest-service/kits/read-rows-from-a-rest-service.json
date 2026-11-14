@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-rows-from-a-rest-service's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-rows-from-a-rest-service with account_id, project_url, table.\" Read the rows of one table in the person's connected database service, such as a Supabase project, with filters and an order",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-rows-from-a-rest-service"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-rows-from-a-rest-service\", and give it account_id, project_url, table.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-rows-from-a-rest-service and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields rows, count, total."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read rows from a REST database service on a sample input",
+      "ask": "Run tool:read-rows-from-a-rest-service.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-rows-from-a-rest-service",
+            "input": {
+              "account_id": "<account_id: The PostgREST service connection, service_connection:supabase or service_connection:supabase:<account>>",
+              "project_url": "<project_url: The project's address, https://<project>.supabase.co, as the connection shows it>",
+              "table": "<table: One table of the project, plain letters, digits and underscores>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields rows, count, total.",
+      "given": "The person gives: account_id, project_url, table (shown as <name> in the input)."
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "draft": true,
+  "drafted_from": "tool:choose-which-ai-answers-me's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:choose-which-ai-answers-me with agent_id.\" Make the request that sets which AI answers a person, or sends them back to automatic routing, as the selected-agent part sends it to the workflow slot, without sending it",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:choose-which-ai-answers-me"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:choose-which-ai-answers-me\", and give it agent_id.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:choose-which-ai-answers-me and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields request, automatic."
+  ],
+  "worked_examples": [
+    {
+      "title": "Choose which AI answers me on a sample input",
+      "ask": "Run tool:choose-which-ai-answers-me.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:choose-which-ai-answers-me",
+            "input": {
+              "agent_id": "agent:sample-writer"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields request, automatic."
+    }
+  ]
+}

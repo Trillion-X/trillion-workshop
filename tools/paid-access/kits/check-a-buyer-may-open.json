@@ -1,0 +1,44 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-a-buyer-may-open's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-a-buyer-may-open with subject, scope.\" Decide whether a buyer may open one gated thing (a page, a lesson, a publication) from the access it requires",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-a-buyer-may-open",
+    "tool:see-who-holds-paid-access"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-a-buyer-may-open\", and give it subject, scope.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-buyer-may-open and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.authorized contains \"true\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check a buyer may open something on a sample input",
+      "ask": "Run tool:check-a-buyer-may-open.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-a-buyer-may-open",
+            "input": {
+              "subject": "buyer@example.com",
+              "scope": {
+                "schema": "addressed-expiring-value-scope/v1",
+                "value_ref": "page:sample",
+                "instance_ref": "page:sample:1",
+                "required_access_refs": []
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.authorized contains \"true\"."
+    }
+  ]
+}

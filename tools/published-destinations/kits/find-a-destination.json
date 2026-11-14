@@ -1,0 +1,64 @@
+{
+  "draft": true,
+  "drafted_from": "tool:find-a-destination's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:find-a-destination with rows, ref.\" Find the destination screen an owner has published (a progress page, a results page) among saved records, for one person or subject, and read it safely",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:find-a-destination"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:find-a-destination\", and give it rows, ref.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-a-destination and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.descriptor.statement contains \"Your week at the bakery\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Find a published destination on a sample input",
+      "ask": "Run tool:find-a-destination.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:find-a-destination",
+            "input": {
+              "rows": [
+                {
+                  "record": {
+                    "address": "a:1"
+                  },
+                  "payload": {
+                    "kind": "destination-descriptor",
+                    "ref": "destination:bakery",
+                    "subject_ref": "subject:bakery",
+                    "statement": "Your week at the bakery",
+                    "sections": [
+                      {
+                        "presentation": "task-list",
+                        "items": [
+                          {
+                            "ref": "loaf",
+                            "title": "Bake a loaf",
+                            "percent": 100,
+                            "celebrate": true
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ],
+              "ref": "destination:bakery",
+              "subject_ref": "subject:bakery"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.descriptor.statement contains \"Your week at the bakery\"."
+    }
+  ]
+}

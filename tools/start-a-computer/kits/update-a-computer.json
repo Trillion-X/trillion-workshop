@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:update-a-computer's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:update-a-computer with lease_file, request_file.\" Bring a running computer to what a new one gets: the product settings file, the signed release feed and a release that knows both",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:update-a-computer"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:update-a-computer\", and give it lease_file, request_file.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:update-a-computer and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields release, backup, product_settings, release_feed, sign_up_status, layout, copies."
+  ],
+  "worked_examples": [
+    {
+      "title": "Update a computer on a sample input",
+      "ask": "Run tool:update-a-computer.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:update-a-computer",
+            "input": {
+              "lease_file": "<lease_file: string>",
+              "request_file": "<request_file: A request JSON with ssh, engine.file, required product_settings object or file and explicit release_feed; name, release to install, layout and copies are optional>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields release, backup, product_settings, release_feed, sign_up_status, layout, copies.",
+      "given": "The person gives: lease_file, request_file (shown as <name> in the input)."
+    }
+  ]
+}

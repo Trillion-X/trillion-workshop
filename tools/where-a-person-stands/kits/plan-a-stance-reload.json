@@ -1,0 +1,64 @@
+{
+  "draft": true,
+  "drafted_from": "tool:plan-a-stance-reload's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:plan-a-stance-reload with stances, fold.\" Turn stands a person took that were kept somewhere else into their stance records, with every earlier stand as an earlier version, and show what would change before anything is written",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:plan-a-stance-reload"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:plan-a-stance-reload\", and give it stances, fold.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:plan-a-stance-reload and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.summary.collisions[0].kind contains \"title\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Plan moving kept stands into stance records on a sample input",
+      "ask": "Run tool:plan-a-stance-reload.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:plan-a-stance-reload",
+            "input": {
+              "fold": {
+                "lowercase": true,
+                "strip_trailing": "[.!?]+"
+              },
+              "summary_only": true,
+              "stances": [
+                {
+                  "kind": "title",
+                  "text": "Start Here.",
+                  "stance": "agree",
+                  "why": "good",
+                  "at": "2026-01-01T11:00:00Z",
+                  "earlier": [
+                    {
+                      "stance": "disagree",
+                      "why": "no",
+                      "at": "2026-01-01T10:00:00Z"
+                    }
+                  ]
+                },
+                {
+                  "kind": "title",
+                  "text": "start here",
+                  "stance": "disagree",
+                  "why": "worse",
+                  "at": "2026-01-01T13:00:00Z"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.summary.collisions[0].kind contains \"title\"."
+    }
+  ]
+}

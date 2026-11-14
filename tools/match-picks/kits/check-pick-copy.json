@@ -1,0 +1,45 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-pick-copy's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-pick-copy with texts, banned_terms.\" Check the words of a free pick prompt, its choices or a result summary against the wording the person does not want used (for example talk of money) before they are written",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-pick-copy"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-pick-copy\", and give it texts, banned_terms.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-pick-copy and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.findings[0].term contains \"zorp\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check a pick prompt or result for wording the person does not want on a sample input",
+      "ask": "Run tool:check-pick-copy.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-pick-copy",
+            "input": {
+              "texts": [
+                {
+                  "field": "label",
+                  "text": "Win the Zorp today"
+                }
+              ],
+              "banned_terms": [
+                "zorp"
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.findings[0].term contains \"zorp\"."
+    }
+  ]
+}

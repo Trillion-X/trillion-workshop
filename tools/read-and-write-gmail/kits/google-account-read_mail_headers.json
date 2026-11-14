@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "tool:google-account-read_mail_headers's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:google-account-read_mail_headers with connection, message_id.\" Read who sent a Gmail message, to whom, its subject, when, and its first lines",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:google-account-read_mail_headers"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:google-account-read_mail_headers\", and give it connection, message_id.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:google-account-read_mail_headers and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields id, snippet, payload."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read email headers on a sample input",
+      "ask": "Run tool:google-account-read_mail_headers.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:google-account-read_mail_headers",
+            "input": {
+              "connection": {
+                "connection_id": "<connection_id: The Google account to use: service_connection:google-account or service_connection:google-account:<account>, as the person's connections list it>"
+              },
+              "message_id": "<message_id: The message, as list_new_mail gave it>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields id, snippet, payload.",
+      "given": "The person gives: connection_id, message_id (shown as <name> in the input)."
+    }
+  ]
+}

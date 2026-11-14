@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:reconcile-resource-usage-report's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:reconcile-resource-usage-report with report_id, provider_invoice_item_id.\" Recover an unknown usage charge by reading the exact provider invoice item without sending it again",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:reconcile-resource-usage-report"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:reconcile-resource-usage-report\", and give it report_id, provider_invoice_item_id.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:reconcile-resource-usage-report and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields report_id, state, payer_id, currency, cash_amount, payment_state."
+  ],
+  "worked_examples": [
+    {
+      "title": "Reconcile resource usage report on a sample input",
+      "ask": "Run tool:reconcile-resource-usage-report.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:reconcile-resource-usage-report",
+            "input": {
+              "report_id": "resource-usage-provider-report:1f:8fb2b35aaaf79a20cad694025a5d681875798fa2191d2940319d5f48ed4c8713",
+              "provider_invoice_item_id": "ii_sample0001"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields report_id, state, payer_id, currency, cash_amount, payment_state."
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:open-the-billing-page-for-one-purchase-and-show-the-card's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:open-the-billing-page-for-one-purchase-and-show-the-card with subscription_id, return_url.\" Open the billing page of one purchase, where the buyer can change or cancel it, and show the card that pays it",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:open-the-billing-page-for-one-purchase-and-show-the-card"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:open-the-billing-page-for-one-purchase-and-show-the-card\", and give it subscription_id, return_url.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:open-the-billing-page-for-one-purchase-and-show-the-card and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields subscription_id, redirect, card."
+  ],
+  "worked_examples": [
+    {
+      "title": "Open the billing page for one purchase and show its card on a sample input",
+      "ask": "Run tool:open-the-billing-page-for-one-purchase-and-show-the-card.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:open-the-billing-page-for-one-purchase-and-show-the-card",
+            "input": {
+              "subscription_id": "sub_sample0001",
+              "return_url": "https://app.example.com/billing"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields subscription_id, redirect, card."
+    }
+  ]
+}

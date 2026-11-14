@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:count-a-characters-turns-from-caption-marks's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:count-a-characters-turns-from-caption-marks with data_folder, youtube_folder.\" Count a character's turns in each episode a second, independent way: the captions' speaker-change marks, and whether each marked turn is spoken high",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:count-a-characters-turns-from-caption-marks"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:count-a-characters-turns-from-caption-marks\", and give it data_folder, youtube_folder.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:count-a-characters-turns-from-caption-marks and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Count a character's turns in each episode a second, independent way: the captions' speaker-change marks, and whether each marked turn is spoken high"
+  ],
+  "worked_examples": [
+    {
+      "title": "Count a character's turns from the speaker marks in captions and the pitch of each turn (runs on your computer) on a sample input",
+      "ask": "Run tool:count-a-characters-turns-from-caption-marks.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:count-a-characters-turns-from-caption-marks",
+            "input": {
+              "data_folder": "<data_folder: The show's folder: catalog.tsv, voice/ (seeds.npz, <id>.emb.npz, <id>.turns.json) and the tables the scripts write>",
+              "youtube_folder": "<youtube_folder: The person's YouTube library folder: flat/, captions/, videos/, comments/ and measure/<id>/>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Count a character's turns in each episode a second, independent way: the captions' speaker-change marks, and whether each marked turn is spoken high",
+      "given": "The person gives: data_folder, youtube_folder (shown as <name> in the input)."
+    }
+  ]
+}

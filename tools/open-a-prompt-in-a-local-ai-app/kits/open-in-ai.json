@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:open-in-ai's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:open-in-ai with app, prompt.\" Hand one prompt (an issue, a task) to a coding AI app the person already has on their computer, such as Claude Code or Codex",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:open-in-ai"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:open-in-ai\", and give it app, prompt.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:open-in-ai and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields outcome, app, via, command, prompt_chars, folder, dry_run, argv."
+  ],
+  "worked_examples": [
+    {
+      "title": "Open a prompt in a local AI app on a sample input",
+      "ask": "Run tool:open-in-ai.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:open-in-ai",
+            "input": {
+              "app": "claude-code",
+              "prompt": "Summarise the notes for Ada Example."
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields outcome, app, via, command, prompt_chars, folder, dry_run, argv."
+    }
+  ]
+}

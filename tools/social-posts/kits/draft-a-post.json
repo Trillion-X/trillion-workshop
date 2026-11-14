@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:draft-a-post's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:draft-a-post with nothing more.\" Keep a post as a draft for the person to look at: its words, its video or picture, where it goes and when",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:draft-a-post",
+    "tool:check-a-post",
+    "tool:list-post-destinations",
+    "tool:read-post-calendar"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:draft-a-post\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:draft-a-post and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.post.status contains \"draft\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Draft a post on a sample input",
+      "ask": "Run tool:draft-a-post.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:draft-a-post",
+            "input": {
+              "caption": "A sample draft that goes nowhere yet"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.post.status contains \"draft\"."
+    }
+  ]
+}

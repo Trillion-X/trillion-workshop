@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:rehearse-a-billing-page-in-stripe-test-mode's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:rehearse-a-billing-page-in-stripe-test-mode with product_name, amount_cents, return_url.\" Make a test subscription in Stripe test mode and open its billing page, to see the billing page comes back before a real buyer needs it",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:rehearse-a-billing-page-in-stripe-test-mode"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:rehearse-a-billing-page-in-stripe-test-mode\", and give it product_name, amount_cents, return_url.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:rehearse-a-billing-page-in-stripe-test-mode and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields subscription_id, redirect, card, customer_id, schedule_id, portal_configuration."
+  ],
+  "worked_examples": [
+    {
+      "title": "Rehearse a billing page in Stripe test mode on a sample input",
+      "ask": "Run tool:rehearse-a-billing-page-in-stripe-test-mode.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:rehearse-a-billing-page-in-stripe-test-mode",
+            "input": {
+              "product_name": "Sample membership",
+              "amount_cents": 1000,
+              "return_url": "https://app.example.com/billing"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields subscription_id, redirect, card, customer_id, schedule_id, portal_configuration."
+    }
+  ]
+}

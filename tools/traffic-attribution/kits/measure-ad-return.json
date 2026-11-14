@@ -1,0 +1,92 @@
+{
+  "draft": true,
+  "drafted_from": "tool:measure-ad-return's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:measure-ad-return with project, visits, paying_outcome.\" Measure return on ad spend per source, campaign or keyword: cost per sign-up, CAC, customer lifetime value, LTV to CAC ratio and payback months, flagging what meets 5x",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:measure-ad-return"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:measure-ad-return\", and give it project, visits, paying_outcome.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:measure-ad-return and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.rows[0].ltv_to_cac contains \"8\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Measure what ad spend brings back (CAC, LTV, payback) on a sample input",
+      "ask": "Run tool:measure-ad-return.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:measure-ad-return",
+            "input": {
+              "project": {
+                "id": "spring-launch",
+                "outcomes": [
+                  "signup",
+                  "payment"
+                ]
+              },
+              "paying_outcome": "payment",
+              "signup_outcome": "signup",
+              "gross_margin": 0.8,
+              "monthly_churn": 0.1,
+              "visits": [
+                {
+                  "visitor": "v1",
+                  "signals": {
+                    "source": "google"
+                  }
+                },
+                {
+                  "visitor": "v2",
+                  "signals": {
+                    "source": "google"
+                  }
+                },
+                {
+                  "visitor": "v3",
+                  "signals": {
+                    "source": "facebook"
+                  }
+                }
+              ],
+              "conversions": [
+                {
+                  "visitor": "v1",
+                  "outcome": "signup"
+                },
+                {
+                  "visitor": "v1",
+                  "outcome": "payment",
+                  "value": 100
+                },
+                {
+                  "visitor": "v2",
+                  "outcome": "signup"
+                }
+              ],
+              "spend": [
+                {
+                  "source": "google",
+                  "amount": 100
+                },
+                {
+                  "source": "facebook",
+                  "amount": 50
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.rows[0].ltv_to_cac contains \"8\"."
+    }
+  ]
+}

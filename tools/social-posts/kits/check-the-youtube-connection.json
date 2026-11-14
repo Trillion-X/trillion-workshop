@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-the-youtube-connection's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-the-youtube-connection with account_id.\" Check that the person's YouTube connection still reaches its channel, before a post is set to go there or a read is made",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-the-youtube-connection",
+    "tool:list-post-destinations"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-the-youtube-connection\", and give it account_id.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-the-youtube-connection and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $ contains \"kind\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check the YouTube connection on a sample input",
+      "ask": "Run tool:check-the-youtube-connection.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-the-youtube-connection",
+            "input": {
+              "account_id": "service_connection:youtube"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $ contains \"kind\"."
+    }
+  ]
+}

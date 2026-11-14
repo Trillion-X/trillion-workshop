@@ -1,0 +1,101 @@
+{
+  "draft": true,
+  "drafted_from": "tool:rank-open-trip-things's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:rank-open-trip-things with policy, lanes.\" Plan a trip: list everything still open across its schedule, packing list and bookings in the order to deal with it, with the one thing to do first and a count of open things per lane",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:rank-open-trip-things"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:rank-open-trip-things\", and give it policy, lanes.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:rank-open-trip-things and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.focus.title contains \"Rain jacket\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Rank what is still open on a trip on a sample input",
+      "ask": "Run tool:rank-open-trip-things.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:rank-open-trip-things",
+            "input": {
+              "policy": {
+                "priority_order": [
+                  "urgent",
+                  "normal",
+                  "later",
+                  "closed"
+                ],
+                "lanes": {
+                  "stops": {
+                    "default_priority": "later",
+                    "priority_by_status": {
+                      "booked": "normal"
+                    },
+                    "sort_by": [
+                      "day_order",
+                      "starts_at"
+                    ]
+                  },
+                  "bags": {
+                    "default_priority": "normal",
+                    "priority_by_status": {
+                      "missing": "urgent",
+                      "packed": "closed"
+                    },
+                    "sort_by": [
+                      "group",
+                      "title"
+                    ]
+                  }
+                }
+              },
+              "trip_name": "Sample outing",
+              "lanes": [
+                {
+                  "id": "stops",
+                  "label": "Stops",
+                  "rows": [
+                    {
+                      "id": "s1",
+                      "title": "Walk to the harbour",
+                      "status": "booked",
+                      "day_order": 1,
+                      "starts_at": "09:00"
+                    }
+                  ]
+                },
+                {
+                  "id": "bags",
+                  "label": "Bags",
+                  "rows": [
+                    {
+                      "id": "b1",
+                      "title": "Rain jacket",
+                      "status": "missing",
+                      "group": "clothes"
+                    },
+                    {
+                      "id": "b2",
+                      "title": "Sandwiches",
+                      "status": "packed",
+                      "group": "food"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.focus.title contains \"Rain jacket\"."
+    }
+  ]
+}

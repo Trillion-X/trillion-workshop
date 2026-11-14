@@ -1,0 +1,86 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-my-training-plan's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-my-training-plan with plan.\" Read my training plan: its goals, phases, weeks and the sessions prescribed in each week",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-my-training-plan"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-my-training-plan\", and give it plan.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-my-training-plan and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.week_sessions[1].title contains \"Rest and review\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read my training plan on a sample input",
+      "ask": "Run tool:read-my-training-plan.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-my-training-plan",
+            "input": {
+              "plan": {
+                "goals": [
+                  {
+                    "id": "g1",
+                    "name": "Juggle five",
+                    "domain": "juggling"
+                  }
+                ],
+                "phases": [
+                  {
+                    "id": "p1",
+                    "goalId": "g1",
+                    "name": "Build",
+                    "intent": "build",
+                    "sequence": 1
+                  }
+                ],
+                "weeks": [
+                  {
+                    "id": "w1",
+                    "phaseId": "p1",
+                    "sequence": 1,
+                    "loadIntent": "steady"
+                  }
+                ],
+                "sessions": [
+                  {
+                    "id": "s1",
+                    "weekBlockId": "w1",
+                    "title": "Cascade blocks",
+                    "activity": "technical",
+                    "dose": {
+                      "sets": 4,
+                      "throws": 60
+                    },
+                    "intensity": {
+                      "heightCm": 100
+                    }
+                  },
+                  {
+                    "id": "s2",
+                    "weekBlockId": "w1",
+                    "title": "Rest and review",
+                    "activity": "rest",
+                    "dose": {},
+                    "intensity": {}
+                  }
+                ]
+              },
+              "week_id": "w1"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.week_sessions[1].title contains \"Rest and review\"."
+    }
+  ]
+}

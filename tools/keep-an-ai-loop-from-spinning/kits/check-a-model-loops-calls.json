@@ -1,0 +1,60 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-a-model-loops-calls's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-a-model-loops-calls with calls.\" Say, from the tool calls a model loop made in order, when it should be nudged for repeating itself and when the job should be given back because it keeps repeating or its tools keep failing",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-a-model-loops-calls"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-a-model-loops-calls\", and give it calls.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-model-loops-calls and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields steps, give_back, at."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check a model loop's calls for spinning on a sample input",
+      "ask": "Run tool:check-a-model-loops-calls.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-a-model-loops-calls",
+            "input": {
+              "calls": [
+                {
+                  "name": "read_note",
+                  "args": {
+                    "title": "Plan"
+                  }
+                },
+                {
+                  "name": "read_note",
+                  "args": {
+                    "title": "Plan"
+                  }
+                },
+                {
+                  "name": "read_note",
+                  "args": {
+                    "title": "Plan"
+                  }
+                },
+                {
+                  "name": "list_notes",
+                  "args": {}
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields steps, give_back, at."
+    }
+  ]
+}

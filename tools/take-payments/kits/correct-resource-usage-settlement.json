@@ -1,0 +1,67 @@
+{
+  "draft": true,
+  "drafted_from": "tool:correct-resource-usage-settlement's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:correct-resource-usage-settlement with settlement_id, request_key, settlement_key, invoice, payers, expected_version, reason.\" Append a corrected supplier-cost settlement under the original purchased terms, retaining the old version and the exact customer refund, credit or additional-authority obligations",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:correct-resource-usage-settlement"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:correct-resource-usage-settlement\", and give it settlement_id, request_key, settlement_key, invoice, payers, expected_version, reason.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:correct-resource-usage-settlement and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields record_id, settlement."
+  ],
+  "worked_examples": [
+    {
+      "title": "Correct a resource usage settlement on a sample input",
+      "ask": "Run tool:correct-resource-usage-settlement.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:correct-resource-usage-settlement",
+            "input": {
+              "settlement_id": "pool-sample-2026-10",
+              "request_key": "sample-correction",
+              "settlement_key": {
+                "supplier_pool": "pool:sample",
+                "tariff_version": "tariff:sample-1",
+                "cost_class": "source-transfer",
+                "invoice_period": "2026-10",
+                "currency": "usd",
+                "resource_id": "resource:source-bytes"
+              },
+              "invoice": {
+                "status": "confirmed",
+                "amount": "0.5",
+                "evidence_ref": "supplier:invoice:sample"
+              },
+              "payers": [
+                {
+                  "payer_id": "payer:sample-a",
+                  "kind": "customer",
+                  "excess_units": "1",
+                  "max_unit_cost": "1",
+                  "authorized_total": "1000",
+                  "terms": {
+                    "resource_id": "resource:source-bytes",
+                    "rule_ref": "usage-pricing-rule:rule%3Asample:v1",
+                    "markup_bps": "3000"
+                  }
+                }
+              ],
+              "expected_version": 1,
+              "reason": "supplier credit"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields record_id, settlement."
+    }
+  ]
+}

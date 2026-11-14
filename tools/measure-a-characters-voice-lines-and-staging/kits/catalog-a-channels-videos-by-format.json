@@ -1,0 +1,48 @@
+{
+  "draft": true,
+  "drafted_from": "tool:catalog-a-channels-videos-by-format's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:catalog-a-channels-videos-by-format with data_folder, youtube_folder, channel.\" List every video of a YouTube channel with its format (episode, side piece, compilation, members-only, short, or a series of its own) and how its views compare with the nearby videos of the same format",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:catalog-a-channels-videos-by-format"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:catalog-a-channels-videos-by-format\", and give it data_folder, youtube_folder, channel.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:catalog-a-channels-videos-by-format and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result holds the result: List every video of a YouTube channel with its format (episode, side piece, compilation, members-only, short, or a series of its own) and how its views compare with the nearby videos of the same format"
+  ],
+  "worked_examples": [
+    {
+      "title": "Catalog a channel's videos by format, with views against the channel's rolling baseline (runs on your computer) on a sample input",
+      "ask": "Run tool:catalog-a-channels-videos-by-format.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:catalog-a-channels-videos-by-format",
+            "input": {
+              "data_folder": "{grant:change-a-folder}/show",
+              "youtube_folder": "{grant:change-a-folder}/youtube",
+              "channel": "lighthouse",
+              "settings": {
+                "series_prefixes": {
+                  "behind the lamp": "extra"
+                },
+                "compilation_words": [
+                  "best of"
+                ],
+                "side_pattern": "parrot|trailer"
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result holds the result: List every video of a YouTube channel with its format (episode, side piece, compilation, members-only, short, or a series of its own) and how its views compare with the nearby videos of the same format"
+    }
+  ]
+}

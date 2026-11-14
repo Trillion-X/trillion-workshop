@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:unstage-changes's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:unstage-changes with folder, paths.\" Take chosen files in a project on the person's computer out of the next commit, leaving the files as they are",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:unstage-changes"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:unstage-changes\", and give it folder, paths.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:unstage-changes and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields folder, branch, changes."
+  ],
+  "worked_examples": [
+    {
+      "title": "Take files out of the next commit on a sample input",
+      "ask": "Run tool:unstage-changes.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:unstage-changes",
+            "input": {
+              "folder": "/projects/sample",
+              "paths": [
+                "notes.txt"
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields folder, branch, changes."
+    }
+  ]
+}

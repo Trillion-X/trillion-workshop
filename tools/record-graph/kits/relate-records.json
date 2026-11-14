@@ -1,0 +1,43 @@
+{
+  "draft": true,
+  "drafted_from": "tool:relate-records's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:relate-records with nothing more.\" Keep how things in the person's records are related, with the role as data, and what happened between them, as relation and activity records",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:relate-records"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:relate-records\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:relate-records and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields relations, entities, activities."
+  ],
+  "worked_examples": [
+    {
+      "title": "Say how things in your records are related on a sample input",
+      "ask": "Run tool:relate-records.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:relate-records",
+            "input": {
+              "relations": [
+                {
+                  "subject": "record:crm:pat",
+                  "role": "dad",
+                  "object": "me"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields relations, entities, activities."
+    }
+  ]
+}

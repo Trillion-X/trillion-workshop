@@ -1,0 +1,44 @@
+{
+  "draft": true,
+  "drafted_from": "tool:walk-a-new-person-through-first-setup's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:walk-a-new-person-through-first-setup with origin.\" Walk a new person through first setup: the apps to install on their devices, the AIs to connect, and the one saved run that resumes where they stopped",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:walk-a-new-person-through-first-setup"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:walk-a-new-person-through-first-setup\", and give it origin.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:walk-a-new-person-through-first-setup and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result.schema contains \"trillion.setup-plan/v1\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Walk a new person through first setup on a sample input",
+      "ask": "Run tool:walk-a-new-person-through-first-setup.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:walk-a-new-person-through-first-setup",
+            "input": {
+              "origin": "https://app.example.test",
+              "view": "state",
+              "runtime": {
+                "workflow": {
+                  "exists": false,
+                  "state": "not_started"
+                }
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result.schema contains \"trillion.setup-plan/v1\"."
+    }
+  ]
+}

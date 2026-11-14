@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:import-markdown-file-as-editable-document's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:import-markdown-file-as-editable-document with source_path, output_path.\" Turn a Markdown file into the editable document scene tree, keeping its structure and source spans",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:import-markdown-file-as-editable-document"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:import-markdown-file-as-editable-document\", and give it source_path, output_path.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:import-markdown-file-as-editable-document and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields kind, output_path, output_bytes, block_count, source_identity, round_trip."
+  ],
+  "worked_examples": [
+    {
+      "title": "Import a Markdown file as an editable document on a sample input",
+      "ask": "Run tool:import-markdown-file-as-editable-document.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:import-markdown-file-as-editable-document",
+            "input": {
+              "source_path": "source.md",
+              "output_path": "editable.json"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields kind, output_path, output_bytes, block_count, source_identity, round_trip."
+    }
+  ]
+}

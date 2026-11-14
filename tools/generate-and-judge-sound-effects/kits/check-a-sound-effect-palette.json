@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-a-sound-effect-palette's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-a-sound-effect-palette with palette, folder, manifest.\" Check that every sound in my palette has the right format, length, quiet edges and an allowed licence",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-a-sound-effect-palette"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-a-sound-effect-palette\", and give it palette, folder, manifest.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-sound-effect-palette and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Check that every sound in my palette has the right format, length, quiet edges and an allowed licence"
+  ],
+  "worked_examples": [
+    {
+      "title": "Check a sound-effect palette against its spec and licences (runs on your computer) on a sample input",
+      "ask": "Run tool:check-a-sound-effect-palette.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-a-sound-effect-palette",
+            "input": {
+              "palette": "<palette: PALETTE.json>",
+              "folder": "<folder: The palette folder>",
+              "manifest": "<manifest: The fetcher's manifest.json>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Check that every sound in my palette has the right format, length, quiet edges and an allowed licence",
+      "given": "The person gives: palette, folder, manifest (shown as <name> in the input)."
+    }
+  ]
+}

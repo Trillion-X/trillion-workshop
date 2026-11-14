@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-a-stripe-event's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-a-stripe-event with payload, signature_header.\" Check a Stripe webhook before believing it (its age and its signature), and read it as a payment event to keep",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-a-stripe-event"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-a-stripe-event\", and give it payload, signature_header.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-stripe-event and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields admitted, reason, event_kind, payment_event."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check a Stripe event on a sample input",
+      "ask": "Run tool:check-a-stripe-event.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-a-stripe-event",
+            "input": {
+              "payload": "{\"id\":\"evt_sample0001\",\"object\":\"event\",\"type\":\"checkout.session.completed\",\"created\":1793750400,\"data\":{\"object\":{\"id\":\"cs_test_sample0002\",\"object\":\"checkout.session\",\"amount_total\":2500,\"currency\":\"usd\",\"payment_status\":\"paid\",\"metadata\":{\"offer_id\":\"offer:sample-cake\"}}}}",
+              "signature_header": "t=1793750400,v1=980b71987d5d696fabe6dd2822075b78f8378d389ffbac33535f55d1e73ce957",
+              "now_seconds": 1793750405
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields admitted, reason, event_kind, payment_event."
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "draft": true,
+  "drafted_from": "tool:places-left-out-of-screen-capture's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:places-left-out-of-screen-capture with nothing more.\" List, check and turn on or off the categories of places (banking, health, social and more) the person's screen capture must leave out, and take new coverage as a cursor diff",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:places-left-out-of-screen-capture"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:places-left-out-of-screen-capture\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:places-left-out-of-screen-capture and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields categories, cursor, category, on."
+  ],
+  "worked_examples": [
+    {
+      "title": "Places left out of screen capture on a sample input",
+      "ask": "Run tool:places-left-out-of-screen-capture.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:places-left-out-of-screen-capture",
+            "input": {
+              "action": "list"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields categories, cursor, category, on."
+    }
+  ]
+}

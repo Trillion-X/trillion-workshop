@@ -1,0 +1,58 @@
+{
+  "draft": true,
+  "drafted_from": "tool:measure-a-checklist's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:measure-a-checklist with items, done_statuses, skipped_statuses.\" See how much of a packing list or other checklist is done and group its items, for example by category",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:measure-a-checklist"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:measure-a-checklist\", and give it items, done_statuses, skipped_statuses.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:measure-a-checklist and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.ratio contains \"0.5\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Measure how much of a checklist is done on a sample input",
+      "ask": "Run tool:measure-a-checklist.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:measure-a-checklist",
+            "input": {
+              "items": [
+                {
+                  "id": "a",
+                  "status": "packed",
+                  "group": "clothes"
+                },
+                {
+                  "id": "b",
+                  "status": "planned",
+                  "group": "clothes"
+                },
+                {
+                  "id": "c",
+                  "status": "dropped"
+                }
+              ],
+              "done_statuses": [
+                "packed"
+              ],
+              "skipped_statuses": [
+                "dropped"
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.ratio contains \"0.5\"."
+    }
+  ]
+}

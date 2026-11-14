@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:add-a-pooled-result's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:add-a-pooled-result with contributor, situation, worked.\" Keep one person's noisy yes or no about a shared situation in the pool everyone learns from, under their random contributor id",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:add-a-pooled-result",
+    "tool:randomize-a-result"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:add-a-pooled-result\", and give it contributor, situation, worked.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:add-a-pooled-result and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields added."
+  ],
+  "worked_examples": [
+    {
+      "title": "Add a private result to the pool on a sample input",
+      "ask": "Run tool:add-a-pooled-result.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:add-a-pooled-result",
+            "input": {
+              "contributor": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "situation": "sample-situation-1",
+              "worked": true
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields added."
+    }
+  ]
+}

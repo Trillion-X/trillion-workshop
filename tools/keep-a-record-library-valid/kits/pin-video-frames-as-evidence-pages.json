@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:pin-video-frames-as-evidence-pages's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:pin-video-frames-as-evidence-pages with library, schema, command.\" Turn a manifest of extracted video frames into labelled page images, with timestamps, that an AI can look at and cite",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:pin-video-frames-as-evidence-pages"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:pin-video-frames-as-evidence-pages\", and give it library, schema, command.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:pin-video-frames-as-evidence-pages and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Turn a manifest of extracted video frames into labelled page images, with timestamps, that an AI can look at and cite"
+  ],
+  "worked_examples": [
+    {
+      "title": "Pin a video's frames into labelled contact-sheet pages (runs on your computer) on a sample input",
+      "ask": "Run tool:pin-video-frames-as-evidence-pages.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:pin-video-frames-as-evidence-pages",
+            "input": {
+              "library": "<library: The folder the library's files are relative to, put where {library} is in the command>",
+              "schema": "<schema: The schema file on the person's computer, put where {schema} is in the command>",
+              "command": "<command: One of: project-frame-manifest --manifest FILE --output FILE; frame-pages MANIFEST OUTPUT [--per-page N] [--tile-width N] [--quality N] [--font FILE] [--candidate-pairs] [--pairs-per-page N]>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Turn a manifest of extracted video frames into labelled page images, with timestamps, that an AI can look at and cite",
+      "given": "The person gives: library, schema, command (shown as <name> in the input)."
+    }
+  ]
+}

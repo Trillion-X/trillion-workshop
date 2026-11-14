@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "tool:see-how-each-post-did's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:see-how-each-post-did with nothing more.\" Show how each of this person's published posts did in each place it went: that place's own counts, the visitors its link brought and what they bought",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:see-how-each-post-did",
+    "tool:break-down-visits-and-sales",
+    "tool:read-post-calendar"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:see-how-each-post-did\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:see-how-each-post-did and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.places_published contains \"0\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "How each post did on a sample input",
+      "ask": "Run tool:see-how-each-post-did.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:see-how-each-post-did",
+            "input": {
+              "post_ids": [
+                "post-that-is-not-there"
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.places_published contains \"0\"."
+    }
+  ]
+}

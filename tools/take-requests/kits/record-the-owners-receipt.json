@@ -1,0 +1,43 @@
+{
+  "draft": true,
+  "drafted_from": "tool:record-the-owners-receipt's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:record-the-owners-receipt with request_id, receipt.\" Link an owner's receipt to the request it answers",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:record-the-owners-receipt",
+    "tool:take-a-request"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:record-the-owners-receipt\", and give it request_id, receipt.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:record-the-owners-receipt and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.request_id contains \"request-1\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Record what the owner gave back on a sample input",
+      "ask": "Run tool:record-the-owners-receipt.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:record-the-owners-receipt",
+            "input": {
+              "request_id": "request-1",
+              "receipt": {
+                "ref": "receipt-1",
+                "owner_ref": "owner-1",
+                "title": "Done"
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.request_id contains \"request-1\"."
+    }
+  ]
+}

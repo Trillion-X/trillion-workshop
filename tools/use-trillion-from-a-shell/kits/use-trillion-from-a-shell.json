@@ -1,0 +1,37 @@
+{
+  "draft": true,
+  "drafted_from": "tool:use-trillion-from-a-shell's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:use-trillion-from-a-shell with arguments.\" Let an AI that can run shell commands see my AIs and their jobs, hand and take work, and run my Workshop tools, with no MCP connection of its own",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:use-trillion-from-a-shell"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:use-trillion-from-a-shell\", and give it arguments.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:use-trillion-from-a-shell and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Let an AI that can run shell commands see my AIs and their jobs, hand and take work, and run my Workshop tools, with no MCP connection of its own"
+  ],
+  "worked_examples": [
+    {
+      "title": "Use Trillion from any AI's shell: the trillion command (runs on your computer) on a sample input",
+      "ask": "Run tool:use-trillion-from-a-shell.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:use-trillion-from-a-shell",
+            "input": {
+              "arguments": []
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Let an AI that can run shell commands see my AIs and their jobs, hand and take work, and run my Workshop tools, with no MCP connection of its own"
+    }
+  ]
+}

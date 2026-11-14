@@ -1,0 +1,35 @@
+{
+  "draft": true,
+  "drafted_from": "tool:my-browser-push-application-key's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:my-browser-push-application-key with nothing more.\" Get the public key browsers need to register for notices",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:my-browser-push-application-key"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:my-browser-push-application-key\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:my-browser-push-application-key and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.said contains \"ready\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "My browser push application key on a sample input",
+      "ask": "Run tool:my-browser-push-application-key.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:my-browser-push-application-key",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "The answer's $.said contains \"ready\"."
+    }
+  ]
+}

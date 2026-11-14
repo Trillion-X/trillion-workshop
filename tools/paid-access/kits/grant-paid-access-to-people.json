@@ -1,0 +1,43 @@
+{
+  "draft": true,
+  "drafted_from": "tool:grant-paid-access-to-people's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:grant-paid-access-to-people with grants.\" Give people paid access by hand, all at once or one by one (members who moved over from another place, a gift, a pass with an end date), and end a grant I gave",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:grant-paid-access-to-people",
+    "tool:see-who-holds-paid-access"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:grant-paid-access-to-people\", and give it grants.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:grant-paid-access-to-people and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.written contains \"1\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Grant paid access to people on a sample input",
+      "ask": "Run tool:grant-paid-access-to-people.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:grant-paid-access-to-people",
+            "input": {
+              "grants": [
+                {
+                  "subject": "member@example.com",
+                  "access_ref": "access:sample-course"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.written contains \"1\"."
+    }
+  ]
+}

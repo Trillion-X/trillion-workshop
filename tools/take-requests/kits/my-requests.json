@@ -1,0 +1,37 @@
+{
+  "draft": true,
+  "drafted_from": "tool:my-requests's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:my-requests with nothing more.\" List the requests taken, newest first, with their receipts and the ones still waiting on an owner",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:my-requests"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:my-requests\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:my-requests and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.said contains \"request\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Requests taken and who owes an answer on a sample input",
+      "ask": "Run tool:my-requests.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:my-requests",
+            "input": {
+              "limit": 1
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.said contains \"request\"."
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "draft": true,
+  "drafted_from": "tool:filter-rows-by-rules's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:filter-rows-by-rules with records, fields.\" Keep the rows of a list that match my rules: a tree of comparisons (is any of, has all of, contains, is more than, is between, is empty, is known and more) joined by all-of and any-of groups, each group optionally negated",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:filter-rows-by-rules"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:filter-rows-by-rules\", and give it records, fields.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:filter-rows-by-rules and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.records[0].id contains \"a\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep the rows that match my rules on a sample input",
+      "ask": "Run tool:filter-rows-by-rules.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:filter-rows-by-rules",
+            "input": {
+              "records": [
+                {
+                  "id": "a",
+                  "kind": "loaf",
+                  "tags": [
+                    "rye",
+                    "seeded"
+                  ],
+                  "grams": 800
+                },
+                {
+                  "id": "b",
+                  "kind": "roll",
+                  "tags": [
+                    "white"
+                  ],
+                  "grams": 90
+                },
+                {
+                  "id": "c",
+                  "kind": "loaf",
+                  "tags": [
+                    "white"
+                  ],
+                  "grams": null
+                }
+              ],
+              "fields": [
+                {
+                  "id": "kind",
+                  "kind": "choice"
+                },
+                {
+                  "id": "grams",
+                  "kind": "number"
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kind",
+                    "operator": "is_any_of",
+                    "params": {
+                      "values": [
+                        "loaf"
+                      ]
+                    }
+                  },
+                  {
+                    "kind": "rule",
+                    "field": "grams",
+                    "operator": "greater_than",
+                    "params": {
+                      "value": 500
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.records[0].id contains \"a\"."
+    }
+  ]
+}

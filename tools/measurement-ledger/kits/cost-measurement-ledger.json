@@ -1,0 +1,51 @@
+{
+  "draft": true,
+  "drafted_from": "tool:cost-measurement-ledger's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:cost-measurement-ledger with action.\" Append cost observations once, keep forecasts by version, and aggregate only comparable measured units",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:cost-measurement-ledger"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:cost-measurement-ledger\", and give it action.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:cost-measurement-ledger and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result holds the result: Append cost observations once, keep forecasts by version, and aggregate only comparable measured units"
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep and review cost measurements on a sample input",
+      "ask": "Run tool:cost-measurement-ledger.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:cost-measurement-ledger",
+            "input": {
+              "action": "save_billing",
+              "request_key": "sample-billing-1",
+              "billing": {
+                "provider": "vendor",
+                "billing_id": "invoice-1",
+                "version": 1,
+                "billing_period_start": "2026-10-01",
+                "billing_period_end": "2026-10-31",
+                "currency": "USD",
+                "unit": "invoice",
+                "source_revision": "rev",
+                "observed_at": "2026-10-31",
+                "scope": "unknown",
+                "amount": null
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result holds the result: Append cost observations once, keep forecasts by version, and aggregate only comparable measured units"
+    }
+  ]
+}

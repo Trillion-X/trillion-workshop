@@ -1,0 +1,69 @@
+{
+  "draft": true,
+  "drafted_from": "tool:pick-a-small-good-moment's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:pick-a-small-good-moment with moments.\" Pick the small good moment to play when something good happens or a phrase is typed: its words and motion, from the moment rows I give, so once-only moments play once and the words change each time",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:pick-a-small-good-moment"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:pick-a-small-good-moment\", and give it moments.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:pick-a-small-good-moment and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.moment.words contains \"Another one done\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Pick the small good moment to play on a sample input",
+      "ask": "Run tool:pick-a-small-good-moment.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:pick-a-small-good-moment",
+            "input": {
+              "moments": [
+                {
+                  "id": "moment:first-tour",
+                  "on": {
+                    "event_kind": "tour.finished"
+                  },
+                  "once": true,
+                  "words": "Your first tour is done."
+                },
+                {
+                  "id": "moment:tour",
+                  "on": {
+                    "event_kind": "tour.finished"
+                  },
+                  "words": [
+                    "Tour {count} done.",
+                    "Another one done."
+                  ],
+                  "motion": "rise"
+                }
+              ],
+              "event": {
+                "event_kind": "tour.finished"
+              },
+              "memory": {
+                "counts": {
+                  "event:tour.finished": 2
+                },
+                "played": {
+                  "moment:first-tour": 1,
+                  "moment:tour": 1
+                }
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.moment.words contains \"Another one done\"."
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:unpair-a-sender's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:unpair-a-sender with source_id, sender.\" Stop letting a paired sender's messages through, so they are unknown again",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:unpair-a-sender"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:unpair-a-sender\", and give it source_id, sender.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:unpair-a-sender and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.said contains \"no longer paired\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Unpair a sender on a sample input",
+      "ask": "Run tool:unpair-a-sender.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:unpair-a-sender",
+            "input": {
+              "source_id": "events:sample",
+              "sender": "sender-one"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.said contains \"no longer paired\"."
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "draft": true,
+  "drafted_from": "tool:run-a-poker-table's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:run-a-poker-table with operation.\" Run a game of Texas Hold'em poker for a table of players: open a table, seat players, deal a hand, take each player's action, and deal the next hand",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:run-a-poker-table"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:run-a-poker-table\", and give it operation.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:run-a-poker-table and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.room.state.phase contains \"lobby\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Run a game of Texas Hold'em at a table on a sample input",
+      "ask": "Run tool:run-a-poker-table.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-a-poker-table",
+            "input": {
+              "operation": "open-table",
+              "room_id": "room:sample",
+              "players": [
+                "Alder",
+                "Birch"
+              ],
+              "config": {
+                "smallBlind": 5,
+                "bigBlind": 10,
+                "startingChips": 200
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.room.state.phase contains \"lobby\"."
+    }
+  ]
+}

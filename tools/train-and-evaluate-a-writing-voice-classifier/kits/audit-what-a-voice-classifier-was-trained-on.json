@@ -1,0 +1,52 @@
+{
+  "draft": true,
+  "drafted_from": "tool:audit-what-a-voice-classifier-was-trained-on's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:audit-what-a-voice-classifier-was-trained-on with training_rows, target_rows.\" Find whether the passages a classifier is tested on also appear in the rows it was trained on: the same text, the same family or the same whole request",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:audit-what-a-voice-classifier-was-trained-on"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:audit-what-a-voice-classifier-was-trained-on\", and give it training_rows, target_rows.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:audit-what-a-voice-classifier-was-trained-on and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields schema."
+  ],
+  "worked_examples": [
+    {
+      "title": "Find where test passages also appear in a classifier's training rows on a sample input",
+      "ask": "Run tool:audit-what-a-voice-classifier-was-trained-on.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:audit-what-a-voice-classifier-was-trained-on",
+            "input": {
+              "training_rows": [
+                {
+                  "family": "made-up-kettle",
+                  "state": {
+                    "target_text": "The kettle boiled in four minutes, so we timed the pot."
+                  }
+                }
+              ],
+              "target_rows": [
+                {
+                  "family": "made-up-kettle",
+                  "state": {
+                    "target_text": "kettle boiled in four minutes"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields schema."
+    }
+  ]
+}

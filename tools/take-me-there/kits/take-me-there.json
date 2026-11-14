@@ -1,0 +1,56 @@
+{
+  "draft": true,
+  "drafted_from": "tool:take-me-there's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:take-me-there with thing, waiting, screens.\" Take a person to the thing that needs them: give the screen to open on one waiting card, the arrangement that puts it beside what the caller names, the walkthrough that points at the card's own control and the notice that links to both, or say in plain words that nothing is waiting there or it opens outside their places",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:take-me-there",
+    "tool:what-is-waiting-on-me"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:take-me-there\", and give it thing, waiting, screens.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:take-me-there and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.screen.tool_id contains \"tool:sample-screen\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Take me to the thing that needs me on a sample input",
+      "ask": "Run tool:take-me-there.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:take-me-there",
+            "input": {
+              "thing": "sample-card",
+              "waiting": {
+                "cards": [
+                  {
+                    "id": "sample-card",
+                    "title": "A made-up thing",
+                    "address": "/sample/open?item=one"
+                  }
+                ]
+              },
+              "screens": [
+                {
+                  "path_prefix": "/sample",
+                  "tool_id": "tool:sample-screen",
+                  "route_input_from_query": [
+                    "item"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.screen.tool_id contains \"tool:sample-screen\"."
+    }
+  ]
+}

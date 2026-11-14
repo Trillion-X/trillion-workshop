@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:send-live-activity-update's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:send-live-activity-update with update_id, board_key, items.\" Start, update or end the one Live Activity board for running work",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:send-live-activity-update"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:send-live-activity-update\", and give it update_id, board_key, items.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:send-live-activity-update and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.said contains \"Nothing is running\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Update my Live Activity on a sample input",
+      "ask": "Run tool:send-live-activity-update.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:send-live-activity-update",
+            "input": {
+              "update_id": "empty-sample",
+              "board_key": "running",
+              "items": []
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.said contains \"Nothing is running\"."
+    }
+  ]
+}

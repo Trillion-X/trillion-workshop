@@ -1,0 +1,63 @@
+{
+  "draft": true,
+  "drafted_from": "tool:keep-keyed-things-in-a-fixed-memory-budget's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:keep-keyed-things-in-a-fixed-memory-budget with steps.\" Keep many keyed things inside a fixed memory budget, each read after the first being one array index, and let the least recently used go first when the budget is full",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:keep-keyed-things-in-a-fixed-memory-budget"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:keep-keyed-things-in-a-fixed-memory-budget\", and give it steps.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:keep-keyed-things-in-a-fixed-memory-budget and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields answers, held."
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep keyed things inside a fixed memory budget on a sample input",
+      "ask": "Run tool:keep-keyed-things-in-a-fixed-memory-budget.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-keyed-things-in-a-fixed-memory-budget",
+            "input": {
+              "capacity_bytes": 40,
+              "steps": [
+                {
+                  "op": "set",
+                  "key": "note:1",
+                  "kind": "note",
+                  "value": {
+                    "title": "Plan the week"
+                  }
+                },
+                {
+                  "op": "set",
+                  "key": "note:2",
+                  "kind": "note",
+                  "value": {
+                    "title": "Buy paint"
+                  }
+                },
+                {
+                  "op": "read",
+                  "key": "note:1"
+                },
+                {
+                  "op": "find",
+                  "key": "note:2"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields answers, held."
+    }
+  ]
+}

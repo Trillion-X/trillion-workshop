@@ -1,0 +1,37 @@
+{
+  "draft": true,
+  "drafted_from": "tool:remove-my-notification-device's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:remove-my-notification-device with device_id.\" Stop sending or queueing notices for one of my devices",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:remove-my-notification-device"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:remove-my-notification-device\", and give it device_id.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:remove-my-notification-device and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.said contains \"not registered\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Remove my notification device on a sample input",
+      "ask": "Run tool:remove-my-notification-device.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:remove-my-notification-device",
+            "input": {
+              "device_id": "missing"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.said contains \"not registered\"."
+    }
+  ]
+}

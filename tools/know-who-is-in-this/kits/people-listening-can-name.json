@@ -1,0 +1,35 @@
+{
+  "draft": true,
+  "drafted_from": "tool:people-listening-can-name's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:people-listening-can-name with nothing more.\" List the people my voice and face prints can name, without their voice or face numbers",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:people-listening-can-name"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:people-listening-can-name\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:people-listening-can-name and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields people."
+  ],
+  "worked_examples": [
+    {
+      "title": "People listening can name on a sample input",
+      "ask": "Run tool:people-listening-can-name.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:people-listening-can-name",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "An answer with the fields people."
+    }
+  ]
+}

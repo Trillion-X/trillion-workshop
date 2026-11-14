@@ -1,0 +1,44 @@
+{
+  "draft": true,
+  "drafted_from": "tool:track-a-selected-object-in-a-video's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:track-a-selected-object-in-a-video with video, output, start, end, time, points, model.\" Follow an object or a person I pointed at through a clip and get its outline in every frame",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:track-a-selected-object-in-a-video"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:track-a-selected-object-in-a-video\", and give it video, output, start, end, time, points, model.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:track-a-selected-object-in-a-video and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Follow an object or a person I pointed at through a clip and get its outline in every frame"
+  ],
+  "worked_examples": [
+    {
+      "title": "Follow one thing I point at through a video clip and outline it in every frame (runs on your computer) on a sample input",
+      "ask": "Run tool:track-a-selected-object-in-a-video.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:track-a-selected-object-in-a-video",
+            "input": {
+              "video": "<video: The video file, put where {video} is in the command>",
+              "output": "<output: A folder that does not exist yet, put where {output} is>",
+              "start": "<start: Second the stretch begins, put where {start} is>",
+              "end": "<end: Second the stretch ends, at most 30 after start, put where {end} is>",
+              "time": "<time: The second the person pointed at, from start up to but not including end, put where {time} is>",
+              "points": "<points: JSON text: a list of {x, y, include} where x and y are 0 to 1 across and down the picture and include is true for a point inside the object and false for one outside it>",
+              "model": "<model: The SAM 2 video model name in the local Hugging Face cache, put where {model} is>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Follow an object or a person I pointed at through a clip and get its outline in every frame",
+      "given": "The person gives: video, output, start, end, time, points, model (shown as <name> in the input)."
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "draft": true,
+  "drafted_from": "tool:join-what-is-being-worked-on-into-a-tree's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:join-what-is-being-worked-on-into-a-tree with answers.\" Join the goals, decisions, AIs, jobs, spaces, people, automations and tool runs my records already answered into one tree of what is being worked on and who is doing it, or one goal's branch of it",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:join-what-is-being-worked-on-into-a-tree"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:join-what-is-being-worked-on-into-a-tree\", and give it answers.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:join-what-is-being-worked-on-into-a-tree and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields nodes, lines, counts."
+  ],
+  "worked_examples": [
+    {
+      "title": "Join what is being worked on into one tree on a sample input",
+      "ask": "Run tool:join-what-is-being-worked-on-into-a-tree.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:join-what-is-being-worked-on-into-a-tree",
+            "input": {
+              "answers": {
+                "goals": {
+                  "pursuits": [
+                    {
+                      "id": "g1",
+                      "title": "Open the bakery",
+                      "status": "active"
+                    },
+                    {
+                      "id": "g2",
+                      "title": "Find a shop",
+                      "parents": [
+                        "g1"
+                      ]
+                    }
+                  ],
+                  "summaries": [
+                    {
+                      "case_id": "c1",
+                      "goal": "Rent the corner shop",
+                      "decision": "Sign for one year",
+                      "pursuits": [
+                        {
+                          "id": "g2"
+                        }
+                      ],
+                      "status": "decided"
+                    }
+                  ]
+                },
+                "work": {
+                  "agents": [
+                    {
+                      "agent_id": "a1",
+                      "name": "Helper AI"
+                    }
+                  ],
+                  "work": [
+                    {
+                      "handoff_id": "h1",
+                      "job": "Draft the lease questions",
+                      "case_id": "c1",
+                      "taken_by": "a1",
+                      "status": "working"
+                    }
+                  ]
+                }
+              },
+              "from": "goal:g1"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields nodes, lines, counts."
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "draft": true,
+  "drafted_from": "tool:hand-a-request-to-its-owner's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:hand-a-request-to-its-owner with action, context.\" Ask an owner to run an action with what a form, a check or a person supplied, once",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:hand-a-request-to-its-owner"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:hand-a-request-to-its-owner\", and give it action, context.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:hand-a-request-to-its-owner and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.said contains \"owner-1\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Hand a request to its owner on a sample input",
+      "ask": "Run tool:hand-a-request-to-its-owner.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:hand-a-request-to-its-owner",
+            "input": {
+              "action": {
+                "owner": "owner-1",
+                "action_ref": "action-1"
+              },
+              "context": {
+                "operation_id": "operation-1"
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.said contains \"owner-1\"."
+    }
+  ]
+}

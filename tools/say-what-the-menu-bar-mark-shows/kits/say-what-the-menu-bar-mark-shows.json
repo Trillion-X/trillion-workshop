@@ -1,0 +1,48 @@
+{
+  "draft": true,
+  "drafted_from": "tool:say-what-the-menu-bar-mark-shows's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:say-what-the-menu-bar-mark-shows with records, unread_count.\" Say what the Mac menu bar item shows right now: how many things are running, the newest one and how far along, the unread count, or the next calendar line when nothing runs",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:say-what-the-menu-bar-mark-shows"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:say-what-the-menu-bar-mark-shows\", and give it records, unread_count.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:say-what-the-menu-bar-mark-shows and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result.kind contains \"glance\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Say what the Mac menu bar mark shows on a sample input",
+      "ask": "Run tool:say-what-the-menu-bar-mark-shows.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:say-what-the-menu-bar-mark-shows",
+            "input": {
+              "unread_count": 2,
+              "records": [
+                {
+                  "title": "Upload",
+                  "kind": "upload",
+                  "running": true,
+                  "updatedAt": 5,
+                  "progress": {
+                    "value": 0.5
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result.kind contains \"glance\"."
+    }
+  ]
+}

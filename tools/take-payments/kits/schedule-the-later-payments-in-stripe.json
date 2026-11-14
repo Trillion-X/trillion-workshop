@@ -1,0 +1,58 @@
+{
+  "draft": true,
+  "drafted_from": "tool:schedule-the-later-payments-in-stripe's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:schedule-the-later-payments-in-stripe with payment_schedule, customer_ref, product_name, signed_up_at_unix_seconds.\" After a buyer has paid at the door, set up the payments that come later (a week on, a month on, then every month) in Stripe",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:schedule-the-later-payments-in-stripe"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:schedule-the-later-payments-in-stripe\", and give it payment_schedule, customer_ref, product_name, signed_up_at_unix_seconds.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:schedule-the-later-payments-in-stripe and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields schedule_id, status, starts_at."
+  ],
+  "worked_examples": [
+    {
+      "title": "Schedule the later payments in Stripe on a sample input",
+      "ask": "Run tool:schedule-the-later-payments-in-stripe.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:schedule-the-later-payments-in-stripe",
+            "input": {
+              "payment_schedule": {
+                "charges": [
+                  {
+                    "amount_cents": "800",
+                    "days_after_signup": 0
+                  },
+                  {
+                    "amount_cents": "3200",
+                    "days_after_signup": 7
+                  }
+                ],
+                "repeat": {
+                  "amount_cents": "4000",
+                  "interval": "month",
+                  "first_days_after_signup": 37
+                }
+              },
+              "customer_ref": "cus_sample0001",
+              "currency": "usd",
+              "product_name": "Sample course",
+              "signed_up_at_unix_seconds": 1793750400,
+              "idempotency_key": "sample-schedule-1"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields schedule_id, status, starts_at."
+    }
+  ]
+}

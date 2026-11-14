@@ -1,0 +1,52 @@
+{
+  "draft": true,
+  "drafted_from": "tool:record-a-notification's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:record-a-notification with notification_id, kind, audience_refs, conversation_ref, privacy_class, title, body, occurred_at, source_refs, proof_refs.\" Record one notification event for the audience the caller names, so it is kept and can be read back; nothing is delivered",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:record-a-notification"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:record-a-notification\", and give it notification_id, kind, audience_refs, conversation_ref, privacy_class, title, body, occurred_at, source_refs, proof_refs.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:record-a-notification and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields notification_id, recorded, said."
+  ],
+  "worked_examples": [
+    {
+      "title": "Record a notice for someone on a sample input",
+      "ask": "Run tool:record-a-notification.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:record-a-notification",
+            "input": {
+              "notification_id": "sample-notice-1",
+              "kind": "report",
+              "audience_refs": [
+                "person:sample"
+              ],
+              "conversation_ref": "conversation:sample-1",
+              "privacy_class": "private",
+              "title": "Sample report",
+              "body": "A made-up report is ready.",
+              "occurred_at": "2026-11-03T12:00:00Z",
+              "source_refs": [
+                "source:sample-1"
+              ],
+              "proof_refs": [
+                "proof:sample-1"
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields notification_id, recorded, said."
+    }
+  ]
+}

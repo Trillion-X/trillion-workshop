@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:start-a-computer's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:start-a-computer with request_file.\" Make a machine into a computer that keeps people's accounts: rent one or use one I already run, set it up, start the engine serving and read back its sign-up page",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:start-a-computer"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:start-a-computer\", and give it request_file.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:start-a-computer and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields lease, host_name, arch, price, place_id, release, sign_up_status."
+  ],
+  "worked_examples": [
+    {
+      "title": "Start a computer on a sample input",
+      "ask": "Run tool:start-a-computer.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-computer",
+            "input": {
+              "request_file": "<request_file: A request JSON (lease_file, machine, name, ssh, port, engine, required product_settings object or file, optional place_config, config_from_release, release_feed); local paths are read relative to it>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields lease, host_name, arch, price, place_id, release, sign_up_status.",
+      "given": "The person gives: request_file (shown as <name> in the input)."
+    }
+  ]
+}

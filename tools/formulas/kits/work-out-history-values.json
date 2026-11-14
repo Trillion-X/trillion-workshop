@@ -1,0 +1,63 @@
+{
+  "draft": true,
+  "drafted_from": "tool:work-out-history-values's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:work-out-history-values with kept, fields, now_ms.\" Work out, from the values a field of a row has held over time, the value it held at a moment, the value before the current one, since when it holds it, how long it spent holding a value and whether it ever held one",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:work-out-history-values"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:work-out-history-values\", and give it kept, fields, now_ms.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:work-out-history-values and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.values.was contains \"Lead\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Work out values from a field's history on a sample input",
+      "ask": "Run tool:work-out-history-values.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:work-out-history-values",
+            "input": {
+              "now_ms": 1760832000000,
+              "kept": {
+                "_history": {
+                  "stage": {
+                    "cut": false,
+                    "steps": [
+                      {
+                        "v": "Lead",
+                        "at": "2025-10-09T00:00:00.000Z"
+                      },
+                      {
+                        "v": "Won",
+                        "at": "2025-10-17T00:00:00.000Z"
+                      }
+                    ]
+                  }
+                }
+              },
+              "fields": [
+                {
+                  "id": "was",
+                  "history": {
+                    "field": "stage",
+                    "op": "previous_value"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.values.was contains \"Lead\"."
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "draft": true,
+  "drafted_from": "tool:find-closest-across-my-indexes's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:find-closest-across-my-indexes with index_ids, query_vector_base64.\" Find the moments across all my recordings and pictures, kept in several indexes, closest in meaning to a query vector, best first across all of them, and say the file and time of each",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:find-closest-across-my-indexes",
+    "tool:words-as-picture-vector"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:find-closest-across-my-indexes\", and give it index_ids, query_vector_base64.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-closest-across-my-indexes and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields index_ids, model_id, model_version, result, points_to."
+  ],
+  "worked_examples": [
+    {
+      "title": "Find what is closest to a vector across several of my indexes on a sample input",
+      "ask": "Run tool:find-closest-across-my-indexes.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:find-closest-across-my-indexes",
+            "input": {
+              "index_ids": [
+                "synthetic-a",
+                "synthetic-b"
+              ],
+              "query_vector_base64": "eyJ2ZWN0b3IiOlsxLDAsMCwwXX0="
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields index_ids, model_id, model_version, result, points_to."
+    }
+  ]
+}

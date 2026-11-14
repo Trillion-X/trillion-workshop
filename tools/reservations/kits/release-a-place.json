@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:release-a-place's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:release-a-place with ledger_id, idempotency_key.\" Give a held place back, and offer it to the next person on the waitlist",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:release-a-place"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:release-a-place\", and give it ledger_id, idempotency_key.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:release-a-place and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields released, released_hold, promoted_hold, promoted_waitlist_entry, ledger_id, state, total, confirmed."
+  ],
+  "worked_examples": [
+    {
+      "title": "Release a place on a sample input",
+      "ask": "Run tool:release-a-place.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:release-a-place",
+            "input": {
+              "ledger_id": "ledger:sample-class",
+              "subject_ref": "person:sample-a",
+              "idempotency_key": "sample-release-a"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields released, released_hold, promoted_hold, promoted_waitlist_entry, ledger_id, state, total, confirmed."
+    }
+  ]
+}

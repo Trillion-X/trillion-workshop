@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "tool:google-account-search_mail's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:google-account-search_mail with connection, query.\" Find Gmail messages matching a search, written as in Gmail's own search box (from:, to:, subject:, after:)",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:google-account-search_mail"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:google-account-search_mail\", and give it connection, query.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:google-account-search_mail and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields messages, resultSizeEstimate, nextPageToken."
+  ],
+  "worked_examples": [
+    {
+      "title": "Search email on a sample input",
+      "ask": "Run tool:google-account-search_mail.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:google-account-search_mail",
+            "input": {
+              "connection": {
+                "connection_id": "<connection_id: The Google account to use: service_connection:google-account or service_connection:google-account:<account>, as the person's connections list it>"
+              },
+              "query": "<query: The search, as typed in Gmail's search box, like from:alex to:sam>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields messages, resultSizeEstimate, nextPageToken.",
+      "given": "The person gives: connection_id, query (shown as <name> in the input)."
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "draft": true,
+  "drafted_from": "tool:render-pointillist-frames-over-time's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:render-pointillist-frames-over-time with nothing more.\" Turn one film script into a numbered file of packed frames, one for each time I list",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:render-pointillist-frames-over-time"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:render-pointillist-frames-over-time\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:render-pointillist-frames-over-time and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Turn one film script into a numbered file of packed frames, one for each time I list"
+  ],
+  "worked_examples": [
+    {
+      "title": "Render a run of frames of a square-grid pointillist film (runs on your computer) on a sample input",
+      "ask": "Run tool:render-pointillist-frames-over-time.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:render-pointillist-frames-over-time",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Turn one film script into a numbered file of packed frames, one for each time I list"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:choose-my-notification-choice's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:choose-my-notification-choice with setting, choice.\" Keep one of a notification setting's options as this person's choice",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:choose-my-notification-choice",
+    "tool:my-notification-choice"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:choose-my-notification-choice\", and give it setting, choice.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:choose-my-notification-choice and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields setting, choice, previous, changed, said."
+  ],
+  "worked_examples": [
+    {
+      "title": "Choose how I am notified on a sample input",
+      "ask": "Run tool:choose-my-notification-choice.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:choose-my-notification-choice",
+            "input": {
+              "setting": "sample-digest",
+              "choice": "daily"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields setting, choice, previous, changed, said."
+    }
+  ]
+}

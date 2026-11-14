@@ -1,0 +1,44 @@
+{
+  "draft": true,
+  "drafted_from": "tool:mix-sound-layers's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:mix-sound-layers with video, sounds.\" Lay music, voice-overs and sound effects under a video at chosen times, each trimmed, with its own volume and fades, music lowering itself under speech",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:mix-sound-layers"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:mix-sound-layers\", and give it video, sounds.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:mix-sound-layers and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields result, files."
+  ],
+  "worked_examples": [
+    {
+      "title": "Mix sounds under a video on a sample input",
+      "ask": "Run tool:mix-sound-layers.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:mix-sound-layers",
+            "input": {
+              "video": "<video: The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it>",
+              "sounds": [
+                {
+                  "file": "<file: The sound's identity in your files (1f: then 64 hex): music, a voice-over or a sound effect>",
+                  "start": "<start: Seconds into the video where it starts playing>"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields result, files.",
+      "given": "The person gives: video, file, start (shown as <name> in the input)."
+    }
+  ]
+}

@@ -1,0 +1,253 @@
+{
+  "draft": true,
+  "drafted_from": "tool:pack-my-device-copys-settle-upload's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:pack-my-device-copys-settle-upload with account, request.\" Work out what my device's copy of my records would send when it settles with my account: where the account's copy is kept on the device and the exact upload for one batch, compressed when that makes it smaller",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:pack-my-device-copys-settle-upload"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:pack-my-device-copys-settle-upload\", and give it account, request.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:pack-my-device-copys-settle-upload and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.sends contains \"frame\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Pack my device copy's settle upload on a sample input",
+      "ask": "Run tool:pack-my-device-copys-settle-upload.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:pack-my-device-copys-settle-upload",
+            "input": {
+              "account": "sample-person",
+              "request": {
+                "copy": "device-1",
+                "root": "0123456789abcdef",
+                "took_through": null,
+                "rows": [
+                  {
+                    "id": "01a15709-3f0a-7019-81df-90cabc197099",
+                    "envelopes": [
+                      {
+                        "id": "note:0",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 0",
+                          "text": "Words of note 0 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:20.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000000",
+                        "floor": "01a157093f040000000",
+                        "prior": null
+                      },
+                      {
+                        "id": "note:1",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 1",
+                          "text": "Words of note 1 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:21.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000001",
+                        "floor": "01a157093f040000001",
+                        "prior": null
+                      },
+                      {
+                        "id": "note:2",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 2",
+                          "text": "Words of note 2 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:22.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000002",
+                        "floor": "01a157093f040000002",
+                        "prior": null
+                      },
+                      {
+                        "id": "note:3",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 3",
+                          "text": "Words of note 3 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:23.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000003",
+                        "floor": "01a157093f040000003",
+                        "prior": null
+                      },
+                      {
+                        "id": "note:4",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 4",
+                          "text": "Words of note 4 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:24.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000004",
+                        "floor": "01a157093f040000004",
+                        "prior": null
+                      },
+                      {
+                        "id": "note:5",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 5",
+                          "text": "Words of note 5 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:25.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000005",
+                        "floor": "01a157093f040000005",
+                        "prior": null
+                      },
+                      {
+                        "id": "note:6",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 6",
+                          "text": "Words of note 6 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:26.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000006",
+                        "floor": "01a157093f040000006",
+                        "prior": null
+                      },
+                      {
+                        "id": "note:7",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 7",
+                          "text": "Words of note 7 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:27.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000007",
+                        "floor": "01a157093f040000007",
+                        "prior": null
+                      },
+                      {
+                        "id": "note:8",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 8",
+                          "text": "Words of note 8 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:28.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000008",
+                        "floor": "01a157093f040000008",
+                        "prior": null
+                      },
+                      {
+                        "id": "note:9",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 9",
+                          "text": "Words of note 9 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:29.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000009",
+                        "floor": "01a157093f040000009",
+                        "prior": null
+                      },
+                      {
+                        "id": "note:10",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 10",
+                          "text": "Words of note 10 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:30.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000010",
+                        "floor": "01a157093f040000010",
+                        "prior": null
+                      },
+                      {
+                        "id": "note:11",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 11",
+                          "text": "Words of note 11 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:31.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000011",
+                        "floor": "01a157093f040000011",
+                        "prior": null
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.sends contains \"frame\"."
+    }
+  ]
+}

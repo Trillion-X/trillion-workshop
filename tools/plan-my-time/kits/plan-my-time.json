@@ -1,0 +1,43 @@
+{
+  "draft": true,
+  "drafted_from": "tool:plan-my-time's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:plan-my-time with nothing more.\" Plan the person's tasks into their free time and judge their meetings against their pursuits, like an auto-scheduling calendar: ASAP first, then hard deadlines, then what serves their most important pursuit, then due date; tasks wait for their blockers, long tasks split into pieces, hard deadlines may use time outside working hours.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:plan-my-time"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:plan-my-time\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:plan-my-time and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.tasks[0].fit contains \"on_track\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Plan my time on a sample input",
+      "ask": "Run tool:plan-my-time.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:plan-my-time",
+            "input": {
+              "now": "2026-10-19T13:00:00Z",
+              "tasks": [
+                {
+                  "id": "write-the-update",
+                  "duration_minutes": 30
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.tasks[0].fit contains \"on_track\"."
+    }
+  ]
+}

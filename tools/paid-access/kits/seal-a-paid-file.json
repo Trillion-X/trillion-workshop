@@ -1,0 +1,44 @@
+{
+  "draft": true,
+  "drafted_from": "tool:seal-a-paid-file's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:seal-a-paid-file with file, object_key, required_access_refs.\" Put a file I sell (a book, an audiobook, a course video) behind paid access so only buyers can open it",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:seal-a-paid-file",
+    "tool:give-a-buyer-a-paid-file-link",
+    "tool:open-a-paid-file-for-a-buyer"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:seal-a-paid-file\", and give it file, object_key, required_access_refs.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:seal-a-paid-file and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields row, sealed_bytes."
+  ],
+  "worked_examples": [
+    {
+      "title": "Seal a paid file on a sample input",
+      "ask": "Run tool:seal-a-paid-file.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:seal-a-paid-file",
+            "input": {
+              "file": "https://files.example.test/paid/chapter-one-source.pdf",
+              "object_key": "chapter-one.pdf",
+              "required_access_refs": [
+                "access:course-a"
+              ],
+              "mime": "application/pdf"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields row, sealed_bytes."
+    }
+  ]
+}

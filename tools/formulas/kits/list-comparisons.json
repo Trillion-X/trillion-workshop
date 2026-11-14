@@ -1,0 +1,37 @@
+{
+  "draft": true,
+  "drafted_from": "tool:list-comparisons's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:list-comparisons with nothing more.\" List the comparisons and the all-of and any-of groups a rule can use, for one kind of field or every kind",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:list-comparisons"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:list-comparisons\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-comparisons and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.comparisons[0].id contains \"has_any_of\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "List the comparisons a rule can use on a sample input",
+      "ask": "Run tool:list-comparisons.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:list-comparisons",
+            "input": {
+              "field_kind": "tags"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.comparisons[0].id contains \"has_any_of\"."
+    }
+  ]
+}

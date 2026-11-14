@@ -1,0 +1,59 @@
+{
+  "draft": true,
+  "drafted_from": "tool:show-the-courses-a-learner-is-on's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:show-the-courses-a-learner-is-on with courses.\" Show the learning page for one learner: each course as its lessons in order, how many are done, the lesson they are on now, and each lesson's words",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:show-the-courses-a-learner-is-on"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:show-the-courses-a-learner-is-on\", and give it courses.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:show-the-courses-a-learner-is-on and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result.courses contains \"Baking bread\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Show the courses a learner is on, lesson by lesson on a sample input",
+      "ask": "Run tool:show-the-courses-a-learner-is-on.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:show-the-courses-a-learner-is-on",
+            "input": {
+              "courses": [
+                {
+                  "id": "course:bread",
+                  "title": "Baking bread",
+                  "lessons": [
+                    {
+                      "id": "knead",
+                      "title": "Knead",
+                      "body": "Work the dough."
+                    },
+                    {
+                      "id": "proof",
+                      "title": "Proof"
+                    }
+                  ]
+                }
+              ],
+              "done": [
+                {
+                  "course_id": "course:bread",
+                  "lesson_id": "knead"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result.courses contains \"Baking bread\"."
+    }
+  ]
+}

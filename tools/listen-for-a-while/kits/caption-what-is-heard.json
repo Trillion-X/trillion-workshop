@@ -1,0 +1,44 @@
+{
+  "draft": true,
+  "drafted_from": "tool:caption-what-is-heard's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:caption-what-is-heard with listening.\" Show the captions of a listening and fix a word, a speaker or a line in them",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:caption-what-is-heard"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:caption-what-is-heard\", and give it listening.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:caption-what-is-heard and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields listening, on, lines."
+  ],
+  "worked_examples": [
+    {
+      "title": "Captions of what is being heard on a sample input",
+      "ask": "Run tool:caption-what-is-heard.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:caption-what-is-heard",
+            "input": {
+              "listening": "sample-meeting",
+              "ops": [
+                {
+                  "op": "edit",
+                  "id": "heard:sample-meeting:1000",
+                  "text": "The garden budget comes next."
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields listening, on, lines."
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "draft": true,
+  "drafted_from": "tool:settle-a-triage's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:settle-a-triage with item, priorities, dispositions, min_confidence.\" Keep the decision made about one incoming item only if it holds up against the person's priorities and dispositions, and otherwise hold the item back",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:settle-a-triage"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:settle-a-triage\", and give it item, priorities, dispositions, min_confidence.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:settle-a-triage and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.decision.disposition_ref contains \"keep-note\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Settle a triage of one incoming item on a sample input",
+      "ask": "Run tool:settle-a-triage.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:settle-a-triage",
+            "input": {
+              "item": {
+                "ref": "note:1",
+                "version": "v1",
+                "text": "The flour bin is nearly empty"
+              },
+              "priorities": [
+                {
+                  "text": "Never run out of flour"
+                }
+              ],
+              "dispositions": [
+                {
+                  "ref": "keep-note",
+                  "label": "Keep the note",
+                  "blocked_default": false
+                },
+                {
+                  "ref": "hold",
+                  "label": "Hold for the baker",
+                  "fallback": true
+                }
+              ],
+              "min_confidence": 0.6,
+              "answers": [
+                {
+                  "disposition_ref": "keep-note",
+                  "confidence": 0.8,
+                  "rationale": "Matches the flour priority."
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.decision.disposition_ref contains \"keep-note\"."
+    }
+  ]
+}

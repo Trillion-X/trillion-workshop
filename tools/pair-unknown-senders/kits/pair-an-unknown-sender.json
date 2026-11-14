@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:pair-an-unknown-sender's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:pair-an-unknown-sender with source_id, sender.\" Hold a message from a sender the person has not paired yet and give that sender a short code the person can approve",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:pair-an-unknown-sender"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:pair-an-unknown-sender\", and give it source_id, sender.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:pair-an-unknown-sender and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.said contains \"not paired yet\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Give an unknown sender a pairing code on a sample input",
+      "ask": "Run tool:pair-an-unknown-sender.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:pair-an-unknown-sender",
+            "input": {
+              "source_id": "events:sample",
+              "sender": "sender-one"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.said contains \"not paired yet\"."
+    }
+  ]
+}

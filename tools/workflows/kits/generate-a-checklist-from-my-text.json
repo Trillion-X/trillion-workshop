@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:generate-a-checklist-from-my-text's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:generate-a-checklist-from-my-text with library, schema.\" Keep one written checklist of mine as the only source, generate the checklist document from it, tell me when the file on disk no longer matches my text, and find the mistakes a hand edit or a typo would make",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:generate-a-checklist-from-my-text"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:generate-a-checklist-from-my-text\", and give it library, schema.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:generate-a-checklist-from-my-text and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Keep one written checklist of mine as the only source, generate the checklist document from it, tell me when the file on disk no longer matches my text, and find the mistakes a hand edit or a typo would make"
+  ],
+  "worked_examples": [
+    {
+      "title": "Turn my written checklist into the checklist file the gate reads, and check that file (runs on your computer) on a sample input",
+      "ask": "Run tool:generate-a-checklist-from-my-text.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:generate-a-checklist-from-my-text",
+            "input": {
+              "library": "<library: The folder the schema's files are relative to, put where {library} is in the command>",
+              "schema": "<schema: The schema file on the person's computer (its checklist_source part is described in the README), put where {schema} is in the command>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Keep one written checklist of mine as the only source, generate the checklist document from it, tell me when the file on disk no longer matches my text, and find the mistakes a hand edit or a typo would make",
+      "given": "The person gives: library, schema (shown as <name> in the input)."
+    }
+  ]
+}

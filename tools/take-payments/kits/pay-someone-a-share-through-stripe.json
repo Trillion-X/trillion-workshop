@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "tool:pay-someone-a-share-through-stripe's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:pay-someone-a-share-through-stripe with amount_cents, currency, destination, confirm_moves_money.\" Pay a share of what I took on to a person I pay, out of my own Stripe balance",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:pay-someone-a-share-through-stripe"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:pay-someone-a-share-through-stripe\", and give it amount_cents, currency, destination, confirm_moves_money.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:pay-someone-a-share-through-stripe and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields transfer, amount_cents, destination."
+  ],
+  "worked_examples": [
+    {
+      "title": "Pay someone a share through Stripe on a sample input",
+      "ask": "Run tool:pay-someone-a-share-through-stripe.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:pay-someone-a-share-through-stripe",
+            "input": {
+              "amount_cents": 500,
+              "currency": "USD",
+              "destination": "acct_sample0002",
+              "idempotency_key": "sample-share-1",
+              "confirm_moves_money": true
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields transfer, amount_cents, destination."
+    }
+  ]
+}

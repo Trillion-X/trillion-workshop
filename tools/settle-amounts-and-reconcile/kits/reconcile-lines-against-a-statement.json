@@ -1,0 +1,42 @@
+{
+  "draft": true,
+  "drafted_from": "tool:reconcile-lines-against-a-statement's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:reconcile-lines-against-a-statement with action, list_id, lines_kind.\" Close a set of cleared lines against a statement with any difference explained in words, keep a receipt of each close, find lines changed or removed after they were closed, and undo the last close",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:reconcile-lines-against-a-statement"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:reconcile-lines-against-a-statement\", and give it action, list_id, lines_kind.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:reconcile-lines-against-a-statement and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result holds the result: Close a set of cleared lines against a statement with any difference explained in words, keep a receipt of each close, find lines changed or removed after they were closed, and undo the last close"
+  ],
+  "worked_examples": [
+    {
+      "title": "Reconcile lines against a statement on a sample input",
+      "ask": "Run tool:reconcile-lines-against-a-statement.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:reconcile-lines-against-a-statement",
+            "input": {
+              "action": "check",
+              "list_id": "bank",
+              "lines_kind": "record:settle-bank",
+              "lines": {
+                "amount_field": "amount"
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result holds the result: Close a set of cleared lines against a statement with any difference explained in words, keep a receipt of each close, find lines changed or removed after they were closed, and undo the last close"
+    }
+  ]
+}

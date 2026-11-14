@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:media-analysis's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:media-analysis with requests.\" Find which of my recordings show or mention something, and at what second",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:media-analysis"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:media-analysis\", and give it requests.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:media-analysis and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Find which of my recordings show or mention something, and at what second"
+  ],
+  "worked_examples": [
+    {
+      "title": "Find the moments in my videos, pictures and talks that match a phrase (runs on your computer) on a sample input",
+      "ask": "Run tool:media-analysis.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:media-analysis",
+            "input": {
+              "requests": "<requests: A file on the person's computer, put where {requests} is in the command: one JSON request per line: {id, op: embed_picture, identity, file, media_kind?: image, duration?, sampling?: {interval_seconds, max_frames, dedup_similarity}}, {id, op: embed_speech, identity, chunks: [{start?, end?, text}]}, {id, op: add, kind: picture or speech, identity, value}, {id, op: search, query, lanes?: [picture, speech], limit?}, {id, op: prepare}>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Find which of my recordings show or mention something, and at what second",
+      "given": "The person gives: requests (shown as <name> in the input)."
+    }
+  ]
+}

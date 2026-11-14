@@ -1,0 +1,54 @@
+{
+  "draft": true,
+  "drafted_from": "tool:list-my-conversations-newest-first's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:list-my-conversations-newest-first with conversations.\" List every conversation with AIs and in spaces newest first, found by words, participant or project, grouped Today, Yesterday, This Week and Older, as the messages screen's list shows them",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:list-my-conversations-newest-first"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:list-my-conversations-newest-first\", and give it conversations.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-my-conversations-newest-first and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields groups, shown, total, participants, projects."
+  ],
+  "worked_examples": [
+    {
+      "title": "List my conversations newest first on a sample input",
+      "ask": "Run tool:list-my-conversations-newest-first.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:list-my-conversations-newest-first",
+            "input": {
+              "conversations": [
+                {
+                  "recordId": "rec:1",
+                  "sessionId": "s-garden",
+                  "participantRef": "participant:helper-ai",
+                  "lastActivityAt": "2026-01-05T09:00:00Z",
+                  "title": "Garden plan",
+                  "projectName": "Home"
+                },
+                {
+                  "recordId": "rec:2",
+                  "sessionId": "s-paint",
+                  "participantRef": "participant:sam",
+                  "lastActivityAt": "2026-01-07T09:00:00Z",
+                  "title": "Paint colours"
+                }
+              ],
+              "search": "garden"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields groups, shown, total, participants, projects."
+    }
+  ]
+}

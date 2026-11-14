@@ -1,0 +1,54 @@
+{
+  "draft": true,
+  "drafted_from": "tool:publish-a-post-now's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:publish-a-post-now with post_id, expected_values.\" Queue an approved post for immediate sending through each destination's existing send row",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:publish-a-post-now",
+    "tool:draft-a-post",
+    "tool:read-post-calendar"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:publish-a-post-now\", and give it post_id, expected_values.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:publish-a-post-now and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields post_id, status, post, ready, said."
+  ],
+  "worked_examples": [
+    {
+      "title": "Publish a post now on a sample input",
+      "ask": "Run tool:publish-a-post-now.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:publish-a-post-now",
+            "input": {
+              "post_id": "post:sample-1",
+              "expected_values": {
+                "caption": "A made-up sample post.",
+                "media": null,
+                "caption_by_platform": {},
+                "settings_by_platform": {},
+                "destinations": [
+                  "service_connection:x:sample"
+                ],
+                "link": null,
+                "scheduled_for": null,
+                "time_zone": null,
+                "source": null,
+                "format_id": null,
+                "reaches": null
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields post_id, status, post, ready, said."
+    }
+  ]
+}

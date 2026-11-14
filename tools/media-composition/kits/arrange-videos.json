@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:arrange-videos's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:arrange-videos with videos.\" Put two or more videos side by side, stacked, or in a grid in one frame, such as a swing next to a pro's",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:arrange-videos"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:arrange-videos\", and give it videos.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:arrange-videos and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields result, files."
+  ],
+  "worked_examples": [
+    {
+      "title": "Arrange videos side by side on a sample input",
+      "ask": "Run tool:arrange-videos.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:arrange-videos",
+            "input": {
+              "videos": [
+                "<videos: string>"
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields result, files.",
+      "given": "The person gives: videos (shown as <name> in the input)."
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "draft": true,
+  "drafted_from": "tool:say-a-tools-hints-in-its-description's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:say-a-tools-hints-in-its-description with tool.\" Make a tool's description say in words what its read-only, destructive, idempotent and open-world hints say",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:say-a-tools-hints-in-its-description"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:say-a-tools-hints-in-its-description\", and give it tool.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:say-a-tools-hints-in-its-description and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.description contains \"confirm with the person\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Say a tool's hints in its description on a sample input",
+      "ask": "Run tool:say-a-tools-hints-in-its-description.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:say-a-tools-hints-in-its-description",
+            "input": {
+              "tool": {
+                "name": "remove_sample",
+                "description": "Removes one sample thing.",
+                "annotations": {
+                  "readOnlyHint": false,
+                  "destructiveHint": true,
+                  "idempotentHint": false,
+                  "openWorldHint": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.description contains \"confirm with the person\"."
+    }
+  ]
+}

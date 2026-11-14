@@ -1,0 +1,35 @@
+{
+  "draft": true,
+  "drafted_from": "tool:see-what-this-computer-did's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:see-what-this-computer-did with nothing more.\" Read this computer's own event rows, newest first: what the engine and the app recorded about this computer, in order",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:see-what-this-computer-did"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:see-what-this-computer-did\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:see-what-this-computer-did and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields rows."
+  ],
+  "worked_examples": [
+    {
+      "title": "See what this computer did on a sample input",
+      "ask": "Run tool:see-what-this-computer-did.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:see-what-this-computer-did",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "An answer with the fields rows."
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "draft": true,
+  "drafted_from": "tool:total-quote-lines's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:total-quote-lines with action, list_id, lines_kind.\" Total the lines of a quote or invoice in order, where each percent line names the base it multiplies (the line above, the lines since the last subtotal, or all above) and a subtotal line resets that base",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:total-quote-lines"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:total-quote-lines\", and give it action, list_id, lines_kind.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:total-quote-lines and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result holds the result: Total the lines of a quote or invoice in order, where each percent line names the base it multiplies (the line above, the lines since the last subtotal, or all above) and a subtotal line resets that base"
+  ],
+  "worked_examples": [
+    {
+      "title": "Total the lines of a quote or invoice on a sample input",
+      "ask": "Run tool:total-quote-lines.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:total-quote-lines",
+            "input": {
+              "action": "totals",
+              "list_id": "quote",
+              "lines_kind": "record:settle-quote",
+              "lines": {
+                "order_field": "pos"
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result holds the result: Total the lines of a quote or invoice in order, where each percent line names the base it multiplies (the line above, the lines since the last subtotal, or all above) and a subtotal line resets that base"
+    }
+  ]
+}

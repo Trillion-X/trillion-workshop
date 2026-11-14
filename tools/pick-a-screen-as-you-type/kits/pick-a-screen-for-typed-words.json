@@ -1,0 +1,44 @@
+{
+  "draft": true,
+  "drafted_from": "tool:pick-a-screen-for-typed-words's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:pick-a-screen-for-typed-words with words.\" Pick, as a person types, the screen that already does what their words ask from the screens they are offered, the interfaces made for them and the screens they kept, with no model, and keep the shown screen calm",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:pick-a-screen-for-typed-words"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:pick-a-screen-for-typed-words\", and give it words.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:pick-a-screen-for-typed-words and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.memory.shown.entry.screen contains \"tool:focus-timer\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Pick the screen for what I am typing on a sample input",
+      "ask": "Run tool:pick-a-screen-for-typed-words.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:pick-a-screen-for-typed-words",
+            "input": {
+              "words": "focus timer",
+              "rows": [
+                {
+                  "id": "tool:focus-timer",
+                  "label": "Focus timer",
+                  "description": "Counts down a focus session"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.memory.shown.entry.screen contains \"tool:focus-timer\"."
+    }
+  ]
+}

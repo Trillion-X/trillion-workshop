@@ -1,0 +1,47 @@
+{
+  "draft": true,
+  "drafted_from": "tool:sum-a-characters-time-per-video's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:sum-a-characters-time-per-video with data_folder.\" Sum how much a character speaks in each video of a show, in the opening, the body and the close, and see how that goes with how the videos did",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:sum-a-characters-time-per-video"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:sum-a-characters-time-per-video\", and give it data_folder.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:sum-a-characters-time-per-video and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result holds the result: Sum how much a character speaks in each video of a show, in the opening, the body and the close, and see how that goes with how the videos did"
+  ],
+  "worked_examples": [
+    {
+      "title": "Sum a character's time in each video and set it against the video's views (runs on your computer) on a sample input",
+      "ask": "Run tool:sum-a-characters-time-per-video.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:sum-a-characters-time-per-video",
+            "input": {
+              "data_folder": "{grant:change-a-folder}/show",
+              "settings": {
+                "opening_seconds": 20,
+                "closing_seconds": 10,
+                "stripped_ids": [
+                  "vid-c"
+                ],
+                "compare_from_month": "203001",
+                "compare_to_month": "203012",
+                "lowest_from_year": "2030"
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result holds the result: Sum how much a character speaks in each video of a show, in the opening, the body and the close, and see how that goes with how the videos did"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:connect-an-ai-app-on-this-computer-to-trillion's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:connect-an-ai-app-on-this-computer-to-trillion with action, client.\" Read, preview, add or take out the Trillion MCP entry in AI apps on this computer (Claude Code, Codex, Gemini CLI, Cursor)",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:connect-an-ai-app-on-this-computer-to-trillion"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:connect-an-ai-app-on-this-computer-to-trillion\", and give it action, client.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:connect-an-ai-app-on-this-computer-to-trillion and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields schema, action, review_hash, results."
+  ],
+  "worked_examples": [
+    {
+      "title": "Connect an AI app on this computer to Trillion on a sample input",
+      "ask": "Run tool:connect-an-ai-app-on-this-computer-to-trillion.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:connect-an-ai-app-on-this-computer-to-trillion",
+            "input": {
+              "action": "mcp-inspect",
+              "client": "<client: The AI apps, comma-separated>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields schema, action, review_hash, results.",
+      "given": "The person gives: client (shown as <name> in the input)."
+    }
+  ]
+}

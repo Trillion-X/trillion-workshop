@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:capture-exclusion's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:capture-exclusion with nothing more.\" Say which categories of places (banking, health, social, shopping, adult content, entertainment) a screen or browser capture must not read, whether one address is in them, turn a category on or off for the person, and take in more domains as a cursor diff",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:capture-exclusion"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:capture-exclusion\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:capture-exclusion and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields categories, cursor, category, on, prefs, state."
+  ],
+  "worked_examples": [
+    {
+      "title": "Places capture must not read on a sample input",
+      "ask": "Run tool:capture-exclusion.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:capture-exclusion",
+            "input": {
+              "action": "check",
+              "address": "https://www.chase.com/accounts"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields categories, cursor, category, on, prefs, state."
+    }
+  ]
+}

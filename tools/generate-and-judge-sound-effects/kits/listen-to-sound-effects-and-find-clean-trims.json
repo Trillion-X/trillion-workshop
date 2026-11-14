@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:listen-to-sound-effects-and-find-clean-trims's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:listen-to-sound-effects-and-find-clean-trims with categories, out.\" Rank my sound-effect folders against a description and find the cleanest trim of the best ones",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:listen-to-sound-effects-and-find-clean-trims"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:listen-to-sound-effects-and-find-clean-trims\", and give it categories, out.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:listen-to-sound-effects-and-find-clean-trims and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Rank my sound-effect folders against a description and find the cleanest trim of the best ones"
+  ],
+  "worked_examples": [
+    {
+      "title": "Rank sound effects in folders by ear and find each one's cleanest trim (runs on your computer) on a sample input",
+      "ask": "Run tool:listen-to-sound-effects-and-find-clean-trims.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:listen-to-sound-effects-and-find-clean-trims",
+            "input": {
+              "categories": "<categories: CATEGORIES.json>",
+              "out": "<out: OUT.json, merged into>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Rank my sound-effect folders against a description and find the cleanest trim of the best ones",
+      "given": "The person gives: categories, out (shown as <name> in the input)."
+    }
+  ]
+}

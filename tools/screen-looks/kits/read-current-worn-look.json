@@ -1,0 +1,124 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-current-worn-look's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-current-worn-look with time_zone, app_data.\" Read this person's current worn screen look, look rules and day plan as the device token payload native screens draw",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-current-worn-look"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-current-worn-look\", and give it time_zone, app_data.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-current-worn-look and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields worn, worn_record, now, ahead, looks, read_again_at."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read my current screen look on a sample input",
+      "ask": "Run tool:read-current-worn-look.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-current-worn-look",
+            "input": {
+              "time_zone": "UTC",
+              "host": "mac",
+              "device": "computer",
+              "app_data": {
+                "looks": {
+                  "start_with": "harbor",
+                  "themes": [
+                    {
+                      "address": "look:harbor",
+                      "payload": {
+                        "kind": "screen-look-editable-theme",
+                        "id": "harbor",
+                        "name": "Harbor",
+                        "tokens": [
+                          {
+                            "key": "accent-primary",
+                            "kind": "color",
+                            "value": "#247b70",
+                            "css_variable": "--accent-primary"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "address": "look:dusk",
+                      "payload": {
+                        "kind": "screen-look-editable-theme",
+                        "id": "dusk",
+                        "name": "Dusk",
+                        "tokens": [
+                          {
+                            "key": "accent-primary",
+                            "kind": "color",
+                            "value": "#7b4f92",
+                            "css_variable": "--accent-primary"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "look_over_time": {
+                  "record_key": "screen-look-over-time",
+                  "most_points": 24,
+                  "keep_readable": {
+                    "ground": "--bg-primary",
+                    "least_contrast": 2.5
+                  },
+                  "anchors": [],
+                  "presets": []
+                },
+                "where_looks_apply": {
+                  "record_key": "where-looks-apply",
+                  "facts": [
+                    {
+                      "id": "host",
+                      "kind": "choice"
+                    },
+                    {
+                      "id": "device",
+                      "kind": "choice"
+                    },
+                    {
+                      "id": "device_id",
+                      "kind": "choice"
+                    },
+                    {
+                      "id": "place",
+                      "kind": "choice"
+                    },
+                    {
+                      "id": "hour",
+                      "kind": "number",
+                      "turns": "hour"
+                    },
+                    {
+                      "id": "weekday",
+                      "kind": "choice",
+                      "turns": "hour"
+                    },
+                    {
+                      "id": "now",
+                      "kind": "date",
+                      "clock": true
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields worn, worn_record, now, ahead, looks, read_again_at."
+    }
+  ]
+}

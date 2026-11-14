@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-prediction-market-order-book's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-prediction-market-order-book with token_id.\" See the buy and sell offers on one prediction market outcome: the best prices, the gap between them and how much is offered",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-prediction-market-order-book",
+    "tool:list-public-prediction-markets"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-prediction-market-order-book\", and give it token_id.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-prediction-market-order-book and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.status.token_id contains \"0\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read a prediction market's order book on a sample input",
+      "ask": "Run tool:read-prediction-market-order-book.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-prediction-market-order-book",
+            "input": {
+              "token_id": "0"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.status.token_id contains \"0\"."
+    }
+  ]
+}

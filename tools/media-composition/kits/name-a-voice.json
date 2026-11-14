@@ -1,0 +1,45 @@
+{
+  "draft": true,
+  "drafted_from": "tool:name-a-voice's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:name-a-voice with voice_id, person_name.\" Attach a person's name to one voice cluster after identifying that voice",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:name-a-voice"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:name-a-voice\", and give it voice_id, person_name.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:name-a-voice and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields binding, voice_id, person_name."
+  ],
+  "worked_examples": [
+    {
+      "title": "Name a voice on a sample input",
+      "ask": "Run tool:name-a-voice.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:name-a-voice",
+            "input": {
+              "voice_id": "voice-1",
+              "person_name": "Sam Example",
+              "known_voices": [
+                {
+                  "value": {
+                    "voice_id": "voice-1"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields binding, voice_id, person_name."
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:search-the-treg-catalog's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:search-the-treg-catalog with job.\" Find the external endpoints that can do a job (backlinks for a domain, a company's job openings, a brand's ads, a channel's posts) and what each costs, before spending anything",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:search-the-treg-catalog",
+    "tool:call-a-treg-endpoint",
+    "tool:read-a-treg-endpoint-and-its-price"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:search-the-treg-catalog\", and give it job.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:search-the-treg-catalog and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields query, count, total, results."
+  ],
+  "worked_examples": [
+    {
+      "title": "Search treg's catalog of paid endpoints on a sample input",
+      "ask": "Run tool:search-the-treg-catalog.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:search-the-treg-catalog",
+            "input": {
+              "job": "<job: The job in plain words, for example \"backlinks summary for a domain\">"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields query, count, total, results.",
+      "given": "The person gives: job (shown as <name> in the input)."
+    }
+  ]
+}

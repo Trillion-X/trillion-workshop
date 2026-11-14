@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-a-list-view's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-a-list-view with config.\" Read one page of what one of my lists or saved views shows, from my records, or refresh a list's row sources (a folder of documents, for one) into its records",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-a-list-view"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-a-list-view\", and give it config.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-a-list-view and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Read one page of what one of my lists or saved views shows, from my records, or refresh a list's row sources (a folder of documents, for one) into its records"
+  ],
+  "worked_examples": [
+    {
+      "title": "Read a page of one of my lists or saved views, or refresh its row sources on a sample input",
+      "ask": "Run tool:read-a-list-view.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-a-list-view",
+            "input": {
+              "config": "<config: The person's door config file (the README describes its keys)>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Read one page of what one of my lists or saved views shows, from my records, or refresh a list's row sources (a folder of documents, for one) into its records",
+      "given": "The person gives: config (shown as <name> in the input)."
+    }
+  ]
+}

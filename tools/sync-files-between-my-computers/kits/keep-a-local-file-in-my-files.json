@@ -1,0 +1,35 @@
+{
+  "draft": true,
+  "drafted_from": "tool:keep-a-local-file-in-my-files's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:keep-a-local-file-in-my-files with nothing more.\" Keep files from the person's computer in their Files under names they choose: one file or a list of files, each kept in order; a small file in pieces, a large one over the lease road",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:keep-a-local-file-in-my-files"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:keep-a-local-file-in-my-files\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:keep-a-local-file-in-my-files and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields kept, refused."
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep a file from my computer in my Files on a sample input",
+      "ask": "Run tool:keep-a-local-file-in-my-files.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-a-local-file-in-my-files",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "An answer with the fields kept, refused."
+    }
+  ]
+}

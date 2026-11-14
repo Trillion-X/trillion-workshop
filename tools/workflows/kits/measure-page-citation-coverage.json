@@ -1,0 +1,45 @@
+{
+  "draft": true,
+  "drafted_from": "tool:measure-page-citation-coverage's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:measure-page-citation-coverage with pages, engines.\" Compare every planned page × question × answer engine cell against recorded answer observations, keeping exact page citations, unavailable answers and unasked cells distinct",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:measure-page-citation-coverage"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:measure-page-citation-coverage\", and give it pages, engines.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:measure-page-citation-coverage and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields planned, measured, cited, not_cited, unknown, citation_rate, cells."
+  ],
+  "worked_examples": [
+    {
+      "title": "Measure exact page citations across planned questions and answer engines on a sample input",
+      "ask": "Run tool:measure-page-citation-coverage.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:measure-page-citation-coverage",
+            "input": {
+              "pages": [
+                {
+                  "url": "<url: string>"
+                }
+              ],
+              "engines": [
+                "<engines>"
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields planned, measured, cited, not_cited, unknown, citation_rate, cells.",
+      "given": "The person gives: url, engines (shown as <name> in the input)."
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:find-silence's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:find-silence with video.\" Find the silent stretches in a video or recording and the parts worth keeping between them",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:find-silence"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:find-silence\", and give it video.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-silence and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields result."
+  ],
+  "worked_examples": [
+    {
+      "title": "Find the quiet parts of a video on a sample input",
+      "ask": "Run tool:find-silence.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:find-silence",
+            "input": {
+              "video": "<video: The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields result.",
+      "given": "The person gives: video (shown as <name> in the input)."
+    }
+  ]
+}

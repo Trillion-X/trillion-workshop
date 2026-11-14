@@ -1,0 +1,44 @@
+{
+  "draft": true,
+  "drafted_from": "tool:fill-screen-inputs-from-words's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:fill-screen-inputs-from-words with schema, words.\" Fill a screen's inputs from the words a person typed, such as timer 25 min or lunch with Ruth tomorrow at 1, by each input's format, choices or type, with no model",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:fill-screen-inputs-from-words"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:fill-screen-inputs-from-words\", and give it schema, words.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:fill-screen-inputs-from-words and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.values.seconds contains \"1500\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Fill a screen's inputs from my words on a sample input",
+      "ask": "Run tool:fill-screen-inputs-from-words.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:fill-screen-inputs-from-words",
+            "input": {
+              "schema": {
+                "properties": {
+                  "seconds": {
+                    "type": "number"
+                  }
+                }
+              },
+              "words": "timer 25 min"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.values.seconds contains \"1500\"."
+    }
+  ]
+}

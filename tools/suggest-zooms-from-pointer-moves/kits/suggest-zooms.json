@@ -1,0 +1,71 @@
+{
+  "draft": true,
+  "drafted_from": "tool:suggest-zooms's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:suggest-zooms with sidecar.\" Turn the pointer moves and clicks noted beside a screen recording into zoom suggestions (where the pointer settled, for how long, how strong), as plain rows the person can edit before the video is exported",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:suggest-zooms"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:suggest-zooms\", and give it sidecar.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:suggest-zooms and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields zooms."
+  ],
+  "worked_examples": [
+    {
+      "title": "Suggest zooms for a screen recording on a sample input",
+      "ask": "Run tool:suggest-zooms.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:suggest-zooms",
+            "input": {
+              "sidecar": {
+                "space": "normalized-source",
+                "samples": [
+                  {
+                    "type": "move",
+                    "t": 0,
+                    "x": 0.2,
+                    "y": 0.2
+                  },
+                  {
+                    "type": "move",
+                    "t": 100,
+                    "x": 0.5,
+                    "y": 0.5
+                  },
+                  {
+                    "type": "click",
+                    "t": 700,
+                    "x": 0.5,
+                    "y": 0.5
+                  },
+                  {
+                    "type": "move",
+                    "t": 1500,
+                    "x": 0.51,
+                    "y": 0.5
+                  },
+                  {
+                    "type": "move",
+                    "t": 2000,
+                    "x": 0.9,
+                    "y": 0.9
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields zooms."
+    }
+  ]
+}

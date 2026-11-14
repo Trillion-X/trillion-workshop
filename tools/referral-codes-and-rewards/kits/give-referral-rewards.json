@@ -1,0 +1,63 @@
+{
+  "draft": true,
+  "drafted_from": "tool:give-referral-rewards's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:give-referral-rewards with events.\" Give the rewards my referral reward rules say a code earns: a discount code, or access, written once",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:give-referral-rewards",
+    "tool:grant-paid-access-to-people",
+    "tool:work-out-referral-codes"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:give-referral-rewards\", and give it events.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:give-referral-rewards and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.given.adjustments.written contains \"1\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Give referral rewards on a sample input",
+      "ask": "Run tool:give-referral-rewards.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:give-referral-rewards",
+            "input": {
+              "events": [
+                {
+                  "kind": "referral_code_created",
+                  "subject": "account:ada",
+                  "material": {
+                    "event_type": "referral_code_created",
+                    "referral_code": "BREAD-7K3Q",
+                    "target": {
+                      "on": "product_id",
+                      "value": "loaf"
+                    },
+                    "occurred_at": "2026-01-01T00:00:00Z"
+                  }
+                }
+              ],
+              "codes": [
+                "BREAD-7K3Q"
+              ],
+              "sales": [
+                {
+                  "id": "sale-1",
+                  "product_id": "loaf",
+                  "amount_cents": 2000
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.given.adjustments.written contains \"1\"."
+    }
+  ]
+}

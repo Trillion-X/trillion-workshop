@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-an-office-file's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-an-office-file with file.\" Read a spreadsheet (xlsx), a Word document (docx) or a presentation (pptx) into plain data: the sheets with their rows and typed cells, the document's paragraphs and tables, or the slides' text in presentation order",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-an-office-file"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-an-office-file\", and give it file.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-an-office-file and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields kind, sheets, blocks, slides, parts."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read a spreadsheet, document or presentation as data (runs on your computer) on a sample input",
+      "ask": "Run tool:read-an-office-file.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-an-office-file",
+            "input": {
+              "file": "<file: Path of the xlsx, docx or pptx file on the person's computer>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields kind, sheets, blocks, slides, parts.",
+      "given": "The person gives: file (shown as <name> in the input)."
+    }
+  ]
+}

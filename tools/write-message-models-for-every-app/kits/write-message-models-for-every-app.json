@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:write-message-models-for-every-app's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:write-message-models-for-every-app with models.\" Write the Swift and TypeScript message models two apps and the web use to talk to each other, from one list of models",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:write-message-models-for-every-app"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:write-message-models-for-every-app\", and give it models.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:write-message-models-for-every-app and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Write the Swift and TypeScript message models two apps and the web use to talk to each other, from one list of models"
+  ],
+  "worked_examples": [
+    {
+      "title": "Write the message models every app reads from one list (runs on your computer) on a sample input",
+      "ask": "Run tool:write-message-models-for-every-app.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:write-message-models-for-every-app",
+            "input": {
+              "models": "<models: The models file, put where {models} is in the command (shape: read-data/sample-models.json)>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Write the Swift and TypeScript message models two apps and the web use to talk to each other, from one list of models",
+      "given": "The person gives: models (shown as <name> in the input)."
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-a-pipeline's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-a-pipeline with stages, transitions, start.\" Check a sales pipeline or any set of stages for mistakes: stages nothing can reach, a way out of a finished stage, or a move to a stage that does not exist",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-a-pipeline"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-a-pipeline\", and give it stages, transitions, start.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-pipeline and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.problems contains \"archived\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check a pipeline's stages for mistakes on a sample input",
+      "ask": "Run tool:check-a-pipeline.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-a-pipeline",
+            "input": {
+              "stages": [
+                {
+                  "key": "lead",
+                  "label": "Lead"
+                },
+                {
+                  "key": "call-booked",
+                  "label": "Call booked"
+                },
+                {
+                  "key": "proposal",
+                  "label": "Proposal sent"
+                },
+                {
+                  "key": "won",
+                  "label": "Won",
+                  "terminal": true
+                },
+                {
+                  "key": "lost",
+                  "label": "Lost",
+                  "terminal": true
+                },
+                {
+                  "key": "archived",
+                  "label": "Archived"
+                }
+              ],
+              "transitions": [
+                {
+                  "from": "lead",
+                  "to": "call-booked"
+                },
+                {
+                  "from": "lead",
+                  "to": "lost"
+                },
+                {
+                  "from": "call-booked",
+                  "to": "proposal"
+                },
+                {
+                  "from": "call-booked",
+                  "to": "lost"
+                },
+                {
+                  "from": "proposal",
+                  "to": "won",
+                  "when": {
+                    "equals": {
+                      "signal": "paid",
+                      "value": true
+                    }
+                  }
+                },
+                {
+                  "from": "proposal",
+                  "to": "lost"
+                }
+              ],
+              "start": "lead"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.problems contains \"archived\"."
+    }
+  ]
+}

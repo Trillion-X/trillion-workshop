@@ -1,0 +1,45 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-nested-input's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-nested-input with value.\" Check an untrusted nested value (an imported document, pasted rich text, list row values from an AI) before it is rendered or stored: refuse it in plain words when it is nested deeper than 100 levels, holds more than 100,000 values, or refers back to itself",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-nested-input"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-nested-input\", and give it value.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-nested-input and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.said contains \"more than 3 values\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check nested input within limits on a sample input",
+      "ask": "Run tool:check-nested-input.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-nested-input",
+            "input": {
+              "value": [
+                1,
+                2,
+                3,
+                4
+              ],
+              "limits": {
+                "max_nodes": 3
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.said contains \"more than 3 values\"."
+    }
+  ]
+}

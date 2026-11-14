@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "tool:send-an-email-with-amazon-ses's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:send-an-email-with-amazon-ses with region.\" Send an email, to one person or a list, through my Amazon SES account",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:send-an-email-with-amazon-ses"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:send-an-email-with-amazon-ses\", and give it region.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:send-an-email-with-amazon-ses and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields provider, sent, said."
+  ],
+  "worked_examples": [
+    {
+      "title": "Send an email with Amazon SES on a sample input",
+      "ask": "Run tool:send-an-email-with-amazon-ses.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:send-an-email-with-amazon-ses",
+            "input": {
+              "to": "reader@example.com",
+              "subject": "Hello",
+              "html": "<p>Hello there</p>",
+              "text": "Hello there",
+              "region": "us-east-1"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields provider, sent, said."
+    }
+  ]
+}

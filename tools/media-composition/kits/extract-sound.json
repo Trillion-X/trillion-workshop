@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:extract-sound's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:extract-sound with video.\" Take the sound out of a video as a small audio file, for example to transcribe it",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:extract-sound"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:extract-sound\", and give it video.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:extract-sound and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields files."
+  ],
+  "worked_examples": [
+    {
+      "title": "Extract the sound from a video on a sample input",
+      "ask": "Run tool:extract-sound.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:extract-sound",
+            "input": {
+              "video": "<video: The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields files.",
+      "given": "The person gives: video (shown as <name> in the input)."
+    }
+  ]
+}

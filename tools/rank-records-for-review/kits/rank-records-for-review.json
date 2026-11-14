@@ -1,0 +1,83 @@
+{
+  "draft": true,
+  "drafted_from": "tool:rank-records-for-review's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:rank-records-for-review with descriptor, records.\" Put a list of suggestions, matches or any records in the order a person should review them, showing the fields they asked for on each row and whether they already accepted or passed on it",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:rank-records-for-review"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:rank-records-for-review\", and give it descriptor, records.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:rank-records-for-review and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.rows.0.recordId contains \"record.early\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Rank records for review on a sample input",
+      "ask": "Run tool:rank-records-for-review.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:rank-records-for-review",
+            "input": {
+              "descriptor": {
+                "id": "sample.review",
+                "source": {
+                  "address": "sample.review.records"
+                },
+                "standKind": "suggestion",
+                "standView": {
+                  "record": [
+                    "record_ref"
+                  ]
+                },
+                "fields": [
+                  {
+                    "id": "primary",
+                    "path": [
+                      "display",
+                      "primary"
+                    ]
+                  }
+                ]
+              },
+              "records": [
+                {
+                  "record_ref": "record.late",
+                  "rank": 2,
+                  "display": {
+                    "primary": "Second record"
+                  }
+                },
+                {
+                  "record_ref": "record.early",
+                  "rank": 1,
+                  "display": {
+                    "primary": "First record"
+                  }
+                }
+              ],
+              "stands": [
+                {
+                  "kind": "suggestion",
+                  "view": {
+                    "record": "record.early"
+                  },
+                  "stance": "agree",
+                  "at": "2026-01-01T00:00:00Z"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.rows.0.recordId contains \"record.early\"."
+    }
+  ]
+}

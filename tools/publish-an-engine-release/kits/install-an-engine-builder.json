@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:install-an-engine-builder's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:install-an-engine-builder with request_file.\" Set up a machine that publishes a signed engine release on every merge, so a fix reaches every account without an app install",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:install-an-engine-builder"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:install-an-engine-builder\", and give it request_file.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:install-an-engine-builder and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields public_key, key_made, deploy_key, feed_url, receiver_active, darwin, feed_status, webhook."
+  ],
+  "worked_examples": [
+    {
+      "title": "Install an engine builder on a sample input",
+      "ask": "Run tool:install-an-engine-builder.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:install-an-engine-builder",
+            "input": {
+              "request_file": "<request_file: A request JSON: builder { address, host_name }, ssh { known_hosts, identity_file?>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields public_key, key_made, deploy_key, feed_url, receiver_active, darwin, feed_status, webhook.",
+      "given": "The person gives: request_file (shown as <name> in the input)."
+    }
+  ]
+}

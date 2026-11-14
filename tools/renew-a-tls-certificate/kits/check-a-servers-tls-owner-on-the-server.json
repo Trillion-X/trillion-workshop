@@ -1,0 +1,43 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-a-servers-tls-owner-on-the-server's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-a-servers-tls-owner-on-the-server with hostname, address, ssh_port, admin_user, knownHost, host.\" Run the certificate program's own tests on my Linux server, where its private-credential checks can run",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-a-servers-tls-owner-on-the-server"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-a-servers-tls-owner-on-the-server\", and give it hostname, address, ssh_port, admin_user, knownHost, host.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-servers-tls-owner-on-the-server and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields host_tests."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check a server's TLS owner on the server on a sample input",
+      "ask": "Run tool:check-a-servers-tls-owner-on-the-server.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-a-servers-tls-owner-on-the-server",
+            "input": {
+              "hostname": "<hostname: string>",
+              "address": "<address: string>",
+              "ssh_port": "<ssh_port: The server's SSH port (22 for a pinned key written as \"<address> ssh-ed25519 <key>\")>",
+              "admin_user": "<admin_user: The administrator the run signs in as>",
+              "knownHost": "<knownHost: string>",
+              "host": {}
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields host_tests.",
+      "given": "The person gives: hostname, address, ssh_port, admin_user, knownHost (shown as <name> in the input)."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "draft": true,
+  "drafted_from": "tool:submit-a-recipe-step's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:submit-a-recipe-step with run, step, answer.\" Hand in my answer to a step of my recipe run, and have it kept only when the step's checks pass, judged on what my own records say ran",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:submit-a-recipe-step"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:submit-a-recipe-step\", and give it run, step, answer.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:submit-a-recipe-step and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields status, answer_id, checks, unchecked."
+  ],
+  "worked_examples": [
+    {
+      "title": "Hand in the answer to one step of a recipe run, judged by the step's checks on what the records hold on a sample input",
+      "ask": "Run tool:submit-a-recipe-step.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:submit-a-recipe-step",
+            "input": {
+              "run": "ai-job:workflow:sample-dig:k1",
+              "step": "dig",
+              "answer": {
+                "lanes": [
+                  {
+                    "id": "dig-1",
+                    "job": "ai-job:workflow:sample-dig:k1:dig:dig-1"
+                  },
+                  {
+                    "id": "dig-2",
+                    "job": "ai-job:workflow:sample-dig:k1:dig:dig-2"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields status, answer_id, checks, unchecked."
+    }
+  ]
+}

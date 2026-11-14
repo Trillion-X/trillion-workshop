@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:answer-the-content-formats-page's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:answer-the-content-formats-page with path, method.\" Answer the Formats page: read and save my content formats, list what can fill them, shape a thought into them and follow a script",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:answer-the-content-formats-page"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:answer-the-content-formats-page\", and give it path, method.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:answer-the-content-formats-page and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields status, body."
+  ],
+  "worked_examples": [
+    {
+      "title": "Answer the Formats page on a sample input",
+      "ask": "Run tool:answer-the-content-formats-page.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:answer-the-content-formats-page",
+            "input": {
+              "path": "/content-formats",
+              "method": "GET",
+              "query": {},
+              "body": {}
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields status, body."
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "draft": true,
+  "drafted_from": "tool:count-a-shows-running-jokes-in-its-captions's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:count-a-shows-running-jokes-in-its-captions with data_folder, youtube_folder.\" Count how often a show's running jokes, lore names and rituals come up across all its captions, when each first and last appeared, with one example",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:count-a-shows-running-jokes-in-its-captions"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:count-a-shows-running-jokes-in-its-captions\", and give it data_folder, youtube_folder.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:count-a-shows-running-jokes-in-its-captions and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result holds the result: Count how often a show's running jokes, lore names and rituals come up across all its captions, when each first and last appeared, with one example"
+  ],
+  "worked_examples": [
+    {
+      "title": "Count a show's running jokes, lore names and rituals across its captions (runs on your computer) on a sample input",
+      "ask": "Run tool:count-a-shows-running-jokes-in-its-captions.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:count-a-shows-running-jokes-in-its-captions",
+            "input": {
+              "data_folder": "{grant:change-a-folder}/show",
+              "youtube_folder": "{grant:change-a-folder}/youtube",
+              "settings_record": {
+                "id": "record:setting:measure-a-characters-voice-lines-and-staging~piece~lighthouse-parrot",
+                "type": "record:setting",
+                "value": {
+                  "name": "The parrot of a made-up lighthouse show",
+                  "tool": "tool:count-a-shows-running-jokes-in-its-captions",
+                  "scope_kind": "piece",
+                  "scope_id": "lighthouse-parrot",
+                  "settings": "{\"terms\": {\"cracker\": \"crackers?\", \"storm\": \"\\\\bstorm\\\\b(?! drain)\"}}",
+                  "from": "made-up@0000000",
+                  "status": "active"
+                }
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result holds the result: Count how often a show's running jokes, lore names and rituals come up across all its captions, when each first and last appeared, with one example"
+    }
+  ]
+}

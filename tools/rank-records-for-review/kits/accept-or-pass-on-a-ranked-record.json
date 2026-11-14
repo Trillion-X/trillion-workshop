@@ -1,0 +1,86 @@
+{
+  "draft": true,
+  "drafted_from": "tool:accept-or-pass-on-a-ranked-record's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:accept-or-pass-on-a-ranked-record with descriptor, record, action_id.\" Turn a person's accept or pass on one suggestion in a review list into the request that keeps it as their stand, in their own words",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:accept-or-pass-on-a-ranked-record"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:accept-or-pass-on-a-ranked-record\", and give it descriptor, record, action_id.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:accept-or-pass-on-a-ranked-record and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.input.stance contains \"agree\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Accept or pass on a ranked record on a sample input",
+      "ask": "Run tool:accept-or-pass-on-a-ranked-record.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:accept-or-pass-on-a-ranked-record",
+            "input": {
+              "descriptor": {
+                "id": "sample.review",
+                "source": {
+                  "address": "sample.review.records"
+                },
+                "standKind": "suggestion",
+                "standView": {
+                  "record": [
+                    "record_ref"
+                  ]
+                },
+                "fields": [
+                  {
+                    "id": "primary",
+                    "path": [
+                      "display",
+                      "primary"
+                    ]
+                  }
+                ],
+                "actions": [
+                  {
+                    "id": "accept",
+                    "label": "Accept",
+                    "stance": "agree",
+                    "copy": [
+                      {
+                        "key": "why",
+                        "from": "input.why"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "pass",
+                    "label": "Pass",
+                    "stance": "disagree"
+                  }
+                ]
+              },
+              "record": {
+                "record_ref": "record.early",
+                "rank": 1,
+                "display": {
+                  "primary": "First record"
+                }
+              },
+              "action_id": "accept",
+              "input": {
+                "why": "These belong together."
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.input.stance contains \"agree\"."
+    }
+  ]
+}

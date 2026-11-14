@@ -20,13 +20,17 @@ const batch = flag('--batch') ? Number(flag('--batch')) : Infinity;
 
 const owed = JSON.parse(readFileSync(OWED_FILE, 'utf8'));
 const owing = new Map(items().filter(item => item.problems === null).map(item => [item.id, item]));
+// The lists other kits here already define, by list id, for any item that names one of them.
+const keptLists = new Map();
+for (const entry of items().filter(item => item.problems !== null)) for (const list of JSON.parse(readFileSync(entry.file, 'utf8')).lists ?? []) if (!keptLists.has(list.list)) keptLists.set(list.list, list);
 const known = new Set([...items().map(item => item.id), ...HOST_TOOLS]);
 const done = [];
 const gaps = [];
-for (const id of [...owed.workflows, ...owed.tools]) {
+// The items on the list first, then any item with no kit that landed without one.
+for (const id of [...new Set([...owed.workflows, ...owed.tools, ...owing.keys()])]) {
   const item = owing.get(id);
   if (!item) continue;
-  const { kit, problems } = draftKit({ [item.kind === 'tool' ? 'tool' : 'recipe']: item.item, known });
+  const { kit, problems } = draftKit({ [item.kind === 'tool' ? 'tool' : 'recipe']: item.item, known, keptLists });
   if (problems.length) { gaps.push({ id, kind: item.kind, problems }); continue; }
   if (done.length >= batch) continue;
   done.push(id);

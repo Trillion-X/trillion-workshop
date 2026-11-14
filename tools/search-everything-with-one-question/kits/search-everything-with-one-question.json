@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:search-everything-with-one-question's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:search-everything-with-one-question with client, input.\" Search everything I keep with one question: every list and record, and my files by name, best match first",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:search-everything-with-one-question",
+    "tool:search-everything-in-a-small-container"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:search-everything-with-one-question\", and give it client, input.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:search-everything-with-one-question and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Search everything I keep with one question: every list and record, and my files by name, best match first"
+  ],
+  "worked_examples": [
+    {
+      "title": "Search everything I keep with one question (runs on your computer) on a sample input",
+      "ask": "Run tool:search-everything-with-one-question.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:search-everything-with-one-question",
+            "input": {
+              "client": "<client: The client file on the person's computer, put where {client} is in the command: { argv: the command that starts their Trillion MCP client on standard input and output, resource: \"@own-records\", files_resource: \"@namespace\", timeout_ms?>",
+              "input": "<input: A JSON file holding { question, type?, limit?>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Search everything I keep with one question: every list and record, and my files by name, best match first",
+      "given": "The person gives: client, input (shown as <name> in the input)."
+    }
+  ]
+}

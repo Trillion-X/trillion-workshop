@@ -14,7 +14,7 @@
 //   With rules.refuse_changed_items true (tools/workflows/kit-template.json), an item still on the allowance list that this
 //   change touches (a file in its tool folder outside kits/, or its workflow recipe) is refused until it has its kit.
 
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { root, rows, rowsOf, folders, tools as TOOLS } from './tool-rows.mjs';
 import { KIT_TEMPLATE, kitProblems } from '../tools/workflows/read-data/kit-problems.mjs';
@@ -88,6 +88,15 @@ export function kitGateProblems({ owed = JSON.parse(readFileSync(OWED_FILE, 'utf
       else if (item.problems !== null) problems.push(`test/items-without-a-kit.json names ${id}, which now has its kit: take it out.`);
     }
   }
+  // A kit file beside nothing: its item is gone, was renamed, or the file is in the wrong folder.
+  const kept = new Set(all.map(item => item.file));
+  for (const folder of folders) {
+    const dir = resolve(TOOLS, folder, 'kits');
+    if (!existsSync(dir)) continue;
+    for (const name of readdirSync(dir).filter(entry => entry.endsWith('.json'))) {
+      if (!kept.has(resolve(dir, name))) problems.push(`tools/${folder}/kits/${name} is a kit with no item beside it: its workflow or tool is not offered by tools/${folder}, so move or remove the file.`);
+    }
+  }
   if (rules.refuse_changed_items) {
     for (const item of all) {
       if (item.problems === null && owedIds.has(item.id) && touched.has(item.id)) problems.push(`${item.id} is changed here and still has no kit: touching an item from before kits ends its exemption, so add ${item.file.slice(root.length + 1)}.`);
@@ -106,7 +115,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const touched = touchedIds({ changed: changedText ? changedText.split('\n').filter(Boolean) : [], beforeRecipes: recipesText ? JSON.parse(recipesText) : null });
   const problems = kitGateProblems({ before: beforeText ? JSON.parse(beforeText) : null, touched });
   if (problems.length) {
-    console.error(`Every Workshop item ships with its kit (L082). ${problems.length} problem${problems.length === 1 ? '' : 's'}:\n${problems.map(line => `- ${line}`).join('\n')}`);
+    console.error(`Every Workshop item must come with its kit: its lists with example rows, its workflows and tools, step-by-step instructions and worked examples, so a person starts at once. ${problems.length} problem${problems.length === 1 ? '' : 's'}:\n${problems.map(line => `- ${line}`).join('\n')}`);
     process.exit(1);
   }
+  const owedNow = JSON.parse(readFileSync(OWED_FILE, 'utf8'));
+  console.log(`Every item has its kit or is on the list of items from before kits. ${(owedNow.workflows?.length ?? 0) + (owedNow.tools?.length ?? 0)} items on that list still owe a kit.`);
 }

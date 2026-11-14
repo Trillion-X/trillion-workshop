@@ -1,0 +1,103 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-a-stage-move's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-a-stage-move with stages, transitions, start.\" See which stage a deal, order or applicant is in, which stages it can move to next, and whether it may move to the stage you want",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-a-stage-move"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-a-stage-move\", and give it stages, transitions, start.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-stage-move and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.requested.move.to contains \"proposal\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check a move to another stage on a sample input",
+      "ask": "Run tool:check-a-stage-move.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-a-stage-move",
+            "input": {
+              "stages": [
+                {
+                  "key": "lead",
+                  "label": "Lead"
+                },
+                {
+                  "key": "call-booked",
+                  "label": "Call booked"
+                },
+                {
+                  "key": "proposal",
+                  "label": "Proposal sent"
+                },
+                {
+                  "key": "won",
+                  "label": "Won",
+                  "terminal": true
+                },
+                {
+                  "key": "lost",
+                  "label": "Lost",
+                  "terminal": true
+                }
+              ],
+              "transitions": [
+                {
+                  "from": "lead",
+                  "to": "call-booked"
+                },
+                {
+                  "from": "lead",
+                  "to": "lost"
+                },
+                {
+                  "from": "call-booked",
+                  "to": "proposal"
+                },
+                {
+                  "from": "call-booked",
+                  "to": "lost"
+                },
+                {
+                  "from": "proposal",
+                  "to": "won",
+                  "when": {
+                    "equals": {
+                      "signal": "paid",
+                      "value": true
+                    }
+                  }
+                },
+                {
+                  "from": "proposal",
+                  "to": "lost"
+                }
+              ],
+              "start": "lead",
+              "moves": [
+                {
+                  "from": "lead",
+                  "to": "call-booked",
+                  "at": "2026-09-20T10:00:00Z"
+                }
+              ],
+              "to": "proposal",
+              "at": "2026-09-27T10:00:00Z",
+              "because": "Call went well"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.requested.move.to contains \"proposal\"."
+    }
+  ]
+}

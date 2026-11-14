@@ -54,3 +54,14 @@ test('an item with a kit that names a tool its row never mentions is not drafted
   assert.equal(kit.lists.length, 0);
   assert.ok(kit.no_lists_because.length > 20);
 });
+
+test('a list another kit already holds is reused when the item names it, with a pour for it; a list nobody holds stays a gap', () => {
+  const held = { list: 'list:scores', label: 'Scores', row_type: 'record:score', holds: 'One score per row.', fields: [{ id: 'name', kind: 'text', label: 'Name' }, { id: 'points', kind: 'number', label: 'Points' }],
+    example_rows: [{ id: 'a', values: { name: 'A', points: 1 } }, { id: 'b', values: { name: 'B', points: 2 } }], alike: ['a score sheet'] };
+  const named = { ...tool, description: 'Reads list:scores and answers the total.' };
+  const { kit, problems } = draftKit({ tool: named, keptLists: new Map([['list:scores', held]]) });
+  assert.deepEqual(problems, []);
+  assert.deepEqual(kit.lists, [held]);
+  assert.equal(kit.pour.example.kit_list, 'list:scores');
+  assert.equal(draftKit({ tool: named }).problems.length, 1);
+});

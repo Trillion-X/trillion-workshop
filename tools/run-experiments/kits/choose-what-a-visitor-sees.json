@@ -1,0 +1,71 @@
+{
+  "draft": true,
+  "drafted_from": "tool:choose-what-a-visitor-sees's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:choose-what-a-visitor-sees with surface, decider.\" Pick which version of a page, offer, headline or feature one visitor gets, from rules you write as data, keeping the same visitor on the same version",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:choose-what-a-visitor-sees"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:choose-what-a-visitor-sees\", and give it surface, decider.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:choose-what-a-visitor-sees and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.rule_used contains \"sticky_hash\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Choose what one visitor sees on a sample input",
+      "ask": "Run tool:choose-what-a-visitor-sees.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:choose-what-a-visitor-sees",
+            "input": {
+              "surface": {
+                "entity_type": "selection-surface",
+                "address": "page:/offer",
+                "decider_program_ref": "decider:split",
+                "candidates": [
+                  {
+                    "candidate_id": "a",
+                    "material_ref": "material:a"
+                  },
+                  {
+                    "candidate_id": "b",
+                    "material_ref": "material:b"
+                  }
+                ]
+              },
+              "decider": {
+                "entity_type": "decider",
+                "decider_id": "split",
+                "score": {
+                  "op": "sticky_hash",
+                  "of": {
+                    "const": "visitor"
+                  },
+                  "split": {
+                    "split": {
+                      "a": 0.5,
+                      "b": 0.5
+                    }
+                  }
+                },
+                "accepts_trust": [
+                  "trust:observer-supplied"
+                ]
+              },
+              "visitor": "visitor-1"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.rule_used contains \"sticky_hash\"."
+    }
+  ]
+}

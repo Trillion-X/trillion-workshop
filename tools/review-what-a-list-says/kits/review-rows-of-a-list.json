@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:review-rows-of-a-list's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:review-rows-of-a-list with list_id, row_kind, action.\" Keep what a list of mine says true: set it up for review (an owner, a review state and a check-again date on each row, and views of what needs review), and mark rows verified, outdated or asking to be checked, or name their owner",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:review-rows-of-a-list"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:review-rows-of-a-list\", and give it list_id, row_kind, action.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:review-rows-of-a-list and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields list_id, set_up, fields_added, views_added, action, kept."
+  ],
+  "worked_examples": [
+    {
+      "title": "Review the rows of a list on a sample input",
+      "ask": "Run tool:review-rows-of-a-list.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:review-rows-of-a-list",
+            "input": {
+              "list_id": "docs",
+              "row_kind": "record:docs",
+              "action": "set_up",
+              "expires_days": 30
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields list_id, set_up, fields_added, views_added, action, kept."
+    }
+  ]
+}

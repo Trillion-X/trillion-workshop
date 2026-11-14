@@ -1,0 +1,82 @@
+{
+  "draft": true,
+  "drafted_from": "tool:delete-archive-and-put-back-my-files's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:delete-archive-and-put-back-my-files with files, now.\" Delete or archive a person's files and folders into Recently Deleted and Archived, put them back exactly as they were, change how long each keeps things, and say what is due when, with the time left on each",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:delete-archive-and-put-back-my-files"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:delete-archive-and-put-back-my-files\", and give it files, now.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:delete-archive-and-put-back-my-files and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields steps, set_aside, names, gone, keep_for."
+  ],
+  "worked_examples": [
+    {
+      "title": "Delete, archive and put back my files on a sample input",
+      "ask": "Run tool:delete-archive-and-put-back-my-files.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:delete-archive-and-put-back-my-files",
+            "input": {
+              "now": "2026-11-01T09:00:00Z",
+              "files": [
+                {
+                  "name": "/Notes/plan.md",
+                  "identity": "1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                  "byte_length": 120
+                },
+                {
+                  "name": "/Notes/old.md",
+                  "identity": "1f:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                  "byte_length": 80
+                },
+                {
+                  "name": "/Photos/beach.jpg",
+                  "identity": "1f:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                  "byte_length": 4000
+                }
+              ],
+              "steps": [
+                {
+                  "op": "delete",
+                  "items": [
+                    {
+                      "name": "/Notes/old.md"
+                    }
+                  ]
+                },
+                {
+                  "op": "archive",
+                  "items": [
+                    {
+                      "name": "/Photos"
+                    }
+                  ]
+                },
+                {
+                  "op": "put_back",
+                  "items": [
+                    "Photos"
+                  ]
+                },
+                {
+                  "op": "sweep",
+                  "at": "2026-12-05T09:00:00Z"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields steps, set_aside, names, gone, keep_for."
+    }
+  ]
+}

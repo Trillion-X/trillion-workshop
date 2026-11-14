@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-youtube-comments's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-youtube-comments with account_id, video_id.\" Read the top-level comment threads of one YouTube video, with each comment's text, like count, publish time and the commenter's channel id",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-youtube-comments"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-youtube-comments\", and give it account_id, video_id.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-youtube-comments and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $ holds the result: Read the top-level comment threads of one YouTube video, with each comment's text, like count, publish time and the commenter's channel id"
+  ],
+  "worked_examples": [
+    {
+      "title": "Read the comments on a YouTube video on a sample input",
+      "ask": "Run tool:read-youtube-comments.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-youtube-comments",
+            "input": {
+              "account_id": "<account_id: One of the person's accounts of this kind, service_connection:youtube or service_connection:youtube:<account>>",
+              "video_id": "<video_id: The id of the video whose comments to read>"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $ holds the result: Read the top-level comment threads of one YouTube video, with each comment's text, like count, publish time and the commenter's channel id",
+      "given": "The person gives: account_id, video_id (shown as <name> in the input)."
+    }
+  ]
+}

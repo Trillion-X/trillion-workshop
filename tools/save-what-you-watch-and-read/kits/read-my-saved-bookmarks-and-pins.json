@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-my-saved-bookmarks-and-pins's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-my-saved-bookmarks-and-pins with file.\" Read the bookmarks or pins a person saved on a social site (an export file of X bookmarks or Pinterest pins and boards) from a folder they chose, and give each saved item with its words, author and time, ready to be kept and found like anything else they read",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-my-saved-bookmarks-and-pins"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-my-saved-bookmarks-and-pins\", and give it file.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-my-saved-bookmarks-and-pins and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields source, source_ref, mode, threads, atoms, total_atoms, total_threads, rejections."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read my saved bookmarks and pins on a sample input",
+      "ask": "Run tool:read-my-saved-bookmarks-and-pins.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-my-saved-bookmarks-and-pins",
+            "input": {
+              "file": "pull-bookmarks.json",
+              "source": "x-bookmarks"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields source, source_ref, mode, threads, atoms, total_atoms, total_threads, rejections."
+    }
+  ]
+}

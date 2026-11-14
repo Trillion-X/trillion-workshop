@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:map-an-apps-screens-and-controls's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:map-an-apps-screens-and-controls with app_url.\" Find the screens of my app and what a person can do on each, so journeys can be written to check it",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:map-an-apps-screens-and-controls",
+    "tool:walk-through-an-app-like-its-users"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:map-an-apps-screens-and-controls\", and give it app_url.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:map-an-apps-screens-and-controls and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.screens[0].title contains \"Ready\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Map an app's screens and controls on a sample input",
+      "ask": "Run tool:map-an-apps-screens-and-controls.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:map-an-apps-screens-and-controls",
+            "input": {
+              "app_url": "data:text/html,<title>Ready</title><h1>Ready</h1><button>Go</button>"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.screens[0].title contains \"Ready\"."
+    }
+  ]
+}

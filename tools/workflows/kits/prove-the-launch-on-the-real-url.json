@@ -1,0 +1,252 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:prove-the-launch-on-the-real-url's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:prove-the-launch-on-the-real-url.\" Read the live page at its real address, check it for search and answer engines, check it at phone, tablet and desktop widths, and count the stage checklist so the launch is judged on what buyers see.",
+  "lists": [
+    {
+      "list": "list:business-setup-checklist",
+      "label": "Business setup checklist",
+      "row_type": "record:setup-stage",
+      "holds": "One row per stage of setting the business up; this workflow writes the replies row.",
+      "fields": [
+        {
+          "id": "stage",
+          "kind": "text",
+          "label": "Stage"
+        },
+        {
+          "id": "label",
+          "kind": "text",
+          "label": "Stage name",
+          "alike": [
+            "name",
+            "task"
+          ]
+        },
+        {
+          "id": "status",
+          "kind": "choice",
+          "label": "Status",
+          "alike": [
+            "state"
+          ]
+        },
+        {
+          "id": "steps_status",
+          "kind": "long-text",
+          "label": "Steps",
+          "alike": [
+            "notes"
+          ]
+        },
+        {
+          "id": "gaps",
+          "kind": "tags",
+          "label": "Gaps",
+          "alike": [
+            "blockers"
+          ]
+        },
+        {
+          "id": "updated_at",
+          "kind": "date",
+          "label": "Updated",
+          "alike": [
+            "last updated",
+            "date"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "replies",
+          "values": {
+            "stage": "replies",
+            "label": "Comments and messages",
+            "status": "Gap",
+            "steps_status": "{\"read-facts\":\"Done\",\"pull-messages\":\"Done\",\"read-reply-templates\":\"Done\",\"pick-a-template\":\"Done\",\"fill-the-replies\":\"Done\",\"check-the-replies\":\"Done\",\"hand-the-replies-to-the-person\":\"Gap\"}",
+            "gaps": [
+              "record:setup-gap:hand-the-replies-to-the-person-1"
+            ],
+            "updated_at": "2026-11-13"
+          }
+        },
+        {
+          "id": "social-posting",
+          "values": {
+            "stage": "social-posting",
+            "label": "Posting on social channels",
+            "status": "Not done",
+            "steps_status": "",
+            "gaps": [],
+            "updated_at": "2026-11-13"
+          }
+        }
+      ],
+      "alike": [
+        "a launch checklist",
+        "a project board's to-do column",
+        "an onboarding checklist spreadsheet"
+      ]
+    },
+    {
+      "list": "list:business-setup-gaps",
+      "label": "Business setup gaps",
+      "row_type": "record:setup-gap",
+      "holds": "One row per thing a stage could not do itself: the step, what was left undecided, what the run did and the evidence.",
+      "fields": [
+        {
+          "id": "stage",
+          "kind": "text",
+          "label": "Stage"
+        },
+        {
+          "id": "step",
+          "kind": "text",
+          "label": "Step"
+        },
+        {
+          "id": "undecided",
+          "kind": "long-text",
+          "label": "Not decided",
+          "alike": [
+            "issue",
+            "problem",
+            "gap"
+          ]
+        },
+        {
+          "id": "chosen",
+          "kind": "long-text",
+          "label": "What this run did",
+          "alike": [
+            "workaround"
+          ]
+        },
+        {
+          "id": "evidence",
+          "kind": "long-text",
+          "label": "Evidence",
+          "alike": [
+            "proof",
+            "link"
+          ]
+        },
+        {
+          "id": "status",
+          "kind": "choice",
+          "label": "Status",
+          "alike": [
+            "state"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "hand-the-replies-to-the-person-1",
+          "values": {
+            "stage": "replies",
+            "step": "hand-the-replies-to-the-person",
+            "undecided": "No live tool sends an Instagram direct-message reply.",
+            "chosen": "Handed 3 checked replies to the person to send by hand.",
+            "evidence": "The live catalog has no send tool for Instagram direct messages.",
+            "status": "open"
+          }
+        },
+        {
+          "id": "pull-messages-1",
+          "values": {
+            "stage": "replies",
+            "step": "pull-messages",
+            "undecided": "Instagram sign-in expired.",
+            "chosen": "Submitted status needs_login and pulled nothing.",
+            "evidence": "tool:pull-my-instagram-messages answered needs_login.",
+            "status": "open"
+          }
+        }
+      ],
+      "alike": [
+        "an issues list",
+        "a blockers column on a board",
+        "a bug tracker"
+      ]
+    }
+  ],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:prove-the-launch-on-the-real-url",
+    "workflow:set-up-a-business-on-trillion"
+  ],
+  "tools": [
+    "tool:check-a-page-for-search-and-answer-engines",
+    "tool:check-given-pages-at-every-width",
+    "tool:measure-a-checklist",
+    "tool:read-public-web-page"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:prove-the-launch-on-the-real-url\".",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:prove-the-launch-on-the-real-url) and works through its steps in order: read-facts, read-the-live-page, check-search-and-answer-readiness, check-every-width, measure-the-checklist, record-the-stage.",
+    "3. Read what each step hands back; the last step is record-the-stage."
+  ],
+  "worked_examples": [
+    {
+      "title": "Prove the launch on the real address from its first step",
+      "ask": "Run workflow:prove-the-launch-on-the-real-url.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:prove-the-launch-on-the-real-url"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:prove-the-launch-on-the-real-url",
+      "step": "read-facts",
+      "hands_back": "Step read-facts answers with facts."
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "example": {
+      "kit_list": "list:business-setup-checklist",
+      "into": {
+        "list": "list:my-business-setup-checklist",
+        "row_type": "record:setup-stage",
+        "fields": [
+          {
+            "id": "stage",
+            "label": "Stage"
+          },
+          {
+            "id": "label",
+            "label": "Stage name"
+          },
+          {
+            "id": "status",
+            "label": "Status"
+          },
+          {
+            "id": "steps_status",
+            "label": "Steps"
+          },
+          {
+            "id": "gaps",
+            "label": "Gaps"
+          },
+          {
+            "id": "updated_at",
+            "label": "Updated"
+          }
+        ]
+      }
+    }
+  }
+}

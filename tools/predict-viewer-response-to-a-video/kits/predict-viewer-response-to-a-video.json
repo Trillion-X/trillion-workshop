@@ -1,0 +1,35 @@
+{
+  "draft": true,
+  "drafted_from": "tool:predict-viewer-response-to-a-video's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:predict-viewer-response-to-a-video with nothing more.\" See, second by second, where a video should hold a viewer's attention and where it goes flat, by predicting the brain's response to it",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:predict-viewer-response-to-a-video"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:predict-viewer-response-to-a-video\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:predict-viewer-response-to-a-video and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: See, second by second, where a video should hold a viewer's attention and where it goes flat, by predicting the brain's response to it"
+  ],
+  "worked_examples": [
+    {
+      "title": "Predict how a viewer's brain responds to a video, second by second (runs on your computer) on a sample input",
+      "ask": "Run tool:predict-viewer-response-to-a-video.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:predict-viewer-response-to-a-video",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: See, second by second, where a video should hold a viewer's attention and where it goes flat, by predicting the brain's response to it"
+    }
+  ]
+}

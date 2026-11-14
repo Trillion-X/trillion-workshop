@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:remove-a-snippet's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:remove-a-snippet with snippet_id.\" Remove one of my saved snippets",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:remove-a-snippet",
+    "tool:find-snippets"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:remove-a-snippet\", and give it snippet_id.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:remove-a-snippet and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result.said contains \"Removed the snippet\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Remove a snippet on a sample input",
+      "ask": "Run tool:remove-a-snippet.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:remove-a-snippet",
+            "input": {
+              "snippet_id": "snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result.said contains \"Removed the snippet\"."
+    }
+  ]
+}

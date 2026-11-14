@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:randomize-a-result's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:randomize-a-result with worked, rules.\" Turn whether something worked into the one noisy yes or no that may leave my account to teach everyone, so nobody can tell my real result",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:randomize-a-result"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:randomize-a-result\", and give it worked, rules.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:randomize-a-result and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields worked."
+  ],
+  "worked_examples": [
+    {
+      "title": "Make the private bit for a result on a sample input",
+      "ask": "Run tool:randomize-a-result.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:randomize-a-result",
+            "input": {
+              "worked": true,
+              "rules": {
+                "epsilon": 1
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields worked."
+    }
+  ]
+}

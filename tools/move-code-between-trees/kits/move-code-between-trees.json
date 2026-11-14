@@ -1,0 +1,46 @@
+{
+  "draft": true,
+  "drafted_from": "tool:move-code-between-trees's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:move-code-between-trees with step, source_folder, destination_folder.\" Move groups of code files from one repository to another byte for byte, with every file they import and their tests, delete the originals so one copy remains, and prove the moved files are the same bytes and still load and pass their tests",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:move-code-between-trees"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:move-code-between-trees\", and give it step, source_folder, destination_folder.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:move-code-between-trees and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields groups, files, importers, applied, ok, folders."
+  ],
+  "worked_examples": [
+    {
+      "title": "Move a group of files from one code tree to another, with everything they import on a sample input",
+      "ask": "Run tool:move-code-between-trees.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:move-code-between-trees",
+            "input": {
+              "step": "plan",
+              "row": {
+                "id": "move:sample-app-to-sample-box",
+                "destination": {
+                  "shared_folder": "tools/shared-code"
+                },
+                "groups": []
+              },
+              "source_folder": ".",
+              "destination_folder": "."
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields groups, files, importers, applied, ok, folders."
+    }
+  ]
+}

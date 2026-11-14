@@ -1,0 +1,37 @@
+{
+  "draft": true,
+  "drafted_from": "tool:my-notices's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:my-notices with nothing more.\" List what Trillion told this person, newest first: each notice with every way it went (sent, waiting its turn, turned off or unavailable) and the surface the person saw it on",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:my-notices"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:my-notices\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:my-notices and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.said contains \"notice\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "What I was told, where it reached me and where I saw it on a sample input",
+      "ask": "Run tool:my-notices.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:my-notices",
+            "input": {
+              "limit": 1
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.said contains \"notice\"."
+    }
+  ]
+}

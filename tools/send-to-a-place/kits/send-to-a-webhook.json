@@ -1,0 +1,46 @@
+{
+  "draft": true,
+  "drafted_from": "tool:send-to-a-webhook's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:send-to-a-webhook with things.\" Send a note, or anything picked, to a web address as JSON",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:send-to-a-webhook"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:send-to-a-webhook\", and give it things.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:send-to-a-webhook and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.said contains \"httpbin.org answered 200\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Send to a webhook on a sample input",
+      "ask": "Run tool:send-to-a-webhook.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:send-to-a-webhook",
+            "input": {
+              "things": [
+                {
+                  "kind": "note",
+                  "label": "Sample note",
+                  "address": "https://example.com/share/sample"
+                }
+              ],
+              "note": "A sample post from the publish check",
+              "title": "Sample",
+              "address": "https://httpbin.org/post"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.said contains \"httpbin.org answered 200\"."
+    }
+  ]
+}

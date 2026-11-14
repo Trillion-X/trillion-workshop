@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "tool:change-speed-over-a-range's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:change-speed-over-a-range with video, from, to, speed.\" Play part of a video in slow motion or sped up, such as the moment of contact at half speed, and optionally keep only a window around it",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:change-speed-over-a-range"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:change-speed-over-a-range\", and give it video, from, to, speed.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:change-speed-over-a-range and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields result, files."
+  ],
+  "worked_examples": [
+    {
+      "title": "Change speed over part of a video on a sample input",
+      "ask": "Run tool:change-speed-over-a-range.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:change-speed-over-a-range",
+            "input": {
+              "video": "<video: The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it>",
+              "from": "<from: Start of the stretch to change>",
+              "to": "<to: End of the stretch to change>",
+              "speed": "<speed: 0.5 is half speed, 2 is double>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields result, files.",
+      "given": "The person gives: video, from, to, speed (shown as <name> in the input)."
+    }
+  ]
+}

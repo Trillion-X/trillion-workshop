@@ -1,0 +1,65 @@
+{
+  "draft": true,
+  "drafted_from": "tool:see-who-holds-paid-access's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:see-who-holds-paid-access with subject.\" Work out which paid access one buyer holds right now: what they bought, what renewed, what ended or was refunded, and what I gave them by hand",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:see-who-holds-paid-access"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:see-who-holds-paid-access\", and give it subject.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:see-who-holds-paid-access and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.held_access_refs contains \"access:sample-course\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "See who holds paid access on a sample input",
+      "ask": "Run tool:see-who-holds-paid-access.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:see-who-holds-paid-access",
+            "input": {
+              "subject": "buyer@example.com",
+              "payment_events": [
+                {
+                  "event_id": "evt_sample_1",
+                  "event_kind": "payment.confirmed",
+                  "occurred_at": "2026-01-01T00:00:00.000Z",
+                  "attributes": {
+                    "provider_event_id": "evt_sample_1",
+                    "customer_email": "buyer@example.com",
+                    "offer_id": "offer:sample",
+                    "payment_intent_ref": "pi_sample_1",
+                    "payment_status": "paid"
+                  }
+                }
+              ],
+              "offers": [
+                {
+                  "id": "offer:sample",
+                  "access_refs": [
+                    "access:sample-course"
+                  ],
+                  "price_options": [
+                    {
+                      "id": "price:sample",
+                      "amount_cents": 1000
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.held_access_refs contains \"access:sample-course\"."
+    }
+  ]
+}

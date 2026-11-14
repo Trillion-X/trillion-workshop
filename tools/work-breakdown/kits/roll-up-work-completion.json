@@ -1,0 +1,65 @@
+{
+  "draft": true,
+  "drafted_from": "tool:roll-up-work-completion's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:roll-up-work-completion with tree.\" See how much of a body of work is really finished, which items were said done with no proof, and what is blocked",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:roll-up-work-completion"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:roll-up-work-completion\", and give it tree.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:roll-up-work-completion and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.unverified_ids[0] contains \"pay\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Roll up how much work is finished on a sample input",
+      "ask": "Run tool:roll-up-work-completion.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:roll-up-work-completion",
+            "input": {
+              "tree": {
+                "id": "launch",
+                "title": "Launch",
+                "children": [
+                  {
+                    "id": "site",
+                    "title": "Site",
+                    "children": [
+                      {
+                        "id": "copy",
+                        "title": "Write the copy",
+                        "state": "done",
+                        "verified_by": "published at /; 3 sections render"
+                      },
+                      {
+                        "id": "pay",
+                        "title": "Take payments",
+                        "state": "done"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "ads",
+                    "title": "Run ads",
+                    "state": "blocked",
+                    "blocked_by": "ad account not approved"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.unverified_ids[0] contains \"pay\"."
+    }
+  ]
+}

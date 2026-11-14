@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-a-record-library's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-a-record-library with library, schema.\" Check that my library of record files is consistent: every id a record names exists, ids are unique, counts match, tables use only their allowed values, and files derived from a source are not stale",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-a-record-library"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-a-record-library\", and give it library, schema.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-record-library and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Check that my library of record files is consistent: every id a record names exists, ids are unique, counts match, tables use only their allowed values, and files derived from a source are not stale"
+  ],
+  "worked_examples": [
+    {
+      "title": "Check that a library of records is valid (runs on your computer) on a sample input",
+      "ask": "Run tool:check-a-record-library.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-a-record-library",
+            "input": {
+              "library": "<library: The folder the library's files are relative to, put where {library} is in the command>",
+              "schema": "<schema: The schema file on the person's computer (see the README for its keys), put where {schema} is in the command>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Check that my library of record files is consistent: every id a record names exists, ids are unique, counts match, tables use only their allowed values, and files derived from a source are not stale",
+      "given": "The person gives: library, schema (shown as <name> in the input)."
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-resource-usage-report's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-resource-usage-report with report_id.\" Read a usage report and distinguish provider acceptance from actual payment collection",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-resource-usage-report"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-resource-usage-report\", and give it report_id.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-resource-usage-report and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields report."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read resource usage report on a sample input",
+      "ask": "Run tool:read-resource-usage-report.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-resource-usage-report",
+            "input": {
+              "report_id": "resource-usage-provider-report:1f:8fb2b35aaaf79a20cad694025a5d681875798fa2191d2940319d5f48ed4c8713"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields report."
+    }
+  ]
+}

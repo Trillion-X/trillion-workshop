@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:register-my-notification-device's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:register-my-notification-device with route, address.\" Register this device to receive or read my notices",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:register-my-notification-device"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:register-my-notification-device\", and give it route, address.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:register-my-notification-device and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.said contains \"registered\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Register my notification device on a sample input",
+      "ask": "Run tool:register-my-notification-device.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:register-my-notification-device",
+            "input": {
+              "route": "live",
+              "address": "device-a-12345678"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.said contains \"registered\"."
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "draft": true,
+  "drafted_from": "tool:render-a-pointillist-frame's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:render-a-pointillist-frame with nothing more.\" Turn a film script of square-grid pictures, a grid and a time into one packed frame of coloured cells",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:render-a-pointillist-frame"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:render-a-pointillist-frame\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:render-a-pointillist-frame and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Turn a film script of square-grid pictures, a grid and a time into one packed frame of coloured cells"
+  ],
+  "worked_examples": [
+    {
+      "title": "Render one frame of a square-grid pointillist film (runs on your computer) on a sample input",
+      "ask": "Run tool:render-a-pointillist-frame.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:render-a-pointillist-frame",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Turn a film script of square-grid pictures, a grid and a time into one packed frame of coloured cells"
+    }
+  ]
+}

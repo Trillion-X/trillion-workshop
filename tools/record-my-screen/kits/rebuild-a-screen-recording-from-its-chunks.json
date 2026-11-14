@@ -1,0 +1,50 @@
+{
+  "draft": true,
+  "drafted_from": "tool:rebuild-a-screen-recording-from-its-chunks's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:rebuild-a-screen-recording-from-its-chunks with chunks.\" Keep a screen recording's chunks in order as they are recorded and rebuild the finished recording from them, with the file reference it is published with",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:rebuild-a-screen-recording-from-its-chunks"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:rebuild-a-screen-recording-from-its-chunks\", and give it chunks.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:rebuild-a-screen-recording-from-its-chunks and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields file, kept_keys, rebuilt."
+  ],
+  "worked_examples": [
+    {
+      "title": "Rebuild a screen recording from its chunks on a sample input",
+      "ask": "Run tool:rebuild-a-screen-recording-from-its-chunks.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:rebuild-a-screen-recording-from-its-chunks",
+            "input": {
+              "recording_id": "screen-record:sample-demo",
+              "media_type": "video/webm",
+              "observed_at": "2026-11-04T10:00:00Z",
+              "chunks": [
+                {
+                  "text": "first piece of a made-up recording "
+                },
+                {
+                  "base64": "AAECAwQFBgcICQ=="
+                },
+                {
+                  "text": "last piece"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields file, kept_keys, rebuilt."
+    }
+  ]
+}

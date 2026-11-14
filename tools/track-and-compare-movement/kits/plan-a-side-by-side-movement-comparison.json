@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "tool:plan-a-side-by-side-movement-comparison's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:plan-a-side-by-side-movement-comparison with spec, out.\" Make the edit for a video that shows two movements next to each other, each cropped to the person doing it, with labels and an optional slow-motion pass",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:plan-a-side-by-side-movement-comparison",
+    "tool:line-up-two-movements",
+    "tool:read-peoples-poses-from-a-video"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:plan-a-side-by-side-movement-comparison\", and give it spec, out.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:plan-a-side-by-side-movement-comparison and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Make the edit for a video that shows two movements next to each other, each cropped to the person doing it, with labels and an optional slow-motion pass"
+  ],
+  "worked_examples": [
+    {
+      "title": "Plan a side-by-side video of two movements, each framed on its person (runs on your computer) on a sample input",
+      "ask": "Run tool:plan-a-side-by-side-movement-comparison.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:plan-a-side-by-side-movement-comparison",
+            "input": {
+              "spec": "<spec: A JSON file, put where {spec} is in the command: {encode?: {width, height, fps, crf, preset}, layout: h or v, bg?, left: {clip, kp, peak, label?, corner?, flip?, track_id?, label_size?}, right: {same}, passes: [{id, half, speed?, label_suffix?}], crop?: {min_confidence, pad_height, pad_width}, voice_audio?}>",
+              "out": "<out: The edit file to write, put where {out} is>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Make the edit for a video that shows two movements next to each other, each cropped to the person doing it, with labels and an optional slow-motion pass",
+      "given": "The person gives: spec, out (shown as <name> in the input)."
+    }
+  ]
+}

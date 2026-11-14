@@ -1,0 +1,73 @@
+{
+  "draft": true,
+  "drafted_from": "tool:hold-to-it's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:hold-to-it with operation, group.\" Keep an agreement a group made, or a session one person planned (a daily meeting, a habit, a deadline), work out when to remind and check, mark who kept it and keep the scorecard",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:hold-to-it"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:hold-to-it\", and give it operation, group.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:hold-to-it and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result holds the result: Keep an agreement a group made, or a session one person planned (a daily meeting, a habit, a deadline), work out when to remind and check, mark who kept it and keep the scorecard"
+  ],
+  "worked_examples": [
+    {
+      "title": "Hold a group to what it agreed on a sample input",
+      "ask": "Run tool:hold-to-it.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:hold-to-it",
+            "input": {
+              "operation": "keep",
+              "group": "bread-club",
+              "what": "Meet every morning",
+              "agreed_by": [
+                "Priya Shah",
+                "Omar Reyes",
+                "Lin"
+              ],
+              "cadence": {
+                "every": "day",
+                "at": "09:00",
+                "minutes": 30,
+                "time_zone": "UTC"
+              },
+              "policy": {
+                "defaults": {
+                  "minutes": 30,
+                  "time_zone": "UTC",
+                  "remind_minutes": 10,
+                  "check_after_minutes": 30
+                },
+                "marks": [
+                  {
+                    "id": "came",
+                    "label": "Came",
+                    "points": 1,
+                    "when": "present"
+                  },
+                  {
+                    "id": "missed",
+                    "label": "Missed the meeting",
+                    "points": -3,
+                    "when": "absent",
+                    "miss": true
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result holds the result: Keep an agreement a group made, or a session one person planned (a daily meeting, a habit, a deadline), work out when to remind and check, mark who kept it and keep the scorecard"
+    }
+  ]
+}

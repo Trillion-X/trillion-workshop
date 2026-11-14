@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:train-a-writing-voice-adapter's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:train-a-writing-voice-adapter with data, out, decider_common_dir.\" Train a small LoRA adapter that judges a writer's voice from labelled training rows bound to their source passages",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:train-a-writing-voice-adapter"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:train-a-writing-voice-adapter\", and give it data, out, decider_common_dir.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:train-a-writing-voice-adapter and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Train a small LoRA adapter that judges a writer's voice from labelled training rows bound to their source passages"
+  ],
+  "worked_examples": [
+    {
+      "title": "Train a writing-voice adapter on labelled rows on a sample input",
+      "ask": "Run tool:train-a-writing-voice-adapter.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:train-a-writing-voice-adapter",
+            "input": {
+              "data": "<data: JSONL of training rows (book-voice-adapter-training-row-v1 or v2)>",
+              "out": "<out: a new folder for the adapter>",
+              "decider_common_dir": "<decider_common_dir: the folder holding common.py>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Train a small LoRA adapter that judges a writer's voice from labelled training rows bound to their source passages",
+      "given": "The person gives: data, out, decider_common_dir (shown as <name> in the input)."
+    }
+  ]
+}

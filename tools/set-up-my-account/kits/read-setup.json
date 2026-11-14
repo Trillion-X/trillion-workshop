@@ -1,0 +1,42 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-setup's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-setup with account_id.\" Gather what my account's setup is made of and draw the Get started screen from it",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-setup",
+    "tool:get-started",
+    "tool:see-what-is-left-to-set-up"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-setup\", and give it account_id.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-setup and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result.title contains \"Connect your AI\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read my setup on a sample input",
+      "ask": "Run tool:read-setup.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-setup",
+            "input": {
+              "account_id": "acct-sample",
+              "user_agent": "Sample browser",
+              "origin": "https://app.example.test",
+              "now": "2026-01-01T00:00:00.000Z"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result.title contains \"Connect your AI\"."
+    }
+  ]
+}

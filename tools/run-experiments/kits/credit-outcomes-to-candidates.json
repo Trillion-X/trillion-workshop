@@ -1,0 +1,75 @@
+{
+  "draft": true,
+  "drafted_from": "tool:credit-outcomes-to-candidates's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:credit-outcomes-to-candidates with join, assignments, outcomes, at.\" Join who saw which version with who bought, signed up or clicked, so each version's results can be read",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:credit-outcomes-to-candidates"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:credit-outcomes-to-candidates\", and give it join, assignments, outcomes, at.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:credit-outcomes-to-candidates and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.observations contains \"converted\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Credit what visitors did to the version they saw on a sample input",
+      "ask": "Run tool:credit-outcomes-to-candidates.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:credit-outcomes-to-candidates",
+            "input": {
+              "join": {
+                "entity_type": "attribution-join",
+                "join_id": "join:offer",
+                "assignment": {
+                  "observer_key_path": [
+                    "visitor"
+                  ],
+                  "candidate_key_path": [
+                    "candidate"
+                  ]
+                },
+                "outcome": {
+                  "observer_key_path": [
+                    "visitor"
+                  ],
+                  "metric_path": [
+                    "what"
+                  ]
+                },
+                "emit": {
+                  "observe_address": "page:/offer",
+                  "metric_map": {
+                    "purchase": "converted"
+                  }
+                }
+              },
+              "assignments": [
+                {
+                  "visitor": "v1",
+                  "candidate": "a"
+                }
+              ],
+              "outcomes": [
+                {
+                  "visitor": "v1",
+                  "what": "purchase"
+                }
+              ],
+              "at": "2026-01-01T00:00:00.000Z"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.observations contains \"converted\"."
+    }
+  ]
+}

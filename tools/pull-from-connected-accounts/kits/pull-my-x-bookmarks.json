@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:pull-my-x-bookmarks's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:pull-my-x-bookmarks with nothing more.\" Pull the posts I bookmarked on X into my own records",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:pull-my-x-bookmarks",
+    "tool:read-what-i-pulled-from-an-account"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:pull-my-x-bookmarks\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:pull-my-x-bookmarks and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields source, account, status, self_id, threads, items, new_messages, new_items."
+  ],
+  "worked_examples": [
+    {
+      "title": "Pull the posts I bookmarked on X into my own records on a sample input",
+      "ask": "Run tool:pull-my-x-bookmarks.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:pull-my-x-bookmarks",
+            "input": {
+              "account": "sample"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields source, account, status, self_id, threads, items, new_messages, new_items."
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "tool:job's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:job with nothing more.\" Keep a long job on the person's computer (a meeting summary, a transcription) under a key, so starting it twice gives the same job, its output so far is kept in numbered pieces, and any client can resume reading from a cursor or cancel it",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:job"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:job\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:job and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result holds the result: Keep a long job on the person's computer (a meeting summary, a transcription) under a key, so starting it twice gives the same job, its output so far is kept in numbered pieces, and any client can resume reading from a cursor or cancel it"
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep a long job resumable on a sample input",
+      "ask": "Run tool:job.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:job",
+            "input": {
+              "action": "start",
+              "key": "sample-meeting-summary-1",
+              "seed": {
+                "topic": "Weekly sync with Ada Example"
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result holds the result: Keep a long job on the person's computer (a meeting summary, a transcription) under a key, so starting it twice gives the same job, its output so far is kept in numbered pieces, and any client can resume reading from a cursor or cancel it"
+    }
+  ]
+}

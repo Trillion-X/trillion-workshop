@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:bring-an-effects-layer-to-a-reference-loudness's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:bring-an-effects-layer-to-a-reference-loudness with palette, cues, reference.\" Scale my variant sound palette by one common gain so its effects track has the reference track's loudness",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:bring-an-effects-layer-to-a-reference-loudness"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:bring-an-effects-layer-to-a-reference-loudness\", and give it palette, cues, reference.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:bring-an-effects-layer-to-a-reference-loudness and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Scale my variant sound palette by one common gain so its effects track has the reference track's loudness"
+  ],
+  "worked_examples": [
+    {
+      "title": "Give a variant sound palette one gain so its effects track is as loud as the reference (runs on your computer) on a sample input",
+      "ask": "Run tool:bring-an-effects-layer-to-a-reference-loudness.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:bring-an-effects-layer-to-a-reference-loudness",
+            "input": {
+              "palette": "<palette: The variant palette folder (changed in place)>",
+              "cues": "<cues: CUES.json>",
+              "reference": "<reference: The reference layer>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Scale my variant sound palette by one common gain so its effects track has the reference track's loudness",
+      "given": "The person gives: palette, cues, reference (shown as <name> in the input)."
+    }
+  ]
+}

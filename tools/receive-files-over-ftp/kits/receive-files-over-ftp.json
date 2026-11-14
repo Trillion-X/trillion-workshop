@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:receive-files-over-ftp's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:receive-files-over-ftp with folder, settings.\" Receive the files a device pushes over FTP, such as a scanner, camera, drone or printer, into a folder on my computer, with nobody there",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:receive-files-over-ftp"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:receive-files-over-ftp\", and give it folder, settings.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:receive-files-over-ftp and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Receive the files a device pushes over FTP, such as a scanner, camera, drone or printer, into a folder on my computer, with nobody there"
+  ],
+  "worked_examples": [
+    {
+      "title": "Receive files pushed by a camera, scanner or printer over FTP (runs on your computer) on a sample input",
+      "ask": "Run tool:receive-files-over-ftp.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:receive-files-over-ftp",
+            "input": {
+              "folder": "<folder: The folder on the person's computer files are kept in, put where {folder} is in the command>",
+              "settings": "<settings: The settings file the person (or you, with them) wrote, put where {settings} is in the command>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Receive the files a device pushes over FTP, such as a scanner, camera, drone or printer, into a folder on my computer, with nobody there",
+      "given": "The person gives: folder, settings (shown as <name> in the input)."
+    }
+  ]
+}

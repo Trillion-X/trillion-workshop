@@ -1,0 +1,37 @@
+{
+  "draft": true,
+  "drafted_from": "tool:withdraw-pooled-results's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:withdraw-pooled-results with contributor.\" Remove every noisy result one person ever gave the pool when they stop sharing",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:withdraw-pooled-results"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:withdraw-pooled-results\", and give it contributor.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:withdraw-pooled-results and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields removed."
+  ],
+  "worked_examples": [
+    {
+      "title": "Take a person's results out of the pool on a sample input",
+      "ask": "Run tool:withdraw-pooled-results.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:withdraw-pooled-results",
+            "input": {
+              "contributor": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields removed."
+    }
+  ]
+}

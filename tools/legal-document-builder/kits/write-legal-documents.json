@@ -1,0 +1,48 @@
+{
+  "draft": true,
+  "drafted_from": "tool:write-legal-documents's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:write-legal-documents with documents, facts.\" Write a business's terms of service, privacy policy, refund policy or waiver from its facts",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:write-legal-documents"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:write-legal-documents\", and give it documents, facts.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:write-legal-documents and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.documents[0].text contains \"Harbor Coaching LLC\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Write legal documents on a sample input",
+      "ask": "Run tool:write-legal-documents.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:write-legal-documents",
+            "input": {
+              "documents": [
+                "terms"
+              ],
+              "facts": {
+                "business_legal_name": "Harbor Coaching LLC",
+                "service_name": "Harbor Coaching",
+                "site_url": "https://harbor.example",
+                "contact_email": "user-a4af8001@example.com",
+                "service_description": "One-to-one swim coaching sessions booked online.",
+                "has_accounts": true,
+                "has_paid_offers": true
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.documents[0].text contains \"Harbor Coaching LLC\"."
+    }
+  ]
+}

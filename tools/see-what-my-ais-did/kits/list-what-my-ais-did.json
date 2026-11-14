@@ -1,0 +1,72 @@
+{
+  "draft": true,
+  "drafted_from": "tool:list-what-my-ais-did's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:list-what-my-ais-did with calls.\" Turn the tool calls an AI made on a person's account into the activity rows the AI activity screen lists: what it did, the item it made or touched, whether it worked and why not, newest first",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:list-what-my-ais-did"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:list-what-my-ais-did\", and give it calls.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-what-my-ais-did and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields kept, left, items, next_before, coverage."
+  ],
+  "worked_examples": [
+    {
+      "title": "List what my AIs did on a sample input",
+      "ask": "Run tool:list-what-my-ais-did.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:list-what-my-ais-did",
+            "input": {
+              "calls": [
+                {
+                  "tool": "hand_off",
+                  "at": "2026-11-01T09:00:00Z",
+                  "app": "Sample AI",
+                  "input": {
+                    "said": "Draft the launch note"
+                  },
+                  "result": {
+                    "handoff_id": "handoff:sample-1"
+                  }
+                },
+                {
+                  "tool": "save_tool",
+                  "at": "2026-11-01T09:04:00Z",
+                  "app": "Sample AI",
+                  "input": {
+                    "descriptor": {
+                      "id": "tool:sample-word-count",
+                      "label": "Count words"
+                    }
+                  }
+                },
+                {
+                  "tool": "run_tool",
+                  "at": "2026-11-01T09:05:00Z",
+                  "app": "Sample AI",
+                  "input": {
+                    "tool_id": "tool:sample-word-count"
+                  },
+                  "error": "The tool timed out."
+                }
+              ],
+              "read": {
+                "failed": true
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields kept, left, items, next_before, coverage."
+    }
+  ]
+}

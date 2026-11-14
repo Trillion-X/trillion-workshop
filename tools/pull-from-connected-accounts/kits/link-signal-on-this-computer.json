@@ -1,0 +1,36 @@
+{
+  "draft": true,
+  "drafted_from": "tool:link-signal-on-this-computer's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:link-signal-on-this-computer with nothing more.\" Link my Signal account to this computer so my messages can be read here",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:link-signal-on-this-computer",
+    "tool:read-my-signal-messages-on-this-computer"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:link-signal-on-this-computer\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:link-signal-on-this-computer and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields state, self_id, said."
+  ],
+  "worked_examples": [
+    {
+      "title": "Link Signal on this computer on a sample input",
+      "ask": "Run tool:link-signal-on-this-computer.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:link-signal-on-this-computer",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "An answer with the fields state, self_id, said."
+    }
+  ]
+}

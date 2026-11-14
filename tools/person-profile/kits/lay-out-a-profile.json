@@ -1,0 +1,114 @@
+{
+  "draft": true,
+  "drafted_from": "tool:lay-out-a-profile's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:lay-out-a-profile with layout, sources.\" Lay out one person's profile page from their record: name, fields with values, related lists such as their activity or deals, and the actions that apply",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:lay-out-a-profile"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:lay-out-a-profile\", and give it layout, sources.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:lay-out-a-profile and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.identity.title contains \"Ana Ruiz\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Lay out a person's profile on a sample input",
+      "ask": "Run tool:lay-out-a-profile.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:lay-out-a-profile",
+            "input": {
+              "layout": {
+                "surfaceId": "person",
+                "identity": {
+                  "titlePath": [
+                    "name"
+                  ],
+                  "subtitlePath": [
+                    "company"
+                  ]
+                },
+                "fields": [
+                  {
+                    "id": "email",
+                    "label": "Email",
+                    "valuePath": [
+                      "email"
+                    ]
+                  },
+                  {
+                    "id": "stage",
+                    "label": "Stage",
+                    "valuePath": [
+                      "stage"
+                    ],
+                    "fallbackValue": "Lead"
+                  }
+                ],
+                "relationships": [
+                  {
+                    "id": "steps",
+                    "label": "Recent steps",
+                    "itemPath": [
+                      "steps"
+                    ],
+                    "fields": [
+                      {
+                        "key": "label"
+                      },
+                      {
+                        "key": "at"
+                      }
+                    ],
+                    "emptyLabel": "Nothing yet"
+                  }
+                ],
+                "actions": [
+                  {
+                    "id": "book",
+                    "label": "Book a call"
+                  },
+                  {
+                    "id": "win",
+                    "label": "Mark won",
+                    "visibleWhen": [
+                      {
+                        "path": [
+                          "stage"
+                        ],
+                        "equals": "proposal"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "sources": {
+                "record": {
+                  "name": "Ana Ruiz",
+                  "company": "Northwind",
+                  "email": "user-ed8c33be@example.com",
+                  "steps": [
+                    {
+                      "id": "step:1",
+                      "label": "First message",
+                      "at": "2026-09-20"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.identity.title contains \"Ana Ruiz\"."
+    }
+  ]
+}

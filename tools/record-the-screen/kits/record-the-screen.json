@@ -1,0 +1,37 @@
+{
+  "draft": true,
+  "drafted_from": "tool:record-the-screen's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:record-the-screen with nothing more.\" Record one display or one window of the person's Mac as a movie the person chose, pause, resume and stop it, note the pointer (positions and presses, never keys) beside it, and save it only to a place the person's allow-list names",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:record-the-screen"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:record-the-screen\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:record-the-screen and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields id, state, capturer, source, file, reason, pointer_samples, saved."
+  ],
+  "worked_examples": [
+    {
+      "title": "Record my screen on a sample input",
+      "ask": "Run tool:record-the-screen.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:record-the-screen",
+            "input": {
+              "action": "status"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields id, state, capturer, source, file, reason, pointer_samples, saved."
+    }
+  ]
+}

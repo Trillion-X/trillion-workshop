@@ -1,0 +1,68 @@
+{
+  "draft": true,
+  "drafted_from": "tool:list-what-is-due's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:list-what-is-due with prompts.\" See which of the things a person is learning are due for review now, soonest first, from the grades they have given them",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:list-what-is-due",
+    "tool:schedule-next-review"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:list-what-is-due\", and give it prompts.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-what-is-due and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.items[0].prompt.id contains \"card-2\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "List what is due for review on a sample input",
+      "ask": "Run tool:list-what-is-due.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:list-what-is-due",
+            "input": {
+              "prompts": [
+                {
+                  "id": "card-1",
+                  "text": "Alpha"
+                },
+                {
+                  "id": "card-2",
+                  "text": "Beta"
+                }
+              ],
+              "responses": [
+                {
+                  "prompt_id": "card-1",
+                  "grade": "solid",
+                  "at": "2026-01-01T12:00:00Z"
+                }
+              ],
+              "now": "2026-01-01T18:00:00Z",
+              "policy": {
+                "initial_ease": 2.5,
+                "min_ease": 1.3,
+                "first_interval_days": 1,
+                "second_interval_days": 6,
+                "lapse_below_quality": 0.6,
+                "grade_quality": {
+                  "miss": 0,
+                  "shaky": 0.6,
+                  "solid": 0.8,
+                  "instant": 1
+                }
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.items[0].prompt.id contains \"card-2\"."
+    }
+  ]
+}

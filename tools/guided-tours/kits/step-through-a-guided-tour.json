@@ -1,0 +1,63 @@
+{
+  "draft": true,
+  "drafted_from": "tool:step-through-a-guided-tour's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:step-through-a-guided-tour with tour, action.\" Work out where a person is in a guided tour, walkthrough, spotlight or branching quiz after they start, go on, answer, go back, jump to a step or restart",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:step-through-a-guided-tour"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:step-through-a-guided-tour\", and give it tour, action.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:step-through-a-guided-tour and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.cursor.current_step_id contains \"oven\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Move a person through a guided tour, quiz or spotlight on a sample input",
+      "ask": "Run tool:step-through-a-guided-tour.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:step-through-a-guided-tour",
+            "input": {
+              "tour": {
+                "entry_step": "hello",
+                "steps": [
+                  {
+                    "id": "hello",
+                    "branch_map": {
+                      "by_answer": {
+                        "baker": "oven"
+                      },
+                      "default_next": "menu"
+                    }
+                  },
+                  {
+                    "id": "menu"
+                  },
+                  {
+                    "id": "oven"
+                  }
+                ]
+              },
+              "action": "advance",
+              "cursor": {
+                "current_step_id": "hello",
+                "history": [],
+                "status": "active"
+              },
+              "answer": "baker"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.cursor.current_step_id contains \"oven\"."
+    }
+  ]
+}

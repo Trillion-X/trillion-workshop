@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:search-wikimedia-commons-files's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:search-wikimedia-commons-files with query.\" Find real images and other source files on Wikimedia Commons for any objective by searching for the exact place, object, event or subject",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:search-wikimedia-commons-files"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:search-wikimedia-commons-files\", and give it query.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:search-wikimedia-commons-files and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields query, continue, batchcomplete."
+  ],
+  "worked_examples": [
+    {
+      "title": "Search Wikimedia Commons files on a sample input",
+      "ask": "Run tool:search-wikimedia-commons-files.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:search-wikimedia-commons-files",
+            "input": {
+              "query": "<query: Exact place, object, event or subject to find in Commons>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields query, continue, batchcomplete.",
+      "given": "The person gives: query (shown as <name> in the input)."
+    }
+  ]
+}

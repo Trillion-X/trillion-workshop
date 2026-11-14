@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:remove-a-thread-summary's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:remove-a-thread-summary with conversation_id.\" Remove the summary kept of this conversation",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:remove-a-thread-summary"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:remove-a-thread-summary\", and give it conversation_id.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:remove-a-thread-summary and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result.said contains \"Removed the summary\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Remove a conversation summary on a sample input",
+      "ask": "Run tool:remove-a-thread-summary.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:remove-a-thread-summary",
+            "input": {
+              "app": "Email",
+              "conversation_id": "Email:t1"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result.said contains \"Removed the summary\"."
+    }
+  ]
+}

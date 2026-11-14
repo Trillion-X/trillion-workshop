@@ -1,0 +1,44 @@
+{
+  "draft": true,
+  "drafted_from": "tool:keep-channels-latest-videos-and-captions's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:keep-channels-latest-videos-and-captions with seeds, newest, caption_languages.\" List the newest videos of each channel, tab or playlist I name and keep each new video's captions with the times they are said, its description and, if I ask, its top comments, without downloading any video",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:keep-channels-latest-videos-and-captions"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:keep-channels-latest-videos-and-captions\", and give it seeds, newest, caption_languages.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:keep-channels-latest-videos-and-captions and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields stopped, requests, seconds, seeds, captions, comments, settled, rows."
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep the newest videos of channels and their captions on a sample input",
+      "ask": "Run tool:keep-channels-latest-videos-and-captions.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-channels-latest-videos-and-captions",
+            "input": {
+              "seeds": [
+                "@samplechannel"
+              ],
+              "newest": 1,
+              "caption_languages": [
+                "en.*"
+              ],
+              "budget_seconds": 1
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields stopped, requests, seconds, seeds, captions, comments, settled, rows."
+    }
+  ]
+}

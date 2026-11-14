@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-prose-against-its-writing-rules's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-prose-against-its-writing-rules with document, profile, report.\" Check a piece of prose against the wording I rejected, the text that must stay as it is, the sections it must have in order, and the reviews and source evidence it needs, before I call it current",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-prose-against-its-writing-rules"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-prose-against-its-writing-rules\", and give it document, profile, report.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-prose-against-its-writing-rules and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Check a piece of prose against the wording I rejected, the text that must stay as it is, the sections it must have in order, and the reviews and source evidence it needs, before I call it current"
+  ],
+  "worked_examples": [
+    {
+      "title": "Check prose against its writing rules and its review evidence on a sample input",
+      "ask": "Run tool:check-prose-against-its-writing-rules.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-prose-against-its-writing-rules",
+            "input": {
+              "document": "<document: The prose file (UTF-8 Markdown or text)>",
+              "profile": "<profile: The writing profile JSON (schema writing-profile-v1), the person's own rules>",
+              "report": "<report: A new file for the report; an existing one is never replaced>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Check a piece of prose against the wording I rejected, the text that must stay as it is, the sections it must have in order, and the reviews and source evidence it needs, before I call it current",
+      "given": "The person gives: document, profile, report (shown as <name> in the input)."
+    }
+  ]
+}

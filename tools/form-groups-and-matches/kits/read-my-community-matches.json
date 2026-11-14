@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-my-community-matches's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-my-community-matches with community_id, person.\" See who a community's matchmaker proposed for me and where each introduction stands, what my profile still misses, the shortlist my AI still has to score, and fellow members who share my categories",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-my-community-matches"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-my-community-matches\", and give it community_id, person.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-my-community-matches and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.error contains \"No community sample-verify-community\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read my matches in a community, my profile, and the score job I owe on a sample input",
+      "ask": "Run tool:read-my-community-matches.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-my-community-matches",
+            "input": {
+              "community_id": "sample-verify-community",
+              "person": "sample-person"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.error contains \"No community sample-verify-community\"."
+    }
+  ]
+}

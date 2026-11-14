@@ -1,0 +1,45 @@
+{
+  "draft": true,
+  "drafted_from": "tool:prepare-a-server-for-a-door-tunnel's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:prepare-a-server-for-a-door-tunnel with address, ssh_port, admin_user, host_key, user, remotePort, localPort, publicKey.\" Set up my rented server so one user can hold a tunnel back to a door on my computer and do nothing else",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:prepare-a-server-for-a-door-tunnel"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:prepare-a-server-for-a-door-tunnel\", and give it address, ssh_port, admin_user, host_key, user, remotePort, localPort, publicKey.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:prepare-a-server-for-a-door-tunnel and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields prepared, said."
+  ],
+  "worked_examples": [
+    {
+      "title": "Set up a server to hold a door tunnel on a sample input",
+      "ask": "Run tool:prepare-a-server-for-a-door-tunnel.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:prepare-a-server-for-a-door-tunnel",
+            "input": {
+              "address": "<address: The server's IPv4 address>",
+              "ssh_port": "<ssh_port: The server's SSH port>",
+              "admin_user": "<admin_user: The administrator the setup signs in as (it runs useradd and reloads sshd)>",
+              "host_key": "<host_key: The server's SSH host key: \"<type> <base64>\">",
+              "user": "<user: The service user that will hold the tunnel>",
+              "remotePort": "<remotePort: The server's loopback port the tunnel listens on>",
+              "localPort": "<localPort: The door's port on this computer the tunnel reaches>",
+              "publicKey": "<publicKey: The public half of the tunnel's held key: \"ssh-rsa <base64> <comment>\">"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields prepared, said.",
+      "given": "The person gives: address, ssh_port, admin_user, host_key, user, remotePort, localPort, publicKey (shown as <name> in the input)."
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-live-matches's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-live-matches with rows.\" Show the current score of live matches for the scorer and for spectators, and a board of matches with their schedule, bracket, standings and leaderboard",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-live-matches"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-live-matches\", and give it rows.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-live-matches and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.board.rows[0].label contains \"Alder vs Birch\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Show live matches, their scores and a tournament board on a sample input",
+      "ask": "Run tool:read-live-matches.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-live-matches",
+            "input": {
+              "rows": [
+                {
+                  "payload": {
+                    "kind": "live-match",
+                    "matchId": "live-match:sample",
+                    "scoringRuleRef": "scoring-rule:pickleball-11",
+                    "matchFormat": "singles",
+                    "teams": [
+                      {
+                        "teamId": "team-a",
+                        "label": "Alder",
+                        "players": [
+                          "Alder"
+                        ]
+                      },
+                      {
+                        "teamId": "team-b",
+                        "label": "Birch",
+                        "players": [
+                          "Birch"
+                        ]
+                      }
+                    ],
+                    "scoringModel": {
+                      "scoreUnit": "point",
+                      "setsToWin": 1,
+                      "gamesToWinSet": 11,
+                      "tiebreakAt": 0,
+                      "pointsToWinTiebreak": 0,
+                      "winBy": 2
+                    },
+                    "status": "live",
+                    "share": {
+                      "shareId": "s",
+                      "publicPath": "/live/live-match%3Asample",
+                      "enabled": true
+                    },
+                    "createdAt": "2026-01-01T09:00:00.000Z"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.board.rows[0].label contains \"Alder vs Birch\"."
+    }
+  ]
+}

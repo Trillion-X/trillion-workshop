@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:edit-a-presentations-text's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:edit-a-presentations-text with request.\" Change the words on slides, rebuild a slide, change speaker notes, delete slides and reorder them in a presentation file, and read the new file back as proof",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:edit-a-presentations-text",
+    "tool:describe-a-presentation-runtime"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:edit-a-presentations-text\", and give it request.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:edit-a-presentations-text and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields output, slideCount, edits, readback."
+  ],
+  "worked_examples": [
+    {
+      "title": "Edit a presentation's text and slide order from a request, then read it back (runs on your computer) on a sample input",
+      "ask": "Run tool:edit-a-presentations-text.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:edit-a-presentations-text",
+            "input": {
+              "request": "<request: Path of the JSON request: runtimeModule, source, output, slides, delete, slide_order, fonts>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields output, slideCount, edits, readback.",
+      "given": "The person gives: request (shown as <name> in the input)."
+    }
+  ]
+}

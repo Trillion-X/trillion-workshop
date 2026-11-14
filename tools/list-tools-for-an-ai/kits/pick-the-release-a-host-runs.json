@@ -1,0 +1,48 @@
+{
+  "draft": true,
+  "drafted_from": "tool:pick-the-release-a-host-runs's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:pick-the-release-a-host-runs with row, host_version.\" Tell which release of a published tool a given Trillion version runs, or which version it needs",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:pick-the-release-a-host-runs"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:pick-the-release-a-host-runs\", and give it row, host_version.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:pick-the-release-a-host-runs and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.release.label contains \"first\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Pick the release a host version runs on a sample input",
+      "ask": "Run tool:pick-the-release-a-host-runs.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:pick-the-release-a-host-runs",
+            "input": {
+              "row": {
+                "id": "tool:sample",
+                "label": "second",
+                "minimum_host_version": "2026.10.1",
+                "earlier_releases": [
+                  {
+                    "id": "tool:sample",
+                    "label": "first"
+                  }
+                ]
+              },
+              "host_version": "2026.9.28"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.release.label contains \"first\"."
+    }
+  ]
+}

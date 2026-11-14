@@ -1,0 +1,48 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-a-draft-against-a-profile's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-a-draft-against-a-profile with draft, required_ref_fields.\" Check that a draft made for a person carries the references to the profile that shaped it and the profile it is checked by",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-a-draft-against-a-profile"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-a-draft-against-a-profile\", and give it draft, required_ref_fields.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-draft-against-a-profile and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.fits contains \"true\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check a draft carries its profile on a sample input",
+      "ask": "Run tool:check-a-draft-against-a-profile.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-a-draft-against-a-profile",
+            "input": {
+              "draft": {
+                "blocks": [
+                  {
+                    "text": "Fresh today.",
+                    "profile_ref": "profile:bakery-voice"
+                  }
+                ]
+              },
+              "required_ref_fields": [
+                "profile_ref"
+              ],
+              "profile_ref": "profile:bakery-voice"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.fits contains \"true\"."
+    }
+  ]
+}

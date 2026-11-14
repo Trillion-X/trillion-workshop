@@ -1,0 +1,36 @@
+{
+  "draft": true,
+  "drafted_from": "tool:find-repeated-voice-edits's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:find-repeated-voice-edits with nothing more.\" Find the word changes a person keeps making to drafts written for them",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:find-repeated-voice-edits",
+    "tool:save-voice"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:find-repeated-voice-edits\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-repeated-voice-edits and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.said contains \"No word change recurs\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Find the edits a person repeats on a sample input",
+      "ask": "Run tool:find-repeated-voice-edits.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:find-repeated-voice-edits",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "The answer's $.said contains \"No word change recurs\"."
+    }
+  ]
+}

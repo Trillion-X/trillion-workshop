@@ -1,0 +1,35 @@
+{
+  "draft": true,
+  "drafted_from": "tool:github:yt-dlp-yt-dlp's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:github:yt-dlp-yt-dlp with nothing more.\" Download a video or its audio from a web address such as YouTube, Instagram or TikTok",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:github:yt-dlp-yt-dlp"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:github:yt-dlp-yt-dlp\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:github:yt-dlp-yt-dlp and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Download a video or its audio from a web address such as YouTube, Instagram or TikTok"
+  ],
+  "worked_examples": [
+    {
+      "title": "yt-dlp (open source, runs on your computer) on a sample input",
+      "ask": "Run tool:github:yt-dlp-yt-dlp.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:github:yt-dlp-yt-dlp",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Download a video or its audio from a web address such as YouTube, Instagram or TikTok"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "draft": true,
+  "drafted_from": "tool:pick-the-cleanest-speech-to-clone-from's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:pick-the-cleanest-speech-to-clone-from with nothing more.\" From a person's own recordings, pick the cleanest ten seconds of continuous speech to clone their voice from",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:pick-the-cleanest-speech-to-clone-from",
+    "tool:clone-speech-that-repair-could-not-fix"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:pick-the-cleanest-speech-to-clone-from\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:pick-the-cleanest-speech-to-clone-from and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: From a person's own recordings, pick the cleanest ten seconds of continuous speech to clone their voice from"
+  ],
+  "worked_examples": [
+    {
+      "title": "Find the cleanest stretch of someone's speech to use as the voice to clone from (runs on your computer) on a sample input",
+      "ask": "Run tool:pick-the-cleanest-speech-to-clone-from.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:pick-the-cleanest-speech-to-clone-from",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: From a person's own recordings, pick the cleanest ten seconds of continuous speech to clone their voice from"
+    }
+  ]
+}

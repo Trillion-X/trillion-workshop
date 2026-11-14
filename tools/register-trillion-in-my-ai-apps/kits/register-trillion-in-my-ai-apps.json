@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:register-trillion-in-my-ai-apps's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:register-trillion-in-my-ai-apps with action, clients.\" Add Trillion's MCP server entry to the config file of each AI app I name, preview exactly what changes first, or take the entry out again",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:register-trillion-in-my-ai-apps"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:register-trillion-in-my-ai-apps\", and give it action, clients.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:register-trillion-in-my-ai-apps and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields schema, action, review_hash, results, refused."
+  ],
+  "worked_examples": [
+    {
+      "title": "Put Trillion in my AI apps' MCP settings, or take it out (runs on your computer) on a sample input",
+      "ask": "Run tool:register-trillion-in-my-ai-apps.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:register-trillion-in-my-ai-apps",
+            "input": {
+              "action": "mcp-inspect",
+              "clients": "<clients: The AI app ids separated by commas (claude-code, codex, gemini-cli, cursor), put where {clients} is>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields schema, action, review_hash, results, refused.",
+      "given": "The person gives: clients (shown as <name> in the input)."
+    }
+  ]
+}

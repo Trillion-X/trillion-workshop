@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:attach_domain's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:attach_domain with installation, domain, account.\" Put a domain name I own in front of my published website",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:attach_domain"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:attach_domain\", and give it installation, domain, account.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:attach_domain and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields address, installation, records, origins, said."
+  ],
+  "worked_examples": [
+    {
+      "title": "Put my own domain on a site on a sample input",
+      "ask": "Run tool:attach_domain.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:attach_domain",
+            "input": {
+              "installation": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "domain": "shop.example.com",
+              "account": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields address, installation, records, origins, said."
+    }
+  ]
+}

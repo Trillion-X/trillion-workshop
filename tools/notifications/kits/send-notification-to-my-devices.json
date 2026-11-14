@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:send-notification-to-my-devices's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:send-notification-to-my-devices with notification_id, audience.\" Send one already-recorded notice through my registered Apple devices",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:send-notification-to-my-devices"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:send-notification-to-my-devices\", and give it notification_id, audience.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:send-notification-to-my-devices and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.said contains \"Record it first\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Send a recorded notification to my devices on a sample input",
+      "ask": "Run tool:send-notification-to-my-devices.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:send-notification-to-my-devices",
+            "input": {
+              "notification_id": "missing",
+              "audience": "person:me"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.said contains \"Record it first\"."
+    }
+  ]
+}

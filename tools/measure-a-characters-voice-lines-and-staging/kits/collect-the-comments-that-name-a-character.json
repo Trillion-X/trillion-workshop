@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "tool:collect-the-comments-that-name-a-character's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:collect-the-comments-that-name-a-character with data_folder, youtube_folder.\" Find the viewer comments that talk about a character, per video: how many, their share of the likes, and how many of the most liked ones",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:collect-the-comments-that-name-a-character"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:collect-the-comments-that-name-a-character\", and give it data_folder, youtube_folder.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:collect-the-comments-that-name-a-character and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result holds the result: Find the viewer comments that talk about a character, per video: how many, their share of the likes, and how many of the most liked ones"
+  ],
+  "worked_examples": [
+    {
+      "title": "Collect the comments that name a character, per video, with their likes (runs on your computer) on a sample input",
+      "ask": "Run tool:collect-the-comments-that-name-a-character.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:collect-the-comments-that-name-a-character",
+            "input": {
+              "data_folder": "{grant:change-a-folder}/show",
+              "youtube_folder": "{grant:change-a-folder}/youtube",
+              "settings": {
+                "mention_pattern": "parrot|\\bpolly\\b"
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result holds the result: Find the viewer comments that talk about a character, per video: how many, their share of the likes, and how many of the most liked ones"
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "tool:type-dictated-text's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:type-dictated-text with text.\" Put dictated text where the person's cursor is as one clipboard transaction (save, write, paste, restore, verify), never pasting over a clipboard it cannot put back, and note the dictation in their bounded history",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:type-dictated-text",
+    "tool:dictate"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:type-dictated-text\", and give it text.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:type-dictated-text and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result holds the result: Put dictated text where the person's cursor is as one clipboard transaction (save, write, paste, restore, verify), never pasting over a clipboard it cannot put back, and note the dictation in their bounded history"
+  ],
+  "worked_examples": [
+    {
+      "title": "Type dictated text at the cursor on a sample input",
+      "ask": "Run tool:type-dictated-text.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:type-dictated-text",
+            "input": {
+              "text": "Hello from Ada Example.",
+              "context": {
+                "app": "Notes"
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result holds the result: Put dictated text where the person's cursor is as one clipboard transaction (save, write, paste, restore, verify), never pasting over a clipboard it cannot put back, and note the dictation in their bounded history"
+    }
+  ]
+}

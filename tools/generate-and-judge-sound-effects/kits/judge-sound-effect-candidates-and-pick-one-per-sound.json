@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:judge-sound-effect-candidates-and-pick-one-per-sound's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:judge-sound-effect-candidates-and-pick-one-per-sound with request.\" Judge the sound effects I generated or found the way my palette was judged, pick the best one for each sound and level it to my real sound",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:judge-sound-effect-candidates-and-pick-one-per-sound"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:judge-sound-effect-candidates-and-pick-one-per-sound\", and give it request.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:judge-sound-effect-candidates-and-pick-one-per-sound and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Judge the sound effects I generated or found the way my palette was judged, pick the best one for each sound and level it to my real sound"
+  ],
+  "worked_examples": [
+    {
+      "title": "Judge sound-effect candidates by ear and pick one per sound (runs on your computer) on a sample input",
+      "ask": "Run tool:judge-sound-effect-candidates-and-pick-one-per-sound.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:judge-sound-effect-candidates-and-pick-one-per-sound",
+            "input": {
+              "request": "<request: REQUEST.json (sounds, palette, reference_folder, candidates, group_of, about, lead_in, whole, not_from_pick_of, max_saturated, least_build, candidates_folder, picked_folder, scores, selection, settings_record), put where {request} is>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Judge the sound effects I generated or found the way my palette was judged, pick the best one for each sound and level it to my real sound",
+      "given": "The person gives: request (shown as <name> in the input)."
+    }
+  ]
+}

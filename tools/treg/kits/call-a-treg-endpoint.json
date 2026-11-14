@@ -1,0 +1,43 @@
+{
+  "draft": true,
+  "drafted_from": "tool:call-a-treg-endpoint's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:call-a-treg-endpoint with account, endpoint, method, max_cost_usd.\" Call any endpoint in treg's catalog by its id, with its inputs, paid from the person's treg balance, never above a cost ceiling the caller names",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:call-a-treg-endpoint",
+    "tool:read-a-treg-call",
+    "tool:read-a-treg-endpoint-and-its-price"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:call-a-treg-endpoint\", and give it account, endpoint, method, max_cost_usd.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:call-a-treg-endpoint and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $ holds the result: Call any endpoint in treg's catalog by its id, with its inputs, paid from the person's treg balance, never above a cost ceiling the caller names"
+  ],
+  "worked_examples": [
+    {
+      "title": "Call a treg endpoint on a sample input",
+      "ask": "Run tool:call-a-treg-endpoint.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:call-a-treg-endpoint",
+            "input": {
+              "account": "<account: Which of the person's treg connections pays, by its id: service_connection:treg, or service_connection:treg:<account> for another team>",
+              "endpoint": "<endpoint: The catalog endpoint's id (for example \"dataforseo.web.backlinks.summary\"), or a team's own tool as <tool-name>/<path>>",
+              "method": "GET",
+              "max_cost_usd": "<max_cost_usd: The most this one call may cost, in US dollars, at or above the price quoted from the catalog for the rows or targets asked for>"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $ holds the result: Call any endpoint in treg's catalog by its id, with its inputs, paid from the person's treg balance, never above a cost ceiling the caller names",
+      "given": "The person gives: account, endpoint, max_cost_usd (shown as <name> in the input)."
+    }
+  ]
+}

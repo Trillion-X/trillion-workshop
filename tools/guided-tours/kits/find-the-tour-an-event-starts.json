@@ -1,0 +1,60 @@
+{
+  "draft": true,
+  "drafted_from": "tool:find-the-tour-an-event-starts's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:find-the-tour-an-event-starts with tours, event.\" Decide which guided tour, if any, should start when something happens in an app (it opened, a page was entered, a replay was asked for), without showing a tour that was already seen",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:find-the-tour-an-event-starts"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:find-the-tour-an-event-starts\", and give it tours, event.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-the-tour-an-event-starts and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.tour_id contains \"tour:welcome\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Find which guided tour an event starts on a sample input",
+      "ask": "Run tool:find-the-tour-an-event-starts.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:find-the-tour-an-event-starts",
+            "input": {
+              "tours": [
+                {
+                  "kind": "walkthrough-definition",
+                  "id": "tour:welcome",
+                  "entry_step": "a",
+                  "steps": [
+                    {
+                      "id": "a"
+                    }
+                  ],
+                  "triggers": [
+                    {
+                      "reason": "first-visit",
+                      "on_event": {
+                        "event_kind": "shop-opened"
+                      },
+                      "once_key": "tour:welcome"
+                    }
+                  ]
+                }
+              ],
+              "event": {
+                "event_kind": "shop-opened"
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.tour_id contains \"tour:welcome\"."
+    }
+  ]
+}

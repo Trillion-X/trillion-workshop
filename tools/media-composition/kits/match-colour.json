@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:match-colour's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:match-colour with video, match_to.\" Make one video's colours match another video's, so clips from different cameras or light look like one shoot",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:match-colour"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:match-colour\", and give it video, match_to.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:match-colour and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields result, files."
+  ],
+  "worked_examples": [
+    {
+      "title": "Match a video's colour to another on a sample input",
+      "ask": "Run tool:match-colour.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:match-colour",
+            "input": {
+              "video": "<video: The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it>",
+              "match_to": "<match_to: The video whose colour to match (its identity, 1f: then 64 hex)>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields result, files.",
+      "given": "The person gives: video, match_to (shown as <name> in the input)."
+    }
+  ]
+}

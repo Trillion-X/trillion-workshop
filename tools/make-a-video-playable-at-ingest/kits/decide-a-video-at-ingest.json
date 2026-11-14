@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:decide-a-video-at-ingest's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:decide-a-video-at-ingest with name.\" Decide whether an uploaded video is kept as it came, converted to the one playable format (MP4), or kept with the reason it could not be converted, and give the conversion's arguments",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:decide-a-video-at-ingest"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:decide-a-video-at-ingest\", and give it name.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:decide-a-video-at-ingest and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.plan.output_name contains \"take 1.mp4\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Decide what happens to a video at ingest on a sample input",
+      "ask": "Run tool:decide-a-video-at-ingest.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:decide-a-video-at-ingest",
+            "input": {
+              "name": "/clips/take 1.mov",
+              "media_type": "video/quicktime",
+              "byte_length": 1000000
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.plan.output_name contains \"take 1.mp4\"."
+    }
+  ]
+}

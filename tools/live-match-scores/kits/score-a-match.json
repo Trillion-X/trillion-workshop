@@ -1,0 +1,47 @@
+{
+  "draft": true,
+  "drafted_from": "tool:score-a-match's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:score-a-match with operation.\" Keep the score of a match (tennis, pickleball, padel or any game whose scoring a person writes as a rule): start a match, give a point to a side, undo the last point, type in a score, and link a match to a tournament, schedule, bracket, standings or leaderboard",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:score-a-match"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:score-a-match\", and give it operation.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:score-a-match and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.match_record.teams[0].label contains \"Alder\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep score of a match point by point on a sample input",
+      "ask": "Run tool:score-a-match.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:score-a-match",
+            "input": {
+              "operation": "start-match",
+              "scoring_rule_ref": "scoring-rule:tennis-standard",
+              "match_format": "singles",
+              "team_a_players": [
+                "Alder"
+              ],
+              "team_b_players": [
+                "Birch"
+              ],
+              "match_id": "live-match:sample",
+              "now": "2026-01-01T09:00:00Z"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.match_record.teams[0].label contains \"Alder\"."
+    }
+  ]
+}

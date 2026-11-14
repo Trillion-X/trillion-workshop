@@ -1,0 +1,61 @@
+{
+  "draft": true,
+  "drafted_from": "tool:suggest-media-cuts's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:suggest-media-cuts with identity, mode, transcript.\" Propose cuts in a recording from its kept transcript (long silences or filler words), as typed lines a person can watch, with a typed ending when there is nothing to cut",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:suggest-media-cuts"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:suggest-media-cuts\", and give it identity, mode, transcript.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:suggest-media-cuts and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.keep.entry.proposals[0].reason contains \"filler\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Suggest cuts from a recording's words on a sample input",
+      "ask": "Run tool:suggest-media-cuts.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:suggest-media-cuts",
+            "input": {
+              "identity": "1f:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "mode": "filler_words",
+              "transcript": {
+                "segments": [
+                  {
+                    "words": [
+                      {
+                        "word": "so",
+                        "start": 0,
+                        "end": 0.3
+                      },
+                      {
+                        "word": "um",
+                        "start": 0.4,
+                        "end": 0.6
+                      },
+                      {
+                        "word": "then",
+                        "start": 0.7,
+                        "end": 1
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.keep.entry.proposals[0].reason contains \"filler\"."
+    }
+  ]
+}

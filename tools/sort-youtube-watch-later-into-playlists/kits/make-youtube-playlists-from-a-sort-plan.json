@@ -1,0 +1,42 @@
+{
+  "draft": true,
+  "drafted_from": "tool:make-youtube-playlists-from-a-sort-plan's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:make-youtube-playlists-from-a-sort-plan with cookies, plan_file, applied_file.\" Make the YouTube playlists my Watch Later sort plan names, adding videos and removing none",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:make-youtube-playlists-from-a-sort-plan",
+    "tool:export-browser-login-cookies-for-yt-dlp",
+    "tool:plan-sorting-youtube-watch-later-into-playlists"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:make-youtube-playlists-from-a-sort-plan\", and give it cookies, plan_file, applied_file.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:make-youtube-playlists-from-a-sort-plan and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Make the YouTube playlists my Watch Later sort plan names, adding videos and removing none"
+  ],
+  "worked_examples": [
+    {
+      "title": "Make the planned public playlists on YouTube (runs on your Mac) on a sample input",
+      "ask": "Run tool:make-youtube-playlists-from-a-sort-plan.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:make-youtube-playlists-from-a-sort-plan",
+            "input": {
+              "cookies": "<cookies: string>",
+              "plan_file": "<plan_file: sort-plan.json from the plan row>",
+              "applied_file": "<applied_file: Where what was made is kept (read, then updated)>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Make the YouTube playlists my Watch Later sort plan names, adding videos and removing none",
+      "given": "The person gives: cookies, plan_file, applied_file (shown as <name> in the input)."
+    }
+  ]
+}

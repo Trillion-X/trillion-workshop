@@ -1,0 +1,45 @@
+{
+  "draft": true,
+  "drafted_from": "tool:add-a-shared-situation's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:add-a-shared-situation with entry, embedding.\" Keep one situation a person made safe to show strangers, with its meaning, so others can learn how similar decisions turned out",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:add-a-shared-situation",
+    "tool:share-a-decision"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:add-a-shared-situation\", and give it entry, embedding.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:add-a-shared-situation and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields situation."
+  ],
+  "worked_examples": [
+    {
+      "title": "Add a shared situation to the pool on a sample input",
+      "ask": "Run tool:add-a-shared-situation.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:add-a-shared-situation",
+            "input": {
+              "entry": {
+                "what": "Asked a made-up question before a sample launch"
+              },
+              "embedding": [
+                1,
+                0,
+                0
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields situation."
+    }
+  ]
+}

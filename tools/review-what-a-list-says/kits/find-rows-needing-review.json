@@ -1,0 +1,166 @@
+{
+  "draft": true,
+  "drafted_from": "tool:find-rows-needing-review's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:find-rows-needing-review with list, rows.\" List the rows of a list set up for review that need someone to look at them, for each owner, with why: never checked, flagged outdated or asked about, past the date it must be checked again by, or empty",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:find-rows-needing-review"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:find-rows-needing-review\", and give it list, rows.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-rows-needing-review and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields list_id, owners, complete."
+  ],
+  "worked_examples": [
+    {
+      "title": "Find the rows of a list that need review, by owner on a sample input",
+      "ask": "Run tool:find-rows-needing-review.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:find-rows-needing-review",
+            "input": {
+              "list": {
+                "id": "docs",
+                "title_field": "title",
+                "fields": [
+                  {
+                    "id": "title",
+                    "label": "Title",
+                    "kind": "text"
+                  },
+                  {
+                    "id": "owner",
+                    "label": "Owner",
+                    "kind": "text"
+                  },
+                  {
+                    "id": "review_state",
+                    "label": "Review",
+                    "kind": "choice",
+                    "choices": [
+                      "Verified",
+                      "Outdated",
+                      "Verification requested"
+                    ]
+                  },
+                  {
+                    "id": "review_due",
+                    "label": "Check again by",
+                    "kind": "date"
+                  },
+                  {
+                    "id": "verified_by",
+                    "label": "Checked by",
+                    "kind": "text"
+                  }
+                ],
+                "views": [
+                  {
+                    "id": "review-needed",
+                    "label": "Needs review",
+                    "rules": {
+                      "kind": "group",
+                      "combinator": "or",
+                      "rules": [
+                        {
+                          "kind": "rule",
+                          "field": "review_state",
+                          "operator": "is_empty",
+                          "params": {}
+                        },
+                        {
+                          "kind": "rule",
+                          "field": "review_state",
+                          "operator": "is_none_of",
+                          "params": {
+                            "values": [
+                              "Verified"
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "review-expired",
+                    "label": "Review expired",
+                    "time": {
+                      "field": "review_due",
+                      "before": {
+                        "binding": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "self",
+                            "path": [
+                              "now"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "id": "review-empty",
+                    "label": "Empty",
+                    "rules": {
+                      "kind": "group",
+                      "combinator": "and",
+                      "rules": [
+                        {
+                          "kind": "rule",
+                          "field": "title",
+                          "operator": "is_empty",
+                          "params": {}
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              "rows": [
+                {
+                  "id": "a",
+                  "title": "Onboarding",
+                  "values": {
+                    "title": "Onboarding",
+                    "owner": "sam",
+                    "review_state": "Verified",
+                    "review_due": "2027-01-01T00:00:00.000Z"
+                  }
+                },
+                {
+                  "id": "b",
+                  "title": "Pricing",
+                  "values": {
+                    "title": "Pricing",
+                    "owner": "sam",
+                    "review_state": "Verified",
+                    "review_due": "2026-10-01T00:00:00.000Z"
+                  }
+                },
+                {
+                  "id": "c",
+                  "title": "Refunds",
+                  "values": {
+                    "title": "Refunds",
+                    "owner": "kim",
+                    "review_state": "Outdated"
+                  }
+                }
+              ],
+              "now": "2026-11-04T00:00:00.000Z"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields list_id, owners, complete."
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-a-funnel-definition's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-a-funnel-definition with definitions.\" Read a funnel that is written as stages pointing at workflow steps, offers, price options and measures, and see each stage's title, versions, price and conversion",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-a-funnel-definition"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-a-funnel-definition\", and give it definitions.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-a-funnel-definition and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.funnel.stages[0].conversion_rate contains \"25\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read a funnel definition on a sample input",
+      "ask": "Run tool:read-a-funnel-definition.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-a-funnel-definition",
+            "input": {
+              "definitions": [
+                {
+                  "kind": "funnel-definition",
+                  "id": "funnel:bakery",
+                  "stages": [
+                    {
+                      "stage_address": "stage:bakery:visit",
+                      "workflow_node_ref": {
+                        "$ref": "workflow-definition:bakery#visit"
+                      },
+                      "metric_selectors": [
+                        {
+                          "measure_ref": "measure:visit-entered",
+                          "role": "entered"
+                        },
+                        {
+                          "measure_ref": "measure:visit-converted",
+                          "role": "converted"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "owners": {
+                "workflowNodes": [
+                  {
+                    "id": "visit",
+                    "label": "Visit the shop page"
+                  }
+                ],
+                "measures": [
+                  {
+                    "id": "visit-entered",
+                    "value": 200
+                  },
+                  {
+                    "id": "visit-converted",
+                    "value": 50
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.funnel.stages[0].conversion_rate contains \"25\"."
+    }
+  ]
+}

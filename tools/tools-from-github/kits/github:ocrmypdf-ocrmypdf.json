@@ -1,0 +1,35 @@
+{
+  "draft": true,
+  "drafted_from": "tool:github:ocrmypdf-ocrmypdf's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:github:ocrmypdf-ocrmypdf with nothing more.\" Make a scanned PDF searchable by adding the text it shows",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:github:ocrmypdf-ocrmypdf"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:github:ocrmypdf-ocrmypdf\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:github:ocrmypdf-ocrmypdf and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Make a scanned PDF searchable by adding the text it shows"
+  ],
+  "worked_examples": [
+    {
+      "title": "OCRmyPDF (open source, runs on your computer) on a sample input",
+      "ask": "Run tool:github:ocrmypdf-ocrmypdf.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:github:ocrmypdf-ocrmypdf",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Make a scanned PDF searchable by adding the text it shows"
+    }
+  ]
+}

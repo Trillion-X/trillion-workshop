@@ -1,0 +1,37 @@
+{
+  "draft": true,
+  "drafted_from": "tool:my-device-notices's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:my-device-notices with device_id.\" Read the newest notices kept for one registered device, oldest first after its cursor",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:my-device-notices"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:my-device-notices\", and give it device_id.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:my-device-notices and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields device_id, channel, cursor, notices, said."
+  ],
+  "worked_examples": [
+    {
+      "title": "Notices for this device on a sample input",
+      "ask": "Run tool:my-device-notices.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:my-device-notices",
+            "input": {
+              "device_id": "device-sample-1"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields device_id, channel, cursor, notices, said."
+    }
+  ]
+}

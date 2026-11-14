@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-a-treg-endpoint-and-its-price's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-a-treg-endpoint-and-its-price with endpoint.\" Read one paid endpoint in full before calling it: its price, the inputs it takes, how it is called, and the other providers that do the same job",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-a-treg-endpoint-and-its-price",
+    "tool:call-a-treg-endpoint",
+    "tool:search-the-treg-catalog"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-a-treg-endpoint-and-its-price\", and give it endpoint.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-a-treg-endpoint-and-its-price and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields endpoint, siblings, routing."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read a treg endpoint and its price on a sample input",
+      "ask": "Run tool:read-a-treg-endpoint-and-its-price.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-a-treg-endpoint-and-its-price",
+            "input": {
+              "endpoint": "<endpoint: The endpoint's id, as tool:search-the-treg-catalog answers it, for example \"treg.web.map\">"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields endpoint, siblings, routing.",
+      "given": "The person gives: endpoint (shown as <name> in the input)."
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-a-destination-is-honest's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-a-destination-is-honest with descriptor.\" Check a progress or results screen description before publishing it: it must not ship made-up numbers, ranks, bars or percents before the owner has worked them out",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-a-destination-is-honest"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-a-destination-is-honest\", and give it descriptor.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-destination-is-honest and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.problems contains \"bars must start empty\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check a destination is honest before it is published on a sample input",
+      "ask": "Run tool:check-a-destination-is-honest.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-a-destination-is-honest",
+            "input": {
+              "descriptor": {
+                "kind": "destination-descriptor",
+                "ref": "destination:bakery",
+                "subject_ref": "subject:bakery",
+                "statement": "Your week at the bakery",
+                "sections": [
+                  {
+                    "presentation": "pulse",
+                    "bars": [
+                      {
+                        "value": 70
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.problems contains \"bars must start empty\"."
+    }
+  ]
+}

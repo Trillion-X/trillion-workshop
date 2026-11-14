@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:find-music-windows-that-follow-a-loudness-arc's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:find-music-windows-that-follow-a-loudness-arc with brief, out, tracks.\" Find in each candidate music track the window whose loudness follows my film's arc",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:find-music-windows-that-follow-a-loudness-arc"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:find-music-windows-that-follow-a-loudness-arc\", and give it brief, out, tracks.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-music-windows-that-follow-a-loudness-arc and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Find in each candidate music track the window whose loudness follows my film's arc"
+  ],
+  "worked_examples": [
+    {
+      "title": "Find the stretch of each music track that follows my film's loudness arc (runs on your computer) on a sample input",
+      "ask": "Run tool:find-music-windows-that-follow-a-loudness-arc.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:find-music-windows-that-follow-a-loudness-arc",
+            "input": {
+              "brief": "<brief: BRIEF.json: {arc, length_s, open, lift, swell}>",
+              "out": "<out: The folder (music/windows.json, music/excerpts/)>",
+              "tracks": []
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Find in each candidate music track the window whose loudness follows my film's arc",
+      "given": "The person gives: brief, out (shown as <name> in the input)."
+    }
+  ]
+}

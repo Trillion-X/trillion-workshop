@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-my-saved-x-posts's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-my-saved-x-posts with which, account.\" Read the posts I bookmarked or liked on X, newest first, with their full words, links and quoted posts",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-my-saved-x-posts"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-my-saved-x-posts\", and give it which, account.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-my-saved-x-posts and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields which, via, pages, read, not_kept_yet, posts."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read my saved X posts on a sample input",
+      "ask": "Run tool:read-my-saved-x-posts.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-my-saved-x-posts",
+            "input": {
+              "which": "bookmarks",
+              "account": "service_connection:x"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields which, via, pages, read, not_kept_yet, posts."
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:gate-telemetry-by-privacy's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:gate-telemetry-by-privacy with surface, path.\" Say whether a telemetry sink may send or keep anything about a page or event, from how private the page that was served is",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:gate-telemetry-by-privacy"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:gate-telemetry-by-privacy\", and give it surface, path.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:gate-telemetry-by-privacy and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.class contains \"shared-with-others\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "May telemetry send about this page on a sample input",
+      "ask": "Run tool:gate-telemetry-by-privacy.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:gate-telemetry-by-privacy",
+            "input": {
+              "surface": "app",
+              "path": "/spaces/team-plans",
+              "sink": "page_events"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.class contains \"shared-with-others\"."
+    }
+  ]
+}

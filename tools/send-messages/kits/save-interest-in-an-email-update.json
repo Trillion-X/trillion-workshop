@@ -1,0 +1,46 @@
+{
+  "draft": true,
+  "drafted_from": "tool:save-interest-in-an-email-update's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:save-interest-in-an-email-update with email, consent, course.\" Keep the consent of a person who asked for one email if a course becomes available, without sending anything",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:save-interest-in-an-email-update"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:save-interest-in-an-email-update\", and give it email, consent, course.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:save-interest-in-an-email-update and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields status, already_saved."
+  ],
+  "worked_examples": [
+    {
+      "title": "Save someone's interest in one email update on a sample input",
+      "ask": "Run tool:save-interest-in-an-email-update.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:save-interest-in-an-email-update",
+            "input": {
+              "email": "reader@example.com",
+              "consent": true,
+              "course": {
+                "id": "sample-course",
+                "public_origin": "https://example.com/",
+                "consent_text": "Email me one update if the free lesson series becomes available.",
+                "consent_version": "1",
+                "capture_only": true
+              },
+              "source": "sample page"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields status, already_saved."
+    }
+  ]
+}

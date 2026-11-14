@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:set-up-trillion-hooks-in-an-ai-app-on-this-computer's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:set-up-trillion-hooks-in-an-ai-app-on-this-computer with action, harness.\" Read, add or take out the hooks that keep an AI app's sessions on this computer as the person's records (Claude Code or Codex)",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:set-up-trillion-hooks-in-an-ai-app-on-this-computer"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:set-up-trillion-hooks-in-an-ai-app-on-this-computer\", and give it action, harness.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:set-up-trillion-hooks-in-an-ai-app-on-this-computer and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields schema, action, harness, status, ready, checks, changes, boundaries."
+  ],
+  "worked_examples": [
+    {
+      "title": "Set up Trillion's hooks in an AI app on this computer on a sample input",
+      "ask": "Run tool:set-up-trillion-hooks-in-an-ai-app-on-this-computer.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:set-up-trillion-hooks-in-an-ai-app-on-this-computer",
+            "input": {
+              "action": "inspect",
+              "harness": "claude-code"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields schema, action, harness, status, ready, checks, changes, boundaries."
+    }
+  ]
+}

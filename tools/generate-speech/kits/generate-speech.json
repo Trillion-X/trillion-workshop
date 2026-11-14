@@ -1,0 +1,35 @@
+{
+  "draft": true,
+  "drafted_from": "tool:generate-speech's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:generate-speech with nothing more.\" Turn text into spoken audio, in the voice and with the voice program or service I choose, and keep the audio",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:generate-speech"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:generate-speech\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:generate-speech and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Turn text into spoken audio, in the voice and with the voice program or service I choose, and keep the audio"
+  ],
+  "worked_examples": [
+    {
+      "title": "Make speech from text with a provider command (runs on your computer) on a sample input",
+      "ask": "Run tool:generate-speech.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:generate-speech",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Turn text into spoken audio, in the voice and with the voice program or service I choose, and keep the audio"
+    }
+  ]
+}

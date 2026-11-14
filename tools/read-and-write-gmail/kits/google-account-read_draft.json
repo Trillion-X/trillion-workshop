@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "tool:google-account-read_draft's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:google-account-read_draft with connection, draft_id.\" Read one draft and its full message.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:google-account-read_draft"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:google-account-read_draft\", and give it connection, draft_id.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:google-account-read_draft and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields id, message."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read email draft on a sample input",
+      "ask": "Run tool:google-account-read_draft.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:google-account-read_draft",
+            "input": {
+              "connection": {
+                "connection_id": "<connection_id: The Google account to use: service_connection:google-account or service_connection:google-account:<account>, as the person's connections list it>"
+              },
+              "draft_id": "<draft_id: string>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields id, message.",
+      "given": "The person gives: connection_id, draft_id (shown as <name> in the input)."
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "draft": true,
+  "drafted_from": "tool:save-voice's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:save-voice with fields.\" Save what you learned about how this person writes, for one kind of writing",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:save-voice",
+    "tool:read-voice"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:save-voice\", and give it fields.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:save-voice and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.said contains \"Saved the post voice profile\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Save how someone writes on a sample input",
+      "ask": "Run tool:save-voice.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:save-voice",
+            "input": {
+              "kind": "post",
+              "name": "Posts",
+              "fields": {
+                "how_they_write": "Short, plain, no slogans.",
+                "words_they_avoid": "synergy"
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.said contains \"Saved the post voice profile\"."
+    }
+  ]
+}

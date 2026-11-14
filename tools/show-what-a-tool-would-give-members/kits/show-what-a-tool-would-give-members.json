@@ -1,0 +1,58 @@
+{
+  "draft": true,
+  "drafted_from": "tool:show-what-a-tool-would-give-members's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:show-what-a-tool-would-give-members with descriptor, members, held.\" Before I add a tool for my space's members, tell me what it would give each member beyond what they already hold, what it reaches or could cost, and whether I must decide it myself",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:show-what-a-tool-would-give-members"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:show-what-a-tool-would-give-members\", and give it descriptor, members, held.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:show-what-a-tool-would-give-members and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.says contains \"You decide this one yourself\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Show what a tool would give members on a sample input",
+      "ask": "Run tool:show-what-a-tool-would-give-members.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:show-what-a-tool-would-give-members",
+            "input": {
+              "descriptor": {
+                "id": "tool:proof",
+                "placements": [
+                  "placement:your-computer"
+                ],
+                "needs": {
+                  "network_egress": true
+                }
+              },
+              "toolVersion": "v-sample",
+              "members": [
+                {
+                  "member_id": "relay:ben",
+                  "name": "Ben"
+                }
+              ],
+              "held": {
+                "relay:ben": [
+                  "discover",
+                  "describe"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.says contains \"You decide this one yourself\"."
+    }
+  ]
+}

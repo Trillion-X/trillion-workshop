@@ -1,0 +1,83 @@
+{
+  "draft": true,
+  "drafted_from": "tool:turn-a-presentation-plan-into-a-teleprompter-session's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:turn-a-presentation-plan-into-a-teleprompter-session with plan.\" Turn a written video presentation plan into the recording session the camera screen runs: the teleprompter script sentence by sentence, the countdown, when to stop on silence, on the final word or on a stop phrase, and whether it may start by itself",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:turn-a-presentation-plan-into-a-teleprompter-session"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:turn-a-presentation-plan-into-a-teleprompter-session\", and give it plan.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:turn-a-presentation-plan-into-a-teleprompter-session and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.status_label contains \"Authorized speech follower\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Turn a presentation plan into a teleprompter session on a sample input",
+      "ask": "Run tool:turn-a-presentation-plan-into-a-teleprompter-session.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:turn-a-presentation-plan-into-a-teleprompter-session",
+            "input": {
+              "plan": {
+                "id": "PLAN-sample-week-plan",
+                "title": "How I plan a week",
+                "material_id": "material-sample",
+                "material_revision": 1,
+                "format_id": "SAMPLE-DIRECT",
+                "format_revision": 1,
+                "revision": 1,
+                "medium": "video",
+                "acquisitions": [],
+                "beats": [
+                  {
+                    "id": "opening",
+                    "delivery": "speak",
+                    "text": "Here is how I plan a week."
+                  },
+                  {
+                    "id": "close",
+                    "delivery": "speak",
+                    "text": "That is the whole plan."
+                  }
+                ],
+                "execution": {
+                  "adapter": "capture.video",
+                  "countdown_seconds": 3,
+                  "silence_stop_seconds": 3,
+                  "stop_on_final_word": true
+                }
+              },
+              "readiness": {
+                "plan_id": "PLAN-sample-week-plan",
+                "state": "ready_to_authorize",
+                "problems": [],
+                "requirements": [
+                  {
+                    "id": "camera_live",
+                    "satisfied": true
+                  }
+                ]
+              },
+              "authorization": {
+                "plan_id": "PLAN-sample-week-plan",
+                "authorized": true,
+                "authorized_at_ms": 1000,
+                "grant_until_ms": 2000000
+              },
+              "nowMs": 1000000
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.status_label contains \"Authorized speech follower\"."
+    }
+  ]
+}

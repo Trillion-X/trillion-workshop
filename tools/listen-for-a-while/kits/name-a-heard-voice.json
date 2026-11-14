@@ -1,0 +1,42 @@
+{
+  "draft": true,
+  "drafted_from": "tool:name-a-heard-voice's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:name-a-heard-voice with listening, voices, name.\" Put a person's name on what they said in a listening before I enrolled their voice",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:name-a-heard-voice",
+    "tool:enrol-a-voice-or-face"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:name-a-heard-voice\", and give it listening, voices, name.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:name-a-heard-voice and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields listening, name, voices, renamed, said."
+  ],
+  "worked_examples": [
+    {
+      "title": "Name a voice heard before it was enrolled on a sample input",
+      "ask": "Run tool:name-a-heard-voice.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:name-a-heard-voice",
+            "input": {
+              "listening": "sample-meeting",
+              "voices": [
+                "voice-2"
+              ],
+              "name": "Sam Example"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields listening, name, voices, renamed, said."
+    }
+  ]
+}

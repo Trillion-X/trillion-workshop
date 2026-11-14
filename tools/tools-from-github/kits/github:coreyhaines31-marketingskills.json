@@ -1,0 +1,35 @@
+{
+  "draft": true,
+  "drafted_from": "tool:github:coreyhaines31-marketingskills's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:github:coreyhaines31-marketingskills with nothing more.\" Collect free, dated evidence of how a company grows from its public footprint: page families in its sitemap and when each appeared, the month each ad pixel, analytics, testing, referral or email tool first showed on its site, the months its pricing and homepage headline changed, who sends its email and which tools it verified in DNS, its subdomains by first certificate date, its open roles from public job boards, its app reviews by month, a side-by-side of three to five competitors, the lift of each cluster of dated moves against its traffic, and the moves new since the last look",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:github:coreyhaines31-marketingskills"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:github:coreyhaines31-marketingskills\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:github:coreyhaines31-marketingskills and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Collect free, dated evidence of how a company grows from its public footprint: page families in its sitemap and when each appeared, the month each ad pixel, analytics, testing, referral or email tool first showed on its site, the months its pricing and homepage headline changed, who sends its email and which tools it verified in DNS, its subdomains by first certificate date, its open roles from public job boards, its app reviews by month, a side-by-side of three to five competitors, the lift of each cluster of dated moves against its traffic, and the moves new since the last look"
+  ],
+  "worked_examples": [
+    {
+      "title": "marketingskills (open source, runs on your computer) on a sample input",
+      "ask": "Run tool:github:coreyhaines31-marketingskills.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:github:coreyhaines31-marketingskills",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Collect free, dated evidence of how a company grows from its public footprint: page families in its sitemap and when each appeared, the month each ad pixel, analytics, testing, referral or email tool first showed on its site, the months its pricing and homepage headline changed, who sends its email and which tools it verified in DNS, its subdomains by first certificate date, its open roles from public job boards, its app reviews by month, a side-by-side of three to five competitors, the lift of each cluster of dated moves against its traffic, and the moves new since the last look"
+    }
+  ]
+}

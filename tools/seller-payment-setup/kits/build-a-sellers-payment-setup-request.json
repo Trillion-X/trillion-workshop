@@ -1,0 +1,46 @@
+{
+  "draft": true,
+  "drafted_from": "tool:build-a-sellers-payment-setup-request's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:build-a-sellers-payment-setup-request with operation_id.\" Build, without sending it, the payment provider (Stripe) request that starts a seller's payment setup and gets their hosted onboarding link, or any other request the folder's operation map names",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:build-a-sellers-payment-setup-request"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:build-a-sellers-payment-setup-request\", and give it operation_id.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:build-a-sellers-payment-setup-request and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.url contains \"https://api.stripe.com/v1/account_links\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Build the request that starts a seller's payment setup on a sample input",
+      "ask": "Run tool:build-a-sellers-payment-setup-request.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:build-a-sellers-payment-setup-request",
+            "input": {
+              "operation_id": "operation:create-account-link",
+              "idempotency_key": "seller-setup-sample-0001",
+              "input_facts": {
+                "operation_subject": {
+                  "account": "acct_sample_seller_0001",
+                  "type": "account_onboarding",
+                  "refresh_url": "https://shop.example/payments/setup/again",
+                  "return_url": "https://shop.example/payments/setup/done"
+                }
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.url contains \"https://api.stripe.com/v1/account_links\"."
+    }
+  ]
+}

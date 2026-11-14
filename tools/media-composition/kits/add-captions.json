@@ -1,0 +1,45 @@
+{
+  "draft": true,
+  "drafted_from": "tool:add-captions's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:add-captions with files, transcript.\" Burn captions into a video from its transcript, in a caption style: plain subtitles, large captions, or words that light up as they are said",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:add-captions"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:add-captions\", and give it files, transcript.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:add-captions and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields result, files."
+  ],
+  "worked_examples": [
+    {
+      "title": "Add captions to a video from its transcript on a sample input",
+      "ask": "Run tool:add-captions.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:add-captions",
+            "input": {
+              "files": [
+                {
+                  "name": "source.mp4",
+                  "identity": "<identity: The clip's identity in your files (1f: then 64 hex)>",
+                  "bytes": "<bytes: integer>"
+                }
+              ],
+              "transcript": "<transcript: Timed words: {words:[{text,start,end}]}, {segments:[{words}]} or a list of words>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields result, files.",
+      "given": "The person gives: identity, bytes, transcript (shown as <name> in the input)."
+    }
+  ]
+}

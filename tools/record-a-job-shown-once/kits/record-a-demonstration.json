@@ -1,0 +1,37 @@
+{
+  "draft": true,
+  "drafted_from": "tool:record-a-demonstration's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:record-a-demonstration with nothing more.\" Record, for a short bounded time, what the person does on their Mac (clicks, typing, shortcuts, with the app and the control each was in) and give it back as a draft workflow in words an AI can keep after the person has looked at it",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:record-a-demonstration"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:record-a-demonstration\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:record-a-demonstration and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields draft, events_seen, secrets_skipped, ended, said."
+  ],
+  "worked_examples": [
+    {
+      "title": "Show me once on a sample input",
+      "ask": "Run tool:record-a-demonstration.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:record-a-demonstration",
+            "input": {
+              "seconds": 5
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields draft, events_seen, secrets_skipped, ended, said."
+    }
+  ]
+}

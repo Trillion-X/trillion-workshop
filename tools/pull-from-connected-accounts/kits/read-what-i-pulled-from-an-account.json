@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-what-i-pulled-from-an-account's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-what-i-pulled-from-an-account with source.\" Read the conversations, messages and saved items I pulled from a connected account such as Discord, Slack, Telegram, Signal, Instagram, Messenger, X bookmarks or Pinterest",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-what-i-pulled-from-an-account"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-what-i-pulled-from-an-account\", and give it source.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-what-i-pulled-from-an-account and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields source, account, self_id, cursor, pulled_at, threads, collections, thread."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read what I pulled from a connected account on a sample input",
+      "ask": "Run tool:read-what-i-pulled-from-an-account.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-what-i-pulled-from-an-account",
+            "input": {
+              "source": "slack",
+              "account": "sample"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields source, account, self_id, cursor, pulled_at, threads, collections, thread."
+    }
+  ]
+}

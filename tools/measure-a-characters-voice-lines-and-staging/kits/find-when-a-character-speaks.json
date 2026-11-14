@@ -1,0 +1,37 @@
+{
+  "draft": true,
+  "drafted_from": "tool:find-when-a-character-speaks's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:find-when-a-character-speaks with step.\" Find every stretch where one character of a show speaks, in all of its recordings, from a few stretches the person labels, even when the character is a cast member's own voice pitched up",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:find-when-a-character-speaks"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:find-when-a-character-speaks\", and give it step.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-when-a-character-speaks and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Find every stretch where one character of a show speaks, in all of its recordings, from a few stretches the person labels, even when the character is a cast member's own voice pitched up"
+  ],
+  "worked_examples": [
+    {
+      "title": "Find when one character speaks in a show's recordings, by voice and pitch (runs on your computer) on a sample input",
+      "ask": "Run tool:find-when-a-character-speaks.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:find-when-a-character-speaks",
+            "input": {
+              "step": "embed"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Find every stretch where one character of a show speaks, in all of its recordings, from a few stretches the person labels, even when the character is a cast member's own voice pitched up"
+    }
+  ]
+}

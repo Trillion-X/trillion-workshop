@@ -1,0 +1,281 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:set-up-a-business-on-trillion's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:set-up-a-business-on-trillion.\" Set up a business to run entirely on Trillion, top, middle and bottom of the funnel and after the sale, from one facts row and one checklist, with each stage's own recipe, and close the gaps each run finds.",
+  "lists": [
+    {
+      "list": "list:business-setup-checklist",
+      "label": "Business setup checklist",
+      "row_type": "record:setup-stage",
+      "holds": "One row per stage of setting the business up; this workflow writes the replies row.",
+      "fields": [
+        {
+          "id": "stage",
+          "kind": "text",
+          "label": "Stage"
+        },
+        {
+          "id": "label",
+          "kind": "text",
+          "label": "Stage name",
+          "alike": [
+            "name",
+            "task"
+          ]
+        },
+        {
+          "id": "status",
+          "kind": "choice",
+          "label": "Status",
+          "alike": [
+            "state"
+          ]
+        },
+        {
+          "id": "steps_status",
+          "kind": "long-text",
+          "label": "Steps",
+          "alike": [
+            "notes"
+          ]
+        },
+        {
+          "id": "gaps",
+          "kind": "tags",
+          "label": "Gaps",
+          "alike": [
+            "blockers"
+          ]
+        },
+        {
+          "id": "updated_at",
+          "kind": "date",
+          "label": "Updated",
+          "alike": [
+            "last updated",
+            "date"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "replies",
+          "values": {
+            "stage": "replies",
+            "label": "Comments and messages",
+            "status": "Gap",
+            "steps_status": "{\"read-facts\":\"Done\",\"pull-messages\":\"Done\",\"read-reply-templates\":\"Done\",\"pick-a-template\":\"Done\",\"fill-the-replies\":\"Done\",\"check-the-replies\":\"Done\",\"hand-the-replies-to-the-person\":\"Gap\"}",
+            "gaps": [
+              "record:setup-gap:hand-the-replies-to-the-person-1"
+            ],
+            "updated_at": "2026-11-13"
+          }
+        },
+        {
+          "id": "social-posting",
+          "values": {
+            "stage": "social-posting",
+            "label": "Posting on social channels",
+            "status": "Not done",
+            "steps_status": "",
+            "gaps": [],
+            "updated_at": "2026-11-13"
+          }
+        }
+      ],
+      "alike": [
+        "a launch checklist",
+        "a project board's to-do column",
+        "an onboarding checklist spreadsheet"
+      ]
+    },
+    {
+      "list": "list:business-setup-gaps",
+      "label": "Business setup gaps",
+      "row_type": "record:setup-gap",
+      "holds": "One row per thing a stage could not do itself: the step, what was left undecided, what the run did and the evidence.",
+      "fields": [
+        {
+          "id": "stage",
+          "kind": "text",
+          "label": "Stage"
+        },
+        {
+          "id": "step",
+          "kind": "text",
+          "label": "Step"
+        },
+        {
+          "id": "undecided",
+          "kind": "long-text",
+          "label": "Not decided",
+          "alike": [
+            "issue",
+            "problem",
+            "gap"
+          ]
+        },
+        {
+          "id": "chosen",
+          "kind": "long-text",
+          "label": "What this run did",
+          "alike": [
+            "workaround"
+          ]
+        },
+        {
+          "id": "evidence",
+          "kind": "long-text",
+          "label": "Evidence",
+          "alike": [
+            "proof",
+            "link"
+          ]
+        },
+        {
+          "id": "status",
+          "kind": "choice",
+          "label": "Status",
+          "alike": [
+            "state"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "hand-the-replies-to-the-person-1",
+          "values": {
+            "stage": "replies",
+            "step": "hand-the-replies-to-the-person",
+            "undecided": "No live tool sends an Instagram direct-message reply.",
+            "chosen": "Handed 3 checked replies to the person to send by hand.",
+            "evidence": "The live catalog has no send tool for Instagram direct messages.",
+            "status": "open"
+          }
+        },
+        {
+          "id": "pull-messages-1",
+          "values": {
+            "stage": "replies",
+            "step": "pull-messages",
+            "undecided": "Instagram sign-in expired.",
+            "chosen": "Submitted status needs_login and pulled nothing.",
+            "evidence": "tool:pull-my-instagram-messages answered needs_login.",
+            "status": "open"
+          }
+        }
+      ],
+      "alike": [
+        "an issues list",
+        "a blockers column on a board",
+        "a bug tracker"
+      ]
+    }
+  ],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:set-up-a-business-on-trillion",
+    "workflow:answer-comments-and-messages",
+    "workflow:build-the-landing-page",
+    "workflow:get-found-in-search-and-answer-engines",
+    "workflow:give-paid-buyers-access",
+    "workflow:legal-pages-and-support",
+    "workflow:make-short-videos-from-footage",
+    "workflow:manage-member-billing",
+    "workflow:measure-the-funnel-and-set-a-baseline",
+    "workflow:onboard-new-buyers-in-five-days",
+    "workflow:post-on-social-channels-on-a-schedule",
+    "workflow:prove-the-launch-on-the-real-url",
+    "workflow:publish-articles-and-newsletter-on-a-cadence",
+    "workflow:recover-failed-payments-and-win-back",
+    "workflow:retention-and-referral",
+    "workflow:run-a-community",
+    "workflow:run-a-course-from-list-rows",
+    "workflow:set-up-brand-and-branded-emails",
+    "workflow:set-up-business-accounts-and-connections",
+    "workflow:take-payments-with-stripe",
+    "workflow:test-prices-and-change-a-page-for-each-visitor"
+  ],
+  "tools": [
+    "tool:measure-a-checklist",
+    "tool:search-one-of-my-lists",
+    "tool:start-a-recipe-run"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:set-up-a-business-on-trillion\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:set-up-a-business-on-trillion) and works through its steps in order: write-the-business-facts, name-the-life-areas, set-the-daily-minimum, set-the-contact-rules, carry-results-outward, make-the-checklist, check-tools-live, run-accounts, run-social-posting, run-replies, run-short-videos, run-articles, run-search-engines, record-search-engines, gather-buyer-words, run-landing-page, run-price-tests, record-price-tests, run-funnel-and-baseline, run-brand-and-emails, run-payments, run-paid-access, record-paid-access, run-course, run-community, run-member-billing, run-onboarding, run-retention-and-referral, run-legal-and-support, run-payment-recovery, run-launch-proof, close-the-gaps, record-the-buyer-fit-gap, read-the-checklist.",
+    "3. Read what each step hands back; the last step is read-the-checklist."
+  ],
+  "worked_examples": [
+    {
+      "title": "Set up a business to run entirely on Trillion from its first step",
+      "ask": "Run workflow:set-up-a-business-on-trillion.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:set-up-a-business-on-trillion",
+              "business_name": "<business_name: The business's public name, in the person's words>",
+              "owner_name": "<owner_name: The person who owns the business and approves its posts>",
+              "owner_email": "<owner_email: The owner's own email address, used for tests>",
+              "first_offer_name": "<first_offer_name: The first thing the business sells>",
+              "first_offer_price_text": "<first_offer_price_text: The first offer's price in the person's words, for example '$49 once'>",
+              "channels": [
+                "instagram"
+              ],
+              "posts_per_day": "<posts_per_day: How many posts a day, from 1 to 5>",
+              "currency": "<currency: Three-letter currency code, for example USD>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:set-up-a-business-on-trillion",
+      "step": "write-the-business-facts",
+      "hands_back": "Step write-the-business-facts answers with facts_written, fields_missing.",
+      "given": "The person gives: business_name, owner_name, owner_email, first_offer_name, first_offer_price_text, posts_per_day, currency (shown as <name> in the input)."
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "example": {
+      "kit_list": "list:business-setup-checklist",
+      "into": {
+        "list": "list:my-business-setup-checklist",
+        "row_type": "record:setup-stage",
+        "fields": [
+          {
+            "id": "stage",
+            "label": "Stage"
+          },
+          {
+            "id": "label",
+            "label": "Stage name"
+          },
+          {
+            "id": "status",
+            "label": "Status"
+          },
+          {
+            "id": "steps_status",
+            "label": "Steps"
+          },
+          {
+            "id": "gaps",
+            "label": "Gaps"
+          },
+          {
+            "id": "updated_at",
+            "label": "Updated"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "draft": true,
+  "drafted_from": "tool:cut-and-caption's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:cut-and-caption with files, from, to.\" Cut one stretch out of a video and burn in its spoken words as captions",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:cut-and-caption"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:cut-and-caption\", and give it files, from, to.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:cut-and-caption and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields result, files."
+  ],
+  "worked_examples": [
+    {
+      "title": "Cut a clip and caption it on a sample input",
+      "ask": "Run tool:cut-and-caption.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:cut-and-caption",
+            "input": {
+              "files": [
+                {
+                  "name": "source.mp4",
+                  "identity": "<identity: The clip's identity in your files (1f: then 64 hex)>",
+                  "bytes": "<bytes: integer>"
+                }
+              ],
+              "from": "<from: Start of the clip>",
+              "to": "<to: End of the clip>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields result, files.",
+      "given": "The person gives: identity, bytes, from, to (shown as <name> in the input)."
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "draft": true,
+  "drafted_from": "tool:keep-what-my-devices-report-about-themselves's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:keep-what-my-devices-report-about-themselves with reports.\" Keep the facts a new person's devices report about themselves (which cameras a computer sees, whether a phone's switches are on), each report replacing that device's facts, so a setup checklist can tick itself from them",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:keep-what-my-devices-report-about-themselves"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:keep-what-my-devices-report-about-themselves\", and give it reports.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:keep-what-my-devices-report-about-themselves and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields answers, devices, changed."
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep what my devices report about themselves on a sample input",
+      "ask": "Run tool:keep-what-my-devices-report-about-themselves.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-what-my-devices-report-about-themselves",
+            "input": {
+              "now": "2026-11-04T09:00:00Z",
+              "reports": [
+                {
+                  "device": "Test Mac",
+                  "facts": {
+                    "camera.count": "2",
+                    "mic.on": "yes"
+                  }
+                },
+                {
+                  "device": "Test Phone",
+                  "device_id": "phone-1",
+                  "source": "app",
+                  "generation": 1,
+                  "facts": {
+                    "notifications": "on"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields answers, devices, changed."
+    }
+  ]
+}

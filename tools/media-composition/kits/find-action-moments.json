@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:find-action-moments's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:find-action-moments with video.\" Find where the action happens in a video, such as the moment a ball is hit, and give each moment's time in seconds",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:find-action-moments"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:find-action-moments\", and give it video.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-action-moments and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields result."
+  ],
+  "worked_examples": [
+    {
+      "title": "Find action moments in a video on a sample input",
+      "ask": "Run tool:find-action-moments.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:find-action-moments",
+            "input": {
+              "video": "<video: The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields result.",
+      "given": "The person gives: video (shown as <name> in the input)."
+    }
+  ]
+}

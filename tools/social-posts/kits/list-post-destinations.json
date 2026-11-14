@@ -1,0 +1,36 @@
+{
+  "draft": true,
+  "drafted_from": "tool:list-post-destinations's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:list-post-destinations with nothing more.\" List the accounts this person can post to, each ready or not and why, and each place they have no account for yet",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:list-post-destinations",
+    "tool:draft-a-post"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:list-post-destinations\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-post-destinations and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.said contains \"connect\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Where a post can go on a sample input",
+      "ask": "Run tool:list-post-destinations.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:list-post-destinations",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "The answer's $.said contains \"connect\"."
+    }
+  ]
+}

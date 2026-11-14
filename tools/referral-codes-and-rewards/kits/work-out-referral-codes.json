@@ -1,0 +1,62 @@
+{
+  "draft": true,
+  "drafted_from": "tool:work-out-referral-codes's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:work-out-referral-codes with events.\" See which referral codes are live, what a friend who types one gets, and what each sale earns under my referral reward rules",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:work-out-referral-codes",
+    "tool:give-referral-rewards"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:work-out-referral-codes\", and give it events.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:work-out-referral-codes and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.checked[0].rewards[0].cents contains \"200\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Work out referral codes on a sample input",
+      "ask": "Run tool:work-out-referral-codes.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:work-out-referral-codes",
+            "input": {
+              "events": [
+                {
+                  "kind": "referral_code_created",
+                  "subject": "account:ada",
+                  "material": {
+                    "event_type": "referral_code_created",
+                    "referral_code": "BREAD-7K3Q",
+                    "target": {
+                      "on": "product_id",
+                      "value": "loaf"
+                    },
+                    "occurred_at": "2026-01-01T00:00:00Z"
+                  }
+                }
+              ],
+              "codes": [
+                "bread-7k3q"
+              ],
+              "sales": [
+                {
+                  "id": "sale-1",
+                  "product_id": "loaf",
+                  "amount_cents": 2000
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.checked[0].rewards[0].cents contains \"200\"."
+    }
+  ]
+}

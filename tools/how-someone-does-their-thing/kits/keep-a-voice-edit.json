@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:keep-a-voice-edit's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:keep-a-voice-edit with before, after.\" Keep what the person changed in words an AI wrote for them, so their voice is learned from it",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:keep-a-voice-edit"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:keep-a-voice-edit\", and give it before, after.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:keep-a-voice-edit and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $ contains \"\"edit\":null\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep the person's edit of an AI's words on a sample input",
+      "ask": "Run tool:keep-a-voice-edit.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-a-voice-edit",
+            "input": {
+              "before": "Same words.",
+              "after": "Same words."
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $ contains \"\"edit\":null\"."
+    }
+  ]
+}

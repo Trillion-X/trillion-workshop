@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:ask-what-was-said's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:ask-what-was-said with listening, conversation.\" Tell me what was said in a listening since I last asked, once what was said before my question is written down",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:ask-what-was-said"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:ask-what-was-said\", and give it listening, conversation.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:ask-what-was-said and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields listening, conversation, lines, flushed, live, heard_until, waited_ms, cursor."
+  ],
+  "worked_examples": [
+    {
+      "title": "What was said since this conversation last asked on a sample input",
+      "ask": "Run tool:ask-what-was-said.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:ask-what-was-said",
+            "input": {
+              "listening": "sample-meeting",
+              "conversation": "sample-conversation",
+              "wait_seconds": 0
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields listening, conversation, lines, flushed, live, heard_until, waited_ms, cursor."
+    }
+  ]
+}

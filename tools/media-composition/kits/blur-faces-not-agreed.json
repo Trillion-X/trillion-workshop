@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:blur-faces-not-agreed's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:blur-faces-not-agreed with video.\" Make a copy of a video with every face blurred and every word silenced except those of the people who agreed to be filmed, before it is posted or shared",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:blur-faces-not-agreed"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:blur-faces-not-agreed\", and give it video.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:blur-faces-not-agreed and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields result, files."
+  ],
+  "worked_examples": [
+    {
+      "title": "Blur and silence everyone who has not agreed to be filmed on a sample input",
+      "ask": "Run tool:blur-faces-not-agreed.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:blur-faces-not-agreed",
+            "input": {
+              "video": "<video: The video, by its identity in your files>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields result, files.",
+      "given": "The person gives: video (shown as <name> in the input)."
+    }
+  ]
+}

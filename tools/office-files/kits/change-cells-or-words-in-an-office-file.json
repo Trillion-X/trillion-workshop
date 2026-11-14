@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "tool:change-cells-or-words-in-an-office-file's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:change-cells-or-words-in-an-office-file with file, rules, output.\" Change the cells of a spreadsheet or the words of a Word document by rules, and write a new file that keeps every other part, style and chart as it was",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:change-cells-or-words-in-an-office-file",
+    "tool:read-an-office-file"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:change-cells-or-words-in-an-office-file\", and give it file, rules, output.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:change-cells-or-words-in-an-office-file and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields rules, written, warning."
+  ],
+  "worked_examples": [
+    {
+      "title": "Change cells or words in a spreadsheet or document, keeping everything else (runs on your computer) on a sample input",
+      "ask": "Run tool:change-cells-or-words-in-an-office-file.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:change-cells-or-words-in-an-office-file",
+            "input": {
+              "file": "<file: Path of the xlsx or docx file to read>",
+              "rules": "<rules: Path of the JSON rules file>",
+              "output": "<output: Path of the new file to write>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields rules, written, warning.",
+      "given": "The person gives: file, rules, output (shown as <name> in the input)."
+    }
+  ]
+}

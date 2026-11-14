@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:dictate's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:dictate with nothing more.\" Turn dictated words into clean text for the app the person is in (spoken commands, the app's style, their dictionary and snippets), give the hearing prompt that biases recognition, learn from the person's edit, and keep their dictionary, snippets and dictation history",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:dictate",
+    "tool:ask-a-model",
+    "tool:type-dictated-text"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:dictate\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:dictate and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result holds the result: Turn dictated words into clean text for the app the person is in (spoken commands, the app's style, their dictionary and snippets), give the hearing prompt that biases recognition, learn from the person's edit, and keep their dictionary, snippets and dictation history"
+  ],
+  "worked_examples": [
+    {
+      "title": "Dictation text and dictionary on a sample input",
+      "ask": "Run tool:dictate.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:dictate",
+            "input": {
+              "action": "clean",
+              "text": "hello from ada example um period"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result holds the result: Turn dictated words into clean text for the app the person is in (spoken commands, the app's style, their dictionary and snippets), give the hearing prompt that biases recognition, learn from the person's edit, and keep their dictionary, snippets and dictation history"
+    }
+  ]
+}

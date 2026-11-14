@@ -1,0 +1,35 @@
+{
+  "draft": true,
+  "drafted_from": "tool:make-a-frame-contact-sheet-of-a-video-section's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:make-a-frame-contact-sheet-of-a-video-section with nothing more.\" Take a short part of a video, from a link or a file, and lay out one frame every few seconds on a single picture so I can see what happens in it",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:make-a-frame-contact-sheet-of-a-video-section"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:make-a-frame-contact-sheet-of-a-video-section\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:make-a-frame-contact-sheet-of-a-video-section and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Take a short part of a video, from a link or a file, and lay out one frame every few seconds on a single picture so I can see what happens in it"
+  ],
+  "worked_examples": [
+    {
+      "title": "Make one picture of the frames of a short part of a video (runs on your computer) on a sample input",
+      "ask": "Run tool:make-a-frame-contact-sheet-of-a-video-section.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:make-a-frame-contact-sheet-of-a-video-section",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Take a short part of a video, from a link or a file, and lay out one frame every few seconds on a single picture so I can see what happens in it"
+    }
+  ]
+}

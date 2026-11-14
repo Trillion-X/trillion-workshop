@@ -1,0 +1,45 @@
+{
+  "draft": true,
+  "drafted_from": "tool:answer-the-search-page-route's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:answer-the-search-page-route with path, method.\" Answer the page's one search (GET /work/api/search) over every list, record and file name I keep",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:answer-the-search-page-route",
+    "tool:search-everything-in-a-small-container"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:answer-the-search-page-route\", and give it path, method.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:answer-the-search-page-route and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.body.results[0].found_in[0] contains \"written\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Answer the search page route on a sample input",
+      "ask": "Run tool:answer-the-search-page-route.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:answer-the-search-page-route",
+            "input": {
+              "path": "/search",
+              "method": "GET",
+              "query": {
+                "q": "merlinfalcon",
+                "sources": "trillion"
+              },
+              "body": {},
+              "browser": {}
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.body.results[0].found_in[0] contains \"written\"."
+    }
+  ]
+}

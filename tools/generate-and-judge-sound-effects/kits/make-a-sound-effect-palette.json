@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:make-a-sound-effect-palette's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:make-a-sound-effect-palette with palette, root, out.\" Render my sound-effect palette from its sources and trims, and check each finished sound by ear",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:make-a-sound-effect-palette"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:make-a-sound-effect-palette\", and give it palette, root, out.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:make-a-sound-effect-palette and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Render my sound-effect palette from its sources and trims, and check each finished sound by ear"
+  ],
+  "worked_examples": [
+    {
+      "title": "Make a sound-effect palette from trimmed sources and read each sound back (runs on your computer) on a sample input",
+      "ask": "Run tool:make-a-sound-effect-palette.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:make-a-sound-effect-palette",
+            "input": {
+              "palette": "<palette: PALETTE.json>",
+              "root": "<root: The folder the sources are relative to>",
+              "out": "<out: The palette folder written>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Render my sound-effect palette from its sources and trims, and check each finished sound by ear",
+      "given": "The person gives: palette, root, out (shown as <name> in the input)."
+    }
+  ]
+}

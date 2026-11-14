@@ -1,0 +1,47 @@
+{
+  "draft": true,
+  "drafted_from": "tool:pace-sends-from-an-inbox's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:pace-sends-from-an-inbox with time_zone, recipients.\" Say when each address on a list may be emailed from one sending inbox, so a new inbox warms up slowly, sends only on chosen days and hours, and stops when its mail bounces",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:pace-sends-from-an-inbox",
+    "tool:sort-bounces-and-replies"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:pace-sends-from-an-inbox\", and give it time_zone, recipients.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:pace-sends-from-an-inbox and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.schedule[0].local contains \"saturday 2026-11-07 08:00\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Pace sends from an inbox on a sample input",
+      "ask": "Run tool:pace-sends-from-an-inbox.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:pace-sends-from-an-inbox",
+            "input": {
+              "pacing": "saturday-local",
+              "time_zone": "America/Chicago",
+              "now": "2026-11-04T15:00:00Z",
+              "recipients": [
+                "owner@example.com",
+                "info@example.org"
+              ],
+              "suppressed": [
+                "info@example.org"
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.schedule[0].local contains \"saturday 2026-11-07 08:00\"."
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "draft": true,
+  "drafted_from": "tool:turn-signed-events-into-effects-once's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:turn-signed-events-into-effects-once with op, descriptor_ref, replies.\" Turn signed events into the effects their installed rules name, each effect once, from a verifier answer given in the input, and list a subject's effects from a reader answer given in the input, showing every call that would be sent",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:turn-signed-events-into-effects-once"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:turn-signed-events-into-effects-once\", and give it op, descriptor_ref, replies.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:turn-signed-events-into-effects-once and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields admitted_count, effects, request_id, write_replies, account_id, sent."
+  ],
+  "worked_examples": [
+    {
+      "title": "Turn signed events into their effects, once each on a sample input",
+      "ask": "Run tool:turn-signed-events-into-effects-once.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:turn-signed-events-into-effects-once",
+            "input": {
+              "op": "admit",
+              "descriptor_ref": "signed-event-effects.payment-provider-event-accepted.v1",
+              "request_id": "req-sample-1",
+              "events": [
+                {
+                  "payload": {
+                    "event_id": "event:sample-1",
+                    "namespace": "payments.sample",
+                    "occurred_at": "2026-11-01T10:00:00Z",
+                    "idempotency_key": "idem-sample-1",
+                    "facts": [
+                      {
+                        "fact_id": "fact:sample-1",
+                        "subject": "person:sample-a",
+                        "relation": "payment.confirmed",
+                        "object": "order:sample-7",
+                        "attributes": {
+                          "provider_event_id": "evt_sample_0001",
+                          "amount_minor": 1200,
+                          "currency": "EUR"
+                        }
+                      }
+                    ]
+                  },
+                  "proof": {
+                    "signer_id": "signer:sample",
+                    "signature_hex": "00ff"
+                  }
+                }
+              ],
+              "replies": {
+                "payment-provider.verified-webhook-event": {
+                  "evaluation": {
+                    "event_hashes": {
+                      "event:sample-1": "1f:sample-hash"
+                    }
+                  }
+                },
+                "person-effect-store": {
+                  "written": true
+                }
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields admitted_count, effects, request_id, write_replies, account_id, sent."
+    }
+  ]
+}

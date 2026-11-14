@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:approve-a-pairing-code's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:approve-a-pairing-code with code.\" Let a waiting sender's messages through by approving the pairing code they were given",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:approve-a-pairing-code"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:approve-a-pairing-code\", and give it code.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:approve-a-pairing-code and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields source_id, sender, said."
+  ],
+  "worked_examples": [
+    {
+      "title": "Approve a pairing code on a sample input",
+      "ask": "Run tool:approve-a-pairing-code.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:approve-a-pairing-code",
+            "input": {
+              "code": "ab23 cd45",
+              "source_id": "events:sample"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields source_id, sender, said."
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "draft": true,
+  "drafted_from": "tool:add-work-item's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:add-work-item with tree, item.\" Add a requested item to a work tree, keeping who asked for it and in which message, without adding it twice",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:add-work-item"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:add-work-item\", and give it tree, item.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:add-work-item and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.tree.children[2].title contains \"Email the list\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Add a requested item to a work tree on a sample input",
+      "ask": "Run tool:add-work-item.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:add-work-item",
+            "input": {
+              "tree": {
+                "id": "launch",
+                "title": "Launch",
+                "children": [
+                  {
+                    "id": "site",
+                    "title": "Site",
+                    "children": [
+                      {
+                        "id": "copy",
+                        "title": "Write the copy",
+                        "state": "done",
+                        "verified_by": "published at /; 3 sections render"
+                      },
+                      {
+                        "id": "pay",
+                        "title": "Take payments",
+                        "state": "done"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "ads",
+                    "title": "Run ads",
+                    "state": "blocked",
+                    "blocked_by": "ad account not approved"
+                  }
+                ]
+              },
+              "item": {
+                "id": "email-the-list",
+                "title": "Email the list",
+                "said": [
+                  {
+                    "session": "chat-1",
+                    "ordinal": 4
+                  }
+                ],
+                "checks": [
+                  "one send reaches the list"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.tree.children[2].title contains \"Email the list\"."
+    }
+  ]
+}

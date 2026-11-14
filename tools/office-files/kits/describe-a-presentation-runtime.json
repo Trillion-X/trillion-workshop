@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:describe-a-presentation-runtime's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:describe-a-presentation-runtime with runtime_module, deck.\" Print the property names a presentation runtime exposes on one slide, one shape's text and the speaker notes, so an edit request is written against the real names",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:describe-a-presentation-runtime"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:describe-a-presentation-runtime\", and give it runtime_module, deck.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:describe-a-presentation-runtime and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields slide, shape, shapeText, speakerNotes."
+  ],
+  "worked_examples": [
+    {
+      "title": "List what a presentation runtime exposes on a slide, a shape and the notes (runs on your computer) on a sample input",
+      "ask": "Run tool:describe-a-presentation-runtime.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:describe-a-presentation-runtime",
+            "input": {
+              "runtime_module": "<runtime_module: Path of the presentation runtime module>",
+              "deck": "<deck: Path of a presentation file>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields slide, shape, shapeText, speakerNotes.",
+      "given": "The person gives: runtime_module, deck (shown as <name> in the input)."
+    }
+  ]
+}

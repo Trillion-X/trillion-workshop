@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:reserve-a-spend-within-budget's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:reserve-a-spend-within-budget with spend_authority_ref, operation_ref, estimated_cost.\" Before my AI spends money, check the spend against my budget and reserve it, or refuse it",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:reserve-a-spend-within-budget"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:reserve-a-spend-within-budget\", and give it spend_authority_ref, operation_ref, estimated_cost.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:reserve-a-spend-within-budget and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields approved, reason, idempotent, budget_check, budget_reservation, spend_snapshot."
+  ],
+  "worked_examples": [
+    {
+      "title": "Reserve a spend within budget on a sample input",
+      "ask": "Run tool:reserve-a-spend-within-budget.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:reserve-a-spend-within-budget",
+            "input": {
+              "spend_authority_ref": "spend-authority:sample-research",
+              "operation_ref": "operation:sample-report",
+              "estimated_cost": 250,
+              "idempotency_key": "idem:sample-one"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields approved, reason, idempotent, budget_check, budget_reservation, spend_snapshot."
+    }
+  ]
+}

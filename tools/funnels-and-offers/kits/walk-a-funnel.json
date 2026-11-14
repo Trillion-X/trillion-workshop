@@ -1,0 +1,77 @@
+{
+  "draft": true,
+  "drafted_from": "tool:walk-a-funnel's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:walk-a-funnel with graphs, nodes.\" Read a sales funnel's offers and see the price a buyer is shown and where an outcome such as buying or declining takes them next",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:walk-a-funnel"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:walk-a-funnel\", and give it graphs, nodes.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:walk-a-funnel and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.advance.target contains \"extra\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Walk a sales funnel on a sample input",
+      "ask": "Run tool:walk-a-funnel.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:walk-a-funnel",
+            "input": {
+              "graphs": [
+                {
+                  "id": "graph:ladder",
+                  "entry_node": "front"
+                }
+              ],
+              "nodes": [
+                {
+                  "id": "front",
+                  "entry": true,
+                  "offer": {
+                    "amount_cents": 900,
+                    "name": "Loaf"
+                  },
+                  "transitions": [
+                    {
+                      "on": "purchase",
+                      "to": "extra"
+                    },
+                    {
+                      "on": "decline",
+                      "to": "exit"
+                    }
+                  ]
+                },
+                {
+                  "id": "extra",
+                  "offer": {
+                    "amount_cents": 400,
+                    "name": "Jam"
+                  },
+                  "transitions": [
+                    {
+                      "on": "purchase",
+                      "to": "done"
+                    }
+                  ]
+                }
+              ],
+              "at": "front",
+              "outcome": "purchase"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.advance.target contains \"extra\"."
+    }
+  ]
+}

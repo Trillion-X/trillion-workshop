@@ -1,0 +1,60 @@
+{
+  "draft": true,
+  "drafted_from": "tool:pull-my-signal-messages's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:pull-my-signal-messages with self_id, conversations.\" Pull the Signal conversations my client printed into my own records",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:pull-my-signal-messages",
+    "tool:read-what-i-pulled-from-an-account"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:pull-my-signal-messages\", and give it self_id, conversations.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:pull-my-signal-messages and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields source, account, status, self_id, threads, items, new_messages, new_items."
+  ],
+  "worked_examples": [
+    {
+      "title": "Pull the Signal conversations my client printed into my own records on a sample input",
+      "ask": "Run tool:pull-my-signal-messages.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:pull-my-signal-messages",
+            "input": {
+              "account": "sample",
+              "self_id": "sample-self",
+              "conversations": [
+                {
+                  "id": "sample-conversation-1",
+                  "name": "Made Up Friend",
+                  "type": "private",
+                  "messages": [
+                    {
+                      "id": "sample-message-1",
+                      "timestamp": 1793534400000,
+                      "from": "sample-self",
+                      "body": "Does Thursday work?"
+                    },
+                    {
+                      "id": "sample-message-2",
+                      "timestamp": 1793534700000,
+                      "from": "made-up-friend",
+                      "body": "Sounds good."
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields source, account, status, self_id, threads, items, new_messages, new_items."
+    }
+  ]
+}

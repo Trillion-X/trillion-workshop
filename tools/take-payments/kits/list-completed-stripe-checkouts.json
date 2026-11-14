@@ -1,0 +1,37 @@
+{
+  "draft": true,
+  "drafted_from": "tool:list-completed-stripe-checkouts's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:list-completed-stripe-checkouts with created_after_unix.\" List every completed Stripe checkout since a time, payment links included, so each buyer can be followed up once",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:list-completed-stripe-checkouts"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:list-completed-stripe-checkouts\", and give it created_after_unix.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-completed-stripe-checkouts and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields checkouts, complete, next_created_after_unix."
+  ],
+  "worked_examples": [
+    {
+      "title": "List completed Stripe checkouts on a sample input",
+      "ask": "Run tool:list-completed-stripe-checkouts.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:list-completed-stripe-checkouts",
+            "input": {
+              "created_after_unix": 1793664000
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields checkouts, complete, next_created_after_unix."
+    }
+  ]
+}

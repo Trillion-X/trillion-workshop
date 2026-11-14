@@ -1,0 +1,116 @@
+{
+  "draft": true,
+  "drafted_from": "tool:work-out-where-a-learner-stands's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:work-out-where-a-learner-stands with tracks.\" See how far a learner is along a course, lesson plan or learning path, which step comes next, and what they last showed",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:work-out-where-a-learner-stands"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:work-out-where-a-learner-stands\", and give it tracks.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:work-out-where-a-learner-stands and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.views[0].statusLabel contains \"Keep building\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Work out where a learner stands on a track on a sample input",
+      "ask": "Run tool:work-out-where-a-learner-stands.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:work-out-where-a-learner-stands",
+            "input": {
+              "learner_id": "learner:1",
+              "tracks": [
+                {
+                  "kind": "progress-track",
+                  "trackId": "track:bread",
+                  "label": "Baking bread"
+                }
+              ],
+              "steps": [
+                {
+                  "kind": "progress-step",
+                  "stepId": "step:knead",
+                  "trackId": "track:bread",
+                  "label": "Knead the dough",
+                  "sortOrder": 1
+                },
+                {
+                  "kind": "progress-step",
+                  "stepId": "step:proof",
+                  "trackId": "track:bread",
+                  "label": "Proof the loaf",
+                  "sortOrder": 2
+                },
+                {
+                  "kind": "progress-step",
+                  "stepId": "step:bake",
+                  "trackId": "track:bread",
+                  "label": "Bake",
+                  "sortOrder": 3
+                }
+              ],
+              "states": [
+                {
+                  "kind": "progress-state",
+                  "stateId": "state:1",
+                  "learnerId": "learner:1",
+                  "trackId": "track:bread",
+                  "revision": 1,
+                  "currentStepId": "step:proof",
+                  "completedStepIds": [
+                    "step:knead"
+                  ],
+                  "evaluationReceiptRefs": [
+                    "evaluation::evaluation%3A1"
+                  ],
+                  "updatedAt": "2026-01-01T12:00:00Z"
+                }
+              ],
+              "evaluationReceipts": [
+                {
+                  "kind": "progress-evaluation-receipt",
+                  "evaluationId": "evaluation:1",
+                  "learnerId": "learner:1",
+                  "trackId": "track:bread",
+                  "stepId": "step:knead",
+                  "evidenceRefs": [
+                    "evidence:1"
+                  ],
+                  "measureFactRef": "measure-fact:1",
+                  "measureDefinitionRef": "measure-definition:1",
+                  "decisionKey": "continue",
+                  "decision": {
+                    "completed": true,
+                    "nextStepId": "step:proof"
+                  },
+                  "score": 0.8,
+                  "confidence": 0.9,
+                  "provenance": {
+                    "evaluator": "evaluator:1"
+                  },
+                  "evaluatedAt": "2026-01-01T12:00:00Z"
+                }
+              ],
+              "presentations": [
+                {
+                  "kind": "progress-presentation",
+                  "key": "continue",
+                  "label": "Keep building"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.views[0].statusLabel contains \"Keep building\"."
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "draft": true,
+  "drafted_from": "tool:turn-a-tool-into-live-controls's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:turn-a-tool-into-live-controls with descriptor.\" Turn a tool's inputs into the live controls a person moves, and check the values they moved into the input the tool would run with",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:turn-a-tool-into-live-controls"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:turn-a-tool-into-live-controls\", and give it descriptor.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:turn-a-tool-into-live-controls and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.input.style contains \"soft\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Turn a tool into live controls on a sample input",
+      "ask": "Run tool:turn-a-tool-into-live-controls.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:turn-a-tool-into-live-controls",
+            "input": {
+              "descriptor": {
+                "id": "tool:warm-a-photo",
+                "label": "Warm a photo",
+                "input_schema": {
+                  "type": "object",
+                  "required": [
+                    "photo"
+                  ],
+                  "properties": {
+                    "photo": {
+                      "type": "string",
+                      "format": "namespace-file"
+                    },
+                    "warmth": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1,
+                      "default": 0
+                    },
+                    "style": {
+                      "type": "string",
+                      "enum": [
+                        "soft",
+                        "bold"
+                      ]
+                    }
+                  }
+                },
+                "invoke": {
+                  "kind": "container"
+                }
+              },
+              "bind": {
+                "photo": "photos/beach.jpg"
+              },
+              "values": {
+                "warmth": 0.4,
+                "style": "soft"
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.input.style contains \"soft\"."
+    }
+  ]
+}

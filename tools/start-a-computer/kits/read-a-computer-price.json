@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-a-computer-price's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-a-computer-price with request_file.\" See what a machine for a computer would cost each month before renting it",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-a-computer-price"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-a-computer-price\", and give it request_file.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-a-computer-price and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields provider, placement, price."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read a computer's price on a sample input",
+      "ask": "Run tool:read-a-computer-price.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-a-computer-price",
+            "input": {
+              "request_file": "<request_file: string>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields provider, placement, price.",
+      "given": "The person gives: request_file (shown as <name> in the input)."
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "draft": true,
+  "drafted_from": "tool:list-saved-examples's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:list-saved-examples with nothing more.\" List every example this person saved of posts, videos and pages that worked, newest first, each with its link, words, pictures and why it worked",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:list-saved-examples"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:list-saved-examples\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-saved-examples and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields examples, count."
+  ],
+  "worked_examples": [
+    {
+      "title": "Saved examples on a sample input",
+      "ask": "Run tool:list-saved-examples.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:list-saved-examples",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "An answer with the fields examples, count."
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "tool:set-a-post-to-go-at-its-time's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:set-a-post-to-go-at-its-time with post_id.\" Set an approved post to go out at its scheduled time, once it is ready for every place it is going; nothing is sent now",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:set-a-post-to-go-at-its-time",
+    "tool:check-a-post",
+    "tool:draft-a-post",
+    "tool:read-post-calendar",
+    "tool:take-back-a-post"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:set-a-post-to-go-at-its-time\", and give it post_id.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:set-a-post-to-go-at-its-time and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields post_id, status, post, ready, said."
+  ],
+  "worked_examples": [
+    {
+      "title": "Set a post to go at its time on a sample input",
+      "ask": "Run tool:set-a-post-to-go-at-its-time.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:set-a-post-to-go-at-its-time",
+            "input": {
+              "post_id": "post:sample-1"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields post_id, status, post, ready, said."
+    }
+  ]
+}

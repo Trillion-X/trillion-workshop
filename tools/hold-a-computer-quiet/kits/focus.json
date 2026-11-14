@@ -1,0 +1,37 @@
+{
+  "draft": true,
+  "drafted_from": "tool:focus's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:focus with nothing more.\" Switch Do Not Disturb on the person's computer on or off",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:focus"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:focus\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:focus and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result holds the result: Switch Do Not Disturb on the person's computer on or off"
+  ],
+  "worked_examples": [
+    {
+      "title": "Turn Focus on or off on a sample input",
+      "ask": "Run tool:focus.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:focus",
+            "input": {
+              "on": false
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result holds the result: Switch Do Not Disturb on the person's computer on or off"
+    }
+  ]
+}

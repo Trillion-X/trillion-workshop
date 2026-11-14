@@ -1,0 +1,44 @@
+{
+  "draft": true,
+  "drafted_from": "tool:brief-a-profile's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:brief-a-profile with profile_ref, subject_ref, subject_records.\" Work out how a person or creator does their thing, such as their style or voice, from what they have made or said",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:brief-a-profile",
+    "tool:keep-a-profile"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:brief-a-profile\", and give it profile_ref, subject_ref, subject_records.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:brief-a-profile and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.brief.rules contains \"Use only the supplied subject records.\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Brief a profile of how someone does their thing on a sample input",
+      "ask": "Run tool:brief-a-profile.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:brief-a-profile",
+            "input": {
+              "profile_ref": "profile:bakery-voice",
+              "subject_ref": "baker:1",
+              "subject_records": [
+                {
+                  "text": "Warm loaves, no fuss."
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.brief.rules contains \"Use only the supplied subject records.\"."
+    }
+  ]
+}

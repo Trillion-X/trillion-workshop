@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:see-my-ais's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:see-my-ais with nothing more.\" Show me my AIs and computers: which are live now, what each can do and how many jobs each is doing",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:see-my-ais"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:see-my-ais\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:see-my-ais and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields ais."
+  ],
+  "worked_examples": [
+    {
+      "title": "See my AIs: which are live, what each can do and how many jobs each holds on a sample input",
+      "ask": "Run tool:see-my-ais.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:see-my-ais",
+            "input": {
+              "can": [
+                "code"
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields ais."
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "tool:publish_site's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:publish_site with nothing more.\" Publish a website's pages and files so it can be given its own address",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:publish_site"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:publish_site\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:publish_site and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields installation, files, bytes, suggested_name, llms."
+  ],
+  "worked_examples": [
+    {
+      "title": "Publish a site on a sample input",
+      "ask": "Run tool:publish_site.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:publish_site",
+            "input": {
+              "files": {
+                "index.html": "<title>Field Notes</title><h1>made up</h1>",
+                "style.css": "h1{color:teal}"
+              },
+              "installation": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields installation, files, bytes, suggested_name, llms."
+    }
+  ]
+}

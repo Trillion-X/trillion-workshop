@@ -1,0 +1,37 @@
+{
+  "draft": true,
+  "drafted_from": "tool:list-ended-stripe-subscriptions's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:list-ended-stripe-subscriptions with ended_after_unix.\" List every Stripe subscription that ended since a time, so each customer record can be marked ended once",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:list-ended-stripe-subscriptions"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:list-ended-stripe-subscriptions\", and give it ended_after_unix.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-ended-stripe-subscriptions and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields ended, complete."
+  ],
+  "worked_examples": [
+    {
+      "title": "List ended Stripe subscriptions on a sample input",
+      "ask": "Run tool:list-ended-stripe-subscriptions.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:list-ended-stripe-subscriptions",
+            "input": {
+              "ended_after_unix": 1793664000
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields ended, complete."
+    }
+  ]
+}

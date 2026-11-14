@@ -1,0 +1,48 @@
+{
+  "draft": true,
+  "drafted_from": "tool:report-on-accrual-or-cash's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:report-on-accrual-or-cash with action, list_id, target_kind.\" Read the same rows on an accrual basis (by the date each row is due) and on a cash basis (by the date of each allocation to it) for a period, each figure naming its basis and the rows behind it",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:report-on-accrual-or-cash"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:report-on-accrual-or-cash\", and give it action, list_id, target_kind.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:report-on-accrual-or-cash and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result holds the result: Read the same rows on an accrual basis (by the date each row is due) and on a cash basis (by the date of each allocation to it) for a period, each figure naming its basis and the rows behind it"
+  ],
+  "worked_examples": [
+    {
+      "title": "Report on an accrual or a cash basis on a sample input",
+      "ask": "Run tool:report-on-accrual-or-cash.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:report-on-accrual-or-cash",
+            "input": {
+              "action": "basis",
+              "list_id": "invoices",
+              "target_kind": "record:settle-invoice",
+              "targets": {
+                "amount_field": "total",
+                "date_field": "due"
+              },
+              "allocations": {
+                "list_id": "payments-to-invoices-allocations"
+              },
+              "from": "2026-01-01",
+              "to": "2026-03-31"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result holds the result: Read the same rows on an accrual basis (by the date each row is due) and on a cash basis (by the date of each allocation to it) for a period, each figure naming its basis and the rows behind it"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-what-is-on-screen's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-what-is-on-screen with nothing more.\" Read what the person is doing on their Mac as text from the front window (app, window title, page address and visible words), when they switch apps or windows and every minute, for a short watch, so their AIs keep continuity across the day.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-what-is-on-screen"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-what-is-on-screen\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-what-is-on-screen and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields captures, needs_access, said, error."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read what is on my screen on a sample input",
+      "ask": "Run tool:read-what-is-on-screen.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-what-is-on-screen",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "An answer with the fields captures, needs_access, said, error."
+    }
+  ]
+}

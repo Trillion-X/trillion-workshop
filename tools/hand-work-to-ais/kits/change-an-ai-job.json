@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "tool:change-an-ai-job's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:change-an-ai-job with as, id, action.\" Record what happened to a job one of my AIs took: finish it with its result, say it failed, give it back, say what blocks it, take back one I sent, or remove it",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:change-an-ai-job"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:change-an-ai-job\", and give it as, id, action.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:change-an-ai-job and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields job_id, moved, from, to, reason, job."
+  ],
+  "worked_examples": [
+    {
+      "title": "Finish, fail, give back, withdraw, flag or remove a job handed between my AIs on a sample input",
+      "ask": "Run tool:change-an-ai-job.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:change-an-ai-job",
+            "input": {
+              "as": "ai:sample-taker",
+              "id": "ai-job:sample-1",
+              "action": "finish",
+              "result": "A made-up sample report.",
+              "summary": "Made-up summary"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields job_id, moved, from, to, reason, job."
+    }
+  ]
+}

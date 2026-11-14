@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:run-an-installed-apps-command-line's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:run-an-installed-apps-command-line with app, entry.\" Run the command-line tool that came inside an app I installed, without installing it again",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:run-an-installed-apps-command-line"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:run-an-installed-apps-command-line\", and give it app, entry.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:run-an-installed-apps-command-line and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Run the command-line tool that came inside an app I installed, without installing it again"
+  ],
+  "worked_examples": [
+    {
+      "title": "Run the command line an installed app keeps inside itself (runs on your computer) on a sample input",
+      "ask": "Run tool:run-an-installed-apps-command-line.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-an-installed-apps-command-line",
+            "input": {
+              "app": "<app: Where the app is installed, put where {app} is in the command (e.g>",
+              "entry": "<entry: The command-line entry's path inside the app, put where {entry} is in the command (e.g>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Run the command-line tool that came inside an app I installed, without installing it again",
+      "given": "The person gives: app, entry (shown as <name> in the input)."
+    }
+  ]
+}

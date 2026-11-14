@@ -1,0 +1,46 @@
+{
+  "draft": true,
+  "drafted_from": "tool:add-reviewed-videos-to-a-packaging-ledger's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:add-reviewed-videos-to-a-packaging-ledger with root, ledger, source_key, intake, channel_catalog, review, coverage, source_coverage, readback.\" Record the titles, thumbnails, thumbnail words and opening hooks of a channel's videos I reviewed in one ledger, keeping every earlier row exactly as it was",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:add-reviewed-videos-to-a-packaging-ledger"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:add-reviewed-videos-to-a-packaging-ledger\", and give it root, ledger, source_key, intake, channel_catalog, review, coverage, source_coverage, readback.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:add-reviewed-videos-to-a-packaging-ledger and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Record the titles, thumbnails, thumbnail words and opening hooks of a channel's videos I reviewed in one ledger, keeping every earlier row exactly as it was"
+  ],
+  "worked_examples": [
+    {
+      "title": "Add or update reviewed videos in my video-packaging ledger without touching any other row (runs on your computer) on a sample input",
+      "ask": "Run tool:add-reviewed-videos-to-a-packaging-ledger.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:add-reviewed-videos-to-a-packaging-ledger",
+            "input": {
+              "root": "<root: The folder every other path is relative to (the person's own working folder that holds the ledger, captions, metadata, thumbnails and review notes), put where {root} is in the command>",
+              "ledger": "<ledger: The packaging ledger: a JSON Lines file, one row per video (video_id, source_key, channel, titles, thumbnail identity and review, caption file references, hook evidence locators), put where {ledger} is in the command>",
+              "source_key": "<source_key: The source key: the name the person gives one channel or playlist batch in the ledger, put where {source_key} is in the command>",
+              "intake": "<intake: The intake manifest JSON ({videos: [{video_id, title, metadata_path, transcript_path}]}), put where {intake} is in the command>",
+              "channel_catalog": "<channel_catalog: The channel catalog JSON ({channel_id, channel_name, entries: [{video_id, title, url, duration_seconds}]}), put where {channel_catalog} is in the command>",
+              "review": "<review: The review record JSON ({items: [{video_id, image_path, image_bytes, image_blake3, thumbnail_words, composition, title_thumbnail_relation, opening_evidence, internal_hook_evidence}]}), put where {review} is in the command>",
+              "coverage": "<coverage: The coverage summary JSON this ledger keeps beside it, put where {coverage} is in the command>",
+              "source_coverage": "<source_coverage: The per-source coverage list JSON, put where {source_coverage} is in the command>",
+              "readback": "<readback: Where to write the read-back JSON of what changed, put where {readback} is in the command>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Record the titles, thumbnails, thumbnail words and opening hooks of a channel's videos I reviewed in one ledger, keeping every earlier row exactly as it was",
+      "given": "The person gives: root, ledger, source_key, intake, channel_catalog, review, coverage, source_coverage, readback (shown as <name> in the input)."
+    }
+  ]
+}

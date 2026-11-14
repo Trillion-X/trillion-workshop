@@ -1,0 +1,37 @@
+{
+  "draft": true,
+  "drafted_from": "tool:clone-speech-that-repair-could-not-fix's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:clone-speech-that-repair-could-not-fix with nothing more.\" Where the speech in a recording is still unusable after cleaning, say the same words again in the speaker's own voice, with the same timing",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:clone-speech-that-repair-could-not-fix",
+    "tool:grade-and-repair-speech-audio",
+    "tool:pick-the-cleanest-speech-to-clone-from"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:clone-speech-that-repair-could-not-fix\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:clone-speech-that-repair-could-not-fix and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Where the speech in a recording is still unusable after cleaning, say the same words again in the speaker's own voice, with the same timing"
+  ],
+  "worked_examples": [
+    {
+      "title": "Re-voice the spans that are still bad, in the speaker's own voice (runs on your computer) on a sample input",
+      "ask": "Run tool:clone-speech-that-repair-could-not-fix.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:clone-speech-that-repair-could-not-fix",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Where the speech in a recording is still unusable after cleaning, say the same words again in the speaker's own voice, with the same timing"
+    }
+  ]
+}

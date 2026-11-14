@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:list-my-youtube-videos's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:list-my-youtube-videos with account_id, playlist_id.\" List the videos of the person's own YouTube channel, public, unlisted and private as the connection allows, with each video's title and privacy status",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:list-my-youtube-videos",
+    "tool:check-the-youtube-connection"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:list-my-youtube-videos\", and give it account_id, playlist_id.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-my-youtube-videos and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $ holds the result: List the videos of the person's own YouTube channel, public, unlisted and private as the connection allows, with each video's title and privacy status"
+  ],
+  "worked_examples": [
+    {
+      "title": "List my YouTube videos on a sample input",
+      "ask": "Run tool:list-my-youtube-videos.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:list-my-youtube-videos",
+            "input": {
+              "account_id": "<account_id: One of the person's accounts of this kind, service_connection:youtube or service_connection:youtube:<account>>",
+              "playlist_id": "<playlist_id: The channel's uploads playlist id, from tool:check-the-youtube-connection>"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $ holds the result: List the videos of the person's own YouTube channel, public, unlisted and private as the connection allows, with each video's title and privacy status",
+      "given": "The person gives: account_id, playlist_id (shown as <name> in the input)."
+    }
+  ]
+}

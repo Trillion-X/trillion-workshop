@@ -1,0 +1,37 @@
+{
+  "draft": true,
+  "drafted_from": "tool:let_go_of_site_address's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:let_go_of_site_address with host.\" Stop a website answering at one of its addresses",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:let_go_of_site_address"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:let_go_of_site_address\", and give it host.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:let_go_of_site_address and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields let_go, origins."
+  ],
+  "worked_examples": [
+    {
+      "title": "Let go of a site address on a sample input",
+      "ask": "Run tool:let_go_of_site_address.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:let_go_of_site_address",
+            "input": {
+              "host": "field-notes.trillion.run"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields let_go, origins."
+    }
+  ]
+}

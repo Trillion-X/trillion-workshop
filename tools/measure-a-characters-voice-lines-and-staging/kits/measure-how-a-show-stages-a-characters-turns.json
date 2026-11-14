@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "tool:measure-how-a-show-stages-a-characters-turns's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:measure-how-a-show-stages-a-characters-turns with ids, data_folder, youtube_folder.\" Measure how a video is cut and scored around a character's turns: whether a cut lands on the turn, how short the shots are inside the exchanges, and whether the music stops just before",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:measure-how-a-show-stages-a-characters-turns"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:measure-how-a-show-stages-a-characters-turns\", and give it ids, data_folder, youtube_folder.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:measure-how-a-show-stages-a-characters-turns and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result holds the result: Measure how a video is cut and scored around a character's turns: whether a cut lands on the turn, how short the shots are inside the exchanges, and whether the music stops just before"
+  ],
+  "worked_examples": [
+    {
+      "title": "Measure how a video stages a character's turns: cuts, shot lengths and music stop-downs (runs on your computer) on a sample input",
+      "ask": "Run tool:measure-how-a-show-stages-a-characters-turns.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:measure-how-a-show-stages-a-characters-turns",
+            "input": {
+              "ids": [
+                "vid-a"
+              ],
+              "data_folder": "{grant:change-a-folder}/show",
+              "youtube_folder": "{grant:change-a-folder}/youtube"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result holds the result: Measure how a video is cut and scored around a character's turns: whether a cut lands on the turn, how short the shots are inside the exchanges, and whether the music stops just before"
+    }
+  ]
+}

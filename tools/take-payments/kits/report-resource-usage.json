@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:report-resource-usage's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:report-resource-usage with settlement_id, settlement_version, payer_id, agreement_ref.\" Report exact reconciled usage once to its purchased subscription, retaining fractional carry and unknown-outcome recovery",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:report-resource-usage"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:report-resource-usage\", and give it settlement_id, settlement_version, payer_id, agreement_ref.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:report-resource-usage and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields report_id, state, payer_id, currency, cash_amount, payment_state."
+  ],
+  "worked_examples": [
+    {
+      "title": "Report resource usage on a sample input",
+      "ask": "Run tool:report-resource-usage.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:report-resource-usage",
+            "input": {
+              "agreement_ref": "usage-billing-agreement:sample",
+              "payer_id": "payer:sample-a",
+              "settlement_id": "pool-sample-2026-10",
+              "settlement_version": 1
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields report_id, state, payer_id, currency, cash_amount, payment_state."
+    }
+  ]
+}

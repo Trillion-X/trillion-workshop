@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:find-similar-by-meaning's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:find-similar-by-meaning with index_id, query_text.\" Find the moments in my recordings or documents whose words or transcript are closest in meaning to what I ask, and say the file and time of each",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:find-similar-by-meaning"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:find-similar-by-meaning\", and give it index_id, query_text.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-similar-by-meaning and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields index_id, model_id, model_version, result, points_to."
+  ],
+  "worked_examples": [
+    {
+      "title": "Find what is closest in meaning to some words on a sample input",
+      "ask": "Run tool:find-similar-by-meaning.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:find-similar-by-meaning",
+            "input": {
+              "index_id": "synthetic-words",
+              "query_text": "a made-up question"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields index_id, model_id, model_version, result, points_to."
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "draft": true,
+  "drafted_from": "tool:keep-forum-posts-from-a-public-archive's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:keep-forum-posts-from-a-public-archive with forums.\" Keep the newest posts of the forums I name (subreddits), with their titles, words, scores and comment counts, from a public archive of the site",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:keep-forum-posts-from-a-public-archive",
+    "tool:collect-and-rank-viewer-questions"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:keep-forum-posts-from-a-public-archive\", and give it forums.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:keep-forum-posts-from-a-public-archive and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields stopped, forums, failed, again."
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep the latest posts of forums I name on a sample input",
+      "ask": "Run tool:keep-forum-posts-from-a-public-archive.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-forum-posts-from-a-public-archive",
+            "input": {
+              "forums": [
+                {
+                  "name": "baking",
+                  "group": "home-bakers"
+                }
+              ],
+              "pages": 1
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields stopped, forums, failed, again."
+    }
+  ]
+}

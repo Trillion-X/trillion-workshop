@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:find-similar-to-a-vector's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:find-similar-to-a-vector with index_id, query_vector_base64.\" Find the moments in my recordings, pictures or documents closest in meaning to a query vector, such as the picture vector of some words, and say the file and time of each",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:find-similar-to-a-vector",
+    "tool:words-as-picture-vector"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:find-similar-to-a-vector\", and give it index_id, query_vector_base64.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-similar-to-a-vector and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields index_id, model_id, model_version, result, points_to."
+  ],
+  "worked_examples": [
+    {
+      "title": "Find what is closest to a vector on a sample input",
+      "ask": "Run tool:find-similar-to-a-vector.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:find-similar-to-a-vector",
+            "input": {
+              "index_id": "synthetic-pictures",
+              "query_vector_base64": "eyJ2ZWN0b3IiOlsxLDAsMCwwXX0="
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields index_id, model_id, model_version, result, points_to."
+    }
+  ]
+}

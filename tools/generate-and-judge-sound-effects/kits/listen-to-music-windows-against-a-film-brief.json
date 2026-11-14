@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:listen-to-music-windows-against-a-film-brief's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:listen-to-music-windows-against-a-film-brief with brief, out.\" Judge each music excerpt by ear against my film's section words and a reference stem",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:listen-to-music-windows-against-a-film-brief"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:listen-to-music-windows-against-a-film-brief\", and give it brief, out.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:listen-to-music-windows-against-a-film-brief and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Judge each music excerpt by ear against my film's section words and a reference stem"
+  ],
+  "worked_examples": [
+    {
+      "title": "Listen to music excerpts against my film's sections (runs on your computer) on a sample input",
+      "ask": "Run tool:listen-to-music-windows-against-a-film-brief.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:listen-to-music-windows-against-a-film-brief",
+            "input": {
+              "brief": "<brief: BRIEF.json: {sections, alts, reference: {stem, sections}}>",
+              "out": "<out: find_music_windows' folder>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Judge each music excerpt by ear against my film's section words and a reference stem",
+      "given": "The person gives: brief, out (shown as <name> in the input)."
+    }
+  ]
+}

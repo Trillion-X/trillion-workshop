@@ -1,0 +1,42 @@
+{
+  "draft": true,
+  "drafted_from": "tool:compose-a-writing-instruction's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:compose-a-writing-instruction with nothing more.\" Build the exact instruction to write something from a writing recipe and the person's material, before writing it",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:compose-a-writing-instruction",
+    "tool:check-writing-against-its-recipe",
+    "tool:list-writing-recipes"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:compose-a-writing-instruction\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:compose-a-writing-instruction and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.instruction_text contains \"Send the invites by Friday.\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Build the instruction to write from on a sample input",
+      "ask": "Run tool:compose-a-writing-instruction.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:compose-a-writing-instruction",
+            "input": {
+              "recipe_id": "writing-recipe:action-items",
+              "work_item": {
+                "text": "Book the hall. Maybe think about snacks someday. Send the invites by Friday."
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.instruction_text contains \"Send the invites by Friday.\"."
+    }
+  ]
+}

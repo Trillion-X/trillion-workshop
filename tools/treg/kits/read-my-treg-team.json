@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-my-treg-team's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-my-treg-team with account.\" Read the treg team a connection's token belongs to, with the team's number that its balance is read by",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-my-treg-team",
+    "tool:read-my-treg-balance"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-my-treg-team\", and give it account.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-my-treg-team and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields org_id."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read which treg team my connection pays from on a sample input",
+      "ask": "Run tool:read-my-treg-team.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-my-treg-team",
+            "input": {
+              "account": "<account: Which of the person's treg connections, by its id: service_connection:treg, or service_connection:treg:<account>>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields org_id.",
+      "given": "The person gives: account (shown as <name> in the input)."
+    }
+  ]
+}

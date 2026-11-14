@@ -1,0 +1,65 @@
+{
+  "draft": true,
+  "drafted_from": "tool:settle-shared-resource-cost's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:settle-shared-resource-cost with settlement_id, request_key, settlement_key, invoice, payers.\" Allocate one verified supplier invoice among its attributed excess users under purchased limits, with separate platform expense, explicit funding gaps and exact subcent amounts; nothing is sent to a payment provider",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:settle-shared-resource-cost"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:settle-shared-resource-cost\", and give it settlement_id, request_key, settlement_key, invoice, payers.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:settle-shared-resource-cost and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields record_id, settlement."
+  ],
+  "worked_examples": [
+    {
+      "title": "Settle shared resource cost on a sample input",
+      "ask": "Run tool:settle-shared-resource-cost.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:settle-shared-resource-cost",
+            "input": {
+              "settlement_id": "pool-sample-2026-10",
+              "request_key": "sample-settle",
+              "settlement_key": {
+                "supplier_pool": "pool:sample",
+                "tariff_version": "tariff:sample-1",
+                "cost_class": "source-transfer",
+                "invoice_period": "2026-10",
+                "currency": "usd",
+                "resource_id": "resource:source-bytes"
+              },
+              "invoice": {
+                "status": "confirmed",
+                "amount": "1",
+                "evidence_ref": "supplier:invoice:sample"
+              },
+              "payers": [
+                {
+                  "payer_id": "payer:sample-a",
+                  "kind": "customer",
+                  "excess_units": "1",
+                  "max_unit_cost": "1",
+                  "authorized_total": "1000",
+                  "terms": {
+                    "resource_id": "resource:source-bytes",
+                    "rule_ref": "usage-pricing-rule:rule%3Asample:v1",
+                    "markup_bps": "3000"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields record_id, settlement."
+    }
+  ]
+}

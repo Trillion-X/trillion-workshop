@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:answer-in-a-community's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:answer-in-a-community with community_id, person, kind.\" Give a community's matchmaker what it asked for: a member's answers and on/off switch, an AI's cited scores for its shortlist, a person's yes or no to an introduction, first topics, or that they wrote in the one-to-one",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:answer-in-a-community"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:answer-in-a-community\", and give it community_id, person, kind.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:answer-in-a-community and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.error contains \"No community sample-verify-community\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Answer a community's matchmaker: profile, scores, yes or no, topics, wrote on a sample input",
+      "ask": "Run tool:answer-in-a-community.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:answer-in-a-community",
+            "input": {
+              "community_id": "sample-verify-community",
+              "person": "sample-person",
+              "kind": "profile",
+              "answers": {}
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.error contains \"No community sample-verify-community\"."
+    }
+  ]
+}

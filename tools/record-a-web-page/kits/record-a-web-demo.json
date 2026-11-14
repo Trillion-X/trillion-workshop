@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:record-a-web-demo's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:record-a-web-demo with url, steps.\" Record a web page as a demo video with a large clear pointer, click ripples and zoom, plus marked screenshots of each step for an article or post",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:record-a-web-demo"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:record-a-web-demo\", and give it url, steps.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:record-a-web-demo and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields result, files."
+  ],
+  "worked_examples": [
+    {
+      "title": "Record a demo of a web page on a sample input",
+      "ask": "Run tool:record-a-web-demo.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:record-a-web-demo",
+            "input": {
+              "url": "<url: The page to open first, like https://gettrillion.ai/>",
+              "steps": []
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields result, files.",
+      "given": "The person gives: url (shown as <name> in the input)."
+    }
+  ]
+}

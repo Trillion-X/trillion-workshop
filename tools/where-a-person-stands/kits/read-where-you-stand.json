@@ -1,0 +1,73 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-where-you-stand's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-where-you-stand with versions, next.\" See whether a person agrees, disagrees or partly agrees with one thing made for them, in their own words, with every time they changed their mind",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-where-you-stand"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-where-you-stand\", and give it versions, next.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-where-you-stand and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.stand.why contains \"reads as generic\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read where you stand on things on a sample input",
+      "ask": "Run tool:read-where-you-stand.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-where-you-stand",
+            "input": {
+              "versions": [
+                {
+                  "version": 2,
+                  "value": {
+                    "type": "stance",
+                    "id": "stance:title:1f:0000000000000000000000000000000000000000000000000000000000000001",
+                    "kind": "title",
+                    "artifact": "1f:0000000000000000000000000000000000000000000000000000000000000001",
+                    "text": "Start here",
+                    "stance": "disagree",
+                    "said": "You disagree with this.",
+                    "why": "reads as generic",
+                    "by": "person",
+                    "at": "2026-01-01T13:00:00.000Z"
+                  },
+                  "deleted": false,
+                  "at": "2026-01-01T13:00:00.000Z"
+                },
+                {
+                  "version": 1,
+                  "value": {
+                    "type": "stance",
+                    "id": "stance:title:1f:0000000000000000000000000000000000000000000000000000000000000001",
+                    "kind": "title",
+                    "artifact": "1f:0000000000000000000000000000000000000000000000000000000000000001",
+                    "text": "Start here",
+                    "stance": "agree",
+                    "said": "You agree with this.",
+                    "why": "good",
+                    "by": "person",
+                    "at": "2026-01-01T11:00:00.000Z"
+                  },
+                  "deleted": false,
+                  "at": "2026-01-01T11:00:00.000Z"
+                }
+              ],
+              "next": null
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.stand.why contains \"reads as generic\"."
+    }
+  ]
+}

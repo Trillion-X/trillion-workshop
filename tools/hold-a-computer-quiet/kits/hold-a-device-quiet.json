@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:hold-a-device-quiet's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:hold-a-device-quiet with nothing more.\" Turn Focus on and keep distracting apps closed on the person's computer until a set time, for a work session, a meeting or bedtime",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:hold-a-device-quiet"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:hold-a-device-quiet\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:hold-a-device-quiet and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result holds the result: Turn Focus on and keep distracting apps closed on the person's computer until a set time, for a work session, a meeting or bedtime"
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep a device quiet until a time on a sample input",
+      "ask": "Run tool:hold-a-device-quiet.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:hold-a-device-quiet",
+            "input": {
+              "apps": [
+                "Messages"
+              ],
+              "minutes": 0.00001
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result holds the result: Turn Focus on and keep distracting apps closed on the person's computer until a set time, for a work session, a meeting or bedtime"
+    }
+  ]
+}

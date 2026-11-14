@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "tool:google-account-modify_mail's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:google-account-modify_mail with connection, message_id.\" Add or remove Gmail labels on one message.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:google-account-modify_mail"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:google-account-modify_mail\", and give it connection, message_id.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:google-account-modify_mail and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields id, labelIds."
+  ],
+  "worked_examples": [
+    {
+      "title": "Organize email on a sample input",
+      "ask": "Run tool:google-account-modify_mail.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:google-account-modify_mail",
+            "input": {
+              "connection": {
+                "connection_id": "<connection_id: The Google account to use: service_connection:google-account or service_connection:google-account:<account>, as the person's connections list it>"
+              },
+              "message_id": "<message_id: string>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields id, labelIds.",
+      "given": "The person gives: connection_id, message_id (shown as <name> in the input)."
+    }
+  ]
+}

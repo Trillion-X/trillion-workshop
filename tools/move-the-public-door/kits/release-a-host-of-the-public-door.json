@@ -1,0 +1,37 @@
+{
+  "draft": true,
+  "drafted_from": "tool:release-a-host-of-the-public-door's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:release-a-host-of-the-public-door with lease.\" Remove the server and SSH key one of my public door's host leases rented, and only those",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:release-a-host-of-the-public-door"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:release-a-host-of-the-public-door\", and give it lease.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:release-a-host-of-the-public-door and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.state contains \"removed\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Release a host of the public door on a sample input",
+      "ask": "Run tool:release-a-host-of-the-public-door.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:release-a-host-of-the-public-door",
+            "input": {
+              "lease": "host-lease-door-two"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.state contains \"removed\"."
+    }
+  ]
+}

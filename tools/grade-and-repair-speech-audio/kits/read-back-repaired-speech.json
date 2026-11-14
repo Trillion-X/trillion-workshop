@@ -1,0 +1,37 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-back-repaired-speech's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-back-repaired-speech with nothing more.\" Read back every span in a graded folder with a speech transcriber and count the words that differ from what should be said",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-back-repaired-speech",
+    "tool:clone-speech-that-repair-could-not-fix",
+    "tool:grade-and-repair-speech-audio"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-back-repaired-speech\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-back-repaired-speech and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Read back every span in a graded folder with a speech transcriber and count the words that differ from what should be said"
+  ],
+  "worked_examples": [
+    {
+      "title": "Check by listening that every cleaned-up or re-voiced span still says the right words (runs on your computer) on a sample input",
+      "ask": "Run tool:read-back-repaired-speech.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-back-repaired-speech",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Read back every span in a graded folder with a speech transcriber and count the words that differ from what should be said"
+    }
+  ]
+}

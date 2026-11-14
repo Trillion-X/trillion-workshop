@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "tool:pin-files-by-content's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:pin-files-by-content with action, root, pin_file, folder.\" Check that a pin file records each DATA file's exact byte count and BLAKE3, or bring the pins up to the files, so a program that reads them can refuse a file that changed after it was pinned",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:pin-files-by-content"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:pin-files-by-content\", and give it action, root, pin_file, folder.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:pin-files-by-content and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Check that a pin file records each DATA file's exact byte count and BLAKE3, or bring the pins up to the files, so a program that reads them can refuse a file that changed after it was pinned"
+  ],
+  "worked_examples": [
+    {
+      "title": "Check or update the pins of a folder of DATA files on a sample input",
+      "ask": "Run tool:pin-files-by-content.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:pin-files-by-content",
+            "input": {
+              "action": "check",
+              "root": "<root: The repository or granted folder; the other paths are under it>",
+              "pin_file": "<pin_file: The pin file, under root>",
+              "folder": "<folder: The folder of pinned files, under root>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Check that a pin file records each DATA file's exact byte count and BLAKE3, or bring the pins up to the files, so a program that reads them can refuse a file that changed after it was pinned",
+      "given": "The person gives: root, pin_file, folder (shown as <name> in the input)."
+    }
+  ]
+}

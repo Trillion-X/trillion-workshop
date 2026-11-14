@@ -1,0 +1,35 @@
+{
+  "draft": true,
+  "drafted_from": "tool:site_addresses's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:site_addresses with nothing more.\" List the addresses my published websites answer at",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:site_addresses"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:site_addresses\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:site_addresses and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields origins, told."
+  ],
+  "worked_examples": [
+    {
+      "title": "My site addresses on a sample input",
+      "ask": "Run tool:site_addresses.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:site_addresses",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "An answer with the fields origins, told."
+    }
+  ]
+}

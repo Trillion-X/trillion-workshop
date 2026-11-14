@@ -1,0 +1,67 @@
+{
+  "draft": true,
+  "drafted_from": "tool:observe-live-usage's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:observe-live-usage with request_key, payer_id, day_from, day_to, today, settlement_keys.\" Read my account's own usage day rows (stored bytes, work time, source bytes the engine counted) and keep each closed day as one usage observation per billed resource, ready to settle",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:observe-live-usage"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:observe-live-usage\", and give it request_key, payer_id, day_from, day_to, today, settlement_keys.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:observe-live-usage and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields observation_refs, quantities, missing_days."
+  ],
+  "worked_examples": [
+    {
+      "title": "Observe my live usage on a sample input",
+      "ask": "Run tool:observe-live-usage.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:observe-live-usage",
+            "input": {
+              "request_key": "sample-usage-1",
+              "payer_id": "payer:sample",
+              "day_from": "2026-11-01",
+              "day_to": "2026-11-02",
+              "today": "2026-11-04",
+              "settlement_keys": {
+                "meter:stored-gigabytes": {
+                  "supplier_pool": "pool:sample",
+                  "tariff_version": "tariff:sample",
+                  "cost_class": "meter:stored-gigabytes",
+                  "invoice_period": "2026-11",
+                  "currency": "usd",
+                  "resource_id": "meter:stored-gigabytes"
+                },
+                "meter:service-work": {
+                  "supplier_pool": "pool:sample",
+                  "tariff_version": "tariff:sample",
+                  "cost_class": "meter:service-work",
+                  "invoice_period": "2026-11",
+                  "currency": "usd",
+                  "resource_id": "meter:service-work"
+                },
+                "resource:source-bytes": {
+                  "supplier_pool": "pool:sample",
+                  "tariff_version": "tariff:sample",
+                  "cost_class": "resource:source-bytes",
+                  "invoice_period": "2026-11",
+                  "currency": "usd",
+                  "resource_id": "resource:source-bytes"
+                }
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields observation_refs, quantities, missing_days."
+    }
+  ]
+}

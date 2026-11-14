@@ -1,0 +1,63 @@
+{
+  "draft": true,
+  "drafted_from": "tool:plan-the-address-a-live-camera-streams-to's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:plan-the-address-a-live-camera-streams-to with key.\" Work out how a live camera's stream would be received: the address this computer listens on for the camera's own key, the FFmpeg listener it is taken with, and a public RTMPS address through Tailscale Funnel that never takes a port serving something else",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:plan-the-address-a-live-camera-streams-to"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:plan-the-address-a-live-camera-streams-to\", and give it key.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:plan-the-address-a-live-camera-streams-to and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.public.address contains \"rtmps://sample-mac.example-tailnet.ts.net:8443/live\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Plan the address a live camera streams to on a sample input",
+      "ask": "Run tool:plan-the-address-a-live-camera-streams-to.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:plan-the-address-a-live-camera-streams-to",
+            "input": {
+              "key": "sample-key-abc123xyz",
+              "port": 1935,
+              "output": [
+                "-c",
+                "copy",
+                "-f",
+                "flv",
+                "rtmp://ingest.example.com/live/{service key}"
+              ],
+              "funnel": {
+                "name": "sample-mac.example-tailnet.ts.net.",
+                "ports": [
+                  443,
+                  8443,
+                  10000
+                ],
+                "status": {
+                  "TCP": {
+                    "10000": {
+                      "TCPForward": "127.0.0.1:9000"
+                    }
+                  },
+                  "Web": {
+                    "sample-mac.example-tailnet.ts.net:443": {}
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.public.address contains \"rtmps://sample-mac.example-tailnet.ts.net:8443/live\"."
+    }
+  ]
+}

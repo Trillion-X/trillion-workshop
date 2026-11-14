@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:forget-voice's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:forget-voice with nothing more.\" Forget part of what is kept about how this person writes",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:forget-voice",
+    "tool:read-voice"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:forget-voice\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:forget-voice and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.forgot contains \"1\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Forget how someone writes on a sample input",
+      "ask": "Run tool:forget-voice.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:forget-voice",
+            "input": {
+              "all_edits": true
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.forgot contains \"1\"."
+    }
+  ]
+}

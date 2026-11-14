@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:forget-a-person-in-a-community's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:forget-a-person-in-a-community with community_id, person.\" Erase a person from a community's matching: what they told it, every match naming them, their asks, answers and jobs, and their place and scores on other members' shortlists and score jobs",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:forget-a-person-in-a-community"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:forget-a-person-in-a-community\", and give it community_id, person.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:forget-a-person-in-a-community and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.error contains \"No community sample-verify-community\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Forget a person in a community's matchmaker on a sample input",
+      "ask": "Run tool:forget-a-person-in-a-community.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:forget-a-person-in-a-community",
+            "input": {
+              "community_id": "sample-verify-community",
+              "person": "sample-person"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.error contains \"No community sample-verify-community\"."
+    }
+  ]
+}

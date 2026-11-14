@@ -1,0 +1,48 @@
+{
+  "draft": true,
+  "drafted_from": "tool:keep-a-profile's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:keep-a-profile with profile_ref, subject_ref, derived_items.\" Keep the profile of how a person does their thing, so drafts made for them are shaped by it and checked against it",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:keep-a-profile"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:keep-a-profile\", and give it profile_ref, subject_ref, derived_items.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:keep-a-profile and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.profile.id contains \"profile:bakery-voice\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep a profile of how someone does their thing on a sample input",
+      "ask": "Run tool:keep-a-profile.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-a-profile",
+            "input": {
+              "profile_ref": "profile:bakery-voice",
+              "subject_ref": "baker:1",
+              "derived_items": [
+                {
+                  "kind": "tone",
+                  "value": "warm",
+                  "evidence": "post:1"
+                }
+              ],
+              "evaluator_refs": [
+                "evaluator:tone"
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.profile.id contains \"profile:bakery-voice\"."
+    }
+  ]
+}

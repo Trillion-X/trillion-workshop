@@ -1,0 +1,45 @@
+{
+  "draft": true,
+  "drafted_from": "tool:upload-a-file-to-a-signed-slot's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:upload-a-file-to-a-signed-slot with file, content_type, slot.\" Upload one file from a folder the person granted to a signed storage slot a page hands over, only to a destination the tool's own list allows, so the page never sees the file",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:upload-a-file-to-a-signed-slot"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:upload-a-file-to-a-signed-slot\", and give it file, content_type, slot.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:upload-a-file-to-a-signed-slot and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields sent, size, said."
+  ],
+  "worked_examples": [
+    {
+      "title": "Upload a file to a signed storage slot on a sample input",
+      "ask": "Run tool:upload-a-file-to-a-signed-slot.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:upload-a-file-to-a-signed-slot",
+            "input": {
+              "file": "notes.txt",
+              "content_type": "text/plain",
+              "slot": {
+                "url": "https://uploads.sample-storage.example/sample-bucket/notes.txt",
+                "fields": {
+                  "key": "notes.txt",
+                  "policy": "made-up-policy"
+                }
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields sent, size, said."
+    }
+  ]
+}

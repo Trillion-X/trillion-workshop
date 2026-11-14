@@ -1,0 +1,58 @@
+{
+  "draft": true,
+  "drafted_from": "tool:assess-wikimedia-commons-file-reuse's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:assess-wikimedia-commons-file-reuse with file.\" Check one Commons file's exact original license fields, exclude unsupported rights and prepare required source attribution for any objective",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:assess-wikimedia-commons-file-reuse"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:assess-wikimedia-commons-file-reuse\", and give it file.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:assess-wikimedia-commons-file-reuse and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.eligible_for_selection contains \"true\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Assess Commons file reuse and prepare credit on a sample input",
+      "ask": "Run tool:assess-wikimedia-commons-file-reuse.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:assess-wikimedia-commons-file-reuse",
+            "input": {
+              "file": {
+                "title": "File:Example.jpg",
+                "imageinfo": [
+                  {
+                    "descriptionurl": "https://commons.wikimedia.org/wiki/File:Example.jpg",
+                    "extmetadata": {
+                      "Title": {
+                        "value": "Example"
+                      },
+                      "Artist": {
+                        "value": "A. Author"
+                      },
+                      "LicenseShortName": {
+                        "value": "CC BY 4.0"
+                      },
+                      "LicenseUrl": {
+                        "value": "https://creativecommons.org/licenses/by/4.0/"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.eligible_for_selection contains \"true\"."
+    }
+  ]
+}

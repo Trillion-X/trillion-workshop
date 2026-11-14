@@ -1,0 +1,47 @@
+{
+  "draft": true,
+  "drafted_from": "tool:keep-where-you-stand's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:keep-where-you-stand with kind, stance, answered_by.\" Write down whether a person agrees, disagrees or partly agrees with something made for them, such as a title, a take, a plan or a file, in their own words",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:keep-where-you-stand"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:keep-where-you-stand\", and give it kind, stance, answered_by.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:keep-where-you-stand and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.stance_record.id contains \"stance:title:1f:\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep where you stand on something on a sample input",
+      "ask": "Run tool:keep-where-you-stand.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-where-you-stand",
+            "input": {
+              "kind": "title",
+              "text": "Start Here.",
+              "fold": {
+                "lowercase": true,
+                "collapse_space": true,
+                "strip_trailing": "[.!?]+"
+              },
+              "stance": "partly",
+              "why": "fine for now",
+              "answered_by": "person",
+              "at": "2026-01-01T12:00:00Z"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.stance_record.id contains \"stance:title:1f:\"."
+    }
+  ]
+}

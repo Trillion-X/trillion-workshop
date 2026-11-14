@@ -1,0 +1,43 @@
+{
+  "draft": true,
+  "drafted_from": "tool:post-balanced-entries's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:post-balanced-entries with action, list_id, lines_kind.\" Post an entry of signed lines only when they add to zero, once per entry id, undo it by a new entry with every line negated, and list every entry in a list that does not add to zero",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:post-balanced-entries"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:post-balanced-entries\", and give it action, list_id, lines_kind.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:post-balanced-entries and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result holds the result: Post an entry of signed lines only when they add to zero, once per entry id, undo it by a new entry with every line negated, and list every entry in a list that does not add to zero"
+  ],
+  "worked_examples": [
+    {
+      "title": "Post entries whose lines add to zero on a sample input",
+      "ask": "Run tool:post-balanced-entries.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:post-balanced-entries",
+            "input": {
+              "action": "balance",
+              "list_id": "journal",
+              "lines_kind": "record:settle-journal",
+              "lines": {
+                "amount_field": "amount",
+                "group_field": "entry"
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result holds the result: Post an entry of signed lines only when they add to zero, once per entry id, undo it by a new entry with every line negated, and list every entry in a list that does not add to zero"
+    }
+  ]
+}

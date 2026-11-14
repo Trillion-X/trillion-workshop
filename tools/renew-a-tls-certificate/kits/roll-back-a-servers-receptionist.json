@@ -1,0 +1,44 @@
+{
+  "draft": true,
+  "drafted_from": "tool:roll-back-a-servers-receptionist's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:roll-back-a-servers-receptionist with hostname, address, ssh_port, admin_user, knownHost, host, commit.\" Refuse a release of the receptionist on my public server and go back to the one that was ready",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:roll-back-a-servers-receptionist"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:roll-back-a-servers-receptionist\", and give it hostname, address, ssh_port, admin_user, knownHost, host, commit.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:roll-back-a-servers-receptionist and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields rolled_back, current."
+  ],
+  "worked_examples": [
+    {
+      "title": "Roll back a server's receptionist release on a sample input",
+      "ask": "Run tool:roll-back-a-servers-receptionist.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:roll-back-a-servers-receptionist",
+            "input": {
+              "hostname": "<hostname: string>",
+              "address": "<address: string>",
+              "ssh_port": "<ssh_port: The server's SSH port (22 for a pinned key written as \"<address> ssh-ed25519 <key>\")>",
+              "admin_user": "<admin_user: The administrator the run signs in as>",
+              "knownHost": "<knownHost: string>",
+              "host": {},
+              "commit": "<commit: string>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields rolled_back, current.",
+      "given": "The person gives: hostname, address, ssh_port, admin_user, knownHost, commit (shown as <name> in the input)."
+    }
+  ]
+}

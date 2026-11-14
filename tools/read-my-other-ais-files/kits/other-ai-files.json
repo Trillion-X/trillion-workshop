@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:other-ai-files's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:other-ai-files with nothing more.\" Read the instructions, commands, skills and MCP servers the person already keeps for their other AI apps (Claude Code, Codex, Cursor, Claude Desktop, Gemini CLI, Windsurf), in place, without copying them",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:other-ai-files"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:other-ai-files\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:other-ai-files and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields entries, files, error."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read the files I keep for my other AI apps on a sample input",
+      "ask": "Run tool:other-ai-files.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:other-ai-files",
+            "input": {
+              "source": "claude-code",
+              "read": [
+                "claude-code/instructions/CLAUDE.md"
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields entries, files, error."
+    }
+  ]
+}

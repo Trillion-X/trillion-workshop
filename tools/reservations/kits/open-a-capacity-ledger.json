@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:open-a-capacity-ledger's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:open-a-capacity-ledger with ledger_id, scope_ref, total.\" Set up how many places there are for a class, table, room or any limited thing, so my AI can hold them one by one",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:open-a-capacity-ledger"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:open-a-capacity-ledger\", and give it ledger_id, scope_ref, total.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:open-a-capacity-ledger and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields already_open, ledger_id, state, total, confirmed, waiting."
+  ],
+  "worked_examples": [
+    {
+      "title": "Open a capacity ledger on a sample input",
+      "ask": "Run tool:open-a-capacity-ledger.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:open-a-capacity-ledger",
+            "input": {
+              "ledger_id": "ledger:sample-class",
+              "scope_ref": "scope:sample-class",
+              "total": 2
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields already_open, ledger_id, state, total, confirmed, waiting."
+    }
+  ]
+}

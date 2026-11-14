@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:ask-a-web-address-or-give-the-last-answer's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:ask-a-web-address-or-give-the-last-answer with address, key.\" Ask a web address for its answer and keep that answer; when the address cannot answer, give back the last answer it gave, so a feed or service that is down does not leave the person with nothing",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:ask-a-web-address-or-give-the-last-answer"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:ask-a-web-address-or-give-the-last-answer\", and give it address, key.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:ask-a-web-address-or-give-the-last-answer and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields origin, answer, kept_at, source_failure, keep_failure, kept_failure, retry_after_seconds, said."
+  ],
+  "worked_examples": [
+    {
+      "title": "Ask a web address, or give me the last answer it gave on a sample input",
+      "ask": "Run tool:ask-a-web-address-or-give-the-last-answer.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:ask-a-web-address-or-give-the-last-answer",
+            "input": {
+              "address": "https://feeds.example.test/daily-prices.json",
+              "key": "daily-prices"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields origin, answer, kept_at, source_failure, keep_failure, kept_failure, retry_after_seconds, said."
+    }
+  ]
+}

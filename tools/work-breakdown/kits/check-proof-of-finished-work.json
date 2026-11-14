@@ -1,0 +1,37 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-proof-of-finished-work's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-proof-of-finished-work with evidence.\" Check whether the proof given for a finished task is something someone else could go and check, or just a claim",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-proof-of-finished-work"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-proof-of-finished-work\", and give it evidence.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-proof-of-finished-work and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.response contains \"CHECKABLE\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check the proof behind finished work on a sample input",
+      "ask": "Run tool:check-proof-of-finished-work.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-proof-of-finished-work",
+            "input": {
+              "evidence": "29 tests, 29 pass, 0 fail, in 91ms."
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.response contains \"CHECKABLE\"."
+    }
+  ]
+}

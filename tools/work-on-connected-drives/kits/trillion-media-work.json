@@ -1,0 +1,35 @@
+{
+  "draft": true,
+  "drafted_from": "tool:trillion-media-work's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:trillion-media-work with nothing more.\" List the long file jobs running on this person's computer drives (copies and moves): how far each has got, and whether it can be paused, resumed or stopped now",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:trillion-media-work"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:trillion-media-work\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:trillion-media-work and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result holds the result: List the long file jobs running on this person's computer drives (copies and moves): how far each has got, and whether it can be paused, resumed or stopped now"
+  ],
+  "worked_examples": [
+    {
+      "title": "Drive work in progress on a sample input",
+      "ask": "Run tool:trillion-media-work.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:trillion-media-work",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "The answer's $.result holds the result: List the long file jobs running on this person's computer drives (copies and moves): how far each has got, and whether it can be paused, resumed or stopped now"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:trillion-media-file-places's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:trillion-media-file-places with path.\" Find every other place one file on this person's computer also is (a duplicate): on their other connected drives and in their Trillion space",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:trillion-media-file-places"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:trillion-media-file-places\", and give it path.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:trillion-media-file-places and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result holds the result: Find every other place one file on this person's computer also is (a duplicate): on their other connected drives and in their Trillion space"
+  ],
+  "worked_examples": [
+    {
+      "title": "Where else a file is on a sample input",
+      "ask": "Run tool:trillion-media-file-places.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:trillion-media-file-places",
+            "input": {
+              "path": "<path: A full path on a connected drive, like /Volumes/Drive/DCIM>"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result holds the result: Find every other place one file on this person's computer also is (a duplicate): on their other connected drives and in their Trillion space",
+      "given": "The person gives: path (shown as <name> in the input)."
+    }
+  ]
+}

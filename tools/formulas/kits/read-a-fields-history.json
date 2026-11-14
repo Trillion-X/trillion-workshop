@@ -1,0 +1,64 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-a-fields-history's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-a-fields-history with list, field_id, kept.\" Read one field's history of one row as lines a person reads: each value it held, from when until when, who changed it and by which road",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-a-fields-history"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-a-fields-history\", and give it list, field_id, kept.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-a-fields-history and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.steps[0].said contains \"Sample App\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read a field's history as lines on a sample input",
+      "ask": "Run tool:read-a-fields-history.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-a-fields-history",
+            "input": {
+              "list": {
+                "id": "deals",
+                "fields": [
+                  {
+                    "id": "stage",
+                    "keeps_history": true
+                  }
+                ]
+              },
+              "row_id": "sample",
+              "field_id": "stage",
+              "kept": {
+                "_history": {
+                  "stage": {
+                    "cut": false,
+                    "steps": [
+                      {
+                        "v": "Lead",
+                        "at": "2025-10-09T00:00:00.000Z",
+                        "via": {
+                          "app": "Sample App",
+                          "basis": "client_declared"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.steps[0].said contains \"Sample App\"."
+    }
+  ]
+}

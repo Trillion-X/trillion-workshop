@@ -1,0 +1,47 @@
+{
+  "draft": true,
+  "drafted_from": "tool:take-a-request's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:take-a-request with request, decision.\" Keep one request that arrived, as decided, and ask the owner who should act on it",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:take-a-request"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:take-a-request\", and give it request, decision.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:take-a-request and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.request_id contains \"request-1\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Take a request on a sample input",
+      "ask": "Run tool:take-a-request.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:take-a-request",
+            "input": {
+              "request": {
+                "request_id": "request-1",
+                "source_ref": "source-1",
+                "atom_ref": "atom-1",
+                "text": "Two loaves for Friday.",
+                "origin_ref": "origin-1"
+              },
+              "decision": {
+                "disposition": "recorded",
+                "reason": "A customer asked."
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.request_id contains \"request-1\"."
+    }
+  ]
+}

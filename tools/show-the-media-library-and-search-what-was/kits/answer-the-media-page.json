@@ -1,0 +1,42 @@
+{
+  "draft": true,
+  "drafted_from": "tool:answer-the-media-page's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:answer-the-media-page with path, method.\" Answer the Media page: read and save an edit of my recordings",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:answer-the-media-page"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:answer-the-media-page\", and give it path, method.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:answer-the-media-page and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields status, body."
+  ],
+  "worked_examples": [
+    {
+      "title": "Answer the Media page's saved edits on a sample input",
+      "ask": "Run tool:answer-the-media-page.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:answer-the-media-page",
+            "input": {
+              "path": "/media/edit",
+              "method": "GET",
+              "query": {
+                "id": "sample-cut"
+              },
+              "body": {}
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields status, body."
+    }
+  ]
+}

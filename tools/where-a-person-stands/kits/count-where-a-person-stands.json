@@ -1,0 +1,56 @@
+{
+  "draft": true,
+  "drafted_from": "tool:count-where-a-person-stands's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:count-where-a-person-stands with stands.\" Count the stands a person has taken, by kind of thing and by stand, with how many changed their mind and how many took a stand back",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:count-where-a-person-stands",
+    "tool:read-where-you-stand"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:count-where-a-person-stands\", and give it stands.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:count-where-a-person-stands and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.by_kind.title.agree contains \"1\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Count where a person stands on a sample input",
+      "ask": "Run tool:count-where-a-person-stands.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:count-where-a-person-stands",
+            "input": {
+              "stands": [
+                {
+                  "kind": "title",
+                  "stance": "agree",
+                  "earlier": [
+                    {
+                      "stance": "disagree"
+                    }
+                  ]
+                },
+                {
+                  "kind": "title",
+                  "stance": "disagree"
+                },
+                {
+                  "kind": "voice",
+                  "stance": null
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.by_kind.title.agree contains \"1\"."
+    }
+  ]
+}

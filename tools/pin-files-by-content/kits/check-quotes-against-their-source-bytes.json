@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-quotes-against-their-source-bytes's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-quotes-against-their-source-bytes with bindings, report.\" Check that every quote I took from a source file is still the exact text at the byte range I recorded, in a file whose BLAKE3 is the one I pinned, and find which words of a text are the source's own literal words",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-quotes-against-their-source-bytes"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-quotes-against-their-source-bytes\", and give it bindings, report.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-quotes-against-their-source-bytes and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Check that every quote I took from a source file is still the exact text at the byte range I recorded, in a file whose BLAKE3 is the one I pinned, and find which words of a text are the source's own literal words"
+  ],
+  "worked_examples": [
+    {
+      "title": "Check that quoted words are the exact bytes of their source files on a sample input",
+      "ask": "Run tool:check-quotes-against-their-source-bytes.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-quotes-against-their-source-bytes",
+            "input": {
+              "bindings": "<bindings: The bindings manifest: {schema: 'synthetic-d245bc86d584', sources: [{id, path (absolute), blake3}], quotes: [{id, source_id, text, byte_start, byte_end}]}>",
+              "report": "<report: A new file for the readback; the command refuses to replace one that exists>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Check that every quote I took from a source file is still the exact text at the byte range I recorded, in a file whose BLAKE3 is the one I pinned, and find which words of a text are the source's own literal words",
+      "given": "The person gives: bindings, report (shown as <name> in the input)."
+    }
+  ]
+}

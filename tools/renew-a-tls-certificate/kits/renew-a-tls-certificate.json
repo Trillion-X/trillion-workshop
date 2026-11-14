@@ -1,0 +1,44 @@
+{
+  "draft": true,
+  "drafted_from": "tool:renew-a-tls-certificate's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:renew-a-tls-certificate with hostname, address, ssh_port, admin_user, knownHost, host.\" Renew the certificate of my server's public address before it runs out, and check every DNS record stayed as it was",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:renew-a-tls-certificate",
+    "tool:set-up-a-servers-tls-owner"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:renew-a-tls-certificate\", and give it hostname, address, ssh_port, admin_user, knownHost, host.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:renew-a-tls-certificate and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields hostname, certificate_present, system_trust_and_hostname_verified, not_before_local, not_after_local, issuer, serial, private_key_mode."
+  ],
+  "worked_examples": [
+    {
+      "title": "Renew a server's TLS certificate on a sample input",
+      "ask": "Run tool:renew-a-tls-certificate.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:renew-a-tls-certificate",
+            "input": {
+              "hostname": "<hostname: The server's public address, like app.example.com>",
+              "address": "<address: The server's IPv4 address>",
+              "ssh_port": "<ssh_port: The server's SSH port (22 for a pinned key written as \"<address> ssh-ed25519 <key>\")>",
+              "admin_user": "<admin_user: The administrator the run signs in as>",
+              "knownHost": "<knownHost: The server's pinned SSH key: \"<address> ssh-ed25519 <key>\">",
+              "host": {}
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields hostname, certificate_present, system_trust_and_hostname_verified, not_before_local, not_after_local, issuer, serial, private_key_mode.",
+      "given": "The person gives: hostname, address, ssh_port, admin_user, knownHost (shown as <name> in the input)."
+    }
+  ]
+}

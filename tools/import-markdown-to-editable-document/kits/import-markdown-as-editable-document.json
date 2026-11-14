@@ -1,0 +1,37 @@
+{
+  "draft": true,
+  "drafted_from": "tool:import-markdown-as-editable-document's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:import-markdown-as-editable-document with markdown.\" Turn Markdown into the editable document scene tree, keeping its headings, lists, tables, code and source spans",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:import-markdown-as-editable-document"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:import-markdown-as-editable-document\", and give it markdown.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:import-markdown-as-editable-document and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields kind, page, block_count, source_identity, source_provenance, round_trip."
+  ],
+  "worked_examples": [
+    {
+      "title": "Import Markdown as an editable document on a sample input",
+      "ask": "Run tool:import-markdown-as-editable-document.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:import-markdown-as-editable-document",
+            "input": {
+              "markdown": "# Sample\n\nA paragraph.\n"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields kind, page, block_count, source_identity, source_provenance, round_trip."
+    }
+  ]
+}

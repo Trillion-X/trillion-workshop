@@ -1,0 +1,70 @@
+{
+  "draft": true,
+  "drafted_from": "tool:see-what-work-is-ready-to-publish's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:see-what-work-is-ready-to-publish with graph.\" See the finished work waiting to be published as a changelog: which group each piece is in, what can be done with it, what stops it (for example no proof yet) and what was already sent",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:see-what-work-is-ready-to-publish"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:see-what-work-is-ready-to-publish\", and give it graph.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:see-what-work-is-ready-to-publish and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.selectedRecord.blockers[0].message contains \"Add proof first.\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "See what finished work is ready to publish on a sample input",
+      "ask": "Run tool:see-what-work-is-ready-to-publish.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:see-what-work-is-ready-to-publish",
+            "input": {
+              "graph": {
+                "groups": [
+                  {
+                    "id": "group:ready",
+                    "label": "Ready",
+                    "order": 1
+                  }
+                ],
+                "rules": [
+                  {
+                    "id": "rule:proof",
+                    "message": "Add proof first.",
+                    "requires_relationship": "relationship:proof",
+                    "blocks_actions": [
+                      "action:publish"
+                    ]
+                  }
+                ],
+                "actions": [
+                  {
+                    "id": "action:publish",
+                    "label": "Publish",
+                    "method": "invoke",
+                    "target": "owner:any"
+                  }
+                ]
+              },
+              "recordAtoms": [
+                {
+                  "id": "record:1",
+                  "title": "New loaf on Fridays",
+                  "group_id": "group:ready"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.selectedRecord.blockers[0].message contains \"Add proof first.\"."
+    }
+  ]
+}

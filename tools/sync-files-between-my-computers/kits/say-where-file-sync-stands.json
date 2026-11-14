@@ -1,0 +1,53 @@
+{
+  "draft": true,
+  "drafted_from": "tool:say-where-file-sync-stands's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:say-where-file-sync-stands with feed.\" Say where the sync of a person's files on one computer stands: starting, synced, syncing, offline, conflict or error, why Trillion was not reached, and how many saves are still moving",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:say-where-file-sync-stands"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:say-where-file-sync-stands\", and give it feed.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:say-where-file-sync-stands and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.state contains \"syncing\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Say where file sync stands on a sample input",
+      "ask": "Run tool:say-where-file-sync-stands.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:say-where-file-sync-stands",
+            "input": {
+              "feed": {
+                "version": 7,
+                "reached_at": 1792404000000,
+                "failure": null
+              },
+              "writes": {
+                "owing": [
+                  {
+                    "size": 10
+                  },
+                  {
+                    "size": 5
+                  }
+                ],
+                "conflicts": [],
+                "failed": []
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.state contains \"syncing\"."
+    }
+  ]
+}

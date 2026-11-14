@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:tag-a-stripe-subscription's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:tag-a-stripe-subscription with subscription_id, metadata.\" Add notes (metadata) to a buyer Stripe subscription without changing the ones already there",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:tag-a-stripe-subscription"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:tag-a-stripe-subscription\", and give it subscription_id, metadata.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:tag-a-stripe-subscription and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields subscription_id, updated."
+  ],
+  "worked_examples": [
+    {
+      "title": "Tag a Stripe subscription on a sample input",
+      "ask": "Run tool:tag-a-stripe-subscription.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:tag-a-stripe-subscription",
+            "input": {
+              "subscription_id": "sub_sample0001",
+              "metadata": {
+                "follow_up": "sent"
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields subscription_id, updated."
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "draft": true,
+  "drafted_from": "tool:rank-people-by-activity's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:rank-people-by-activity with activity, weights, metrics, levels.\" Rank people by the points their activity earns, all time or over the last days, and give each person their level, like a leaderboard",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:rank-people-by-activity"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:rank-people-by-activity\", and give it activity, weights, metrics, levels.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:rank-people-by-activity and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.ranked[0].person contains \"ana\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Rank people by activity on a sample input",
+      "ask": "Run tool:rank-people-by-activity.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:rank-people-by-activity",
+            "input": {
+              "activity": [
+                {
+                  "person": "ana",
+                  "kind": "post",
+                  "at": "2026-09-26T10:00:00Z"
+                },
+                {
+                  "person": "ana",
+                  "kind": "reply",
+                  "at": "2026-09-26T11:00:00Z"
+                },
+                {
+                  "person": "ben",
+                  "kind": "reply",
+                  "at": "2026-09-01T10:00:00Z"
+                },
+                {
+                  "person": "ben",
+                  "kind": "reply",
+                  "at": "2026-09-25T10:00:00Z"
+                }
+              ],
+              "weights": {
+                "post": 5,
+                "reply": 1
+              },
+              "metrics": [
+                {
+                  "key": "all_time",
+                  "label": "All time",
+                  "lookback_days": null,
+                  "order": 0
+                },
+                {
+                  "key": "week",
+                  "label": "Last 7 days",
+                  "lookback_days": 7,
+                  "order": 1
+                }
+              ],
+              "levels": [
+                {
+                  "level": 1,
+                  "name": "New",
+                  "min_points": 0
+                },
+                {
+                  "level": 2,
+                  "name": "Regular",
+                  "min_points": 5
+                }
+              ],
+              "rank_by": "all_time",
+              "now": "2026-09-27T12:00:00Z"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.ranked[0].person contains \"ana\"."
+    }
+  ]
+}

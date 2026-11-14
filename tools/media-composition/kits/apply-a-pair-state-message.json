@@ -1,0 +1,49 @@
+{
+  "draft": true,
+  "drafted_from": "tool:apply-a-pair-state-message's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:apply-a-pair-state-message with session, message.\" Update a multi-camera recording session when one device (a camera, a watch, a remote control) joins, leaves, reports its state or hands over the primary role",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:apply-a-pair-state-message"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:apply-a-pair-state-message\", and give it session, message.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:apply-a-pair-state-message and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.session.primary contains \"camera-one\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Apply a device's message to a recording session on a sample input",
+      "ask": "Run tool:apply-a-pair-state-message.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:apply-a-pair-state-message",
+            "input": {
+              "session": {
+                "id": "session-sample",
+                "states": [
+                  "idle",
+                  "recording"
+                ]
+              },
+              "message": {
+                "session": "session-sample",
+                "device": "camera-one",
+                "type": "join",
+                "role": "primary"
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.session.primary contains \"camera-one\"."
+    }
+  ]
+}

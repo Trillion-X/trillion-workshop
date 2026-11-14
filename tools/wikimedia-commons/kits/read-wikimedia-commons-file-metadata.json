@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-wikimedia-commons-file-metadata's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-wikimedia-commons-file-metadata with file_title.\" Read one Commons file's original license, author, title, source URL and rights metadata for any objective before selecting it for use",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-wikimedia-commons-file-metadata"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-wikimedia-commons-file-metadata\", and give it file_title.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-wikimedia-commons-file-metadata and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields query."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read Wikimedia Commons file metadata on a sample input",
+      "ask": "Run tool:read-wikimedia-commons-file-metadata.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-wikimedia-commons-file-metadata",
+            "input": {
+              "file_title": "<file_title: Exact `File:` page title, such as `File:Example.jpg`>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields query.",
+      "given": "The person gives: file_title (shown as <name> in the input)."
+    }
+  ]
+}

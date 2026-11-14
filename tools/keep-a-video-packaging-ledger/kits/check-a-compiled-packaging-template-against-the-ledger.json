@@ -1,0 +1,43 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-a-compiled-packaging-template-against-the-ledger's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-a-compiled-packaging-template-against-the-ledger with root, ledger, source_key, compiled, output.\" Check that the template made from my packaging ledger joins back to the right videos, files and caption events, and that nothing from the earlier version was lost",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-a-compiled-packaging-template-against-the-ledger",
+    "tool:make-a-word-template"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-a-compiled-packaging-template-against-the-ledger\", and give it root, ledger, source_key, compiled, output.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-compiled-packaging-template-against-the-ledger and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Check that the template made from my packaging ledger joins back to the right videos, files and caption events, and that nothing from the earlier version was lost"
+  ],
+  "worked_examples": [
+    {
+      "title": "Check that a template built from my packaging ledger still matches the ledger and lost nothing (runs on your computer) on a sample input",
+      "ask": "Run tool:check-a-compiled-packaging-template-against-the-ledger.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-a-compiled-packaging-template-against-the-ledger",
+            "input": {
+              "root": "<root: The folder every other path is relative to (the person's own working folder that holds the ledger, captions, metadata, thumbnails and review notes), put where {root} is in the command>",
+              "ledger": "<ledger: The packaging ledger: a JSON Lines file, one row per video (video_id, source_key, channel, titles, thumbnail identity and review, caption file references, hook evidence locators), put where {ledger} is in the command>",
+              "source_key": "<source_key: The source key: the name the person gives one channel or playlist batch in the ledger, put where {source_key} is in the command>",
+              "compiled": "<compiled: The compiled template JSON, put where {compiled} is in the command>",
+              "output": "<output: Where to write the read-back report JSON, put where {output} is in the command>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Check that the template made from my packaging ledger joins back to the right videos, files and caption events, and that nothing from the earlier version was lost",
+      "given": "The person gives: root, ledger, source_key, compiled, output (shown as <name> in the input)."
+    }
+  ]
+}

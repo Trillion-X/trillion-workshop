@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:score-soundtrack-variants-by-ear's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:score-soundtrack-variants-by-ear with request, variants.\" Score my film's soundtrack variants with earshot: critique, sync to the picture, and how well each sound effect reads at its cue",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:score-soundtrack-variants-by-ear"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:score-soundtrack-variants-by-ear\", and give it request, variants.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:score-soundtrack-variants-by-ear and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Score my film's soundtrack variants with earshot: critique, sync to the picture, and how well each sound effect reads at its cue"
+  ],
+  "worked_examples": [
+    {
+      "title": "Score soundtrack variants of a film by ear at every cue (runs on your computer) on a sample input",
+      "ask": "Run tool:score-soundtrack-variants-by-ear.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:score-soundtrack-variants-by-ear",
+            "input": {
+              "request": "<request: REQUEST.json: {picture, cues, sounds, palette, scores}>",
+              "variants": []
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Score my film's soundtrack variants with earshot: critique, sync to the picture, and how well each sound effect reads at its cue",
+      "given": "The person gives: request (shown as <name> in the input)."
+    }
+  ]
+}

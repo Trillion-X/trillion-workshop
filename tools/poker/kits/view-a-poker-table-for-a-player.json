@@ -1,0 +1,93 @@
+{
+  "draft": true,
+  "drafted_from": "tool:view-a-poker-table-for-a-player's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:view-a-poker-table-for-a-player with room.\" Show a poker table as one player may see it: the board, the pot, each seat, what that player may do now and only that player's own cards",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:view-a-poker-table-for-a-player"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:view-a-poker-table-for-a-player\", and give it room.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:view-a-poker-table-for-a-player and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.phase contains \"lobby\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "See a poker table as one player may see it on a sample input",
+      "ask": "Run tool:view-a-poker-table-for-a-player.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:view-a-poker-table-for-a-player",
+            "input": {
+              "room": {
+                "kind": "poker-room-state",
+                "version": 1,
+                "roomId": "room:sample",
+                "board": [],
+                "config": {
+                  "startingChips": 100,
+                  "smallBlind": 5,
+                  "bigBlind": 10,
+                  "blindMode": "fixed",
+                  "blindIncrease": 0,
+                  "maxPlayers": 9
+                },
+                "handNumber": 0,
+                "holeCards": {},
+                "hostPlayerId": "player-1",
+                "state": {
+                  "phase": "lobby",
+                  "config": {
+                    "startingChips": 100,
+                    "smallBlind": 5,
+                    "bigBlind": 10,
+                    "blindMode": "fixed",
+                    "blindIncrease": 0,
+                    "maxPlayers": 9
+                  },
+                  "players": [
+                    {
+                      "id": "player-1",
+                      "name": "Alder",
+                      "chips": 100,
+                      "currentBet": 0,
+                      "totalCommitted": 0,
+                      "hasActed": false,
+                      "folded": false,
+                      "allIn": false,
+                      "eliminated": false,
+                      "connected": true
+                    }
+                  ],
+                  "communityCards": [],
+                  "dealerIndex": -1,
+                  "smallBlindIndex": -1,
+                  "bigBlindIndex": -1,
+                  "activeIndex": -1,
+                  "pot": 0,
+                  "pots": [],
+                  "currentBet": 0,
+                  "minRaise": 10,
+                  "street": "preflop",
+                  "handNumber": 0,
+                  "smallBlind": 5,
+                  "bigBlind": 10,
+                  "result": null
+                }
+              },
+              "player_id": "player-1"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.phase contains \"lobby\"."
+    }
+  ]
+}

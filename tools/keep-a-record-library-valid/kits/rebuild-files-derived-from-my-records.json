@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:rebuild-files-derived-from-my-records's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:rebuild-files-derived-from-my-records with library, schema, command.\" Rebuild the files that are computed from my source record files, or tell me which of them are out of date, without changing anything",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:rebuild-files-derived-from-my-records"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:rebuild-files-derived-from-my-records\", and give it library, schema, command.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:rebuild-files-derived-from-my-records and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Rebuild the files that are computed from my source record files, or tell me which of them are out of date, without changing anything"
+  ],
+  "worked_examples": [
+    {
+      "title": "Rebuild the files derived from my records, or list which are stale (runs on your computer) on a sample input",
+      "ask": "Run tool:rebuild-files-derived-from-my-records.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:rebuild-files-derived-from-my-records",
+            "input": {
+              "library": "<library: The folder the library's files are relative to, put where {library} is in the command>",
+              "schema": "<schema: The schema file on the person's computer, put where {schema} is in the command>",
+              "command": "<command: Either `rebuild-data --check` to list stale files, or `rebuild-data [--out FOLDER]` to write them>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Rebuild the files that are computed from my source record files, or tell me which of them are out of date, without changing anything",
+      "given": "The person gives: library, schema, command (shown as <name> in the input)."
+    }
+  ]
+}

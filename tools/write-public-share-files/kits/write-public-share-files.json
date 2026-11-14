@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:write-public-share-files's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:write-public-share-files with origin, row_kind.\" Write the public files of every share link of mine that anyone may open, into the folder my public server serves, and remove the files of links I revoked or that expired",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:write-public-share-files"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:write-public-share-files\", and give it origin, row_kind.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:write-public-share-files and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $ contains \"published\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Write the public files of my share links on a sample input",
+      "ask": "Run tool:write-public-share-files.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:write-public-share-files",
+            "input": {
+              "origin": "https://example.com",
+              "row_kind": "record:example"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $ contains \"published\"."
+    }
+  ]
+}

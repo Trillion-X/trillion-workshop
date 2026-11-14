@@ -1,0 +1,35 @@
+{
+  "draft": true,
+  "drafted_from": "tool:github:facebookresearch-demucs's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:github:facebookresearch-demucs with nothing more.\" Separate vocals from music, or split a song into vocals, drums and bass",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:github:facebookresearch-demucs"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:github:facebookresearch-demucs\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:github:facebookresearch-demucs and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Separate vocals from music, or split a song into vocals, drums and bass"
+  ],
+  "worked_examples": [
+    {
+      "title": "demucs (open source, runs on your computer) on a sample input",
+      "ask": "Run tool:github:facebookresearch-demucs.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:github:facebookresearch-demucs",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Separate vocals from music, or split a song into vocals, drums and bass"
+    }
+  ]
+}

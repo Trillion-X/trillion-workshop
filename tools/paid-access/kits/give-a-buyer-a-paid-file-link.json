@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:give-a-buyer-a-paid-file-link's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:give-a-buyer-a-paid-file-link with object_key, subject.\" Give a buyer a short-lived link to a file they paid for, and refuse anyone who has not paid",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:give-a-buyer-a-paid-file-link",
+    "tool:open-a-paid-file-for-a-buyer",
+    "tool:see-who-holds-paid-access"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:give-a-buyer-a-paid-file-link\", and give it object_key, subject.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:give-a-buyer-a-paid-file-link and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.status contains \"unavailable\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Give a buyer a paid file link on a sample input",
+      "ask": "Run tool:give-a-buyer-a-paid-file-link.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:give-a-buyer-a-paid-file-link",
+            "input": {
+              "object_key": "no-such-file.pdf",
+              "subject": "buyer@example.com"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.status contains \"unavailable\"."
+    }
+  ]
+}

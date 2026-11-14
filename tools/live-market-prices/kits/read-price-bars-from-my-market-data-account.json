@@ -1,0 +1,76 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-price-bars-from-my-market-data-account's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-price-bars-from-my-market-data-account with nothing more.\" Read recent price bars (open, high, low, close, volume) and the latest price for symbols from my own market-data account",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-price-bars-from-my-market-data-account"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-price-bars-from-my-market-data-account\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-price-bars-from-my-market-data-account and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields bars, latest, status."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read price bars from my market-data account on a sample input",
+      "ask": "Run tool:read-price-bars-from-my-market-data-account.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-price-bars-from-my-market-data-account",
+            "input": {
+              "feed": {
+                "url": "https://market-data.example.test/v1/bars",
+                "query": {
+                  "timeframe": "5Min"
+                },
+                "query_names": [
+                  "symbols",
+                  "timeframe",
+                  "limit"
+                ],
+                "credential_injections": [
+                  {
+                    "field": "key_id",
+                    "placement": {
+                      "kind": "header",
+                      "name": "X-Sample-Key"
+                    }
+                  },
+                  {
+                    "field": "secret",
+                    "placement": {
+                      "kind": "header",
+                      "name": "X-Sample-Secret"
+                    }
+                  }
+                ],
+                "bars_at": "bars",
+                "fields": {
+                  "timestamp": "t",
+                  "open": "o",
+                  "high": "h",
+                  "low": "l",
+                  "close": "c",
+                  "volume": "v"
+                }
+              },
+              "query": {
+                "symbols": "SAMPLE",
+                "limit": "2"
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields bars, latest, status."
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-peoples-poses-from-a-video's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-peoples-poses-from-a-video with video, out, checkpoint.\" Find the people in a video and where their joints are in every frame, so two movements can be compared",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-peoples-poses-from-a-video"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-peoples-poses-from-a-video\", and give it video, out, checkpoint.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-peoples-poses-from-a-video and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Find the people in a video and where their joints are in every frame, so two movements can be compared"
+  ],
+  "worked_examples": [
+    {
+      "title": "Read where each person's joints are in a video, frame by frame (runs on your computer) on a sample input",
+      "ask": "Run tool:read-peoples-poses-from-a-video.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-peoples-poses-from-a-video",
+            "input": {
+              "video": "<video: The video file, put where {video} is in the command>",
+              "out": "<out: The track file to write, put where {out} is>",
+              "checkpoint": "<checkpoint: Path of a downloaded ultralytics pose model, put where {checkpoint} is>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Find the people in a video and where their joints are in every frame, so two movements can be compared",
+      "given": "The person gives: video, out, checkpoint (shown as <name> in the input)."
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "draft": true,
+  "drafted_from": "tool:prepare-a-match-plan's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:prepare-a-match-plan with operation, plan_shape.\" Plan a match against an opponent: gather what the trusted notes say about both sides into the brief a plan is written from, then check and record the plan that was written",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:prepare-a-match-plan"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:prepare-a-match-plan\", and give it operation, plan_shape.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:prepare-a-match-plan and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.request_record.promptText contains \"Create exactly 2 strategies with exactly 3 tactics each.\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Prepare the notes a match plan is made from, and record the plan on a sample input",
+      "ask": "Run tool:prepare-a-match-plan.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:prepare-a-match-plan",
+            "input": {
+              "operation": "context",
+              "plan_shape": {
+                "strategies": 2,
+                "tactics_per_strategy": 3
+              },
+              "self_id": "p:1",
+              "opponent_id": "p:2",
+              "requester_id": "p:1",
+              "request_id": "plan-request:sample",
+              "now": "2026-01-01T09:00:00Z",
+              "rows": [
+                {
+                  "payload": {
+                    "kind": "subject",
+                    "subjectId": "p:1",
+                    "subjectKind": "player",
+                    "label": "Alder",
+                    "payload": {
+                      "isSelf": true
+                    },
+                    "createdAt": "2026-01-01T09:00:00.000Z"
+                  }
+                },
+                {
+                  "payload": {
+                    "kind": "subject",
+                    "subjectId": "p:2",
+                    "subjectKind": "player",
+                    "label": "Birch",
+                    "payload": {},
+                    "createdAt": "2026-01-01T09:00:00.000Z"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.request_record.promptText contains \"Create exactly 2 strategies with exactly 3 tactics each.\"."
+    }
+  ]
+}

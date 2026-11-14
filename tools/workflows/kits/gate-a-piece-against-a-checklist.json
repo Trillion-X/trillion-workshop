@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:gate-a-piece-against-a-checklist's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:gate-a-piece-against-a-checklist with library, schema, command.\" Before I am shown anything I made, list the required checks that apply to it and identify which answers are open, stale or failed, without changing my files",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:gate-a-piece-against-a-checklist"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:gate-a-piece-against-a-checklist\", and give it library, schema, command.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:gate-a-piece-against-a-checklist and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $ holds the result: Before I am shown anything I made, list the required checks that apply to it and identify which answers are open, stale or failed, without changing my files"
+  ],
+  "worked_examples": [
+    {
+      "title": "Run a read-only checklist gate on my files (runs on your computer) on a sample input",
+      "ask": "Run tool:gate-a-piece-against-a-checklist.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:gate-a-piece-against-a-checklist",
+            "input": {
+              "schema": "schema.json",
+              "command": "checklist --problems"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $ holds the result: Before I am shown anything I made, list the required checks that apply to it and identify which answers are open, stale or failed, without changing my files"
+    }
+  ]
+}

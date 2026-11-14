@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:search-internet-archive's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:search-internet-archive with query.\" Search Internet Archive for books, articles, audio, concerts, films, images and other primary sources, with license and collection filters and source provenance for any objective",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:search-internet-archive"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:search-internet-archive\", and give it query.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:search-internet-archive and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields responseHeader, response."
+  ],
+  "worked_examples": [
+    {
+      "title": "Search Internet Archive on a sample input",
+      "ask": "Run tool:search-internet-archive.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:search-internet-archive",
+            "input": {
+              "query": "<query: Internet Archive Advanced Search query>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields responseHeader, response.",
+      "given": "The person gives: query (shown as <name> in the input)."
+    }
+  ]
+}

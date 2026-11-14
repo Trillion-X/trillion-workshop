@@ -1,0 +1,71 @@
+{
+  "draft": true,
+  "drafted_from": "tool:find-people's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:find-people with nothing more.\" Search a list of people or contacts by name, company or any other field, and show each match with a name and details",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:find-people"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:find-people\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-people and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.people[0].title contains \"Ana Ruiz\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Find people in a list on a sample input",
+      "ask": "Run tool:find-people.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:find-people",
+            "input": {
+              "records": [
+                {
+                  "id": "person:ana",
+                  "name": "Ana Ruiz",
+                  "company": "Northwind",
+                  "city": "Lisbon"
+                },
+                {
+                  "id": "person:ben",
+                  "name": "Ben Cole",
+                  "company": "Acme",
+                  "city": "Austin"
+                },
+                {
+                  "id": "person:cy",
+                  "name": "Cy Park",
+                  "company": "Northwind",
+                  "city": "Seoul"
+                }
+              ],
+              "search": "northwind",
+              "fields": [
+                {
+                  "key": "name",
+                  "display_role": "title"
+                },
+                {
+                  "key": "company",
+                  "display_role": "subtitle"
+                },
+                {
+                  "key": "city",
+                  "display_role": "detail"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.people[0].title contains \"Ana Ruiz\"."
+    }
+  ]
+}

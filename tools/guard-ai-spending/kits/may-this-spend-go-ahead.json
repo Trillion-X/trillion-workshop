@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:may-this-spend-go-ahead's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:may-this-spend-go-ahead with spend_authority_ref, operation_ref, idempotency_key.\" Just before my AI pays, check that the spend still holds its one current budget reservation",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:may-this-spend-go-ahead"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:may-this-spend-go-ahead\", and give it spend_authority_ref, operation_ref, idempotency_key.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:may-this-spend-go-ahead and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields available, reason, amount, fencing_token."
+  ],
+  "worked_examples": [
+    {
+      "title": "May this spend go ahead on a sample input",
+      "ask": "Run tool:may-this-spend-go-ahead.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:may-this-spend-go-ahead",
+            "input": {
+              "spend_authority_ref": "spend-authority:sample-research",
+              "operation_ref": "operation:sample-report",
+              "idempotency_key": "idem:sample-one"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields available, reason, amount, fencing_token."
+    }
+  ]
+}

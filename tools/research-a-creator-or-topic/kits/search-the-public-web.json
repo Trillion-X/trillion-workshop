@@ -1,0 +1,37 @@
+{
+  "draft": true,
+  "drafted_from": "tool:search-the-public-web's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:search-the-public-web with query.\" Search the public web for a creator, a topic or a question, and get back at most ten results with the address each one cites",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:search-the-public-web"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:search-the-public-web\", and give it query.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:search-the-public-web and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields source, subject_ref, count, items."
+  ],
+  "worked_examples": [
+    {
+      "title": "Search the public web on a sample input",
+      "ask": "Run tool:search-the-public-web.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:search-the-public-web",
+            "input": {
+              "query": "sample bread guide"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields source, subject_ref, count, items."
+    }
+  ]
+}

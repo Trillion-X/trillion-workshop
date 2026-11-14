@@ -1,0 +1,74 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-my-progression-inputs's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-my-progression-inputs with feed.\" Read my stored progression rules and the last session's result from my training plan, ready for the progress evaluator",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-my-progression-inputs"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-my-progression-inputs\", and give it feed.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-my-progression-inputs and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.rules[0].metricRef contains \"catch-rate\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read what my plan needs to decide the next session on a sample input",
+      "ask": "Run tool:read-my-progression-inputs.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-my-progression-inputs",
+            "input": {
+              "feed": {
+                "sessions": [
+                  {
+                    "id": "s1",
+                    "weekBlockId": "w1",
+                    "title": "Cascade blocks",
+                    "activity": "technical",
+                    "dose": {
+                      "throws": 60
+                    },
+                    "intensity": {
+                      "heightCm": 100
+                    }
+                  }
+                ],
+                "progressionRules": [
+                  {
+                    "id": "r:up",
+                    "condition": {
+                      "metricRef": "catch-rate",
+                      "min": 0.85
+                    },
+                    "adjustment": {
+                      "doseScale": 1.1,
+                      "note": "Add load."
+                    }
+                  }
+                ],
+                "lastResult": {
+                  "sessionId": "s1",
+                  "signals": [
+                    {
+                      "metricRef": "catch-rate",
+                      "value": 0.9
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.rules[0].metricRef contains \"catch-rate\"."
+    }
+  ]
+}

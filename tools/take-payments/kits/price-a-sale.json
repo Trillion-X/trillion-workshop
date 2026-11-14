@@ -1,0 +1,58 @@
+{
+  "draft": true,
+  "drafted_from": "tool:price-a-sale's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:price-a-sale with checkoutAttemptId, checkoutStartedAt, offerId, priceOptionId.\" Work out what a buyer would pay for one of my offers and one of its prices: what is due today, what repeats and when, with a trial, a per-unit count, a code or an amount they choose",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:price-a-sale"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:price-a-sale\", and give it checkoutAttemptId, checkoutStartedAt, offerId, priceOptionId.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:price-a-sale and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.quote.amountDueTodayCents contains \"1200\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Price a sale on a sample input",
+      "ask": "Run tool:price-a-sale.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:price-a-sale",
+            "input": {
+              "offers": [
+                {
+                  "kind": "commercial-offer",
+                  "id": "offer:bread-box",
+                  "label": "Bread box",
+                  "price_options": [
+                    {
+                      "id": "price:box:monthly",
+                      "label": "Monthly",
+                      "amount_cents": 1200,
+                      "currency": "usd",
+                      "payment_timing": "subscription",
+                      "interval": "month"
+                    }
+                  ]
+                }
+              ],
+              "offerId": "offer:bread-box",
+              "priceOptionId": "price:box:monthly",
+              "checkoutAttemptId": "attempt-000000000001",
+              "checkoutStartedAt": "2026-01-02T03:04:05Z",
+              "adjustments": []
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.quote.amountDueTodayCents contains \"1200\"."
+    }
+  ]
+}

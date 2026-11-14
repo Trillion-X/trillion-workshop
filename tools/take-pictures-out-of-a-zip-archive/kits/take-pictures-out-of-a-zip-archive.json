@@ -1,0 +1,37 @@
+{
+  "draft": true,
+  "drafted_from": "tool:take-pictures-out-of-a-zip-archive's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:take-pictures-out-of-a-zip-archive with zip_base64.\" Take the pictures out of a zip archive as files to import, without ever unpacking it to disk by entry name",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:take-pictures-out-of-a-zip-archive"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:take-pictures-out-of-a-zip-archive\", and give it zip_base64.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:take-pictures-out-of-a-zip-archive and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.entries contains \"beach\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Take the pictures out of a zip archive on a sample input",
+      "ask": "Run tool:take-pictures-out-of-a-zip-archive.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:take-pictures-out-of-a-zip-archive",
+            "input": {
+              "zip_base64": "UEsDBBQAAAAIAPWzY10Lp5HHCQAAAAcAAAARAAAAaG9saWRheS9iZWFjaC5wbmfrDPBzZ2RiBgBQSwMEFAAAAAgA9bNjXRvfBaUDAAAAAQAAAA4AAABfX01BQ09TWC94LnBuZ2MEAFBLAQIUABQAAAAIAPWzY10Lp5HHCQAAAAcAAAARAAAAAAAAAAAAAAAAAAAAAABob2xpZGF5L2JlYWNoLnBuZ1BLAQIUABQAAAAIAPWzY10b3wWlAwAAAAEAAAAOAAAAAAAAAAAAAAAAADgAAABfX01BQ09TWC94LnBuZ1BLBQYAAAAAAgACAHsAAABnAAAAAAA="
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.entries contains \"beach\"."
+    }
+  ]
+}

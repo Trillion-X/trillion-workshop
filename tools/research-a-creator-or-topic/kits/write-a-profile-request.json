@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:write-a-profile-request's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:write-a-profile-request with subject_ref, instruction.\" Turn what was gathered about a creator or a topic (video words, page text) into the instruction the person's AI writes a profile from",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:write-a-profile-request"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:write-a-profile-request\", and give it subject_ref, instruction.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:write-a-profile-request and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.requests[0].instruction_text contains \"Material: Fold the dough.\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Prepare the request for a profile of a creator or a topic on a sample input",
+      "ask": "Run tool:write-a-profile-request.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:write-a-profile-request",
+            "input": {
+              "subject_ref": "a bakery channel",
+              "instruction": "Look for how they open a lesson. Material: ",
+              "material": "Fold the dough."
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.requests[0].instruction_text contains \"Material: Fold the dough.\"."
+    }
+  ]
+}

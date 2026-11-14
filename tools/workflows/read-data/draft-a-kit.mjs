@@ -4,7 +4,9 @@
 // sample run and its steps. Nothing is invented: a part the item's own data cannot give leaves the draft refused by kitProblems,
 // and the refusal's words are the gap (`kitGap`). A draft is marked `draft: true` until a person or lane has read it.
 //
-//   draftKit({ recipe | tool, known? }) -> { kit, problems }   `known`: the ids a set may name (every item here and the host's tools)     problems are kitProblems' words; empty when the draft is whole
+//   draftKit({ recipe | tool, known?, keptLists? }) -> { kit, problems }
+//     `known`: the ids a set may name (every item here and the host's tools)
+//     `keptLists`: list id -> the list entry (fields, example rows, alike) another kit here already holds, reused when the item names that list     problems are kitProblems' words; empty when the draft is whole
 //
 // No item is named here; the shape of the draft is the template's.
 
@@ -95,21 +97,31 @@ function recipeDraft(recipe) {
   };
 }
 
+// How the first list's example rows go into a list the person already keeps: the pour tool, asked of the list's own fields.
+function pourFor(list) {
+  return {
+    tool: 'tool:pour-example-rows-into-my-list', least_coverage: 0.8,
+    how: 'Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.',
+    example: { kit_list: list.list, into: { list: `list:my-${list.list.slice(5)}`, row_type: list.row_type, fields: list.fields.map(({ id, label }) => ({ id, label })) } },
+  };
+}
+
 /** The draft kit for one item, and the words of what still stops it passing. */
-export function draftKit({ recipe = null, tool = null, known = null }) {
+export function draftKit({ recipe = null, tool = null, known = null, keptLists = new Map() }) {
   const item = recipe ?? tool;
   const part = recipe ? recipeDraft(recipe) : toolDraft(tool);
   const kit = {
     draft: true,
     drafted_from: `${item.id}'s own row (its words, input schema, sample run and steps); read it before relying on it`,
     start_here: part.start_here,
-    lists: [],
+    lists: itemNames({ recipe, tool }).lists.filter(id => keptLists.has(id)).map(id => keptLists.get(id)),
     no_lists_because: 'The item names no list in its own words, input or steps, so it has no example rows to ship.',
     workflows: part.workflows,
     tools: part.tools,
     instructions: part.instructions,
     worked_examples: part.example ? [part.example] : [],
   };
+  if (kit.lists.length) kit.pour = pourFor(kit.lists[0]);
   const problems = kitProblems(kit, { recipe, tool });
   // A tool or workflow the item's words name that nothing offers cannot go in a set a person installs.
   if (known) for (const id of [...kit.tools, ...kit.workflows]) if (!known.has(id)) problems.push(`The item names ${id}, which no Workshop item or host tool offers.`);

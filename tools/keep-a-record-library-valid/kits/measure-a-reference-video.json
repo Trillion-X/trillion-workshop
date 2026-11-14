@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:measure-a-reference-video's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:measure-a-reference-video with video, out, programs.\" Measure a video I want to learn from: its probe, a frame a second, the first five seconds closely, where it cuts, how it moves and what is heard, as files I can review",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:measure-a-reference-video"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:measure-a-reference-video\", and give it video, out, programs.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:measure-a-reference-video and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Measure a video I want to learn from: its probe, a frame a second, the first five seconds closely, where it cuts, how it moves and what is heard, as files I can review"
+  ],
+  "worked_examples": [
+    {
+      "title": "Measure a reference video into frame sheets, a cut scan, its motion rhythm and a sound timeline (runs on your computer) on a sample input",
+      "ask": "Run tool:measure-a-reference-video.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:measure-a-reference-video",
+            "input": {
+              "video": "<video: The video file, put where {video} is in the command>",
+              "out": "<out: A new, empty output folder, put where {out} is in the command>",
+              "programs": "<programs: --hf-media P --motion-tools DIR --earshot-python P [--ffprobe P] [--node P] [--pages-python P] [--earshot-threads N], put where {programs} is in the command>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Measure a video I want to learn from: its probe, a frame a second, the first five seconds closely, where it cuts, how it moves and what is heard, as files I can review",
+      "given": "The person gives: video, out, programs (shown as <name> in the input)."
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-resource-usage-settlement's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-resource-usage-settlement with settlement_id.\" Inspect a supplier-cost settlement and its original or corrected version, including exact customer amounts, company expense and unresolved funding, without moving money",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-resource-usage-settlement"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-resource-usage-settlement\", and give it settlement_id.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-resource-usage-settlement and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields record_id, settlement, allocations, next."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read a resource usage settlement on a sample input",
+      "ask": "Run tool:read-resource-usage-settlement.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-resource-usage-settlement",
+            "input": {
+              "settlement_id": "pool-sample-2026-10"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields record_id, settlement, allocations, next."
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:place-sound-effect-cues-into-an-effects-layer's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:place-sound-effect-cues-into-an-effects-layer with palette, cues, out.\" Lay every sound-effect cue of my cue plan at its time and gain into one effects-only track",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:place-sound-effect-cues-into-an-effects-layer"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:place-sound-effect-cues-into-an-effects-layer\", and give it palette, cues, out.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:place-sound-effect-cues-into-an-effects-layer and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Lay every sound-effect cue of my cue plan at its time and gain into one effects-only track"
+  ],
+  "worked_examples": [
+    {
+      "title": "Place a cue plan's sound effects into one effects track (runs on your computer) on a sample input",
+      "ask": "Run tool:place-sound-effect-cues-into-an-effects-layer.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:place-sound-effect-cues-into-an-effects-layer",
+            "input": {
+              "palette": "<palette: The folder of <sound>.wav>",
+              "cues": "<cues: CUES.json: {DUR, cues}>",
+              "out": "<out: The layer written>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Lay every sound-effect cue of my cue plan at its time and gain into one effects-only track",
+      "given": "The person gives: palette, cues, out (shown as <name> in the input)."
+    }
+  ]
+}

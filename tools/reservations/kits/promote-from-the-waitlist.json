@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:promote-from-the-waitlist's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:promote-from-the-waitlist with ledger_id, idempotency_key.\" Move the next waiting person (or one I name) into a place that is free",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:promote-from-the-waitlist"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:promote-from-the-waitlist\", and give it ledger_id, idempotency_key.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:promote-from-the-waitlist and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields promoted, hold, waitlist_entry, ledger_id, state, total, confirmed, waiting."
+  ],
+  "worked_examples": [
+    {
+      "title": "Promote from the waitlist on a sample input",
+      "ask": "Run tool:promote-from-the-waitlist.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:promote-from-the-waitlist",
+            "input": {
+              "ledger_id": "ledger:sample-class",
+              "idempotency_key": "sample-promote-b"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields promoted, hold, waitlist_entry, ledger_id, state, total, confirmed, waiting."
+    }
+  ]
+}

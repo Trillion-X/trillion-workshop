@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "tool:send-a-post-to-facebook's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:send-a-post-to-facebook with post_id, account_id.\" Send one of the person's approved posts to one of their Facebook Page accounts once its time has come, and keep where it went",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:send-a-post-to-facebook",
+    "tool:draft-a-post",
+    "tool:read-post-calendar",
+    "tool:send-each-post-at-its-time"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:send-a-post-to-facebook\", and give it post_id, account_id.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:send-a-post-to-facebook and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields post_id, status, post, said."
+  ],
+  "worked_examples": [
+    {
+      "title": "Send a post to Facebook Page on a sample input",
+      "ask": "Run tool:send-a-post-to-facebook.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:send-a-post-to-facebook",
+            "input": {
+              "post_id": "post:sample-1",
+              "account_id": "service_connection:facebook-messenger:sample"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields post_id, status, post, said."
+    }
+  ]
+}

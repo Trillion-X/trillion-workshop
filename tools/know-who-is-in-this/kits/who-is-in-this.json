@@ -1,0 +1,45 @@
+{
+  "draft": true,
+  "drafted_from": "tool:who-is-in-this's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:who-is-in-this with file, segments.\" Name who said each stretch of a call or recording, from the voices of people who agreed to be known",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:who-is-in-this"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:who-is-in-this\", and give it file, segments.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:who-is-in-this and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields speakers, voices_heard, records."
+  ],
+  "worked_examples": [
+    {
+      "title": "Say who said each part of a recording on a sample input",
+      "ask": "Run tool:who-is-in-this.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:who-is-in-this",
+            "input": {
+              "file": "sample-call.wav",
+              "listening": "standup",
+              "segments": [
+                {
+                  "start": 0,
+                  "end": 5,
+                  "text": "Hello from a made-up call."
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields speakers, voices_heard, records."
+    }
+  ]
+}

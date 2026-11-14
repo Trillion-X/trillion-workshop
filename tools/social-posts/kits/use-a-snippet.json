@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "tool:use-a-snippet's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:use-a-snippet with snippet_id.\" Fill in one of my snippets with this time's names and give me its words to put in what I am writing",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:use-a-snippet",
+    "tool:find-snippets"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:use-a-snippet\", and give it snippet_id.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:use-a-snippet and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result.text contains \"Thanks Ana!\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Use a snippet on a sample input",
+      "ask": "Run tool:use-a-snippet.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:use-a-snippet",
+            "input": {
+              "snippet_id": "snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5",
+              "values": {
+                "name": "Ana"
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result.text contains \"Thanks Ana!\"."
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "tool:line-up-two-movements's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:line-up-two-movements with clip, reference, out.\" Match each moment of one movement to the same part of another movement, even when one is slower, starts later or has more frames",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:line-up-two-movements",
+    "tool:read-peoples-poses-from-a-video"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:line-up-two-movements\", and give it clip, reference, out.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:line-up-two-movements and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Match each moment of one movement to the same part of another movement, even when one is slower, starts later or has more frames"
+  ],
+  "worked_examples": [
+    {
+      "title": "Line up two movements by their phase, whatever their speed (runs on your computer) on a sample input",
+      "ask": "Run tool:line-up-two-movements.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:line-up-two-movements",
+            "input": {
+              "clip": "<clip: The pose track of the movement being compared, put where {clip} is in the command>",
+              "reference": "<reference: The pose track of the movement it is compared with, put where {reference} is>",
+              "out": "<out: The alignment file to write, put where {out} is>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Match each moment of one movement to the same part of another movement, even when one is slower, starts later or has more frames",
+      "given": "The person gives: clip, reference, out (shown as <name> in the input)."
+    }
+  ]
+}

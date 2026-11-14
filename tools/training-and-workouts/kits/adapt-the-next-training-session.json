@@ -1,0 +1,57 @@
+{
+  "draft": true,
+  "drafted_from": "tool:adapt-the-next-training-session's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:adapt-the-next-training-session with adjustments.\" Adapt the next training session from the adjustments my progress rules gave for the session I just did",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:adapt-the-next-training-session"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:adapt-the-next-training-session\", and give it adjustments.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:adapt-the-next-training-session and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.next.dose.throws contains \"66\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Adapt my next training session on a sample input",
+      "ask": "Run tool:adapt-the-next-training-session.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:adapt-the-next-training-session",
+            "input": {
+              "prescription": {
+                "id": "s1",
+                "weekBlockId": "w1",
+                "title": "Cascade blocks",
+                "activity": "technical",
+                "dose": {
+                  "sets": 4,
+                  "reps": "6-8",
+                  "throws": 60
+                },
+                "intensity": {
+                  "heightCm": 100
+                }
+              },
+              "adjustments": [
+                {
+                  "doseScale": 1.1,
+                  "intensityScale": 1.1,
+                  "note": "Add load."
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.next.dose.throws contains \"66\"."
+    }
+  ]
+}

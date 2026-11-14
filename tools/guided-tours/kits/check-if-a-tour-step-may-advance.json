@@ -1,0 +1,55 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-if-a-tour-step-may-advance's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-if-a-tour-step-may-advance with condition.\" Decide whether a guided-tour step has met its advance condition: tapped next, touched the highlighted thing, answered, watched enough of a video, waited long enough, finished an embedded form, or a fact someone looked up has the right value",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-if-a-tour-step-may-advance"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-if-a-tour-step-may-advance\", and give it condition.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-if-a-tour-step-may-advance and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.may_advance contains \"true\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check whether a tour step may move on by itself on a sample input",
+      "ask": "Run tool:check-if-a-tour-step-may-advance.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-if-a-tour-step-may-advance",
+            "input": {
+              "condition": {
+                "op": "any-of",
+                "args": {
+                  "of": [
+                    {
+                      "op": "tap-next"
+                    },
+                    {
+                      "op": "timeout",
+                      "args": {
+                        "ms": 5000
+                      }
+                    }
+                  ]
+                }
+              },
+              "signals": {
+                "elapsed_ms": 6000
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.may_advance contains \"true\"."
+    }
+  ]
+}

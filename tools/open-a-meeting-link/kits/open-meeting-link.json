@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:open-meeting-link's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:open-meeting-link with link.\" Open a meeting link in the meeting app that owns it on the person's computer, after reading it through the declared routes; a refused link is never opened",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:open-meeting-link",
+    "tool:read-meeting-link"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:open-meeting-link\", and give it link.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:open-meeting-link and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result holds the result: Open a meeting link in the meeting app that owns it on the person's computer, after reading it through the declared routes; a refused link is never opened"
+  ],
+  "worked_examples": [
+    {
+      "title": "Open a meeting link on a sample input",
+      "ask": "Run tool:open-meeting-link.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:open-meeting-link",
+            "input": {
+              "link": "<link: A meeting link: a deep link (such as zoommtg://...) or a web address>"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result holds the result: Open a meeting link in the meeting app that owns it on the person's computer, after reading it through the declared routes; a refused link is never opened",
+      "given": "The person gives: link (shown as <name> in the input)."
+    }
+  ]
+}

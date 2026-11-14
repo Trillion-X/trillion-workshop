@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:tell-if-a-tool-changes-anything's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:tell-if-a-tool-changes-anything with tool.\" Tell whether a tool only reads or changes things, from its own operation name",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:tell-if-a-tool-changes-anything"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:tell-if-a-tool-changes-anything\", and give it tool.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:tell-if-a-tool-changes-anything and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.write_class contains \"read\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Tell if a tool changes anything on a sample input",
+      "ask": "Run tool:tell-if-a-tool-changes-anything.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:tell-if-a-tool-changes-anything",
+            "input": {
+              "tool": {
+                "id": "tool:list-sample-things"
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.write_class contains \"read\"."
+    }
+  ]
+}

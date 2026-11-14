@@ -1,0 +1,35 @@
+{
+  "draft": true,
+  "drafted_from": "tool:github:docling-project-docling's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:github:docling-project-docling with nothing more.\" Read a document (PDF, Word, slides, scanned pages) into clean structured text, tables included",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:github:docling-project-docling"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:github:docling-project-docling\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:github:docling-project-docling and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Read a document (PDF, Word, slides, scanned pages) into clean structured text, tables included"
+  ],
+  "worked_examples": [
+    {
+      "title": "docling (open source, runs on your computer) on a sample input",
+      "ask": "Run tool:github:docling-project-docling.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:github:docling-project-docling",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Read a document (PDF, Word, slides, scanned pages) into clean structured text, tables included"
+    }
+  ]
+}

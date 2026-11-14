@@ -1,0 +1,37 @@
+{
+  "draft": true,
+  "drafted_from": "tool:make-a-picture-vector-set-of-my-videos's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:make-a-picture-vector-set-of-my-videos with nothing more.\" Turn a folder of my videos into a set of picture vectors, one frame every few seconds with its time, so I can find moments by what they show",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:make-a-picture-vector-set-of-my-videos",
+    "tool:find-similar-to-a-vector",
+    "tool:words-as-picture-vector"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:make-a-picture-vector-set-of-my-videos\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:make-a-picture-vector-set-of-my-videos and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Turn a folder of my videos into a set of picture vectors, one frame every few seconds with its time, so I can find moments by what they show"
+  ],
+  "worked_examples": [
+    {
+      "title": "Make a searchable set of what my videos show (runs on your computer) on a sample input",
+      "ask": "Run tool:make-a-picture-vector-set-of-my-videos.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:make-a-picture-vector-set-of-my-videos",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Turn a folder of my videos into a set of picture vectors, one frame every few seconds with its time, so I can find moments by what they show"
+    }
+  ]
+}

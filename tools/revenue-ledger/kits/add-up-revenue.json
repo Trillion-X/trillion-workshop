@@ -1,0 +1,78 @@
+{
+  "draft": true,
+  "drafted_from": "tool:add-up-revenue's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:add-up-revenue with payments, how_to_read.\" Add up revenue, refunds, net revenue and active recurring revenue from a list of payments, by plan or any other group",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:add-up-revenue"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:add-up-revenue\", and give it payments, how_to_read.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:add-up-revenue and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.net_cents contains \"15000\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Add up revenue on a sample input",
+      "ask": "Run tool:add-up-revenue.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:add-up-revenue",
+            "input": {
+              "payments": [
+                {
+                  "event_id": "p1",
+                  "event_kind": "charge.succeeded",
+                  "attributes": {
+                    "amount": 5000,
+                    "plan": "monthly",
+                    "monthly": 5000
+                  }
+                },
+                {
+                  "event_id": "p2",
+                  "event_kind": "charge.succeeded",
+                  "attributes": {
+                    "amount": 12000,
+                    "plan": "yearly"
+                  }
+                },
+                {
+                  "event_id": "r1",
+                  "event_kind": "charge.refunded",
+                  "attributes": {
+                    "amount": 2000,
+                    "plan": "monthly"
+                  }
+                }
+              ],
+              "how_to_read": {
+                "amount_field_path": [
+                  "amount"
+                ],
+                "recurring_field_path": [
+                  "monthly"
+                ],
+                "event_role_map": {
+                  "charge.succeeded": "add",
+                  "charge.refunded": "subtract"
+                },
+                "cohort_key_path": [
+                  "plan"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.net_cents contains \"15000\"."
+    }
+  ]
+}

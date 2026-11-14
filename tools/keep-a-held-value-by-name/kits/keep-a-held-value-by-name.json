@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:keep-a-held-value-by-name's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:keep-a-held-value-by-name with arguments.\" Keep one secret value (a key, a token) under a name in my own Trillion vault, or remove the value held under a name, so my tools and AIs can use it by name without ever seeing it",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:keep-a-held-value-by-name"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:keep-a-held-value-by-name\", and give it arguments.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:keep-a-held-value-by-name and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields name, accepted, removed, queued, issuer_status."
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep a held value by name in my vault on a sample input",
+      "ask": "Run tool:keep-a-held-value-by-name.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-a-held-value-by-name",
+            "input": {
+              "arguments": [
+                "<arguments: The held value's name, one word; or --remove, the name, --issuer-status, then revoked or unknown>"
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields name, accepted, removed, queued, issuer_status.",
+      "given": "The person gives: arguments (shown as <name> in the input)."
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:register-my-live-activity's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:register-my-live-activity with board_key, token, app.\" Keep this iPhone Live Activity token so this account can update or end it",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:register-my-live-activity"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:register-my-live-activity\", and give it board_key, token, app.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:register-my-live-activity and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.said contains \"registered\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Register or end my Live Activity on a sample input",
+      "ask": "Run tool:register-my-live-activity.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:register-my-live-activity",
+            "input": {
+              "board_key": "running",
+              "token": "0123456789abcdef0123456789abcdef",
+              "app": "com.example.app"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.said contains \"registered\"."
+    }
+  ]
+}

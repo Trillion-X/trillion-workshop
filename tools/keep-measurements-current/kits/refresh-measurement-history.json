@@ -1,0 +1,35 @@
+{
+  "draft": true,
+  "drafted_from": "tool:refresh-measurement-history's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:refresh-measurement-history with nothing more.\" Collect configured operation evidence and save current history directly on a timed or record wake without an AI",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:refresh-measurement-history"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:refresh-measurement-history\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:refresh-measurement-history and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result holds the result: Collect configured operation evidence and save current history directly on a timed or record wake without an AI"
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep measurement history current on a sample input",
+      "ask": "Run tool:refresh-measurement-history.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:refresh-measurement-history",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "The answer's $.result holds the result: Collect configured operation evidence and save current history directly on a timed or record wake without an AI"
+    }
+  ]
+}

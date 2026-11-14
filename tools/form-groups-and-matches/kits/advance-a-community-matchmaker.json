@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:advance-a-community-matchmaker's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:advance-a-community-matchmaker with community_id.\" Pair a community's members on its cadence without anyone asking: start a round when it is due, close it at its deadline, make introductions everyone said yes to, and follow up the ones nobody acted on",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:advance-a-community-matchmaker",
+    "tool:check-community-matching-settings"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:advance-a-community-matchmaker\", and give it community_id.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:advance-a-community-matchmaker and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.error contains \"No community sample-verify-community\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Run a community's matchmaker clock: start or close a round, introduce, follow up on a sample input",
+      "ask": "Run tool:advance-a-community-matchmaker.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:advance-a-community-matchmaker",
+            "input": {
+              "community_id": "sample-verify-community"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.error contains \"No community sample-verify-community\"."
+    }
+  ]
+}

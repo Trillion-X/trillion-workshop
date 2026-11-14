@@ -1,0 +1,54 @@
+{
+  "draft": true,
+  "drafted_from": "tool:who-does-each-step's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:who-does-each-step with steps, doers.\" For each step of my plan, protocol, checklist or workflow, say who should do it instead of me: a tool or my AIs, a tool after one tap, or only me for a reason only I can meet",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:who-does-each-step"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:who-does-each-step\", and give it steps, doers.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:who-does-each-step and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.steps.0.who contains \"trillion\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Say who should do each step of a plan on a sample input",
+      "ask": "Run tool:who-does-each-step.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:who-does-each-step",
+            "input": {
+              "steps": [
+                {
+                  "id": "one",
+                  "words": "write a note"
+                }
+              ],
+              "doers": [
+                {
+                  "id": "sample-doer",
+                  "label": "Sample doer",
+                  "does": [
+                    "write a note"
+                  ],
+                  "cost": {
+                    "usd": 0
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.steps.0.who contains \"trillion\"."
+    }
+  ]
+}

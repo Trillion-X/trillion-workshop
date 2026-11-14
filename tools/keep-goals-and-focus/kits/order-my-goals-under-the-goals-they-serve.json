@@ -1,0 +1,57 @@
+{
+  "draft": true,
+  "drafted_from": "tool:order-my-goals-under-the-goals-they-serve's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:order-my-goals-under-the-goals-they-serve with goals.\" Keep my goals in the order they are shown, each one under the goal it serves, so a goal with several parents is shown once and none is hidden by a missing parent or a loop",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:order-my-goals-under-the-goals-they-serve"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:order-my-goals-under-the-goals-they-serve\", and give it goals.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:order-my-goals-under-the-goals-they-serve and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields rows, count."
+  ],
+  "worked_examples": [
+    {
+      "title": "Order my goals under the goals they serve on a sample input",
+      "ask": "Run tool:order-my-goals-under-the-goals-they-serve.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:order-my-goals-under-the-goals-they-serve",
+            "input": {
+              "goals": [
+                {
+                  "id": "grow-food",
+                  "title": "Grow our own food",
+                  "parents": [
+                    "life"
+                  ]
+                },
+                {
+                  "id": "life",
+                  "title": "A calm, healthy year"
+                },
+                {
+                  "id": "run",
+                  "title": "Run a 10k",
+                  "parents": [
+                    "life",
+                    "missing"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields rows, count."
+    }
+  ]
+}

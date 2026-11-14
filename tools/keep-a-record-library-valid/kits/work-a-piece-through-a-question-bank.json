@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:work-a-piece-through-a-question-bank's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:work-a-piece-through-a-question-bank with library, schema, command.\" Ask a small set of the right questions about one thing I am making or reviewing, keep each answer with the files that show it, tell me when an answer's evidence has changed, and add what I learned to my library of findings",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:work-a-piece-through-a-question-bank"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:work-a-piece-through-a-question-bank\", and give it library, schema, command.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:work-a-piece-through-a-question-bank and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Ask a small set of the right questions about one thing I am making or reviewing, keep each answer with the files that show it, tell me when an answer's evidence has changed, and add what I learned to my library of findings"
+  ],
+  "worked_examples": [
+    {
+      "title": "Work one piece through a bank of questions, with evidence for every answer (runs on your computer) on a sample input",
+      "ask": "Run tool:work-a-piece-through-a-question-bank.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:work-a-piece-through-a-question-bank",
+            "input": {
+              "library": "<library: The folder the library's files are relative to, put where {library} is in the command>",
+              "schema": "<schema: The schema file on the person's computer, put where {schema} is in the command>",
+              "command": "<command: One of: start <piece> --profile ID [--limit N] [--objective TEXT]; next <piece>; evidence <piece> --q ID --status STATUS --file PATH --note TEXT [--append] [--defect] [--caught-by ID]; finding <piece> --kind KIND --title TITLE --field NAME=VALUE ..>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Ask a small set of the right questions about one thing I am making or reviewing, keep each answer with the files that show it, tell me when an answer's evidence has changed, and add what I learned to my library of findings",
+      "given": "The person gives: library, schema, command (shown as <name> in the input)."
+    }
+  ]
+}

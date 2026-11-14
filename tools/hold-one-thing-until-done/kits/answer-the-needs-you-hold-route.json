@@ -1,0 +1,44 @@
+{
+  "draft": true,
+  "drafted_from": "tool:answer-the-needs-you-hold-route's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:answer-the-needs-you-hold-route with path, method.\" Answer the Trillion page routes GET and POST /work/api/needs-you-hold: the one thing held for me now, and setting it aside, handing it back, choosing a stake, asking off or turning it on",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:answer-the-needs-you-hold-route",
+    "tool:hold-a-device-quiet",
+    "tool:release-a-device",
+    "tool:take-me-there"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:answer-the-needs-you-hold-route\", and give it path, method.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:answer-the-needs-you-hold-route and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.body.said contains \"Nothing is holding\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Answer the page that shows the one thing that holds me on a sample input",
+      "ask": "Run tool:answer-the-needs-you-hold-route.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:answer-the-needs-you-hold-route",
+            "input": {
+              "path": "/needs-you-hold",
+              "method": "GET",
+              "query": {},
+              "body": {},
+              "browser": {}
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.body.said contains \"Nothing is holding\"."
+    }
+  ]
+}

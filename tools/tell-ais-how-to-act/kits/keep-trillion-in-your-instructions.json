@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:keep-trillion-in-your-instructions's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:keep-trillion-in-your-instructions with harness, action.\" Put, check or take out Trillion's standing instructions as one marked block in my AI harness's own global instruction file, leaving every other line of it as it was",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:keep-trillion-in-your-instructions"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:keep-trillion-in-your-instructions\", and give it harness, action.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:keep-trillion-in-your-instructions and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields schema, observed_at, text_from, report."
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep Trillion's standing instructions in my AI's own instruction file (runs on your computer) on a sample input",
+      "ask": "Run tool:keep-trillion-in-your-instructions.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-trillion-in-your-instructions",
+            "input": {
+              "harness": "<harness: The harness row id (claude-code, codex, gemini-cli, or a hosted app's id)>",
+              "action": "inspect"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields schema, observed_at, text_from, report.",
+      "given": "The person gives: harness (shown as <name> in the input)."
+    }
+  ]
+}

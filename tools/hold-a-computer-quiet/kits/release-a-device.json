@@ -1,0 +1,35 @@
+{
+  "draft": true,
+  "drafted_from": "tool:release-a-device's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:release-a-device with nothing more.\" End a hold on the person's computer now: apps can open again and Focus turns off",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:release-a-device"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:release-a-device\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:release-a-device and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result holds the result: End a hold on the person's computer now: apps can open again and Focus turns off"
+  ],
+  "worked_examples": [
+    {
+      "title": "Free a held device again on a sample input",
+      "ask": "Run tool:release-a-device.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:release-a-device",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "The answer's $.result holds the result: End a hold on the person's computer now: apps can open again and Focus turns off"
+    }
+  ]
+}

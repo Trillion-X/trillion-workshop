@@ -1,0 +1,53 @@
+{
+  "draft": true,
+  "drafted_from": "tool:write-a-post-for-a-place's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:write-a-post-for-a-place with blocks.\" Write one message for a pull request thread, a merge request note, a chat or a post from the same blocks, using only what that place can show",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:write-a-post-for-a-place"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:write-a-post-for-a-place\", and give it blocks.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:write-a-post-for-a-place and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.body contains \"done: Tests\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Write a post for one place on a sample input",
+      "ask": "Run tool:write-a-post-for-a-place.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:write-a-post-for-a-place",
+            "input": {
+              "surface": "bitbucket_comment",
+              "marker": "sample-marker:1",
+              "blocks": [
+                {
+                  "type": "heading",
+                  "text": "What changed"
+                },
+                {
+                  "type": "checklist",
+                  "items": [
+                    {
+                      "text": "Tests",
+                      "done": true
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.body contains \"done: Tests\"."
+    }
+  ]
+}

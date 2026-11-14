@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:search-one-of-my-lists's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:search-one-of-my-lists with question, type.\" Find the rows of one of my lists that hold the words I ask, best match first, however far down the list they are",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:search-one-of-my-lists",
+    "tool:search-everything-with-one-question"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:search-one-of-my-lists\", and give it question, type.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:search-one-of-my-lists and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields question, terms, results, unavailable, pending."
+  ],
+  "worked_examples": [
+    {
+      "title": "Search one of my lists with one question on a sample input",
+      "ask": "Run tool:search-one-of-my-lists.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:search-one-of-my-lists",
+            "input": {
+              "question": "launch plan",
+              "type": "record:note"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields question, terms, results, unavailable, pending."
+    }
+  ]
+}

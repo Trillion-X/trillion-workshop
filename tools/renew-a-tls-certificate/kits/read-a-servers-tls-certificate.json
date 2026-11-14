@@ -1,0 +1,43 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-a-servers-tls-certificate's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-a-servers-tls-certificate with hostname, address, ssh_port, admin_user, knownHost, host.\" See whether my server's certificate is present and trusted, and when it runs out",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-a-servers-tls-certificate"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-a-servers-tls-certificate\", and give it hostname, address, ssh_port, admin_user, knownHost, host.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-a-servers-tls-certificate and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields hostname, certificate_present, not_after_local."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read a server's TLS certificate on a sample input",
+      "ask": "Run tool:read-a-servers-tls-certificate.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-a-servers-tls-certificate",
+            "input": {
+              "hostname": "<hostname: string>",
+              "address": "<address: string>",
+              "ssh_port": "<ssh_port: The server's SSH port (22 for a pinned key written as \"<address> ssh-ed25519 <key>\")>",
+              "admin_user": "<admin_user: The administrator the run signs in as>",
+              "knownHost": "<knownHost: string>",
+              "host": {}
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields hostname, certificate_present, not_after_local.",
+      "given": "The person gives: hostname, address, ssh_port, admin_user, knownHost (shown as <name> in the input)."
+    }
+  ]
+}

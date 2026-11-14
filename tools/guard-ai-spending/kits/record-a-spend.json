@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:record-a-spend's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:record-a-spend with spend_authority_ref, operation_ref, amount.\" After my AI has paid, add what it spent to today's and the all-time totals",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:record-a-spend"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:record-a-spend\", and give it spend_authority_ref, operation_ref, amount.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:record-a-spend and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields already_recorded, total_spent_today, total_spent_all_time, amount, payment_record."
+  ],
+  "worked_examples": [
+    {
+      "title": "Record a spend on a sample input",
+      "ask": "Run tool:record-a-spend.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:record-a-spend",
+            "input": {
+              "spend_authority_ref": "spend-authority:sample-research",
+              "operation_ref": "operation:sample-report",
+              "amount": 250,
+              "payment_ref": "payment:sample-1"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields already_recorded, total_spent_today, total_spent_all_time, amount, payment_record."
+    }
+  ]
+}

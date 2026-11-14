@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:make-a-lut-for-log-footage's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:make-a-lut-for-log-footage with profile, output.\" Make a LUT file so my flat, grey-looking log camera footage looks like normal colour",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:make-a-lut-for-log-footage"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:make-a-lut-for-log-footage\", and give it profile, output.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:make-a-lut-for-log-footage and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Make a LUT file so my flat, grey-looking log camera footage looks like normal colour"
+  ],
+  "worked_examples": [
+    {
+      "title": "Make a colour lookup table that fixes flat log footage from any camera (runs on your computer) on a sample input",
+      "ask": "Run tool:make-a-lut-for-log-footage.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:make-a-lut-for-log-footage",
+            "input": {
+              "profile": "<profile: A JSON file holding a log-to-display-profile record, put where {profile} is in the command>",
+              "output": "<output: The .cube file to write, put where {output} is in the command>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Make a LUT file so my flat, grey-looking log camera footage looks like normal colour",
+      "given": "The person gives: profile, output (shown as <name> in the input)."
+    }
+  ]
+}

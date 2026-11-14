@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:count-a-paid-installment-in-stripe's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:count-a-paid-installment-in-stripe with subscription_id.\" When a pay-in-N plan invoice is paid, count it, and stop the plan after the last one so no extra invoice is ever made",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:count-a-paid-installment-in-stripe"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:count-a-paid-installment-in-stripe\", and give it subscription_id.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:count-a-paid-installment-in-stripe and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields handled, installments_paid, canceled."
+  ],
+  "worked_examples": [
+    {
+      "title": "Count a paid installment in Stripe on a sample input",
+      "ask": "Run tool:count-a-paid-installment-in-stripe.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:count-a-paid-installment-in-stripe",
+            "input": {
+              "subscription_id": "sub_sample0003",
+              "invoice_id": "in_sample0002"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields handled, installments_paid, canceled."
+    }
+  ]
+}

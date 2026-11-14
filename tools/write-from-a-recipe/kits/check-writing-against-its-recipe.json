@@ -1,0 +1,80 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-writing-against-its-recipe's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-writing-against-its-recipe with writing.\" Check something written from a recipe before it goes anywhere: it cites only the sources given, it keeps the recipe's rules and reviews, and it is shaped for the next tool",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-writing-against-its-recipe",
+    "tool:compose-a-writing-instruction"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-writing-against-its-recipe\", and give it writing.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-writing-against-its-recipe and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.delivery.tool_id contains \"tool:draft-a-note\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check writing against its recipe on a sample input",
+      "ask": "Run tool:check-writing-against-its-recipe.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-writing-against-its-recipe",
+            "input": {
+              "recipe": {
+                "gate_policy": {
+                  "grounding_id_field": "ref",
+                  "citation_specs": [
+                    {
+                      "array": "sections",
+                      "ids_key": "refs"
+                    }
+                  ],
+                  "checks": [
+                    {
+                      "kind": "cite-or-reject",
+                      "params": {}
+                    }
+                  ]
+                },
+                "delivery_target": {
+                  "tool_id": "tool:draft-a-note",
+                  "input": {
+                    "title": {
+                      "from": "item",
+                      "field": "title"
+                    }
+                  }
+                }
+              },
+              "writing": {
+                "title": "Two steps",
+                "sections": [
+                  {
+                    "text": "The example has two steps.",
+                    "refs": [
+                      "source:one"
+                    ]
+                  }
+                ]
+              },
+              "grounding": [
+                {
+                  "ref": "source:one",
+                  "text": "The example has two steps."
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.delivery.tool_id contains \"tool:draft-a-note\"."
+    }
+  ]
+}

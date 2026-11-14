@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:withdraw-a-referral-code's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:withdraw-a-referral-code with referrer, code.\" Stop a referral code from earning, and give back the event to save",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:withdraw-a-referral-code"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:withdraw-a-referral-code\", and give it referrer, code.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:withdraw-a-referral-code and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.event.kind contains \"referral_code_withdrawn\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Withdraw a referral code on a sample input",
+      "ask": "Run tool:withdraw-a-referral-code.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:withdraw-a-referral-code",
+            "input": {
+              "referrer": "account:ada",
+              "code": "bread-7k3q",
+              "occurred_at": "2026-01-02T00:00:00Z"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.event.kind contains \"referral_code_withdrawn\"."
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "draft": true,
+  "drafted_from": "tool:find-snippets's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:find-snippets with nothing more.\" Find the snippets I saved, by a word in them or a tag, so I can put one into what I am writing",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:find-snippets"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:find-snippets\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-snippets and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result.snippets[0].title contains \"Thanks\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Find snippets on a sample input",
+      "ask": "Run tool:find-snippets.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:find-snippets",
+            "input": {
+              "query": "thanks"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result.snippets[0].title contains \"Thanks\"."
+    }
+  ]
+}

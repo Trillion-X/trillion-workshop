@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:start-a-steps-agents's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:start-a-steps-agents with run, step.\" When a step of a recipe run says it has several agents, start that many jobs for it in my own records, each with its own lane, so each lane is done by its own AI",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:start-a-steps-agents",
+    "tool:start-a-recipe-run"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:start-a-steps-agents\", and give it run, step.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:start-a-steps-agents and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields jobs, status."
+  ],
+  "worked_examples": [
+    {
+      "title": "Start the agents of one step of a recipe run: one waiting job per lane on a sample input",
+      "ask": "Run tool:start-a-steps-agents.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-steps-agents",
+            "input": {
+              "run": "ai-job:workflow:sample-dig:k1",
+              "step": "dig"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields jobs, status."
+    }
+  ]
+}

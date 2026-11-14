@@ -1,0 +1,46 @@
+{
+  "draft": true,
+  "drafted_from": "tool:sort-bounces-and-replies's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:sort-bounces-and-replies with events.\" Sort the bounces, complaints, unsubscribes and replies that came back from emails I sent, and say which addresses never to send to again, which to retry and which people wrote back",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:sort-bounces-and-replies",
+    "tool:pace-sends-from-an-inbox"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:sort-bounces-and-replies\", and give it events.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:sort-bounces-and-replies and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.outcomes[0].action contains \"stop-sequence\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Sort bounces and replies on a sample input",
+      "ask": "Run tool:sort-bounces-and-replies.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:sort-bounces-and-replies",
+            "input": {
+              "event_source": "mailbox-message",
+              "events": [
+                {
+                  "from": "owner@example.com",
+                  "kind": "reply",
+                  "subject": "Re: your note",
+                  "text": "Yes, call me Tuesday."
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.outcomes[0].action contains \"stop-sequence\"."
+    }
+  ]
+}

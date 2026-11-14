@@ -1,0 +1,43 @@
+{
+  "draft": true,
+  "drafted_from": "tool:work-out-unit-economics's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:work-out-unit-economics with net_revenue_cents, gross_revenue_cents, active_customers.\" Work out a business's unit economics (ARPU, gross margin, CAC, LTV, LTV to CAC, payback) from one period's revenue, costs, ad spend and customer counts",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:work-out-unit-economics"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:work-out-unit-economics\", and give it net_revenue_cents, gross_revenue_cents, active_customers.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:work-out-unit-economics and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.ltv_cents contains \"160000\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Work out unit economics on a sample input",
+      "ask": "Run tool:work-out-unit-economics.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:work-out-unit-economics",
+            "input": {
+              "net_revenue_cents": 1000000,
+              "gross_revenue_cents": 1100000,
+              "cost_of_delivery_cents": 220000,
+              "acquisition_spend_cents": 300000,
+              "active_customers": 100,
+              "new_customers": 20,
+              "churn_rate": 0.05
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.ltv_cents contains \"160000\"."
+    }
+  ]
+}

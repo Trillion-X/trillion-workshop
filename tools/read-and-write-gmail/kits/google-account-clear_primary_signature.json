@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "tool:google-account-clear_primary_signature's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:google-account-clear_primary_signature with connection, send_as_email.\" Clear the primary Gmail SendAs signature by sending an empty signature to the exact sendAsEmail where isPrimary is true in list_send_as.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:google-account-clear_primary_signature"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:google-account-clear_primary_signature\", and give it connection, send_as_email.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:google-account-clear_primary_signature and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields sendAsEmail, isPrimary, signature."
+  ],
+  "worked_examples": [
+    {
+      "title": "Clear primary email signature on a sample input",
+      "ask": "Run tool:google-account-clear_primary_signature.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:google-account-clear_primary_signature",
+            "input": {
+              "connection": {
+                "connection_id": "<connection_id: The Google account to use: service_connection:google-account or service_connection:google-account:<account>, as the person's connections list it>"
+              },
+              "send_as_email": "<send_as_email: The exact SendAs email where isPrimary is true in list_send_as for this same connected account>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields sendAsEmail, isPrimary, signature.",
+      "given": "The person gives: connection_id, send_as_email (shown as <name> in the input)."
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:make-a-contact-sheet-of-pictures-or-video-frames's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:make-a-contact-sheet-of-pictures-or-video-frames with request.\" Lay my pictures, or frames of my video at chosen times or at a steady rate, out as one labelled sheet so I can choose or check them by eye",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:make-a-contact-sheet-of-pictures-or-video-frames"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:make-a-contact-sheet-of-pictures-or-video-frames\", and give it request.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:make-a-contact-sheet-of-pictures-or-video-frames and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields result, error."
+  ],
+  "worked_examples": [
+    {
+      "title": "Make a contact sheet of pictures or video frames (runs on your computer) on a sample input",
+      "ask": "Run tool:make-a-contact-sheet-of-pictures-or-video-frames.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:make-a-contact-sheet-of-pictures-or-video-frames",
+            "input": {
+              "request": "<request: A JSON file on the person's computer holding the request, put where {request} is in the command>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields result, error.",
+      "given": "The person gives: request (shown as <name> in the input)."
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "draft": true,
+  "drafted_from": "tool:classify-a-record's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:classify-a-record with facts, rules, record.\" Give a record the label of the first of my rules that holds: each rule has clauses over facts read from the record (is present, is absent, at least, at most, equals), and I get the rule's key, label, tone and severity, or none",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:classify-a-record"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:classify-a-record\", and give it facts, rules, record.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:classify-a-record and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result.label contains \"Forgotten order\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Give a record the label of the first rule it meets on a sample input",
+      "ask": "Run tool:classify-a-record.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:classify-a-record",
+            "input": {
+              "facts": [
+                {
+                  "key": "collected",
+                  "path": [
+                    "collected_at"
+                  ],
+                  "as": "present"
+                },
+                {
+                  "key": "waiting",
+                  "path": [
+                    "ordered_at"
+                  ],
+                  "as": "age-seconds"
+                }
+              ],
+              "rules": [
+                {
+                  "key": "forgotten",
+                  "label": "Forgotten order",
+                  "tone": "alarm",
+                  "requires": [
+                    {
+                      "fact": "collected",
+                      "op": "absent"
+                    },
+                    {
+                      "fact": "waiting",
+                      "op": "gte",
+                      "value": 1800
+                    }
+                  ]
+                },
+                {
+                  "key": "done",
+                  "label": "Collected",
+                  "requires": [
+                    {
+                      "fact": "collected",
+                      "op": "present"
+                    }
+                  ]
+                }
+              ],
+              "record": {
+                "ordered_at": "2026-07-05T10:00:00Z"
+              },
+              "now_ms": 1783252800000
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result.label contains \"Forgotten order\"."
+    }
+  ]
+}

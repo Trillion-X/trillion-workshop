@@ -1,0 +1,45 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-the-menu-bar-settings's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-the-menu-bar-settings with nothing more.\" Say the Mac menu bar item's own settings (on or off, how far ahead meetings count, how long its title may be, its app icon), each with the value it shows, and whether a change I ask for is one its setting allows",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-the-menu-bar-settings"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-the-menu-bar-settings\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-the-menu-bar-settings and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result.held contains \"true\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read the Mac menu bar's own settings on a sample input",
+      "ask": "Run tool:read-the-menu-bar-settings.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-the-menu-bar-settings",
+            "input": {
+              "answer": {
+                "rows": [
+                  {
+                    "id": "enabled",
+                    "kind": "switch",
+                    "value": false
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result.held contains \"true\"."
+    }
+  ]
+}

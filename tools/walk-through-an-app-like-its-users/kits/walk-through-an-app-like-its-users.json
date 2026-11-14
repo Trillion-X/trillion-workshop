@@ -1,0 +1,62 @@
+{
+  "draft": true,
+  "drafted_from": "tool:walk-through-an-app-like-its-users's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:walk-through-an-app-like-its-users with app_url, journeys.\" Check that people can still do what they come to my app for after a change: walk each journey in a real browser, keep pictures, a log and a video, and tell my coding agent exactly what to fix, then check the fix",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:walk-through-an-app-like-its-users"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:walk-through-an-app-like-its-users\", and give it app_url, journeys.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:walk-through-an-app-like-its-users and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.verdict contains \"passed\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Walk through an app like its users on a sample input",
+      "ask": "Run tool:walk-through-an-app-like-its-users.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:walk-through-an-app-like-its-users",
+            "input": {
+              "app_url": "data:text/html,<title>Ready</title><h1>Ready</h1><button>Go</button>",
+              "journeys": [
+                {
+                  "id": "see-ready",
+                  "goal": "See the page is ready",
+                  "steps": [
+                    {
+                      "id": "press-go",
+                      "intent": "Press Go",
+                      "do": {
+                        "action": "click",
+                        "target": {
+                          "role": "button",
+                          "name": "Go"
+                        }
+                      },
+                      "expect": [
+                        {
+                          "kind": "text_visible",
+                          "text": "Ready"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.verdict contains \"passed\"."
+    }
+  ]
+}

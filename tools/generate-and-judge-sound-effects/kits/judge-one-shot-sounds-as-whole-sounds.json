@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:judge-one-shot-sounds-as-whole-sounds's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:judge-one-shot-sounds-as-whole-sounds with out, query, files.\" Judge these one-shot sound files whole, from first onset to their tail, against a description",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:judge-one-shot-sounds-as-whole-sounds"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:judge-one-shot-sounds-as-whole-sounds\", and give it out, query, files.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:judge-one-shot-sounds-as-whole-sounds and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Judge these one-shot sound files whole, from first onset to their tail, against a description"
+  ],
+  "worked_examples": [
+    {
+      "title": "Judge one-shot sounds as whole sounds (runs on your computer) on a sample input",
+      "ask": "Run tool:judge-one-shot-sounds-as-whole-sounds.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:judge-one-shot-sounds-as-whole-sounds",
+            "input": {
+              "out": "<out: OUT.json>",
+              "query": "<query: The description>",
+              "files": []
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Judge these one-shot sound files whole, from first onset to their tail, against a description",
+      "given": "The person gives: out, query (shown as <name> in the input)."
+    }
+  ]
+}

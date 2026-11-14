@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-a-treg-call's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-a-treg-call with account, call_id.\" Read one of the person's treg calls by the id it answered: what it cost, and how an asynchronous task it started is going and where its result is",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-a-treg-call",
+    "tool:call-a-treg-endpoint"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-a-treg-call\", and give it account, call_id.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-a-treg-call and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields call, async_task, ledger, charged_micro."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read one treg call by its id on a sample input",
+      "ask": "Run tool:read-a-treg-call.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-a-treg-call",
+            "input": {
+              "account": "<account: Which of the person's treg connections made the call, by its id: service_connection:treg, or service_connection:treg:<account>>",
+              "call_id": "<call_id: The x-treg-call-id header of the call's answer>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields call, async_task, ledger, charged_micro.",
+      "given": "The person gives: account, call_id (shown as <name> in the input)."
+    }
+  ]
+}

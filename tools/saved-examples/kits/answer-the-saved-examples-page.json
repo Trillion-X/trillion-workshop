@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:answer-the-saved-examples-page's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:answer-the-saved-examples-page with path, method.\" Answer the Saved examples page: list my saved examples, save one from its link, remove one",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:answer-the-saved-examples-page"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:answer-the-saved-examples-page\", and give it path, method.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:answer-the-saved-examples-page and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields status, body."
+  ],
+  "worked_examples": [
+    {
+      "title": "Answer the Saved examples page on a sample input",
+      "ask": "Run tool:answer-the-saved-examples-page.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:answer-the-saved-examples-page",
+            "input": {
+              "path": "/saved-examples",
+              "method": "GET",
+              "query": {},
+              "body": {}
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields status, body."
+    }
+  ]
+}

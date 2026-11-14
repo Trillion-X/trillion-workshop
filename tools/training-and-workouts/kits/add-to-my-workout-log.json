@@ -1,0 +1,51 @@
+{
+  "draft": true,
+  "drafted_from": "tool:add-to-my-workout-log's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:add-to-my-workout-log with log, operation, observed_at.\" Add new evidence to my workout log, or confirm, discard, correct, split or merge an entry already in it",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:add-to-my-workout-log"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:add-to-my-workout-log\", and give it log, operation, observed_at.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:add-to-my-workout-log and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.atom.id contains \"entry:1\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Add to my workout log on a sample input",
+      "ask": "Run tool:add-to-my-workout-log.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:add-to-my-workout-log",
+            "input": {
+              "log": {},
+              "operation": "add",
+              "descriptor_id": "drill-log",
+              "observed_at": "2026-01-01T09:00:00Z",
+              "id": "entry:1",
+              "subject": {
+                "kind": "drill",
+                "label": "Cascade"
+              },
+              "dimensions": {
+                "throws": {
+                  "value": 40,
+                  "unit": "throws"
+                }
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.atom.id contains \"entry:1\"."
+    }
+  ]
+}

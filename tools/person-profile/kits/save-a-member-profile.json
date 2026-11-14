@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "tool:save-a-member-profile's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:save-a-member-profile with who, fields.\" Save the name, about text or email of a member's profile, changing only the fields given and keeping the rest of the profile",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:save-a-member-profile"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:save-a-member-profile\", and give it who, fields.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:save-a-member-profile and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.saved contains \"true\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Save a member's profile fields on a sample input",
+      "ask": "Run tool:save-a-member-profile.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:save-a-member-profile",
+            "input": {
+              "who": "member:sample",
+              "fields": {
+                "display_name": "Sam Example",
+                "about": "Makes things."
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.saved contains \"true\"."
+    }
+  ]
+}

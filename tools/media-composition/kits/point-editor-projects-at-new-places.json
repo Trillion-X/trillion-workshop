@@ -1,0 +1,43 @@
+{
+  "draft": true,
+  "drafted_from": "tool:point-editor-projects-at-new-places's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:point-editor-projects-at-new-places with moves.\" On the person's own computer, point their Premiere Pro projects and DaVinci Resolve's open project at clips that moved to a new place, such as their Trillion files connected as a drive",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:point-editor-projects-at-new-places"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:point-editor-projects-at-new-places\", and give it moves.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:point-editor-projects-at-new-places and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields projects, resolve, said."
+  ],
+  "worked_examples": [
+    {
+      "title": "Point editor projects at clips' new places on a sample input",
+      "ask": "Run tool:point-editor-projects-at-new-places.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:point-editor-projects-at-new-places",
+            "input": {
+              "moves": [
+                {
+                  "from": "/work/sample/Card/CLIP",
+                  "to": "/work/sample/Drive/Clips"
+                }
+              ],
+              "projects": []
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields projects, resolve, said."
+    }
+  ]
+}

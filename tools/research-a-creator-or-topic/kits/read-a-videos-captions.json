@@ -1,0 +1,35 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-a-videos-captions's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-a-videos-captions with nothing more.\" Get the words spoken in a video as text, from the captions the video site holds for it",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-a-videos-captions"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-a-videos-captions\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-a-videos-captions and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Get the words spoken in a video as text, from the captions the video site holds for it"
+  ],
+  "worked_examples": [
+    {
+      "title": "Get the words spoken in a video from its captions (runs on your computer) on a sample input",
+      "ask": "Run tool:read-a-videos-captions.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-a-videos-captions",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Get the words spoken in a video as text, from the captions the video site holds for it"
+    }
+  ]
+}

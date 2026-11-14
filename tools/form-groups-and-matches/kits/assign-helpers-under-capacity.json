@@ -1,0 +1,65 @@
+{
+  "draft": true,
+  "drafted_from": "tool:assign-helpers-under-capacity's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:assign-helpers-under-capacity with operation.\" Assign mentors, volunteers or helpers to the people who asked for help when each helper can only take so many, best pairs first, and say who was left without one and why",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:assign-helpers-under-capacity",
+    "tool:form-matches"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:assign-helpers-under-capacity\", and give it operation.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:assign-helpers-under-capacity and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.assignments[0].helper_candidate_ref contains \"ben\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Assign helpers to the people who need them, within each helper's capacity on a sample input",
+      "ask": "Run tool:assign-helpers-under-capacity.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:assign-helpers-under-capacity",
+            "input": {
+              "operation": "solve_capacity_constraints",
+              "help_seekers": [
+                {
+                  "id": "ana"
+                }
+              ],
+              "helper_candidates": [
+                {
+                  "id": "ben"
+                }
+              ],
+              "capacities": {
+                "ben": 1
+              },
+              "eligibility": [
+                {
+                  "help_seeker_ref": "ana",
+                  "helper_candidate_ref": "ben",
+                  "eligible": true
+                }
+              ],
+              "ranking": [
+                {
+                  "help_seeker_ref": "ana",
+                  "helper_candidate_ref": "ben",
+                  "score": 1
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.assignments[0].helper_candidate_ref contains \"ben\"."
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "draft": true,
+  "drafted_from": "tool:ask-a-model's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:ask-a-model with nothing more.\" Ask a model served on the person's own computer (a local model, free to run) a conversation or a yes-or-no question about some words, instead of a service billed per word",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:ask-a-model"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:ask-a-model\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:ask-a-model and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result holds the result: Ask a model served on the person's own computer (a local model, free to run) a conversation or a yes-or-no question about some words, instead of a service billed per word"
+  ],
+  "worked_examples": [
+    {
+      "title": "Ask a model on a sample input",
+      "ask": "Run tool:ask-a-model.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:ask-a-model",
+            "input": {
+              "messages": [
+                {
+                  "role": "user",
+                  "content": "Say hello to Ada Example."
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result holds the result: Ask a model served on the person's own computer (a local model, free to run) a conversation or a yes-or-no question about some words, instead of a service billed per word"
+    }
+  ]
+}

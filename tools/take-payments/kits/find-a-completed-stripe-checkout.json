@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:find-a-completed-stripe-checkout's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:find-a-completed-stripe-checkout with offer_id.\" Find the completed Stripe checkout for one buyer and offer when the buyer browser never came back",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:find-a-completed-stripe-checkout"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:find-a-completed-stripe-checkout\", and give it offer_id.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-a-completed-stripe-checkout and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields found."
+  ],
+  "worked_examples": [
+    {
+      "title": "Find a completed Stripe checkout on a sample input",
+      "ask": "Run tool:find-a-completed-stripe-checkout.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:find-a-completed-stripe-checkout",
+            "input": {
+              "customer_email": "buyer@example.test",
+              "offer_id": "offer:bread-box"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields found."
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-my-treg-balance's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-my-treg-balance with account, team_id.\" Read how much is left on the person's treg balance and what recent calls were charged, to keep a run inside its budget",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-my-treg-balance",
+    "tool:read-my-treg-team"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-my-treg-balance\", and give it account, team_id.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-my-treg-balance and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields balance_micro, blocks, holds."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read my treg balance and recent charges on a sample input",
+      "ask": "Run tool:read-my-treg-balance.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-my-treg-balance",
+            "input": {
+              "account": "<account: Which of the person's treg connections, by its id: service_connection:treg, or service_connection:treg:<account>>",
+              "team_id": "<team_id: The team's number, the org_id tool:read-my-treg-team answers>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields balance_micro, blocks, holds.",
+      "given": "The person gives: account, team_id (shown as <name> in the input)."
+    }
+  ]
+}

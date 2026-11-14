@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "tool:keep-a-prospect's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:keep-a-prospect with nothing more.\" Keep what I know about a prospect as one row of my prospect list: what a finder found, the researched profile, a status I move it through, and my notes",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:keep-a-prospect"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:keep-a-prospect\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:keep-a-prospect and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields action, key, row_id, written, created, row, found, count."
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep, read, mark or remove a prospect in my prospect list on a sample input",
+      "ask": "Run tool:keep-a-prospect.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-a-prospect",
+            "input": {
+              "key": "bakery.example",
+              "found": {
+                "name": "Sample Bakery",
+                "url": "https://bakery.example"
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields action, key, row_id, written, created, row, found, count."
+    }
+  ]
+}

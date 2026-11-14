@@ -1,0 +1,53 @@
+{
+  "draft": true,
+  "drafted_from": "tool:make-a-sales-contract's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:make-a-sales-contract with contract.\" Make the terms of an accepted sales contract ready to give out: what the buyer must accept, the terms as rows, the request that turns them into a PDF, Word, spreadsheet, Markdown or text file, and a link the buyer opens to accept",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:make-a-sales-contract",
+    "tool:export-a-document-to-a-file"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:make-a-sales-contract\", and give it contract.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:make-a-sales-contract and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.acceptance_requirements[1] contains \"payment obligation\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Make a sales contract's terms, export request and approval link on a sample input",
+      "ask": "Run tool:make-a-sales-contract.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:make-a-sales-contract",
+            "input": {
+              "contract": {
+                "id": "contract-1",
+                "name": "Swim Coaching Agreement",
+                "currency": "usd",
+                "total_amount": 48000,
+                "rules": [
+                  {
+                    "type": "Commitment",
+                    "amount": 48000,
+                    "recurrence": "one_time"
+                  }
+                ]
+              },
+              "formats": [
+                "pdf"
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.acceptance_requirements[1] contains \"payment obligation\"."
+    }
+  ]
+}
