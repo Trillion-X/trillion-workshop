@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:relate-records's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Keep how things in the person's records are related, with the role as data, and what happened between them, as relation and activity records\", with {\"relations\":[{\"subject\":\"record:crm:pat\",\"role\":\"dad\",\"object\":\"me\"}]}. It runs tool:relate-records and answers {\"relations\":[{\"id\":\"relation:bda9a4a6729e6610\",\"subject\":\"record:crm:pat\",\"role\":\"dad\",\"object\":\"record:person:me\",\"alive\":true,\"subject_order\":\"V\",\"object_order\":\"V\"}],\"entities\":[]}",
   "lists": [],

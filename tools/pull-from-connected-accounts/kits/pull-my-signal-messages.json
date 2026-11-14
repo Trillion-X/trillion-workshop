@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:pull-my-signal-messages's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Pull the Signal conversations my client printed into my own records\", with {\"account\":\"sample\",\"self_id\":\"sample-self\",\"conversations\":[{\"id\":\"sample-conversation-1\",\"name\":\"Made Up Friend\",\"type\":\"private\",\"messages\":[{\"id\":\"sample-message-1\",\"timestamp\":1793534400000,\"from\":\"sample-self\",\"body\":\"Does Thursday work?\"},{\"id\":\"sample-message-2\",\"timestamp\":1793534700000,\"from\":\"made-up-friend\",\"body\":\"Sounds good.\"}]}]}. It runs tool:pull-my-signal-messages and answers {\"source\":\"signal\",\"account\":\"sample\",\"self_id\":\"sample-self\",\"threads\":1,\"items\":0,\"new_messages\":2,\"new_items\":0,\"cursor\":1793534700000,\"errors\":[],\"skipped\":[],\"status\":\"pulled\",\"said\":\"Pulled 2 new messages in 1 conversations from Signal.\"}",
   "lists": [],

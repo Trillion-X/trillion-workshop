@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:rank-poker-hands's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Rank poker hands against a board of community cards and say which hand wins\", with {\"board\":[\"2S\",\"7D\",\"9C\",\"JS\",\"3H\"],\"hands\":[{\"id\":\"left\",\"cards\":[\"AH\",\"AC\"]},{\"id\":\"right\",\"cards\":[\"KH\",\"QC\"]}]}. It runs tool:rank-poker-hands and answers {\"ranking\":[{\"id\":\"left\",\"category\":\"pair\",\"bestFive\":[\"AH\",\"AC\",\"7D\",\"9C\",\"JS\"],\"place\":1},{\"id\":\"right\",\"category\":\"high card\",\"bestFive\":[\"KH\",\"QC\",\"7D\",\"9C\",\"JS\"],\"place\":2}],\"winners\":[\"left\"]}",
   "lists": [],

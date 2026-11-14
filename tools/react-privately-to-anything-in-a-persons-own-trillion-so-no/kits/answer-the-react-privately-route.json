@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:answer-the-react-privately-route's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Answer the Trillion page route POST /work/api/responses/react: add or take away the person's own private reaction to anything in their Trillion, as old Trillion did\", with {\"path\":\"/responses/react\",\"method\":\"POST\",\"query\":{},\"body\":{\"record\":\"note:sample-1\",\"symbol\":\"❤️\"},\"browser\":{}}. It runs tool:answer-the-react-privately-route and answers {\"status\":200,\"body\":{\"anchor\":{\"record\":\"note:sample-1\"},\"reactions\":[{\"symbol\":\"❤️\",\"glyph\":\"❤️\",\"label\":\"❤️\",\"count\":1,\"yours\":true}]}}",
   "lists": [],

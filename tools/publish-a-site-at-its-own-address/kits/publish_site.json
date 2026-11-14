@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:publish_site's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Publish a website's pages and files so it can be given its own address\", with {\"files\":{\"index.html\":\"<title>Field Notes</title><h1>made up</h1>\",\"style.css\":\"h1{color:teal}\"},\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}. It runs tool:publish_site and answers {\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"files\":2,\"bytes\":56,\"llms\":true,\"suggested_name\":\"field-notes\"}",
   "lists": [],

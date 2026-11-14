@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:attach_domain's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Put a domain name I own in front of my published website\", with {\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"domain\":\"shop.example.com\",\"account\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"}. It runs tool:attach_domain and answers {\"address\":\"https://shop.example.com/\",\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"records\":[{\"type\":\"TXT\",\"name\":\"_trillion-verify.shop.example.com\",\"value\":\"trillion-account=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"},{\"type\":\"CNAME\",\"name\":\"shop.example.com\",\"value\":\"app.gettrillion.ai\"}],\"origins\":[{\"host\":\"shop.example.com\",\"address\":\"https://shop.example.com/\" ...",
   "lists": [],

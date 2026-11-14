@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:read-experiment-results's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Sum what visitors did on each version of an experiment and work out the rate that decides the winner\", with {\"address\":\"page:/offer\",\"facts\":[{\"path\":[\"candidate\",\"outcome\",\"views\",\"a\"],\"value\":100},{\"path\":[\"candidate\",\"outcome\",\"converted\",\"a\"],\"value\":10},{\"path\":[\"candidate\",\"outcome\",\"views\",\"b\"],\"value\":80},{\"path\":[\"candidate\",\"outcome\",\"converted\",\"b\"],\"value\":16}],\"rates\":[{\"id\":\"rate\",\"numerator\":\"converted\",\"denominator\":\"views\"}]}. It runs tool:read-experiment-results and answers {\"address\":\"page:/offer\",\"candidates\":{\"a\":{\"candidate_id\":\"a\",\"views\":100,\"converted\":10,\"rate\":0.1},\"b\":{\"candidate_id\":\"b\",\"views\":80,\"converted\":16,\"rate\":0.2}},\"total_events\":4,\"leader\":{\"rate\":\"b\"}}",
   "lists": [],

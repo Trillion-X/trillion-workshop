@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:find-cold-rows's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"List the rows of a list that nobody uses any more, so they can be cleaned up, leaving out rows a person verified and whose review is still current\", with {\"list\":{\"id\":\"docs\",\"title_field\":\"title\",\"fields\":[{\"id\":\"title\",\"label\":\"Title\"}]},\"rows\":[{\"id\":\"a\",\"title\":\"Onboarding\",\"values\":{\"title\":\"Onboarding\"}},{\"id\":\"b\",\"title\":\"Pricing\",\"values\":{\"title\":\"Pricing\"}}],\"heats\":{\"a\":{\"heat\":3,\"at\":\"2026-11-01T00:00:00.000Z\"}}}. It runs tool:find-cold-rows and answers {\"list_id\":\"docs\",\"rows\":[{\"id\":\"b\",\"title\":\"Pricing\",\"heat\":0,\"last_used\":null}],\"complete\":true}",
   "lists": [],

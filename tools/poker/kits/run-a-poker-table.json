@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:run-a-poker-table's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Run a game of Texas Hold'em poker for a table of players: open a table, seat players, deal a hand, take each player's action, and deal the next hand\", with {\"operation\":\"open-table\",\"room_id\":\"room:sample\",\"players\":[\"Alder\",\"Birch\"],\"config\":{\"smallBlind\":5,\"bigBlind\":10,\"startingChips\":200}}. It runs tool:run-a-poker-table and answers {\"operation\":\"open-table\",\"room\":{\"kind\":\"poker-room-state\",\"version\":1,\"roomId\":\"room:sample\",\"board\":[],\"config\":{\"startingChips\":200,\"smallBlind\":5,\"bigBlind\":10,\"blindMode\":\"fixed\",\"blindIncrease\":0,\"maxPlayers\":9},\"handNumber\":0,\"holeCards\":{},\"hostPlayerId\":\"player-1\",\"state\":{\"phase\":\"lobby\",\"config\":{\"startingChips\":200,\"smallBlind\":5,\"bigBlind\":10,\"blindMode\":\"fixed\",\"blindIncrease\":0 ...",
   "lists": [],

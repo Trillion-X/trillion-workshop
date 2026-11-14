@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:name_site's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Give a published website its own readable address, or rename it so old links still work\", with {\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"name\":\"field-notes\"}. It runs tool:name_site and answers {\"address\":\"https://field-notes.trillion.run/\",\"name\":\"field-notes\",\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"renamed_from\":[],\"origins\":[{\"host\":\"field-notes.trillion.run\",\"address\":\"https://field-notes.trillion.run/\",\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}],\"said\":\"Your computer hands the new address to the forwarder within a few seconds; it answers while your computer is ...",
   "lists": [],

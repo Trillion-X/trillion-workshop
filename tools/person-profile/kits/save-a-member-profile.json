@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:save-a-member-profile's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Save the name, about text or email of a member's profile, changing only the fields given and keeping the rest of the profile\", with {\"who\":\"member:sample\",\"fields\":{\"display_name\":\"Sam Example\",\"about\":\"Makes things.\"}}. It runs tool:save-a-member-profile and answers {\"saved\":true,\"profile\":{\"display_name\":\"Sam Example\",\"about\":\"Makes things.\",\"email\":\"\"}}",
   "lists": [],

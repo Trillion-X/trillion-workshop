@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:print's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Print a file from the person's Trillion files on a printer their computer already has (paper size, fit to page, two-sided, colour, copies), so the person never opens a print dialog\", with {\"file\":\"/sample.txt\"}. It runs tool:print and answers {\"printed\":true,\"printer\":\"sample-printer\",\"job\":\"sample-printer-1\",\"copies\":1,\"said\":\"Sent sample.txt to sample-printer (1 copy).\"}",
   "lists": [],

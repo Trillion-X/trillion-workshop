@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:expand-a-reply-template's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Fill a canned reply template with the details of a request, such as a name or a button label, and give back the finished reply\", with {\"template\":{\"line\":{\"$kind\":\"binding\",\"select\":{\"from\":\"dataSource\",\"key\":\"caller_request\",\"path\":\"greeting\"}}},\"caller_request\":{\"greeting\":\"Fresh bread at nine\"}}. It runs tool:expand-a-reply-template and answers {\"reply\":{\"line\":\"Fresh bread at nine\"}}",
   "lists": [],

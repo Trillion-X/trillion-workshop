@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:pull-my-messenger-messages's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Pull the Messenger conversations of my Facebook Page into my own records\", with {\"account\":\"sample\"}. It runs tool:pull-my-messenger-messages and answers {\"source\":\"messenger-messages\",\"account\":\"sample\",\"self_id\":\"9000000000000001\",\"threads\":1,\"items\":0,\"new_messages\":2,\"new_items\":0,\"cursor\":null,\"errors\":[],\"skipped\":[],\"status\":\"pulled\",\"said\":\"Pulled 2 new messages in 1 conversations from Facebook Messenger.\"}",
   "lists": [],

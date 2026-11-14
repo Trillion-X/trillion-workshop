@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:read-deleted-files-keep-for's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Read how many days this person's Recently Deleted and Archived keep things before they move on\", with {}. It runs tool:read-deleted-files-keep-for and answers {\"states\":[{\"id\":\"deleted\",\"label\":\"Recently Deleted\",\"after_days\":30,\"default_after_days\":30,\"when_due\":null,\"due_words\":\"Deleted for good\"},{\"id\":\"archived\",\"label\":\"Archived\",\"after_days\":30,\"default_after_days\":30,\"when_due\":\"deleted\",\"due_words\":\"Moves to Recently Deleted\"}],\"choices\":[1,7,30,90,365,null]}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:credit-outcomes-to-candidates's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Join who saw which version with who bought, signed up or clicked, so each version's results can be read\", with {\"join\":{\"entity_type\":\"attribution-join\",\"join_id\":\"join:offer\",\"assignment\":{\"observer_key_path\":[\"visitor\"],\"candidate_key_path\":[\"candidate\"]},\"outcome\":{\"observer_key_path\":[\"visitor\"],\"metric_path\":[\"what\"]},\"emit\":{\"observe_address\":\"page:/offer\",\"metric_map\":{\"purchase\":\"converted\"}}},\"assignments\":[{\"visitor\":\"v1\",\"candidate\":\"a\"}],\"outcomes\":[{\"visitor\":\"v1\",\"what\":\"purchase\"}] .... It runs tool:credit-outcomes-to-candidates and answers {\"observations\":[{\"observerId\":\"v1\",\"trustRef\":\"trust:derived\",\"path\":[\"candidate\",\"outcome\",\"converted\",\"a\"],\"value\":1,\"at\":\"2026-01-01T00:00:00.000Z\",\"basis\":\"join:offer\"}],\"findings\":[]}",
   "lists": [],

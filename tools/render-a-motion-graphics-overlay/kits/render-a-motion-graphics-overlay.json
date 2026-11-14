@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:render-a-motion-graphics-overlay's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Draw the animated graphics that go over a piece of my video (paper cut-outs, typed words, cards, charts, marker marks) as a see-through overlay with its sound, from a list of what appears when\", with {\"settings_files\":[\"read-data/example-look/look.json\"],\"assets\":\"read-data/example-look\",\"out\":\"out/sample-strip\",\"spec\":{\"id\":\"sample-strip\",\"duration_s\":2,\"canvas\":[640,360],\"events\":[{\"type\":\"strip\",\"id\":\"line\",\"text\":\"made-up words\",\"font\":\"typewriter\",\"size\":34,\"paper\":\"white\",\"pos\":[160,150],\"at\":0.2},{\"type\":\"exit\",\"at\":1.2}]}}. It runs tool:render-a-motion-graphics-overlay and answers {\"id\":\"sample-strip\",\"frames\":48,\"duration_s\":2.002,\"overlay\":\"out/sample-strip/overlay.mov\",\"sound\":\"out/sample-strip/sound.wav\",\"timeline\":\"out/sample-strip/timeline.json\"}",
   "lists": [

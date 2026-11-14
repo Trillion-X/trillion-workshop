@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:other-ai-files's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Read the instructions, commands, skills and MCP servers the person already keeps for their other AI apps (Claude Code, Codex, Cursor, Claude Desktop, Gemini CLI, Windsurf), in place, without copying them\", with {\"source\":\"claude-code\",\"read\":[\"claude-code/instructions/CLAUDE.md\"]}. It runs tool:other-ai-files and answers {\"entries\":[{\"name\":\"claude-code/instructions/CLAUDE.md\",\"source\":\"claude-code\",\"label\":\"Claude Code\",\"kind\":\"instructions\",\"bytes\":34}],\"files\":[{\"name\":\"claude-code/instructions/CLAUDE.md\",\"source\":\"claude-code\",\"label\":\"Claude Code\",\"kind\":\"instructions\",\"text\":\"Always greet Ada Example by name.\\n\"}]}",
   "lists": [],

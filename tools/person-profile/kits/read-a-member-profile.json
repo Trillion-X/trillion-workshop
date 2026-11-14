@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:read-a-member-profile's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Read the name, about text and email a member keeps in their profile\", with {\"who\":\"member:sample\"}. It runs tool:read-a-member-profile and answers {\"profile\":null}",
   "lists": [],

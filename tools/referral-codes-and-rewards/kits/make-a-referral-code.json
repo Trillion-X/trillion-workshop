@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:make-a-referral-code's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Make a referral code that earns what my referral reward rules give, and give back the event to save\", with {\"referrer\":\"account:ada\",\"target\":{\"on\":\"product_id\",\"value\":\"loaf\"},\"code\":\"bread-7k3q\",\"occurred_at\":\"2026-01-01T00:00:00Z\"}. It runs tool:make-a-referral-code and answers {\"code\":\"BREAD-7K3Q\",\"event\":{\"kind\":\"referral_code_created\",\"subject\":\"account:ada\",\"material\":{\"event_type\":\"referral_code_created\",\"referral_code\":\"BREAD-7K3Q\",\"target\":{\"on\":\"product_id\",\"value\":\"loaf\"},\"occurred_at\":\"2026-01-01T00:00:00Z\"}}}",
   "lists": [],

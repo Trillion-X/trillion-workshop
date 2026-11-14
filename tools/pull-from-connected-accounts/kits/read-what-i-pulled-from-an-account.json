@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:read-what-i-pulled-from-an-account's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Read the conversations, messages and saved items I pulled from a connected account such as Discord, Slack, Telegram, Signal, Instagram, Messenger, X bookmarks or Pinterest\", with {\"source\":\"slack\",\"account\":\"sample\"}. It runs tool:read-what-i-pulled-from-an-account and answers {\"source\":\"slack\",\"account\":\"sample\",\"self_id\":\"U0000SAMPLE\",\"cursor\":\"1793534700.000200\",\"pulled_at\":\"2026-11-03T12:00:00.000Z\",\"threads\":[{\"id\":\"C0000SAMPLE\",\"title\":\"general\",\"messages\":1}],\"collections\":{},\"said\":\"Pulled from slack (sample): 1 conversations.\"}",
   "lists": [],

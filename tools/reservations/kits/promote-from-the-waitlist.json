@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:promote-from-the-waitlist's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Move the next waiting person (or one I name) into a place that is free\", with {\"ledger_id\":\"ledger:sample-class\",\"idempotency_key\":\"sample-promote-b\"}. It runs tool:promote-from-the-waitlist and answers {\"promoted\":true,\"hold\":{\"hold_id\":\"ledger:sample-class:hold:3\",\"subject_ref\":\"person:sample-b\",\"unit_class\":\"general\",\"state\":\"confirmed\",\"idempotency_key\":\"sample-promote-b\",\"held_at\":\"2026-11-14T00:50:41.274Z\",\"promoted_from_waitlist_entry_id\":\"ledger:sample-class:waitlist:2\"},\"waitlist_entry\":{\"waitlist_entry_id\":\"ledger:sample-class:waitlist:2\",\"subject_ref\":\"person:sample-b\" ...",
   "lists": [],

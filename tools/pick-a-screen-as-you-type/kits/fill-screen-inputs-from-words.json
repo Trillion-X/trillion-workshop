@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:fill-screen-inputs-from-words's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Fill a screen's inputs from the words a person typed, such as timer 25 min or lunch with Ruth tomorrow at 1, by each input's format, choices or type, with no model\", with {\"schema\":{\"properties\":{\"seconds\":{\"type\":\"number\"}}},\"words\":\"timer 25 min\"}. It runs tool:fill-screen-inputs-from-words and answers {\"values\":{\"seconds\":1500},\"spans\":{\"seconds\":[[6,12]]},\"leftover\":\"timer\"}",
   "lists": [],

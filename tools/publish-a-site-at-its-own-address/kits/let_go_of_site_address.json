@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:let_go_of_site_address's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Stop a website answering at one of its addresses\", with {\"host\":\"field-notes.trillion.run\"}. It runs tool:let_go_of_site_address and answers {\"let_go\":\"https://field-notes.trillion.run/\",\"origins\":[]}",
   "lists": [],

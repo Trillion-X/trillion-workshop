@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:brief-a-prospect's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Get the instruction my AI writes a research profile of a company or a prospect from: fit against my criteria, the biggest problems the material shows, why now, a case study to cite, ways to reach them\", with {\"key\":\"bakery.example\",\"criteria\":\"a bakery that has had a role open for weeks\",\"material\":\"Head baker wanted. Day to day: scale recipes.\"}. It runs tool:brief-a-prospect and answers {\"key\":\"bakery.example\",\"row_id\":\"record:prospects:bakery.example\",\"profile_shape\":{\"profile\":\"profile (text: two or three sentences on who they are and whether they fit the criteria, and why)\",\"problems\":\"problems (a list of 1 to 3 objects with problem, basis, evidence: the biggest problems the material shows, each with its basis and the evidence)\",\"triggers\":\"triggers (a list of 0 to 5 objects ...",
   "lists": [],

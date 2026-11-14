@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:pull-my-telegram-messages's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Pull the messages my Telegram bot was sent into my own records\", with {\"account\":\"sample\"}. It runs tool:pull-my-telegram-messages and answers {\"source\":\"telegram\",\"account\":\"sample\",\"self_id\":\"1000000001\",\"threads\":2,\"items\":0,\"new_messages\":2,\"new_items\":0,\"cursor\":700000003,\"errors\":[],\"skipped\":[],\"status\":\"pulled\",\"said\":\"Pulled 2 new messages in 2 conversations from Telegram.\"}",
   "lists": [],

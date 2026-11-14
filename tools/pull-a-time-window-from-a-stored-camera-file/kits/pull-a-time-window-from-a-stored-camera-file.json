@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:pull-a-time-window-from-a-stored-camera-file's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Get the sound of a few seconds, or one still picture, out of a big camera video I keep in cloud storage, reading only the small part of the file that holds it\", with {\"identity\":\"12:made-up\",\"from\":1,\"to\":2,\"out\":\"window.wav\",\"settings_record\":\"record:setting:pull-a-time-window-from-a-stored-camera-file~person~all\"}. It runs tool:pull-a-time-window-from-a-stored-camera-file and answers {\"mode\":\"window\",\"identity\":\"12:made-up\",\"from\":1,\"to\":2,\"audio_packets\":1,\"audio_reads\":1,\"audio_bytes\":16,\"out\":\"/granted-NcJLEd/window.wav\",\"bytes_fetched\":48,\"reads\":3,\"settings_from\":{\"id\":\"record:setting:pull-a-time-window-from-a-stored-camera-file~person~all\",\"from\":\"made up for this sample\"}}",
   "lists": [

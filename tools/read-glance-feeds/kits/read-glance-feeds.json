@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:read-glance-feeds's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Read one feed or an ordered set of feeds for a glance surface\", with {\"feed\":\"habits\"}. It runs tool:read-glance-feeds and answers {\"feeds\":[{\"id\":\"habits\",\"label\":\"Things you want to do\",\"about\":\"Actions that serve your pursuits, each opening at the moment it matters.\",\"empty\":\"No action is ready yet.\",\"status\":\"ready\",\"rows\":[{\"id\":\"record:habit:sample-walk\",\"title\":\"Take a short walk\",\"source\":{\"id\":\"record:habit:sample-walk\",\"type\":\"record:habit\",\"value\":{\"habit\":\"Take a short walk\",\"cue\":\"After lunch\",\"state\":\"Active\" ...",
   "lists": [],

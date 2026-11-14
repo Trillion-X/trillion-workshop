@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:list-running-programs's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"List the programs running on this person's computer and how much memory each one uses, the largest first, optionally only the programs whose name has some words\", with {}. It runs tool:list-running-programs and answers {\"total\":0,\"programs\":[],\"complete\":true}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:unpair-a-sender's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Stop letting a paired sender's messages through, so they are unknown again\", with {\"source_id\":\"events:sample\",\"sender\":\"sender-one\"}. It runs tool:unpair-a-sender and answers {\"source_id\":\"events:sample\",\"sender\":\"sender-one\",\"said\":\"sender-one is no longer paired for events:sample.\"}",
   "lists": [],

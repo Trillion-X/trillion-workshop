@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:rank-library-formats-against-concepts's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"For every idea I could make a video of, find which of the formats in my library suit it best, and record the best few per idea with why\", with {\"step\":\"catalog\",\"library\":\"library\",\"concepts\":{\"files\":[\"ideas/A.md\"]},\"settings_record\":\"record:setting:rank-library-formats-against-concepts~film~sample-film\"}. It runs tool:rank-library-formats-against-concepts and answers {\"step\":\"catalog\",\"candidates\":2,\"concepts\":1,\"settings_from\":{\"id\":\"record:setting:rank-library-formats-against-concepts~film~sample-film\",\"from\":\"made up for this sample\"}}",
   "lists": [

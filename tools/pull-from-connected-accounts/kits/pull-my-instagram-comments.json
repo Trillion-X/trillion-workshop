@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:pull-my-instagram-comments's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Pull the comments on the posts of my Instagram professional account into my own records\", with {\"account\":\"sample\"}. It runs tool:pull-my-instagram-comments and answers {\"source\":\"instagram-comments\",\"account\":\"sample\",\"self_id\":\"9000000000000001\",\"threads\":0,\"items\":0,\"new_messages\":0,\"new_items\":0,\"cursor\":null,\"errors\":[\"/me/media: refused (HTTP 502)\"],\"skipped\":[],\"status\":\"partial\",\"said\":\"Pulled nothing new from Instagram comments; 1 request failed (see errors), so the cursor did not move.\"}",
   "lists": [],

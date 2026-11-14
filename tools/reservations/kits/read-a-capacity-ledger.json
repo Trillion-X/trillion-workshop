@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:read-a-capacity-ledger's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"See who holds the places and who is waiting\", with {\"ledger_id\":\"ledger:sample-class\"}. It runs tool:read-a-capacity-ledger and answers {\"ledger\":{\"ledger_id\":\"ledger:sample-class\",\"scope_ref\":\"scope:sample-class\",\"capacity_policy\":{\"total\":2,\"reserved_by_class\":{},\"oversubscription_policy\":{},\"release_policy\":{}},\"holds\":[{\"hold_id\":\"ledger:sample-class:hold:1\",\"subject_ref\":\"person:sample-a\",\"unit_class\":\"general\",\"state\":\"confirmed\",\"idempotency_key\":\"sample-hold-a\",\"held_at\":\"2026-11-03T09:00:00.000Z\" ...",
   "lists": [],

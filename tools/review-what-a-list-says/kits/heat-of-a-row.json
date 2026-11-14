@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:heat-of-a-row's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Say how much a row is used as of a moment, its use heat halving with time, and the heat record one more use leaves\", with {\"kept\":{\"heat\":2,\"at\":\"2026-10-19T00:00:00.000Z\"},\"now\":\"2026-11-04T00:00:00.000Z\",\"used\":true}. It runs tool:heat-of-a-row and answers {\"heat\":1.381912879967776,\"used\":{\"heat\":2.382,\"at\":\"2026-11-04T00:00:00.000Z\"}}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:write-a-profile-request's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Turn what was gathered about a creator or a topic (video words, page text) into the instruction the person's AI writes a profile from\", with {\"subject_ref\":\"a bakery channel\",\"instruction\":\"Look for how they open a lesson. Material: \",\"material\":\"Fold the dough.\"}. It runs tool:write-a-profile-request and answers {\"subject_ref\":\"a bakery channel\",\"profile_ref\":\"profile:a bakery channel\",\"skipped\":[],\"requests\":[{\"kind\":\"profile-request\",\"status\":\"requested\",\"request_id\":\"a bakery channel\",\"profile_ref\":\"profile:a bakery channel\",\"subject_ref\":\"a bakery channel\",\"output_kind\":\"profile\",\"instruction_text\":\"Look for how they open a lesson. Material: Fold the dough.\"}]}",
   "lists": [],

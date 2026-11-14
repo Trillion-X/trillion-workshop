@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:open-a-capacity-ledger's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Set up how many places there are for a class, table, room or any limited thing, so my AI can hold them one by one\", with {\"ledger_id\":\"ledger:sample-class\",\"scope_ref\":\"scope:sample-class\",\"total\":2}. It runs tool:open-a-capacity-ledger and answers {\"already_open\":false,\"ledger_id\":\"ledger:sample-class\",\"state\":\"open\",\"total\":2,\"confirmed\":0,\"waiting\":0}",
   "lists": [],

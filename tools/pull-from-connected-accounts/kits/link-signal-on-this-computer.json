@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:link-signal-on-this-computer's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Link my Signal account to this computer so my messages can be read here\", with {}. It runs tool:link-signal-on-this-computer and answers {\"state\":\"linked\",\"self_id\":\"11111111-1111-4111-8111-111111111111\",\"said\":\"Signal is linked on this computer. tool:read-my-signal-messages-on-this-computer now reads it.\"}",
   "lists": [],

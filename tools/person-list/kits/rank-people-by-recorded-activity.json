@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:rank-people-by-recorded-activity's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Rank the people in the person's own records by the points their recorded activity earns, all time or over the last days, and give each their level\", with {\"weights\":{\"post\":5,\"reply\":1},\"metrics\":[{\"key\":\"all_time\",\"label\":\"All time\",\"lookback_days\":null,\"order\":0},{\"key\":\"week\",\"label\":\"Last 7 days\",\"lookback_days\":7,\"order\":1}],\"levels\":[{\"level\":1,\"name\":\"New\",\"min_points\":0},{\"level\":2,\"name\":\"Regular\",\"min_points\":5}],\"rank_by\":\"all_time\",\"now\":\"2026-09-27T12:00:00Z\"}. It runs tool:rank-people-by-recorded-activity and answers {\"ranked\":[],\"rank_by\":\"all_time\"}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:keep-channels-latest-videos-and-captions's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"List the newest videos of each channel, tab or playlist I name and keep each new video's captions with the times they are said, its description and, if I ask, its top comments, without downloading any video\", with {\"seeds\":[\"@samplechannel\"],\"newest\":1,\"caption_languages\":[\"en.*\"],\"budget_seconds\":1}. It runs tool:keep-channels-latest-videos-and-captions and answers {\"stopped\":\"budget\",\"requests\":0,\"seconds\":0,\"seeds\":[],\"captions\":{\"ready\":0,\"empty\":0,\"failed\":[]},\"comments\":0,\"settled\":0,\"again\":{\"seeds\":[\"@samplechannel\"],\"newest\":1,\"caption_languages\":[\"en.*\"],\"budget_seconds\":1,\"skip_ids\":[]}}",
   "lists": [],

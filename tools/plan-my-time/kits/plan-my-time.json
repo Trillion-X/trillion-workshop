@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:plan-my-time's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Plan the person's tasks into their free time and judge their meetings against their pursuits, like an auto-scheduling calendar: ASAP first, then hard deadlines, then what serves their most important pursuit, then due date; tasks wait for their blockers, long tasks split into pieces, hard deadlines may use time outside working hours.\", with {\"now\":\"2026-10-19T13:00:00Z\",\"tasks\":[{\"id\":\"write-the-update\",\"duration_minutes\":30}]}. It runs tool:plan-my-time and answers {\"planned_at\":\"2026-10-19T13:00:00.000Z\",\"time_zone\":\"UTC\",\"days\":[{\"date\":\"2026-10-19\",\"planned_minutes\":30,\"cap_minutes\":360,\"over_by_minutes\":0}],\"tasks\":[{\"id\":\"write-the-update\",\"value\":1,\"fit\":\"on_track\",\"finish\":\"2026-10-19T13:30:00.000Z\",\"pieces\":[{\"start\":\"2026-10-19T13:00:00.000Z\",\"end\":\"2026-10-19T13:30:00.000Z\"}]}],\"meetings\":[]}",
   "lists": [],

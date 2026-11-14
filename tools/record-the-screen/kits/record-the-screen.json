@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:record-the-screen's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Record one display or one window of the person's Mac as a movie the person chose, pause, resume and stop it, note the pointer (positions and presses, never keys) beside it, and save it only to a place the person's allow-list names\", with {\"action\":\"status\"}. It runs tool:record-the-screen and answers {\"state\":\"idle\"}",
   "lists": [],

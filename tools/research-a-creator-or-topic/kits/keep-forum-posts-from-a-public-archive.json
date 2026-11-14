@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:keep-forum-posts-from-a-public-archive's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Keep the newest posts of the forums I name (subreddits), with their titles, words, scores and comment counts, from a public archive of the site\", with {\"forums\":[{\"name\":\"baking\",\"group\":\"home-bakers\"}],\"pages\":1}. It runs tool:keep-forum-posts-from-a-public-archive and answers {\"stopped\":\"finished\",\"forums\":[{\"forum\":\"baking\",\"posts\":1,\"pages\":1,\"finished\":true}],\"failed\":[],\"again\":null}",
   "lists": [],

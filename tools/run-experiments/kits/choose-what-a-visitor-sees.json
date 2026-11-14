@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:choose-what-a-visitor-sees's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Pick which version of a page, offer, headline or feature one visitor gets, from rules you write as data, keeping the same visitor on the same version\", with {\"surface\":{\"entity_type\":\"selection-surface\",\"address\":\"page:/offer\",\"decider_program_ref\":\"decider:split\",\"candidates\":[{\"candidate_id\":\"a\",\"material_ref\":\"material:a\"},{\"candidate_id\":\"b\",\"material_ref\":\"material:b\"}]},\"decider\":{\"entity_type\":\"decider\",\"decider_id\":\"split\",\"score\":{\"op\":\"sticky_hash\",\"of\":{\"const\":\"visitor\"},\"split\":{\"split\":{\"a\":0.5,\"b\":0.5}}} .... It runs tool:choose-what-a-visitor-sees and answers {\"chosen\":{\"candidate_id\":\"b\",\"material_ref\":\"material:b\"},\"ranked\":[{\"candidate_id\":\"b\",\"score\":1,\"is_winner\":true},{\"candidate_id\":\"a\",\"score\":0,\"is_winner\":false}],\"findings\":[],\"rule_used\":\"sticky_hash\"}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:pull-my-pinterest-pins's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Pull my Pinterest pins and boards into my own records\", with {\"account\":\"sample\"}. It runs tool:pull-my-pinterest-pins and answers {\"source\":\"pinterest-pins\",\"account\":\"sample\",\"self_id\":\"sample_pinner\",\"threads\":0,\"items\":2,\"new_messages\":0,\"new_items\":2,\"cursor\":null,\"errors\":[],\"skipped\":[],\"status\":\"pulled\",\"said\":\"Pulled 2 new items from Pinterest pins and boards.\"}",
   "lists": [],

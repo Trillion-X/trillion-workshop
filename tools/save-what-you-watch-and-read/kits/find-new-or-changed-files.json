@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:find-new-or-changed-files's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Find the files under a folder the person chose that are new or have changed since the last look, matched by a pattern, without reading what they mean, so a folder of saved things can be followed\", with {\"source_ref\":\"source:sample-files\"}. It runs tool:find-new-or-changed-files and answers {\"source_ref\":\"source:sample-files\",\"observations\":[],\"next_since\":{\"files\":{}},\"more\":false,\"skipped\":[]}",
   "lists": [],

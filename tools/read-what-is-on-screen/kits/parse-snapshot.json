@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:parse-snapshot's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Turn the accessibility elements of one app's window ({ role, label }) into fields through that app's declarative parser row, with emails, card numbers and tokens removed before anything is returned\", with {\"app\":\"Notes Example\",\"elements\":[{\"role\":\"AXStaticText\",\"label\":\"Meeting notes for Ada Example\"},{\"role\":\"AXButton\",\"label\":\"Share\"}]}. It runs tool:parse-snapshot and answers {\"rows\":[{\"text\":\"Meeting notes for Ada Example\"}]}",
   "lists": [],

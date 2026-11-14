@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:record-a-demonstration's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Record, for a short bounded time, what the person does on their Mac (clicks, typing, shortcuts, with the app and the control each was in) and give it back as a draft workflow in words an AI can keep after the person has looked at it\", with {\"seconds\":5}. It runs tool:record-a-demonstration and answers {\"draft\":{\"id\":\"workflow:demonstrated-mwfovyxq\",\"label\":\"A job shown once\",\"job\":\"Repeat the job the person showed on this Mac, step by step\",\"steps\":[{\"id\":\"step-1\",\"title\":\"Step 1\",\"do\":\"In Notes Example, click \\\"New Note\\\" (button).\",\"submit\":{\"type\":\"object\",\"required\":[\"done\"],\"properties\":{\"done\":{\"type\":\"string\",\"description\":\"What was done in this step\"}}}},{\"id\":\"step-2\",\"title\":\"Step 2\" ...",
   "lists": [],

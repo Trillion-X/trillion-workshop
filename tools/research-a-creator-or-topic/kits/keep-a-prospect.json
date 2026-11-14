@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:keep-a-prospect's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Keep what I know about a prospect as one row of my prospect list: what a finder found, the researched profile, a status I move it through, and my notes\", with {\"key\":\"bakery.example\",\"found\":{\"name\":\"Sample Bakery\",\"url\":\"https://bakery.example\"}}. It runs tool:keep-a-prospect and answers {\"action\":\"keep\",\"key\":\"bakery.example\",\"row_id\":\"record:prospects:bakery.example\",\"written\":1,\"created\":true}",
   "lists": [],

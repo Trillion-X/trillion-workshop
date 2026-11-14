@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:read-the-graph-around-a-record's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Read everything one of the person's records is connected to: its relations by side and role in order, everything that happened with it and when they were last in touch, and the records a few steps away\", with {\"id\":\"me\",\"history\":{\"limit\":1}}. It runs tool:read-the-graph-around-a-record and answers {\"id\":\"record:person:me\",\"relations\":[],\"history\":{\"id\":\"record:person:me\",\"activities\":[],\"count\":0,\"last_contact\":null,\"complete\":true},\"complete\":true}",
   "lists": [],

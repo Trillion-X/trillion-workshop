@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:pick-a-screen-for-typed-words's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Pick, as a person types, the screen that already does what their words ask from the screens they are offered, the interfaces made for them and the screens they kept, with no model, and keep the shown screen calm\", with {\"words\":\"focus timer\",\"rows\":[{\"id\":\"tool:focus-timer\",\"label\":\"Focus timer\",\"description\":\"Counts down a focus session\"}]}. It runs tool:pick-a-screen-for-typed-words and answers {\"picks\":[{\"entry\":{\"key\":\"screen:tool:focus-timer\",\"kind\":\"screen\",\"screen\":\"tool:focus-timer\",\"input\":{},\"label\":\"Focus timer\",\"about\":\"Counts down a focus session\",\"asked\":[],\"source\":{},\"terms\":{\"label\":[{\"raw\":\"focus\",\"word\":\"focu\",\"at\":0,\"end\":5},{\"raw\":\"timer\",\"word\":\"timer\",\"at\":6,\"end\":11}],\"about\":[{\"raw\":\"counts\",\"word\":\"count\",\"at\":0,\"end\":6},{\"raw\":\"down\",\"word\":\"down\",\"at\":7 ...",
   "lists": [],

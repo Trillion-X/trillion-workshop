@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:review-rows-of-a-list's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Keep what a list of mine says true: set it up for review (an owner, a review state and a check-again date on each row, and views of what needs review), and mark rows verified, outdated or asking to be checked, or name their owner\", with {\"list_id\":\"docs\",\"row_kind\":\"record:docs\",\"action\":\"set_up\",\"expires_days\":30}. It runs tool:review-rows-of-a-list and answers {\"list_id\":\"docs\",\"set_up\":true,\"fields_added\":[\"owner\",\"review_state\",\"review_due\",\"verified_by\"],\"views_added\":[\"review-needed\",\"review-expired\",\"review-empty\"],\"expires_days\":30}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:printers's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"List the printers the person's computer can print to, and which one is the default\", with {}. It runs tool:printers and answers {\"printers\":[{\"name\":\"sample-printer\",\"state\":\"idle\",\"default\":true}],\"default\":\"sample-printer\"}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:expire-old-holds's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Free the places whose hold time has run out, and offer each to the waitlist\", with {\"ledger_id\":\"ledger:sample-class\"}. It runs tool:expire-old-holds and answers {\"expired_holds\":[{\"hold_id\":\"ledger:sample-class:hold:1\",\"subject_ref\":\"person:sample-a\",\"unit_class\":\"general\",\"state\":\"expired\",\"idempotency_key\":\"sample-hold-a\",\"held_at\":\"2026-11-03T09:00:00.000Z\",\"expires_at\":\"2026-11-03T09:15:00.000Z\",\"released_at\":\"2026-11-14T00:50:41.389Z\"}],\"promoted_holds\":[{\"hold_id\":\"ledger:sample-class:hold:3\",\"subject_ref\":\"person:sample-b\",\"unit_class\":\"general\" ...",
   "lists": [],

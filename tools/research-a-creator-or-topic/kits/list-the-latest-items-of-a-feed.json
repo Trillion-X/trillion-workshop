@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:list-the-latest-items-of-a-feed's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Get the latest posts, videos or episodes of a creator or a topic from their Atom or RSS feed\", with {\"url\":\"https://example.com\"}. It runs tool:list-the-latest-items-of-a-feed and answers {\"source\":\"Sample feed\",\"subject_ref\":\"https://example.com\",\"count\":1,\"items\":[{\"item_id\":\"sample-entry-1\",\"title\":\"First sample post\",\"published\":\"2026-11-01T00:00:00Z\",\"url\":\"https://example.com/first\",\"description\":\"A made-up summary.\"}]}",
   "lists": [],

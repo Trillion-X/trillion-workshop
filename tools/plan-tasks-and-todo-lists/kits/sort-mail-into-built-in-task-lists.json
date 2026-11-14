@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:sort-mail-into-built-in-task-lists's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Say which built-in to-do list (calendar, email or other) each email would become a task in when I turn my mail into tasks\", with {\"messages\":[{\"subject\":\"Invitation: Team lunch\"},{\"subject\":\"Your weekly deals\",\"list_unsubscribe\":true},{\"subject\":\"Can you review the draft?\"}]}. It runs tool:sort-mail-into-built-in-task-lists and answers {\"messages\":[{\"index\":0,\"subject\":\"Invitation: Team lunch\",\"smart_list\":\"calendar\"},{\"index\":1,\"subject\":\"Your weekly deals\",\"smart_list\":\"other\"},{\"index\":2,\"subject\":\"Can you review the draft?\",\"smart_list\":\"email\"}],\"counts\":{\"calendar\":1,\"other\":1,\"email\":1}}",
   "lists": [],

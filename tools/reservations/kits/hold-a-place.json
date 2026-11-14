@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:hold-a-place's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Hold a place for someone, or put them on the waitlist when every place is taken\", with {\"ledger_id\":\"ledger:sample-class\",\"subject_ref\":\"person:sample-c\",\"idempotency_key\":\"sample-hold-c\"}. It runs tool:hold-a-place and answers {\"outcome\":\"held\",\"hold\":{\"hold_id\":\"ledger:sample-class:hold:3\",\"subject_ref\":\"person:sample-c\",\"unit_class\":\"general\",\"state\":\"confirmed\",\"idempotency_key\":\"sample-hold-c\",\"held_at\":\"2026-11-14T00:50:41.190Z\"},\"ledger_id\":\"ledger:sample-class\",\"state\":\"waitlist_open\",\"total\":2,\"confirmed\":2,\"waiting\":1}",
   "lists": [],

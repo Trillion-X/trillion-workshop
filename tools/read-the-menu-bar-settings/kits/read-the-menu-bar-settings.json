@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:read-the-menu-bar-settings's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Say the Mac menu bar item's own settings (on or off, how far ahead meetings count, how long its title may be, its app icon), each with the value it shows, and whether a change I ask for is one its setting allows\", with {\"answer\":{\"rows\":[{\"id\":\"enabled\",\"kind\":\"switch\",\"value\":false}]}}. It runs tool:read-the-menu-bar-settings and answers {\"rows\":[{\"id\":\"enabled\",\"kind\":\"switch\",\"value\":false},{\"id\":\"meetings_within\",\"kind\":\"choice\",\"value\":\"12\",\"choices\":[{\"id\":\"0\",\"title\":\"Next (today only)\"},{\"id\":\"1\",\"title\":\"1 hour\"},{\"id\":\"2\",\"title\":\"2 hours\"},{\"id\":\"4\",\"title\":\"4 hours\"},{\"id\":\"8\",\"title\":\"8 hours\"},{\"id\":\"12\",\"title\":\"12 hours\"},{\"id\":\"24\",\"title\":\"24 hours\"}]},{\"id\":\"title_length\",\"kind\":\"range\",\"value\":180,\"least\":40 ...",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:pull-my-x-bookmarks's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Pull the posts I bookmarked on X into my own records\", with {\"account\":\"sample\"}. It runs tool:pull-my-x-bookmarks and answers {\"source\":\"x-bookmarks\",\"account\":\"sample\",\"self_id\":\"1000000000000000001\",\"threads\":0,\"items\":1,\"new_messages\":0,\"new_items\":1,\"cursor\":null,\"errors\":[],\"skipped\":[],\"status\":\"pulled\",\"said\":\"Pulled 1 new items from X bookmarks.\"}",
   "lists": [],

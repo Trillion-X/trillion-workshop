@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:schedule-next-review's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Work out when a flashcard, drill, passage or any other thing being learned should come back, from how well the person just recalled it\", with {\"grade\":\"solid\",\"reviewed_at\":\"2026-01-01T12:00:00Z\",\"policy\":{\"initial_ease\":2.5,\"min_ease\":1.3,\"first_interval_days\":1,\"second_interval_days\":6,\"lapse_below_quality\":0.6,\"grade_quality\":{\"miss\":0,\"shaky\":0.6,\"solid\":0.8,\"instant\":1}}}. It runs tool:schedule-next-review and answers {\"state\":{\"reps\":1,\"ease_factor\":2.5,\"interval_days\":1},\"due_at\":\"2026-01-02T12:00:00.000Z\",\"due_on\":\"2026-01-02\",\"lapsed\":false,\"quality\":0.8,\"grade_in_policy\":true}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:practice's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Keep something a person wants to get right every time (a word, a habit, a fact) as a card, ask for what is due now, grade each recall and see how well it is known\", with {\"operation\":\"add\",\"prompt\":\"A sample word\",\"answer\":\"Its sample meaning\",\"deck\":\"sample-deck\"}. It runs tool:practice and answers {\"card_id\":\"card:sample-deck:4fd68f6ab03764f9\",\"deck\":\"sample-deck\",\"kept_progress\":false}",
   "lists": [],

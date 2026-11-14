@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:find-how-records-connect's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Find how two of the person's records connect through relations and things that happened, or what several records all relate to and who else shares it\", with {\"of\":[\"me\"],\"limit\":1}. It runs tool:find-how-records-connect and answers {\"of\":[\"record:person:me\"],\"hubs\":[],\"members\":[],\"count\":{\"hubs\":0,\"members\":0},\"complete\":true,\"read\":{\"relations\":0,\"activities\":0}}",
   "lists": [],

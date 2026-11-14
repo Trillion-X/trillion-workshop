@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:sort-reservations-by-status's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Group my reservations (tables, rooms, visits) by status, the ones that need me first\", with {\"reservations\":[{\"id\":\"reservation:one\",\"title\":\"Window table\",\"status\":\"requested\"},{\"id\":\"reservation:two\",\"title\":\"Back room\",\"status\":\"confirmed\"}],\"attention_order\":[\"requested\"]}. It runs tool:sort-reservations-by-status and answers {\"count\":2,\"groups\":[{\"status\":\"requested\",\"needs_attention\":true,\"reservations\":[{\"id\":\"reservation:one\",\"kind\":\"custom\",\"title\":\"Window table\",\"status\":\"requested\",\"taskRefs\":[],\"partyRefs\":[]}]},{\"status\":\"confirmed\",\"needs_attention\":false,\"reservations\":[{\"id\":\"reservation:two\",\"kind\":\"custom\",\"title\":\"Back room\",\"status\":\"confirmed\",\"taskRefs\":[],\"partyRefs\":[]}]}] ...",
   "lists": [],
