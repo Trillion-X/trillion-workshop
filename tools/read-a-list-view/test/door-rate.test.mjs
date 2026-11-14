@@ -3,6 +3,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
+import { mkdtemp, readFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { openDoor } from '../read-data/door.mjs';
 
 const CONFIG = port => ({ transport: { url: `http://127.0.0.1:${port}/mcp`, credential: { keychain_item: 'made-up' } },
@@ -95,5 +98,32 @@ test('a write refused because the store was busy and never started is sent again
     const door = await openDoor({ ...CONFIG(server.address().port), records: { ...CONFIG(0).records, write_method: 'records:write' } }, { keyOf: async () => 'made-up-key-for-the-bakery' });
     assert.deepEqual(await door.write([{ id: 'record:loaf:rye', type: 'record:loaf', value: {} }], { key: 'k2' }), { changed: true, write_count: 1 });
     assert.deepEqual(keys, ['k2', 'k2']);
+  } finally { server.close(); }
+});
+
+test('a call sent again for a busy answer is one line of the busy log: its codes, its whole wait and how it ended', async () => {
+  const folder = await mkdtemp(join(tmpdir(), 'busy-log-'));
+  const log = join(folder, 'busy.jsonl');
+  let calls = 0;
+  const server = createServer((request, response) => {
+    let body = '';
+    request.on('data', chunk => { body += chunk; });
+    request.on('end', () => {
+      const call = JSON.parse(body);
+      calls += 1;
+      const result = calls < 3 ? { isError: true, structuredContent: { code: 'write_deadline_exceeded', outcome: 'not_started' } } : { structuredContent: { changed: true, write_count: 1 } };
+      response.setHeader('content-type', 'application/json');
+      response.end(JSON.stringify({ jsonrpc: '2.0', id: call.id, result }));
+    });
+  });
+  await new Promise(done => server.listen(0, '127.0.0.1', done));
+  try {
+    const door = await openDoor({ ...CONFIG(server.address().port), busy_log: log, records: { ...CONFIG(0).records, write_method: 'records:write' } }, { keyOf: async () => 'made-up-key-for-the-bakery' });
+    await door.write([{ id: 'record:loaf:rye', type: 'record:loaf', value: {} }], { key: 'k3' });
+    await door.read('record:loaf', 'record:loaf:rye');
+    const lines = (await readFile(log, 'utf8')).trim().split('\n').map(line => JSON.parse(line));
+    assert.equal(lines.length, 1, 'a call that was never busy writes nothing');
+    assert.deepEqual([lines[0].codes, lines[0].outcome], [['write_deadline_exceeded', 'write_deadline_exceeded'], 'landed']);
+    assert.ok(lines[0].waited_ms >= 200 + 400, 'the wait is the time the call really waited');
   } finally { server.close(); }
 });

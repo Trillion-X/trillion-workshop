@@ -11,6 +11,7 @@
     "transport_failures": true,
     "why": "When a list's file copy may be read, read-only (copy-readable.mjs, asked by a copy guard): only when reading the list answers one of these codes, or the door cannot be reached at all (transport_failures), which is when every holder of the account is unreachable. Any answer from the list, with or without rows, keeps the copy closed, so agents read the list. On Nov 3, 2026 the account's stores were lost and the door answered original_workspace_source_unavailable for hours while the copies held every memory."
   },
+  "door_retry": {"retries": 5, "first_wait_ms": 200, "measured": null, "why": "A call the door refused as busy and never started (HTTP 503, selected_owner_unavailable, write_deadline_exceeded, original_workspace_source_unavailable) or whose outcome is unknown is sent again with the same request key after first_wait_ms, doubling, up to retries times. measured: how long such episodes lasted under real load, read from the busy_log lines a refresh writes when the door config names busy_log; the budget is set from it."},
   "limits": {
     "read_page_rows": 50,
     "door_page_rows": 500,

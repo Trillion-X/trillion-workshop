@@ -22,12 +22,14 @@
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { readFile } from 'node:fs/promises';
+import { appendFile } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
+import listView from './list-view.json' with { type: 'json' };
 import { wholeAnswer } from '../../records-door/read-data/byte-pages.mjs';
 
 const PROTOCOL = '2025-06-18';
-const BUSY_RETRIES = 5;
-const FIRST_WAIT_MS = 200;
+// The wait before a busy call is sent again, and how many times: list-view.json door_retry, with the measurement beside it.
+const { retries: BUSY_RETRIES, first_wait_ms: FIRST_WAIT_MS } = listView.door_retry;
 // Refusals that say the write never started because the store was busy: write_deadline_exceeded (the door's own time ran out
 // before the write began) and original_workspace_source_unavailable (the store answered DatabaseBusy: another writer held it,
 // seen refreshing the Library on Nov 13 under load 18). Only with outcome not_started: nothing was written, the same key is safe.
@@ -84,7 +86,25 @@ export async function openDoor(config, { keyOf = credentialKey } = {}) {
   // A busy door (HTTP 503 or selected_owner_unavailable), a write that ran out of the door's time before it started, a call whose outcome is unknown and a call over the key's rate
   // (sign_in_too_many_calls, after the wait it names) are sent again with the
   // same request key after a growing wait, never a new key, so a call that did happen answers its first answer.
+  // Each call that was sent again for a busy answer is one line of config.busy_log (when it names one): the refusal codes,
+  // how long the call waited in all, and whether it landed. The retry budget in list-view.json is read from these lines.
   const callOnce = async (address, method, input, request_key) => {
+    const episode = { codes: [], began: Date.now() };
+    try {
+      const answer = await callBusy(address, method, input, request_key, episode);
+      await noted(episode, method, 'landed');
+      return answer;
+    } catch (error) {
+      await noted(episode, method, error.code ?? 'refused');
+      throw error;
+    }
+  };
+  const noted = async (episode, method, outcome) => {
+    if (!episode.codes.length || !config.busy_log) return;
+    const line = JSON.stringify({ at: new Date().toISOString(), method, codes: episode.codes, waited_ms: Date.now() - episode.began, outcome });
+    await appendFile(config.busy_log, `${line}\n`).catch(() => {});
+  };
+  const callBusy = async (address, method, input, request_key, episode) => {
     for (let attempt = 0; ; attempt += 1) {
       step += 1;
       const again = attempt < BUSY_RETRIES;
@@ -94,18 +114,18 @@ export async function openDoor(config, { keyOf = credentialKey } = {}) {
         Authorization: `Bearer ${key}`, 'Content-Type': 'application/json', Accept: 'application/json, text/event-stream', 'MCP-Protocol-Version': PROTOCOL } });
       const text = await response.text();
       if (text.includes(key)) throw say('key_in_answer', `The door's answer to ${method} held the key; nothing of it is kept.`);
-      if (response.status === 503 && again) { await wait(FIRST_WAIT_MS * 2 ** attempt); continue; }
+      if (response.status === 503 && again) { episode.codes.push('http_503'); await wait(FIRST_WAIT_MS * 2 ** attempt); continue; }
       let reply;
       try { reply = replyOf(text, response.headers.get('content-type') ?? ''); } catch { throw say('not_json_rpc', `The door's answer to ${method} is not JSON-RPC (HTTP ${response.status}).`); }
       if (reply.error) throw say('refused', `${method}: ${JSON.stringify(reply.error).slice(0, 300)}`);
       const result = reply.result ?? {};
       const answer = result.structuredContent ?? result;
       if (!result.isError) return answer;
-      if ((answer?.code === 'selected_owner_unavailable' || answer?.outcome === 'unknown') && again) { await wait(FIRST_WAIT_MS * 2 ** attempt); continue; }
+      if ((answer?.code === 'selected_owner_unavailable' || answer?.outcome === 'unknown') && again) { episode.codes.push(answer?.code ?? 'outcome_unknown'); await wait(FIRST_WAIT_MS * 2 ** attempt); continue; }
       // A write that ran past the door's own bound for one call (legacy_records Bounds elapsed, 5 s; a write measured 4 s
       // whatever its size, 1 row or 64) and says it never started wrote nothing: it is sent again with the same key. Splitting
       // it into smaller writes would only add calls, each paying the same fixed cost against the same bound.
-      if (WAIT_AND_SEND_AGAIN.has(answer?.code) && answer?.outcome === 'not_started' && again) { await wait(FIRST_WAIT_MS * 2 ** attempt); continue; }
+      if (WAIT_AND_SEND_AGAIN.has(answer?.code) && answer?.outcome === 'not_started' && again) { episode.codes.push(answer.code); await wait(FIRST_WAIT_MS * 2 ** attempt); continue; }
       // A door that counts this key's calls (sign_in_too_many_calls) says how long to wait; the same call is sent after it.
       if (answer?.code === 'sign_in_too_many_calls' && again) { await wait(1000 * (Number(answer.detail?.retry_after_seconds) || 60)); continue; }
       throw say(answer?.code ?? 'refused', `${method} was refused: ${JSON.stringify(answer).slice(0, 300)}`);
