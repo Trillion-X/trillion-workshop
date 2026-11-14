@@ -53,3 +53,12 @@ test('/sign-out answers a page whose one form signs out through Better Auth and 
   assert.match(client, /if \(action === '\/sign-out'\) \{\n    const \{ error \} = await client\.signOut\(\);\n    return error \? refusal\(error\) : location\.assign\('\/sign-in'\);/);
   assert.match(readFileSync(new URL('../pages/assets/sign-in.js', import.meta.url), 'utf8'), /\/sign-out/, 'the bundle is built from the client');
 });
+
+test('every email box shows the placeholder old Trillion showed (src/pages.mjs:223, :419)', () => {
+  for (const name of html) {
+    for (const [box] of readFileSync(new URL(name, dir), 'utf8').matchAll(/<input[^>]*type="email"[^>]*>|<input[^>]*name="(?:email|sign_in_email)"[^>]*>/g)) {
+      const placeholder = box.match(/placeholder="([^"]*)"/)?.[1];
+      if (placeholder !== undefined) assert.equal(placeholder, 'you@example.com', `${name}: ${box}`);
+    }
+  }
+});
