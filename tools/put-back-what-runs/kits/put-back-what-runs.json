@@ -1,0 +1,32 @@
+{
+  "draft": true,
+  "drafted_from": "tool:put-back-what-runs's own row (its words, input schema and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:put-back-what-runs with my declarations file.\" Find anything running that was changed by hand instead of from its rows, write it down, and put it back",
+  "lists": [],
+  "no_lists_because": "The owners and their things are a declarations file the person keeps; the findings are the answer (and a JSON-lines file with --findings), poured into a list by the caller.",
+  "workflows": [],
+  "tools": ["tool:put-back-what-runs"],
+  "instructions": [
+    "1. Write a declarations file: one row per owner, naming its module, its differences export, its put_back export, its interval_seconds and its things (for start-a-computer: module tools/start-a-computer/do-work/start-a-computer.mjs, differences hostLayoutDifferences, put_back applyHostLayout, each thing's args [machine, layout row]).",
+    "2. Say to your AI: \"Run tool:put-back-what-runs\", and give it declarations_file.",
+    "3. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:put-back-what-runs and its input (the worked example shows one).",
+    "4. Read what comes back: one finding row per difference, each saying whether it was put back."
+  ],
+  "worked_examples": [
+    {
+      "title": "Put back what runs from a declarations file",
+      "ask": "Run tool:put-back-what-runs.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": { "tool": "tool:put-back-what-runs", "input": { "declarations_file": "<declarations_file: string>" } }
+        }
+      },
+      "hands_back": "An answer with checked_at, a count per owner, and one finding row per difference (owner, thing, difference, put_back).",
+      "given": "The person gives: declarations_file (shown as <name> in the input)."
+    }
+  ]
+}

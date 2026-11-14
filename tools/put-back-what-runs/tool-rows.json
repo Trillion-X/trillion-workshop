@@ -1,0 +1,45 @@
+{
+  "kind": "package-set-records",
+  "record_set": "put-back-what-runs-tool-rows",
+  "what_this_is": "The Workshop row for the put-back-what-runs folder: the one generic reconciler that asks every owner declared in a DATA file how what runs differs from what its rows render, writes each difference as a finding row and has the owner put it back. It names no owner, thing or place.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:put-back-what-runs",
+        "label": "Put back what runs",
+        "job": "Find anything running that was changed by hand instead of from its rows, write each change down, and put it back the way its rows say",
+        "description": "Reads a declarations file of owners (each names its module, the export that answers how what runs differs from its rows, the export that renders its rows again, an interval and its things). Asks each owner for every difference, has the owner put it back, asks again, and answers one finding row per difference: the owner, the thing, what differed and whether it was put back, still differs, or could not be read. With --findings each row is also appended to a file as one JSON line. The watch operation asks each owner again on its own interval.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["declarations_file"],
+          "additionalProperties": false,
+          "properties": {
+            "declarations_file": { "type": "string", "description": "A JSON file { \"kind\": \"what-runs-owners\", \"owners\": [{ owner, module, differences, put_back?, interval_seconds, things: [{ thing, args }] }] }; module paths and { \"$file\": PATH } arguments are read relative to it." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["checked_at", "owners", "findings"],
+          "properties": {
+            "checked_at": { "type": "string" },
+            "owners": { "type": "array", "items": { "type": "object", "required": ["owner", "things", "differences", "put_back", "still_different", "errors"] } },
+            "findings": { "type": "array", "items": { "type": "object", "required": ["kind", "id", "owner", "thing", "difference", "found_at", "put_back"] } }
+          }
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)"],
+          "run": "node tools/put-back-what-runs/do-work/put-back-what-runs.mjs once {declarations_file}",
+          "needs": ["node"],
+          "say": "This runs from the root of the Workshop checkout, on the computer that can reach what the owners render (an owner that works over SSH uses the person's own SSH settings). Tell the person each finding: which owner, which thing, what differed, and whether it was put back. A finding marked still different, put back failed or not read needs the person or the owner; exit status 3 says one exists."
+        },
+        "needs": { "expected_seconds": 60, "network_egress": true },
+        "maker": "maker:put-back-what-runs",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"]
+      }
+    }
+  ]
+}

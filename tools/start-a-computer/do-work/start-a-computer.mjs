@@ -108,8 +108,10 @@ async function readIfPresent(machine, run, path) {
  * `NAME.bak-STAMP`. `held` maps a unit's `secret_vault_key` to the value the person's vault holds under that name; the value
  * reaches the computer only on the SSH channel's standard input, sealed there by systemd-creds at the unit's `secret_file`. */
 export async function applyHostLayout(machine, layout, run = onMachine, product, held = {}) {
-  const { rendered, live } = await hostLayoutState(machine, layout, run, product);
+  const { rendered, live, found } = await hostLayoutState(machine, layout, run, product);
   const writes = rendered.filter(({ path, text }) => live[path] !== text);
+  // A drop-in the row does not declare (placed by hand) is moved aside as NAME.bak-STAMP, so systemd no longer loads it.
+  const strays = found.filter(({ reason }) => reason === 'not in the layout').map(({ path }) => path);
   const absent = path => run(machine, `${path} || exit 3`).then(() => false, error => { if (error.code === 3) return true; throw error; });
   const nodes = [...new Set(layout.units.map(unit => unit.node_bin).filter(Boolean))];
   const nodeMissing = (await Promise.all(nodes.map(bin => absent(`test -x ${q(`${bin}/node`)}`)))).includes(true);
@@ -121,7 +123,7 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
       throw refused(`${unit.unit} needs the value held under the vault name ${unit.secret_vault_key}: hand it on descriptor 5 as {"${unit.secret_vault_key}": value}, read from the person's vault.`);
     }
   }
-  if (!writes.length && !missing.length && !nodeMissing) return { written: [], restarted: [] };
+  if (!writes.length && !missing.length && !nodeMissing && !strays.length) return { written: [], restarted: [] };
   // Set-up makes what is missing (packages, node, accounts, folders); a computer whose accounts and node all exist needs
   // none, and running it would refresh the package lists on every apply.
   const accounts = await Promise.all(layout.units.map(unit => run(machine, `getent passwd ${q(unit.user)} >/dev/null || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })));
@@ -150,9 +152,10 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
       await run(machine, `install -d -m 0755 ${q(dirname(path))} && install -m 0644 -o root -g root /dev/stdin ${q(path)}`, text);
     }
   }
+  for (const path of strays) await run(machine, `mv ${q(path)} ${q(`${path}.bak-${stamp}`)}`);
   const unitOf = path => layout.units.find(unit => unit.product_settings === path)?.unit ?? path.match(/\/([^/]+\.service)(?:\.d\/[^/]+)?$/)?.[1];
-  const units = [...new Set([...writes.map(({ path }) => unitOf(path)), ...missing.map(unit => unit.unit)].filter(Boolean))];
-  const running = new Set([...writes.filter(({ path }) => live[path] !== undefined).map(({ path }) => unitOf(path)),
+  const units = [...new Set([...writes.map(({ path }) => unitOf(path)), ...strays.map(unitOf), ...missing.map(unit => unit.unit)].filter(Boolean))];
+  const running = new Set([...writes.filter(({ path }) => live[path] !== undefined).map(({ path }) => unitOf(path)), ...strays.map(unitOf),
     ...missing.filter(unit => live[`/etc/systemd/system/${unit.unit}`] !== undefined).map(unit => unit.unit)]);
   if (units.length) await run(machine, 'systemctl daemon-reload');
   // Caddy is restarted, never only enabled, when its front-door drop-in changes: the drop-in swaps the program itself.
@@ -170,7 +173,7 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
     if (status !== health.status) throw Object.assign(new Error(`${unit} answered ${status ?? 'nothing'} on ${health.path}, not ${health.status}, after its restart.`), { unit, status });
     booted.push(unit);
   }
-  return { written: writes.map(({ path }) => path), restarted: units, booted, ...(missing.length ? { sealed: missing.map(unit => unit.secret_name) } : {}) };
+  return { written: writes.map(({ path }) => path), restarted: units, booted, ...(strays.length ? { moved_aside: strays } : {}), ...(missing.length ? { sealed: missing.map(unit => unit.secret_name) } : {}) };
 }
 
 const CADDYFILE = '/etc/caddy/Caddyfile';

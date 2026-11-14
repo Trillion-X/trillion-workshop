@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:a80e9f2738a179345477fce57e687c7f32b7efe9701c5fd629b9feb93480e7b0"
+  "blake3": "1f:682802126e310c71a6f9c4e129cb01bf89ae53f7ff572f375cb0d0486ebe56de"
  },
  "fields": [
   {
@@ -8794,6 +8794,21 @@
      "placement:your-computer"
     ],
     "folder": "put-picked-options-into-a-filmcraft-project"
+   }
+  },
+  {
+   "id": "tool:put-back-what-runs",
+   "values": {
+    "title": "Put back what runs",
+    "job": "Find anything running that was changed by hand instead of from its rows, write each change down, and put it back the way its rows say",
+    "description": "Reads a declarations file of owners (each names its module, the export that answers how what runs differs from its rows, the export that renders its rows again, an interval and its things). Asks each owner for every difference, has the owner put it back, asks again, and answers one finding row per difference: the owner, the thing, what differed and whether it was put back, still differs, or could not be read. With --findings each row is also appended to a file as one JSON line. The watch operation asks each owner again on its own interval.",
+    "status": "active",
+    "maker": "maker:put-back-what-runs",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "put-back-what-runs"
    }
   },
   {
