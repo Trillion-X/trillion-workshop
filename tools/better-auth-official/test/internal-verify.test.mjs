@@ -25,7 +25,7 @@ const { getMigrations } = await import('better-auth/db/migration');
 await (await getMigrations(auth.options)).runMigrations();
 const server = spawn(process.execPath, [join(tool, 'server.mjs')], { env, stdio: ['ignore', 'pipe', 'inherit'] });
 test.after(() => server.kill());
-await new Promise(done => { setTimeout(done, 8000); server.stdout.on('data', function wait(chunk) { if (/internal/.test(String(chunk))) { server.stdout.off('data', wait); done(); } }); });
+await new Promise(done => { setTimeout(done, 30000); server.stdout.on('data', function wait(chunk) { if (/internal/.test(String(chunk))) { server.stdout.off('data', wait); done(); } }); });
 
 const ACCOUNT = 'cd'.repeat(32);
 const ORIGIN = settings.base_url;
@@ -130,4 +130,12 @@ test('a client can never set or change its own trillionAccount through the user 
   const answer = await post(`${ORIGIN}/api/auth/update-user`, { trillionAccount: 'ef'.repeat(32), name: 'Renamed' }, cookie);
   assert.notEqual(answer.status, 500);
   assert.equal((await ctx.internalAdapter.findUserByEmail('keys@example.test')).user.trillionAccount, ACCOUNT);
+});
+
+test('a key made with a bearer session (no cookie) carries its maker\'s account too', async () => {
+  const signedIn = await post(`${ORIGIN}/api/auth/sign-in/email`, { email: 'keys@example.test', password: 'scratch-password-123' });
+  const token = (await signedIn.json()).token;
+  assert.ok(token, 'the sign-in answers a session token');
+  const made = await (await fetch(`${ORIGIN}/api/auth/api-key/create`, { method: 'POST', headers: { origin: ORIGIN, 'content-type': 'application/json', authorization: `Bearer ${token}` }, body: JSON.stringify({ name: 'by bearer', metadata: { trillion_account: 'ef'.repeat(32) } }) })).json();
+  assert.equal((await (await verify(made.key)).json()).key?.metadata?.trillion_account, ACCOUNT);
 });

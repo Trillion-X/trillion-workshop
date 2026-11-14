@@ -7,7 +7,7 @@ import { readFileSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { betterAuth } from 'better-auth';
-import { createAuthMiddleware, getSessionFromCtx } from 'better-auth/api';
+import { createAuthMiddleware } from 'better-auth/api';
 import {
   bearer, deviceAuthorization, emailOTP, jwt, magicLink, multiSession, twoFactor,
 } from 'better-auth/plugins';
@@ -56,7 +56,10 @@ export const auth = betterAuth({
       if (!settings.account_claim || (ctx.path === '/api-key/update' && ctx.body.metadata === undefined)) return;
       const metadata = { ...(ctx.body.metadata ?? {}) };
       delete metadata[settings.account_claim.claim];
-      Object.assign(metadata, keyAccount(settings, (await getSessionFromCtx(ctx))?.user));
+      // The maker's session as Better Auth's own getSession reads it, so a bearer session counts (the bearer plugin turns
+      // Authorization into the session there; a hook that reads the context before it sees no session).
+      const session = await auth.api.getSession({ headers: ctx.headers ?? new Headers() });
+      Object.assign(metadata, keyAccount(settings, session?.user));
       ctx.body.metadata = metadata;
     }),
   },
