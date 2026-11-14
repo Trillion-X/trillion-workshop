@@ -102,7 +102,7 @@ test('with no checkout, the copy in the person\'s files answers: a real line and
   assert.equal((await submitFrom(d, [finding('f1')], 'k1')).status, 'kept');
   await assert.rejects(submitFrom(filesDoor(door(), copy({})), [finding('f1', { quote: 'never said' })], 'k2'), /f1\.evidence.*does not hold the quoted text/);
   await assert.rejects(submitFrom(filesDoor(door(), copy({})), [finding('f1', { work_since: `fixed in ${OLD}` })], 'k3'), /not after/);
-  await assert.rejects(submitFrom(filesDoor(door(), copy({})), [finding('f1', { work_since: 'fixed in 0123456789abcdef' })], 'k4'), /no such commit/);
+  await assert.rejects(submitFrom(filesDoor(door(), copy({})), [finding('f1', { work_since: 'fixed in 0123456789abcdef' })], 'k4'), /cannot be judged here.*holds no date for that commit/);
 });
 
 test('with neither a checkout nor a copy, or with no files right, the answer is refused as not judged, never kept', async () => {
@@ -137,4 +137,22 @@ test('a kept answer names the source and head each citation was judged against, 
   assert.ok((await submitFrom(stamped, [finding('f1')], 'h1')).judged_against.some(name => name.endsWith('at abc123def456')));
   const unstamped = (await submitFrom(filesDoor(door(), copy({})), [finding('f1')], 'h2')).judged_against;
   assert.ok(unstamped.some(name => name.endsWith('head not recorded')), unstamped.join('|'));
+});
+
+// What a copy may not do: turn a failure to read into a verdict about the repository.
+test('a copy that cannot read is never a verdict: a failed read, a stamp that is not JSON, dates that are not JSON and a path with .. are each handled', async () => {
+  const flaky = (inner, failing) => ({ ...inner, files: async (method, args) => { if (failing.some(name => args.name_or_identity.endsWith(name))) throw new Error('door fell over'); return inner.files(method, args); } });
+  await assert.rejects(submitFrom(flaky(filesDoor(door(), copy({})), ['src/a.txt']), [finding('f1')], 'u1'), /cannot be judged here.*could not be read from madeup/);
+  assert.doesNotMatch(await submitFrom(flaky(filesDoor(door(), copy({})), ['src/a.txt']), [finding('f1')], 'u2').catch(error => error.message), /is not in madeup/);
+  await assert.rejects(submitFrom(filesDoor(door(), copy({ '.source-copy.json': '{not json' })), [finding('f1')], 'u3'), /cannot be judged here.*no copy of it is in the files/);
+  await assert.rejects(submitFrom(filesDoor(door(), copy({ '.commit-dates.json': '{not json' })), [finding('f1')], 'u4'), /cannot be judged here.*holds no date for that commit/);
+  await assert.rejects(submitFrom(filesDoor(door(), copy({})), [finding('f1', { evidence: 'madeup/../outside/a.txt:1' })], 'u5'), /f1\.evidence.*is not a path inside madeup/);
+});
+
+test('a copy that lists the paths it holds says a file is absent only when the list is the whole repository', async () => {
+  const listed = complete => copy({ '.source-copy.json': JSON.stringify({ ref: 'HEAD', head: 'abc123def456', files: ['src/a.txt'], complete }) });
+  assert.equal((await submitFrom(filesDoor(door(), listed(false)), [finding('f1')], 'l1')).status, 'kept');
+  const other = { evidence: 'madeup/src/other.txt:1' };
+  await assert.rejects(submitFrom(filesDoor(door(), listed(true)), [finding('f1', other)], 'l2'), /is not in madeup/);
+  await assert.rejects(submitFrom(filesDoor(door(), listed(false)), [finding('f1', other)], 'l3'), /cannot be judged here.*could not be read from madeup/);
 });

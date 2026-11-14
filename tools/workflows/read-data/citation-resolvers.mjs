@@ -28,7 +28,7 @@ const git = (folder, ...args) => run('git', ['-C', folder, ...args], { maxBuffer
 
 // One root's source as it can be read here: a checkout read with git at its ref, or the person's own files holding a copy
 // (read through the files door). `sources` are tried in the order the DATA lists them; the first one present answers.
-//   { name, readFile(path) -> text | null, commitDate(hash) -> ISO date | null | undefined }   undefined: cannot say
+//   { name, readFile(path) -> text | null | undefined, commitDate(hash) -> ISO date | null | undefined }   null: not there; undefined: cannot say
 async function sourceOf(rootName, root, door) {
   for (const source of root.sources ?? []) {
     if (source.folder) {
@@ -44,18 +44,31 @@ async function sourceOf(rootName, root, door) {
     }
     if (source.files && door?.files) {
       const at = `${source.files.replace(/\/$/, '')}/`;
-      const readText = async name => readWholeFile(door, name).then(done => (done.bytes ? done.bytes.toString('utf8') : null), () => null);
-      const stamp = await readText(`${at}.source-copy.json`);
-      if (stamp === null) continue;
+      // The text of one file of the copy; undefined when the door could not read it or it is too large to read whole.
+      const readText = async name => readWholeFile(door, name).then(done => (done.bytes ? done.bytes.toString('utf8') : undefined), () => undefined);
+      const stampText = await readText(`${at}.source-copy.json`);
+      if (typeof stampText !== 'string') continue;
+      // A stamp that is not JSON is no stamp: the copy cannot say what it was made from, so the next source answers.
+      let stamp;
+      try { stamp = JSON.parse(stampText); } catch { continue; }
+      // The paths the copy holds (`files`) and whether that is every tracked file (`complete`), when the writer recorded them.
+      const held = Array.isArray(stamp?.files) ? new Set(stamp.files) : null;
       return {
         name: `${rootName} (the copy in ${source.files})`,
         // The head the copy was made from, as the copy's own stamp records it (null when the stamp holds none: an unstamped copy).
-        head: async () => { try { return JSON.parse(stamp).head ?? null; } catch { return null; } },
-        readFile: path => readText(`${at}${path}`),
+        head: async () => stamp?.head ?? null,
+        // text; null: the copy says the file is not in the repository; undefined: the copy cannot say (not held, too large, or the door failed)
+        readFile: async path => {
+          if (held && !held.has(path)) return stamp.complete === true ? null : undefined;
+          return readText(`${at}${path}`);
+        },
+        // A date from the copy's own .commit-dates.json; undefined (cannot say) when that file or the hash is missing, never "no such commit".
         commitDate: async hash => {
-          const dates = JSON.parse((await readText(`${at}.commit-dates.json`)) ?? '{}');
+          const text = await readText(`${at}.commit-dates.json`);
+          let dates;
+          try { dates = JSON.parse(text ?? ''); } catch { return undefined; }
           const found = Object.keys(dates).find(full => full.startsWith(hash));
-          return found ? dates[found] : null;
+          return found ? dates[found] : undefined;
         },
       };
     }
@@ -73,9 +86,11 @@ async function fileLine(row, cite, item, check, door) {
   const [, rootName, path, line] = new RegExp(row.pattern).exec(cite);
   const root = row.roots?.[rootName];
   if (!root) return { cite, ok: false, why: `no repository named ${rootName} in the resolver` };
+  if (path.split('/').some(part => part === '..' || part === '.' || part === '') || path.includes('\\')) return { cite, ok: false, why: `${path} is not a path inside ${rootName}` };
   const source = await sourceOf(rootName, root, door);
   if (!source) return { cite, ok: null, why: `${rootName} is not on this computer and no copy of it is in the files this run may read` };
   const text = await source.readFile(path);
+  if (text === undefined) return { cite, ok: null, why: `${path} could not be read from ${source.name}` };
   if (text === null) return { cite, ok: false, why: `${path} is not in ${source.name}` };
   const lines = text.split('\n');
   if (lines.at(-1) === '') lines.pop();
@@ -92,16 +107,18 @@ async function commit(row, cite, item, check, door) {
   const after = check.after === undefined ? null : Date.parse(item?.[check.after]);
   if (check.after !== undefined && Number.isNaN(after)) return { cite, ok: false, why: `${check.after} is not a date` };
   let blind = 0;
+  let unsure = 0;
   for (const [rootName, root] of Object.entries(row.roots ?? {})) {
     const source = await sourceOf(rootName, root, door);
     if (!source) { blind += 1; continue; }
     const found = await source.commitDate(cite);
+    if (found === undefined) { unsure += 1; continue; }
     if (!found) continue;
     const when = Date.parse(found);
     const against = await judgedAgainst(source);
     return after !== null && !(when > after) ? { cite, ok: false, why: `commit is dated ${new Date(when).toISOString()}, not after ${new Date(after).toISOString()}`, against } : { cite, ok: true, against };
   }
-  return blind ? { cite, ok: null, why: 'a repository has no source here, so the commit cannot be ruled out' } : { cite, ok: false, why: 'no such commit in any root' };
+  return blind || unsure ? { cite, ok: null, why: blind ? 'a repository has no source here, so the commit cannot be ruled out' : 'the copy of a repository holds no date for that commit, so it cannot be ruled out' } : { cite, ok: false, why: 'no such commit in any root' };
 }
 
 async function rowExists(row, cite, _item, _check, door) {
