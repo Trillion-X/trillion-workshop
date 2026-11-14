@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:search-everything-in-a-small-container's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:search-everything-in-a-small-container with question.\" Search every list, record and file name I keep with one question, in one ranked list, without my own computer",
+  "drafted_from": "tool:search-everything-in-a-small-container's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Search every list, record and file name I keep with one question, in one ranked list, without my own computer\", with {\"question\":\"merlinfalcon\"}. It runs tool:search-everything-in-a-small-container and answers {\"question\":\"merlinfalcon\",\"terms\":[\"merlinfalcon\"],\"results\":[{\"start\":0,\"end\":0,\"id\":\"record:c1\",\"source\":\"trillion\",\"type\":\"sample-contacts\",\"record\":\"c1\",\"found_in\":[\"written\"],\"address\":{\"resource\":\"@own-records\",\"operation\":\"records:read\",\"input\":{\"id\":\"c1\",\"type\":\"sample-contacts\"}},\"score\":0.01639,\"places\":[{\"place\":\"written\",\"label\":\"Notes and text\",\"said\":null,\"score\":0.016}] ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (*, ) through the records door.",
   "workflows": [],
   "tools": [
     "tool:search-everything-in-a-small-container"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:search-everything-in-a-small-container\", and give it question.",
+    "1. Say to your AI: \"Search every list, record and file name I keep with one question, in one ranked list, without my own computer\", and give it question (The person's question or the words to find).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:search-everything-in-a-small-container and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.results[0].found_in[0] contains \"written\"."
+    "3. Read what comes back: Searches everything this person keeps with one question, as a Workshop run: every kind of record (each kind ranked as its own lane) and their files by name, merged by reciprocal rank into one list, best first.",
+    "4. It reads and writes only its own rows through the records door: * (records:search); undefined (search)."
   ],
   "worked_examples": [
     {
-      "title": "Search everything I keep with one question (runs in a small container) on a sample input",
-      "ask": "Run tool:search-everything-in-a-small-container.",
+      "title": "Search everything I keep with one question (runs in a small container) on its own sample",
+      "ask": "Search every list, record and file name I keep with one question, in one ranked list, without my own computer",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +32,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.results[0].found_in[0] contains \"written\"."
+      "given": "The input {\"question\":\"merlinfalcon\"}, with 4 example rows (sample-contacts, sample-invoices, sample-places) already kept.",
+      "hands_back": "It answered {\"question\":\"merlinfalcon\",\"terms\":[\"merlinfalcon\"],\"results\":[{\"start\":0,\"end\":0,\"id\":\"record:c1\",\"source\":\"trillion\",\"type\":\"sample-contacts\",\"record\":\"c1\",\"found_in\":[\"written\"],\"address\":{\"resource\":\"@own-records\",\"operation\":\"records:read\",\"input\":{\"id\":\"c1\",\"type\":\"sample-contacts\"}},\"score\":0.01639,\"places\":[{\"place\":\"written\",\"label\":\"Notes and text\",\"said\":null,\"score\":0.016}],\"moments\":[{\"start\":0,\"end\":0,\"timed\":false,\"said\":null,\"places\":[\"written\"]}],\"said\":null},{\"start\":0,\"end\":0,\"id\":\"record:i1\",\"source\":\"trillion\",\"type\":\"sample-invoices\",\"record\":\"i1\",\"found_in\":[\"written\"],\"address\":{\"resource\":\"@own-records\",\"operation\":\"records:read\",\"input\":{\"id\":\"i1\" ...."
     }
   ]
 }

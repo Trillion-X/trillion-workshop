@@ -1,23 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:list-every-connection's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:list-every-connection with nothing more.\" Show every service I can connect to Trillion and every place on my own computer it can read (notes, voice memos, messages, photos, downloads), in one list grouped by kind",
+  "drafted_from": "tool:list-every-connection's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Show every service I can connect to Trillion and every place on my own computer it can read (notes, voice memos, messages, photos, downloads), in one list grouped by kind\", with {\"category\":\"Messages\",\"looked\":{\"sources\":[{\"id\":\"messages\",\"state\":\"found\"}]}}. It runs tool:list-every-connection and answers {\"said\":\"14 services and 2 places on your computer in Messages.\",\"connections\":[{\"id\":\"service:agentmail\",\"kind\":\"service\",\"label\":\"AgentMail\",\"category\":\"Messages\",\"how\":\"key\",\"about\":\"Give Trillion its own email address to send and answer mail.\"},{\"id\":\"service:agentphone\",\"kind\":\"service\",\"label\":\"AgentPhone\",\"category\":\"Messages\",\"how\":\"key\",\"about\":\"Give Trillion its own phone number to call ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:list-every-connection",
     "tool:look-for-the-places-on-this-computer"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:list-every-connection\", and give it nothing more.",
+    "1. Say to your AI: \"Show every service I can connect to Trillion and every place on my own computer it can read (notes, voice memos, messages, photos, downloads), in one list grouped by kind\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-every-connection and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields said, connections."
+    "3. Read what comes back: One list of every connection a person can make: each service (how it connects: a key, a sign-in, or carried by their computer, with the steps for one carried) and each place on their own computer (what it arrives as, and the switch it needs)."
   ],
   "worked_examples": [
     {
-      "title": "List everything I can connect, services and my computer's places together on a sample input",
-      "ask": "Run tool:list-every-connection.",
+      "title": "List everything I can connect, services and my computer's places together on its own sample",
+      "ask": "Show every service I can connect to Trillion and every place on my own computer it can read (notes, voice memos, messages, photos, downloads), in one list grouped by kind",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -40,7 +40,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields said, connections."
+      "given": "The input {\"category\":\"Messages\",\"looked\":{\"sources\":[{\"id\":\"messages\",\"state\":\"found\"}]}}.",
+      "hands_back": "It answered {\"said\":\"14 services and 2 places on your computer in Messages.\",\"connections\":[{\"id\":\"service:agentmail\",\"kind\":\"service\",\"label\":\"AgentMail\",\"category\":\"Messages\",\"how\":\"key\",\"about\":\"Give Trillion its own email address to send and answer mail.\"},{\"id\":\"service:agentphone\",\"kind\":\"service\",\"label\":\"AgentPhone\",\"category\":\"Messages\",\"how\":\"key\",\"about\":\"Give Trillion its own phone number to call and text people.\"},{\"id\":\"service:bland\",\"kind\":\"service\",\"label\":\"Bland\",\"category\":\"Messages\",\"how\":\"key\",\"about\":\"Have an AI make and answer phone calls for you.\"},{\"id\":\"service:discord\",\"kind\":\"service\",\"label\":\"Discord\",\"category\":\"Messages\",\"how\":\"key\",\"about\":\"Send and read messages in your ...."
     }
   ]
 }

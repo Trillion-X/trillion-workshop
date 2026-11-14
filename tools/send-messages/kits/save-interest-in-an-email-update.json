@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:save-interest-in-an-email-update's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:save-interest-in-an-email-update with email, consent, course.\" Keep the consent of a person who asked for one email if a course becomes available, without sending anything",
+  "drafted_from": "tool:save-interest-in-an-email-update's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Keep the consent of a person who asked for one email if a course becomes available, without sending anything\", with {\"email\":\"reader@example.com\",\"consent\":true,\"course\":{\"id\":\"sample-course\",\"public_origin\":\"https://example.com/\",\"consent_text\":\"Email me one update if the free lesson series becomes available.\",\"consent_version\":\"1\",\"capture_only\":true},\"source\":\"sample page\"}. It runs tool:save-interest-in-an-email-update and answers {\"status\":\"interest_saved\",\"already_saved\":false}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (email-course-interest) through the records door.",
   "workflows": [],
   "tools": [
     "tool:save-interest-in-an-email-update"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:save-interest-in-an-email-update\", and give it email, consent, course.",
+    "1. Say to your AI: \"Keep the consent of a person who asked for one email if a course becomes available, without sending anything\", and give it email; consent; course.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:save-interest-in-an-email-update and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields status, already_saved."
+    "3. Read what comes back: Give email, consent (true only when the person agreed in the words of course.consent_text) and course ({ id, public_origin as an https site root, consent_text, consent_version, capture_only: true }) and source (optional).",
+    "4. It reads and writes only its own rows through the records door: email-course-interest (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Save someone's interest in one email update on a sample input",
-      "ask": "Run tool:save-interest-in-an-email-update.",
+      "title": "Save someone's interest in one email update on its own sample",
+      "ask": "Keep the consent of a person who asked for one email if a course becomes available, without sending anything",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -40,7 +41,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields status, already_saved."
+      "given": "The input {\"email\":\"reader@example.com\",\"consent\":true,\"course\":{\"id\":\"sample-course\",\"public_origin\":\"https://example.com/\",\"consent_text\":\"Email me one update if the free lesson series becomes available.\",\"consent_version\":\"1\",\"capture_only\":true},\"source\":\"sample page\"}.",
+      "hands_back": "It answered {\"status\":\"interest_saved\",\"already_saved\":false}, and kept email-course.interest::6f33cc4a30bc76c45e5b7d579e386df23363b14902bcb0a7c320cf5f25cd6327."
     }
   ]
 }

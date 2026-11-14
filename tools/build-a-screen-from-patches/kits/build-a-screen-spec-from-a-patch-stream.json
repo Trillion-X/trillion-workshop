@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:build-a-screen-spec-from-a-patch-stream's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:build-a-screen-spec-from-a-patch-stream with text.\" Build a screen made of shared parts from the lines of JSON changes an AI wrote for it, and say which lines or parts did not fit",
+  "drafted_from": "tool:build-a-screen-spec-from-a-patch-stream's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Build a screen made of shared parts from the lines of JSON changes an AI wrote for it, and say which lines or parts did not fit\", with {\"text\":\"{\\\"op\\\":\\\"add\\\",\\\"path\\\":\\\"/root\\\",\\\"value\\\":\\\"main\\\"}\\n{\\\"op\\\":\\\"add\\\",\\\"path\\\":\\\"/elements/main\\\",\\\"value\\\":{\\\"type\\\":\\\"Text\\\",\\\"props\\\":{\\\"text\\\":\\\"Hello\\\"}}}\\n\"}. It runs tool:build-a-screen-spec-from-a-patch-stream and answers {\"spec\":{\"root\":\"main\",\"elements\":{\"main\":{\"type\":\"Text\",\"props\":{\"text\":\"Hello\"}}},\"state\":{},\"reads\":{}},\"said\":[],\"fixes\":[],\"problems\":[]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:build-a-screen-spec-from-a-patch-stream"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:build-a-screen-spec-from-a-patch-stream\", and give it text.",
+    "1. Say to your AI: \"Build a screen made of shared parts from the lines of JSON changes an AI wrote for it, and say which lines or parts did not fit\", and give it text.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:build-a-screen-spec-from-a-patch-stream and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.spec.root contains \"main\"."
+    "3. Read what comes back: Give text: lines, each one RFC 6902 change (add, replace or remove), a list of changes, or a whole spec, to { root, elements, state, reads }; optionally requests, the screen's declared requests by name."
   ],
   "worked_examples": [
     {
-      "title": "Build a screen from lines of changes on a sample input",
-      "ask": "Run tool:build-a-screen-spec-from-a-patch-stream.",
+      "title": "Build a screen from lines of changes on its own sample",
+      "ask": "Build a screen made of shared parts from the lines of JSON changes an AI wrote for it, and say which lines or parts did not fit",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +31,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.spec.root contains \"main\"."
+      "given": "The input {\"text\":\"{\\\"op\\\":\\\"add\\\",\\\"path\\\":\\\"/root\\\",\\\"value\\\":\\\"main\\\"}\\n{\\\"op\\\":\\\"add\\\",\\\"path\\\":\\\"/elements/main\\\",\\\"value\\\":{\\\"type\\\":\\\"Text\\\",\\\"props\\\":{\\\"text\\\":\\\"Hello\\\"}}}\\n\"}.",
+      "hands_back": "It answered {\"spec\":{\"root\":\"main\",\"elements\":{\"main\":{\"type\":\"Text\",\"props\":{\"text\":\"Hello\"}}},\"state\":{},\"reads\":{}},\"said\":[],\"fixes\":[],\"problems\":[]}."
     }
   ]
 }

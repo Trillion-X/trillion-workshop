@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:take-a-show-type-away's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:take-a-show-type-away with remove_type.\" Take away a preset of show rules I keep",
+  "drafted_from": "tool:take-a-show-type-away's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Take away a preset of show rules I keep\", with {\"remove_type\":\"sample-preset\"}. It runs tool:take-a-show-type-away and answers {\"rules\":[{\"id\":\"setup-require-assigned-devices\",\"label\":\"Require the devices assigned to this account\",\"subject\":\"setup-step\",\"effect\":\"change\",\"when\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"owner\",\"operator\":\"is_any_of\",\"params\":{\"values\":[\"device\"]}},{\"kind\":\"rule\",\"field\":\"required_for_account\",\"operator\":\"is_true\",\"params\":{}}]} ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (@own-records) through the records door.",
   "workflows": [],
   "tools": [
     "tool:take-a-show-type-away"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:take-a-show-type-away\", and give it remove_type.",
+    "1. Say to your AI: \"Take away a preset of show rules I keep\", and give it remove_type (The id of a type you keep).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:take-a-show-type-away and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $ contains \"keep\"."
+    "3. Read what comes back: Takes one type you keep out of your show-rules record (remove_type), and switches it off.",
+    "4. It reads and writes only its own rows through the records door: @own-records (workspace:read)."
   ],
   "worked_examples": [
     {
-      "title": "Take a show type away on a sample input",
-      "ask": "Run tool:take-a-show-type-away.",
+      "title": "Take a show type away on its own sample",
+      "ask": "Take away a preset of show rules I keep",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +32,8 @@
           }
         }
       },
-      "hands_back": "The answer's $ contains \"keep\"."
+      "given": "The input {\"remove_type\":\"sample-preset\"}.",
+      "hands_back": "It answered {\"rules\":[{\"id\":\"setup-require-assigned-devices\",\"label\":\"Require the devices assigned to this account\",\"subject\":\"setup-step\",\"effect\":\"change\",\"when\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"owner\",\"operator\":\"is_any_of\",\"params\":{\"values\":[\"device\"]}},{\"kind\":\"rule\",\"field\":\"required_for_account\",\"operator\":\"is_true\",\"params\":{}}]},\"set\":[{\"path\":[\"required\"],\"value\":true},{\"path\":[\"applicable\"],\"value\":true}],\"starting\":true,\"on\":true},{\"id\":\"what-is-new-waits-a-day\",\"label\":\"What's new waits a day after you close one, unless it is urgent\",\"subject\":\"tour\",\"effect\":\"hide\",\"when\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false ...."
     }
   ]
 }

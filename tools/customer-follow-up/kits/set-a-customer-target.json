@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:set-a-customer-target's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:set-a-customer-target with product_id, product_name, customers.\" Set how many customers I want for a product, so progress toward that target can be tracked",
+  "drafted_from": "tool:set-a-customer-target's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Set how many customers I want for a product, so progress toward that target can be tracked\", with {\"product_id\":\"product:coaching\",\"product_name\":\"Coaching\",\"customers\":10}. It runs tool:set-a-customer-target and answers {\"target_id\":\"target:product:coaching\",\"target_record\":{\"kind\":\"customer-product-target\",\"targetId\":\"target:product:coaching\",\"productId\":\"product:coaching\",\"productLabel\":\"Coaching\",\"targetCount\":10,\"active\":true}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:set-a-customer-target"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:set-a-customer-target\", and give it product_id, product_name, customers.",
+    "1. Say to your AI: \"Set how many customers I want for a product, so progress toward that target can be tracked\", and give it product_id (The product's id, as your customer steps name it); product_name (The product's name); customers (How many customers the product aims for).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:set-a-customer-target and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.target_record.productLabel contains \"Coaching\"."
+    "3. Read what comes back: Keeps the target in your own customer records (one per product; setting it again replaces it) and returns it; see-where-each-customer-is counts the product's customers against it."
   ],
   "worked_examples": [
     {
-      "title": "Set a product's customer target on a sample input",
-      "ask": "Run tool:set-a-customer-target.",
+      "title": "Set a product's customer target on its own sample",
+      "ask": "Set how many customers I want for a product, so progress toward that target can be tracked",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +33,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.target_record.productLabel contains \"Coaching\"."
+      "given": "The input {\"product_id\":\"product:coaching\",\"product_name\":\"Coaching\",\"customers\":10}.",
+      "hands_back": "It answered {\"target_id\":\"target:product:coaching\",\"target_record\":{\"kind\":\"customer-product-target\",\"targetId\":\"target:product:coaching\",\"productId\":\"product:coaching\",\"productLabel\":\"Coaching\",\"targetCount\":10,\"active\":true}}."
     }
   ]
 }

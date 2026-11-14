@@ -1,23 +1,24 @@
 {
   "draft": true,
-  "drafted_from": "tool:forget-voice's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:forget-voice with nothing more.\" Forget part of what is kept about how this person writes",
+  "drafted_from": "tool:forget-voice's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Forget part of what is kept about how this person writes\", with {\"all_edits\":true}. It runs tool:forget-voice and answers {\"forgot\":1,\"said\":\"Forgot 1.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (voice-profile, voice-edit) through the records door.",
   "workflows": [],
   "tools": [
     "tool:forget-voice",
     "tool:read-voice"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:forget-voice\", and give it nothing more.",
+    "1. Say to your AI: \"Forget part of what is kept about how this person writes\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:forget-voice and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.forgot contains \"1\"."
+    "3. Read what comes back: Forgets one profile (profile_id from tool:read-voice), one edit (edit_id from tool:read-voice), or every edit (all_edits true, with kind to forget only one kind's).",
+    "4. It reads and writes only its own rows through the records door: voice-profile (records:read, records:write); voice-edit (records:read, records:list, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Forget how someone writes on a sample input",
-      "ask": "Run tool:forget-voice.",
+      "title": "Forget how someone writes on its own sample",
+      "ask": "Forget part of what is kept about how this person writes",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,7 +33,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.forgot contains \"1\"."
+      "given": "The input {\"all_edits\":true}, with 1 example row (voice-edit) already kept.",
+      "hands_back": "It answered {\"forgot\":1,\"said\":\"Forgot 1.\"}."
     }
   ]
 }

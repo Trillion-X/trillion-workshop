@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:list-what-my-ais-did's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:list-what-my-ais-did with calls.\" Turn the tool calls an AI made on a person's account into the activity rows the AI activity screen lists: what it did, the item it made or touched, whether it worked and why not, newest first",
+  "drafted_from": "tool:list-what-my-ais-did's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Turn the tool calls an AI made on a person's account into the activity rows the AI activity screen lists: what it did, the item it made or touched, whether it worked and why not, newest first\", with {\"calls\":[{\"tool\":\"hand_off\",\"at\":\"2026-11-01T09:00:00Z\",\"app\":\"Sample AI\",\"input\":{\"said\":\"Draft the launch note\"},\"result\":{\"handoff_id\":\"handoff:sample-1\"}},{\"tool\":\"save_tool\",\"at\":\"2026-11-01T09:04:00Z\",\"app\":\"Sample AI\",\"input\":{\"descriptor\":{\"id\":\"tool:sample-word-count\",\"label\":\"Count words\"}}},{\"tool\":\"run_tool\",\"at\":\"2026-11-01T09:05:00Z\",\"app\":\"Sample AI\" .... It runs tool:list-what-my-ais-did and answers {\"kept\":3,\"left\":[],\"items\":[{\"seq\":3,\"at\":\"2026-11-01T09:05:00Z\",\"app\":\"Sample AI\",\"tool\":\"run_tool\",\"label\":\"Ran a tool\",\"item\":null,\"title\":\"tool:sample-word-count\",\"agent\":null,\"opens\":null,\"uses\":[\"tool:sample-word-count\"],\"for\":[],\"ok\":false,\"reason\":\"The tool timed out.\"}],\"next_before\":null,\"coverage\":{\"source\":\"bounded_activity_feed\",\"generation_rows\":5000,\"generations\":2 ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:list-what-my-ais-did"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:list-what-my-ais-did\", and give it calls.",
+    "1. Say to your AI: \"Turn the tool calls an AI made on a person's account into the activity rows the AI activity screen lists: what it did, the item it made or touched, whether it worked and why not, newest first\", and give it calls.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-what-my-ais-did and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields kept, left, items, next_before, coverage."
+    "3. Read what comes back: Give calls ([{ tool, at, input?, result?, error?, app?, description?"
   ],
   "worked_examples": [
     {
-      "title": "List what my AIs did on a sample input",
-      "ask": "Run tool:list-what-my-ais-did.",
+      "title": "List what my AIs did on its own sample",
+      "ask": "Turn the tool calls an AI made on a person's account into the activity rows the AI activity screen lists: what it did, the item it made or touched, whether it worked and why not, newest first",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -66,7 +66,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields kept, left, items, next_before, coverage."
+      "given": "The input {\"calls\":[{\"tool\":\"hand_off\",\"at\":\"2026-11-01T09:00:00Z\",\"app\":\"Sample AI\",\"input\":{\"said\":\"Draft the launch note\"},\"result\":{\"handoff_id\":\"handoff:sample-1\"}},{\"tool\":\"save_tool\",\"at\":\"2026-11-01T09:04:00Z\",\"app\":\"Sample AI\",\"input\":{\"descriptor\":{\"id\":\"tool:sample-word-count\",\"label\":\"Count words\"}}},{\"tool\":\"run_tool\",\"at\":\"2026-11-01T09:05:00Z\",\"app\":\"Sample AI\" ....",
+      "hands_back": "It answered {\"kept\":3,\"left\":[],\"items\":[{\"seq\":3,\"at\":\"2026-11-01T09:05:00Z\",\"app\":\"Sample AI\",\"tool\":\"run_tool\",\"label\":\"Ran a tool\",\"item\":null,\"title\":\"tool:sample-word-count\",\"agent\":null,\"opens\":null,\"uses\":[\"tool:sample-word-count\"],\"for\":[],\"ok\":false,\"reason\":\"The tool timed out.\"}],\"next_before\":null,\"coverage\":{\"source\":\"bounded_activity_feed\",\"generation_rows\":5000,\"generations\":2,\"ids_per_role\":20,\"durable_sources\":\"execution_records\"}}."
     }
   ]
 }

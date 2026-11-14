@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:see-what-runs-on-its-own's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:see-what-runs-on-its-own with now_ms, wakes.\" Show everything my account runs on its own (schedules, record changes, incoming events): what each waits for, whether it is on, its last and next run, which ones should have run and did not, and a switch to turn each off or on",
+  "drafted_from": "tool:see-what-runs-on-its-own's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Show everything my account runs on its own (schedules, record changes, incoming events): what each waits for, whether it is on, its last and next run, which ones should have run and did not, and a switch to turn each off or on\", with {\"now_ms\":1800000000000,\"wakes\":[{\"tool\":\"tool:sample\",\"id\":\"every-hour\",\"on\":{\"time\":{\"every_ms\":3600000}},\"budget\":{\"steps\":1}}],\"book\":null}. It runs tool:see-what-runs-on-its-own and answers {\"causes\":[{\"tool\":\"tool:sample\",\"id\":\"every-hour\",\"waits_for\":\"every hour\",\"state\":\"unplaced\",\"label\":\"Not picked up yet\",\"red\":true,\"why\":\"the engine has not picked it up; if this stays, the engine is not running its causes\",\"also\":[],\"last_run_ms\":null,\"last_outcome\":null,\"next_run_ms\":null,\"switch\":{\"tool\":\"tool:sample\",\"id\":\"every-hour\",\"on\":true,\"turn\":\"off\",\"label\":\"Turn off\"}}],\"red\":1 ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:see-what-runs-on-its-own"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:see-what-runs-on-its-own\", and give it now_ms, wakes.",
+    "1. Say to your AI: \"Show everything my account runs on its own (schedules, record changes, incoming events): what each waits for, whether it is on, its last and next run, which ones should have run and did not, and a switch to turn each off or on\", and give it now_ms (The engine's time now, in milliseconds); wakes (The causes the tool rows declare: [{tool, id, on, budget}]).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:see-what-runs-on-its-own and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.causes[0].label contains \"Not picked up yet\"."
+    "3. Read what comes back: Give now_ms, wakes (the causes tool rows declare: [{tool, id, on, budget}]), book (the engine's wake book record, or null) and, optionally, stamps (each watched resource's newest change stamp) and late_after_ms."
   ],
   "worked_examples": [
     {
-      "title": "See what runs on its own on a sample input",
-      "ask": "Run tool:see-what-runs-on-its-own.",
+      "title": "See what runs on its own on its own sample",
+      "ask": "Show everything my account runs on its own (schedules, record changes, incoming events): what each waits for, whether it is on, its last and next run, which ones should have run and did not, and a switch to turn each off or on",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -46,7 +46,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.causes[0].label contains \"Not picked up yet\"."
+      "given": "The input {\"now_ms\":1800000000000,\"wakes\":[{\"tool\":\"tool:sample\",\"id\":\"every-hour\",\"on\":{\"time\":{\"every_ms\":3600000}},\"budget\":{\"steps\":1}}],\"book\":null}.",
+      "hands_back": "It answered {\"causes\":[{\"tool\":\"tool:sample\",\"id\":\"every-hour\",\"waits_for\":\"every hour\",\"state\":\"unplaced\",\"label\":\"Not picked up yet\",\"red\":true,\"why\":\"the engine has not picked it up; if this stays, the engine is not running its causes\",\"also\":[],\"last_run_ms\":null,\"last_outcome\":null,\"next_run_ms\":null,\"switch\":{\"tool\":\"tool:sample\",\"id\":\"every-hour\",\"on\":true,\"turn\":\"off\",\"label\":\"Turn off\"}}],\"red\":1,\"on\":1,\"off\":0}."
     }
   ]
 }

@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:name-my-next-commitment's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:name-my-next-commitment with items.\" Say what is happening now or next on my calendar, with a countdown, as the line the Mac menu bar shows",
+  "drafted_from": "tool:name-my-next-commitment's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Say what is happening now or next on my calendar, with a countdown, as the line the Mac menu bar shows\", with {\"now\":\"2026-01-01T10:00:00.000Z\",\"within_hours\":2,\"items\":[{\"title\":\"Design review\",\"source\":\"work\",\"starts_at\":\"2026-01-01T10:12:00.000Z\",\"ends_at\":\"2026-01-01T10:50:00.000Z\"}]}. It runs tool:name-my-next-commitment and answers {\"line\":\"Design review · in 12 min\",\"within_hours\":2,\"reach_ends_at\":\"2026-01-01T12:00:00.000Z\",\"look_ahead_minutes\":1440,\"refresh_seconds\":60}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:name-my-next-commitment"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:name-my-next-commitment\", and give it items.",
+    "1. Say to your AI: \"Say what is happening now or next on my calendar, with a countdown, as the line the Mac menu bar shows\", and give it items.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:name-my-next-commitment and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result.line contains \"Design review\"."
+    "3. Read what comes back: Give the timed calendar items (each with its title, its start and end, whether it is all day, and the calendar it came from) the caller read from the person's own records, and optionally the time to count from, how many hours ahead counts (0 for the rest of today) and how each calendar counts (within, always or never)."
   ],
   "worked_examples": [
     {
-      "title": "Name my next commitment for the menu bar on a sample input",
-      "ask": "Run tool:name-my-next-commitment.",
+      "title": "Name my next commitment for the menu bar on its own sample",
+      "ask": "Say what is happening now or next on my calendar, with a countdown, as the line the Mac menu bar shows",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -40,7 +40,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result.line contains \"Design review\"."
+      "given": "The input {\"now\":\"2026-01-01T10:00:00.000Z\",\"within_hours\":2,\"items\":[{\"title\":\"Design review\",\"source\":\"work\",\"starts_at\":\"2026-01-01T10:12:00.000Z\",\"ends_at\":\"2026-01-01T10:50:00.000Z\"}]}.",
+      "hands_back": "It answered {\"line\":\"Design review · in 12 min\",\"within_hours\":2,\"reach_ends_at\":\"2026-01-01T12:00:00.000Z\",\"look_ahead_minutes\":1440,\"refresh_seconds\":60}."
     }
   ]
 }

@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:say-what-the-menu-bar-mark-shows's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:say-what-the-menu-bar-mark-shows with records, unread_count.\" Say what the Mac menu bar item shows right now: how many things are running, the newest one and how far along, the unread count, or the next calendar line when nothing runs",
+  "drafted_from": "tool:say-what-the-menu-bar-mark-shows's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Say what the Mac menu bar item shows right now: how many things are running, the newest one and how far along, the unread count, or the next calendar line when nothing runs\", with {\"unread_count\":2,\"records\":[{\"title\":\"Upload\",\"kind\":\"upload\",\"running\":true,\"updatedAt\":5,\"progress\":{\"value\":0.5}}]}. It runs tool:say-what-the-menu-bar-mark-shows and answers {\"kind\":\"glance\",\"count\":2,\"working\":true,\"running\":1,\"now\":{\"title\":\"Upload\",\"kind\":\"upload\",\"fraction\":0.5},\"list\":[\"Upload\"]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:say-what-the-menu-bar-mark-shows"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:say-what-the-menu-bar-mark-shows\", and give it records, unread_count.",
+    "1. Say to your AI: \"Say what the Mac menu bar item shows right now: how many things are running, the newest one and how far along, the unread count, or the next calendar line when nothing runs\", and give it records; unread_count.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:say-what-the-menu-bar-mark-shows and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result.kind contains \"glance\"."
+    "3. Read what comes back: Give the person's records (each with title, kind, running, updatedAt and an optional progress value), the unread count and, optionally, the next calendar line."
   ],
   "worked_examples": [
     {
-      "title": "Say what the Mac menu bar mark shows on a sample input",
-      "ask": "Run tool:say-what-the-menu-bar-mark-shows.",
+      "title": "Say what the Mac menu bar mark shows on its own sample",
+      "ask": "Say what the Mac menu bar item shows right now: how many things are running, the newest one and how far along, the unread count, or the next calendar line when nothing runs",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -42,7 +42,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result.kind contains \"glance\"."
+      "given": "The input {\"unread_count\":2,\"records\":[{\"title\":\"Upload\",\"kind\":\"upload\",\"running\":true,\"updatedAt\":5,\"progress\":{\"value\":0.5}}]}.",
+      "hands_back": "It answered {\"kind\":\"glance\",\"count\":2,\"working\":true,\"running\":1,\"now\":{\"title\":\"Upload\",\"kind\":\"upload\",\"fraction\":0.5},\"list\":[\"Upload\"]}."
     }
   ]
 }

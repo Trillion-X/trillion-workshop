@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:check-paper-orders-with-the-broker's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-paper-orders-with-the-broker with nothing more.\" Check my paper orders with my broker: which are filled, at what price, and which never got there",
+  "drafted_from": "tool:check-paper-orders-with-the-broker's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Check my paper orders with my broker: which are filled, at what price, and which never got there\", with {\"routes\":{\"paper-route\":{\"mode\":\"paper\",\"timeout_ms\":5000,\"instrument_requests\":{\"equity\":{\"url\":\"https://paper-broker.example.test/v1/orders\",\"method\":\"POST\",\"headers\":{\"accept\":\"application/json\",\"content-type\":\"application/json\"},\"body_template\":{\"symbol\":\"{instrument.symbol}\",\"qty\":\"{qty}\",\"side\":\"{side}\",\"type\":\"{order_type}\",\"limit_price\":{\"from\":\"limit_price\",\"optional\":true} .... It runs tool:check-paper-orders-with-the-broker and answers {\"mode\":\"paper\",\"checked\":[{\"order_id\":\"paper-sample-v1-14ec1ba6f66bc516\",\"status\":\"filled\",\"broker_status\":\"filled\",\"filled_qty\":1,\"filled_avg_price\":9.98,\"filled_at\":\"2026-11-03T14:30:00Z\"}],\"could_not_check\":[],\"said\":\"1 paper orders checked with the broker, 0 could not be checked.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (trade-order, trade-order-event, trade-day-spend) through the records door.",
   "workflows": [],
   "tools": [
     "tool:check-paper-orders-with-the-broker"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-paper-orders-with-the-broker\", and give it nothing more.",
+    "1. Say to your AI: \"Check my paper orders with my broker: which are filled, at what price, and which never got there\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-paper-orders-with-the-broker and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields mode, checked, could_not_check, said."
+    "3. Read what comes back: Give routes (the same routes the orders were placed with, each with status_request and open_statuses).",
+    "4. It reads and writes only its own rows through the records door: trade-order (records:read, records:list, records:write); trade-order-event (records:write); trade-day-spend (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Check paper orders with the broker on a sample input",
-      "ask": "Run tool:check-paper-orders-with-the-broker.",
+      "title": "Check paper orders with the broker on its own sample",
+      "ask": "Check my paper orders with my broker: which are filled, at what price, and which never got there",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -144,7 +145,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields mode, checked, could_not_check, said."
+      "given": "The input {\"routes\":{\"paper-route\":{\"mode\":\"paper\",\"timeout_ms\":5000,\"instrument_requests\":{\"equity\":{\"url\":\"https://paper-broker.example.test/v1/orders\",\"method\":\"POST\",\"headers\":{\"accept\":\"application/json\",\"content-type\":\"application/json\"},\"body_template\":{\"symbol\":\"{instrument.symbol}\",\"qty\":\"{qty}\",\"side\":\"{side}\",\"type\":\"{order_type}\",\"limit_price\":{\"from\":\"limit_price\",\"optional\":true} ..., with 2 example rows (trade-order, trade-day-spend) already kept, the web answering from 1 recorded reply.",
+      "hands_back": "It answered {\"mode\":\"paper\",\"checked\":[{\"order_id\":\"paper-sample-v1-14ec1ba6f66bc516\",\"status\":\"filled\",\"broker_status\":\"filled\",\"filled_qty\":1,\"filled_avg_price\":9.98,\"filled_at\":\"2026-11-03T14:30:00Z\"}],\"could_not_check\":[],\"said\":\"1 paper orders checked with the broker, 0 could not be checked.\"}, and kept paper-sample-v1-14ec1ba6f66bc516-checked-1794617456825."
     }
   ]
 }

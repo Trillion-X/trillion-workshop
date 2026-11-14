@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:cancel-a-stripe-subscription's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:cancel-a-stripe-subscription with subscription_id.\" Cancel a buyer Stripe subscription now, or at the end of what they have paid for",
+  "drafted_from": "tool:cancel-a-stripe-subscription's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Cancel a buyer Stripe subscription now, or at the end of what they have paid for\", with {\"subscription_id\":\"sub_sample0001\"}. It runs tool:cancel-a-stripe-subscription and answers {\"subscription_id\":\"sub_sample0001\",\"status\":\"canceled\",\"cancel_at_period_end\":false}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:cancel-a-stripe-subscription"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:cancel-a-stripe-subscription\", and give it subscription_id.",
+    "1. Say to your AI: \"Cancel a buyer Stripe subscription now, or at the end of what they have paid for\", and give it subscription_id.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:cancel-a-stripe-subscription and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields subscription_id, status, cancel_at_period_end."
+    "3. Read what comes back: Give subscription_id, and at_period_end: true to keep the paid period running and stop the next renewal."
   ],
   "worked_examples": [
     {
-      "title": "Cancel a Stripe subscription on a sample input",
-      "ask": "Run tool:cancel-a-stripe-subscription.",
+      "title": "Cancel a Stripe subscription on its own sample",
+      "ask": "Cancel a buyer Stripe subscription now, or at the end of what they have paid for",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +31,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields subscription_id, status, cancel_at_period_end."
+      "given": "The input {\"subscription_id\":\"sub_sample0001\"}, the web answering from 1 recorded reply.",
+      "hands_back": "It answered {\"subscription_id\":\"sub_sample0001\",\"status\":\"canceled\",\"cancel_at_period_end\":false}."
     }
   ]
 }

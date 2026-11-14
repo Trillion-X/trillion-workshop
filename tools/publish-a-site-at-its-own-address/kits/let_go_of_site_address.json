@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:let_go_of_site_address's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:let_go_of_site_address with host.\" Stop a website answering at one of its addresses",
+  "drafted_from": "tool:let_go_of_site_address's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Stop a website answering at one of its addresses\", with {\"host\":\"field-notes.trillion.run\"}. It runs tool:let_go_of_site_address and answers {\"let_go\":\"https://field-notes.trillion.run/\",\"origins\":[]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows () through the records door.",
   "workflows": [],
   "tools": [
     "tool:let_go_of_site_address"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:let_go_of_site_address\", and give it host.",
+    "1. Say to your AI: \"Stop a website answering at one of its addresses\", and give it host.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:let_go_of_site_address and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields let_go, origins."
+    "3. Read what comes back: The site stops answering at host (a name or your own domain), and every earlier name that sent visitors to it goes too.",
+    "4. It reads and writes only its own rows through the records door: undefined (list_files, find_file, read_file, write_file_start, write_file_piece, write_file_finish)."
   ],
   "worked_examples": [
     {
-      "title": "Let go of a site address on a sample input",
-      "ask": "Run tool:let_go_of_site_address.",
+      "title": "Let go of a site address on its own sample",
+      "ask": "Stop a website answering at one of its addresses",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +32,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields let_go, origins."
+      "given": "The input {\"host\":\"field-notes.trillion.run\"}.",
+      "hands_back": "It answered {\"let_go\":\"https://field-notes.trillion.run/\",\"origins\":[]}."
     }
   ]
 }

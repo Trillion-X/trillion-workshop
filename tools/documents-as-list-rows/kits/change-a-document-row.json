@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:change-a-document-row's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:change-a-document-row with nothing more.\" Change or remove fields of documents' frontmatter in a folder I granted, write a whole document or remove one, each only if the document is still the one I read",
+  "drafted_from": "tool:change-a-document-row's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Change or remove fields of documents' frontmatter in a folder I granted, write a whole document or remove one, each only if the document is still the one I read\", with {\"rows\":[{\"id\":\"/notes/plan.md\",\"values\":{\"note.status\":\"done\"},\"if_identity\":\"1f:ddd90c328f560d726224da1ede548f7bfd2ab198335379d213f867a742e21da2\"}]}. It runs tool:change-a-document-row and answers {\"kept\":[{\"id\":\"/notes/plan.md\",\"values\":{\"note.status\":\"done\",\"file.name\":\"plan.md\",\"file.basename\":\"plan\",\"file.ext\":\"md\",\"file.path\":\"/notes/plan.md\",\"file.folder\":\"/notes\",\"file.size\":35,\"file.ctime\":\"2026-11-14T00:50:20.307Z\",\"file.mtime\":\"2026-11-14T00:50:20.308Z\",\"file.identity\":\"1f:454ad62170dcadf8e5dafc466574e744edd1d9b19bd4f45f3328da4353693eca\",\"file.links\":[],\"file.embeds\":[] ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:change-a-document-row"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:change-a-document-row\", and give it nothing more.",
+    "1. Say to your AI: \"Change or remove fields of documents' frontmatter in a folder I granted, write a whole document or remove one, each only if the document is still the one I read\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:change-a-document-row and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields kept, removed."
+    "3. Read what comes back: For each row { id, values: { note.<key>: value or null }, if_identity } rewrites only the frontmatter lines of the keys named: a value sets the key, null removes it, and other keys, comments and the body stay byte for byte."
   ],
   "worked_examples": [
     {
-      "title": "Change fields of documents in my folder list on a sample input",
-      "ask": "Run tool:change-a-document-row.",
+      "title": "Change fields of documents in my folder list on its own sample",
+      "ask": "Change or remove fields of documents' frontmatter in a folder I granted, write a whole document or remove one, each only if the document is still the one I read",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -39,7 +39,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields kept, removed."
+      "given": "The input {\"rows\":[{\"id\":\"/notes/plan.md\",\"values\":{\"note.status\":\"done\"},\"if_identity\":\"1f:ddd90c328f560d726224da1ede548f7bfd2ab198335379d213f867a742e21da2\"}]}.",
+      "hands_back": "It answered {\"kept\":[{\"id\":\"/notes/plan.md\",\"values\":{\"note.status\":\"done\",\"file.name\":\"plan.md\",\"file.basename\":\"plan\",\"file.ext\":\"md\",\"file.path\":\"/notes/plan.md\",\"file.folder\":\"/notes\",\"file.size\":35,\"file.ctime\":\"2026-11-14T00:50:20.307Z\",\"file.mtime\":\"2026-11-14T00:50:20.308Z\",\"file.identity\":\"1f:454ad62170dcadf8e5dafc466574e744edd1d9b19bd4f45f3328da4353693eca\",\"file.links\":[],\"file.embeds\":[],\"file.tags\":[],\"file.aliases\":[]},\"identity\":\"1f:454ad62170dcadf8e5dafc466574e744edd1d9b19bd4f45f3328da4353693eca\"}],\"removed\":[]}."
     }
   ]
 }

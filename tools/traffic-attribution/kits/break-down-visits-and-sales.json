@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:break-down-visits-and-sales's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:break-down-visits-and-sales with project, visits.\" Break down visitors, leads and sales by where they came from (source, campaign or any tracked field), with conversion rates and revenue",
+  "drafted_from": "tool:break-down-visits-and-sales's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Break down visitors, leads and sales by where they came from (source, campaign or any tracked field), with conversion rates and revenue\", with {\"project\":{\"id\":\"spring-launch\",\"outcomes\":[{\"id\":\"lead\",\"label\":\"Leads\"},{\"id\":\"purchase\",\"label\":\"Purchases\"}]},\"visits\":[{\"visitor\":\"v1\",\"signals\":{\"source\":\"instagram\"}},{\"visitor\":\"v2\",\"signals\":{\"source\":\"instagram\"}},{\"visitor\":\"v3\",\"signals\":{\"source\":\"google\"}}],\"conversions\":[{\"visitor\":\"v1\",\"outcome\":\"lead\"},{\"visitor\":\"v1\",\"outcome\":\"purchase\",\"value\":49}]}. It runs tool:break-down-visits-and-sales and answers {\"title\":\"Traffic & Sources — spring-launch\",\"break_down_by\":{\"id\":\"source\",\"label\":\"Source\"},\"columns\":[{\"id\":\"visitors\",\"label\":\"Visitors\"},{\"id\":\"conversions\",\"label\":\"Leads\"},{\"id\":\"conv_rate\",\"label\":\"Conv. rate\"},{\"id\":\"conv_purchase\",\"label\":\"Purchases\"},{\"id\":\"rate_purchase\",\"label\":\"Purchases rate\"},{\"id\":\"revenue\",\"label\":\"Revenue\"},{\"id\":\"rev_per_visitor\",\"label\":\"Rev / visitor\"}] ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:break-down-visits-and-sales"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:break-down-visits-and-sales\", and give it project, visits.",
+    "1. Say to your AI: \"Break down visitors, leads and sales by where they came from (source, campaign or any tracked field), with conversion rates and revenue\", and give it project; visits.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:break-down-visits-and-sales and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.rows[0].value contains \"instagram\"."
+    "3. Read what comes back: Counts each visitor once by their first visit, then gives one row per source (or campaign, or any field the visits carry): visitors, each outcome you track (leads, purchases, sign-ups) with its rate, and revenue and revenue per visitor when conversions carry a value."
   ],
   "worked_examples": [
     {
-      "title": "Break down visits and sales by source on a sample input",
-      "ask": "Run tool:break-down-visits-and-sales.",
+      "title": "Break down visits and sales by source on its own sample",
+      "ask": "Break down visitors, leads and sales by where they came from (source, campaign or any tracked field), with conversion rates and revenue",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -74,7 +74,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.rows[0].value contains \"instagram\"."
+      "given": "The input {\"project\":{\"id\":\"spring-launch\",\"outcomes\":[{\"id\":\"lead\",\"label\":\"Leads\"},{\"id\":\"purchase\",\"label\":\"Purchases\"}]},\"visits\":[{\"visitor\":\"v1\",\"signals\":{\"source\":\"instagram\"}},{\"visitor\":\"v2\",\"signals\":{\"source\":\"instagram\"}},{\"visitor\":\"v3\",\"signals\":{\"source\":\"google\"}}],\"conversions\":[{\"visitor\":\"v1\",\"outcome\":\"lead\"},{\"visitor\":\"v1\",\"outcome\":\"purchase\",\"value\":49}]}.",
+      "hands_back": "It answered {\"title\":\"Traffic & Sources — spring-launch\",\"break_down_by\":{\"id\":\"source\",\"label\":\"Source\"},\"columns\":[{\"id\":\"visitors\",\"label\":\"Visitors\"},{\"id\":\"conversions\",\"label\":\"Leads\"},{\"id\":\"conv_rate\",\"label\":\"Conv. rate\"},{\"id\":\"conv_purchase\",\"label\":\"Purchases\"},{\"id\":\"rate_purchase\",\"label\":\"Purchases rate\"},{\"id\":\"revenue\",\"label\":\"Revenue\"},{\"id\":\"rev_per_visitor\",\"label\":\"Rev / visitor\"}],\"rows\":[{\"value\":\"instagram\",\"numbers\":{\"visitors\":2,\"conversions\":1,\"conv_purchase\":1,\"revenue\":49,\"conv_rate\":0.5,\"rate_purchase\":0.5,\"rev_per_visitor\":24.5},\"display\":{\"visitors\":2,\"conversions\":1,\"conv_rate\":\"50%\",\"conv_purchase\":1,\"rate_purchase\":\"50%\",\"revenue\":\"$49\",\"rev_per_visitor\":\"$24.50\"}} ...."
     }
   ]
 }

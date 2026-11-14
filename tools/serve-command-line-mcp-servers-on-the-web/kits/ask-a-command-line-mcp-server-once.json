@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:ask-a-command-line-mcp-server-once's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:ask-a-command-line-mcp-server-once with cli, request.\" Ask a command-line MCP server one request the way the web gateway answers a caller with no session: start it in a working folder of its own, initialize it, ask, and stop it",
+  "drafted_from": "tool:ask-a-command-line-mcp-server-once's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Ask a command-line MCP server one request the way the web gateway answers a caller with no session: start it in a working folder of its own, initialize it, ask, and stop it\", with {\"app\":\"echo\",\"cli\":\"node\",\"args\":[\"./test/echo-mcp-server.mjs\"],\"request\":{\"method\":\"tools/call\",\"params\":{\"name\":\"echo\",\"arguments\":{\"text\":\"hello from the sample\"}}}}. It runs tool:ask-a-command-line-mcp-server-once and answers {\"app\":\"echo\",\"status\":200,\"reply\":{\"jsonrpc\":\"2.0\",\"id\":\"ask-1\",\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"hello from the sample\"}],\"structuredContent\":{\"text\":\"hello from the sample\"}}}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:ask-a-command-line-mcp-server-once"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:ask-a-command-line-mcp-server-once\", and give it cli, request.",
+    "1. Say to your AI: \"Ask a command-line MCP server one request the way the web gateway answers a caller with no session: start it in a working folder of its own, initialize it, ask, and stop it\", and give it cli; request.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:ask-a-command-line-mcp-server-once and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.reply.result.structuredContent.text contains \"hello from the sample\"."
+    "3. Read what comes back: Makes the gateway (do-work/gateway.mjs createGateway) for the one stdio MCP server the input names (cli, args, env) and hands it one POST /<app>/mcp with no session id, in this process: no port is opened."
   ],
   "worked_examples": [
     {
-      "title": "Ask a command-line MCP server one request on a sample input",
-      "ask": "Run tool:ask-a-command-line-mcp-server-once.",
+      "title": "Ask a command-line MCP server one request on its own sample",
+      "ask": "Ask a command-line MCP server one request the way the web gateway answers a caller with no session: start it in a working folder of its own, initialize it, ask, and stop it",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -44,7 +44,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.reply.result.structuredContent.text contains \"hello from the sample\"."
+      "given": "The input {\"app\":\"echo\",\"cli\":\"node\",\"args\":[\"./test/echo-mcp-server.mjs\"],\"request\":{\"method\":\"tools/call\",\"params\":{\"name\":\"echo\",\"arguments\":{\"text\":\"hello from the sample\"}}}}.",
+      "hands_back": "It answered {\"app\":\"echo\",\"status\":200,\"reply\":{\"jsonrpc\":\"2.0\",\"id\":\"ask-1\",\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"hello from the sample\"}],\"structuredContent\":{\"text\":\"hello from the sample\"}}}}."
     }
   ]
 }

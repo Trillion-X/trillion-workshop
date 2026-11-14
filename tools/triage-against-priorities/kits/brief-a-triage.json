@@ -1,23 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:brief-a-triage's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:brief-a-triage with item, priorities, dispositions, min_confidence.\" Decide what to do with one incoming item, such as a message, note or finding, by weighing it against what the person cares most about",
+  "drafted_from": "tool:brief-a-triage's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Decide what to do with one incoming item, such as a message, note or finding, by weighing it against what the person cares most about\", with {\"item\":{\"ref\":\"note:1\",\"text\":\"The flour bin is nearly empty\"},\"priorities\":[{\"text\":\"Never run out of flour\"}],\"dispositions\":[{\"ref\":\"keep-note\",\"label\":\"Keep the note\",\"blocked_default\":false},{\"ref\":\"hold\",\"label\":\"Hold for the baker\",\"fallback\":true}],\"min_confidence\":0.6}. It runs tool:brief-a-triage and answers {\"item\":{\"ref\":\"note:1\",\"text\":\"The flour bin is nearly empty\"},\"priorities\":[{\"text\":\"Never run out of flour\"}],\"dispositions\":[{\"ref\":\"keep-note\",\"label\":\"Keep the note\"},{\"ref\":\"hold\",\"label\":\"Hold for the baker\"}],\"min_confidence\":0.6,\"rules\":[\"Judge the item against the priorities and pick the disposition that serves them best; weigh your confidence by how strongly the item matches a ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:brief-a-triage",
     "tool:settle-a-triage"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:brief-a-triage\", and give it item, priorities, dispositions, min_confidence.",
+    "1. Say to your AI: \"Decide what to do with one incoming item, such as a message, note or finding, by weighing it against what the person cares most about\", and give it item (The thing to triage: ref (its stable name), optional version (a cursor or content identity) and whatever it says); priorities (What the person cares about most, read from their records; an empty list means every item fails closed); dispositions (What an item can be settled as); min_confidence (The least confidence an answer may have).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:brief-a-triage and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.rules contains \"answer hold\"."
+    "3. Read what comes back: Give the item (a ref, an optional version, and what it says), the person's priorities, the dispositions an item can be settled as (each a ref and a label; exactly one is the fallback; blocked_default and needs_objective are optional), the least confidence an answer may have (0 to 1) and, if the person wants limits, the most words the rationale and the objective may have (max_words)."
   ],
   "worked_examples": [
     {
-      "title": "Brief a triage of one incoming item on a sample input",
-      "ask": "Run tool:brief-a-triage.",
+      "title": "Brief a triage of one incoming item on its own sample",
+      "ask": "Decide what to do with one incoming item, such as a message, note or finding, by weighing it against what the person cares most about",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -53,7 +53,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.rules contains \"answer hold\"."
+      "given": "The input {\"item\":{\"ref\":\"note:1\",\"text\":\"The flour bin is nearly empty\"},\"priorities\":[{\"text\":\"Never run out of flour\"}],\"dispositions\":[{\"ref\":\"keep-note\",\"label\":\"Keep the note\",\"blocked_default\":false},{\"ref\":\"hold\",\"label\":\"Hold for the baker\",\"fallback\":true}],\"min_confidence\":0.6}.",
+      "hands_back": "It answered {\"item\":{\"ref\":\"note:1\",\"text\":\"The flour bin is nearly empty\"},\"priorities\":[{\"text\":\"Never run out of flour\"}],\"dispositions\":[{\"ref\":\"keep-note\",\"label\":\"Keep the note\"},{\"ref\":\"hold\",\"label\":\"Hold for the baker\"}],\"min_confidence\":0.6,\"rules\":[\"Judge the item against the priorities and pick the disposition that serves them best; weigh your confidence by how strongly the item matches a priority.\",\"Answer with exactly one JSON object shaped like answer_shape; disposition_ref must be one of the listed refs.\",\"Fail closed: if the priorities are empty, the item matches none of them, your confidence is under 0.6 or you are unsure, answer hold.\"],\"answer_shape\":{\"disposition_ref\":\"one ref from ...."
     }
   ]
 }

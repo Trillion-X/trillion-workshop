@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:suggest-media-cuts's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:suggest-media-cuts with identity, mode, transcript.\" Propose cuts in a recording from its kept transcript (long silences or filler words), as typed lines a person can watch, with a typed ending when there is nothing to cut",
+  "drafted_from": "tool:suggest-media-cuts's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Propose cuts in a recording from its kept transcript (long silences or filler words), as typed lines a person can watch, with a typed ending when there is nothing to cut\", with {\"identity\":\"1f:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"mode\":\"filler_words\",\"transcript\":{\"segments\":[{\"words\":[{\"word\":\"so\",\"start\":0,\"end\":0.3},{\"word\":\"um\",\"start\":0.4,\"end\":0.6},{\"word\":\"then\",\"start\":0.7,\"end\":1}]}]}}. It runs tool:suggest-media-cuts and answers {\"id\":\"1f:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:filler_words\",\"lines\":[{\"type\":\"status\",\"message\":\"Looking for a suggestion\"},{\"type\":\"status\",\"message\":\"Reading 3 timed words\"},{\"type\":\"thinking\",\"text\":\"Found 1 cuts, 0.2 seconds in all\"},{\"type\":\"complete\",\"proposals\":[{\"kind\":\"remove-span\",\"start\":0.4,\"end\":0.6,\"reason\":\"filler\",\"mode\":\"filler_words\"}] ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:suggest-media-cuts"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:suggest-media-cuts\", and give it identity, mode, transcript.",
+    "1. Say to your AI: \"Propose cuts in a recording from its kept transcript (long silences or filler words), as typed lines a person can watch, with a typed ending when there is nothing to cut\", and give it identity; mode; transcript.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:suggest-media-cuts and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.keep.entry.proposals[0].reason contains \"filler\"."
+    "3. Read what comes back: Give identity (the recording's identity), mode (silent_pauses or filler_words) and transcript (segments with timed words)."
   ],
   "worked_examples": [
     {
-      "title": "Suggest cuts from a recording's words on a sample input",
-      "ask": "Run tool:suggest-media-cuts.",
+      "title": "Suggest cuts from a recording's words on its own sample",
+      "ask": "Propose cuts in a recording from its kept transcript (long silences or filler words), as typed lines a person can watch, with a typed ending when there is nothing to cut",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -55,7 +55,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.keep.entry.proposals[0].reason contains \"filler\"."
+      "given": "The input {\"identity\":\"1f:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"mode\":\"filler_words\",\"transcript\":{\"segments\":[{\"words\":[{\"word\":\"so\",\"start\":0,\"end\":0.3},{\"word\":\"um\",\"start\":0.4,\"end\":0.6},{\"word\":\"then\",\"start\":0.7,\"end\":1}]}]}}.",
+      "hands_back": "It answered {\"id\":\"1f:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:filler_words\",\"lines\":[{\"type\":\"status\",\"message\":\"Looking for a suggestion\"},{\"type\":\"status\",\"message\":\"Reading 3 timed words\"},{\"type\":\"thinking\",\"text\":\"Found 1 cuts, 0.2 seconds in all\"},{\"type\":\"complete\",\"proposals\":[{\"kind\":\"remove-span\",\"start\":0.4,\"end\":0.6,\"reason\":\"filler\",\"mode\":\"filler_words\"}],\"cached\":false}],\"keep\":{\"id\":\"1f:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:filler_words\",\"entry\":{\"algorithm_version\":1,\"proposals\":[{\"kind\":\"remove-span\",\"start\":0.4,\"end\":0.6,\"reason\":\"filler\",\"mode\":\"filler_words\"}]}},\"modes\":[\"silent_pauses\",\"filler_words\"]}."
     }
   ]
 }

@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:lay-out-a-profile's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:lay-out-a-profile with layout, sources.\" Lay out one person's profile page from their record: name, fields with values, related lists such as their activity or deals, and the actions that apply",
+  "drafted_from": "tool:lay-out-a-profile's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Lay out one person's profile page from their record: name, fields with values, related lists such as their activity or deals, and the actions that apply\", with {\"layout\":{\"surfaceId\":\"person\",\"identity\":{\"titlePath\":[\"name\"],\"subtitlePath\":[\"company\"]},\"fields\":[{\"id\":\"email\",\"label\":\"Email\",\"valuePath\":[\"email\"]},{\"id\":\"stage\",\"label\":\"Stage\",\"valuePath\":[\"stage\"],\"fallbackValue\":\"Lead\"}],\"relationships\":[{\"id\":\"steps\",\"label\":\"Recent steps\",\"itemPath\":[\"steps\"],\"fields\":[{\"key\":\"label\"},{\"key\":\"at\"}],\"emptyLabel\":\"Nothing yet\"}] .... It runs tool:lay-out-a-profile and answers {\"kind\":\"described-record-surface-materialization\",\"surfaceId\":\"person\",\"readerId\":\"default-reader\",\"identity\":{\"title\":\"Ana Ruiz\",\"subtitle\":\"Northwind\",\"mark\":{\"name\":\"Ana Ruiz\",\"company\":\"Northwind\",\"email\":\"user-ed8c33be@example.com\",\"steps\":[{\"id\":\"step:1\",\"label\":\"First message\",\"at\":\"2026-09-20\"}]},\"badges\":[]},\"fields\":[{\"id\":\"email\",\"label\":\"Email\",\"value\":\"user-ed8c33be@example.com\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:lay-out-a-profile"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:lay-out-a-profile\", and give it layout, sources.",
+    "1. Say to your AI: \"Lay out one person's profile page from their record: name, fields with values, related lists such as their activity or deals, and the actions that apply\", and give it layout (What the profile shows); sources (The records the layout reads, by name, like {\"record\": {...}, \"activity\": {...}}).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:lay-out-a-profile and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.identity.title contains \"Ana Ruiz\"."
+    "3. Read what comes back: Give layout (what the profile shows: surfaceId; identity {titlePath, subtitlePath, fallbackTitle}; fields [{id, label, sourceId, valuePath, fallbackValue, editable, visibleWhen}]; relationships [{id, label, sourceId, itemPath, fields [{key, path}], emptyLabel}]; actions [{id, label, enabled, intent, visibleWhen}]) and sources (the records it reads by name; record is read when a field names none)."
   ],
   "worked_examples": [
     {
-      "title": "Lay out a person's profile on a sample input",
-      "ask": "Run tool:lay-out-a-profile.",
+      "title": "Lay out a person's profile on its own sample",
+      "ask": "Lay out one person's profile page from their record: name, fields with values, related lists such as their activity or deals, and the actions that apply",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -108,7 +108,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.identity.title contains \"Ana Ruiz\"."
+      "given": "The input {\"layout\":{\"surfaceId\":\"person\",\"identity\":{\"titlePath\":[\"name\"],\"subtitlePath\":[\"company\"]},\"fields\":[{\"id\":\"email\",\"label\":\"Email\",\"valuePath\":[\"email\"]},{\"id\":\"stage\",\"label\":\"Stage\",\"valuePath\":[\"stage\"],\"fallbackValue\":\"Lead\"}],\"relationships\":[{\"id\":\"steps\",\"label\":\"Recent steps\",\"itemPath\":[\"steps\"],\"fields\":[{\"key\":\"label\"},{\"key\":\"at\"}],\"emptyLabel\":\"Nothing yet\"}] ....",
+      "hands_back": "It answered {\"kind\":\"described-record-surface-materialization\",\"surfaceId\":\"person\",\"readerId\":\"default-reader\",\"identity\":{\"title\":\"Ana Ruiz\",\"subtitle\":\"Northwind\",\"mark\":{\"name\":\"Ana Ruiz\",\"company\":\"Northwind\",\"email\":\"user-ed8c33be@example.com\",\"steps\":[{\"id\":\"step:1\",\"label\":\"First message\",\"at\":\"2026-09-20\"}]},\"badges\":[]},\"fields\":[{\"id\":\"email\",\"label\":\"Email\",\"value\":\"user-ed8c33be@example.com\",\"editable\":false,\"multiline\":false},{\"id\":\"stage\",\"label\":\"Stage\",\"value\":\"Lead\",\"editable\":false,\"multiline\":false}],\"relationships\":[{\"id\":\"steps\",\"label\":\"Recent steps\",\"emptyLabel\":\"Nothing yet\",\"items\":[{\"id\":\"step:1\",\"values\":{\"label\":\"First message\",\"at\":\"2026-09-20\"}}]}],\"actions\":[{\"id\":\"book\" ...."
     }
   ]
 }

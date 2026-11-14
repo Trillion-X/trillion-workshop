@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:record-a-customer-step's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:record-a-customer-step with contact_id, product_id, step.\" Write down a step with a customer, such as outreach, a reply, a booked call, a purchase, onboarding, a follow-up or feedback, as a record to keep",
+  "drafted_from": "tool:record-a-customer-step's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Write down a step with a customer, such as outreach, a reply, a booked call, a purchase, onboarding, a follow-up or feedback, as a record to keep\", with {\"contact_id\":\"contact:ben\",\"product_id\":\"product:coaching\",\"step\":\"call-booked\",\"outcome\":\"Tuesday 3pm\",\"at\":\"2026-09-27T10:00:00Z\"}. It runs tool:record-a-customer-step and answers {\"step_id\":\"customer-step:13bfc1e0-47a9-43b2-8768-496da54a8cc6\",\"step_record\":{\"kind\":\"customer-step\",\"stepId\":\"customer-step:13bfc1e0-47a9-43b2-8768-496da54a8cc6\",\"contactId\":\"contact:ben\",\"productId\":\"product:coaching\",\"stepKind\":\"call-booked\",\"label\":\"Call booked\",\"outcome\":\"Tuesday 3pm\",\"evidenceRefs\":[],\"ownerRefs\":[],\"createdAt\":\"2026-09-27T10:00:00.000Z\"}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:record-a-customer-step"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:record-a-customer-step\", and give it contact_id, product_id, step.",
+    "1. Say to your AI: \"Write down a step with a customer, such as outreach, a reply, a booked call, a purchase, onboarding, a follow-up or feedback, as a record to keep\", and give it contact_id (The customer's id, as their customer-contact record names it); product_id (The product the step is about); step (What kind of step it was).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:record-a-customer-step and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.step_record.label contains \"Call booked\"."
+    "3. Read what comes back: Keeps the step in your own customer records, with a new id, its time, a label (a plain default for the kind when none is given), the outcome and each piece of evidence once, and returns it; see-where-each-customer-is reads it back."
   ],
   "worked_examples": [
     {
-      "title": "Record a step with a customer on a sample input",
-      "ask": "Run tool:record-a-customer-step.",
+      "title": "Record a step with a customer on its own sample",
+      "ask": "Write down a step with a customer, such as outreach, a reply, a booked call, a purchase, onboarding, a follow-up or feedback, as a record to keep",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -35,7 +35,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.step_record.label contains \"Call booked\"."
+      "given": "The input {\"contact_id\":\"contact:ben\",\"product_id\":\"product:coaching\",\"step\":\"call-booked\",\"outcome\":\"Tuesday 3pm\",\"at\":\"2026-09-27T10:00:00Z\"}.",
+      "hands_back": "It answered {\"step_id\":\"customer-step:13bfc1e0-47a9-43b2-8768-496da54a8cc6\",\"step_record\":{\"kind\":\"customer-step\",\"stepId\":\"customer-step:13bfc1e0-47a9-43b2-8768-496da54a8cc6\",\"contactId\":\"contact:ben\",\"productId\":\"product:coaching\",\"stepKind\":\"call-booked\",\"label\":\"Call booked\",\"outcome\":\"Tuesday 3pm\",\"evidenceRefs\":[],\"ownerRefs\":[],\"createdAt\":\"2026-09-27T10:00:00.000Z\"}}."
     }
   ]
 }

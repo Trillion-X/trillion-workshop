@@ -1,9 +1,9 @@
 {
   "draft": true,
-  "drafted_from": "tool:brief-a-prospect's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:brief-a-prospect with key, criteria.\" Get the instruction my AI writes a research profile of a company or a prospect from: fit against my criteria, the biggest problems the material shows, why now, a case study to cite, ways to reach them",
+  "drafted_from": "tool:brief-a-prospect's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Get the instruction my AI writes a research profile of a company or a prospect from: fit against my criteria, the biggest problems the material shows, why now, a case study to cite, ways to reach them\", with {\"key\":\"bakery.example\",\"criteria\":\"a bakery that has had a role open for weeks\",\"material\":\"Head baker wanted. Day to day: scale recipes.\"}. It runs tool:brief-a-prospect and answers {\"key\":\"bakery.example\",\"row_id\":\"record:prospects:bakery.example\",\"profile_shape\":{\"profile\":\"profile (text: two or three sentences on who they are and whether they fit the criteria, and why)\",\"problems\":\"problems (a list of 1 to 3 objects with problem, basis, evidence: the biggest problems the material shows, each with its basis and the evidence)\",\"triggers\":\"triggers (a list of 0 to 5 objects ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:brief-a-prospect",
@@ -11,14 +11,14 @@
     "tool:write-a-profile-request"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:brief-a-prospect\", and give it key, criteria.",
+    "1. Say to your AI: \"Get the instruction my AI writes a research profile of a company or a prospect from: fit against my criteria, the biggest problems the material shows, why now, a case study to cite, ways to reach them\", and give it key (One short name for the prospect, with no /); criteria (What makes a good prospect for you).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:brief-a-prospect and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.requests[0].instruction_text contains \"Material: Head baker wanted.\"."
+    "3. Read what comes back: Give key (one short name for the prospect, such as its website address, the same in every later action), criteria (what makes a good prospect for you), and the gathered material: material (one text) or evidence ([{ id, text }], such as a job post, a page of the company's site or its reviews, gathered with the other tools of this folder or tools/browse-public-page)."
   ],
   "worked_examples": [
     {
-      "title": "Prepare the research request for a prospect on a sample input",
-      "ask": "Run tool:brief-a-prospect.",
+      "title": "Prepare the research request for a prospect on its own sample",
+      "ask": "Get the instruction my AI writes a research profile of a company or a prospect from: fit against my criteria, the biggest problems the material shows, why now, a case study to cite, ways to reach them",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -35,7 +35,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.requests[0].instruction_text contains \"Material: Head baker wanted.\"."
+      "given": "The input {\"key\":\"bakery.example\",\"criteria\":\"a bakery that has had a role open for weeks\",\"material\":\"Head baker wanted. Day to day: scale recipes.\"}.",
+      "hands_back": "It answered {\"key\":\"bakery.example\",\"row_id\":\"record:prospects:bakery.example\",\"profile_shape\":{\"profile\":\"profile (text: two or three sentences on who they are and whether they fit the criteria, and why)\",\"problems\":\"problems (a list of 1 to 3 objects with problem, basis, evidence: the biggest problems the material shows, each with its basis and the evidence)\",\"triggers\":\"triggers (a list of 0 to 5 objects with trigger, basis, evidence: events that make now the time (a launch, a leadership change, a long-open role), each with its basis and the evidence; an empty list when the material shows none)\",\"case_study\":\"case_study (text: which of the person's own approved case studies fits, by its name, or an ...."
     }
   ]
 }

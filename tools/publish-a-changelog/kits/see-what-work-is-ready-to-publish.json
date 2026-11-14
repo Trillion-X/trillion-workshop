@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:see-what-work-is-ready-to-publish's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:see-what-work-is-ready-to-publish with graph.\" See the finished work waiting to be published as a changelog: which group each piece is in, what can be done with it, what stops it (for example no proof yet) and what was already sent",
+  "drafted_from": "tool:see-what-work-is-ready-to-publish's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"See the finished work waiting to be published as a changelog: which group each piece is in, what can be done with it, what stops it (for example no proof yet) and what was already sent\", with {\"graph\":{\"groups\":[{\"id\":\"group:ready\",\"label\":\"Ready\",\"order\":1}],\"rules\":[{\"id\":\"rule:proof\",\"message\":\"Add proof first.\",\"requires_relationship\":\"relationship:proof\",\"blocks_actions\":[\"action:publish\"]}],\"actions\":[{\"id\":\"action:publish\",\"label\":\"Publish\",\"method\":\"invoke\",\"target\":\"owner:any\"}]},\"recordAtoms\":[{\"id\":\"record:1\",\"title\":\"New loaf on Fridays\",\"group_id\":\"group:ready\"}]}. It runs tool:see-what-work-is-ready-to-publish and answers {\"status\":\"sparse\",\"copy\":{},\"fields\":[],\"relationships\":[],\"views\":[],\"rules\":[{\"id\":\"rule:proof\",\"label\":\"rule:proof\",\"order\":0,\"message\":\"Add proof first.\",\"selected\":false,\"raw\":{\"id\":\"rule:proof\",\"message\":\"Add proof first.\",\"requires_relationship\":\"relationship:proof\",\"blocks_actions\":[\"action:publish\"]}}],\"actions\":[{\"id\":\"action:publish\",\"label\":\"Publish\",\"order\":0,\"target\":\"owner:any\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:see-what-work-is-ready-to-publish"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:see-what-work-is-ready-to-publish\", and give it graph.",
+    "1. Say to your AI: \"See the finished work waiting to be published as a changelog: which group each piece is in, what can be done with it, what stops it (for example no proof yet) and what was already sent\", and give it graph (The queue as data: groups, fields, relationships, views, rules, actions, surface_copy, and optionally records and receipts).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:see-what-work-is-ready-to-publish and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.selectedRecord.blockers[0].message contains \"Add proof first.\"."
+    "3. Read what comes back: Give graph: the queue described as data."
   ],
   "worked_examples": [
     {
-      "title": "See what finished work is ready to publish on a sample input",
-      "ask": "Run tool:see-what-work-is-ready-to-publish.",
+      "title": "See what finished work is ready to publish on its own sample",
+      "ask": "See the finished work waiting to be published as a changelog: which group each piece is in, what can be done with it, what stops it (for example no proof yet) and what was already sent",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -64,7 +64,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.selectedRecord.blockers[0].message contains \"Add proof first.\"."
+      "given": "The input {\"graph\":{\"groups\":[{\"id\":\"group:ready\",\"label\":\"Ready\",\"order\":1}],\"rules\":[{\"id\":\"rule:proof\",\"message\":\"Add proof first.\",\"requires_relationship\":\"relationship:proof\",\"blocks_actions\":[\"action:publish\"]}],\"actions\":[{\"id\":\"action:publish\",\"label\":\"Publish\",\"method\":\"invoke\",\"target\":\"owner:any\"}]},\"recordAtoms\":[{\"id\":\"record:1\",\"title\":\"New loaf on Fridays\",\"group_id\":\"group:ready\"}]}.",
+      "hands_back": "It answered {\"status\":\"sparse\",\"copy\":{},\"fields\":[],\"relationships\":[],\"views\":[],\"rules\":[{\"id\":\"rule:proof\",\"label\":\"rule:proof\",\"order\":0,\"message\":\"Add proof first.\",\"selected\":false,\"raw\":{\"id\":\"rule:proof\",\"message\":\"Add proof first.\",\"requires_relationship\":\"relationship:proof\",\"blocks_actions\":[\"action:publish\"]}}],\"actions\":[{\"id\":\"action:publish\",\"label\":\"Publish\",\"order\":0,\"target\":\"owner:any\",\"method\":\"invoke\",\"selected\":false,\"raw\":{\"id\":\"action:publish\",\"label\":\"Publish\",\"method\":\"invoke\",\"target\":\"owner:any\"}}],\"projections\":[],\"groups\":[{\"id\":\"group:ready\",\"label\":\"Ready\",\"order\":1,\"emptyCopy\":\"\",\"records\":[{\"id\":\"record:1\",\"title\":\"New loaf on Fridays\",\"groupId\":\"group:ready\" ...."
     }
   ]
 }

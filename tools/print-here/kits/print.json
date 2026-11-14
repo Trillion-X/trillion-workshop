@@ -1,0 +1,42 @@
+{
+  "draft": true,
+  "drafted_from": "tool:print's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Print a file from the person's Trillion files on a printer their computer already has (paper size, fit to page, two-sided, colour, copies), so the person never opens a print dialog\", with {\"file\":\"/sample.txt\"}. It runs tool:print and answers {\"printed\":true,\"printer\":\"sample-printer\",\"job\":\"sample-printer-1\",\"copies\":1,\"said\":\"Sent sample.txt to sample-printer (1 copy).\"}",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows () through the records door.",
+  "workflows": [
+    "workflow:print-and-deliver"
+  ],
+  "tools": [
+    "tool:print",
+    "tool:printers"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Print a file from the person's Trillion files on a printer their computer already has (paper size, fit to page, two-sided, colour, copies), so the person never opens a print dialog\", and give it file.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:print and its input (the worked example shows one).",
+    "3. Read what comes back: Give file (its name in the person's files, such as /Projects/sample-card.pdf, or its identity); printer (from tool:printers; the computer's default when left out), copies, paper (the print system's size name, such as Letter, A4, Tabloid), fit (true to fit the page), sides (one-sided, two-sided-long-edge), color (color or monochrome), orientation and title when wanted.",
+    "4. It reads and writes only its own rows through the records door: undefined (find_file, read_file)."
+  ],
+  "worked_examples": [
+    {
+      "title": "Print a file on its own sample",
+      "ask": "Print a file from the person's Trillion files on a printer their computer already has (paper size, fit to page, two-sided, colour, copies), so the person never opens a print dialog",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:print",
+            "input": {
+              "file": "/sample.txt"
+            }
+          }
+        }
+      },
+      "given": "The input {\"file\":\"/sample.txt\"}.",
+      "hands_back": "It answered {\"printed\":true,\"printer\":\"sample-printer\",\"job\":\"sample-printer-1\",\"copies\":1,\"said\":\"Sent sample.txt to sample-printer (1 copy).\"}."
+    }
+  ]
+}

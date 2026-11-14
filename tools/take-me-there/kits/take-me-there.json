@@ -1,23 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:take-me-there's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:take-me-there with thing, waiting, screens.\" Take a person to the thing that needs them: give the screen to open on one waiting card, the arrangement that puts it beside what the caller names, the walkthrough that points at the card's own control and the notice that links to both, or say in plain words that nothing is waiting there or it opens outside their places",
+  "drafted_from": "tool:take-me-there's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Take a person to the thing that needs them: give the screen to open on one waiting card, the arrangement that puts it beside what the caller names, the walkthrough that points at the card's own control and the notice that links to both, or say in plain words that nothing is waiting there or it opens outside their places\", with {\"thing\":\"sample-card\",\"waiting\":{\"cards\":[{\"id\":\"sample-card\",\"title\":\"A made-up thing\",\"address\":\"/sample/open?item=one\"}]},\"screens\":[{\"path_prefix\":\"/sample\",\"tool_id\":\"tool:sample-screen\",\"route_input_from_query\":[\"item\"]}]}. It runs tool:take-me-there and answers {\"taken\":true,\"screen\":{\"tool_id\":\"tool:sample-screen\",\"route_input\":{\"item\":\"one\"}},\"arrangement\":{\"id\":\"sample-card\",\"held\":\"sample-card\",\"replaces\":[\"A made-up thing\"],\"name\":\"A made-up thing\",\"category\":\"Opened for you\",\"root\":{\"kind\":\"pane\",\"surfaces\":[{\"id\":\"tool:sample-screen\",\"input\":{\"item\":\"one\"},\"title\":\"A made-up thing\"}]}},\"tour\":null,\"notice\":null,\"open\":\"/?layout=sample-card\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:take-me-there",
     "tool:what-is-waiting-on-me"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:take-me-there\", and give it thing, waiting, screens.",
+    "1. Say to your AI: \"Take a person to the thing that needs them: give the screen to open on one waiting card, the arrangement that puts it beside what the caller names, the walkthrough that points at the card's own control and the notice that links to both, or say in plain words that nothing is waiting there or it opens outside their places\", and give it thing; waiting (The answer of tool:what-is-waiting-on-me); screens.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:take-me-there and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.screen.tool_id contains \"tool:sample-screen\"."
+    "3. Read what comes back: Give thing (a card id from the answer of tool:what-is-waiting-on-me, or a batch section's key, batch: and the section id), waiting (that answer: { sections: [{ cards }] } or { cards }, a card { id, source?, title?, action?, address?, points_at?"
   ],
   "worked_examples": [
     {
-      "title": "Take me to the thing that needs me on a sample input",
-      "ask": "Run tool:take-me-there.",
+      "title": "Take me to the thing that needs me on its own sample",
+      "ask": "Take a person to the thing that needs them: give the screen to open on one waiting card, the arrangement that puts it beside what the caller names, the walkthrough that points at the card's own control and the notice that links to both, or say in plain words that nothing is waiting there or it opens outside their places",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -50,7 +50,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.screen.tool_id contains \"tool:sample-screen\"."
+      "given": "The input {\"thing\":\"sample-card\",\"waiting\":{\"cards\":[{\"id\":\"sample-card\",\"title\":\"A made-up thing\",\"address\":\"/sample/open?item=one\"}]},\"screens\":[{\"path_prefix\":\"/sample\",\"tool_id\":\"tool:sample-screen\",\"route_input_from_query\":[\"item\"]}]}.",
+      "hands_back": "It answered {\"taken\":true,\"screen\":{\"tool_id\":\"tool:sample-screen\",\"route_input\":{\"item\":\"one\"}},\"arrangement\":{\"id\":\"sample-card\",\"held\":\"sample-card\",\"replaces\":[\"A made-up thing\"],\"name\":\"A made-up thing\",\"category\":\"Opened for you\",\"root\":{\"kind\":\"pane\",\"surfaces\":[{\"id\":\"tool:sample-screen\",\"input\":{\"item\":\"one\"},\"title\":\"A made-up thing\"}]}},\"tour\":null,\"notice\":null,\"open\":\"/?layout=sample-card\",\"said\":\"A made-up thing is ready to open as the main pane. The arrangement is returned to save and open; nothing was saved here.\"}."
     }
   ]
 }

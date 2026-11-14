@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:find-new-or-changed-files's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:find-new-or-changed-files with source_ref.\" Find the files under a folder the person chose that are new or have changed since the last look, matched by a pattern, without reading what they mean, so a folder of saved things can be followed",
+  "drafted_from": "tool:find-new-or-changed-files's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Find the files under a folder the person chose that are new or have changed since the last look, matched by a pattern, without reading what they mean, so a folder of saved things can be followed\", with {\"source_ref\":\"source:sample-files\"}. It runs tool:find-new-or-changed-files and answers {\"source_ref\":\"source:sample-files\",\"observations\":[],\"next_since\":{\"files\":{}},\"more\":false,\"skipped\":[]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:find-new-or-changed-files"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:find-new-or-changed-files\", and give it source_ref.",
+    "1. Say to your AI: \"Find the files under a folder the person chose that are new or have changed since the last look, matched by a pattern, without reading what they mean, so a folder of saved things can be followed\", and give it source_ref (What to call this source).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-new-or-changed-files and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields source_ref, observations, next_since, more, skipped."
+    "3. Read what comes back: Runs on the person's computer over the folder they granted it to read, and reads only inside it; a link that leads out of the folder is skipped and named in skipped, never followed."
   ],
   "worked_examples": [
     {
-      "title": "Find new or changed files on a sample input",
-      "ask": "Run tool:find-new-or-changed-files.",
+      "title": "Find new or changed files on its own sample",
+      "ask": "Find the files under a folder the person chose that are new or have changed since the last look, matched by a pattern, without reading what they mean, so a folder of saved things can be followed",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +31,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields source_ref, observations, next_since, more, skipped."
+      "given": "The input {\"source_ref\":\"source:sample-files\"}.",
+      "hands_back": "It answered {\"source_ref\":\"source:sample-files\",\"observations\":[],\"next_since\":{\"files\":{}},\"more\":false,\"skipped\":[]}."
     }
   ]
 }

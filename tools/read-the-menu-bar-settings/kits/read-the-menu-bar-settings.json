@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:read-the-menu-bar-settings's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-the-menu-bar-settings with nothing more.\" Say the Mac menu bar item's own settings (on or off, how far ahead meetings count, how long its title may be, its app icon), each with the value it shows, and whether a change I ask for is one its setting allows",
+  "drafted_from": "tool:read-the-menu-bar-settings's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Say the Mac menu bar item's own settings (on or off, how far ahead meetings count, how long its title may be, its app icon), each with the value it shows, and whether a change I ask for is one its setting allows\", with {\"answer\":{\"rows\":[{\"id\":\"enabled\",\"kind\":\"switch\",\"value\":false}]}}. It runs tool:read-the-menu-bar-settings and answers {\"rows\":[{\"id\":\"enabled\",\"kind\":\"switch\",\"value\":false},{\"id\":\"meetings_within\",\"kind\":\"choice\",\"value\":\"12\",\"choices\":[{\"id\":\"0\",\"title\":\"Next (today only)\"},{\"id\":\"1\",\"title\":\"1 hour\"},{\"id\":\"2\",\"title\":\"2 hours\"},{\"id\":\"4\",\"title\":\"4 hours\"},{\"id\":\"8\",\"title\":\"8 hours\"},{\"id\":\"12\",\"title\":\"12 hours\"},{\"id\":\"24\",\"title\":\"24 hours\"}]},{\"id\":\"title_length\",\"kind\":\"range\",\"value\":180,\"least\":40 ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:read-the-menu-bar-settings"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-the-menu-bar-settings\", and give it nothing more.",
+    "1. Say to your AI: \"Say the Mac menu bar item's own settings (on or off, how far ahead meetings count, how long its title may be, its app icon), each with the value it shows, and whether a change I ask for is one its setting allows\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-the-menu-bar-settings and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result.held contains \"true\"."
+    "3. Read what comes back: Give the Mac menu bar item's settings (enabled, how far ahead meetings count, the title's length, the app icon) from this tool's own row definitions: each setting with its value (the held answer's when the answer has the right shape, else its default), whether an answer was held, and the change when one is given and the setting allows it; a change it does not allow is refused."
   ],
   "worked_examples": [
     {
-      "title": "Read the Mac menu bar's own settings on a sample input",
-      "ask": "Run tool:read-the-menu-bar-settings.",
+      "title": "Read the Mac menu bar's own settings on its own sample",
+      "ask": "Say the Mac menu bar item's own settings (on or off, how far ahead meetings count, how long its title may be, its app icon), each with the value it shows, and whether a change I ask for is one its setting allows",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -39,7 +39,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result.held contains \"true\"."
+      "given": "The input {\"answer\":{\"rows\":[{\"id\":\"enabled\",\"kind\":\"switch\",\"value\":false}]}}.",
+      "hands_back": "It answered {\"rows\":[{\"id\":\"enabled\",\"kind\":\"switch\",\"value\":false},{\"id\":\"meetings_within\",\"kind\":\"choice\",\"value\":\"12\",\"choices\":[{\"id\":\"0\",\"title\":\"Next (today only)\"},{\"id\":\"1\",\"title\":\"1 hour\"},{\"id\":\"2\",\"title\":\"2 hours\"},{\"id\":\"4\",\"title\":\"4 hours\"},{\"id\":\"8\",\"title\":\"8 hours\"},{\"id\":\"12\",\"title\":\"12 hours\"},{\"id\":\"24\",\"title\":\"24 hours\"}]},{\"id\":\"title_length\",\"kind\":\"range\",\"value\":180,\"least\":40,\"most\":180,\"step\":10},{\"id\":\"app_icon\",\"kind\":\"choice\",\"value\":\"black\",\"choices\":[{\"id\":\"black\",\"title\":\"Black\"},{\"id\":\"white\",\"title\":\"White\",\"icon\":\"AppIconWhite\"}]}],\"held\":true}."
     }
   ]
 }

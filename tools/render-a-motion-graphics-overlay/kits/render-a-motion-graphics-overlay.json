@@ -1,7 +1,7 @@
 {
   "draft": true,
-  "drafted_from": "tool:render-a-motion-graphics-overlay's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:render-a-motion-graphics-overlay with assets, out.\" Draw the animated graphics that go over a piece of my video (paper cut-outs, typed words, cards, charts, marker marks) as a see-through overlay with its sound, from a list of what appears when",
+  "drafted_from": "tool:render-a-motion-graphics-overlay's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Draw the animated graphics that go over a piece of my video (paper cut-outs, typed words, cards, charts, marker marks) as a see-through overlay with its sound, from a list of what appears when\", with {\"settings_files\":[\"read-data/example-look/look.json\"],\"assets\":\"read-data/example-look\",\"out\":\"out/sample-strip\",\"spec\":{\"id\":\"sample-strip\",\"duration_s\":2,\"canvas\":[640,360],\"events\":[{\"type\":\"strip\",\"id\":\"line\",\"text\":\"made-up words\",\"font\":\"typewriter\",\"size\":34,\"paper\":\"white\",\"pos\":[160,150],\"at\":0.2},{\"type\":\"exit\",\"at\":1.2}]}}. It runs tool:render-a-motion-graphics-overlay and answers {\"id\":\"sample-strip\",\"frames\":48,\"duration_s\":2.002,\"overlay\":\"out/sample-strip/overlay.mov\",\"sound\":\"out/sample-strip/sound.wav\",\"timeline\":\"out/sample-strip/timeline.json\"}",
   "lists": [
     {
       "list": "list:settings",
@@ -108,20 +108,20 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
     "tool:render-a-motion-graphics-overlay"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:render-a-motion-graphics-overlay\", and give it assets, out.",
+    "1. Say to your AI: \"Draw the animated graphics that go over a piece of my video (paper cut-outs, typed words, cards, charts, marker marks) as a see-through overlay with its sound, from a list of what appears when\", and give it assets (The folder the look's relative file names (faces, textures, recordings) are read from); out (The folder the overlay, sound, timeline and the render's scratch are written to).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:render-a-motion-graphics-overlay and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields id, frames, duration_s, overlay, sound, sfx_only, timeline, stills."
+    "3. Read what comes back: Draws one spec, a list of timed events ({type, at, ...}: torn paper strips and cards, typed and kinetic words, count-ups, charts and labels, marker circles and underlines, cut-out photos, footage insets, endcards and many more, one module per event type in do-work/overlay/events/), into overlay.mov (ProRes 4444 with alpha), its sound stem sound.wav (every placed sound, plus the voice when the spec mixes one; sfx-only.wav then holds the sounds alone) and timeline.json (every element, sound and placed box with its time), or, with stills, single frames over the spec's still background.",
+    "4. It reads and writes only its own rows through the records door: record:setting (records:read)."
   ],
   "worked_examples": [
     {
-      "title": "Draw a motion-graphics overlay for a video from a timed list of paper cut-outs, type, cards, charts and marks on a sample input",
-      "ask": "Run tool:render-a-motion-graphics-overlay.",
+      "title": "Draw a motion-graphics overlay for a video from a timed list of paper cut-outs, type, cards, charts and marks on its own sample",
+      "ask": "Draw the animated graphics that go over a piece of my video (paper cut-outs, typed words, cards, charts, marker marks) as a see-through overlay with its sound, from a list of what appears when",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -167,7 +167,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields id, frames, duration_s, overlay, sound, sfx_only, timeline, stills."
+      "given": "The input {\"settings_files\":[\"read-data/example-look/look.json\"],\"assets\":\"read-data/example-look\",\"out\":\"out/sample-strip\",\"spec\":{\"id\":\"sample-strip\",\"duration_s\":2,\"canvas\":[640,360],\"events\":[{\"type\":\"strip\",\"id\":\"line\",\"text\":\"made-up words\",\"font\":\"typewriter\",\"size\":34,\"paper\":\"white\",\"pos\":[160,150],\"at\":0.2},{\"type\":\"exit\",\"at\":1.2}]}}.",
+      "hands_back": "It answered {\"id\":\"sample-strip\",\"frames\":48,\"duration_s\":2.002,\"overlay\":\"out/sample-strip/overlay.mov\",\"sound\":\"out/sample-strip/sound.wav\",\"timeline\":\"out/sample-strip/timeline.json\"}."
     }
   ],
   "pour": {

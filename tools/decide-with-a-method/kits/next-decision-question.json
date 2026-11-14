@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:next-decision-question's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:next-decision-question with decision_id.\" See the next question my method asks about a decision, or, when all are answered, the options and my similar past decisions",
+  "drafted_from": "tool:next-decision-question's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"See the next question my method asks about a decision, or, when all are answered, the options and my similar past decisions\", with {\"decision_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\"}. It runs tool:next-decision-question and answers {\"case_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"source_id\":\"sample:class-price-1\",\"question\":{\"step_id\":\"scope\",\"question\":\"What kind of decision is this?\",\"fields\":[\"decision_context\",\"omission_reasons\"],\"requires\":[\"evidence_refs\"],\"optional\":[\"scratchpad\"],\"answer_schema\":{\"type\":\"object\",\"required\":[\"evidence_refs\",\"decision_context\"],\"properties\":{\"evidence_refs\":{\"type\":\"array\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (decision, decision-revision, decision-step, decision-evidence, decision-answered-step, decision-option, decision-candidate, decision-report, decision-carried-out, decision-history, decision-cited-pursuit, decision-method, decision-part, decision-refs, pursuit, record:check, record:decision-kind) through the records door.",
   "workflows": [],
   "tools": [
     "tool:next-decision-question"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:next-decision-question\", and give it decision_id.",
+    "1. Say to your AI: \"See the next question my method asks about a decision, or, when all are answered, the options and my similar past decisions\", and give it decision_id (The decision).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:next-decision-question and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields case_id."
+    "3. Read what comes back: Reads one of the person's decisions and returns its current question (step_id, question, fields, the checks to answer and their verdict words, the answer_schema), the person's current pursuits when the question weighs them, and the method coverage.",
+    "4. It reads and writes only its own rows through the records door: decision (records:read, records:list); decision-revision (records:read); decision-step (records:read); decision-evidence (records:read, records:list); decision-answered-step (records:read, records:list); decision-option (records:read, records:list); decision-candidate (records:read, records:list); decision-report (records:read, records:list); decision-carried-out (records:read, records:list); decision-history (records:read, records:list); decision-cited-pursuit (records:read, records:list); decision-method (records:read); decision-part (records:read); decision-refs (records:read); pursuit (records:read, records:list); record:check (records:list, records:read); record:decision-kind (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Read a decision's next question on a sample input",
-      "ask": "Run tool:next-decision-question.",
+      "title": "Read a decision's next question on its own sample",
+      "ask": "See the next question my method asks about a decision, or, when all are answered, the options and my similar past decisions",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +32,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields case_id."
+      "given": "The input {\"decision_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\"}, with 7 example rows (record:check, record:method-check, decision, decision-evidence, decision-method) already kept.",
+      "hands_back": "It answered {\"case_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"source_id\":\"sample:class-price-1\",\"question\":{\"step_id\":\"scope\",\"question\":\"What kind of decision is this?\",\"fields\":[\"decision_context\",\"omission_reasons\"],\"requires\":[\"evidence_refs\"],\"optional\":[\"scratchpad\"],\"answer_schema\":{\"type\":\"object\",\"required\":[\"evidence_refs\",\"decision_context\"],\"properties\":{\"evidence_refs\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"string\",\"minLength\":1},\"description\":\"Refs of the case evidence (or the person's pursuits) this rests on\"},\"scratchpad\":{\"type\":\"string\"},\"decision_context\":{\"type\":\"object\",\"required\":[\"compare_existing\"],\"properties\":{\"worth_weighing\":{\"type\":\"boolean\",\"description\":\"Is this ...."
     }
   ]
 }

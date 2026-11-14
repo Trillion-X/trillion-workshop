@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:turn-a-tool-into-live-controls's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:turn-a-tool-into-live-controls with descriptor.\" Turn a tool's inputs into the live controls a person moves, and check the values they moved into the input the tool would run with",
+  "drafted_from": "tool:turn-a-tool-into-live-controls's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Turn a tool's inputs into the live controls a person moves, and check the values they moved into the input the tool would run with\", with {\"descriptor\":{\"id\":\"tool:warm-a-photo\",\"label\":\"Warm a photo\",\"input_schema\":{\"type\":\"object\",\"required\":[\"photo\"],\"properties\":{\"photo\":{\"type\":\"string\",\"format\":\"namespace-file\"},\"warmth\":{\"type\":\"number\",\"minimum\":0,\"maximum\":1,\"default\":0},\"style\":{\"type\":\"string\",\"enum\":[\"soft\",\"bold\"]}}},\"invoke\":{\"kind\":\"container\"}},\"bind\":{\"photo\":\"photos/beach.jpg\"},\"values\":{\"warmth\":0.4 .... It runs tool:turn-a-tool-into-live-controls and answers {\"controls\":{\"tool_id\":\"tool:warm-a-photo\",\"label\":\"Warm a photo\",\"about\":\"\",\"subject\":[\"photo\"],\"settings\":[{\"key\":\"warmth\",\"label\":\"Warmth\",\"widget\":\"slider\",\"integer\":false,\"min\":0,\"max\":1,\"step\":0.01,\"default_value\":0},{\"key\":\"style\",\"label\":\"Style\",\"widget\":\"choices\",\"options\":[{\"value\":\"soft\",\"label\":\"Soft\"},{\"value\":\"bold\",\"label\":\"Bold\"}]}],\"suggested\":[\"warmth\",\"style\"] ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:turn-a-tool-into-live-controls"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:turn-a-tool-into-live-controls\", and give it descriptor.",
+    "1. Say to your AI: \"Turn a tool's inputs into the live controls a person moves, and check the values they moved into the input the tool would run with\", and give it descriptor.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:turn-a-tool-into-live-controls and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.input.style contains \"soft\"."
+    "3. Read what comes back: Give descriptor (a tool's descriptor: input_schema.properties, and its controls DATA if it has any), and optionally bind (the subject inputs: what is changed, such as a file, set once and never drawn as a control) and values ({ control key: value } as moved)."
   ],
   "worked_examples": [
     {
-      "title": "Turn a tool into live controls on a sample input",
-      "ask": "Run tool:turn-a-tool-into-live-controls.",
+      "title": "Turn a tool into live controls on its own sample",
+      "ask": "Turn a tool's inputs into the live controls a person moves, and check the values they moved into the input the tool would run with",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -69,7 +69,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.input.style contains \"soft\"."
+      "given": "The input {\"descriptor\":{\"id\":\"tool:warm-a-photo\",\"label\":\"Warm a photo\",\"input_schema\":{\"type\":\"object\",\"required\":[\"photo\"],\"properties\":{\"photo\":{\"type\":\"string\",\"format\":\"namespace-file\"},\"warmth\":{\"type\":\"number\",\"minimum\":0,\"maximum\":1,\"default\":0},\"style\":{\"type\":\"string\",\"enum\":[\"soft\",\"bold\"]}}},\"invoke\":{\"kind\":\"container\"}},\"bind\":{\"photo\":\"photos/beach.jpg\"},\"values\":{\"warmth\":0.4 ....",
+      "hands_back": "It answered {\"controls\":{\"tool_id\":\"tool:warm-a-photo\",\"label\":\"Warm a photo\",\"about\":\"\",\"subject\":[\"photo\"],\"settings\":[{\"key\":\"warmth\",\"label\":\"Warmth\",\"widget\":\"slider\",\"integer\":false,\"min\":0,\"max\":1,\"step\":0.01,\"default_value\":0},{\"key\":\"style\",\"label\":\"Style\",\"widget\":\"choices\",\"options\":[{\"value\":\"soft\",\"label\":\"Soft\"},{\"value\":\"bold\",\"label\":\"Bold\"}]}],\"suggested\":[\"warmth\",\"style\"],\"preview\":{\"kind\":\"values\"},\"commit\":{},\"result\":{},\"input_schema\":{\"type\":\"object\",\"required\":[\"photo\"],\"properties\":{\"photo\":{\"type\":\"string\",\"format\":\"namespace-file\"},\"warmth\":{\"type\":\"number\",\"minimum\":0,\"maximum\":1,\"default\":0},\"style\":{\"type\":\"string\",\"enum\":[\"soft\",\"bold\"]}}},\"declared\":false,\"runs\":true} ...."
     }
   ]
 }

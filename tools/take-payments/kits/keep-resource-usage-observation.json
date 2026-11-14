@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:keep-resource-usage-observation's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:keep-resource-usage-observation with request_key, observation.\" Keep an attributed measured source attempt once, or preserve its unknown outcome, with a correcting event instead of rewriting history",
+  "drafted_from": "tool:keep-resource-usage-observation's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Keep an attributed measured source attempt once, or preserve its unknown outcome, with a correcting event instead of rewriting history\", with {\"request_key\":\"sample-observation\",\"observation\":{\"event_id\":\"attempt:sample-1\",\"payer_id\":\"payer:sample-a\",\"settlement_key\":{\"supplier_pool\":\"pool:sample\",\"tariff_version\":\"tariff:sample-1\",\"cost_class\":\"source-transfer\",\"invoice_period\":\"2026-10\",\"currency\":\"usd\",\"resource_id\":\"resource:source-bytes\"},\"observed_at\":\"2026-10-31T12:00:00Z\",\"state\":\"observed\",\"source_units\":\"10\" .... It runs tool:keep-resource-usage-observation and answers {\"record_id\":\"resource-usage-observation:attempt%3Asample-1\",\"observation\":{\"event_id\":\"attempt:sample-1\",\"payer_id\":\"payer:sample-a\",\"settlement_key\":{\"supplier_pool\":\"pool:sample\",\"tariff_version\":\"tariff:sample-1\",\"cost_class\":\"source-transfer\",\"invoice_period\":\"2026-10\",\"currency\":\"usd\",\"resource_id\":\"resource:source-bytes\"},\"observed_at\":\"2026-10-31T12:00:00Z\",\"state\":\"observed\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (usage-pricing-rule, usage-pricing-rule-version, resource-usage-observation, resource-usage-settlement, resource-usage-settlement-version, resource-usage-receipt, resource-usage-allocation, resource-usage-settlement-evidence) through the records door.",
   "workflows": [],
   "tools": [
     "tool:keep-resource-usage-observation"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:keep-resource-usage-observation\", and give it request_key, observation.",
+    "1. Say to your AI: \"Keep an attributed measured source attempt once, or preserve its unknown outcome, with a correcting event instead of rewriting history\", and give it request_key; observation.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:keep-resource-usage-observation and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields record_id, observation."
+    "3. Read what comes back: Keep an attributed measured source attempt once, or preserve its unknown outcome, with a correcting event instead of rewriting history",
+    "4. It reads and writes only its own rows through the records door: usage-pricing-rule (records:read, records:list, records:write); usage-pricing-rule-version (records:read, records:list, records:write); resource-usage-observation (records:read, records:list, records:write); resource-usage-settlement (records:read, records:list, records:write); resource-usage-settlement-version (records:read, records:list, records:write); resource-usage-receipt (records:read, records:list, records:write); resource-usage-allocation (records:read, records:list, records:write); resource-usage-settlement-evidence (records:read, records:list, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Keep a resource usage observation on a sample input",
-      "ask": "Run tool:keep-resource-usage-observation.",
+      "title": "Keep a resource usage observation on its own sample",
+      "ask": "Keep an attributed measured source attempt once, or preserve its unknown outcome, with a correcting event instead of rewriting history",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -49,7 +50,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields record_id, observation."
+      "given": "The input {\"request_key\":\"sample-observation\",\"observation\":{\"event_id\":\"attempt:sample-1\",\"payer_id\":\"payer:sample-a\",\"settlement_key\":{\"supplier_pool\":\"pool:sample\",\"tariff_version\":\"tariff:sample-1\",\"cost_class\":\"source-transfer\",\"invoice_period\":\"2026-10\",\"currency\":\"usd\",\"resource_id\":\"resource:source-bytes\"},\"observed_at\":\"2026-10-31T12:00:00Z\",\"state\":\"observed\",\"source_units\":\"10\" ....",
+      "hands_back": "It answered {\"record_id\":\"resource-usage-observation:attempt%3Asample-1\",\"observation\":{\"event_id\":\"attempt:sample-1\",\"payer_id\":\"payer:sample-a\",\"settlement_key\":{\"supplier_pool\":\"pool:sample\",\"tariff_version\":\"tariff:sample-1\",\"cost_class\":\"source-transfer\",\"invoice_period\":\"2026-10\",\"currency\":\"usd\",\"resource_id\":\"resource:source-bytes\"},\"observed_at\":\"2026-10-31T12:00:00Z\",\"state\":\"observed\",\"source_units\":{\"n\":\"10\",\"d\":\"1\"},\"delivered_units\":{\"n\":\"20\",\"d\":\"1\"},\"excess_units\":{\"n\":\"2\",\"d\":\"1\"},\"evidence_ref\":\"engine:attempt:sample-1\"}}, and kept resource-usage-observation:attempt%3Asample-1, resource-usage-receipt:1f:5e1fef47d57f604c5e8cb1ac85eda374887a69e10bfe443fb093a31f211edaba."
     }
   ]
 }

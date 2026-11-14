@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:get-a-classifier-ready-on-this-mac's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:get-a-classifier-ready-on-this-mac with model.\" Get my question classifier model ready to run on my Mac",
+  "drafted_from": "tool:get-a-classifier-ready-on-this-mac's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Get my question classifier model ready to run on my Mac\", with {\"model\":{\"type\":\"record:classifier-model\",\"id\":\"record:classifier-model:sample\"}}. It runs tool:get-a-classifier-ready-on-this-mac and answers {\"model\":{\"type\":\"record:classifier-model\",\"id\":\"record:classifier-model:sample\"},\"classifier\":\"questions-first-decider\",\"identity\":\"1f:0000000000000000000000000000000000000000000000000000000000000000\",\"files\":[{\"name\":\"config.json\",\"bytes\":2,\"blake3\":\"0000000000000000000000000000000000000000000000000000000000000000\"}],\"ready_at\":\"2026-11-14T00:50:14.300Z\",\"ready\":true ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows ([object Object], classifier-ready) through the records door.",
   "workflows": [],
   "tools": [
     "tool:get-a-classifier-ready-on-this-mac"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:get-a-classifier-ready-on-this-mac\", and give it model.",
+    "1. Say to your AI: \"Get my question classifier model ready to run on my Mac\", and give it model (The model row in the person's lists: its value names the classifier family (`classifier`: questions-first-decider) and where its weights are (`weights`: {\"folder\": a folder on this Mac} or {\"hugging_face\": {\"repo\", \"revision\"}} with a pinned revision).).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:get-a-classifier-ready-on-this-mac and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Get my question classifier model ready to run on my Mac"
+    "3. Read what comes back: {\"result\": {\"model\", \"classifier\", \"identity\", \"files\": [{\"name\", \"bytes\", \"blake3\"}], \"ready_at\", \"ready\", \"record\": {\"id\", \"type\"}}} or {\"error\": \"what to change\"}.",
+    "4. It reads and writes only its own rows through the records door: [object Object] (records:read); classifier-ready (records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Get a questions-first classifier ready on this Mac on a sample input",
-      "ask": "Run tool:get-a-classifier-ready-on-this-mac.",
+      "title": "Get a questions-first classifier ready on this Mac on its own sample",
+      "ask": "Get my question classifier model ready to run on my Mac",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -34,7 +35,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Get my question classifier model ready to run on my Mac"
+      "given": "The input {\"model\":{\"type\":\"record:classifier-model\",\"id\":\"record:classifier-model:sample\"}}, with 1 example row (record:classifier-model) already kept.",
+      "hands_back": "It answered {\"model\":{\"type\":\"record:classifier-model\",\"id\":\"record:classifier-model:sample\"},\"classifier\":\"questions-first-decider\",\"identity\":\"1f:0000000000000000000000000000000000000000000000000000000000000000\",\"files\":[{\"name\":\"config.json\",\"bytes\":2,\"blake3\":\"0000000000000000000000000000000000000000000000000000000000000000\"}],\"ready_at\":\"2026-11-14T00:50:14.300Z\",\"ready\":true,\"record\":{\"id\":\"classifier-ready:dc1e9b9803b595816b05e5474c04d1f74162a2c95e8bf23b0bd47b10278d3973\",\"type\":\"classifier-ready\"}}, and kept classifier-ready:dc1e9b9803b595816b05e5474c04d1f74162a2c95e8bf23b0bd47b10278d3973."
     }
   ]
 }

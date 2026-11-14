@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:plan-clock-aligned-recording-pieces's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:plan-clock-aligned-recording-pieces with started_at, until, inputs.\" Plan how recording every camera and microphone without end is cut into clock-aligned pieces that line up across devices: when each input's pieces begin and end, what each is named, which day folder it goes in, and the list that ties them together",
+  "drafted_from": "tool:plan-clock-aligned-recording-pieces's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Plan how recording every camera and microphone without end is cut into clock-aligned pieces that line up across devices: when each input's pieces begin and end, what each is named, which day folder it goes in, and the list that ties them together\", with {\"started_at\":\"2026-11-04T16:23:10Z\",\"until\":\"2026-11-04T16:35:00Z\",\"segment_seconds\":300,\"folder\":\"Recordings\",\"device\":\"Sample laptop\",\"time_zone\":\"Europe/London\",\"inputs\":[{\"label\":\"Sample Desk Camera (05ac:8514)\",\"kind\":\"camera\",\"with_sound\":true},{\"label\":\"Sample Microphone\",\"kind\":\"microphone\"}]}. It runs tool:plan-clock-aligned-recording-pieces and answers {\"time_zone\":\"Europe/London\",\"list\":\"Recordings/2026-11-04/16.23.10 Recording list.json\",\"first_cut_at\":\"2026-11-04T16:25:00.000Z\",\"piece_count\":6,\"pieces\":[{\"input\":\"Sample Desk Camera\",\"folder\":\"Recordings/2026-11-04\",\"name\":\"16.23.10 Sample Desk Camera.webm\",\"file\":\"Recordings/2026-11-04/16.23.10 Sample Desk Camera.webm\",\"start_ms\":1793809390000,\"end_ms\":1793809500000,\"seconds\":110} ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:plan-clock-aligned-recording-pieces"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:plan-clock-aligned-recording-pieces\", and give it started_at, until, inputs.",
+    "1. Say to your AI: \"Plan how recording every camera and microphone without end is cut into clock-aligned pieces that line up across devices: when each input's pieces begin and end, what each is named, which day folder it goes in, and the list that ties them together\", and give it started_at; until; inputs.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:plan-clock-aligned-recording-pieces and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.first_cut_at contains \"16:25:00\"."
+    "3. Read what comes back: Give started_at and until (ISO times), segment_seconds (piece length, 300 when left out), folder (Recordings when left out), inputs ([{ label, kind: camera | microphone, extension?, with_sound?"
   ],
   "worked_examples": [
     {
-      "title": "Plan clock-aligned recording pieces on a sample input",
-      "ask": "Run tool:plan-clock-aligned-recording-pieces.",
+      "title": "Plan clock-aligned recording pieces on its own sample",
+      "ask": "Plan how recording every camera and microphone without end is cut into clock-aligned pieces that line up across devices: when each input's pieces begin and end, what each is named, which day folder it goes in, and the list that ties them together",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -47,7 +47,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.first_cut_at contains \"16:25:00\"."
+      "given": "The input {\"started_at\":\"2026-11-04T16:23:10Z\",\"until\":\"2026-11-04T16:35:00Z\",\"segment_seconds\":300,\"folder\":\"Recordings\",\"device\":\"Sample laptop\",\"time_zone\":\"Europe/London\",\"inputs\":[{\"label\":\"Sample Desk Camera (05ac:8514)\",\"kind\":\"camera\",\"with_sound\":true},{\"label\":\"Sample Microphone\",\"kind\":\"microphone\"}]}.",
+      "hands_back": "It answered {\"time_zone\":\"Europe/London\",\"list\":\"Recordings/2026-11-04/16.23.10 Recording list.json\",\"first_cut_at\":\"2026-11-04T16:25:00.000Z\",\"piece_count\":6,\"pieces\":[{\"input\":\"Sample Desk Camera\",\"folder\":\"Recordings/2026-11-04\",\"name\":\"16.23.10 Sample Desk Camera.webm\",\"file\":\"Recordings/2026-11-04/16.23.10 Sample Desk Camera.webm\",\"start_ms\":1793809390000,\"end_ms\":1793809500000,\"seconds\":110},{\"input\":\"Sample Microphone\",\"folder\":\"Recordings/2026-11-04\",\"name\":\"16.23.10 Sample Microphone.webm\",\"file\":\"Recordings/2026-11-04/16.23.10 Sample Microphone.webm\",\"start_ms\":1793809390000,\"end_ms\":1793809500000,\"seconds\":110},{\"input\":\"Sample Desk Camera\",\"folder\":\"Recordings/2026-11-04\",\"name\":\"16.25.00 ...."
     }
   ]
 }

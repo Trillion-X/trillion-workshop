@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:describe-a-tool's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:describe-a-tool with tool_id.\" Show me one tool's whole row, so I can see how it is written and how to call it",
+  "drafted_from": "tool:describe-a-tool's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Show me one tool's whole row, so I can see how it is written and how to call it\", with {\"tool_id\":\"tool:sample-screen\",\"shared\":[{\"kind\":\"ai-tool-descriptor\",\"id\":\"tool:sample-screen\",\"label\":\"Sample screen\",\"screen\":{\"kind\":\"parts\"}}],\"saved\":null}. It runs tool:describe-a-tool and answers {\"tool_id\":\"tool:sample-screen\",\"made_by\":\"shared\",\"descriptor\":{\"kind\":\"ai-tool-descriptor\",\"id\":\"tool:sample-screen\",\"label\":\"Sample screen\",\"screen\":{\"kind\":\"parts\"}},\"next_call\":null}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (tool) through the records door.",
   "workflows": [],
   "tools": [
     "tool:describe-a-tool"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:describe-a-tool\", and give it tool_id.",
+    "1. Say to your AI: \"Show me one tool's whole row, so I can see how it is written and how to call it\", and give it tool_id (The id of the tool to describe).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:describe-a-tool and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.made_by contains \"shared\"."
+    "3. Read what comes back: Give the tool's id and the rows the Workshop answered (tools:list) as shared.",
+    "4. It reads and writes only its own rows through the records door: tool (records:read)."
   ],
   "worked_examples": [
     {
-      "title": "Describe a tool on a sample input",
-      "ask": "Run tool:describe-a-tool.",
+      "title": "Describe a tool on its own sample",
+      "ask": "Show me one tool's whole row, so I can see how it is written and how to call it",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -42,7 +43,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.made_by contains \"shared\"."
+      "given": "The input {\"tool_id\":\"tool:sample-screen\",\"shared\":[{\"kind\":\"ai-tool-descriptor\",\"id\":\"tool:sample-screen\",\"label\":\"Sample screen\",\"screen\":{\"kind\":\"parts\"}}],\"saved\":null}.",
+      "hands_back": "It answered {\"tool_id\":\"tool:sample-screen\",\"made_by\":\"shared\",\"descriptor\":{\"kind\":\"ai-tool-descriptor\",\"id\":\"tool:sample-screen\",\"label\":\"Sample screen\",\"screen\":{\"kind\":\"parts\"}},\"next_call\":null}."
     }
   ]
 }

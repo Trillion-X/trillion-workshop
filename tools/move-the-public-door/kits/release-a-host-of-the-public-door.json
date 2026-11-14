@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:release-a-host-of-the-public-door's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:release-a-host-of-the-public-door with lease.\" Remove the server and SSH key one of my public door's host leases rented, and only those",
+  "drafted_from": "tool:release-a-host-of-the-public-door's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Remove the server and SSH key one of my public door's host leases rented, and only those\", with {\"lease\":\"host-lease-door-two\"}. It runs tool:release-a-host-of-the-public-door and answers {\"schema\":\"portable-host-lease/1\",\"provider\":\"hetzner\",\"name\":\"door-two\",\"serverType\":\"cpx21\",\"location\":\"ash\",\"image\":\"ubuntu-24.04\",\"lifetime\":\"service\",\"startedAt\":1793786400000,\"expiresAt\":null,\"state\":\"removed\",\"serverId\":4711,\"sshKeyId\":2323,\"address\":\"198.51.100.24\",\"removedAt\":1794617432419}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:service-connection, record:public-door-receipt) through the records door.",
   "workflows": [],
   "tools": [
     "tool:release-a-host-of-the-public-door"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:release-a-host-of-the-public-door\", and give it lease.",
+    "1. Say to your AI: \"Remove the server and SSH key one of my public door's host leases rented, and only those\", and give it lease.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:release-a-host-of-the-public-door and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.state contains \"removed\"."
+    "3. Read what comes back: Reads the lease kept under `lease` in the person's Public door receipts list and removes the exact server and SSH key it names, through the requests of the hosting row it was rented from, after reading each one back and checking it still carries this lease's label.",
+    "4. It reads and writes only its own rows through the records door: record:service-connection (records:list); record:public-door-receipt (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Release a host of the public door on a sample input",
-      "ask": "Run tool:release-a-host-of-the-public-door.",
+      "title": "Release a host of the public door on its own sample",
+      "ask": "Remove the server and SSH key one of my public door's host leases rented, and only those",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +32,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.state contains \"removed\"."
+      "given": "The input {\"lease\":\"host-lease-door-two\"}, with 2 example rows (record:service-connection, record:public-door-receipt) already kept, the web answering from 4 recorded replies.",
+      "hands_back": "It answered {\"schema\":\"portable-host-lease/1\",\"provider\":\"hetzner\",\"name\":\"door-two\",\"serverType\":\"cpx21\",\"location\":\"ash\",\"image\":\"ubuntu-24.04\",\"lifetime\":\"service\",\"startedAt\":1793786400000,\"expiresAt\":null,\"state\":\"removed\",\"serverId\":4711,\"sshKeyId\":2323,\"address\":\"198.51.100.24\",\"removedAt\":1794617432419}."
     }
   ]
 }

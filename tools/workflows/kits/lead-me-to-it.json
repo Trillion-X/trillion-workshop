@@ -1,24 +1,28 @@
 {
   "draft": true,
-  "drafted_from": "workflow:lead-me-to-it's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:lead-me-to-it.\" Pick the one thing that moves the person's pursuits most right now, do every part of it an AI can, then take the person to it: open that exact thing on their screen and walk them through only the part that needs them, pointing at its own control.",
+  "drafted_from": "workflow:lead-me-to-it's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:lead-me-to-it.\" It pick the one thing that moves the person's pursuits most right now, do every part of it an AI can, then take the person to it: open that exact thing on their screen and walk them through only the part that needs them, pointing at its own control.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "Its steps name no list and write no row: each step answers in the run itself.",
   "workflows": [
     "workflow:lead-me-to-it"
   ],
   "tools": [
+    "tool:start-a-recipe-run",
     "tool:take-me-there",
     "tool:what-is-waiting-on-me"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:lead-me-to-it\".",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:lead-me-to-it) and works through its steps in order: pick, do-the-ai-part, arrange, take-there.",
-    "3. Read what each step hands back; the last step is take-there."
+    "1. Say to your AI: \"Run workflow:lead-me-to-it\"; it starts it with tool:start-a-recipe-run (row workflow:lead-me-to-it).",
+    "2. Pick the needle mover.",
+    "3. Do every part an AI can.",
+    "4. Write the walkthrough and what to tell them.",
+    "5. Take them there.",
+    "6. Read what it gives back: what step take-there hands back"
   ],
   "worked_examples": [
     {
-      "title": "Lead the person to the one thing that needs them from its first step",
+      "title": "Step take-there: Take them there",
       "ask": "Run workflow:lead-me-to-it.",
       "mcp": {
         "server": "trillion",
@@ -27,16 +31,35 @@
           "address": "@workshop-tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:take-me-there",
             "input": {
-              "row": "workflow:lead-me-to-it"
+              "thing": "sample-card",
+              "waiting": {
+                "cards": [
+                  {
+                    "id": "sample-card",
+                    "title": "A made-up thing",
+                    "address": "/sample/open?item=one"
+                  }
+                ]
+              },
+              "screens": [
+                {
+                  "path_prefix": "/sample",
+                  "tool_id": "tool:sample-screen",
+                  "route_input_from_query": [
+                    "item"
+                  ]
+                }
+              ]
             }
           }
         }
       },
       "workflow": "workflow:lead-me-to-it",
-      "step": "pick",
-      "hands_back": "Step pick answers with thing, why, needs_the_person."
+      "step": "take-there",
+      "given": "The input {\"thing\":\"sample-card\",\"waiting\":{\"cards\":[{\"id\":\"sample-card\",\"title\":\"A made-up thing\",\"address\":\"/sample/open?item=one\"}]},\"screens\":[{\"path_prefix\":\"/sample\",\"tool_id\":\"tool:sample-screen\",\"route_input_from_query\":[\"item\"]}]}.",
+      "hands_back": "It answered {\"taken\":true,\"screen\":{\"tool_id\":\"tool:sample-screen\",\"route_input\":{\"item\":\"one\"}},\"arrangement\":{\"id\":\"sample-card\",\"held\":\"sample-card\",\"replaces\":[\"A made-up thing\"],\"name\":\"A made-up thing\",\"category\":\"Opened for you\",\"root\":{\"kind\":\"pane\",\"surfaces\":[{\"id\":\"tool:sample-screen\",\"input\":{\"item\":\"one\"},\"title\":\"A made-up thing\"}]}},\"tour\":null,\"notice\":null,\"open\":\"/?layout=sample-card\",\"said\":\"A made-up thing is ready to open as the main pane. The arrangement is returned to save and open; nothing was saved here.\"}."
     }
   ]
 }

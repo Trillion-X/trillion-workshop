@@ -1,23 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:judge-against-rules's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:judge-against-rules with rules.\" Check words, a plan or anything else someone made against the rules a person set, and say what breaks which rule, why, and what to do instead",
+  "drafted_from": "tool:judge-against-rules's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Check words, a plan or anything else someone made against the rules a person set, and say what breaks which rule, why, and what to do instead\", with {\"rules\":[{\"id\":\"one-question\",\"kinds\":[\"title\"],\"pattern\":\"\\\\?\",\"count_at_most\":1,\"says\":\"One question at most.\"},{\"id\":\"few-asks\",\"kinds\":[\"plan\"],\"path\":\"segments.*.kind\",\"where\":\"question\",\"count_at_most\":1,\"says\":\"Too many questions.\"}],\"items\":[{\"text\":\"Why now? Why here?\",\"kind\":\"title\"},{\"value\":{\"segments\":[{\"kind\":\"question\"},{\"kind\":\"answer\"}]},\"kind\":\"plan\"}]}. It runs tool:judge-against-rules and answers {\"passed\":false,\"status\":\"failed\",\"score\":50,\"coverage\":{\"items\":2,\"evaluated\":2,\"uncovered_paths\":[]},\"findings\":[{\"rule\":\"one-question\",\"says\":\"One question at most.\",\"text\":\"Why now? Why here?\",\"found\":2,\"kind\":\"title\",\"test\":\"count_at_most\",\"limit\":1}],\"lines\":[\"2 found, at most 1 allowed in \\\"Why now? Why here?\\\". One question at most.\"],\"said\":\"1 thing to change.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:judge-against-rules",
     "tool:check-against-a-persons-rules-and-verdicts"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:judge-against-rules\", and give it rules.",
+    "1. Say to your AI: \"Check words, a plan or anything else someone made against the rules a person set, and say what breaks which rule, why, and what to do instead\", and give it rules (The rules, one row each).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:judge-against-rules and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.lines[0] contains \"2 found, at most 1 allowed\"."
+    "3. Read what comes back: The one judge every check uses, with rules only: the caller hands in the rule rows (tool:check-against-a-persons-rules-and-verdicts is the same judge with the person's verdicts and stands, or reading their check rows by branch)."
   ],
   "worked_examples": [
     {
-      "title": "Check words or anything made against your rules on a sample input",
-      "ask": "Run tool:judge-against-rules.",
+      "title": "Check words or anything made against your rules on its own sample",
+      "ask": "Check words, a plan or anything else someone made against the rules a person set, and say what breaks which rule, why, and what to do instead",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -71,7 +71,65 @@
           }
         }
       },
-      "hands_back": "The answer's $.lines[0] contains \"2 found, at most 1 allowed\"."
+      "given": "The input {\"rules\":[{\"id\":\"one-question\",\"kinds\":[\"title\"],\"pattern\":\"\\\\?\",\"count_at_most\":1,\"says\":\"One question at most.\"},{\"id\":\"few-asks\",\"kinds\":[\"plan\"],\"path\":\"segments.*.kind\",\"where\":\"question\",\"count_at_most\":1,\"says\":\"Too many questions.\"}],\"items\":[{\"text\":\"Why now? Why here?\",\"kind\":\"title\"},{\"value\":{\"segments\":[{\"kind\":\"question\"},{\"kind\":\"answer\"}]},\"kind\":\"plan\"}]}.",
+      "hands_back": "It answered {\"passed\":false,\"status\":\"failed\",\"score\":50,\"coverage\":{\"items\":2,\"evaluated\":2,\"uncovered_paths\":[]},\"findings\":[{\"rule\":\"one-question\",\"says\":\"One question at most.\",\"text\":\"Why now? Why here?\",\"found\":2,\"kind\":\"title\",\"test\":\"count_at_most\",\"limit\":1}],\"lines\":[\"2 found, at most 1 allowed in \\\"Why now? Why here?\\\". One question at most.\"],\"said\":\"1 thing to change.\"}."
+    },
+    {
+      "title": "Check words or anything made against your rules on its own sample",
+      "ask": "Check words, a plan or anything else someone made against the rules a person set, and say what breaks which rule, why, and what to do instead",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:judge-against-rules",
+            "input": {
+              "rules": [
+                {
+                  "id": "three-parts",
+                  "across": true,
+                  "percent_found_at_least": 100,
+                  "says": "Name all three parts.",
+                  "groups": [
+                    {
+                      "id": "soil",
+                      "label": "Soil",
+                      "words": [
+                        "soil"
+                      ]
+                    },
+                    {
+                      "id": "water",
+                      "label": "Water",
+                      "words": [
+                        "water",
+                        "rain"
+                      ]
+                    },
+                    {
+                      "id": "light",
+                      "label": "Light",
+                      "words": [
+                        "light",
+                        "sun"
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "texts": [
+                "The soil holds the roots.",
+                "The rain feeds them."
+              ],
+              "min_score": 80
+            }
+          }
+        }
+      },
+      "given": "The input {\"rules\":[{\"id\":\"three-parts\",\"across\":true,\"percent_found_at_least\":100,\"says\":\"Name all three parts.\",\"groups\":[{\"id\":\"soil\",\"label\":\"Soil\",\"words\":[\"soil\"]},{\"id\":\"water\",\"label\":\"Water\",\"words\":[\"water\",\"rain\"]},{\"id\":\"light\",\"label\":\"Light\",\"words\":[\"light\",\"sun\"]}]}],\"texts\":[\"The soil holds the roots.\",\"The rain feeds them.\"],\"min_score\":80}.",
+      "hands_back": "It answered {\"passed\":false,\"status\":\"failed\",\"score\":66.66666666666666,\"coverage\":{\"items\":2,\"evaluated\":2,\"uncovered_paths\":[]},\"findings\":[{\"rule\":\"three-parts\",\"says\":\"Name all three parts.\",\"found\":66.66666666666666,\"test\":\"percent_found_at_least\",\"limit\":100,\"missing\":[\"Light\"],\"score\":66.66666666666666}],\"lines\":[\"66.7% found, at least 100% needed; not found: Light. Name all three parts.\"],\"said\":\"The score 66.7 is under the least that passes, 80; 1 thing found.\"}."
     }
   ]
 }

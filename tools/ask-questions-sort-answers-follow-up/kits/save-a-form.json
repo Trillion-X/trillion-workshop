@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:save-a-form's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:save-a-form with form_id, questions.\" Keep a form, a list of questions people answer, as one of the person's own records so it can be asked and its answers checked",
+  "drafted_from": "tool:save-a-form's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Keep a form, a list of questions people answer, as one of the person's own records so it can be asked and its answers checked\", with {\"form_id\":\"sample-intake\",\"title\":\"Sample intake\",\"questions\":[{\"questionId\":\"budget\",\"questionTypeId\":\"number\",\"label\":\"Budget\"}]}. It runs tool:save-a-form and answers {\"saved\":true,\"form_id\":\"sample-intake\",\"record_id\":\"question-sequence:sample-intake\",\"question_count\":1}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (question-sequence) through the records door.",
   "workflows": [],
   "tools": [
     "tool:save-a-form"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:save-a-form\", and give it form_id, questions.",
+    "1. Say to your AI: \"Keep a form, a list of questions people answer, as one of the person's own records so it can be asked and its answers checked\", and give it form_id (The form's name, kept in the record id); questions (The questions, in order).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:save-a-form and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields saved, form_id, record_id, question_count."
+    "3. Read what comes back: Give a form_id, an optional title and presentation, and the questions.",
+    "4. It reads and writes only its own rows through the records door: question-sequence (records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Save a form on a sample input",
-      "ask": "Run tool:save-a-form.",
+      "title": "Save a form on its own sample",
+      "ask": "Keep a form, a list of questions people answer, as one of the person's own records so it can be asked and its answers checked",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -39,7 +40,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields saved, form_id, record_id, question_count."
+      "given": "The input {\"form_id\":\"sample-intake\",\"title\":\"Sample intake\",\"questions\":[{\"questionId\":\"budget\",\"questionTypeId\":\"number\",\"label\":\"Budget\"}]}.",
+      "hands_back": "It answered {\"saved\":true,\"form_id\":\"sample-intake\",\"record_id\":\"question-sequence:sample-intake\",\"question_count\":1}, and kept question-sequence:sample-intake."
     }
   ]
 }

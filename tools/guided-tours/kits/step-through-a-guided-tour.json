@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:step-through-a-guided-tour's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:step-through-a-guided-tour with tour, action.\" Work out where a person is in a guided tour, walkthrough, spotlight or branching quiz after they start, go on, answer, go back, jump to a step or restart",
+  "drafted_from": "tool:step-through-a-guided-tour's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Work out where a person is in a guided tour, walkthrough, spotlight or branching quiz after they start, go on, answer, go back, jump to a step or restart\", with {\"tour\":{\"entry_step\":\"hello\",\"steps\":[{\"id\":\"hello\",\"branch_map\":{\"by_answer\":{\"baker\":\"oven\"},\"default_next\":\"menu\"}},{\"id\":\"menu\"},{\"id\":\"oven\"}]},\"action\":\"advance\",\"cursor\":{\"current_step_id\":\"hello\",\"history\":[],\"status\":\"active\"},\"answer\":\"baker\"}. It runs tool:step-through-a-guided-tour and answers {\"cursor\":{\"current_step_id\":\"oven\",\"history\":[\"hello\"],\"status\":\"active\"},\"step\":{\"id\":\"oven\"},\"finished\":false}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:step-through-a-guided-tour"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:step-through-a-guided-tour\", and give it tour, action.",
+    "1. Say to your AI: \"Work out where a person is in a guided tour, walkthrough, spotlight or branching quiz after they start, go on, answer, go back, jump to a step or restart\", and give it tour (The tour record: entry_step and steps (each with an id, and optionally a branch_map)); action.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:step-through-a-guided-tour and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.cursor.current_step_id contains \"oven\"."
+    "3. Read what comes back: Give the tour (an ordered list of steps with an entry step; a step may route by the person's answer with a branch_map of by_answer routes and a default_next) and one action: start or restart, advance (with the person's answer when the step asks one), back, or jump (with step_id)."
   ],
   "worked_examples": [
     {
-      "title": "Move a person through a guided tour, quiz or spotlight on a sample input",
-      "ask": "Run tool:step-through-a-guided-tour.",
+      "title": "Move a person through a guided tour, quiz or spotlight on its own sample",
+      "ask": "Work out where a person is in a guided tour, walkthrough, spotlight or branching quiz after they start, go on, answer, go back, jump to a step or restart",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -57,7 +57,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.cursor.current_step_id contains \"oven\"."
+      "given": "The input {\"tour\":{\"entry_step\":\"hello\",\"steps\":[{\"id\":\"hello\",\"branch_map\":{\"by_answer\":{\"baker\":\"oven\"},\"default_next\":\"menu\"}},{\"id\":\"menu\"},{\"id\":\"oven\"}]},\"action\":\"advance\",\"cursor\":{\"current_step_id\":\"hello\",\"history\":[],\"status\":\"active\"},\"answer\":\"baker\"}.",
+      "hands_back": "It answered {\"cursor\":{\"current_step_id\":\"oven\",\"history\":[\"hello\"],\"status\":\"active\"},\"step\":{\"id\":\"oven\"},\"finished\":false}."
     }
   ]
 }

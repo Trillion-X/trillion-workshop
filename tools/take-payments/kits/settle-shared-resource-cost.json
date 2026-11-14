@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:settle-shared-resource-cost's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:settle-shared-resource-cost with settlement_id, request_key, settlement_key, invoice, payers.\" Allocate one verified supplier invoice among its attributed excess users under purchased limits, with separate platform expense, explicit funding gaps and exact subcent amounts; nothing is sent to a payment provider",
+  "drafted_from": "tool:settle-shared-resource-cost's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Allocate one verified supplier invoice among its attributed excess users under purchased limits, with separate platform expense, explicit funding gaps and exact subcent amounts; nothing is sent to a payment provider\", with {\"settlement_id\":\"pool-sample-2026-10\",\"request_key\":\"sample-settle\",\"settlement_key\":{\"supplier_pool\":\"pool:sample\",\"tariff_version\":\"tariff:sample-1\",\"cost_class\":\"source-transfer\",\"invoice_period\":\"2026-10\",\"currency\":\"usd\",\"resource_id\":\"resource:source-bytes\"},\"invoice\":{\"status\":\"confirmed\",\"amount\":\"1\",\"evidence_ref\":\"supplier:invoice:sample\"},\"payers\":[{\"payer_id\":\"payer:sample-a\" .... It runs tool:settle-shared-resource-cost and answers {\"record_id\":\"resource-usage-settlement:pool-sample-2026-10\",\"settlement\":{\"id\":\"pool-sample-2026-10\",\"version\":1,\"version_ref\":\"resource-usage-settlement:pool-sample-2026-10:v1\",\"result\":{\"settlement_key\":{\"supplier_pool\":\"pool:sample\",\"tariff_version\":\"tariff:sample-1\",\"cost_class\":\"source-transfer\",\"invoice_period\":\"2026-10\",\"currency\":\"usd\",\"resource_id\":\"resource:source-bytes\"} ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (usage-pricing-rule, usage-pricing-rule-version, resource-usage-observation, resource-usage-settlement, resource-usage-settlement-version, resource-usage-receipt, resource-usage-allocation, resource-usage-settlement-evidence) through the records door.",
   "workflows": [],
   "tools": [
     "tool:settle-shared-resource-cost"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:settle-shared-resource-cost\", and give it settlement_id, request_key, settlement_key, invoice, payers.",
+    "1. Say to your AI: \"Allocate one verified supplier invoice among its attributed excess users under purchased limits, with separate platform expense, explicit funding gaps and exact subcent amounts; nothing is sent to a payment provider\", and give it settlement_id; request_key; settlement_key; invoice; payers.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:settle-shared-resource-cost and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields record_id, settlement."
+    "3. Read what comes back: Allocate one verified supplier invoice among its attributed excess users under purchased limits, with separate platform expense, explicit funding gaps and exact subcent amounts; nothing is sent to a payment provider",
+    "4. It reads and writes only its own rows through the records door: usage-pricing-rule (records:read, records:list, records:write); usage-pricing-rule-version (records:read, records:list, records:write); resource-usage-observation (records:read, records:list, records:write); resource-usage-settlement (records:read, records:list, records:write); resource-usage-settlement-version (records:read, records:list, records:write); resource-usage-receipt (records:read, records:list, records:write); resource-usage-allocation (records:read, records:list, records:write); resource-usage-settlement-evidence (records:read, records:list, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Settle shared resource cost on a sample input",
-      "ask": "Run tool:settle-shared-resource-cost.",
+      "title": "Settle shared resource cost on its own sample",
+      "ask": "Allocate one verified supplier invoice among its attributed excess users under purchased limits, with separate platform expense, explicit funding gaps and exact subcent amounts; nothing is sent to a payment provider",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -59,7 +60,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields record_id, settlement."
+      "given": "The input {\"settlement_id\":\"pool-sample-2026-10\",\"request_key\":\"sample-settle\",\"settlement_key\":{\"supplier_pool\":\"pool:sample\",\"tariff_version\":\"tariff:sample-1\",\"cost_class\":\"source-transfer\",\"invoice_period\":\"2026-10\",\"currency\":\"usd\",\"resource_id\":\"resource:source-bytes\"},\"invoice\":{\"status\":\"confirmed\",\"amount\":\"1\",\"evidence_ref\":\"supplier:invoice:sample\"},\"payers\":[{\"payer_id\":\"payer:sample-a\" ....",
+      "hands_back": "It answered {\"record_id\":\"resource-usage-settlement:pool-sample-2026-10\",\"settlement\":{\"id\":\"pool-sample-2026-10\",\"version\":1,\"version_ref\":\"resource-usage-settlement:pool-sample-2026-10:v1\",\"result\":{\"settlement_key\":{\"supplier_pool\":\"pool:sample\",\"tariff_version\":\"tariff:sample-1\",\"cost_class\":\"source-transfer\",\"invoice_period\":\"2026-10\",\"currency\":\"usd\",\"resource_id\":\"resource:source-bytes\"},\"state\":\"reconciled\",\"invoice\":{\"status\":\"confirmed\",\"amount\":{\"n\":\"1\",\"d\":\"1\"},\"evidence_ref\":\"supplier:invoice:sample\"},\"customer_supplier_cost\":{\"n\":\"1\",\"d\":\"1\"},\"platform_supplier_cost\":{\"n\":\"0\",\"d\":\"1\"},\"company_residual\":{\"n\":\"0\",\"d\":\"1\"},\"company_cost\":{\"n\":\"0\",\"d\":\"1\"},\"company_funding\":{\"n\":\"0\",\"d\":\"1\"} ..., and kept resource-usage-settlement:pool-sample-2026-10:v1:1f:4d005aca6857b98c6bb2ce4d44d2f8c82cd291cfe54706addbdd8055a0df57ec:allocation:00000, resource-usage-settlement:pool-sample-2026-10, resource-usage-settlement:pool-sample-2026-10:v1, resource-usage-receipt:1f:fa7cb3a7ca7de73c82479be5e39797f333a988806bbe42227f6a343766e14b13."
     }
   ]
 }

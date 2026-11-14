@@ -1,23 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:make-examples-from-where-a-person-stands's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:make-examples-from-where-a-person-stands with verdict_rules.\" Turn the verdicts a person already gave into good and bad examples, to tune a model that answers their reading rules",
+  "drafted_from": "tool:make-examples-from-where-a-person-stands's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Turn the verdicts a person already gave into good and bad examples, to tune a model that answers their reading rules\", with {\"verdict_rules\":{\"fold\":{\"lowercase\":true,\"collapse_space\":true,\"strip_trailing\":\"[.!?]+\"},\"stage\":{\"default\":\"final\"},\"stance_rule\":\"their-stance\",\"novel\":{\"rule\":\"novel\",\"says\":\"Nothing of theirs judges this.\"},\"agree_clears\":{\"rules\":[]},\"rows\":[{\"id\":\"reads-well\",\"kinds\":[\"title\"],\"says\":\"Reads well.\",\"ask\":{\"question\":\"Does it read well?\",\"options\":[\"yes\",\"no\"],\"fail\":\"no\"} .... It runs tool:make-examples-from-where-a-person-stands and answers {\"items\":[{\"text\":\"Zorblax rising\",\"kind\":\"title\",\"good\":false,\"bad_for\":[\"reads-well\"],\"ref\":\"1f:51988b9dacb1a1b6cb7ff6d83665b2e5ab85919fdc9e0041b6d15d2157828366\"}],\"rows\":[\"reads-well\"]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:make-examples-from-where-a-person-stands",
     "tool:read-where-you-stand"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:make-examples-from-where-a-person-stands\", and give it verdict_rules.",
+    "1. Say to your AI: \"Turn the verdicts a person already gave into good and bad examples, to tune a model that answers their reading rules\", and give it verdict_rules (The person's rule document: rows (judge-words rule rows; a row with part reads a part of a thing as another kind; a row with ask is a reading row a model answers), fold (how two texts are one text), stage.default (review or final), stance_rule and novel (the ids and words of the findings their stands and silence make) and agree_clears.rules (the generic rules their agree clears)).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:make-examples-from-where-a-person-stands and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.items[0].bad_for[0] contains \"reads-well\"."
+    "3. Read what comes back: Give the person's rule document (verdict_rules) and their stands."
   ],
   "worked_examples": [
     {
-      "title": "Make labelled examples from where a person stands on a sample input",
-      "ask": "Run tool:make-examples-from-where-a-person-stands.",
+      "title": "Make labelled examples from where a person stands on its own sample",
+      "ask": "Turn the verdicts a person already gave into good and bad examples, to tune a model that answers their reading rules",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -81,7 +81,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.items[0].bad_for[0] contains \"reads-well\"."
+      "given": "The input {\"verdict_rules\":{\"fold\":{\"lowercase\":true,\"collapse_space\":true,\"strip_trailing\":\"[.!?]+\"},\"stage\":{\"default\":\"final\"},\"stance_rule\":\"their-stance\",\"novel\":{\"rule\":\"novel\",\"says\":\"Nothing of theirs judges this.\"},\"agree_clears\":{\"rules\":[]},\"rows\":[{\"id\":\"reads-well\",\"kinds\":[\"title\"],\"says\":\"Reads well.\",\"ask\":{\"question\":\"Does it read well?\",\"options\":[\"yes\",\"no\"],\"fail\":\"no\"} ....",
+      "hands_back": "It answered {\"items\":[{\"text\":\"Zorblax rising\",\"kind\":\"title\",\"good\":false,\"bad_for\":[\"reads-well\"],\"ref\":\"1f:51988b9dacb1a1b6cb7ff6d83665b2e5ab85919fdc9e0041b6d15d2157828366\"}],\"rows\":[\"reads-well\"]}."
     }
   ]
 }

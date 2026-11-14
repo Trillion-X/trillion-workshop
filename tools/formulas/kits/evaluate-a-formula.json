@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:evaluate-a-formula's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:evaluate-a-formula with binding, rows.\" Evaluate a formula over each row of a list: read a value from the row, then run a pipeline of steps (and, or, not, equals, more than, less than, is in a list, position in a list, lower-case, contains, starts with, join, is empty, is unknown) over it",
+  "drafted_from": "tool:evaluate-a-formula's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Evaluate a formula over each row of a list: read a value from the row, then run a pipeline of steps (and, or, not, equals, more than, less than, is in a list, position in a list, lower-case, contains, starts with, join, is empty, is unknown) over it\", with {\"binding\":{\"$kind\":\"binding\",\"select\":{\"from\":\"self\",\"path\":[\"name\"]},\"transform\":[{\"op\":\"op:core.lower\"},{\"op\":\"op:core.contains\",\"args\":{\"value\":\"rye\"}}]},\"rows\":[{\"name\":\"Dark RYE loaf\"},{\"name\":\"Scone\"},{\"name\":null}]}. It runs tool:evaluate-a-formula and answers {\"values\":[true,false,null],\"errors\":[]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:evaluate-a-formula"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:evaluate-a-formula\", and give it binding, rows.",
+    "1. Say to your AI: \"Evaluate a formula over each row of a list: read a value from the row, then run a pipeline of steps (and, or, not, equals, more than, less than, is in a list, position in a list, lower-case, contains, starts with, join, is empty, is unknown) over it\", and give it binding ({ $kind: binding, select: { from: self, path: [...] }, transform: [{ op, args }], default?); rows (The values to evaluate the binding over).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:evaluate-a-formula and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.values contains \"true,false,\"."
+    "3. Read what comes back: Takes a binding (select from the row at a path, or a stated literal, then a transform list of { op, args }; an argument may itself be a binding evaluated over the value the step receives) and rows."
   ],
   "worked_examples": [
     {
-      "title": "Evaluate a formula over rows on a sample input",
-      "ask": "Run tool:evaluate-a-formula.",
+      "title": "Evaluate a formula over rows on its own sample",
+      "ask": "Evaluate a formula over each row of a list: read a value from the row, then run a pipeline of steps (and, or, not, equals, more than, less than, is in a list, position in a list, lower-case, contains, starts with, join, is empty, is unknown) over it",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -61,7 +61,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.values contains \"true,false,\"."
+      "given": "The input {\"binding\":{\"$kind\":\"binding\",\"select\":{\"from\":\"self\",\"path\":[\"name\"]},\"transform\":[{\"op\":\"op:core.lower\"},{\"op\":\"op:core.contains\",\"args\":{\"value\":\"rye\"}}]},\"rows\":[{\"name\":\"Dark RYE loaf\"},{\"name\":\"Scone\"},{\"name\":null}]}.",
+      "hands_back": "It answered {\"values\":[true,false,null],\"errors\":[]}."
     }
   ]
 }

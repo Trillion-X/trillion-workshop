@@ -1,23 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:list-public-prediction-markets's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:list-public-prediction-markets with nothing more.\" See which prediction markets are open right now, what each asks, its outcomes, their prices and its trading volume",
+  "drafted_from": "tool:list-public-prediction-markets's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"See which prediction markets are open right now, what each asks, its outcomes, their prices and its trading volume\", with {\"limit\":1}. It runs tool:list-public-prediction-markets and answers {\"markets\":[{\"id\":\"100001\",\"question\":\"Will the sample event happen by 2030?\",\"slug\":\"will-the-sample-event-happen-by-2030\",\"condition_id\":\"0xsamplecondition0001\",\"outcomes\":[\"Yes\",\"No\"],\"outcome_prices\":[\"0.42\",\"0.58\"],\"token_ids\":[\"1111\",\"2222\"],\"volume\":12345.67,\"liquidity\":890.12,\"active\":true,\"closed\":false,\"accepting_orders\":true,\"end_date\":\"2030-12-31T12:00:00Z\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:list-public-prediction-markets",
     "tool:read-prediction-market-order-book"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:list-public-prediction-markets\", and give it nothing more.",
+    "1. Say to your AI: \"See which prediction markets are open right now, what each asks, its outcomes, their prices and its trading volume\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-public-prediction-markets and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.status.state contains \"live\"."
+    "3. Read what comes back: Reads the public prediction-market list (no account, no key) and gives each market's question, outcomes, outcome prices (the market's own odds), outcome token ids, volume, liquidity, whether it is open and when it ends."
   ],
   "worked_examples": [
     {
-      "title": "List public prediction markets on a sample input",
-      "ask": "Run tool:list-public-prediction-markets.",
+      "title": "List public prediction markets on its own sample",
+      "ask": "See which prediction markets are open right now, what each asks, its outcomes, their prices and its trading volume",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,7 +32,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.status.state contains \"live\"."
+      "given": "The input {\"limit\":1}, the web answering from 1 recorded reply.",
+      "hands_back": "It answered {\"markets\":[{\"id\":\"100001\",\"question\":\"Will the sample event happen by 2030?\",\"slug\":\"will-the-sample-event-happen-by-2030\",\"condition_id\":\"0xsamplecondition0001\",\"outcomes\":[\"Yes\",\"No\"],\"outcome_prices\":[\"0.42\",\"0.58\"],\"token_ids\":[\"1111\",\"2222\"],\"volume\":12345.67,\"liquidity\":890.12,\"active\":true,\"closed\":false,\"accepting_orders\":true,\"end_date\":\"2030-12-31T12:00:00Z\",\"start_date\":\"2026-01-01T00:00:00Z\",\"min_tick_size\":0.01,\"min_order_size\":5,\"image\":\"https://images.example.test/sample.png\"}],\"status\":{\"state\":\"live\",\"market_count\":1,\"http_status\":200,\"fetched_at\":\"2026-11-14T00:50:29.085486+00:00\"}}."
     }
   ]
 }

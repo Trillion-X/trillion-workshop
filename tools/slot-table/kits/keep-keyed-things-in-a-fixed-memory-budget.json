@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:keep-keyed-things-in-a-fixed-memory-budget's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:keep-keyed-things-in-a-fixed-memory-budget with steps.\" Keep many keyed things inside a fixed memory budget, each read after the first being one array index, and let the least recently used go first when the budget is full",
+  "drafted_from": "tool:keep-keyed-things-in-a-fixed-memory-budget's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Keep many keyed things inside a fixed memory budget, each read after the first being one array index, and let the least recently used go first when the budget is full\", with {\"capacity_bytes\":40,\"steps\":[{\"op\":\"set\",\"key\":\"note:1\",\"kind\":\"note\",\"value\":{\"title\":\"Plan the week\"}},{\"op\":\"set\",\"key\":\"note:2\",\"kind\":\"note\",\"value\":{\"title\":\"Buy paint\"}},{\"op\":\"read\",\"key\":\"note:1\"},{\"op\":\"find\",\"key\":\"note:2\"}]}. It runs tool:keep-keyed-things-in-a-fixed-memory-budget and answers {\"answers\":[{\"op\":\"set\",\"key\":\"note:1\",\"slot\":0,\"version\":1},{\"op\":\"set\",\"key\":\"note:2\",\"slot\":1,\"version\":1},{\"op\":\"read\",\"key\":\"note:1\",\"held\":false},{\"op\":\"find\",\"key\":\"note:2\",\"slot\":1}],\"held\":{\"slots\":1,\"slot_space\":1024,\"bytes\":21,\"capacity_bytes\":40,\"evictions\":1,\"kinds\":1,\"words\":0}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:keep-keyed-things-in-a-fixed-memory-budget"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:keep-keyed-things-in-a-fixed-memory-budget\", and give it steps.",
+    "1. Say to your AI: \"Keep many keyed things inside a fixed memory budget, each read after the first being one array index, and let the least recently used go first when the budget is full\", and give it steps.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:keep-keyed-things-in-a-fixed-memory-budget and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields answers, held."
+    "3. Read what comes back: Give steps, applied in order to a slot table made from capacity_bytes (the budget, 24 MB when left out) and columns (DATA: [{ kind, field, as: number | text }], the fields kept in typed arrays): set { key, kind, value, bytes?"
   ],
   "worked_examples": [
     {
-      "title": "Keep keyed things inside a fixed memory budget on a sample input",
-      "ask": "Run tool:keep-keyed-things-in-a-fixed-memory-budget.",
+      "title": "Keep keyed things inside a fixed memory budget on its own sample",
+      "ask": "Keep many keyed things inside a fixed memory budget, each read after the first being one array index, and let the least recently used go first when the budget is full",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -57,7 +57,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields answers, held."
+      "given": "The input {\"capacity_bytes\":40,\"steps\":[{\"op\":\"set\",\"key\":\"note:1\",\"kind\":\"note\",\"value\":{\"title\":\"Plan the week\"}},{\"op\":\"set\",\"key\":\"note:2\",\"kind\":\"note\",\"value\":{\"title\":\"Buy paint\"}},{\"op\":\"read\",\"key\":\"note:1\"},{\"op\":\"find\",\"key\":\"note:2\"}]}.",
+      "hands_back": "It answered {\"answers\":[{\"op\":\"set\",\"key\":\"note:1\",\"slot\":0,\"version\":1},{\"op\":\"set\",\"key\":\"note:2\",\"slot\":1,\"version\":1},{\"op\":\"read\",\"key\":\"note:1\",\"held\":false},{\"op\":\"find\",\"key\":\"note:2\",\"slot\":1}],\"held\":{\"slots\":1,\"slot_space\":1024,\"bytes\":21,\"capacity_bytes\":40,\"evictions\":1,\"kinds\":1,\"words\":0}}."
     }
   ]
 }

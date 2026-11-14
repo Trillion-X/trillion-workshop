@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:sort-mail-into-built-in-task-lists's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:sort-mail-into-built-in-task-lists with messages.\" Say which built-in to-do list (calendar, email or other) each email would become a task in when I turn my mail into tasks",
+  "drafted_from": "tool:sort-mail-into-built-in-task-lists's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Say which built-in to-do list (calendar, email or other) each email would become a task in when I turn my mail into tasks\", with {\"messages\":[{\"subject\":\"Invitation: Team lunch\"},{\"subject\":\"Your weekly deals\",\"list_unsubscribe\":true},{\"subject\":\"Can you review the draft?\"}]}. It runs tool:sort-mail-into-built-in-task-lists and answers {\"messages\":[{\"index\":0,\"subject\":\"Invitation: Team lunch\",\"smart_list\":\"calendar\"},{\"index\":1,\"subject\":\"Your weekly deals\",\"smart_list\":\"other\"},{\"index\":2,\"subject\":\"Can you review the draft?\",\"smart_list\":\"email\"}],\"counts\":{\"calendar\":1,\"other\":1,\"email\":1}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:sort-mail-into-built-in-task-lists"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:sort-mail-into-built-in-task-lists\", and give it messages.",
+    "1. Say to your AI: \"Say which built-in to-do list (calendar, email or other) each email would become a task in when I turn my mail into tasks\", and give it messages.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:sort-mail-into-built-in-task-lists and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields messages, counts."
+    "3. Read what comes back: Give messages (at most 50, each { subject?, from?, labels?, list_unsubscribe?, has_invite?"
   ],
   "worked_examples": [
     {
-      "title": "Sort mail into my built-in task lists on a sample input",
-      "ask": "Run tool:sort-mail-into-built-in-task-lists.",
+      "title": "Sort mail into my built-in task lists on its own sample",
+      "ask": "Say which built-in to-do list (calendar, email or other) each email would become a task in when I turn my mail into tasks",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -42,7 +42,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields messages, counts."
+      "given": "The input {\"messages\":[{\"subject\":\"Invitation: Team lunch\"},{\"subject\":\"Your weekly deals\",\"list_unsubscribe\":true},{\"subject\":\"Can you review the draft?\"}]}.",
+      "hands_back": "It answered {\"messages\":[{\"index\":0,\"subject\":\"Invitation: Team lunch\",\"smart_list\":\"calendar\"},{\"index\":1,\"subject\":\"Your weekly deals\",\"smart_list\":\"other\"},{\"index\":2,\"subject\":\"Can you review the draft?\",\"smart_list\":\"email\"}],\"counts\":{\"calendar\":1,\"other\":1,\"email\":1}}."
     }
   ]
 }

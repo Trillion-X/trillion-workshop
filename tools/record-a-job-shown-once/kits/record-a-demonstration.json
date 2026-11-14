@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:record-a-demonstration's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:record-a-demonstration with nothing more.\" Record, for a short bounded time, what the person does on their Mac (clicks, typing, shortcuts, with the app and the control each was in) and give it back as a draft workflow in words an AI can keep after the person has looked at it",
+  "drafted_from": "tool:record-a-demonstration's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Record, for a short bounded time, what the person does on their Mac (clicks, typing, shortcuts, with the app and the control each was in) and give it back as a draft workflow in words an AI can keep after the person has looked at it\", with {\"seconds\":5}. It runs tool:record-a-demonstration and answers {\"draft\":{\"id\":\"workflow:demonstrated-mwfovyxq\",\"label\":\"A job shown once\",\"job\":\"Repeat the job the person showed on this Mac, step by step\",\"steps\":[{\"id\":\"step-1\",\"title\":\"Step 1\",\"do\":\"In Notes Example, click \\\"New Note\\\" (button).\",\"submit\":{\"type\":\"object\",\"required\":[\"done\"],\"properties\":{\"done\":{\"type\":\"string\",\"description\":\"What was done in this step\"}}}},{\"id\":\"step-2\",\"title\":\"Step 2\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:record-a-demonstration"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:record-a-demonstration\", and give it nothing more.",
+    "1. Say to your AI: \"Record, for a short bounded time, what the person does on their Mac (clicks, typing, shortcuts, with the app and the control each was in) and give it back as a draft workflow in words an AI can keep after the person has looked at it\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:record-a-demonstration and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields draft, events_seen, secrets_skipped, ended, said."
+    "3. Read what comes back: Give seconds (1 to 300; 30 when left out)."
   ],
   "worked_examples": [
     {
-      "title": "Show me once on a sample input",
-      "ask": "Run tool:record-a-demonstration.",
+      "title": "Show me once on its own sample",
+      "ask": "Record, for a short bounded time, what the person does on their Mac (clicks, typing, shortcuts, with the app and the control each was in) and give it back as a draft workflow in words an AI can keep after the person has looked at it",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +31,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields draft, events_seen, secrets_skipped, ended, said."
+      "given": "The input {\"seconds\":5}.",
+      "hands_back": "It answered {\"draft\":{\"id\":\"workflow:demonstrated-mwfovyxq\",\"label\":\"A job shown once\",\"job\":\"Repeat the job the person showed on this Mac, step by step\",\"steps\":[{\"id\":\"step-1\",\"title\":\"Step 1\",\"do\":\"In Notes Example, click \\\"New Note\\\" (button).\",\"submit\":{\"type\":\"object\",\"required\":[\"done\"],\"properties\":{\"done\":{\"type\":\"string\",\"description\":\"What was done in this step\"}}}},{\"id\":\"step-2\",\"title\":\"Step 2\",\"do\":\"In Notes Example, type: Hi\",\"submit\":{\"type\":\"object\",\"required\":[\"done\"],\"properties\":{\"done\":{\"type\":\"string\",\"description\":\"What was done in this step\"}}}},{\"id\":\"step-3\",\"title\":\"Step 3\",\"do\":\"In Notes Example, press command+s.\",\"submit\":{\"type\":\"object\",\"required\":[\"done\"] ...."
     }
   ]
 }

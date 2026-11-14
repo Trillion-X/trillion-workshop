@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:keep-a-prospect's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:keep-a-prospect with nothing more.\" Keep what I know about a prospect as one row of my prospect list: what a finder found, the researched profile, a status I move it through, and my notes",
+  "drafted_from": "tool:keep-a-prospect's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Keep what I know about a prospect as one row of my prospect list: what a finder found, the researched profile, a status I move it through, and my notes\", with {\"key\":\"bakery.example\",\"found\":{\"name\":\"Sample Bakery\",\"url\":\"https://bakery.example\"}}. It runs tool:keep-a-prospect and answers {\"action\":\"keep\",\"key\":\"bakery.example\",\"row_id\":\"record:prospects:bakery.example\",\"written\":1,\"created\":true}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:prospects) through the records door.",
   "workflows": [],
   "tools": [
     "tool:keep-a-prospect"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:keep-a-prospect\", and give it nothing more.",
+    "1. Say to your AI: \"Keep what I know about a prospect as one row of my prospect list: what a finder found, the researched profile, a status I move it through, and my notes\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:keep-a-prospect and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields action, key, row_id, written, created, row, found, count."
+    "3. Read what comes back: One row per prospect, under the key you give; keeping it again writes over the same row and leaves the fields you keep by hand.",
+    "4. It reads and writes only its own rows through the records door: record:prospects (records:read, records:list, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Keep, read, mark or remove a prospect in my prospect list on a sample input",
-      "ask": "Run tool:keep-a-prospect.",
+      "title": "Keep, read, mark or remove a prospect in my prospect list on its own sample",
+      "ask": "Keep what I know about a prospect as one row of my prospect list: what a finder found, the researched profile, a status I move it through, and my notes",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -35,7 +36,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields action, key, row_id, written, created, row, found, count."
+      "given": "The input {\"key\":\"bakery.example\",\"found\":{\"name\":\"Sample Bakery\",\"url\":\"https://bakery.example\"}}.",
+      "hands_back": "It answered {\"action\":\"keep\",\"key\":\"bakery.example\",\"row_id\":\"record:prospects:bakery.example\",\"written\":1,\"created\":true}, and kept record:prospects:bakery.example."
     }
   ]
 }

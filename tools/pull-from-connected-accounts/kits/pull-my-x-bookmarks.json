@@ -1,23 +1,24 @@
 {
   "draft": true,
-  "drafted_from": "tool:pull-my-x-bookmarks's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:pull-my-x-bookmarks with nothing more.\" Pull the posts I bookmarked on X into my own records",
+  "drafted_from": "tool:pull-my-x-bookmarks's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Pull the posts I bookmarked on X into my own records\", with {\"account\":\"sample\"}. It runs tool:pull-my-x-bookmarks and answers {\"source\":\"x-bookmarks\",\"account\":\"sample\",\"self_id\":\"1000000000000000001\",\"threads\":0,\"items\":1,\"new_messages\":0,\"new_items\":1,\"cursor\":null,\"errors\":[],\"skipped\":[],\"status\":\"pulled\",\"said\":\"Pulled 1 new items from X bookmarks.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (account-snapshot-part) through the records door.",
   "workflows": [],
   "tools": [
     "tool:pull-my-x-bookmarks",
     "tool:read-what-i-pulled-from-an-account"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:pull-my-x-bookmarks\", and give it nothing more.",
+    "1. Say to your AI: \"Pull the posts I bookmarked on X into my own records\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:pull-my-x-bookmarks and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields source, account, status, self_id, threads, items, new_messages, new_items."
+    "3. Read what comes back: Reads your bookmarks (newest first; needs a token with the bookmark.read, tweet.read and users.read scopes) and keeps each in your records.",
+    "4. It reads and writes only its own rows through the records door: account-snapshot-part (records:list, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Pull the posts I bookmarked on X into my own records on a sample input",
-      "ask": "Run tool:pull-my-x-bookmarks.",
+      "title": "Pull the posts I bookmarked on X into my own records on its own sample",
+      "ask": "Pull the posts I bookmarked on X into my own records",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,7 +33,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields source, account, status, self_id, threads, items, new_messages, new_items."
+      "given": "The input {\"account\":\"sample\"}, the web answering from 2 recorded replies.",
+      "hands_back": "It answered {\"source\":\"x-bookmarks\",\"account\":\"sample\",\"self_id\":\"1000000000000000001\",\"threads\":0,\"items\":1,\"new_messages\":0,\"new_items\":1,\"cursor\":null,\"errors\":[],\"skipped\":[],\"status\":\"pulled\",\"said\":\"Pulled 1 new items from X bookmarks.\"}, and kept account-snapshot:x-bookmarks:sample:item:bookmarks:1900000000000000001, account-snapshot:x-bookmarks:sample:state."
     }
   ]
 }

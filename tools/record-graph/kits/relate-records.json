@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:relate-records's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:relate-records with nothing more.\" Keep how things in the person's records are related, with the role as data, and what happened between them, as relation and activity records",
+  "drafted_from": "tool:relate-records's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Keep how things in the person's records are related, with the role as data, and what happened between them, as relation and activity records\", with {\"relations\":[{\"subject\":\"record:crm:pat\",\"role\":\"dad\",\"object\":\"me\"}]}. It runs tool:relate-records and answers {\"relations\":[{\"id\":\"relation:bda9a4a6729e6610\",\"subject\":\"record:crm:pat\",\"role\":\"dad\",\"object\":\"record:person:me\",\"alive\":true,\"subject_order\":\"V\",\"object_order\":\"V\"}],\"entities\":[]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (relation, activity, organisation, group, place) through the records door.",
   "workflows": [],
   "tools": [
     "tool:relate-records"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:relate-records\", and give it nothing more.",
+    "1. Say to your AI: \"Keep how things in the person's records are related, with the role as data, and what happened between them, as relation and activity records\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:relate-records and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields relations, entities, activities."
+    "3. Read what comes back: Each relation says subject is the role of object (\"record:crm:pat\" is the \"dad\" of \"me\"; a contact is a \"member\" of \"organisation:Example Club\"); subject and object are record ids, me, or <kind>:<name> for an organisation, group or place, made once by its name.",
+    "4. It reads and writes only its own rows through the records door: relation (records:read, records:list, records:write); activity (records:read, records:write); organisation (records:read, records:write); group (records:read, records:write); place (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Say how things in your records are related on a sample input",
-      "ask": "Run tool:relate-records.",
+      "title": "Say how things in your records are related on its own sample",
+      "ask": "Keep how things in the person's records are related, with the role as data, and what happened between them, as relation and activity records",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -37,7 +38,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields relations, entities, activities."
+      "given": "The input {\"relations\":[{\"subject\":\"record:crm:pat\",\"role\":\"dad\",\"object\":\"me\"}]}.",
+      "hands_back": "It answered {\"relations\":[{\"id\":\"relation:bda9a4a6729e6610\",\"subject\":\"record:crm:pat\",\"role\":\"dad\",\"object\":\"record:person:me\",\"alive\":true,\"subject_order\":\"V\",\"object_order\":\"V\"}],\"entities\":[]}, and kept relation:bda9a4a6729e6610."
     }
   ]
 }

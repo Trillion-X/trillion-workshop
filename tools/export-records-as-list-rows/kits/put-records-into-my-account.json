@@ -1,23 +1,24 @@
 {
   "draft": true,
-  "drafted_from": "tool:put-records-into-my-account's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:put-records-into-my-account with payload, target_type, target_prefix.\" Put the records I prepared into my account so a re-run writes nothing: read what my account holds, send only what differs (or, when I keep edited rows, only what it lacks), in small commands, and stop at the first refusal",
+  "drafted_from": "tool:put-records-into-my-account's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Put the records I prepared into my account so a re-run writes nothing: read what my account holds, send only what differs (or, when I keep edited rows, only what it lacks), in small commands, and stop at the first refusal\", with {\"payload\":{\"commands\":[{\"input\":{\"records\":[{\"id\":\"sample-list:row-1\",\"type\":\"sample-row\",\"value\":{\"title\":\"Sample row\"}}]}}]},\"target_type\":\"sample-row\",\"target_prefix\":\"sample-list:\"}. It runs tool:put-records-into-my-account and answers {\"state\":\"all_written\",\"to_write\":1,\"commands\":1,\"written\":1,\"out_of_scope\":0,\"readback\":{\"sample-row\":{\"payload\":1,\"held\":1,\"equal\":1,\"missing\":[],\"differing\":[]}}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows ([object Object]) through the records door.",
   "workflows": [],
   "tools": [
     "tool:put-records-into-my-account",
     "tool:build-records-to-write"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:put-records-into-my-account\", and give it payload, target_type, target_prefix.",
+    "1. Say to your AI: \"Put the records I prepared into my account so a re-run writes nothing: read what my account holds, send only what differs (or, when I keep edited rows, only what it lacks), in small commands, and stop at the first refusal\", and give it payload (The whole result object returned by tool:build-records-to-write, including commands.); target_type (The one target record type this run is granted to read and write; the run right is filled from this field.); target_prefix (The target record id prefix this run is granted to read and write; the run right is filled from this field.).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:put-records-into-my-account and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields state, to_write, commands, written, out_of_scope, last_refusal, conflicts, readback."
+    "3. Read what comes back: Takes the result of tool:build-records-to-write directly.",
+    "4. It reads and writes only its own rows through the records door: [object Object] (records:list, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Put prepared records into my account through my door, writing only what it lacks (runs on your computer) on a sample input",
-      "ask": "Run tool:put-records-into-my-account.",
+      "title": "Put prepared records into my account through my door, writing only what it lacks (runs on your computer) on its own sample",
+      "ask": "Put the records I prepared into my account so a re-run writes nothing: read what my account holds, send only what differs (or, when I keep edited rows, only what it lacks), in small commands, and stop at the first refusal",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -50,7 +51,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields state, to_write, commands, written, out_of_scope, last_refusal, conflicts, readback."
+      "given": "The input {\"payload\":{\"commands\":[{\"input\":{\"records\":[{\"id\":\"sample-list:row-1\",\"type\":\"sample-row\",\"value\":{\"title\":\"Sample row\"}}]}}]},\"target_type\":\"sample-row\",\"target_prefix\":\"sample-list:\"}.",
+      "hands_back": "It answered {\"state\":\"all_written\",\"to_write\":1,\"commands\":1,\"written\":1,\"out_of_scope\":0,\"readback\":{\"sample-row\":{\"payload\":1,\"held\":1,\"equal\":1,\"missing\":[],\"differing\":[]}}}, and kept sample-list:row-1."
     }
   ]
 }

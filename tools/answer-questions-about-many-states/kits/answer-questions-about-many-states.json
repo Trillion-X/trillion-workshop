@@ -1,9 +1,9 @@
 {
   "draft": true,
-  "drafted_from": "tool:answer-questions-about-many-states's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:answer-questions-about-many-states with model, questions, settings, states.\" Ask the same set of questions about every one of these lines or records, all at once, with my classifier model",
+  "drafted_from": "tool:answer-questions-about-many-states's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Ask the same set of questions about every one of these lines or records, all at once, with my classifier model\", with {\"model\":{\"type\":\"record:classifier-model\",\"id\":\"record:classifier-model:sample\"},\"questions\":{\"type\":\"record:question-set\",\"id\":\"record:question-set:sample\"},\"settings\":{\"type\":\"record:setting\",\"id\":\"record:setting:bulk-answer~sample\"},\"states\":{\"type\":\"record:line\",\"prefix\":\"record:line:sample~\",\"field\":\"text\"}}. It runs tool:answer-questions-about-many-states and answers {\"job_id\":\"1f:aecd92c9a6235a1b105566298cce91253a4a4c43925b2ce97f65e80bfad198dc\",\"status\":\"finished\",\"states_done\":2,\"states\":2,\"pages\":1}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows ([object Object], [object Object], [object Object], [object Object], bulk-answer-run, bulk-answer-page, bulk-answer-cancel) through the records door.",
   "workflows": [],
   "tools": [
     "tool:answer-questions-about-many-states",
@@ -12,14 +12,15 @@
     "tool:read-a-bulk-answer-run"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:answer-questions-about-many-states\", and give it model, questions, settings, states.",
+    "1. Say to your AI: \"Ask the same set of questions about every one of these lines or records, all at once, with my classifier model\", and give it model (The model row: its value names the classifier family (`classifier`: questions-first-decider) and its weights (`weights`: {\"folder\"} or {\"hugging_face\": {\"repo\", \"revision\"}}), made ready on this Mac by tool:get-a-classifier-ready-on-this-mac.); questions (The question set row: its value's `questions` is {question id: {type: choice|score|noul, instructions, criteria?}}; choice criteria name 2 to 255 options, score criteria are 2 to 10 ordered levels, noul criteria may describe true and false.); settings (The settings row: layout (independent: one row per question, so no question sees another; packed: every question in one prefix, several times fewer tokens), dtype (bfloat16 or float32), tokens_per_batch, max_state_tokens and page_bytes (the most bytes of answers one page row holds, at most 56000).); states (The state rows: every row of `type` whose id starts with `prefix`, in id order.).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:answer-questions-about-many-states and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Ask the same set of questions about every one of these lines or records, all at once, with my classifier model"
+    "3. Read what comes back: {\"result\": {\"job_id\", \"status\": \"finished\" | \"cancelled\" | \"failed\" | \"running\", \"states_done\", \"states\", \"pages\", \"already\"?, \"error\"?}} or {\"error\": \"what to change\"}.",
+    "4. It reads and writes only its own rows through the records door: [object Object] (records:read); [object Object] (records:read); [object Object] (records:read); [object Object] (records:list); bulk-answer-run (records:read, records:write); bulk-answer-page (records:write); bulk-answer-cancel (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Answer the same questions about many states, in bulk, on this Mac on a sample input",
-      "ask": "Run tool:answer-questions-about-many-states.",
+      "title": "Answer the same questions about many states, in bulk, on this Mac on its own sample",
+      "ask": "Ask the same set of questions about every one of these lines or records, all at once, with my classifier model",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -50,7 +51,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Ask the same set of questions about every one of these lines or records, all at once, with my classifier model"
+      "given": "The input {\"model\":{\"type\":\"record:classifier-model\",\"id\":\"record:classifier-model:sample\"},\"questions\":{\"type\":\"record:question-set\",\"id\":\"record:question-set:sample\"},\"settings\":{\"type\":\"record:setting\",\"id\":\"record:setting:bulk-answer~sample\"},\"states\":{\"type\":\"record:line\",\"prefix\":\"record:line:sample~\",\"field\":\"text\"}}, with 5 example rows (record:classifier-model, record:question-set, record:setting, record:line) already kept.",
+      "hands_back": "It answered {\"job_id\":\"1f:aecd92c9a6235a1b105566298cce91253a4a4c43925b2ce97f65e80bfad198dc\",\"status\":\"finished\",\"states_done\":2,\"states\":2,\"pages\":1}, and kept bulk-answer-run:aecd92c9a6235a1b105566298cce91253a4a4c43925b2ce97f65e80bfad198dc, bulk-answer-page:aecd92c9a6235a1b105566298cce91253a4a4c43925b2ce97f65e80bfad198dc:000000."
     }
   ]
 }

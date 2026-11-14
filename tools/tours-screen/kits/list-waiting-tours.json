@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:list-waiting-tours's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:list-waiting-tours with nothing more.\" Show me the tours waiting to start by themselves, and which my show rules are holding",
+  "drafted_from": "tool:list-waiting-tours's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Show me the tours waiting to start by themselves, and which my show rules are holding\", with {\"now\":\"2026-01-01T00:00:00.000Z\"}. It runs tool:list-waiting-tours and answers {\"waiting\":[{\"tour_id\":\"sample-tour\",\"title\":\"Sample tour\",\"summary\":\"\",\"facts\":{\"id\":\"sample-tour\",\"title\":\"Sample tour\",\"started_by\":\"itself\",\"reason\":\"first-use\",\"urgency\":\"normal\",\"hours_since_one_like_it\":null},\"urgency\":\"normal\",\"held\":false,\"held_by\":[],\"until\":null,\"once_key\":\"sample-tour-seen\",\"entry_step\":\"one\",\"revision\":1}],\"said\":\"1 tour waiting, 0 held by your show rules.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (@own-records) through the records door.",
   "workflows": [],
   "tools": [
     "tool:list-waiting-tours"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:list-waiting-tours\", and give it nothing more.",
+    "1. Say to your AI: \"Show me the tours waiting to start by themselves, and which my show rules are holding\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-waiting-tours and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $ contains \"sample-tour\"."
+    "3. Read what comes back: Every tour that would start by itself on an event (opening Trillion, by default), with the facts your show rules decide it over (reason, urgency, hours since one like it) and how your show-rules record leaves it now: held, the rules holding it (held_by) and until when.",
+    "4. It reads and writes only its own rows through the records door: @own-records (workspace:read); @own-records (workspace:read); @own-records (workspace:read)."
   ],
   "worked_examples": [
     {
-      "title": "List the tours waiting to show on a sample input",
-      "ask": "Run tool:list-waiting-tours.",
+      "title": "List the tours waiting to show on its own sample",
+      "ask": "Show me the tours waiting to start by themselves, and which my show rules are holding",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +32,8 @@
           }
         }
       },
-      "hands_back": "The answer's $ contains \"sample-tour\"."
+      "given": "The input {\"now\":\"2026-01-01T00:00:00.000Z\"}.",
+      "hands_back": "It answered {\"waiting\":[{\"tour_id\":\"sample-tour\",\"title\":\"Sample tour\",\"summary\":\"\",\"facts\":{\"id\":\"sample-tour\",\"title\":\"Sample tour\",\"started_by\":\"itself\",\"reason\":\"first-use\",\"urgency\":\"normal\",\"hours_since_one_like_it\":null},\"urgency\":\"normal\",\"held\":false,\"held_by\":[],\"until\":null,\"once_key\":\"sample-tour-seen\",\"entry_step\":\"one\",\"revision\":1}],\"said\":\"1 tour waiting, 0 held by your show rules.\"}."
     }
   ]
 }

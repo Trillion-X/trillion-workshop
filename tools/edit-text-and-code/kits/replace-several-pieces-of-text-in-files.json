@@ -1,23 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:replace-several-pieces-of-text-in-files's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:replace-several-pieces-of-text-in-files with edits.\" Make several exact text changes across one or more text or code files in one go, so either every change is made or none is",
+  "drafted_from": "tool:replace-several-pieces-of-text-in-files's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Make several exact text changes across one or more text or code files in one go, so either every change is made or none is\", with {\"edits\":[{\"file\":\"src/a.txt\",\"find\":\"alpha\",\"replace\":\"apple\"},{\"file\":\"src/b.txt\",\"find\":\"beta\",\"replace\":\"banana\"}]}. It runs tool:replace-several-pieces-of-text-in-files and answers {\"files\":[{\"file\":\"src/a.txt\",\"bytes_before\":10,\"bytes_after\":10,\"replaced\":1},{\"file\":\"src/b.txt\",\"bytes_before\":9,\"bytes_after\":11,\"replaced\":1}],\"replaced\":2}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:replace-several-pieces-of-text-in-files",
     "tool:replace-one-piece-of-text-in-a-file"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:replace-several-pieces-of-text-in-files\", and give it edits.",
+    "1. Say to your AI: \"Make several exact text changes across one or more text or code files in one go, so either every change is made or none is\", and give it edits (The edits, applied in order).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:replace-several-pieces-of-text-in-files and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields files, replaced."
+    "3. Read what comes back: Give edits: a list of { file, find, replace }, each as in tool:replace-one-piece-of-text-in-a-file."
   ],
   "worked_examples": [
     {
-      "title": "Change several pieces of text in files, all or nothing on a sample input",
-      "ask": "Run tool:replace-several-pieces-of-text-in-files.",
+      "title": "Change several pieces of text in files, all or nothing on its own sample",
+      "ask": "Make several exact text changes across one or more text or code files in one go, so either every change is made or none is",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -43,7 +43,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields files, replaced."
+      "given": "The input {\"edits\":[{\"file\":\"src/a.txt\",\"find\":\"alpha\",\"replace\":\"apple\"},{\"file\":\"src/b.txt\",\"find\":\"beta\",\"replace\":\"banana\"}]}.",
+      "hands_back": "It answered {\"files\":[{\"file\":\"src/a.txt\",\"bytes_before\":10,\"bytes_after\":10,\"replaced\":1},{\"file\":\"src/b.txt\",\"bytes_before\":9,\"bytes_after\":11,\"replaced\":1}],\"replaced\":2}."
     }
   ]
 }

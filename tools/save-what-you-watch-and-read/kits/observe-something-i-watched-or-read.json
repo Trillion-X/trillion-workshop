@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:observe-something-i-watched-or-read's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:observe-something-i-watched-or-read with source_ref, content.\" Turn one thing a person watched, read, used or saved (a page they visited, words they selected, an app they spent a while in, a feed item) into one observation with a stable identity, so seeing the same thing again is recognised and a changed page is a new revision",
+  "drafted_from": "tool:observe-something-i-watched-or-read's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Turn one thing a person watched, read, used or saved (a page they visited, words they selected, an app they spent a while in, a feed item) into one observation with a stable identity, so seeing the same thing again is recognised and a changed page is a new revision\", with {\"source_ref\":\"source:pages\",\"content\":{\"url\":\"https://www.example.org/rye-bread\",\"text\":\"Rye needs a long rise.\"},\"observed_at\":\"2026-01-02T08:00:00Z\"}. It runs tool:observe-something-i-watched-or-read and answers {\"observation\":{\"id\":\"1f:f27ae863df8a53f50578115e9dbbffcbb370211e8e2e10def5441c21075c15f5\",\"source_ref\":\"source:pages\",\"native_ref\":\"https://www.example.org/rye-bread\",\"observed_at\":\"2026-01-02T08:00:00Z\",\"content_revision\":\"1f:23a1847a2296b2ba33c29afd805c803c7de2018c632f3598887d43ec39ca498d\",\"payload\":{\"url\":\"https://www.example.org/rye-bread\",\"text\":\"Rye needs a long rise.\",\"host\":\"example.org\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:observe-something-i-watched-or-read"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:observe-something-i-watched-or-read\", and give it source_ref, content.",
+    "1. Say to your AI: \"Turn one thing a person watched, read, used or saved (a page they visited, words they selected, an app they spent a while in, a feed item) into one observation with a stable identity, so seeing the same thing again is recognised and a changed page is a new revision\", and give it source_ref (What to call this source); content (What was seen: url, text, title, app, window, and so on).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:observe-something-i-watched-or-read and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.said contains \"Observed https://www.example.org/rye-bread from source:pages\"."
+    "3. Read what comes back: Give source_ref (what to call the source) and content (an object saying what was seen: url, text, title, app, window, whatever applies)."
   ],
   "worked_examples": [
     {
-      "title": "Observe something I watched or read on a sample input",
-      "ask": "Run tool:observe-something-i-watched-or-read.",
+      "title": "Observe something I watched or read on its own sample",
+      "ask": "Turn one thing a person watched, read, used or saved (a page they visited, words they selected, an app they spent a while in, a feed item) into one observation with a stable identity, so seeing the same thing again is recognised and a changed page is a new revision",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -36,7 +36,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.said contains \"Observed https://www.example.org/rye-bread from source:pages\"."
+      "given": "The input {\"source_ref\":\"source:pages\",\"content\":{\"url\":\"https://www.example.org/rye-bread\",\"text\":\"Rye needs a long rise.\"},\"observed_at\":\"2026-01-02T08:00:00Z\"}.",
+      "hands_back": "It answered {\"observation\":{\"id\":\"1f:f27ae863df8a53f50578115e9dbbffcbb370211e8e2e10def5441c21075c15f5\",\"source_ref\":\"source:pages\",\"native_ref\":\"https://www.example.org/rye-bread\",\"observed_at\":\"2026-01-02T08:00:00Z\",\"content_revision\":\"1f:23a1847a2296b2ba33c29afd805c803c7de2018c632f3598887d43ec39ca498d\",\"payload\":{\"url\":\"https://www.example.org/rye-bread\",\"text\":\"Rye needs a long rise.\",\"host\":\"example.org\",\"title\":\"https://www.example.org/rye-bread\",\"source_ref\":\"source:pages\",\"observed_at\":\"2026-01-02T08:00:00Z\"}},\"said\":\"Observed https://www.example.org/rye-bread from source:pages at 2026-01-02T08:00:00Z.\"}."
     }
   ]
 }

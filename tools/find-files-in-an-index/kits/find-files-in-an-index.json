@@ -1,7 +1,7 @@
 {
   "draft": true,
-  "drafted_from": "tool:find-files-in-an-index's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:find-files-in-an-index with nothing more.\" Find a person's files by words, name, place, kind or spoken words, in a file index that already exists on their computer",
+  "drafted_from": "tool:find-files-in-an-index's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Find a person's files by words, name, place, kind or spoken words, in a file index that already exists on their computer\", with {\"index_dir\":\"/dev\",\"index_file\":\"null\",\"query\":\"beach day\"}. It runs tool:find-files-in-an-index and answers {\"query\":\"beach day\",\"terms\":[\"beach\",\"day\"],\"intent_type\":null,\"candidates_per_root\":{},\"matched\":0,\"hits\":[]}",
   "lists": [
     {
       "list": "list:settings",
@@ -108,20 +108,20 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
     "tool:find-files-in-an-index"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:find-files-in-an-index\", and give it nothing more.",
+    "1. Say to your AI: \"Find a person's files by words, name, place, kind or spoken words, in a file index that already exists on their computer\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-files-in-an-index and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields query, terms, intent_type, candidates_per_root, by_name, not_in_index, matched, hits."
+    "3. Read what comes back: Give index_dir (the full path of the folder that holds the index, one the person has let this tool read) and query (the words to look for).",
+    "4. It reads and writes only its own rows through the records door: record:setting (records:read)."
   ],
   "worked_examples": [
     {
-      "title": "Find my files in my index on a sample input",
-      "ask": "Run tool:find-files-in-an-index.",
+      "title": "Find my files in my index on its own sample",
+      "ask": "Find a person's files by words, name, place, kind or spoken words, in a file index that already exists on their computer",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -138,7 +138,32 @@
           }
         }
       },
-      "hands_back": "An answer with the fields query, terms, intent_type, candidates_per_root, by_name, not_in_index, matched, hits."
+      "given": "The input {\"index_dir\":\"/dev\",\"index_file\":\"null\",\"query\":\"beach day\"}.",
+      "hands_back": "It answered {\"query\":\"beach day\",\"terms\":[\"beach\",\"day\"],\"intent_type\":null,\"candidates_per_root\":{},\"matched\":0,\"hits\":[]}."
+    },
+    {
+      "title": "Find my files in my index on its own sample",
+      "ask": "Find a person's files by words, name, place, kind or spoken words, in a file index that already exists on their computer",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:find-files-in-an-index",
+            "input": {
+              "names": [
+                "C001",
+                "C00*"
+              ],
+              "settings_record": "record:setting:find-files-in-an-index~person~all"
+            }
+          }
+        }
+      },
+      "given": "The input {\"names\":[\"C001\",\"C00*\"],\"settings_record\":\"record:setting:find-files-in-an-index~person~all\"}, with 1 example row (record:setting) already kept.",
+      "hands_back": "It answered {\"query\":\"\",\"terms\":[],\"candidates_per_root\":{},\"matched\":0,\"hits\":[],\"by_name\":{\"C001\":[],\"C00*\":[]},\"not_in_index\":[\"C001\",\"C00*\"],\"settings_from\":{\"id\":\"record:setting:find-files-in-an-index~person~all\",\"from\":\"made up for this sample\"}}."
     }
   ],
   "pour": {

@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:plan-what-a-sent-deal-sets-up's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:plan-what-a-sent-deal-sets-up with contract, follow_ups.\" Turn a sales contract's follow-ups into the rules and schedules that run them once the deal is sent: a paid follow-up for this deal only, a dated one at its time, with the deal's own words filled in",
+  "drafted_from": "tool:plan-what-a-sent-deal-sets-up's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Turn a sales contract's follow-ups into the rules and schedules that run them once the deal is sent: a paid follow-up for this deal only, a dated one at its time, with the deal's own words filled in\", with {\"contract\":{\"id\":\"deal-1\",\"name\":\"Spring coaching\"},\"facts\":{\"to\":\"client-1\",\"address\":\"https://shop.example/d/deal-1\"},\"follow_ups\":[{\"label\":\"Send the welcome email\",\"on\":\"paid\",\"then\":{\"tool_id\":\"tool:send-an-email\",\"input\":{\"to\":\"{to}\",\"subject\":\"Welcome to {contract_name}\"}}},{\"label\":\"Check in\",\"on\":{\"once_at\":\"2026-11-11T10:00:00Z\"},\"then\":{\"tool_id\":\"tool:send-an-email\" .... It runs tool:plan-what-a-sent-deal-sets-up and answers {\"set\":[{\"kind\":\"rule\",\"input\":{\"label\":\"Send the welcome email: Spring coaching\",\"when\":{\"recorded\":\"commercial-event\",\"where\":[{\"field\":\"event\",\"equals\":\"negotiated_offer_paid\"},{\"field\":\"contract_id\",\"equals\":\"deal-1\"}]},\"then\":{\"tool_id\":\"tool:send-an-email\",\"input\":{\"to\":\"client-1\",\"subject\":\"Welcome to Spring coaching\"}}}},{\"kind\":\"schedule\",\"input\":{\"label\":\"Check in: Spring coaching\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:plan-what-a-sent-deal-sets-up"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:plan-what-a-sent-deal-sets-up\", and give it contract, follow_ups.",
+    "1. Say to your AI: \"Turn a sales contract's follow-ups into the rules and schedules that run them once the deal is sent: a paid follow-up for this deal only, a dated one at its time, with the deal's own words filled in\", and give it contract; follow_ups.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:plan-what-a-sent-deal-sets-up and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.offered contains \"welcome-email\"."
+    "3. Read what comes back: Give contract ({ id, name } of the deal being sent), facts ({ to, contract_name, contract_id, address }: contract_name and contract_id default to the contract's) and follow_ups (each { label, on: \"paid\" | { once_at }, then: { tool_id | workflow_id, input } })."
   ],
   "worked_examples": [
     {
-      "title": "Plan what a sent deal sets up on a sample input",
-      "ask": "Run tool:plan-what-a-sent-deal-sets-up.",
+      "title": "Plan what a sent deal sets up on its own sample",
+      "ask": "Turn a sales contract's follow-ups into the rules and schedules that run them once the deal is sent: a paid follow-up for this deal only, a dated one at its time, with the deal's own words filled in",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -64,7 +64,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.offered contains \"welcome-email\"."
+      "given": "The input {\"contract\":{\"id\":\"deal-1\",\"name\":\"Spring coaching\"},\"facts\":{\"to\":\"client-1\",\"address\":\"https://shop.example/d/deal-1\"},\"follow_ups\":[{\"label\":\"Send the welcome email\",\"on\":\"paid\",\"then\":{\"tool_id\":\"tool:send-an-email\",\"input\":{\"to\":\"{to}\",\"subject\":\"Welcome to {contract_name}\"}}},{\"label\":\"Check in\",\"on\":{\"once_at\":\"2026-11-11T10:00:00Z\"},\"then\":{\"tool_id\":\"tool:send-an-email\" ....",
+      "hands_back": "It answered {\"set\":[{\"kind\":\"rule\",\"input\":{\"label\":\"Send the welcome email: Spring coaching\",\"when\":{\"recorded\":\"commercial-event\",\"where\":[{\"field\":\"event\",\"equals\":\"negotiated_offer_paid\"},{\"field\":\"contract_id\",\"equals\":\"deal-1\"}]},\"then\":{\"tool_id\":\"tool:send-an-email\",\"input\":{\"to\":\"client-1\",\"subject\":\"Welcome to Spring coaching\"}}}},{\"kind\":\"schedule\",\"input\":{\"label\":\"Check in: Spring coaching\",\"once_at\":\"2026-11-11T10:00:00Z\",\"then\":{\"tool_id\":\"tool:send-an-email\",\"input\":{\"to\":\"client-1\",\"subject\":\"How is Spring coaching going?\"}}}}],\"offered\":[{\"id\":\"welcome-email\",\"label\":\"Send the welcome email\",\"on\":\"paid\"},{\"id\":\"tell-me\",\"label\":\"Tell me when they pay\",\"on\":\"paid\"},{\"id\":\"check-in\" ...."
     }
   ]
 }

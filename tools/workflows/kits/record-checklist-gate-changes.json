@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:record-checklist-gate-changes's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:record-checklist-gate-changes with library, schema, command.\" Record a checklist answer or run a declared checker or gate, with the required folder change grant",
+  "drafted_from": "tool:record-checklist-gate-changes's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Record a checklist answer or run a declared checker or gate, with the required folder change grant\", with {\"schema\":\"schema.json\",\"command\":\"checklist --write\"}. It runs tool:record-checklist-gate-changes and answers {\"result\":{\"written\":\"/granted-tYCVr2/checklist.json\",\"checks\":2,\"must\":1},\"exit_code\":0}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (ai-job, record:workflow-recipe, record:workflow-step) through the records door.",
   "workflows": [],
   "tools": [
     "tool:record-checklist-gate-changes"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:record-checklist-gate-changes\", and give it library, schema, command.",
+    "1. Say to your AI: \"Record a checklist answer or run a declared checker or gate, with the required folder change grant\", and give it library (The library folder inside the folder you grant for this run.); schema (The schema file inside the folder you grant for this run.); command (A write command: answer <piece> --check ID [--option ITEM] --answer pass|fail|n/a --evidence TEXT --by NAME; answers-from-report <piece> --json REPORT [--option ITEM]; sweep <piece> --previews FOLDER...; run-gates <piece> --lane-dir FOLDER; run-files <piece> --file PATH...; audit <piece> --hold; checklist --write; library-assess --json FILE; or library-remove --json FILE.).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:record-checklist-gate-changes and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $ holds the result: Record a checklist answer or run a declared checker or gate, with the required folder change grant"
+    "3. Read what comes back: { result, exit_code } from the existing checklist consumer, or { error, exit_code } when the command cannot run. An open or failed check remains failed; an answer is kept only under its own name and current file and criterion pins.",
+    "4. It reads and writes only its own rows through the records door: ai-job (records:read, records:write); record:workflow-recipe (records:read); record:workflow-step (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Record a checklist answer or run its checked steps (runs on your computer) on a sample input",
-      "ask": "Run tool:record-checklist-gate-changes.",
+      "title": "Record a checklist answer or run its checked steps (runs on your computer) on its own sample",
+      "ask": "Record a checklist answer or run a declared checker or gate, with the required folder change grant",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,7 +33,8 @@
           }
         }
       },
-      "hands_back": "The answer's $ holds the result: Record a checklist answer or run a declared checker or gate, with the required folder change grant"
+      "given": "The input {\"schema\":\"schema.json\",\"command\":\"checklist --write\"}.",
+      "hands_back": "It answered {\"result\":{\"written\":\"/granted-tYCVr2/checklist.json\",\"checks\":2,\"must\":1},\"exit_code\":0}."
     }
   ]
 }

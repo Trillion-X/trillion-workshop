@@ -1,9 +1,9 @@
 {
   "draft": true,
-  "drafted_from": "tool:read-setup's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-setup with account_id.\" Gather what my account's setup is made of and draw the Get started screen from it",
+  "drafted_from": "tool:read-setup's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Gather what my account's setup is made of and draw the Get started screen from it\", with {\"account_id\":\"acct-sample\",\"user_agent\":\"Sample browser\",\"origin\":\"https://app.example.test\",\"now\":\"2026-01-01T00:00:00.000Z\"}. It runs tool:read-setup and answers {\"title\":\"Connect your AI to start\",\"ready\":false,\"requirements\":[]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (, @own-records) through the records door.",
   "workflows": [],
   "tools": [
     "tool:read-setup",
@@ -11,14 +11,15 @@
     "tool:see-what-is-left-to-set-up"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-setup\", and give it account_id.",
+    "1. Say to your AI: \"Gather what my account's setup is made of and draw the Get started screen from it\", and give it account_id (The page's own account).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-setup and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result.title contains \"Connect your AI\"."
+    "3. Read what comes back: The one read of the Get started screen (tool:get-started).",
+    "4. It reads and writes only its own rows through the records door: undefined (setup_facts); @own-records (workspace:read); @own-records (workspace:read)."
   ],
   "worked_examples": [
     {
-      "title": "Read my setup on a sample input",
-      "ask": "Run tool:read-setup.",
+      "title": "Read my setup on its own sample",
+      "ask": "Gather what my account's setup is made of and draw the Get started screen from it",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -36,7 +37,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result.title contains \"Connect your AI\"."
+      "given": "The input {\"account_id\":\"acct-sample\",\"user_agent\":\"Sample browser\",\"origin\":\"https://app.example.test\",\"now\":\"2026-01-01T00:00:00.000Z\"}.",
+      "hands_back": "It answered {\"title\":\"Connect your AI to start\",\"ready\":false,\"requirements\":[]}."
     }
   ]
 }

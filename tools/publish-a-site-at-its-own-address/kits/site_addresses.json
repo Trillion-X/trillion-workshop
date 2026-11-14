@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:site_addresses's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:site_addresses with nothing more.\" List the addresses my published websites answer at",
+  "drafted_from": "tool:site_addresses's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"List the addresses my published websites answer at\", with {}. It runs tool:site_addresses and answers {\"origins\":[{\"host\":\"field-notes.trillion.run\",\"address\":\"https://field-notes.trillion.run/\",\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}],\"told\":{\"state\":\"refused\",\"told_at\":\"2025-11-04T12:00:00.000Z\",\"why\":\"Another account's site holds one of these addresses. Choose another name, or let that address go.\"}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows () through the records door.",
   "workflows": [],
   "tools": [
     "tool:site_addresses"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:site_addresses\", and give it nothing more.",
+    "1. Say to your AI: \"List the addresses my published websites answer at\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:site_addresses and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields origins, told."
+    "3. Read what comes back: Every address your sites answer at: each host, its https address, the installation it shows, and for an earlier name the address it sends visitors on to.",
+    "4. It reads and writes only its own rows through the records door: undefined (list_files, find_file, read_file)."
   ],
   "worked_examples": [
     {
-      "title": "My site addresses on a sample input",
-      "ask": "Run tool:site_addresses.",
+      "title": "My site addresses on its own sample",
+      "ask": "List the addresses my published websites answer at",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -29,7 +30,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields origins, told."
+      "given": "The input {}.",
+      "hands_back": "It answered {\"origins\":[{\"host\":\"field-notes.trillion.run\",\"address\":\"https://field-notes.trillion.run/\",\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}],\"told\":{\"state\":\"refused\",\"told_at\":\"2025-11-04T12:00:00.000Z\",\"why\":\"Another account's site holds one of these addresses. Choose another name, or let that address go.\"}}."
     }
   ]
 }

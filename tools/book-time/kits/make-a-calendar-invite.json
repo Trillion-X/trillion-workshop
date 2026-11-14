@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:make-a-calendar-invite's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:make-a-calendar-invite with uid, start, end, summary, organizer.\" Make an invitation file that any mail client turns into a calendar event, or into a cancellation",
+  "drafted_from": "tool:make-a-calendar-invite's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Make an invitation file that any mail client turns into a calendar event, or into a cancellation\", with {\"uid\":\"booking-1\",\"start\":\"2026-08-12T15:00:00Z\",\"end\":\"2026-08-12T15:30:00Z\",\"summary\":\"Intro call\",\"organizer\":{\"email\":\"host@example.test\"}}. It runs tool:make-a-calendar-invite and answers {\"filename\":\"booking-1.ics\",\"text\":\"BEGIN:VCALENDAR\\r\\nVERSION:2.0\\r\\nPRODID:-//book-time//EN\\r\\nCALSCALE:GREGORIAN\\r\\nMETHOD:REQUEST\\r\\nBEGIN:VEVENT\\r\\nUID:booking-1\\r\\nDTSTAMP:20261114T005015Z\\r\\nDTSTART:20260812T150000Z\\r\\nDTEND:20260812T153000Z\\r\\nSUMMARY:Intro call\\r\\nORGANIZER:mailto:host@example.test\\r\\nSTATUS:CONFIRMED\\r\\nSEQUENCE:0\\r\\nTRANSP:OPAQUE\\r\\nEND:VEVENT\\r\\nEND:VCALENDAR\\r\\n\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (booking, booking-book) through the records door.",
   "workflows": [],
   "tools": [
     "tool:make-a-calendar-invite"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:make-a-calendar-invite\", and give it uid, start, end, summary, organizer.",
+    "1. Say to your AI: \"Make an invitation file that any mail client turns into a calendar event, or into a cancellation\", and give it uid (The event's own id; keep it for updates and the cancel); start (Start instant); end (End instant); summary; organizer.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:make-a-calendar-invite and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.text contains \"BEGIN:VCALENDAR\"."
+    "3. Read what comes back: Writes a standard calendar file (.ics): a request that creates or updates an event, or a cancel that removes it.",
+    "4. It reads and writes only its own rows through the records door: booking (records:list, records:read, records:write); booking-book (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Make a calendar invite on a sample input",
-      "ask": "Run tool:make-a-calendar-invite.",
+      "title": "Make a calendar invite on its own sample",
+      "ask": "Make an invitation file that any mail client turns into a calendar event, or into a cancellation",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -37,7 +38,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.text contains \"BEGIN:VCALENDAR\"."
+      "given": "The input {\"uid\":\"booking-1\",\"start\":\"2026-08-12T15:00:00Z\",\"end\":\"2026-08-12T15:30:00Z\",\"summary\":\"Intro call\",\"organizer\":{\"email\":\"host@example.test\"}}.",
+      "hands_back": "It answered {\"filename\":\"booking-1.ics\",\"text\":\"BEGIN:VCALENDAR\\r\\nVERSION:2.0\\r\\nPRODID:-//book-time//EN\\r\\nCALSCALE:GREGORIAN\\r\\nMETHOD:REQUEST\\r\\nBEGIN:VEVENT\\r\\nUID:booking-1\\r\\nDTSTAMP:20261114T005015Z\\r\\nDTSTART:20260812T150000Z\\r\\nDTEND:20260812T153000Z\\r\\nSUMMARY:Intro call\\r\\nORGANIZER:mailto:host@example.test\\r\\nSTATUS:CONFIRMED\\r\\nSEQUENCE:0\\r\\nTRANSP:OPAQUE\\r\\nEND:VEVENT\\r\\nEND:VCALENDAR\\r\\n\"}."
     }
   ]
 }

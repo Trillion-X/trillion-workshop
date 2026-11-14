@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:run-a-session-step's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:run-a-session-step with operation.\" Create, change, reschedule, fork, merge, cancel, supersede, confirm, close or ask feedback of a gathering I organize, keeping who came from where",
+  "drafted_from": "tool:run-a-session-step's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Create, change, reschedule, fork, merge, cancel, supersede, confirm, close or ask feedback of a gathering I organize, keeping who came from where\", with {\"operation\":\"create\",\"session\":{\"session_id\":\"session:sample\",\"purpose_contract\":{\"key\":\"baking-morning\",\"descriptor_ref\":\"purpose:baking-morning\"},\"candidate_occurrences\":[{\"occurrence_id\":\"occurrence:sample:1\",\"starts_at\":\"2026-09-12T09:00\",\"ends_at\":\"2026-09-12T11:00\",\"time_zone\":\"America/Chicago\",\"calendar_system\":\"gregorian\"}],\"candidate_places\":[],\"candidate_modes\":[{\"key\":\"mode:in-person\" .... It runs tool:run-a-session-step and answers {\"session\":{\"session_id\":\"session:sample\",\"purpose_contract\":{\"key\":\"baking-morning\",\"descriptor_ref\":\"purpose:baking-morning\"},\"candidate_occurrences\":[{\"occurrence_id\":\"occurrence:sample:1\",\"starts_at\":\"2026-09-12T09:00\",\"ends_at\":\"2026-09-12T11:00\",\"time_zone\":\"America/Chicago\",\"calendar_system\":\"gregorian\"}],\"candidate_places\":[],\"candidate_modes\":[{\"key\":\"mode:in-person\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:run-a-session-step"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:run-a-session-step\", and give it operation.",
+    "1. Say to your AI: \"Create, change, reschedule, fork, merge, cancel, supersede, confirm, close or ask feedback of a gathering I organize, keeping who came from where\", and give it operation (create, update, reschedule, fork, merge, cancel, supersede, confirm, record_no_show, close or request_feedback).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:run-a-session-step and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.session.fork_merge_provenance.operation contains \"create\"."
+    "3. Read what comes back: Applies one named step to a coordination session and answers the next session (or, for supersede, the old one and its successor)."
   ],
   "worked_examples": [
     {
-      "title": "Run a session step on a sample input",
-      "ask": "Run tool:run-a-session-step.",
+      "title": "Run a session step on its own sample",
+      "ask": "Create, change, reschedule, fork, merge, cancel, supersede, confirm, close or ask feedback of a gathering I organize, keeping who came from where",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -69,7 +69,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.session.fork_merge_provenance.operation contains \"create\"."
+      "given": "The input {\"operation\":\"create\",\"session\":{\"session_id\":\"session:sample\",\"purpose_contract\":{\"key\":\"baking-morning\",\"descriptor_ref\":\"purpose:baking-morning\"},\"candidate_occurrences\":[{\"occurrence_id\":\"occurrence:sample:1\",\"starts_at\":\"2026-09-12T09:00\",\"ends_at\":\"2026-09-12T11:00\",\"time_zone\":\"America/Chicago\",\"calendar_system\":\"gregorian\"}],\"candidate_places\":[],\"candidate_modes\":[{\"key\":\"mode:in-person\" ....",
+      "hands_back": "It answered {\"session\":{\"session_id\":\"session:sample\",\"purpose_contract\":{\"key\":\"baking-morning\",\"descriptor_ref\":\"purpose:baking-morning\"},\"candidate_occurrences\":[{\"occurrence_id\":\"occurrence:sample:1\",\"starts_at\":\"2026-09-12T09:00\",\"ends_at\":\"2026-09-12T11:00\",\"time_zone\":\"America/Chicago\",\"calendar_system\":\"gregorian\"}],\"candidate_places\":[],\"candidate_modes\":[{\"key\":\"mode:in-person\",\"descriptor_ref\":\"mode:in-person\"}],\"capacity_plan\":{\"capacity_policy_ref\":\"capacity-policy:sample\",\"seat_ledger_ref\":\"ledger:sample\"},\"participation_policy\":{\"visibility_predicate_ref\":\"visibility:members\",\"eligibility_predicate_ref\":\"eligible:members\"},\"lifecycle_state\":{\"key\":\"draft\" ...."
     }
   ]
 }

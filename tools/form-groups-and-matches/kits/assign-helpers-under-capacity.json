@@ -1,23 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:assign-helpers-under-capacity's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:assign-helpers-under-capacity with operation.\" Assign mentors, volunteers or helpers to the people who asked for help when each helper can only take so many, best pairs first, and say who was left without one and why",
+  "drafted_from": "tool:assign-helpers-under-capacity's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Assign mentors, volunteers or helpers to the people who asked for help when each helper can only take so many, best pairs first, and say who was left without one and why\", with {\"operation\":\"solve_capacity_constraints\",\"help_seekers\":[{\"id\":\"ana\"}],\"helper_candidates\":[{\"id\":\"ben\"}],\"capacities\":{\"ben\":1},\"eligibility\":[{\"help_seeker_ref\":\"ana\",\"helper_candidate_ref\":\"ben\",\"eligible\":true}],\"ranking\":[{\"help_seeker_ref\":\"ana\",\"helper_candidate_ref\":\"ben\",\"score\":1}]}. It runs tool:assign-helpers-under-capacity and answers {\"operation\":\"solve_capacity_constraints\",\"assignments\":[{\"assignment_id\":\"assignment:match-case:ana:ben\",\"match_case_id\":\"match-case:ana\",\"help_seeker_ref\":\"ana\",\"helper_candidate_ref\":\"ben\",\"target_ref\":\"ben\",\"capacity_ref\":\"ben\",\"session_ref\":null,\"mode\":null,\"eligibility_predicate_refs\":[],\"ranking_policy_ref\":null,\"rank_score\":1,\"expected_value_factors\":null,\"evidence_refs\":[],\"scope\":null ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:assign-helpers-under-capacity",
     "tool:form-matches"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:assign-helpers-under-capacity\", and give it operation.",
+    "1. Say to your AI: \"Assign mentors, volunteers or helpers to the people who asked for help when each helper can only take so many, best pairs first, and say who was left without one and why\", and give it operation.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:assign-helpers-under-capacity and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.assignments[0].helper_candidate_ref contains \"ben\"."
+    "3. Read what comes back: operation solve_capacity_constraints takes help_seekers [{ id, match_case_id?, demand?"
   ],
   "worked_examples": [
     {
-      "title": "Assign helpers to the people who need them, within each helper's capacity on a sample input",
-      "ask": "Run tool:assign-helpers-under-capacity.",
+      "title": "Assign helpers to the people who need them, within each helper's capacity on its own sample",
+      "ask": "Assign mentors, volunteers or helpers to the people who asked for help when each helper can only take so many, best pairs first, and say who was left without one and why",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -59,7 +59,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.assignments[0].helper_candidate_ref contains \"ben\"."
+      "given": "The input {\"operation\":\"solve_capacity_constraints\",\"help_seekers\":[{\"id\":\"ana\"}],\"helper_candidates\":[{\"id\":\"ben\"}],\"capacities\":{\"ben\":1},\"eligibility\":[{\"help_seeker_ref\":\"ana\",\"helper_candidate_ref\":\"ben\",\"eligible\":true}],\"ranking\":[{\"help_seeker_ref\":\"ana\",\"helper_candidate_ref\":\"ben\",\"score\":1}]}.",
+      "hands_back": "It answered {\"operation\":\"solve_capacity_constraints\",\"assignments\":[{\"assignment_id\":\"assignment:match-case:ana:ben\",\"match_case_id\":\"match-case:ana\",\"help_seeker_ref\":\"ana\",\"helper_candidate_ref\":\"ben\",\"target_ref\":\"ben\",\"capacity_ref\":\"ben\",\"session_ref\":null,\"mode\":null,\"eligibility_predicate_refs\":[],\"ranking_policy_ref\":null,\"rank_score\":1,\"expected_value_factors\":null,\"evidence_refs\":[],\"scope\":null,\"scope_key\":null,\"explanation\":null,\"state\":\"proposed\"}],\"unmatched\":[],\"capacity_usage\":[{\"target_ref\":\"ben\",\"capacity_ref\":\"ben\",\"capacity\":1,\"assigned\":1,\"remaining\":0}],\"rejected_candidates\":[],\"instrumentation\":{\"bounded_edge_evaluation_count\":0,\"cartesian_evaluation_count\":1 ...."
     }
   ]
 }

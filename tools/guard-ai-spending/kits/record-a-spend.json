@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:record-a-spend's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:record-a-spend with spend_authority_ref, operation_ref, amount.\" After my AI has paid, add what it spent to today's and the all-time totals",
+  "drafted_from": "tool:record-a-spend's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"After my AI has paid, add what it spent to today's and the all-time totals\", with {\"spend_authority_ref\":\"spend-authority:sample-research\",\"operation_ref\":\"operation:sample-report\",\"amount\":250,\"payment_ref\":\"payment:sample-1\"}. It runs tool:record-a-spend and answers {\"already_recorded\":false,\"total_spent_today\":350,\"total_spent_all_time\":4250,\"amount\":250,\"payment_record\":{\"kind\":\"spend_payment_processed\",\"payment_ref\":\"payment:sample-1\",\"operation_ref\":\"operation:sample-report\",\"spend_authority_ref\":\"spend-authority:sample-research\",\"wallet_ref\":\"spend-authority:sample-research\",\"rail_ref\":\"payment-rail:unspecified\",\"spender_id\":\"\",\"agent_id\":\"\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (spend-authority, spend-payment) through the records door.",
   "workflows": [],
   "tools": [
     "tool:record-a-spend"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:record-a-spend\", and give it spend_authority_ref, operation_ref, amount.",
+    "1. Say to your AI: \"After my AI has paid, add what it spent to today's and the all-time totals\", and give it spend_authority_ref; operation_ref; amount (Whole cents paid).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:record-a-spend and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields already_recorded, total_spent_today, total_spent_all_time, amount, payment_record."
+    "3. Read what comes back: Adds one paid spend (whole cents) to the spend authority's total for today and for all time, and keeps a record of the payment.",
+    "4. It reads and writes only its own rows through the records door: spend-authority (records:read, records:write); spend-payment (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Record a spend on a sample input",
-      "ask": "Run tool:record-a-spend.",
+      "title": "Record a spend on its own sample",
+      "ask": "After my AI has paid, add what it spent to today's and the all-time totals",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -34,7 +35,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields already_recorded, total_spent_today, total_spent_all_time, amount, payment_record."
+      "given": "The input {\"spend_authority_ref\":\"spend-authority:sample-research\",\"operation_ref\":\"operation:sample-report\",\"amount\":250,\"payment_ref\":\"payment:sample-1\"}, with 1 example row (spend-authority) already kept.",
+      "hands_back": "It answered {\"already_recorded\":false,\"total_spent_today\":350,\"total_spent_all_time\":4250,\"amount\":250,\"payment_record\":{\"kind\":\"spend_payment_processed\",\"payment_ref\":\"payment:sample-1\",\"operation_ref\":\"operation:sample-report\",\"spend_authority_ref\":\"spend-authority:sample-research\",\"wallet_ref\":\"spend-authority:sample-research\",\"rail_ref\":\"payment-rail:unspecified\",\"spender_id\":\"\",\"agent_id\":\"\",\"amount\":250,\"currency\":\"USD\",\"total_spent_today_after\":350,\"total_spent_all_time_after\":4250,\"facilitator_response\":null,\"processed_at\":\"2026-11-14T00:50:23.191Z\",\"evidence_refs\":[\"spend-authority:sample-research\",\"payment-rail:unspecified\"]}}, and kept payment:sample-1."
     }
   ]
 }

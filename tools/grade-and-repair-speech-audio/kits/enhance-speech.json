@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:enhance-speech's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:enhance-speech with file.\" Clean the noise out of a recording on my own computer with what it can afford, and tell me where the speech is",
+  "drafted_from": "tool:enhance-speech's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Clean the noise out of a recording on my own computer with what it can afford, and tell me where the speech is\", with {\"file\":\"/Recordings/sample-talk.wav\",\"ffmpeg\":\"ffmpeg\",\"cpu_budget\":1}. It runs tool:enhance-speech and answers {\"tier\":\"light\",\"why\":null,\"output\":\"/Recordings/sample-talk.clean.wav\",\"speech\":[{\"start\":1,\"end\":4}],\"budget\":1,\"file\":\"/Recordings/sample-talk.wav\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows () through the records door.",
   "workflows": [],
   "tools": [
     "tool:enhance-speech"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:enhance-speech\", and give it file.",
+    "1. Say to your AI: \"Clean the noise out of a recording on my own computer with what it can afford, and tell me where the speech is\", and give it file (The recording's name or identity in the person's files).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:enhance-speech and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields tier, why, budget, file, output, speech."
+    "3. Read what comes back: Reads a recording from the person's files (`file`) through the run's door, picks the most expensive noise-removal tier within the CPU budget whose ffmpeg filters (and model file, in the models folder the person granted) exist here (light, near-voice, neural), writes the cleaned sound beside it (`<name>.clean.wav`, or `output`), and answers the speech places found by a silence-detect pass, in seconds of the original.",
+    "4. It reads and writes only its own rows through the records door: undefined (find_file, read_file, write_file_start, write_file_piece, write_file_finish)."
   ],
   "worked_examples": [
     {
-      "title": "Clean a recording's noise and find where the speech is on a sample input",
-      "ask": "Run tool:enhance-speech.",
+      "title": "Clean a recording's noise and find where the speech is on its own sample",
+      "ask": "Clean the noise out of a recording on my own computer with what it can afford, and tell me where the speech is",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +34,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields tier, why, budget, file, output, speech."
+      "given": "The input {\"file\":\"/Recordings/sample-talk.wav\",\"ffmpeg\":\"ffmpeg\",\"cpu_budget\":1}.",
+      "hands_back": "It answered {\"tier\":\"light\",\"why\":null,\"output\":\"/Recordings/sample-talk.clean.wav\",\"speech\":[{\"start\":1,\"end\":4}],\"budget\":1,\"file\":\"/Recordings/sample-talk.wav\"}."
     }
   ]
 }

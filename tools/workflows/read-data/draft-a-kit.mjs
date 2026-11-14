@@ -1,99 +1,104 @@
 // tools/workflows/read-data/draft-a-kit.mjs
 //
 // A kit (L082, kit-template.json) drafted from the item's own row and nothing else: the item's words, its input schema, its
-// sample run and its steps. Nothing is invented: a part the item's own data cannot give leaves the draft refused by kitProblems,
-// and the refusal's words are the gap (`kitGap`). A draft is marked `draft: true` until a person or lane has read it.
+// sample runs and its steps, and what those sample runs really answered when run (`observed`, from
+// test-helpers/kit-drafter/observe.mjs). Nothing is invented: a worked example shows a real run (an answer observed, or the
+// value the item's own sample says its answer contains), and a part the item's own data cannot give leaves the draft refused
+// by kitProblems, and the refusal's words are the gap. A draft is marked `draft: true` until a person or lane has read it.
 //
-//   draftKit({ recipe | tool, known?, keptLists? }) -> { kit, problems }
-//     `known`: the ids a set may name (every item here and the host's tools)
-//     `keptLists`: list id -> the list entry (fields, example rows, alike) another kit here already holds, reused when the item names that list     problems are kitProblems' words; empty when the draft is whole
+//   draftKit({ recipe | tool, known?, keptLists?, observed? }) -> { kit, problems }
+//     known:    the ids a set may name (every item here and the host's tools)
+//     keptLists: list id -> the list entry (fields, example rows, alike) another kit here already holds, reused when the item
+//               names that list
+//     observed: for a tool, its observed runs [{ sample, answer, kept }]; for a recipe, a Map of tool id -> observed runs, so
+//               a step that runs a tool (run_tool) can show that run
+//     problems: kitProblems' words and the gaps; empty when the draft is whole
 //
 // No item is named here; the shape of the draft is the template's.
 
 import { itemNames, kitProblems } from './kit-problems.mjs';
+import { compact, givenOf, handsBackOf, OBSERVE } from '../../../test-helpers/kit-drafter/observe.mjs';
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const words = text => String(text ?? '').replace(/\s+/g, ' ').trim();
 const first = text => words(text).split(/(?<=[.!?])\s/)[0];
+const lower = text => text.replace(/^[A-Z](?=[a-z])/, letter => letter.toLowerCase());
 
-// An example value taken from the schema's own words (const, enum, default, examples), never made up; undefined when it gives none.
-function exampleOf(schema, name = 'value', placeholders = []) {
-  if (!object(schema)) return undefined;
-  if ('const' in schema) return schema.const;
-  if ('default' in schema) return schema.default;
-  if (Array.isArray(schema.examples) && schema.examples.length) return schema.examples[0];
-  if (Array.isArray(schema.enum) && schema.enum.length) return schema.enum[0];
-  if (schema.type === 'object') {
-    const out = {};
-    for (const key of schema.required ?? []) {
-      const value = exampleOf(schema.properties?.[key], key, placeholders);
-      if (value === undefined) return undefined;
-      out[key] = value;
-    }
-    return out;
-  }
-  if (schema.type === 'array') {
-    if (!schema.minItems) return [];
-    const one = exampleOf(schema.items, name, placeholders);
-    return one === undefined ? undefined : [one];
-  }
-  // A value only the person can give: shown as a placeholder naming it and its schema's own words, and listed in `placeholders`.
-  placeholders.push(name);
-  return `<${name}${schema.description ? `: ${first(schema.description).replace(/[.]$/, '')}` : schema.type ? `: ${schema.type}` : ''}>`;
-}
-
-// What the item's own schema or sample says comes back, in words.
-function comesBack(answerSchema, sample, selector, job) {
-  if (sample?.contains !== undefined) return `The answer's ${sample.output_selector ?? 'result'} contains "${words(sample.contains)}".`;
-  const fields = Object.keys(answerSchema?.properties ?? {});
-  if (fields.length) return `An answer with the fields ${fields.slice(0, 8).join(', ')}.`;
-  if (typeof selector === 'string' && selector) return `The answer's ${selector} holds the result: ${first(job)}`;
-  return job ? `The result the item's own job names: ${first(job)}` : '';
+// The required input fields, each with the first sentence of its own description.
+function needsOf(schema) {
+  const properties = object(schema?.properties) ? schema.properties : {};
+  return (Array.isArray(schema?.required) ? schema.required : []).map(name => (properties[name]?.description ? `${name} (${first(properties[name].description)})` : name));
 }
 
 const runCall = (tool, input) => ({ server: 'trillion', tool: 'run_resource_operation', input: { address: '@workshop-tools', method: 'tools:run', input: { tool, input } } });
+const rightsOf = tool => [tool.invoke?.records?.rights ?? []].flat().filter(object);
 
-function toolDraft(tool) {
-  const sample = (tool.verify ?? []).find(entry => entry?.input !== undefined);
-  const placeholders = [];
-  const input = sample ? sample.input : exampleOf(tool.input_schema, 'input', placeholders);
-  const back = comesBack(tool.output_schema, sample, tool.result_selector, tool.job);
-  const required = tool.input_schema?.required ?? [];
-  const asks = required.length ? `with ${required.join(', ')}` : 'with nothing more';
+// How the person (or their AI) runs a tool: through the door, or on their own computer from the commands its row gives.
+function runLine(tool) {
+  if (tool.invoke?.kind !== 'on-your-computer') return `2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool ${tool.id} and its input (the worked example shows one).`;
+  const getIt = [tool.invoke.get_it ?? []].flat();
+  return `2. It runs on your own computer: the AI reads how with run_resource_operation at @workshop-tools, tools:list { tool: "${tool.id}" }${getIt.length ? `, gets it with ${getIt.join('; ')}` : ''}, then runs ${tool.invoke.run ?? 'its run command'}.`;
+}
+
+function toolDraft(tool, observed = []) {
+  const needs = needsOf(tool.input_schema);
+  const sample = (tool.verify ?? []).find(entry => entry?.kind === 'sample-run' && entry.input !== undefined && entry.contains !== undefined);
+  const examples = observed.map(seen => ({
+    title: `${tool.label ?? tool.id} on its own sample`, ask: first(tool.job), mcp: runCall(tool.id, seen.sample.input), given: givenOf(seen.sample), hands_back: handsBackOf(seen),
+  }));
+  // No run ended well here: the item's own sample still says what its answer contains.
+  if (!examples.length && sample) examples.push({
+    title: `${tool.label ?? tool.id} on its own sample`, ask: first(tool.job), mcp: runCall(tool.id, sample.input), given: givenOf(sample),
+    hands_back: `The answer's ${sample.output_selector ?? tool.result_selector ?? 'result'} contains "${words(sample.contains)}".`,
+  });
+  const [seen] = observed;
+  const rights = rightsOf(tool);
   return {
-    start_here: `Say to your AI: "Run ${tool.id} ${asks}." ${first(tool.job)}`,
+    start_here: seen
+      ? `Say to your AI: "${first(tool.job)}", with ${compact(seen.sample.input, OBSERVE.input_chars)}. It runs ${tool.id} and answers ${compact(seen.answer, OBSERVE.input_chars)}`
+      : sample ? `Say to your AI: "${first(tool.job)}", with ${compact(sample.input, OBSERVE.input_chars)}. It runs ${tool.id}; its answer contains "${words(sample.contains)}".` : null,
     instructions: [
-      `1. Say to your AI: "Run ${tool.id}", and give it ${required.length ? required.join(', ') : 'nothing more'}.`,
-      `2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool ${tool.id} and its input (the worked example shows one).`,
-      `3. Read what comes back: ${back || 'the tool\'s answer'}`,
+      `1. Say to your AI: "${first(tool.job)}", and give it ${needs.length ? needs.join('; ') : 'nothing more: every input is optional'}.`,
+      runLine(tool),
+      `3. Read what comes back: ${words(tool.output_schema?.description) || first(tool.description) || first(tool.job)}`,
+      ...(rights.length ? [`4. It reads and writes only its own rows through the records door: ${rights.map(right => `${right.kind ?? right.prefix} (${[right.operations ?? []].flat().join(', ')})`).join('; ')}.`] : []),
     ],
-    example: input === undefined ? null : {
-      title: `${tool.label ?? tool.id} on a sample input`, ask: `Run ${tool.id}.`, mcp: runCall(tool.id, input), hands_back: back, ...(placeholders.length ? { given: `The person gives: ${[...new Set(placeholders)].join(', ')} (shown as <name> in the input).` } : {}),
-    },
-    workflows: [], tools: [tool.id, ...itemNames({ tool }).tools],
+    examples,
+    no_lists_because: rights.length
+      ? `It names no list of yours: it takes its input and keeps only its own rows (${[...new Set(rights.map(right => right.kind ?? right.prefix))].join(', ')}) through the records door.`
+      : 'It names no list of yours: it takes its input and answers, and keeps no row.',
+    gap: examples.length ? null : `No real run can be shown: ${(tool.verify ?? []).some(entry => entry?.kind === 'sample-run') ? 'none of its sample runs ended well here and none says what its answer contains' : 'it has no sample run (verify, kind sample-run)'}.`,
+    workflows: itemNames({ tool }).workflows, tools: [tool.id, ...itemNames({ tool }).tools],
   };
 }
 
-function recipeDraft(recipe) {
+function recipeDraft(recipe, observedByTool = new Map()) {
   const steps = recipe.steps ?? [];
-  const placeholders = [];
-  const input = exampleOf(recipe.input_schema ?? { type: 'object' }, 'input', placeholders);
   const names = itemNames({ recipe });
-  const [step] = steps;
-  const fields = object(step?.submit) ? (step.submit.required ?? Object.keys(step.submit.properties ?? {})) : [];
-  const back = step ? `Step ${step.id} answers with ${fields.length ? fields.join(', ') : 'its result'}.` : '';
+  const needs = needsOf(recipe.input_schema);
+  const examples = [];
+  for (const step of steps) {
+    const toolId = step.run_tool?.tool_id;
+    const [seen] = (toolId && observedByTool.get(toolId)) || [];
+    if (!seen || examples.length >= OBSERVE.most_runs) continue;
+    examples.push({ title: `Step ${step.id}: ${step.title ?? step.id}`, ask: `Run ${recipe.id}.`, mcp: runCall(toolId, seen.sample.input), workflow: recipe.id, step: step.id, given: givenOf(seen.sample), hands_back: handsBackOf(seen) });
+  }
+  const writesRows = JSON.stringify(steps).includes('records:write');
   return {
-    start_here: `Say to your AI: "Run ${recipe.id}." ${first(recipe.job)}`,
+    start_here: needs.length ? null : `Say to your AI: "Run ${recipe.id}." It ${lower(first(recipe.job))}`,
     instructions: [
-      `1. Say to your AI: "Run ${recipe.id}"${input && Object.keys(input).length ? ' with the input in the worked example' : ''}.`,
-      `2. The AI starts it with tool:start-a-recipe-run (row ${recipe.id}) and works through its steps in order: ${steps.map(item => item.id).join(', ')}.`,
-      `3. Read what each step hands back; the last step is ${steps.at(-1)?.id ?? 'the only step'}.`,
+      `1. Say to your AI: "Run ${recipe.id}"${needs.length ? `, with ${needs.join('; ')}` : ''}; it starts it with tool:start-a-recipe-run (row ${recipe.id}).`,
+      ...steps.map((step, at) => `${at + 2}. ${step.title ?? step.id}${step.done_when ? `: done when ${words(step.done_when)}` : '.'}`),
+      `${steps.length + 2}. Read what it gives back: ${words(recipe.produces) || `what step ${steps.at(-1)?.id ?? 'the last step'} hands back`}`,
     ],
-    example: input === undefined || !step ? null : {
-      title: `${recipe.label ?? recipe.id} from its first step`, ask: `Run ${recipe.id}.`,
-      mcp: runCall('tool:start-a-recipe-run', { row: recipe.id, ...input }), workflow: recipe.id, step: step.id, hands_back: back, ...(placeholders.length ? { given: `The person gives: ${[...new Set(placeholders)].join(', ')} (shown as <name> in the input).` } : {}),
-    },
-    workflows: [recipe.id, ...names.workflows], tools: names.tools,
+    examples,
+    no_lists_because: writesRows ? null : 'Its steps name no list and write no row: each step answers in the run itself.',
+    gap: [
+      ...(needs.length ? [`start_here needs real values for its input: ${needs.join('; ')}.`] : []),
+      ...(examples.length ? [] : ['No real run of a step can be shown: no step runs a tool (run_tool) whose own sample run ended well here.']),
+      ...(writesRows ? ['Its steps write rows (records:write) but the kit cannot name those lists with fields and example rows from the recipe alone.'] : []),
+    ].join(' ') || null,
+    workflows: [recipe.id, ...names.workflows], tools: [...new Set(['tool:start-a-recipe-run', ...names.tools])],
   };
 }
 
@@ -107,24 +112,24 @@ function pourFor(list) {
 }
 
 /** The draft kit for one item, and the words of what still stops it passing. */
-export function draftKit({ recipe = null, tool = null, known = null, keptLists = new Map() }) {
+export function draftKit({ recipe = null, tool = null, known = null, keptLists = new Map(), observed = undefined }) {
   const item = recipe ?? tool;
-  const part = recipe ? recipeDraft(recipe) : toolDraft(tool);
+  const part = recipe ? recipeDraft(recipe, observed) : toolDraft(tool, observed);
   const kit = {
     draft: true,
-    drafted_from: `${item.id}'s own row (its words, input schema, sample run and steps); read it before relying on it`,
+    drafted_from: `${item.id}'s own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it`,
     start_here: part.start_here,
     lists: itemNames({ recipe, tool }).lists.filter(id => keptLists.has(id)).map(id => keptLists.get(id)),
-    no_lists_because: 'The item names no list in its own words, input or steps, so it has no example rows to ship.',
+    ...(part.no_lists_because ? { no_lists_because: part.no_lists_because } : {}),
     workflows: part.workflows,
     tools: part.tools,
     instructions: part.instructions,
-    worked_examples: part.example ? [part.example] : [],
+    worked_examples: part.examples,
   };
-  if (kit.lists.length) kit.pour = pourFor(kit.lists[0]);
+  if (kit.lists.length) { kit.pour = pourFor(kit.lists[0]); delete kit.no_lists_because; }
   const problems = kitProblems(kit, { recipe, tool });
   // A tool or workflow the item's words name that nothing offers cannot go in a set a person installs.
   if (known) for (const id of [...kit.tools, ...kit.workflows]) if (!known.has(id)) problems.push(`The item names ${id}, which no Workshop item or host tool offers.`);
-  if (!part.example) problems.push(`No worked example can be drawn from the item's own data: ${tool ? 'it has no sample run and its input schema gives no example value for a required field' : 'its input schema gives no example value for a required field, or it has no step'}.`);
+  if (part.gap) problems.push(part.gap);
   return { kit, problems };
 }

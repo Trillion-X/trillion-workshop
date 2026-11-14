@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:keep-a-profile's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:keep-a-profile with profile_ref, subject_ref, derived_items.\" Keep the profile of how a person does their thing, so drafts made for them are shaped by it and checked against it",
+  "drafted_from": "tool:keep-a-profile's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Keep the profile of how a person does their thing, so drafts made for them are shaped by it and checked against it\", with {\"profile_ref\":\"profile:bakery-voice\",\"subject_ref\":\"baker:1\",\"derived_items\":[{\"kind\":\"tone\",\"value\":\"warm\",\"evidence\":\"post:1\"}],\"evaluator_refs\":[\"evaluator:tone\"]}. It runs tool:keep-a-profile and answers {\"profile\":{\"type\":\"profile\",\"id\":\"profile:bakery-voice\",\"subject_ref\":\"baker:1\",\"feature_schema_refs\":[],\"evaluator_refs\":[\"evaluator:tone\"],\"generator_refs\":[],\"derived_items\":[{\"kind\":\"tone\",\"value\":\"warm\",\"evidence\":\"post:1\"}]}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:keep-a-profile"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:keep-a-profile\", and give it profile_ref, subject_ref, derived_items.",
+    "1. Say to your AI: \"Keep the profile of how a person does their thing, so drafts made for them are shaped by it and checked against it\", and give it profile_ref; subject_ref; derived_items.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:keep-a-profile and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.profile.id contains \"profile:bakery-voice\"."
+    "3. Read what comes back: Give the profile's name, the subject's name, the items you derived (a non-empty list of objects) and, as refs, the feature schemas, evaluators, generators and validation policy that go with it."
   ],
   "worked_examples": [
     {
-      "title": "Keep a profile of how someone does their thing on a sample input",
-      "ask": "Run tool:keep-a-profile.",
+      "title": "Keep a profile of how someone does their thing on its own sample",
+      "ask": "Keep the profile of how a person does their thing, so drafts made for them are shaped by it and checked against it",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -42,7 +42,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.profile.id contains \"profile:bakery-voice\"."
+      "given": "The input {\"profile_ref\":\"profile:bakery-voice\",\"subject_ref\":\"baker:1\",\"derived_items\":[{\"kind\":\"tone\",\"value\":\"warm\",\"evidence\":\"post:1\"}],\"evaluator_refs\":[\"evaluator:tone\"]}.",
+      "hands_back": "It answered {\"profile\":{\"type\":\"profile\",\"id\":\"profile:bakery-voice\",\"subject_ref\":\"baker:1\",\"feature_schema_refs\":[],\"evaluator_refs\":[\"evaluator:tone\"],\"generator_refs\":[],\"derived_items\":[{\"kind\":\"tone\",\"value\":\"warm\",\"evidence\":\"post:1\"}]}}."
     }
   ]
 }

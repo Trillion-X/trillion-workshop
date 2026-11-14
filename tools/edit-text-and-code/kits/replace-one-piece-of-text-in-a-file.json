@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:replace-one-piece-of-text-in-a-file's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:replace-one-piece-of-text-in-a-file with file, find, replace.\" Change one exact piece of text in a text or code file without sending the whole file: give the words to find and the words to put there",
+  "drafted_from": "tool:replace-one-piece-of-text-in-a-file's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Change one exact piece of text in a text or code file without sending the whole file: give the words to find and the words to put there\", with {\"file\":\"notes/greeting.txt\",\"find\":\"Hello world\",\"replace\":\"Hello there\"}. It runs tool:replace-one-piece-of-text-in-a-file and answers {\"file\":\"notes/greeting.txt\",\"bytes_before\":24,\"bytes_after\":24,\"replaced\":1}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:replace-one-piece-of-text-in-a-file"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:replace-one-piece-of-text-in-a-file\", and give it file, find, replace.",
+    "1. Say to your AI: \"Change one exact piece of text in a text or code file without sending the whole file: give the words to find and the words to put there\", and give it file (Path relative to the granted folder); find (The exact text to find; it must occur exactly once in the file); replace (The text to put in its place; may be empty).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:replace-one-piece-of-text-in-a-file and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields file, bytes_before, bytes_after, replaced."
+    "3. Read what comes back: Give file (a path inside the folder the person granted for change), find (the exact text, as it is in the file, newlines and quotes included) and replace (what to put there; empty removes the found text)."
   ],
   "worked_examples": [
     {
-      "title": "Change one piece of text in a file on a sample input",
-      "ask": "Run tool:replace-one-piece-of-text-in-a-file.",
+      "title": "Change one piece of text in a file on its own sample",
+      "ask": "Change one exact piece of text in a text or code file without sending the whole file: give the words to find and the words to put there",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +33,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields file, bytes_before, bytes_after, replaced."
+      "given": "The input {\"file\":\"notes/greeting.txt\",\"find\":\"Hello world\",\"replace\":\"Hello there\"}.",
+      "hands_back": "It answered {\"file\":\"notes/greeting.txt\",\"bytes_before\":24,\"bytes_after\":24,\"replaced\":1}."
     }
   ]
 }

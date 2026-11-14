@@ -1,23 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:export-a-document-to-a-file's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:export-a-document-to-a-file with document, format.\" Turn one document made of headings, words, lists, tables, graphs, calendar events and pictures into a file in the format asked for, and give the file back",
+  "drafted_from": "tool:export-a-document-to-a-file's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Turn one document made of headings, words, lists, tables, graphs, calendar events and pictures into a file in the format asked for, and give the file back\", with {\"document\":{\"title\":\"Money\",\"blocks\":[{\"kind\":\"table\",\"columns\":[\"Name\",\"Amount\"],\"rows\":[[\"Acme, Inc.\",1200.5],[\"Birch\",300]]}]},\"format\":\"csv\"}. It runs tool:export-a-document-to-a-file and answers {\"format_id\":\"csv\",\"filename\":\"money.csv\",\"extension\":\"csv\",\"mime\":\"text/csv\",\"byte_length\":45,\"base64\":\"TmFtZSxBbW91bnQNCiJBY21lLCBJbmMuIiwxMjAwLjUNCkJpcmNoLDMwMA0K\",\"text\":\"Name,Amount\\r\\n\\\"Acme, Inc.\\\",1200.5\\r\\nBirch,300\\r\\n\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:export-a-document-to-a-file",
     "tool:list-the-file-formats-an-export-can-make"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:export-a-document-to-a-file\", and give it document, format.",
+    "1. Say to your AI: \"Turn one document made of headings, words, lists, tables, graphs, calendar events and pictures into a file in the format asked for, and give the file back\", and give it document (The document: { title?, blocks }.); format (The id of a format, such as pdf, docx, xlsx, csv, markdown, txt, html, svg).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:export-a-document-to-a-file and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.text contains \"\"Acme, Inc.\",1200.5\"."
+    "3. Read what comes back: Give the document and the id of a format."
   ],
   "worked_examples": [
     {
-      "title": "Save anything as a file: a list, a table, a document, a board, words or a picture, as PDF, Word, Excel, CSV, Markdown, text, web page, SVG and more on a sample input",
-      "ask": "Run tool:export-a-document-to-a-file.",
+      "title": "Save anything as a file: a list, a table, a document, a board, words or a picture, as PDF, Word, Excel, CSV, Markdown, text, web page, SVG and more on its own sample",
+      "ask": "Turn one document made of headings, words, lists, tables, graphs, calendar events and pictures into a file in the format asked for, and give the file back",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -54,7 +54,52 @@
           }
         }
       },
-      "hands_back": "The answer's $.text contains \"\"Acme, Inc.\",1200.5\"."
+      "given": "The input {\"document\":{\"title\":\"Money\",\"blocks\":[{\"kind\":\"table\",\"columns\":[\"Name\",\"Amount\"],\"rows\":[[\"Acme, Inc.\",1200.5],[\"Birch\",300]]}]},\"format\":\"csv\"}.",
+      "hands_back": "It answered {\"format_id\":\"csv\",\"filename\":\"money.csv\",\"extension\":\"csv\",\"mime\":\"text/csv\",\"byte_length\":45,\"base64\":\"TmFtZSxBbW91bnQNCiJBY21lLCBJbmMuIiwxMjAwLjUNCkJpcmNoLDMwMA0K\",\"text\":\"Name,Amount\\r\\n\\\"Acme, Inc.\\\",1200.5\\r\\nBirch,300\\r\\n\"}."
+    },
+    {
+      "title": "Save anything as a file: a list, a table, a document, a board, words or a picture, as PDF, Word, Excel, CSV, Markdown, text, web page, SVG and more on its own sample",
+      "ask": "Turn one document made of headings, words, lists, tables, graphs, calendar events and pictures into a file in the format asked for, and give the file back",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:export-a-document-to-a-file",
+            "input": {
+              "document": {
+                "title": "Money",
+                "blocks": [
+                  {
+                    "kind": "heading",
+                    "level": 2,
+                    "text": "Owed"
+                  },
+                  {
+                    "kind": "table",
+                    "columns": [
+                      "Name",
+                      "Amount"
+                    ],
+                    "rows": [
+                      [
+                        "Acme",
+                        5
+                      ]
+                    ]
+                  }
+                ]
+              },
+              "format": "markdown",
+              "file_stem": "money"
+            }
+          }
+        }
+      },
+      "given": "The input {\"document\":{\"title\":\"Money\",\"blocks\":[{\"kind\":\"heading\",\"level\":2,\"text\":\"Owed\"},{\"kind\":\"table\",\"columns\":[\"Name\",\"Amount\"],\"rows\":[[\"Acme\",5]]}]},\"format\":\"markdown\",\"file_stem\":\"money\"}.",
+      "hands_back": "It answered {\"format_id\":\"markdown\",\"filename\":\"money.md\",\"extension\":\"md\",\"mime\":\"text/markdown\",\"byte_length\":63,\"base64\":\"IyBNb25leQoKIyMgT3dlZAoKfCBOYW1lIHwgQW1vdW50IHwKfCAtLS0gfCAtLS0gfAp8IEFjbWUgfCA1IHwK\",\"text\":\"# Money\\n\\n## Owed\\n\\n| Name | Amount |\\n| --- | --- |\\n| Acme | 5 |\\n\"}."
     }
   ]
 }

@@ -1,23 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:drive-the-screen's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:drive-the-screen with action.\" Click, press, type, scroll, drag or use keys on the person's computer, finding the target by what it is called and checking afterwards what really changed",
+  "drafted_from": "tool:drive-the-screen's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Click, press, type, scroll, drag or use keys on the person's computer, finding the target by what it is called and checking afterwards what really changed\", with {\"action\":\"key\",\"keys\":\"escape\",\"app\":\"Finder\",\"dry_run\":true}. It runs tool:drive-the-screen and answers {\"error\":\"The person is using this-mac right now (their last input was 0 seconds ago). Wait until they have left it alone for 5 seconds.\",\"retry\":true,\"retry_after_ms\":4893,\"reaction\":\"retry\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:drive-the-screen",
     "tool:screen-actions"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:drive-the-screen\", and give it action.",
+    "1. Say to your AI: \"Click, press, type, scroll, drag or use keys on the person's computer, finding the target by what it is called and checking afterwards what really changed\", and give it action (An action id from tool:screen-actions.).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:drive-the-screen and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.dispatched contains \"false\"."
+    "3. Read what comes back: One call looks at the screen, finds the target, does the action, looks again and says what changed."
   ],
   "worked_examples": [
     {
-      "title": "Operate the person's computer screen on a sample input",
-      "ask": "Run tool:drive-the-screen.",
+      "title": "Operate the person's computer screen on its own sample",
+      "ask": "Click, press, type, scroll, drag or use keys on the person's computer, finding the target by what it is called and checking afterwards what really changed",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -35,7 +35,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.dispatched contains \"false\"."
+      "given": "The input {\"action\":\"key\",\"keys\":\"escape\",\"app\":\"Finder\",\"dry_run\":true}.",
+      "hands_back": "It answered {\"error\":\"The person is using this-mac right now (their last input was 0 seconds ago). Wait until they have left it alone for 5 seconds.\",\"retry\":true,\"retry_after_ms\":4893,\"reaction\":\"retry\"}."
     }
   ]
 }

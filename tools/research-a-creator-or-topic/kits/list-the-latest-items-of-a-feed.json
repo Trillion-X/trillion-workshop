@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:list-the-latest-items-of-a-feed's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:list-the-latest-items-of-a-feed with url.\" Get the latest posts, videos or episodes of a creator or a topic from their Atom or RSS feed",
+  "drafted_from": "tool:list-the-latest-items-of-a-feed's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Get the latest posts, videos or episodes of a creator or a topic from their Atom or RSS feed\", with {\"url\":\"https://example.com\"}. It runs tool:list-the-latest-items-of-a-feed and answers {\"source\":\"Sample feed\",\"subject_ref\":\"https://example.com\",\"count\":1,\"items\":[{\"item_id\":\"sample-entry-1\",\"title\":\"First sample post\",\"published\":\"2026-11-01T00:00:00Z\",\"url\":\"https://example.com/first\",\"description\":\"A made-up summary.\"}]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:list-the-latest-items-of-a-feed"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:list-the-latest-items-of-a-feed\", and give it url.",
+    "1. Say to your AI: \"Get the latest posts, videos or episodes of a creator or a topic from their Atom or RSS feed\", and give it url (The public address of the feed).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-the-latest-items-of-a-feed and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.subject_ref contains \"https://example.com\"."
+    "3. Read what comes back: Reads one public Atom or RSS feed (at most 2 MB, 15 seconds) and returns its title (source) and its items, each with an item_id (the id the feed gives it, else its link), title, published, url and description."
   ],
   "worked_examples": [
     {
-      "title": "List the latest items of a feed on a sample input",
-      "ask": "Run tool:list-the-latest-items-of-a-feed.",
+      "title": "List the latest items of a feed on its own sample",
+      "ask": "Get the latest posts, videos or episodes of a creator or a topic from their Atom or RSS feed",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +31,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.subject_ref contains \"https://example.com\"."
+      "given": "The input {\"url\":\"https://example.com\"}, the web answering from 1 recorded reply.",
+      "hands_back": "It answered {\"source\":\"Sample feed\",\"subject_ref\":\"https://example.com\",\"count\":1,\"items\":[{\"item_id\":\"sample-entry-1\",\"title\":\"First sample post\",\"published\":\"2026-11-01T00:00:00Z\",\"url\":\"https://example.com/first\",\"description\":\"A made-up summary.\"}]}."
     }
   ]
 }

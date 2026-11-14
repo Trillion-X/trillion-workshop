@@ -1,23 +1,24 @@
 {
   "draft": true,
-  "drafted_from": "tool:split-a-document-into-pieces's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:split-a-document-into-pieces with nothing more.\" Split a document into its smallest self-contained pieces and keep each as the row a person keeps, so every check can name the piece it came from",
+  "drafted_from": "tool:split-a-document-into-pieces's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Split a document into its smallest self-contained pieces and keep each as the row a person keeps, so every check can name the piece it came from\", with {\"name\":\"/Notes/made-up.md\"}. It runs tool:split-a-document-into-pieces and answers {\"file\":\"/Notes/made-up.md\",\"file_identity\":\"1f:393dcf23d9f40c8aba2be50e569fe45c4ea5165bda8cc4ee929a6a4486b688d0\",\"pieces\":3,\"new\":3,\"sources_added\":0,\"unchanged\":0,\"writes\":1,\"ids\":[\"piece-2b9c2c8048714f88800da9bc\",\"piece-49276434f35d7072ac561e5b\",\"piece-8ce1971051ac141b58d7b28c\"],\"more_ids\":0,\"too_large\":[],\"lines\":[\"/Notes/made-up.md: 3 pieces, 3 kept as new rows, 0 found again as a source of ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:check, ) through the records door.",
   "workflows": [],
   "tools": [
     "tool:split-a-document-into-pieces",
     "tool:check-every-piece-is-covered"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:split-a-document-into-pieces\", and give it nothing more.",
+    "1. Say to your AI: \"Split a document into its smallest self-contained pieces and keep each as the row a person keeps, so every check can name the piece it came from\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:split-a-document-into-pieces and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.file contains \"/Notes/made-up.md\"."
+    "3. Read what comes back: Give one of the person's files by name (as /folder/file.md, read through their files door page by page, so a file of any size up to 4 MB is never sent in one request body), or the text of a short document (Markdown), and optionally its file name and its identity.",
+    "4. It reads and writes only its own rows through the records door: record:check (records:read, records:write); undefined (read_file)."
   ],
   "worked_examples": [
     {
-      "title": "Split a document into its pieces on a sample input",
-      "ask": "Run tool:split-a-document-into-pieces.",
+      "title": "Split a document into its pieces on its own sample",
+      "ask": "Split a document into its smallest self-contained pieces and keep each as the row a person keeps, so every check can name the piece it came from",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,7 +33,29 @@
           }
         }
       },
-      "hands_back": "The answer's $.file contains \"/Notes/made-up.md\"."
+      "given": "The input {\"name\":\"/Notes/made-up.md\"}.",
+      "hands_back": "It answered {\"file\":\"/Notes/made-up.md\",\"file_identity\":\"1f:393dcf23d9f40c8aba2be50e569fe45c4ea5165bda8cc4ee929a6a4486b688d0\",\"pieces\":3,\"new\":3,\"sources_added\":0,\"unchanged\":0,\"writes\":1,\"ids\":[\"piece-2b9c2c8048714f88800da9bc\",\"piece-49276434f35d7072ac561e5b\",\"piece-8ce1971051ac141b58d7b28c\"],\"more_ids\":0,\"too_large\":[],\"lines\":[\"/Notes/made-up.md: 3 pieces, 3 kept as new rows, 0 found again as a source of a row already kept, 0 already kept as they are\"]}, and kept record:check:piece-2b9c2c8048714f88800da9bc, record:check:piece-49276434f35d7072ac561e5b, record:check:piece-8ce1971051ac141b58d7b28c."
+    },
+    {
+      "title": "Split a document into its pieces on its own sample",
+      "ask": "Split a document into its smallest self-contained pieces and keep each as the row a person keeps, so every check can name the piece it came from",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:split-a-document-into-pieces",
+            "input": {
+              "text": "## Made-up part\n\n**Made-up lead.** Then the rest.\n",
+              "file": "made-up.md"
+            }
+          }
+        }
+      },
+      "given": "The input {\"text\":\"## Made-up part\\n\\n**Made-up lead.** Then the rest.\\n\",\"file\":\"made-up.md\"}.",
+      "hands_back": "It answered {\"file\":\"made-up.md\",\"file_identity\":\"1f:26e41418d0cf4e025c33628aed4268c0490dfe4ae5f65dcbbc3969bd76a2c436\",\"pieces\":1,\"new\":1,\"sources_added\":0,\"unchanged\":0,\"writes\":1,\"ids\":[\"piece-2b9c2c8048714f88800da9bc\"],\"more_ids\":0,\"too_large\":[],\"lines\":[\"made-up.md: 1 pieces, 1 kept as new rows, 0 found again as a source of a row already kept, 0 already kept as they are\"]}, and kept record:check:piece-2b9c2c8048714f88800da9bc."
     }
   ]
 }

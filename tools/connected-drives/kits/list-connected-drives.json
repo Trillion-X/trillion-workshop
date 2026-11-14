@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:list-connected-drives's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:list-connected-drives with nothing more.\" List the drives connected to this person's computer: each drive's name, where it is mounted, its size and free space, its kind (USB, disk image, internal) and whether it can be ejected",
+  "drafted_from": "tool:list-connected-drives's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"List the drives connected to this person's computer: each drive's name, where it is mounted, its size and free space, its kind (USB, disk image, internal) and whether it can be ejected\", with {}. It runs tool:list-connected-drives and answers {\"devices\":[{\"name\":\"1TB SSD\",\"mount\":\"/Volumes/1TB SSD\",\"size_bytes\":1024175767552,\"free_bytes\":541486219264,\"kind\":\"External SSD\",\"internal\":false,\"ejectable\":true,\"state\":\"connected\"},{\"name\":\"Macintosh HD\",\"mount\":\"/Volumes/Macintosh HD\",\"size_bytes\":3996276899840,\"free_bytes\":126877024256,\"kind\":\"Internal\",\"internal\":true,\"ejectable\":false,\"state\":\"connected\"}]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:list-connected-drives"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:list-connected-drives\", and give it nothing more.",
+    "1. Say to your AI: \"List the drives connected to this person's computer: each drive's name, where it is mounted, its size and free space, its kind (USB, disk image, internal) and whether it can be ejected\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-connected-drives and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields devices."
+    "3. Read what comes back: Runs on the person's computer with the drives they granted it to see."
   ],
   "worked_examples": [
     {
-      "title": "Drives on my computers on a sample input",
-      "ask": "Run tool:list-connected-drives.",
+      "title": "Drives on my computers on its own sample",
+      "ask": "List the drives connected to this person's computer: each drive's name, where it is mounted, its size and free space, its kind (USB, disk image, internal) and whether it can be ejected",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -29,7 +29,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields devices."
+      "given": "The input {}.",
+      "hands_back": "It answered {\"devices\":[{\"name\":\"1TB SSD\",\"mount\":\"/Volumes/1TB SSD\",\"size_bytes\":1024175767552,\"free_bytes\":541486219264,\"kind\":\"External SSD\",\"internal\":false,\"ejectable\":true,\"state\":\"connected\"},{\"name\":\"Macintosh HD\",\"mount\":\"/Volumes/Macintosh HD\",\"size_bytes\":3996276899840,\"free_bytes\":126877024256,\"kind\":\"Internal\",\"internal\":true,\"ejectable\":false,\"state\":\"connected\"}]}."
     }
   ]
 }

@@ -1,23 +1,24 @@
 {
   "draft": true,
-  "drafted_from": "tool:request-a-booking's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:request-a-booking with idempotency_key, start, timezone, windows, duration_minutes.\" Book someone into one of my open times and keep the booking",
+  "drafted_from": "tool:request-a-booking's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Book someone into one of my open times and keep the booking\", with {\"idempotency_key\":\"sample-booking-1\",\"start\":\"2030-08-12T14:00:00Z\",\"timezone\":\"UTC\",\"windows\":[{\"weekday\":1,\"start\":\"09:00\",\"end\":\"17:00\"}],\"duration_minutes\":30,\"title\":\"Sample session\",\"attendees\":[{\"name\":\"Sample Person\",\"email\":\"sample.person@example.test\"}]}. It runs tool:request-a-booking and answers {\"already_requested\":false,\"booking\":{\"id\":\"booking:sample-booking-1\",\"title\":\"Sample session\",\"status\":\"confirmed\",\"scheduled_start\":\"2030-08-12T14:00:00.000Z\",\"scheduled_end\":\"2030-08-12T14:30:00.000Z\",\"timezone\":\"UTC\",\"attendees\":[{\"name\":\"Sample Person\",\"email\":\"sample.person@example.test\"}],\"time_rules\":{\"seats_per_slot\":1,\"per_day_max\":null,\"horizon_days\":null,\"pending_blocks_slot\":true ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (booking, booking-book) through the records door.",
   "workflows": [],
   "tools": [
     "tool:request-a-booking",
     "tool:find-open-times"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:request-a-booking\", and give it idempotency_key, start, timezone, windows, duration_minutes.",
+    "1. Say to your AI: \"Book someone into one of my open times and keep the booking\", and give it idempotency_key; start (The start instant, like 2026-08-10T14:30:00Z); timezone; windows (The weekly windows, as in tool:find-open-times); duration_minutes.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:request-a-booking and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields already_requested, booking."
+    "3. Read what comes back: Checks that the start asked for is an open time (same rules as tool:find-open-times, with the person's own booking records counted), then keeps one booking record.",
+    "4. It reads and writes only its own rows through the records door: booking (records:read, records:list, records:write); booking-book (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Request a booking on a sample input",
-      "ask": "Run tool:request-a-booking.",
+      "title": "Request a booking on its own sample",
+      "ask": "Book someone into one of my open times and keep the booking",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -49,7 +50,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields already_requested, booking."
+      "given": "The input {\"idempotency_key\":\"sample-booking-1\",\"start\":\"2030-08-12T14:00:00Z\",\"timezone\":\"UTC\",\"windows\":[{\"weekday\":1,\"start\":\"09:00\",\"end\":\"17:00\"}],\"duration_minutes\":30,\"title\":\"Sample session\",\"attendees\":[{\"name\":\"Sample Person\",\"email\":\"sample.person@example.test\"}]}.",
+      "hands_back": "It answered {\"already_requested\":false,\"booking\":{\"id\":\"booking:sample-booking-1\",\"title\":\"Sample session\",\"status\":\"confirmed\",\"scheduled_start\":\"2030-08-12T14:00:00.000Z\",\"scheduled_end\":\"2030-08-12T14:30:00.000Z\",\"timezone\":\"UTC\",\"attendees\":[{\"name\":\"Sample Person\",\"email\":\"sample.person@example.test\"}],\"time_rules\":{\"seats_per_slot\":1,\"per_day_max\":null,\"horizon_days\":null,\"pending_blocks_slot\":true,\"buffer_before_minutes\":0,\"buffer_after_minutes\":0,\"free_statuses\":[\"cancelled\"]},\"idempotency_key\":\"sample-booking-1\",\"created_at\":\"2026-11-14T00:50:14.923Z\",\"updated_at\":\"2026-11-14T00:50:14.923Z\"}}, and kept booking:sample-booking-1, booking-book:default."
     }
   ]
 }

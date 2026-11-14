@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:rank-open-trip-things's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:rank-open-trip-things with policy, lanes.\" Plan a trip: list everything still open across its schedule, packing list and bookings in the order to deal with it, with the one thing to do first and a count of open things per lane",
+  "drafted_from": "tool:rank-open-trip-things's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Plan a trip: list everything still open across its schedule, packing list and bookings in the order to deal with it, with the one thing to do first and a count of open things per lane\", with {\"policy\":{\"priority_order\":[\"urgent\",\"normal\",\"later\",\"closed\"],\"lanes\":{\"stops\":{\"default_priority\":\"later\",\"priority_by_status\":{\"booked\":\"normal\"},\"sort_by\":[\"day_order\",\"starts_at\"]},\"bags\":{\"default_priority\":\"normal\",\"priority_by_status\":{\"missing\":\"urgent\",\"packed\":\"closed\"},\"sort_by\":[\"group\",\"title\"]}}},\"trip_name\":\"Sample outing\",\"lanes\":[{\"id\":\"stops\",\"label\":\"Stops\" .... It runs tool:rank-open-trip-things and answers {\"trip_name\":\"Sample outing\",\"items\":[{\"id\":\"bags:b1\",\"source_id\":\"b1\",\"lane\":\"bags\",\"title\":\"Rain jacket\",\"status\":\"missing\",\"priority\":\"urgent\",\"detail\":[\"clothes\"]},{\"id\":\"stops:s1\",\"source_id\":\"s1\",\"lane\":\"stops\",\"title\":\"Walk to the harbour\",\"status\":\"booked\",\"priority\":\"normal\",\"detail\":[\"09:00\"],\"time_label\":\"09:00\"},{\"id\":\"bags:b2\",\"source_id\":\"b2\",\"lane\":\"bags\",\"title\":\"Sandwiches\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:rank-open-trip-things"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:rank-open-trip-things\", and give it policy, lanes.",
+    "1. Say to your AI: \"Plan a trip: list everything still open across its schedule, packing list and bookings in the order to deal with it, with the one thing to do first and a count of open things per lane\", and give it policy (priority_order: priority names, most urgent first, last = closed.); lanes (The trip's lanes in the order same-priority things should come).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:rank-open-trip-things and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.focus.title contains \"Rain jacket\"."
+    "3. Read what comes back: Give the trip's lanes, each a list of rows (id, title, status, and optionally kind, group, day_order, day_date, starts_at, ends_at), and the person's policy: priority_order (the priority names, most urgent first, the last one meaning closed) and, for each lane, default_priority, priority_by_status (which status has which priority) and sort_by (the row fields that order things of the same priority, for example day_order then starts_at)."
   ],
   "worked_examples": [
     {
-      "title": "Rank what is still open on a trip on a sample input",
-      "ask": "Run tool:rank-open-trip-things.",
+      "title": "Rank what is still open on a trip on its own sample",
+      "ask": "Plan a trip: list everything still open across its schedule, packing list and bookings in the order to deal with it, with the one thing to do first and a count of open things per lane",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -95,7 +95,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.focus.title contains \"Rain jacket\"."
+      "given": "The input {\"policy\":{\"priority_order\":[\"urgent\",\"normal\",\"later\",\"closed\"],\"lanes\":{\"stops\":{\"default_priority\":\"later\",\"priority_by_status\":{\"booked\":\"normal\"},\"sort_by\":[\"day_order\",\"starts_at\"]},\"bags\":{\"default_priority\":\"normal\",\"priority_by_status\":{\"missing\":\"urgent\",\"packed\":\"closed\"},\"sort_by\":[\"group\",\"title\"]}}},\"trip_name\":\"Sample outing\",\"lanes\":[{\"id\":\"stops\",\"label\":\"Stops\" ....",
+      "hands_back": "It answered {\"trip_name\":\"Sample outing\",\"items\":[{\"id\":\"bags:b1\",\"source_id\":\"b1\",\"lane\":\"bags\",\"title\":\"Rain jacket\",\"status\":\"missing\",\"priority\":\"urgent\",\"detail\":[\"clothes\"]},{\"id\":\"stops:s1\",\"source_id\":\"s1\",\"lane\":\"stops\",\"title\":\"Walk to the harbour\",\"status\":\"booked\",\"priority\":\"normal\",\"detail\":[\"09:00\"],\"time_label\":\"09:00\"},{\"id\":\"bags:b2\",\"source_id\":\"b2\",\"lane\":\"bags\",\"title\":\"Sandwiches\",\"status\":\"packed\",\"priority\":\"closed\",\"detail\":[\"food\"]}],\"focus\":{\"id\":\"bags:b1\",\"source_id\":\"b1\",\"lane\":\"bags\",\"title\":\"Rain jacket\",\"status\":\"missing\",\"priority\":\"urgent\",\"detail\":[\"clothes\"]},\"later\":[{\"id\":\"stops:s1\",\"source_id\":\"s1\",\"lane\":\"stops\",\"title\":\"Walk to the harbour\",\"status\":\"booked\" ...."
     }
   ]
 }

@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:count-my-ai-conversations-per-app's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:count-my-ai-conversations-per-app with nothing more.\" Count the AI conversations in my records per app, and how many messages each app's conversations hold",
+  "drafted_from": "tool:count-my-ai-conversations-per-app's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Count the AI conversations in my records per app, and how many messages each app's conversations hold\", with {}. It runs tool:count-my-ai-conversations-per-app and answers {\"conversations\":0,\"apps\":[]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:ai-conversation) through the records door.",
   "workflows": [],
   "tools": [
     "tool:count-my-ai-conversations-per-app"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:count-my-ai-conversations-per-app\", and give it nothing more.",
+    "1. Say to your AI: \"Count the AI conversations in my records per app, and how many messages each app's conversations hold\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:count-my-ai-conversations-per-app and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $ contains \"apps\"."
+    "3. Read what comes back: Reads the rows of the person's AI conversations list (record:ai-conversation) through the records door, only their app and messages fields, and answers the number of conversations and messages per app, most first.",
+    "4. It reads and writes only its own rows through the records door: record:ai-conversation (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Count my AI conversations per app on a sample input",
-      "ask": "Run tool:count-my-ai-conversations-per-app.",
+      "title": "Count my AI conversations per app on its own sample",
+      "ask": "Count the AI conversations in my records per app, and how many messages each app's conversations hold",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -29,7 +30,8 @@
           }
         }
       },
-      "hands_back": "The answer's $ contains \"apps\"."
+      "given": "The input {}.",
+      "hands_back": "It answered {\"conversations\":0,\"apps\":[]}."
     }
   ]
 }

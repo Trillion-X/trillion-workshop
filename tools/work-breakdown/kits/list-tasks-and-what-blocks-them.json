@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:list-tasks-and-what-blocks-them's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:list-tasks-and-what-blocks-them with rows.\" Read the facts kept about tasks into one entry per task, and see for each task what it blocks",
+  "drafted_from": "tool:list-tasks-and-what-blocks-them's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Read the facts kept about tasks into one entry per task, and see for each task what it blocks\", with {\"rows\":[{\"subject_id\":\"task:1\",\"property_id\":\"prop:task:title\",\"value\":\"Write the copy\"},{\"subject_id\":\"task:1\",\"property_id\":\"prop:task:status\",\"value\":\"completed\"},{\"subject_id\":\"task:2\",\"property_id\":\"prop:task:title\",\"value\":\"Publish the page\"},{\"subject_id\":\"task:2\",\"property_id\":\"prop:task:blocked_by\",\"value\":[\"task:1\"]}]}. It runs tool:list-tasks-and-what-blocks-them and answers {\"tasks\":[{\"id\":\"task:1\",\"taskNumber\":\"\",\"title\":\"Write the copy\",\"projectId\":\"\",\"status\":\"completed\",\"priority\":\"MEDIUM\",\"objective\":\"\",\"acceptanceCriteria\":\"\",\"blockedBy\":[],\"blocks\":[\"task:2\"],\"attachments\":[],\"createdDate\":\"\",\"updatedDate\":\"\"},{\"id\":\"task:2\",\"taskNumber\":\"\",\"title\":\"Publish the page\",\"projectId\":\"\",\"status\":\"pending\",\"priority\":\"MEDIUM\",\"objective\":\"\",\"acceptanceCriteria\":\"\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:list-tasks-and-what-blocks-them"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:list-tasks-and-what-blocks-them\", and give it rows.",
+    "1. Say to your AI: \"Read the facts kept about tasks into one entry per task, and see for each task what it blocks\", and give it rows (The facts about tasks, one row each.).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-tasks-and-what-blocks-them and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.tasks[0].blocks[0] contains \"task:2\"."
+    "3. Read what comes back: Takes the facts about tasks, one row per fact ({ subject_id, property_id, value }, the property named like prop:task:title)."
   ],
   "worked_examples": [
     {
-      "title": "List tasks and what blocks them on a sample input",
-      "ask": "Run tool:list-tasks-and-what-blocks-them.",
+      "title": "List tasks and what blocks them on its own sample",
+      "ask": "Read the facts kept about tasks into one entry per task, and see for each task what it blocks",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -54,7 +54,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.tasks[0].blocks[0] contains \"task:2\"."
+      "given": "The input {\"rows\":[{\"subject_id\":\"task:1\",\"property_id\":\"prop:task:title\",\"value\":\"Write the copy\"},{\"subject_id\":\"task:1\",\"property_id\":\"prop:task:status\",\"value\":\"completed\"},{\"subject_id\":\"task:2\",\"property_id\":\"prop:task:title\",\"value\":\"Publish the page\"},{\"subject_id\":\"task:2\",\"property_id\":\"prop:task:blocked_by\",\"value\":[\"task:1\"]}]}.",
+      "hands_back": "It answered {\"tasks\":[{\"id\":\"task:1\",\"taskNumber\":\"\",\"title\":\"Write the copy\",\"projectId\":\"\",\"status\":\"completed\",\"priority\":\"MEDIUM\",\"objective\":\"\",\"acceptanceCriteria\":\"\",\"blockedBy\":[],\"blocks\":[\"task:2\"],\"attachments\":[],\"createdDate\":\"\",\"updatedDate\":\"\"},{\"id\":\"task:2\",\"taskNumber\":\"\",\"title\":\"Publish the page\",\"projectId\":\"\",\"status\":\"pending\",\"priority\":\"MEDIUM\",\"objective\":\"\",\"acceptanceCriteria\":\"\",\"blockedBy\":[\"task:1\"],\"blocks\":[],\"attachments\":[],\"createdDate\":\"\",\"updatedDate\":\"\"}]}."
     }
   ]
 }

@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:find-faces's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:find-faces with file.\" Find every face in a picture or video and name the ones that belong to people who agreed to be known",
+  "drafted_from": "tool:find-faces's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Find every face in a picture or video and name the ones that belong to people who agreed to be known\", with {\"file\":\"sample-picture.png\"}. It runs tool:find-faces and answers {\"faces\":[]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:find-faces"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:find-faces\", and give it file.",
+    "1. Say to your AI: \"Find every face in a picture or video and name the ones that belong to people who agreed to be known\", and give it file (The picture or video, by identity in your files).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-faces and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields faces."
+    "3. Read what comes back: Finds the faces in a picture, or in a picture taken from a video every few seconds, and answers each face's place (the second, the box in pixels) and who it is: the person's name when one enrolled face is clearly the closest, every person it could be when two are too close to tell, nobody otherwise."
   ],
   "worked_examples": [
     {
-      "title": "Find the faces in a picture or video and say who they are on a sample input",
-      "ask": "Run tool:find-faces.",
+      "title": "Find the faces in a picture or video and say who they are on its own sample",
+      "ask": "Find every face in a picture or video and name the ones that belong to people who agreed to be known",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +31,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields faces."
+      "given": "The input {\"file\":\"sample-picture.png\"}.",
+      "hands_back": "It answered {\"faces\":[]}."
     }
   ]
 }

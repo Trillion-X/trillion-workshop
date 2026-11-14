@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:hand-a-job-to-an-ai's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:hand-a-job-to-an-ai with as, job.\" Give a job to another of my AIs (a named one, or any of them) so it is waiting for that AI to take",
+  "drafted_from": "tool:hand-a-job-to-an-ai's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Give a job to another of my AIs (a named one, or any of them) so it is waiting for that AI to take\", with {\"as\":\"ai:sample-sender\",\"job\":\"Write a made-up sample report\",\"to\":\"ai:sample-taker\",\"key\":\"sample-1\"}. It runs tool:hand-a-job-to-an-ai and answers {\"job_id\":\"ai-job:sample-1\",\"status\":\"written\",\"job\":{\"id\":\"ai-job:sample-1\",\"status\":\"waiting\",\"job\":\"Write a made-up sample report\",\"to\":\"ai:sample-taker\",\"from\":\"ai:sample-sender\",\"priority\":5,\"sent_at\":\"2026-11-14T00:50:23.608Z\"}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (ai, ai-job) through the records door.",
   "workflows": [],
   "tools": [
     "tool:hand-a-job-to-an-ai"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:hand-a-job-to-an-ai\", and give it as, job.",
+    "1. Say to your AI: \"Give a job to another of my AIs (a named one, or any of them) so it is waiting for that AI to take\", and give it as (The sending AI's record id); job (What the AI is to do, in plain words).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:hand-a-job-to-an-ai and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields job_id, status, job."
+    "3. Read what comes back: Writes one ai-job record, id ai-job:<key>, status waiting, holding the job in plain words, who sent it (`as`), the AI it is for (`to`, an ai record id; left out, any AI may take it), its priority (0 to 9, higher first; read-data/ai-work.json default_priority when left out), what done looks like (`outcome`) and when it was sent.",
+    "4. It reads and writes only its own rows through the records door: ai (records:read); ai-job (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Hand a job to one of my AIs, or to whichever takes it first on a sample input",
-      "ask": "Run tool:hand-a-job-to-an-ai.",
+      "title": "Hand a job to one of my AIs, or to whichever takes it first on its own sample",
+      "ask": "Give a job to another of my AIs (a named one, or any of them) so it is waiting for that AI to take",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -34,7 +35,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields job_id, status, job."
+      "given": "The input {\"as\":\"ai:sample-sender\",\"job\":\"Write a made-up sample report\",\"to\":\"ai:sample-taker\",\"key\":\"sample-1\"}, with 2 example rows (ai) already kept.",
+      "hands_back": "It answered {\"job_id\":\"ai-job:sample-1\",\"status\":\"written\",\"job\":{\"id\":\"ai-job:sample-1\",\"status\":\"waiting\",\"job\":\"Write a made-up sample report\",\"to\":\"ai:sample-taker\",\"from\":\"ai:sample-sender\",\"priority\":5,\"sent_at\":\"2026-11-14T00:50:23.608Z\"}}, and kept ai-job:sample-1."
     }
   ]
 }

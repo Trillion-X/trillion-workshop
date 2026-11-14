@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:measure-funnel-stages's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:measure-funnel-stages with facts, stage_ids, group_by, amount_field.\" Count how many visitors reached each stage of a funnel, how many converted and the revenue each stage brought",
+  "drafted_from": "tool:measure-funnel-stages's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Count how many visitors reached each stage of a funnel, how many converted and the revenue each stage brought\", with {\"facts\":[{\"stage\":\"front\",\"amount_cents\":900},{\"stage\":\"front\"},{\"stage\":\"extra\",\"converted\":true}],\"stage_ids\":[\"front\",\"extra\"],\"group_by\":\"stage\",\"amount_field\":\"amount_cents\"}. It runs tool:measure-funnel-stages and answers {\"stages\":{\"front\":{\"visits\":2,\"conversions\":1,\"conversion_rate\":50,\"revenue_cents\":900},\"extra\":{\"visits\":1,\"conversions\":1,\"conversion_rate\":100,\"revenue_cents\":0}},\"facts_read\":3,\"facts_unplaced\":0}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:measure-funnel-stages"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:measure-funnel-stages\", and give it facts, stage_ids, group_by, amount_field.",
+    "1. Say to your AI: \"Count how many visitors reached each stage of a funnel, how many converted and the revenue each stage brought\", and give it facts (One record per visit or sale); stage_ids (The stages to count); group_by (The field of a fact that holds its stage); amount_field (The field of a fact that holds its amount in whole cents).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:measure-funnel-stages and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.stages.front.conversion_rate contains \"50\"."
+    "3. Read what comes back: Reads the facts a person recorded (one per visit or per sale) and counts, for each stage you list, the visits, the conversions, the conversion rate to one decimal and the revenue in cents."
   ],
   "worked_examples": [
     {
-      "title": "Measure funnel stages on a sample input",
-      "ask": "Run tool:measure-funnel-stages.",
+      "title": "Measure funnel stages on its own sample",
+      "ask": "Count how many visitors reached each stage of a funnel, how many converted and the revenue each stage brought",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -49,7 +49,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.stages.front.conversion_rate contains \"50\"."
+      "given": "The input {\"facts\":[{\"stage\":\"front\",\"amount_cents\":900},{\"stage\":\"front\"},{\"stage\":\"extra\",\"converted\":true}],\"stage_ids\":[\"front\",\"extra\"],\"group_by\":\"stage\",\"amount_field\":\"amount_cents\"}.",
+      "hands_back": "It answered {\"stages\":{\"front\":{\"visits\":2,\"conversions\":1,\"conversion_rate\":50,\"revenue_cents\":900},\"extra\":{\"visits\":1,\"conversions\":1,\"conversion_rate\":100,\"revenue_cents\":0}},\"facts_read\":3,\"facts_unplaced\":0}."
     }
   ]
 }

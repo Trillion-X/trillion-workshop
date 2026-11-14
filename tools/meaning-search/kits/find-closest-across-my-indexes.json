@@ -1,23 +1,24 @@
 {
   "draft": true,
-  "drafted_from": "tool:find-closest-across-my-indexes's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:find-closest-across-my-indexes with index_ids, query_vector_base64.\" Find the moments across all my recordings and pictures, kept in several indexes, closest in meaning to a query vector, best first across all of them, and say the file and time of each",
+  "drafted_from": "tool:find-closest-across-my-indexes's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Find the moments across all my recordings and pictures, kept in several indexes, closest in meaning to a query vector, best first across all of them, and say the file and time of each\", with {\"index_ids\":[\"synthetic-a\",\"synthetic-b\"],\"query_vector_base64\":\"eyJ2ZWN0b3IiOlsxLDAsMCwwXX0=\"}. It runs tool:find-closest-across-my-indexes and answers {\"index_ids\":[\"synthetic-a\",\"synthetic-b\"],\"result\":{\"items\":[],\"considered\":0,\"skipped\":0,\"min_score\":0},\"model_id\":\"synthetic-picture-model\",\"model_version\":\"1\",\"points_to\":{}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (semantic-index-descriptor, ) through the records door.",
   "workflows": [],
   "tools": [
     "tool:find-closest-across-my-indexes",
     "tool:words-as-picture-vector"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:find-closest-across-my-indexes\", and give it index_ids, query_vector_base64.",
+    "1. Say to your AI: \"Find the moments across all my recordings and pictures, kept in several indexes, closest in meaning to a query vector, best first across all of them, and say the file and time of each\", and give it index_ids (The index_id of each of the person's semantic-index-descriptor records to search together); query_vector_base64 (base64 of JSON {\"vector\": [...]}, made by the model the descriptor names).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-closest-across-my-indexes and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields index_ids, model_id, model_version, result, points_to."
+    "3. Read what comes back: Runs meaning-search's find-similar-vector on each of several of the person's semantic-index-descriptor records (index_ids) and merges their answers by score, best first.",
+    "4. It reads and writes only its own rows through the records door: semantic-index-descriptor (records:list); undefined (read_file)."
   ],
   "worked_examples": [
     {
-      "title": "Find what is closest to a vector across several of my indexes on a sample input",
-      "ask": "Run tool:find-closest-across-my-indexes.",
+      "title": "Find what is closest to a vector across several of my indexes on its own sample",
+      "ask": "Find the moments across all my recordings and pictures, kept in several indexes, closest in meaning to a query vector, best first across all of them, and say the file and time of each",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -36,7 +37,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields index_ids, model_id, model_version, result, points_to."
+      "given": "The input {\"index_ids\":[\"synthetic-a\",\"synthetic-b\"],\"query_vector_base64\":\"eyJ2ZWN0b3IiOlsxLDAsMCwwXX0=\"}, with 2 example rows (semantic-index-descriptor) already kept.",
+      "hands_back": "It answered {\"index_ids\":[\"synthetic-a\",\"synthetic-b\"],\"result\":{\"items\":[],\"considered\":0,\"skipped\":0,\"min_score\":0},\"model_id\":\"synthetic-picture-model\",\"model_version\":\"1\",\"points_to\":{}}."
     }
   ]
 }

@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:route-buttons's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:route-buttons with destination.\" Give one-tap buttons that open the route to a place in each maps app, from a start and through stops on the way",
+  "drafted_from": "tool:route-buttons's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Give one-tap buttons that open the route to a place in each maps app, from a start and through stops on the way\", with {\"destination\":\"1 Example Street, Sampleton\",\"origin\":\"1 Example Street, Sampleton\",\"mode\":\"walk\"}. It runs tool:route-buttons and answers {\"buttons\":[{\"id\":\"apple-maps\",\"label\":\"Open in Apple Maps\",\"url\":\"https://maps.apple.com/directions?source=1%20Example%20Street%2C%20Sampleton&destination=1%20Example%20Street%2C%20Sampleton&mode=walking\"},{\"id\":\"google-maps\",\"label\":\"Open in Google Maps\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:route-buttons"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:route-buttons\", and give it destination.",
+    "1. Say to your AI: \"Give one-tap buttons that open the route to a place in each maps app, from a start and through stops on the way\", and give it destination (An address or place name as words, or { lat, lon }, or { address }).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:route-buttons and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.buttons.0.url contains \"maps.apple.com\"."
+    "3. Read what comes back: Give destination, and optionally origin, stops (places on the way) and mode."
   ],
   "worked_examples": [
     {
-      "title": "Route buttons for a trip on a sample input",
-      "ask": "Run tool:route-buttons.",
+      "title": "Route buttons for a trip on its own sample",
+      "ask": "Give one-tap buttons that open the route to a place in each maps app, from a start and through stops on the way",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +33,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.buttons.0.url contains \"maps.apple.com\"."
+      "given": "The input {\"destination\":\"1 Example Street, Sampleton\",\"origin\":\"1 Example Street, Sampleton\",\"mode\":\"walk\"}.",
+      "hands_back": "It answered {\"buttons\":[{\"id\":\"apple-maps\",\"label\":\"Open in Apple Maps\",\"url\":\"https://maps.apple.com/directions?source=1%20Example%20Street%2C%20Sampleton&destination=1%20Example%20Street%2C%20Sampleton&mode=walking\"},{\"id\":\"google-maps\",\"label\":\"Open in Google Maps\",\"url\":\"https://www.google.com/maps/dir/?api=1&origin=1%20Example%20Street%2C%20Sampleton&destination=1%20Example%20Street%2C%20Sampleton&travelmode=walking\"}]}."
     }
   ]
 }

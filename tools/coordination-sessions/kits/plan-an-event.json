@@ -1,23 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:plan-an-event's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:plan-an-event with idempotency_key, host_group_ref, event_label, focus_label, public_summary, detail_intro, schedule_intent, primary_starts_at, primary_ends_at, time_zone, mode, visibility, capacity, host_origin, workflow_definition_ref.\" Turn my draft of a gathering into its session, its catalog entry, the places to open and the link people will use",
+  "drafted_from": "tool:plan-an-event's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Turn my draft of a gathering into its session, its catalog entry, the places to open and the link people will use\", with {\"idempotency_key\":\"a8b0d0bfea434a4583182715150e1725\",\"host_group_ref\":\"group:bakery-club\",\"event_label\":\"Sourdough Saturday\",\"focus_label\":\"Fix one flat loaf\",\"public_summary\":\"Bring one flat loaf and leave knowing why.\",\"detail_intro\":\"A small baking morning.\",\"schedule_intent\":\"weekend morning\",\"primary_starts_at\":\"2026-09-12T09:00\",\"primary_ends_at\":\"2026-09-12T11:00\" .... It runs tool:plan-an-event and answers {\"session\":{\"session_id\":\"session:a8b0d0bfea434a4583182715150e1725\",\"purpose_contract\":{\"key\":\"focus:fix-one-flat-loaf\",\"descriptor_ref\":\"focus:fix-one-flat-loaf\",\"data\":{\"label\":\"Sourdough Saturday\",\"schedule_intent\":\"weekend morning\",\"schedule_status\":\"candidate\",\"public_summary\":\"Bring one flat loaf and leave knowing why.\",\"detail_intro\":\"A small baking morning.\"}} ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:plan-an-event",
     "tool:open-a-capacity-ledger"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:plan-an-event\", and give it idempotency_key, host_group_ref, event_label, focus_label, public_summary, detail_intro, schedule_intent, primary_starts_at, primary_ends_at, time_zone, mode, visibility, capacity, host_origin, workflow_definition_ref.",
+    "1. Say to your AI: \"Turn my draft of a gathering into its session, its catalog entry, the places to open and the link people will use\", and give it idempotency_key (A retained 128-bit hexadecimal id (32 hex characters) the caller allocated); host_group_ref (The existing group that owns the event); event_label; focus_label; public_summary; detail_intro; schedule_intent; primary_starts_at (Local time like 2026-09-12T09:00); primary_ends_at; time_zone (IANA zone, like America/Chicago); mode (The organizer's own word, like online or in person); visibility (The organizer's own word, like public or members only); capacity; host_origin (https://host, no path); workflow_definition_ref.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:plan-an-event and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.share_url contains \"https://club.example.test/events/\"."
+    "3. Read what comes back: Checks an organizer's draft (a retained 128-bit hex id, the owning group, labels in any language, a primary time and an optional alternate in the zone given, a place, a mode and a visibility word the organizer chooses, a capacity of 1 to 1,000,000, the host's web address and the workflow to run) and answers the session, the catalog entry that offers it, the capacity ledger to open for its places (the input of tool:open-a-capacity-ledger), and the preview and share addresses."
   ],
   "worked_examples": [
     {
-      "title": "Plan an event on a sample input",
-      "ask": "Run tool:plan-an-event.",
+      "title": "Plan an event on its own sample",
+      "ask": "Turn my draft of a gathering into its session, its catalog entry, the places to open and the link people will use",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -46,7 +46,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.share_url contains \"https://club.example.test/events/\"."
+      "given": "The input {\"idempotency_key\":\"a8b0d0bfea434a4583182715150e1725\",\"host_group_ref\":\"group:bakery-club\",\"event_label\":\"Sourdough Saturday\",\"focus_label\":\"Fix one flat loaf\",\"public_summary\":\"Bring one flat loaf and leave knowing why.\",\"detail_intro\":\"A small baking morning.\",\"schedule_intent\":\"weekend morning\",\"primary_starts_at\":\"2026-09-12T09:00\",\"primary_ends_at\":\"2026-09-12T11:00\" ....",
+      "hands_back": "It answered {\"session\":{\"session_id\":\"session:a8b0d0bfea434a4583182715150e1725\",\"purpose_contract\":{\"key\":\"focus:fix-one-flat-loaf\",\"descriptor_ref\":\"focus:fix-one-flat-loaf\",\"data\":{\"label\":\"Sourdough Saturday\",\"schedule_intent\":\"weekend morning\",\"schedule_status\":\"candidate\",\"public_summary\":\"Bring one flat loaf and leave knowing why.\",\"detail_intro\":\"A small baking morning.\"}},\"candidate_occurrences\":[{\"occurrence_id\":\"occurrence:a8b0d0bfea434a4583182715150e1725:primary\",\"starts_at\":\"2026-09-12T09:00\",\"ends_at\":\"2026-09-12T11:00\",\"time_zone\":\"America/Chicago\",\"calendar_system\":\"gregorian\"}],\"candidate_places\":[],\"candidate_modes\":[{\"key\":\"mode:in-person\",\"descriptor_ref\":\"mode:in-person\" ...."
     }
   ]
 }

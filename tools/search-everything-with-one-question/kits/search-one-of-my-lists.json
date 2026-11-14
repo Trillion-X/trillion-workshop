@@ -1,23 +1,24 @@
 {
   "draft": true,
-  "drafted_from": "tool:search-one-of-my-lists's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:search-one-of-my-lists with question, type.\" Find the rows of one of my lists that hold the words I ask, best match first, however far down the list they are",
+  "drafted_from": "tool:search-one-of-my-lists's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Find the rows of one of my lists that hold the words I ask, best match first, however far down the list they are\", with {\"question\":\"launch plan\",\"type\":\"record:note\"}. It runs tool:search-one-of-my-lists and answers {\"question\":\"launch plan\",\"terms\":[\"launch\",\"plan\"],\"results\":[{\"start\":0,\"end\":0,\"id\":\"record:note:plan-7\",\"source\":\"trillion\",\"type\":\"record:note\",\"record\":\"note:plan-7\",\"found_in\":[\"written\"],\"address\":{\"resource\":\"@own-records\",\"operation\":\"records:read\",\"input\":{\"id\":\"note:plan-7\",\"type\":\"record:note\"}},\"score\":0.01639,\"places\":[{\"place\":\"written\",\"label\":\"Notes and text\",\"said\":null ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows ([object Object]) through the records door.",
   "workflows": [],
   "tools": [
     "tool:search-one-of-my-lists",
     "tool:search-everything-with-one-question"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:search-one-of-my-lists\", and give it question, type.",
+    "1. Say to your AI: \"Find the rows of one of my lists that hold the words I ask, best match first, however far down the list they are\", and give it question (The person's question or the words to find); type (The kind of record (the list) to search; this run's right is filled from it).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:search-one-of-my-lists and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields question, terms, results, unavailable, pending."
+    "3. Read what comes back: Searches the records of one kind (one list) with one question through the records door's word index, which every write feeds: the rows holding every asked word, best first, each with said (the words around the match), score and address (the records:read that opens it).",
+    "4. It reads and writes only its own rows through the records door: [object Object] (records:search)."
   ],
   "worked_examples": [
     {
-      "title": "Search one of my lists with one question on a sample input",
-      "ask": "Run tool:search-one-of-my-lists.",
+      "title": "Search one of my lists with one question on its own sample",
+      "ask": "Find the rows of one of my lists that hold the words I ask, best match first, however far down the list they are",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +34,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields question, terms, results, unavailable, pending."
+      "given": "The input {\"question\":\"launch plan\",\"type\":\"record:note\"}, with 2 example rows (record:note) already kept.",
+      "hands_back": "It answered {\"question\":\"launch plan\",\"terms\":[\"launch\",\"plan\"],\"results\":[{\"start\":0,\"end\":0,\"id\":\"record:note:plan-7\",\"source\":\"trillion\",\"type\":\"record:note\",\"record\":\"note:plan-7\",\"found_in\":[\"written\"],\"address\":{\"resource\":\"@own-records\",\"operation\":\"records:read\",\"input\":{\"id\":\"note:plan-7\",\"type\":\"record:note\"}},\"score\":0.01639,\"places\":[{\"place\":\"written\",\"label\":\"Notes and text\",\"said\":null,\"score\":0.016}],\"moments\":[{\"start\":0,\"end\":0,\"timed\":false,\"said\":null,\"places\":[\"written\"]}],\"said\":null}],\"unavailable\":[],\"pending\":[],\"sat_out\":[]}."
     }
   ]
 }

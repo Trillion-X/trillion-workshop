@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:pick-a-small-good-moment's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:pick-a-small-good-moment with moments.\" Pick the small good moment to play when something good happens or a phrase is typed: its words and motion, from the moment rows I give, so once-only moments play once and the words change each time",
+  "drafted_from": "tool:pick-a-small-good-moment's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Pick the small good moment to play when something good happens or a phrase is typed: its words and motion, from the moment rows I give, so once-only moments play once and the words change each time\", with {\"moments\":[{\"id\":\"moment:first-tour\",\"on\":{\"event_kind\":\"tour.finished\"},\"once\":true,\"words\":\"Your first tour is done.\"},{\"id\":\"moment:tour\",\"on\":{\"event_kind\":\"tour.finished\"},\"words\":[\"Tour {count} done.\",\"Another one done.\"],\"motion\":\"rise\"}],\"event\":{\"event_kind\":\"tour.finished\"},\"memory\":{\"counts\":{\"event:tour.finished\":2},\"played\":{\"moment:first-tour\":1,\"moment:tour\":1}}}. It runs tool:pick-a-small-good-moment and answers {\"moment\":{\"id\":\"moment:tour\",\"motion\":\"rise\",\"mark\":\"\",\"words\":\"Another one done.\"},\"remember\":{\"counts\":{\"event:tour.finished\":3},\"played\":{\"moment:first-tour\":1,\"moment:tour\":2}}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:pick-a-small-good-moment"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:pick-a-small-good-moment\", and give it moments.",
+    "1. Say to your AI: \"Pick the small good moment to play when something good happens or a phrase is typed: its words and motion, from the moment rows I give, so once-only moments play once and the words change each time\", and give it moments.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:pick-a-small-good-moment and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.moment.words contains \"Another one done\"."
+    "3. Read what comes back: Give moments (the moment rows, tried in order: each { id, on: { event_kind, match?, starts_with?"
   ],
   "worked_examples": [
     {
-      "title": "Pick the small good moment to play on a sample input",
-      "ask": "Run tool:pick-a-small-good-moment.",
+      "title": "Pick the small good moment to play on its own sample",
+      "ask": "Pick the small good moment to play when something good happens or a phrase is typed: its words and motion, from the moment rows I give, so once-only moments play once and the words change each time",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -63,7 +63,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.moment.words contains \"Another one done\"."
+      "given": "The input {\"moments\":[{\"id\":\"moment:first-tour\",\"on\":{\"event_kind\":\"tour.finished\"},\"once\":true,\"words\":\"Your first tour is done.\"},{\"id\":\"moment:tour\",\"on\":{\"event_kind\":\"tour.finished\"},\"words\":[\"Tour {count} done.\",\"Another one done.\"],\"motion\":\"rise\"}],\"event\":{\"event_kind\":\"tour.finished\"},\"memory\":{\"counts\":{\"event:tour.finished\":2},\"played\":{\"moment:first-tour\":1,\"moment:tour\":1}}}.",
+      "hands_back": "It answered {\"moment\":{\"id\":\"moment:tour\",\"motion\":\"rise\",\"mark\":\"\",\"words\":\"Another one done.\"},\"remember\":{\"counts\":{\"event:tour.finished\":3},\"played\":{\"moment:first-tour\":1,\"moment:tour\":2}}}."
     }
   ]
 }

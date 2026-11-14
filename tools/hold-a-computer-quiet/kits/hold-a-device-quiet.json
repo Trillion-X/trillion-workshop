@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:hold-a-device-quiet's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:hold-a-device-quiet with nothing more.\" Turn Focus on and keep distracting apps closed on the person's computer until a set time, for a work session, a meeting or bedtime",
+  "drafted_from": "tool:hold-a-device-quiet's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Turn Focus on and keep distracting apps closed on the person's computer until a set time, for a work session, a meeting or bedtime\", with {\"apps\":[\"Messages\"],\"minutes\":0.00001}. It runs tool:hold-a-device-quiet and answers {\"hold\":{\"id\":\"hold-1794617423777\",\"apps\":[\"Messages\"],\"focus\":true,\"until\":\"2026-11-14T00:50:23.773Z\"},\"closed\":[],\"focus\":{\"focus\":\"on\",\"switched\":false,\"needs_person\":\"Press Add Shortcut in the Shortcuts window that just opened (once on this Mac), then Focus switches by itself.\"},\"said\":\"This Mac is held until 2026-11-14T00:50:23.773Z: Messages close whenever they open, and Focus is on. Press ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:hold-a-device-quiet"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:hold-a-device-quiet\", and give it nothing more.",
+    "1. Say to your AI: \"Turn Focus on and keep distracting apps closed on the person's computer until a set time, for a work session, a meeting or bedtime\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:hold-a-device-quiet and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Turn Focus on and keep distracting apps closed on the person's computer until a set time, for a work session, a meeting or bedtime"
+    "3. Read what comes back: Give until (a date and time) or minutes."
   ],
   "worked_examples": [
     {
-      "title": "Keep a device quiet until a time on a sample input",
-      "ask": "Run tool:hold-a-device-quiet.",
+      "title": "Keep a device quiet until a time on its own sample",
+      "ask": "Turn Focus on and keep distracting apps closed on the person's computer until a set time, for a work session, a meeting or bedtime",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -34,7 +34,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Turn Focus on and keep distracting apps closed on the person's computer until a set time, for a work session, a meeting or bedtime"
+      "given": "The input {\"apps\":[\"Messages\"],\"minutes\":0.00001}.",
+      "hands_back": "It answered {\"hold\":{\"id\":\"hold-1794617423777\",\"apps\":[\"Messages\"],\"focus\":true,\"until\":\"2026-11-14T00:50:23.773Z\"},\"closed\":[],\"focus\":{\"focus\":\"on\",\"switched\":false,\"needs_person\":\"Press Add Shortcut in the Shortcuts window that just opened (once on this Mac), then Focus switches by itself.\"},\"said\":\"This Mac is held until 2026-11-14T00:50:23.773Z: Messages close whenever they open, and Focus is on. Press Add Shortcut in the Shortcuts window that just opened (once on this Mac), then Focus switches by itself.\"}."
     }
   ]
 }

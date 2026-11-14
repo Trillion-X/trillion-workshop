@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:read-rows-as-marketplace-shelf-items's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-rows-as-marketplace-shelf-items with kind, rows.\" Show rows of one kind (tools, workflows, looks, layouts and more) as the Marketplace shelf shows everything my AI can use: title, what it does, who made it, its price and runs, whether it is mine and published, and whether I can use, publish or withdraw it",
+  "drafted_from": "tool:read-rows-as-marketplace-shelf-items's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Show rows of one kind (tools, workflows, looks, layouts and more) as the Marketplace shelf shows everything my AI can use: title, what it does, who made it, its price and runs, whether it is mine and published, and whether I can use, publish or withdraw it\", with {\"kind\":\"tool\",\"rows\":[{\"tool_id\":\"tool:sample-garden-planner\",\"title\":\"Plan my garden beds\",\"description\":\"Lays out beds by sun and season\",\"made_by\":\"this account\",\"price\":{\"amount\":\"$0.01\",\"per\":\"call\"},\"earlier_runs\":{\"runs\":3},\"source\":{\"licence\":\"MIT\"}},{\"tool_id\":\"agentmail-list_messages\",\"made_by\":\"a registry\"}],\"published\":[\"tool:sample-garden-planner\"]}. It runs tool:read-rows-as-marketplace-shelf-items and answers {\"items\":[{\"id\":\"tool:sample-garden-planner\",\"key\":\"tool/tool:sample-garden-planner\",\"kind\":\"tool\",\"kind_label\":\"Tool\",\"icon\":\"Wrench\",\"title\":\"Plan my garden beds\",\"job\":\"Lays out beds by sun and season\",\"made_by\":\"You\",\"price\":\"$0.01 a call\",\"value\":\"$0.01\",\"unit\":\"/call\",\"value_label\":\"$0.01 a call\",\"runs\":3,\"mine\":true,\"published\":true,\"badge\":{\"label\":\"Published\",\"tone\":\"good\"} ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:read-rows-as-marketplace-shelf-items"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-rows-as-marketplace-shelf-items\", and give it kind, rows.",
+    "1. Say to your AI: \"Show rows of one kind (tools, workflows, looks, layouts and more) as the Marketplace shelf shows everything my AI can use: title, what it does, who made it, its price and runs, whether it is mine and published, and whether I can use, publish or withdraw it\", and give it kind; rows.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-rows-as-marketplace-shelf-items and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.kind.one contains \"Tool\"."
+    "3. Read what comes back: Give kind (one of the kinds in marketplace-kinds.json: tool, workflow, studied-screen, design-component, look, layout, configuration), rows (the source rows of that kind, as their own owner answers them) and published (the ids of that kind this account has published to the shared shelf)."
   ],
   "worked_examples": [
     {
-      "title": "Read rows as Marketplace shelf items on a sample input",
-      "ask": "Run tool:read-rows-as-marketplace-shelf-items.",
+      "title": "Read rows as Marketplace shelf items on its own sample",
+      "ask": "Show rows of one kind (tools, workflows, looks, layouts and more) as the Marketplace shelf shows everything my AI can use: title, what it does, who made it, its price and runs, whether it is mine and published, and whether I can use, publish or withdraw it",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -56,7 +56,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.kind.one contains \"Tool\"."
+      "given": "The input {\"kind\":\"tool\",\"rows\":[{\"tool_id\":\"tool:sample-garden-planner\",\"title\":\"Plan my garden beds\",\"description\":\"Lays out beds by sun and season\",\"made_by\":\"this account\",\"price\":{\"amount\":\"$0.01\",\"per\":\"call\"},\"earlier_runs\":{\"runs\":3},\"source\":{\"licence\":\"MIT\"}},{\"tool_id\":\"agentmail-list_messages\",\"made_by\":\"a registry\"}],\"published\":[\"tool:sample-garden-planner\"]}.",
+      "hands_back": "It answered {\"items\":[{\"id\":\"tool:sample-garden-planner\",\"key\":\"tool/tool:sample-garden-planner\",\"kind\":\"tool\",\"kind_label\":\"Tool\",\"icon\":\"Wrench\",\"title\":\"Plan my garden beds\",\"job\":\"Lays out beds by sun and season\",\"made_by\":\"You\",\"price\":\"$0.01 a call\",\"value\":\"$0.01\",\"unit\":\"/call\",\"value_label\":\"$0.01 a call\",\"runs\":3,\"mine\":true,\"published\":true,\"badge\":{\"label\":\"Published\",\"tone\":\"good\"},\"facts\":[{\"label\":\"Runs\",\"icon\":\"History\",\"value\":\"3 runs\"},{\"label\":\"Licence\",\"icon\":\"Scale\",\"value\":\"MIT\"}],\"open_target\":{\"surface\":\"trillion.workshop-tool\",\"title\":\"Plan my garden beds\",\"input\":{\"id\":\"tool:sample-garden-planner\"}},\"publish_terms\":{\"price_label\":\"Price for each completed run (USD)\" ...."
     }
   ]
 }

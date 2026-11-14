@@ -1,23 +1,24 @@
 {
   "draft": true,
-  "drafted_from": "tool:count-where-a-person-stands's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:count-where-a-person-stands with stands.\" Count the stands a person has taken, by kind of thing and by stand, with how many changed their mind and how many took a stand back",
+  "drafted_from": "tool:count-where-a-person-stands's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Count the stands a person has taken, by kind of thing and by stand, with how many changed their mind and how many took a stand back\", with {\"stands\":[{\"kind\":\"title\",\"stance\":\"agree\",\"earlier\":[{\"stance\":\"disagree\"}]},{\"kind\":\"title\",\"stance\":\"disagree\"},{\"kind\":\"voice\",\"stance\":null}]}. It runs tool:count-where-a-person-stands and answers {\"read\":3,\"by_kind\":{\"title\":{\"agree\":1,\"disagree\":1}},\"with_history\":1,\"taken_back\":1}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:setting) through the records door.",
   "workflows": [],
   "tools": [
     "tool:count-where-a-person-stands",
     "tool:read-where-you-stand"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:count-where-a-person-stands\", and give it stands.",
+    "1. Say to your AI: \"Count the stands a person has taken, by kind of thing and by stand, with how many changed their mind and how many took a stand back\", and give it stands (The stands read back: standFrom answers or stance record values).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:count-where-a-person-stands and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.by_kind.title.agree contains \"1\"."
+    "3. Read what comes back: Give stands: the stands read back (each the answer of tool:read-where-you-stand, or a stance record's value: kind, stance, and earlier when its history was read).",
+    "4. It reads and writes only its own rows through the records door: record:setting (records:read)."
   ],
   "worked_examples": [
     {
-      "title": "Count where a person stands on a sample input",
-      "ask": "Run tool:count-where-a-person-stands.",
+      "title": "Count where a person stands on its own sample",
+      "ask": "Count the stands a person has taken, by kind of thing and by stand, with how many changed their mind and how many took a stand back",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -50,7 +51,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.by_kind.title.agree contains \"1\"."
+      "given": "The input {\"stands\":[{\"kind\":\"title\",\"stance\":\"agree\",\"earlier\":[{\"stance\":\"disagree\"}]},{\"kind\":\"title\",\"stance\":\"disagree\"},{\"kind\":\"voice\",\"stance\":null}]}.",
+      "hands_back": "It answered {\"read\":3,\"by_kind\":{\"title\":{\"agree\":1,\"disagree\":1}},\"with_history\":1,\"taken_back\":1}."
     }
   ]
 }

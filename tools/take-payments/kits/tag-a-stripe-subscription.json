@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:tag-a-stripe-subscription's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:tag-a-stripe-subscription with subscription_id, metadata.\" Add notes (metadata) to a buyer Stripe subscription without changing the ones already there",
+  "drafted_from": "tool:tag-a-stripe-subscription's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Add notes (metadata) to a buyer Stripe subscription without changing the ones already there\", with {\"subscription_id\":\"sub_sample0001\",\"metadata\":{\"follow_up\":\"sent\"}}. It runs tool:tag-a-stripe-subscription and answers {\"subscription_id\":\"sub_sample0001\",\"metadata\":{\"offer_id\":\"offer:bread-box\",\"follow_up\":\"sent\"},\"updated\":true}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:tag-a-stripe-subscription"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:tag-a-stripe-subscription\", and give it subscription_id, metadata.",
+    "1. Say to your AI: \"Add notes (metadata) to a buyer Stripe subscription without changing the ones already there\", and give it subscription_id; metadata.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:tag-a-stripe-subscription and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields subscription_id, updated."
+    "3. Read what comes back: Give subscription_id and metadata (text values)."
   ],
   "worked_examples": [
     {
-      "title": "Tag a Stripe subscription on a sample input",
-      "ask": "Run tool:tag-a-stripe-subscription.",
+      "title": "Tag a Stripe subscription on its own sample",
+      "ask": "Add notes (metadata) to a buyer Stripe subscription without changing the ones already there",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -34,7 +34,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields subscription_id, updated."
+      "given": "The input {\"subscription_id\":\"sub_sample0001\",\"metadata\":{\"follow_up\":\"sent\"}}, the web answering from 2 recorded replies.",
+      "hands_back": "It answered {\"subscription_id\":\"sub_sample0001\",\"metadata\":{\"offer_id\":\"offer:bread-box\",\"follow_up\":\"sent\"},\"updated\":true}."
     }
   ]
 }

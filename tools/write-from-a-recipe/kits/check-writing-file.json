@@ -1,23 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:check-writing-file's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-writing-file with file.\" Check a source backed writing request from a file the person granted to be read, without sending the source bytes in the tool call",
+  "drafted_from": "tool:check-writing-file's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Check a source backed writing request from a file the person granted to be read, without sending the source bytes in the tool call\", with {\"file\":\"input.json\"}. It runs tool:check-writing-file and answers {\"passed\":true,\"delivery\":null}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:check-writing-file",
     "tool:check-writing-against-its-recipe"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-writing-file\", and give it file.",
+    "1. Say to your AI: \"Check a source backed writing request from a file the person granted to be read, without sending the source bytes in the tool call\", and give it file (A relative path to the request JSON inside the granted folder).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-writing-file and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields passed, delivery, reject_code, reason, review_binding, evidence_review, findings."
+    "3. Read what comes back: Give file (a relative path in the folder you granted the tool to read), and optionally recipe_id or recipe to override the request's recipe."
   ],
   "worked_examples": [
     {
-      "title": "Check writing from a file on a sample input",
-      "ask": "Run tool:check-writing-file.",
+      "title": "Check writing from a file on its own sample",
+      "ask": "Check a source backed writing request from a file the person granted to be read, without sending the source bytes in the tool call",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,7 +32,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields passed, delivery, reject_code, reason, review_binding, evidence_review, findings."
+      "given": "The input {\"file\":\"input.json\"}.",
+      "hands_back": "It answered {\"passed\":true,\"delivery\":null}."
     }
   ]
 }

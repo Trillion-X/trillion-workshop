@@ -1,7 +1,7 @@
 {
   "draft": true,
-  "drafted_from": "tool:plan-sorting-youtube-watch-later-into-playlists's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:plan-sorting-youtube-watch-later-into-playlists with nothing more.\" Sort my YouTube Watch Later into playlists: plan which playlist each video goes in",
+  "drafted_from": "tool:plan-sorting-youtube-watch-later-into-playlists's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Sort my YouTube Watch Later into playlists: plan which playlist each video goes in\", with {\"settings\":{\"channels\":[{\"slug\":\"kitchen\",\"label\":\"Kitchen Channel\",\"sort\":\"rules\",\"rules\":{\"max_per_video\":2,\"hold_back\":\"(Secret Recipe)\",\"hold_back_reason\":\"kept off public playlists\",\"rules\":[{\"key\":\"bread\",\"title\":\"Bread Baking\",\"description\":\"Loaves.\",\"channels\":\"^(Crumb Club)\",\"strong\":\"(sourdough)\",\"weak\":\"(flour)\"}]}},{\"slug\":\"watch-only\",\"label\":\"Watch Only\"}]} .... It runs tool:plan-sorting-youtube-watch-later-into-playlists and answers {\"summary\":[{\"channel\":\"Kitchen Channel\",\"watch_later\":3,\"unsorted\":0,\"held_back\":1,\"playlists\":[{\"title\":\"Bread Baking\",\"videos\":2}]}],\"plan\":{\"generated\":\"2026-01-01T00:00:00\",\"accounts\":[{\"slug\":\"kitchen\",\"channel\":\"Kitchen Channel\",\"authuser\":0,\"page_id\":null,\"email\":null,\"watch_later_count\":3,\"playlists\":[{\"key\":\"bread\",\"title\":\"Bread Baking\",\"description\":\"Loaves.\",\"items\":[{\"id\":\"v1\" ...",
   "lists": [
     {
       "list": "list:settings",
@@ -108,20 +108,19 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
     "tool:plan-sorting-youtube-watch-later-into-playlists"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:plan-sorting-youtube-watch-later-into-playlists\", and give it nothing more.",
+    "1. Say to your AI: \"Sort my YouTube Watch Later into playlists: plan which playlist each video goes in\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:plan-sorting-youtube-watch-later-into-playlists and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields summary, plan, plan_file, plan_page."
+    "3. Read what comes back: Places each video of one or more channels' Watch Later into the playlists the person's sort settings name, and writes nothing to YouTube."
   ],
   "worked_examples": [
     {
-      "title": "Plan which playlist each Watch Later video goes in on a sample input",
-      "ask": "Run tool:plan-sorting-youtube-watch-later-into-playlists.",
+      "title": "Plan which playlist each Watch Later video goes in on its own sample",
+      "ask": "Sort my YouTube Watch Later into playlists: plan which playlist each video goes in",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -189,7 +188,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields summary, plan, plan_file, plan_page."
+      "given": "The input {\"settings\":{\"channels\":[{\"slug\":\"kitchen\",\"label\":\"Kitchen Channel\",\"sort\":\"rules\",\"rules\":{\"max_per_video\":2,\"hold_back\":\"(Secret Recipe)\",\"hold_back_reason\":\"kept off public playlists\",\"rules\":[{\"key\":\"bread\",\"title\":\"Bread Baking\",\"description\":\"Loaves.\",\"channels\":\"^(Crumb Club)\",\"strong\":\"(sourdough)\",\"weak\":\"(flour)\"}]}},{\"slug\":\"watch-only\",\"label\":\"Watch Only\"}]} ....",
+      "hands_back": "It answered {\"summary\":[{\"channel\":\"Kitchen Channel\",\"watch_later\":3,\"unsorted\":0,\"held_back\":1,\"playlists\":[{\"title\":\"Bread Baking\",\"videos\":2}]}],\"plan\":{\"generated\":\"2026-01-01T00:00:00\",\"accounts\":[{\"slug\":\"kitchen\",\"channel\":\"Kitchen Channel\",\"authuser\":0,\"page_id\":null,\"email\":null,\"watch_later_count\":3,\"playlists\":[{\"key\":\"bread\",\"title\":\"Bread Baking\",\"description\":\"Loaves.\",\"items\":[{\"id\":\"v1\",\"url\":\"https://www.youtube.com/watch?v=v1\",\"title\":\"Easy sourdough\",\"channel\":\"Crumb Club\",\"views\":\"1K views\",\"reason\":\"channel Crumb Club; title \\\"sourdough\\\"\",\"confidence\":\"high\"},{\"id\":\"v2\",\"url\":\"https://www.youtube.com/watch?v=v2\",\"title\":\"Which flour\",\"channel\":\"Someone\",\"views\":\"10 views\" ...."
     }
   ],
   "pour": {

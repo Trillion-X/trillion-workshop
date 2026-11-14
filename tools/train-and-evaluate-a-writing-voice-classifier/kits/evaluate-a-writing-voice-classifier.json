@@ -1,7 +1,7 @@
 {
   "draft": true,
-  "drafted_from": "tool:evaluate-a-writing-voice-classifier's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:evaluate-a-writing-voice-classifier with data.\" Check how well a small classifier judges a writer's voice: validate the labelled challenge passages, plan the questions, ask the classifier each one, and report its choices, probabilities, abstentions and accuracy by criterion, family and source",
+  "drafted_from": "tool:evaluate-a-writing-voice-classifier's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Check how well a small classifier judges a writer's voice: validate the labelled challenge passages, plan the questions, ask the classifier each one, and report its choices, probabilities, abstentions and accuracy by criterion, family and source\", with {\"action\":\"evaluate\",\"data\":{\"schema\":\"book-voice-decider-challenge-v2\",\"dataset_role\":\"source_feedback_controls\",\"criteria\":[{\"id\":\"claim-strength\",\"primitive\":\"true-or-false\",\"question\":\"Does the passage state the claim no more strongly than its source?\"}],\"items\":[{\"id\":\"MADE-UP-01\",\"text\":\"We tried the kettle first. It boiled in four minutes, so we stopped guessing and timed the pot instead.\" .... It runs tool:evaluate-a-writing-voice-classifier and answers {\"schema\":\"book-voice-decider-evaluation-v2\",\"evaluated_at_local\":\"11/13/2026, 5:50:57 PM MST\",\"model\":\"made-up-model\",\"endpoint\":\"http://127.0.0.1:8099/v1/systemone\",\"route\":\"shared local classifier adapter -> /v1/systemone\",\"serving\":\"/fixture/made-up-model-snapshot\",\"device\":\"cpu\",\"serving_identity_policy\":\"observed-health-and-response-v1\",\"request_limits\":{\"samples\":1,\"attempts\":3 ...",
   "lists": [
     {
       "list": "list:settings",
@@ -108,20 +108,20 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
     "tool:evaluate-a-writing-voice-classifier"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:evaluate-a-writing-voice-classifier\", and give it data.",
+    "1. Say to your AI: \"Check how well a small classifier judges a writer's voice: validate the labelled challenge passages, plan the questions, ask the classifier each one, and report its choices, probabilities, abstentions and accuracy by criterion, family and source\", and give it data (A challenge: schema book-voice-decider-challenge-v1, v2 or v3; items each { id, family, split, text, origin.kind or source_kind, gold or checks, block_kind (v3) }; a single question and options (v1) or criteria (v2, v3: each { id, question, primitive one-of | true-or-false, options, reference_context and applies_to in v3, deterministic?, diagnostic_min_probability?, section_chunk_request?).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:evaluate-a-writing-voice-classifier and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Check how well a small classifier judges a writer's voice: validate the labelled challenge passages, plan the questions, ask the classifier each one, and report its choices, probabilities, abstentions and accuracy by criterion, family and source"
+    "3. Read what comes back: validate: { mode, items, criteria, request_policy, model_questions }; plan: { plans }; check-report: { valid, complete, covered, identity_assurance }; evaluate: the report (schema book-voice-decider-evaluation-v2: summary, items, errors, complete, serving_identity_assurance)",
+    "4. It reads and writes only its own rows through the records door: record:check (records:list, records:read); record:setting (records:read)."
   ],
   "worked_examples": [
     {
-      "title": "Evaluate a writing-voice classifier on labelled passages on a sample input",
-      "ask": "Run tool:evaluate-a-writing-voice-classifier.",
+      "title": "Evaluate a writing-voice classifier on labelled passages on its own sample",
+      "ask": "Check how well a small classifier judges a writer's voice: validate the labelled challenge passages, plan the questions, ask the classifier each one, and report its choices, probabilities, abstentions and accuracy by criterion, family and source",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -219,7 +219,81 @@
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Check how well a small classifier judges a writer's voice: validate the labelled challenge passages, plan the questions, ask the classifier each one, and report its choices, probabilities, abstentions and accuracy by criterion, family and source"
+      "given": "The input {\"action\":\"evaluate\",\"data\":{\"schema\":\"book-voice-decider-challenge-v2\",\"dataset_role\":\"source_feedback_controls\",\"criteria\":[{\"id\":\"claim-strength\",\"primitive\":\"true-or-false\",\"question\":\"Does the passage state the claim no more strongly than its source?\"}],\"items\":[{\"id\":\"MADE-UP-01\",\"text\":\"We tried the kettle first. It boiled in four minutes, so we stopped guessing and timed the pot instead.\" ....",
+      "hands_back": "It answered {\"schema\":\"book-voice-decider-evaluation-v2\",\"evaluated_at_local\":\"11/13/2026, 5:50:57 PM MST\",\"model\":\"made-up-model\",\"endpoint\":\"http://127.0.0.1:8099/v1/systemone\",\"route\":\"shared local classifier adapter -> /v1/systemone\",\"serving\":\"/fixture/made-up-model-snapshot\",\"device\":\"cpu\",\"serving_identity_policy\":\"observed-health-and-response-v1\",\"request_limits\":{\"samples\":1,\"attempts\":3,\"workers\":1},\"data\":\"/fixture/binary-challenge.json\",\"data_blake3\":\"486dd49037cb6997f7b958c0ada21e402dd92d9abca7f404eaafa4c05fc49fa9\",\"rubric_blake3\":null,\"dataset_role\":\"source_feedback_controls\",\"source_derivative\":null,\"assembled_docx\":null,\"split\":\"eval\",\"evaluated_items\":2,\"expected_items\":2 ...."
+    },
+    {
+      "title": "Evaluate a writing-voice classifier on labelled passages on its own sample",
+      "ask": "Check how well a small classifier judges a writer's voice: validate the labelled challenge passages, plan the questions, ask the classifier each one, and report its choices, probabilities, abstentions and accuracy by criterion, family and source",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:evaluate-a-writing-voice-classifier",
+            "input": {
+              "action": "validate",
+              "data": {
+                "schema": "book-voice-decider-challenge-v2",
+                "dataset_role": "source_feedback_controls",
+                "criteria": [
+                  {
+                    "id": "claim-strength",
+                    "primitive": "true-or-false",
+                    "question": "Does the passage state the claim no more strongly than its source?"
+                  }
+                ],
+                "items": [
+                  {
+                    "id": "MADE-UP-01",
+                    "text": "We tried the kettle first. It boiled in four minutes, so we stopped guessing and timed the pot instead.",
+                    "family": "made-up-kettle",
+                    "split": "eval",
+                    "rationale": "Made-up fixture.",
+                    "axis": [
+                      "made_up_axis"
+                    ],
+                    "origin": {
+                      "kind": "made-up-fixture",
+                      "source_ref": {
+                        "file": "made-up-notes.md",
+                        "lines": "1-3"
+                      }
+                    },
+                    "checks": {
+                      "claim-strength": "pass"
+                    }
+                  },
+                  {
+                    "id": "MADE-UP-02",
+                    "text": "Leverage synergies to maximize kettle outcomes across all stakeholders.",
+                    "family": "made-up-kettle",
+                    "split": "eval",
+                    "rationale": "Made-up fixture.",
+                    "axis": [
+                      "made_up_axis"
+                    ],
+                    "origin": {
+                      "kind": "made-up-fixture",
+                      "source_ref": {
+                        "file": "made-up-notes.md",
+                        "lines": "5-7"
+                      }
+                    },
+                    "checks": {
+                      "claim-strength": "fail"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "given": "The input {\"action\":\"validate\",\"data\":{\"schema\":\"book-voice-decider-challenge-v2\",\"dataset_role\":\"source_feedback_controls\",\"criteria\":[{\"id\":\"claim-strength\",\"primitive\":\"true-or-false\",\"question\":\"Does the passage state the claim no more strongly than its source?\"}],\"items\":[{\"id\":\"MADE-UP-01\",\"text\":\"We tried the kettle first. It boiled in four minutes, so we stopped guessing and timed the pot instead.\" ....",
+      "hands_back": "It answered {\"mode\":\"evaluation\",\"items\":2,\"criteria\":[\"claim-strength\"],\"request_policy\":\"neutral-passage-and-criterion-context-v1\",\"model_questions\":2}."
     }
   ],
   "pour": {

@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:keep-a-thread-summary's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:keep-a-thread-summary with conversation_id, summary, latest.\" Keep a short summary of this conversation, so the next AI that opens it reads a few lines instead of every message",
+  "drafted_from": "tool:keep-a-thread-summary's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Keep a short summary of this conversation, so the next AI that opens it reads a few lines instead of every message\", with {\"app\":\"Email\",\"conversation_id\":\"Email:t1\",\"summary\":\"They ask for the Friday deck; I said yes.\",\"latest\":{\"id\":\"message:2\",\"at\":\"2026-10-19T10:05:00Z\"}}. It runs tool:keep-a-thread-summary and answers {\"summary\":{\"summary_id\":\"thread-summary:Email:Email:t1\",\"app\":\"Email\",\"conversation_id\":\"Email:t1\",\"summary\":\"They ask for the Friday deck; I said yes.\",\"through_message_id\":\"message:2\",\"through_at\":\"2026-10-19T10:05:00Z\",\"set_at\":\"2026-11-14T00:50:50.082Z\"},\"said\":\"Up to date through 2026-10-19T10:05:00Z.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (thread-summary) through the records door.",
   "workflows": [],
   "tools": [
     "tool:keep-a-thread-summary"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:keep-a-thread-summary\", and give it conversation_id, summary, latest.",
+    "1. Say to your AI: \"Keep a short summary of this conversation, so the next AI that opens it reads a few lines instead of every message\", and give it conversation_id (The conversation's id, as the messages it is in show it); summary (The summary, in a few lines); latest (The conversation's newest message now: its id and time).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:keep-a-thread-summary and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result.summary.through_message_id contains \"message:2\"."
+    "3. Read what comes back: Give conversation_id (and app), summary (at most 4000 characters) and latest: { id, at } of the conversation's newest message now, as the messages owner shows it (its newest message from reading the conversation).",
+    "4. It reads and writes only its own rows through the records door: thread-summary (records:read, records:list, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Keep a conversation summary on a sample input",
-      "ask": "Run tool:keep-a-thread-summary.",
+      "title": "Keep a conversation summary on its own sample",
+      "ask": "Keep a short summary of this conversation, so the next AI that opens it reads a few lines instead of every message",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -37,7 +38,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result.summary.through_message_id contains \"message:2\"."
+      "given": "The input {\"app\":\"Email\",\"conversation_id\":\"Email:t1\",\"summary\":\"They ask for the Friday deck; I said yes.\",\"latest\":{\"id\":\"message:2\",\"at\":\"2026-10-19T10:05:00Z\"}}.",
+      "hands_back": "It answered {\"summary\":{\"summary_id\":\"thread-summary:Email:Email:t1\",\"app\":\"Email\",\"conversation_id\":\"Email:t1\",\"summary\":\"They ask for the Friday deck; I said yes.\",\"through_message_id\":\"message:2\",\"through_at\":\"2026-10-19T10:05:00Z\",\"set_at\":\"2026-11-14T00:50:50.082Z\"},\"said\":\"Up to date through 2026-10-19T10:05:00Z.\"}, and kept thread-summary:Email:Email:t1."
     }
   ]
 }

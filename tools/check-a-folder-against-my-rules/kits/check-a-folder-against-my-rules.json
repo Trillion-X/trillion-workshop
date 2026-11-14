@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:check-a-folder-against-my-rules's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-a-folder-against-my-rules with rules.\" Check the source files of a project folder against rules the person wrote down, and say which files break which rule, where, and why the rule exists",
+  "drafted_from": "tool:check-a-folder-against-my-rules's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Check the source files of a project folder against rules the person wrote down, and say which files break which rule, where, and why the rule exists\", with {\"rules\":[{\"kind\":\"source-file-rule\",\"id\":\"no-fixme-marker\",\"why\":\"a fixme marker left in a file means unfinished work was shipped\",\"scope\":{\"path_matches\":\"\\\\.txt$\"},\"violation\":{\"unit\":{\"split\":\"\\\\n\"},\"forbidden\":\"FIXME\"},\"message\":\"a fixme marker\"}]}. It runs tool:check-a-folder-against-my-rules and answers {\"passed\":false,\"said\":\"1 finding(s) from 1 rule(s) over 1 file(s).\",\"rules\":1,\"files\":1,\"content_files\":1,\"scanned_from\":\"working tree: every file in the folder (it is not a git repository, or git could not list it)\",\"in_scope_untracked_judged\":0,\"in_scope_untracked_paths\":[],\"in_scope_tracked_but_gone_from_disk\":0,\"refused_paths\":[],\"dangling_paths\":[] ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:check-a-folder-against-my-rules"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-a-folder-against-my-rules\", and give it rules.",
+    "1. Say to your AI: \"Check the source files of a project folder against rules the person wrote down, and say which files break which rule, where, and why the rule exists\", and give it rules (The rules, one row each).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-folder-against-my-rules and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields passed, said, rules, files, content_files, scanned_from, violations, report."
+    "3. Read what comes back: Give rules: one row each, { kind: \"source-file-rule\", id, why, scope: { path_matches, path_excludes }, applies_when: { all | any | content_matches | content_absent }, subject: { named: \"path\" | \"text\" | \"every_path\" }, violation: { unit: { split }, forbidden, required, exempt }, message }."
   ],
   "worked_examples": [
     {
-      "title": "Check a folder's files against rules I wrote on a sample input",
-      "ask": "Run tool:check-a-folder-against-my-rules.",
+      "title": "Check a folder's files against rules I wrote on its own sample",
+      "ask": "Check the source files of a project folder against rules the person wrote down, and say which files break which rule, where, and why the rule exists",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -47,7 +47,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields passed, said, rules, files, content_files, scanned_from, violations, report."
+      "given": "The input {\"rules\":[{\"kind\":\"source-file-rule\",\"id\":\"no-fixme-marker\",\"why\":\"a fixme marker left in a file means unfinished work was shipped\",\"scope\":{\"path_matches\":\"\\\\.txt$\"},\"violation\":{\"unit\":{\"split\":\"\\\\n\"},\"forbidden\":\"FIXME\"},\"message\":\"a fixme marker\"}]}.",
+      "hands_back": "It answered {\"passed\":false,\"said\":\"1 finding(s) from 1 rule(s) over 1 file(s).\",\"rules\":1,\"files\":1,\"content_files\":1,\"scanned_from\":\"working tree: every file in the folder (it is not a git repository, or git could not list it)\",\"in_scope_untracked_judged\":0,\"in_scope_untracked_paths\":[],\"in_scope_tracked_but_gone_from_disk\":0,\"refused_paths\":[],\"dangling_paths\":[],\"rule_coverage\":[{\"rule_id\":\"no-fixme-marker\",\"scoped_files\":1,\"applicable_files\":1}],\"no_applicable_rule\":false,\"violations\":[{\"rule_id\":\"no-fixme-marker\",\"path\":\"notes/todo.txt\",\"line\":2,\"evidence\":\"FIXME the sample line\"}],\"report\":[{\"rule_id\":\"no-fixme-marker\",\"why\":\"a fixme marker left in a file means unfinished work was shipped\" ...."
     }
   ]
 }

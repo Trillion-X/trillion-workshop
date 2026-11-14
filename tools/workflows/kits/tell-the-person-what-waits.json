@@ -1,23 +1,26 @@
 {
   "draft": true,
-  "drafted_from": "workflow:tell-the-person-what-waits's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:tell-the-person-what-waits.\" At the start of a chat and after finishing work, show the person in the chat everything that only they can do (sign in somewhere, approve, pay or top up, press a button on another site, answer), each with where to do it; and keep anything this AI could not do itself in their Waiting on you list, so no AI leaves the person not knowing what it needs from them.",
+  "drafted_from": "workflow:tell-the-person-what-waits's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:tell-the-person-what-waits.\" It at the start of a chat and after finishing work, show the person in the chat everything that only they can do (sign in somewhere, approve, pay or top up, press a button on another site, answer), each with where to do it; and keep anything this AI could not do itself in their Waiting on you list, so no AI leaves the person not knowing what it needs from them.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "Its steps name no list and write no row: each step answers in the run itself.",
   "workflows": [
     "workflow:tell-the-person-what-waits"
   ],
   "tools": [
+    "tool:start-a-recipe-run",
     "tool:what-is-waiting-on-me"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:tell-the-person-what-waits\".",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:tell-the-person-what-waits) and works through its steps in order: read, add, show.",
-    "3. Read what each step hands back; the last step is show."
+    "1. Say to your AI: \"Run workflow:tell-the-person-what-waits\"; it starts it with tool:start-a-recipe-run (row workflow:tell-the-person-what-waits).",
+    "2. Read what is waiting on them.",
+    "3. Keep what only they can do.",
+    "4. Show it in the chat.",
+    "5. Read what it gives back: what step show hands back"
   ],
   "worked_examples": [
     {
-      "title": "Tell the person what is waiting on them from its first step",
+      "title": "Step read: Read what is waiting on them",
       "ask": "Run workflow:tell-the-person-what-waits.",
       "mcp": {
         "server": "trillion",
@@ -26,16 +29,33 @@
           "address": "@workshop-tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:what-is-waiting-on-me",
             "input": {
-              "row": "workflow:tell-the-person-what-waits"
+              "sources": [
+                {
+                  "id": "sample",
+                  "label": "Sample",
+                  "title": "{name}"
+                }
+              ],
+              "found": {
+                "sample": [
+                  {
+                    "id": "r1",
+                    "value": {
+                      "name": "A made-up thing"
+                    }
+                  }
+                ]
+              }
             }
           }
         }
       },
       "workflow": "workflow:tell-the-person-what-waits",
       "step": "read",
-      "hands_back": "Step read answers with sections, said."
+      "given": "The input {\"sources\":[{\"id\":\"sample\",\"label\":\"Sample\",\"title\":\"{name}\"}],\"found\":{\"sample\":[{\"id\":\"r1\",\"value\":{\"name\":\"A made-up thing\"}}]}}.",
+      "hands_back": "It answered {\"cards\":[{\"source\":\"sample\",\"label\":\"Sample\",\"id\":\"r1\",\"title\":\"A made-up thing\"}],\"sources\":[{\"id\":\"sample\",\"label\":\"Sample\",\"waiting\":1,\"skipped\":0,\"unread\":false}],\"count\":1,\"said\":\"1 thing is waiting on you.\"}."
     }
   ]
 }

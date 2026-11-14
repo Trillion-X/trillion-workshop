@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:walk-a-funnel's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:walk-a-funnel with graphs, nodes.\" Read a sales funnel's offers and see the price a buyer is shown and where an outcome such as buying or declining takes them next",
+  "drafted_from": "tool:walk-a-funnel's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Read a sales funnel's offers and see the price a buyer is shown and where an outcome such as buying or declining takes them next\", with {\"graphs\":[{\"id\":\"graph:ladder\",\"entry_node\":\"front\"}],\"nodes\":[{\"id\":\"front\",\"entry\":true,\"offer\":{\"amount_cents\":900,\"name\":\"Loaf\"},\"transitions\":[{\"on\":\"purchase\",\"to\":\"extra\"},{\"on\":\"decline\",\"to\":\"exit\"}]},{\"id\":\"extra\",\"offer\":{\"amount_cents\":400,\"name\":\"Jam\"},\"transitions\":[{\"on\":\"purchase\",\"to\":\"done\"}]}],\"at\":\"front\",\"outcome\":\"purchase\"}. It runs tool:walk-a-funnel and answers {\"flow\":{\"graph_id\":\"graph:ladder\",\"entry\":{\"id\":\"front\",\"entry\":true,\"offer\":{\"amount_cents\":900,\"name\":\"Loaf\"},\"transitions\":[{\"on\":\"purchase\",\"to\":\"extra\"},{\"on\":\"decline\",\"to\":\"exit\"}],\"display_amount_cents\":900,\"price_source\":\"node-offer\"},\"steps\":{\"front\":{\"id\":\"front\",\"entry\":true,\"offer\":{\"amount_cents\":900,\"name\":\"Loaf\"},\"transitions\":[{\"on\":\"purchase\",\"to\":\"extra\"},{\"on\":\"decline\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:walk-a-funnel"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:walk-a-funnel\", and give it graphs, nodes.",
+    "1. Say to your AI: \"Read a sales funnel's offers and see the price a buyer is shown and where an outcome such as buying or declining takes them next\", and give it graphs (funnel-graph records: { id, entry_node }); nodes (funnel-node records: { id, entry?, offer: { amount_cents, name }, transitions: [{ on, to }] }).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:walk-a-funnel and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.advance.target contains \"extra\"."
+    "3. Read what comes back: Reads the funnel records a person keeps: the funnel graph, its offer nodes (each with an offer, a price and the outcomes that move a buyer on), and the price experiments run on them."
   ],
   "worked_examples": [
     {
-      "title": "Walk a sales funnel on a sample input",
-      "ask": "Run tool:walk-a-funnel.",
+      "title": "Walk a sales funnel on its own sample",
+      "ask": "Read a sales funnel's offers and see the price a buyer is shown and where an outcome such as buying or declining takes them next",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -71,7 +71,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.advance.target contains \"extra\"."
+      "given": "The input {\"graphs\":[{\"id\":\"graph:ladder\",\"entry_node\":\"front\"}],\"nodes\":[{\"id\":\"front\",\"entry\":true,\"offer\":{\"amount_cents\":900,\"name\":\"Loaf\"},\"transitions\":[{\"on\":\"purchase\",\"to\":\"extra\"},{\"on\":\"decline\",\"to\":\"exit\"}]},{\"id\":\"extra\",\"offer\":{\"amount_cents\":400,\"name\":\"Jam\"},\"transitions\":[{\"on\":\"purchase\",\"to\":\"done\"}]}],\"at\":\"front\",\"outcome\":\"purchase\"}.",
+      "hands_back": "It answered {\"flow\":{\"graph_id\":\"graph:ladder\",\"entry\":{\"id\":\"front\",\"entry\":true,\"offer\":{\"amount_cents\":900,\"name\":\"Loaf\"},\"transitions\":[{\"on\":\"purchase\",\"to\":\"extra\"},{\"on\":\"decline\",\"to\":\"exit\"}],\"display_amount_cents\":900,\"price_source\":\"node-offer\"},\"steps\":{\"front\":{\"id\":\"front\",\"entry\":true,\"offer\":{\"amount_cents\":900,\"name\":\"Loaf\"},\"transitions\":[{\"on\":\"purchase\",\"to\":\"extra\"},{\"on\":\"decline\",\"to\":\"exit\"}],\"display_amount_cents\":900,\"price_source\":\"node-offer\"},\"extra\":{\"id\":\"extra\",\"entry\":false,\"offer\":{\"amount_cents\":400,\"name\":\"Jam\"},\"transitions\":[{\"on\":\"purchase\",\"to\":\"done\"}],\"display_amount_cents\":400,\"price_source\":\"node-offer\"}},\"order\":[\"front\",\"extra\"]},\"current\":{\"id\":\"front\" ...."
     }
   ]
 }

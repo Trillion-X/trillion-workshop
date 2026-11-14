@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:rewrite-control-bytes-as-escapes's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:rewrite-control-bytes-as-escapes with files.\" Rewrite a raw control character hiding in source files (which makes search tools skip the file as binary) as the escape that means the same character, so the file stays exactly the program it was",
+  "drafted_from": "tool:rewrite-control-bytes-as-escapes's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Rewrite a raw control character hiding in source files (which makes search tools skip the file as binary) as the escape that means the same character, so the file stays exactly the program it was\", with {\"files\":[\"src/keys.mjs\"]}. It runs tool:rewrite-control-bytes-as-escapes and answers {\"rewritten\":1,\"left_alone\":0,\"each\":[{\"path\":\"src/keys.mjs\",\"changed\":true,\"found\":1,\"codes\":[\"\\\\u0001\"]}]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:rewrite-control-bytes-as-escapes"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:rewrite-control-bytes-as-escapes\", and give it files.",
+    "1. Say to your AI: \"Rewrite a raw control character hiding in source files (which makes search tools skip the file as binary) as the escape that means the same character, so the file stays exactly the program it was\", and give it files (Paths relative to the granted folder).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:rewrite-control-bytes-as-escapes and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields rewritten, left_alone, each."
+    "3. Read what comes back: Give files: the paths, inside the folder the person granted for change, of the files to rewrite (names, never a search: finding them is the caller's job, with grep -a)."
   ],
   "worked_examples": [
     {
-      "title": "Make a raw control byte in my source files searchable again on a sample input",
-      "ask": "Run tool:rewrite-control-bytes-as-escapes.",
+      "title": "Make a raw control byte in my source files searchable again on its own sample",
+      "ask": "Rewrite a raw control character hiding in source files (which makes search tools skip the file as binary) as the escape that means the same character, so the file stays exactly the program it was",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +33,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields rewritten, left_alone, each."
+      "given": "The input {\"files\":[\"src/keys.mjs\"]}.",
+      "hands_back": "It answered {\"rewritten\":1,\"left_alone\":0,\"each\":[{\"path\":\"src/keys.mjs\",\"changed\":true,\"found\":1,\"codes\":[\"\\\\u0001\"]}]}."
     }
   ]
 }

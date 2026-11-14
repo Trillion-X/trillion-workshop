@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:suggest-connections-from-links's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:suggest-connections-from-links with text, tools.\" Offer to connect a service when words I wrote link to one I have not connected",
+  "drafted_from": "tool:suggest-connections-from-links's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Offer to connect a service when words I wrote link to one I have not connected\", with {\"text\":\"Copy the roadmap from https://www.notion.so/launch\",\"tools\":[{\"id\":\"tool:notion\",\"invoke\":{\"provider\":\"notion\",\"connects\":{\"domain\":\"notion.so\"}}}]}. It runs tool:suggest-connections-from-links and answers {\"hosts\":[\"notion.so\"],\"suggestions\":[{\"provider\":\"notion\",\"host\":\"notion.so\",\"reason\":\"Your work links to notion.so\"}]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:suggest-connections-from-links"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:suggest-connections-from-links\", and give it text, tools.",
+    "1. Say to your AI: \"Offer to connect a service when words I wrote link to one I have not connected\", and give it text; tools.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:suggest-connections-from-links and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.suggestions contains \"notion.so\"."
+    "3. Read what comes back: Give text (the words to read links from, with or without https://) and tools (the connection rows, each { id, invoke: { provider, connects: { domain } } }), and connected (providers already connected, left out of the answer)."
   ],
   "worked_examples": [
     {
-      "title": "Suggest connections from links on a sample input",
-      "ask": "Run tool:suggest-connections-from-links.",
+      "title": "Suggest connections from links on its own sample",
+      "ask": "Offer to connect a service when words I wrote link to one I have not connected",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -42,7 +42,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.suggestions contains \"notion.so\"."
+      "given": "The input {\"text\":\"Copy the roadmap from https://www.notion.so/launch\",\"tools\":[{\"id\":\"tool:notion\",\"invoke\":{\"provider\":\"notion\",\"connects\":{\"domain\":\"notion.so\"}}}]}.",
+      "hands_back": "It answered {\"hosts\":[\"notion.so\"],\"suggestions\":[{\"provider\":\"notion\",\"host\":\"notion.so\",\"reason\":\"Your work links to notion.so\"}]}."
     }
   ]
 }

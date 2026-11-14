@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:cut-a-hostname-over-to-a-new-address's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:cut-a-hostname-over-to-a-new-address with action, cutover, hostname, address.\" Point one exact hostname of mine at a new server's address, keeping every other DNS record and route, and roll it back if I ask",
+  "drafted_from": "tool:cut-a-hostname-over-to-a-new-address's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Point one exact hostname of mine at a new server's address, keeping every other DNS record and route, and roll it back if I ask\", with {\"action\":\"prepare\",\"cutover\":\"dns-cutover-door-two\",\"hostname\":\"door.example.com\",\"address\":\"198.51.100.24\"}. It runs tool:cut-a-hostname-over-to-a-new-address and answers {\"state\":\"prepared\",\"hostname\":\"door.example.com\",\"address\":\"198.51.100.24\",\"mode\":\"record\",\"original\":{\"id\":\"a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1\",\"name\":\"door.example.com\",\"type\":\"A\",\"content\":\"192.0.2.10\",\"proxiable\":true,\"proxied\":false,\"ttl\":300,\"settings\":{},\"meta\":{},\"comment\":null,\"tags\":[],\"created_on\":\"2025-06-01T09:00:00.000000Z\",\"modified_on\":\"2025-06-01T09:00:00.000000Z\"},\"current\":null ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:service-connection, record:public-door-receipt) through the records door.",
   "workflows": [],
   "tools": [
     "tool:cut-a-hostname-over-to-a-new-address"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:cut-a-hostname-over-to-a-new-address\", and give it action, cutover, hostname, address.",
+    "1. Say to your AI: \"Point one exact hostname of mine at a new server's address, keeping every other DNS record and route, and roll it back if I ask\", and give it action; cutover; hostname; address (The new server's public IPv4.).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:cut-a-hostname-over-to-a-new-address and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.state contains \"prepared\"."
+    "3. Read what comes back: Through the DNS row of the person's Service connections list (the current door's, unless `dns_provider` names one): `prepare` reads the zone and keeps a receipt under `cutover` in their Public door receipts list with the one address record or production Worker domain that `hostname` holds now; `activate` points it at `address` and reads it back; `rollback` puts back what prepare read; `status` answers where the cutover stands without asking the provider.",
+    "4. It reads and writes only its own rows through the records door: record:service-connection (records:list); record:public-door-receipt (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Cut a hostname over to a new address on a sample input",
-      "ask": "Run tool:cut-a-hostname-over-to-a-new-address.",
+      "title": "Cut a hostname over to a new address on its own sample",
+      "ask": "Point one exact hostname of mine at a new server's address, keeping every other DNS record and route, and roll it back if I ask",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -34,7 +35,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.state contains \"prepared\"."
+      "given": "The input {\"action\":\"prepare\",\"cutover\":\"dns-cutover-door-two\",\"hostname\":\"door.example.com\",\"address\":\"198.51.100.24\"}, with 2 example rows (record:service-connection) already kept, the web answering from 5 recorded replies.",
+      "hands_back": "It answered {\"state\":\"prepared\",\"hostname\":\"door.example.com\",\"address\":\"198.51.100.24\",\"mode\":\"record\",\"original\":{\"id\":\"a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1\",\"name\":\"door.example.com\",\"type\":\"A\",\"content\":\"192.0.2.10\",\"proxiable\":true,\"proxied\":false,\"ttl\":300,\"settings\":{},\"meta\":{},\"comment\":null,\"tags\":[],\"created_on\":\"2025-06-01T09:00:00.000000Z\",\"modified_on\":\"2025-06-01T09:00:00.000000Z\"},\"current\":null,\"worker_routes_preserved\":1}, and kept record:public-door-receipt:dns-cutover-door-two."
     }
   ]
 }

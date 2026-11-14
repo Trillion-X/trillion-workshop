@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:view-a-poker-table-for-a-player's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:view-a-poker-table-for-a-player with room.\" Show a poker table as one player may see it: the board, the pot, each seat, what that player may do now and only that player's own cards",
+  "drafted_from": "tool:view-a-poker-table-for-a-player's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Show a poker table as one player may see it: the board, the pot, each seat, what that player may do now and only that player's own cards\", with {\"room\":{\"kind\":\"poker-room-state\",\"version\":1,\"roomId\":\"room:sample\",\"board\":[],\"config\":{\"startingChips\":100,\"smallBlind\":5,\"bigBlind\":10,\"blindMode\":\"fixed\",\"blindIncrease\":0,\"maxPlayers\":9},\"handNumber\":0,\"holeCards\":{},\"hostPlayerId\":\"player-1\",\"state\":{\"phase\":\"lobby\",\"config\":{\"startingChips\":100,\"smallBlind\":5,\"bigBlind\":10,\"blindMode\":\"fixed\",\"blindIncrease\":0,\"maxPlayers\":9} .... It runs tool:view-a-poker-table-for-a-player and answers {\"roomId\":\"room:sample\",\"phase\":\"lobby\",\"street\":\"preflop\",\"handNumber\":0,\"pot\":0,\"currentBet\":0,\"minRaise\":10,\"smallBlind\":5,\"bigBlind\":10,\"communityCards\":[],\"nextStreetLabel\":\"Deal flop\",\"seats\":[{\"id\":\"player-1\",\"name\":\"Alder\",\"chips\":100,\"currentBet\":0,\"roles\":[],\"isActive\":false,\"folded\":false,\"allIn\":false,\"eliminated\":false,\"connected\":true}],\"controls\":[{\"action\":\"fold\",\"label\":\"Fold\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:view-a-poker-table-for-a-player"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:view-a-poker-table-for-a-player\", and give it room.",
+    "1. Say to your AI: \"Show a poker table as one player may see it: the board, the pot, each seat, what that player may do now and only that player's own cards\", and give it room (The table's saved state).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:view-a-poker-table-for-a-player and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.phase contains \"lobby\"."
+    "3. Read what comes back: Give a saved table (the room run-a-poker-table returned) and, optionally, the id of the player looking."
   ],
   "worked_examples": [
     {
-      "title": "See a poker table as one player may see it on a sample input",
-      "ask": "Run tool:view-a-poker-table-for-a-player.",
+      "title": "See a poker table as one player may see it on its own sample",
+      "ask": "Show a poker table as one player may see it: the board, the pot, each seat, what that player may do now and only that player's own cards",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -87,7 +87,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.phase contains \"lobby\"."
+      "given": "The input {\"room\":{\"kind\":\"poker-room-state\",\"version\":1,\"roomId\":\"room:sample\",\"board\":[],\"config\":{\"startingChips\":100,\"smallBlind\":5,\"bigBlind\":10,\"blindMode\":\"fixed\",\"blindIncrease\":0,\"maxPlayers\":9},\"handNumber\":0,\"holeCards\":{},\"hostPlayerId\":\"player-1\",\"state\":{\"phase\":\"lobby\",\"config\":{\"startingChips\":100,\"smallBlind\":5,\"bigBlind\":10,\"blindMode\":\"fixed\",\"blindIncrease\":0,\"maxPlayers\":9} ....",
+      "hands_back": "It answered {\"roomId\":\"room:sample\",\"phase\":\"lobby\",\"street\":\"preflop\",\"handNumber\":0,\"pot\":0,\"currentBet\":0,\"minRaise\":10,\"smallBlind\":5,\"bigBlind\":10,\"communityCards\":[],\"nextStreetLabel\":\"Deal flop\",\"seats\":[{\"id\":\"player-1\",\"name\":\"Alder\",\"chips\":100,\"currentBet\":0,\"roles\":[],\"isActive\":false,\"folded\":false,\"allIn\":false,\"eliminated\":false,\"connected\":true}],\"controls\":[{\"action\":\"fold\",\"label\":\"Fold\",\"enabled\":false},{\"action\":\"checkCall\",\"label\":\"Check\",\"enabled\":false,\"amountRequired\":0},{\"action\":\"raise\",\"label\":\"Raise\",\"enabled\":false,\"minAmount\":10},{\"action\":\"allIn\",\"label\":\"All In\",\"enabled\":false}],\"privateHand\":{\"ownerId\":\"player-1\",\"cards\":[]},\"publicHoleCards\":{},\"revealedPlayerIds\":[] ...."
     }
   ]
 }

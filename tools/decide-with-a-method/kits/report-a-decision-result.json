@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:report-a-decision-result's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:report-a-decision-result with decision_id, result, summary, answered_by.\" Tell Trillion how a decision actually turned out, in my words",
+  "drafted_from": "tool:report-a-decision-result's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Tell Trillion how a decision actually turned out, in my words\", with {\"decision_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"result\":\"met\",\"summary\":\"Twelve made-up families signed up\",\"answered_by\":\"person\"}. It runs tool:report-a-decision-result and answers {\"case_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"report\":{\"result\":\"met\",\"summary\":\"Twelve made-up families signed up\",\"answered_by\":\"person\",\"reported_for\":\"person\",\"attribution_basis\":\"caller_claim\",\"source_ref\":\"report:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:1:1\",\"observed_at\":\"2026-11-14T00:50:19.967Z\",\"reported_at\":\"2026-11-14T00:50:19.967Z\",\"decision_generation\":1,\"outcome_revision\":1} ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (decision, decision-revision, decision-step, decision-call, decision-evidence, decision-answered-step, decision-option, decision-candidate, decision-report, decision-carried-out, decision-history, decision-cited-pursuit, decision-method, decision-part, decision-refs, pursuit, record:check, record:decision-kind) through the records door.",
   "workflows": [],
   "tools": [
     "tool:report-a-decision-result"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:report-a-decision-result\", and give it decision_id, result, summary, answered_by.",
+    "1. Say to your AI: \"Tell Trillion how a decision actually turned out, in my words\", and give it decision_id; result; summary; answered_by.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:report-a-decision-result and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields case_id."
+    "3. Read what comes back: Keeps the person's result of a decided decision: result (met, failed or unknown), summary, answered_by \"person\" (ask them).",
+    "4. It reads and writes only its own rows through the records door: decision (records:read, records:list, records:write); decision-revision (records:read, records:write); decision-step (records:read, records:write); decision-call (records:write); decision-evidence (records:read, records:list, records:write); decision-answered-step (records:read, records:list, records:write); decision-option (records:read, records:list, records:write); decision-candidate (records:read, records:list, records:write); decision-report (records:read, records:list, records:write); decision-carried-out (records:read, records:list, records:write); decision-history (records:read, records:list, records:write); decision-cited-pursuit (records:read, records:list, records:write); decision-method (records:read, records:write); decision-part (records:read, records:write); decision-refs (records:read, records:write); pursuit (records:read, records:list); record:check (records:list); record:decision-kind (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Report how a decision turned out on a sample input",
-      "ask": "Run tool:report-a-decision-result.",
+      "title": "Report how a decision turned out on its own sample",
+      "ask": "Tell Trillion how a decision actually turned out, in my words",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -34,7 +35,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields case_id."
+      "given": "The input {\"decision_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"result\":\"met\",\"summary\":\"Twelve made-up families signed up\",\"answered_by\":\"person\"}, with 14 example rows (record:check, record:method-check, decision, decision-evidence, decision-method, decision-step, decision-answered-step) already kept.",
+      "hands_back": "It answered {\"case_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"report\":{\"result\":\"met\",\"summary\":\"Twelve made-up families signed up\",\"answered_by\":\"person\",\"reported_for\":\"person\",\"attribution_basis\":\"caller_claim\",\"source_ref\":\"report:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:1:1\",\"observed_at\":\"2026-11-14T00:50:19.967Z\",\"reported_at\":\"2026-11-14T00:50:19.967Z\",\"decision_generation\":1,\"outcome_revision\":1},\"reports\":1,\"status\":\"needs_outcome\"}, and kept decision-revision:source:c2FtcGxlOmNsYXNzLXByaWNlLTE, decision-refs:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:c1f:fcf248a17e4892a97599a6cdf178720880d8338e6d7168fba31a8161f4e2c5c4, decision-report:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:0000:c1f:0be72dcd91be0badf2e47536630eec92392566c456d33426b00522ab7084b9aa."
     }
   ]
 }

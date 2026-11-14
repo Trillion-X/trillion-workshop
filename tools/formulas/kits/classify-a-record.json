@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:classify-a-record's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:classify-a-record with facts, rules, record.\" Give a record the label of the first of my rules that holds: each rule has clauses over facts read from the record (is present, is absent, at least, at most, equals), and I get the rule's key, label, tone and severity, or none",
+  "drafted_from": "tool:classify-a-record's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Give a record the label of the first of my rules that holds: each rule has clauses over facts read from the record (is present, is absent, at least, at most, equals), and I get the rule's key, label, tone and severity, or none\", with {\"facts\":[{\"key\":\"collected\",\"path\":[\"collected_at\"],\"as\":\"present\"},{\"key\":\"waiting\",\"path\":[\"ordered_at\"],\"as\":\"age-seconds\"}],\"rules\":[{\"key\":\"forgotten\",\"label\":\"Forgotten order\",\"tone\":\"alarm\",\"requires\":[{\"fact\":\"collected\",\"op\":\"absent\"},{\"fact\":\"waiting\",\"op\":\"gte\",\"value\":1800}]},{\"key\":\"done\",\"label\":\"Collected\",\"requires\":[{\"fact\":\"collected\",\"op\":\"present\"}]}] .... It runs tool:classify-a-record and answers {\"result\":{\"key\":\"forgotten\",\"label\":\"Forgotten order\",\"tone\":\"alarm\",\"severity\":null}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:classify-a-record"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:classify-a-record\", and give it facts, rules, record.",
+    "1. Say to your AI: \"Give a record the label of the first of my rules that holds: each rule has clauses over facts read from the record (is present, is absent, at least, at most, equals), and I get the rule's key, label, tone and severity, or none\", and give it facts; rules; record.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:classify-a-record and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result.label contains \"Forgotten order\"."
+    "3. Read what comes back: Takes a record, the facts to read from it (a key, a path, and how to read it: present, as a number, as an age in seconds up to now_ms, or as it is) and rules in order (a key, a label, an optional tone and severity, and clauses over facts)."
   ],
   "worked_examples": [
     {
-      "title": "Give a record the label of the first rule it meets on a sample input",
-      "ask": "Run tool:classify-a-record.",
+      "title": "Give a record the label of the first rule it meets on its own sample",
+      "ask": "Give a record the label of the first of my rules that holds: each rule has clauses over facts read from the record (is present, is absent, at least, at most, equals), and I get the rule's key, label, tone and severity, or none",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -78,7 +78,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result.label contains \"Forgotten order\"."
+      "given": "The input {\"facts\":[{\"key\":\"collected\",\"path\":[\"collected_at\"],\"as\":\"present\"},{\"key\":\"waiting\",\"path\":[\"ordered_at\"],\"as\":\"age-seconds\"}],\"rules\":[{\"key\":\"forgotten\",\"label\":\"Forgotten order\",\"tone\":\"alarm\",\"requires\":[{\"fact\":\"collected\",\"op\":\"absent\"},{\"fact\":\"waiting\",\"op\":\"gte\",\"value\":1800}]},{\"key\":\"done\",\"label\":\"Collected\",\"requires\":[{\"fact\":\"collected\",\"op\":\"present\"}]}] ....",
+      "hands_back": "It answered {\"result\":{\"key\":\"forgotten\",\"label\":\"Forgotten order\",\"tone\":\"alarm\",\"severity\":null}}."
     }
   ]
 }

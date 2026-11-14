@@ -1,23 +1,24 @@
 {
   "draft": true,
-  "drafted_from": "tool:start-a-steps-agents's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:start-a-steps-agents with run, step.\" When a step of a recipe run says it has several agents, start that many jobs for it in my own records, each with its own lane, so each lane is done by its own AI",
+  "drafted_from": "tool:start-a-steps-agents's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"When a step of a recipe run says it has several agents, start that many jobs for it in my own records, each with its own lane, so each lane is done by its own AI\", with {\"run\":\"ai-job:workflow:sample-dig:k1\",\"step\":\"dig\"}. It runs tool:start-a-steps-agents and answers {\"jobs\":[\"ai-job:workflow:sample-dig:k1:dig:dig-1\",\"ai-job:workflow:sample-dig:k1:dig:dig-2\"],\"status\":\"written\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (ai-job) through the records door.",
   "workflows": [],
   "tools": [
     "tool:start-a-steps-agents",
     "tool:start-a-recipe-run"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:start-a-steps-agents\", and give it run, step.",
+    "1. Say to your AI: \"When a step of a recipe run says it has several agents, start that many jobs for it in my own records, each with its own lane, so each lane is done by its own AI\", and give it run (The id of the run's ai-job (ai-job:<recipe id>:<request key>)); step (The id of the step in that run whose agents to start).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:start-a-steps-agents and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields jobs, status."
+    "3. Read what comes back: Reads the run (the ai-job tool:start-a-recipe-run wrote) and its step, whose own row says how many agents run it (agents, one whole number, 1 when left out) and may name the lanes (lanes).",
+    "4. It reads and writes only its own rows through the records door: ai-job (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Start the agents of one step of a recipe run: one waiting job per lane on a sample input",
-      "ask": "Run tool:start-a-steps-agents.",
+      "title": "Start the agents of one step of a recipe run: one waiting job per lane on its own sample",
+      "ask": "When a step of a recipe run says it has several agents, start that many jobs for it in my own records, each with its own lane, so each lane is done by its own AI",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +34,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields jobs, status."
+      "given": "The input {\"run\":\"ai-job:workflow:sample-dig:k1\",\"step\":\"dig\"}, with 1 example row (ai-job) already kept.",
+      "hands_back": "It answered {\"jobs\":[\"ai-job:workflow:sample-dig:k1:dig:dig-1\",\"ai-job:workflow:sample-dig:k1:dig:dig-2\"],\"status\":\"written\"}, and kept ai-job:workflow:sample-dig:k1:dig:dig-2, ai-job:workflow:sample-dig:k1:dig:dig-1."
     }
   ]
 }

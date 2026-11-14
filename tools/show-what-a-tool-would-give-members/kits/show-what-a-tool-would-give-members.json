@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:show-what-a-tool-would-give-members's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:show-what-a-tool-would-give-members with descriptor, members, held.\" Before I add a tool for my space's members, tell me what it would give each member beyond what they already hold, what it reaches or could cost, and whether I must decide it myself",
+  "drafted_from": "tool:show-what-a-tool-would-give-members's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Before I add a tool for my space's members, tell me what it would give each member beyond what they already hold, what it reaches or could cost, and whether I must decide it myself\", with {\"descriptor\":{\"id\":\"tool:proof\",\"placements\":[\"placement:your-computer\"],\"needs\":{\"network_egress\":true}},\"toolVersion\":\"v-sample\",\"members\":[{\"member_id\":\"relay:ben\",\"name\":\"Ben\"}],\"held\":{\"relay:ben\":[\"discover\",\"describe\"]}}. It runs tool:show-what-a-tool-would-give-members and answers {\"tool_id\":\"tool:proof\",\"tool_version\":\"v-sample\",\"operations\":[\"discover\",\"describe\",\"run\",\"read\"],\"everyone\":true,\"members\":[{\"member_id\":\"relay:ben\",\"name\":\"Ben\",\"gains\":[\"run\",\"read\"],\"already\":[\"discover\",\"describe\"]}],\"reaches\":[{\"id\":\"runs-on-your-computer\",\"says\":\"It runs on a member's own computer.\",\"decided_by\":\"owner\"},{\"id\":\"sends-off-the-device\",\"says\":\"It sends what it is given off ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:show-what-a-tool-would-give-members"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:show-what-a-tool-would-give-members\", and give it descriptor, members, held.",
+    "1. Say to your AI: \"Before I add a tool for my space's members, tell me what it would give each member beyond what they already hold, what it reaches or could cost, and whether I must decide it myself\", and give it descriptor; members; held.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:show-what-a-tool-would-give-members and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.says contains \"You decide this one yourself\"."
+    "3. Read what comes back: Give descriptor (the tool's row: id, placements, needs, price_ref...), toolVersion (the content identity of that definition, so exactly one immutable version is judged), members ([{ member_id, name }]), held ({ member_id: [operations their grants already give] }), and when wanted operations (some of discover, describe, run, read; all when left out) and memberId (one member; * for everyone now and later)."
   ],
   "worked_examples": [
     {
-      "title": "Show what a tool would give members on a sample input",
-      "ask": "Run tool:show-what-a-tool-would-give-members.",
+      "title": "Show what a tool would give members on its own sample",
+      "ask": "Before I add a tool for my space's members, tell me what it would give each member beyond what they already hold, what it reaches or could cost, and whether I must decide it myself",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -52,7 +52,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.says contains \"You decide this one yourself\"."
+      "given": "The input {\"descriptor\":{\"id\":\"tool:proof\",\"placements\":[\"placement:your-computer\"],\"needs\":{\"network_egress\":true}},\"toolVersion\":\"v-sample\",\"members\":[{\"member_id\":\"relay:ben\",\"name\":\"Ben\"}],\"held\":{\"relay:ben\":[\"discover\",\"describe\"]}}.",
+      "hands_back": "It answered {\"tool_id\":\"tool:proof\",\"tool_version\":\"v-sample\",\"operations\":[\"discover\",\"describe\",\"run\",\"read\"],\"everyone\":true,\"members\":[{\"member_id\":\"relay:ben\",\"name\":\"Ben\",\"gains\":[\"run\",\"read\"],\"already\":[\"discover\",\"describe\"]}],\"reaches\":[{\"id\":\"runs-on-your-computer\",\"says\":\"It runs on a member's own computer.\",\"decided_by\":\"owner\"},{\"id\":\"sends-off-the-device\",\"says\":\"It sends what it is given off the member's device.\",\"decided_by\":\"owner\"}],\"needs_owner\":true,\"says\":[\"You decide this one yourself: It runs on a member's own computer. It sends what it is given off the member's device.\",\"It also reaches whoever joins later.\"]}."
     }
   ]
 }

@@ -1,23 +1,24 @@
 {
   "draft": true,
-  "drafted_from": "tool:pull-my-signal-messages's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:pull-my-signal-messages with self_id, conversations.\" Pull the Signal conversations my client printed into my own records",
+  "drafted_from": "tool:pull-my-signal-messages's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Pull the Signal conversations my client printed into my own records\", with {\"account\":\"sample\",\"self_id\":\"sample-self\",\"conversations\":[{\"id\":\"sample-conversation-1\",\"name\":\"Made Up Friend\",\"type\":\"private\",\"messages\":[{\"id\":\"sample-message-1\",\"timestamp\":1793534400000,\"from\":\"sample-self\",\"body\":\"Does Thursday work?\"},{\"id\":\"sample-message-2\",\"timestamp\":1793534700000,\"from\":\"made-up-friend\",\"body\":\"Sounds good.\"}]}]}. It runs tool:pull-my-signal-messages and answers {\"source\":\"signal\",\"account\":\"sample\",\"self_id\":\"sample-self\",\"threads\":1,\"items\":0,\"new_messages\":2,\"new_items\":0,\"cursor\":1793534700000,\"errors\":[],\"skipped\":[],\"status\":\"pulled\",\"said\":\"Pulled 2 new messages in 1 conversations from Signal.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (account-snapshot-part) through the records door.",
   "workflows": [],
   "tools": [
     "tool:pull-my-signal-messages",
     "tool:read-what-i-pulled-from-an-account"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:pull-my-signal-messages\", and give it self_id, conversations.",
+    "1. Say to your AI: \"Pull the Signal conversations my client printed into my own records\", and give it self_id (The identity Signal knows this account by.); conversations (What the person's Signal client printed: a list of conversations, each { id, name?, type?, messages: [{ id?, timestamp (epoch milliseconds), from, body?, editedTimestamp?, type?).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:pull-my-signal-messages and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields source, account, status, self_id, threads, items, new_messages, new_items."
+    "3. Read what comes back: Keeps the conversations a Signal client on your computer printed (signal-cli output, handed in as conversations) as conversations in your records, with who the account is (self_id).",
+    "4. It reads and writes only its own rows through the records door: account-snapshot-part (records:list, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Pull the Signal conversations my client printed into my own records on a sample input",
-      "ask": "Run tool:pull-my-signal-messages.",
+      "title": "Pull the Signal conversations my client printed into my own records on its own sample",
+      "ask": "Pull the Signal conversations my client printed into my own records",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -54,7 +55,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields source, account, status, self_id, threads, items, new_messages, new_items."
+      "given": "The input {\"account\":\"sample\",\"self_id\":\"sample-self\",\"conversations\":[{\"id\":\"sample-conversation-1\",\"name\":\"Made Up Friend\",\"type\":\"private\",\"messages\":[{\"id\":\"sample-message-1\",\"timestamp\":1793534400000,\"from\":\"sample-self\",\"body\":\"Does Thursday work?\"},{\"id\":\"sample-message-2\",\"timestamp\":1793534700000,\"from\":\"made-up-friend\",\"body\":\"Sounds good.\"}]}]}.",
+      "hands_back": "It answered {\"source\":\"signal\",\"account\":\"sample\",\"self_id\":\"sample-self\",\"threads\":1,\"items\":0,\"new_messages\":2,\"new_items\":0,\"cursor\":1793534700000,\"errors\":[],\"skipped\":[],\"status\":\"pulled\",\"said\":\"Pulled 2 new messages in 1 conversations from Signal.\"}, and kept account-snapshot:signal:sample:thread:sample-conversation-1, account-snapshot:signal:sample:state."
     }
   ]
 }

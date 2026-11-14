@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:manage-usage-pricing's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:manage-usage-pricing with action.\" Read, list, set, supersede, retire or delete my resource pricing rules, with effective dates, resource, plan and client overrides, without changing purchased terms",
+  "drafted_from": "tool:manage-usage-pricing's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Read, list, set, supersede, retire or delete my resource pricing rules, with effective dates, resource, plan and client overrides, without changing purchased terms\", with {\"action\":\"save\",\"rule_id\":\"rule:sample\",\"request_key\":\"sample-save-rule\",\"expected_version\":0,\"rule\":{\"scope\":{},\"effective_at\":\"2026-01-01T00:00:00Z\",\"markup_bps\":\"3000\"}}. It runs tool:manage-usage-pricing and answers {\"record_id\":\"usage-pricing-rule:rule%3Asample\",\"rule\":{\"scope\":{},\"effective_at\":\"2026-01-01T00:00:00Z\",\"markup_bps\":\"3000\",\"id\":\"rule:sample\",\"version\":1,\"version_ref\":\"usage-pricing-rule:rule%3Asample:v1\",\"state\":\"active\",\"markup_percent\":\"30\"}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (usage-pricing-rule, usage-pricing-rule-version, resource-usage-observation, resource-usage-settlement, resource-usage-settlement-version, resource-usage-receipt, resource-usage-allocation, resource-usage-settlement-evidence) through the records door.",
   "workflows": [],
   "tools": [
     "tool:manage-usage-pricing"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:manage-usage-pricing\", and give it action.",
+    "1. Say to your AI: \"Read, list, set, supersede, retire or delete my resource pricing rules, with effective dates, resource, plan and client overrides, without changing purchased terms\", and give it action.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:manage-usage-pricing and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields record_id, rule, rules, next."
+    "3. Read what comes back: Read, list, set, supersede, retire or delete my resource pricing rules, with effective dates, resource, plan and client overrides, without changing purchased terms",
+    "4. It reads and writes only its own rows through the records door: usage-pricing-rule (records:read, records:list, records:write); usage-pricing-rule-version (records:read, records:list, records:write); resource-usage-observation (records:read, records:list, records:write); resource-usage-settlement (records:read, records:list, records:write); resource-usage-settlement-version (records:read, records:list, records:write); resource-usage-receipt (records:read, records:list, records:write); resource-usage-allocation (records:read, records:list, records:write); resource-usage-settlement-evidence (records:read, records:list, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Manage usage pricing on a sample input",
-      "ask": "Run tool:manage-usage-pricing.",
+      "title": "Manage usage pricing on its own sample",
+      "ask": "Read, list, set, supersede, retire or delete my resource pricing rules, with effective dates, resource, plan and client overrides, without changing purchased terms",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -39,7 +40,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields record_id, rule, rules, next."
+      "given": "The input {\"action\":\"save\",\"rule_id\":\"rule:sample\",\"request_key\":\"sample-save-rule\",\"expected_version\":0,\"rule\":{\"scope\":{},\"effective_at\":\"2026-01-01T00:00:00Z\",\"markup_bps\":\"3000\"}}.",
+      "hands_back": "It answered {\"record_id\":\"usage-pricing-rule:rule%3Asample\",\"rule\":{\"scope\":{},\"effective_at\":\"2026-01-01T00:00:00Z\",\"markup_bps\":\"3000\",\"id\":\"rule:sample\",\"version\":1,\"version_ref\":\"usage-pricing-rule:rule%3Asample:v1\",\"state\":\"active\",\"markup_percent\":\"30\"}}, and kept usage-pricing-rule:rule%3Asample, usage-pricing-rule:rule%3Asample:v1, resource-usage-receipt:1f:aa516934ffdfdbdb435d9443bf75c6db62a511f12c1f618621d8c929f2e75b5c."
     }
   ]
 }

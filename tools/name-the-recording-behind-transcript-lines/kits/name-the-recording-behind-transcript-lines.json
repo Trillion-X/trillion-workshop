@@ -1,7 +1,7 @@
 {
   "draft": true,
-  "drafted_from": "tool:name-the-recording-behind-transcript-lines's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:name-the-recording-behind-transcript-lines with ranges.\" Tell me which of my recordings a passage of my transcript archive comes from, given the line numbers it was cited by",
+  "drafted_from": "tool:name-the-recording-behind-transcript-lines's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Tell me which of my recordings a passage of my transcript archive comes from, given the line numbers it was cited by\", with {\"archive\":\"archive.json\",\"ranges\":[\"150-160\",\"999-1000\"]}. It runs tool:name-the-recording-behind-transcript-lines and answers {\"archive\":\"/granted-u2u6kk/archive.json\",\"matches\":[{\"range\":\"150-160\",\"id\":\"w-002\",\"recording\":\"Sample interview two\",\"start_line\":101,\"end_line\":200,\"first_words\":\"Second window opens here.\"}],\"not_found\":[\"999-1000\"]}",
   "lists": [
     {
       "list": "list:settings",
@@ -108,20 +108,20 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
     "tool:name-the-recording-behind-transcript-lines"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:name-the-recording-behind-transcript-lines\", and give it ranges.",
+    "1. Say to your AI: \"Tell me which of my recordings a passage of my transcript archive comes from, given the line numbers it was cited by\", and give it ranges (Line ranges, first-last: a list, or one string with spaces between them.).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:name-the-recording-behind-transcript-lines and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields archive, matches, not_found, settings_from."
+    "3. Read what comes back: Reads an archive index the person let this tool read (a JSON list of windows, each with an id, the recording's title, the first and last line it covers and its text) and, for each line range given, lists every window that overlaps it: the window id, the recording's title, the window's line span and its first words.",
+    "4. It reads and writes only its own rows through the records door: record:setting (records:read)."
   ],
   "worked_examples": [
     {
-      "title": "Find which recording a cited passage of my transcript archive comes from on a sample input",
-      "ask": "Run tool:name-the-recording-behind-transcript-lines.",
+      "title": "Find which recording a cited passage of my transcript archive comes from on its own sample",
+      "ask": "Tell me which of my recordings a passage of my transcript archive comes from, given the line numbers it was cited by",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -140,7 +140,29 @@
           }
         }
       },
-      "hands_back": "An answer with the fields archive, matches, not_found, settings_from."
+      "given": "The input {\"archive\":\"archive.json\",\"ranges\":[\"150-160\",\"999-1000\"]}.",
+      "hands_back": "It answered {\"archive\":\"/granted-u2u6kk/archive.json\",\"matches\":[{\"range\":\"150-160\",\"id\":\"w-002\",\"recording\":\"Sample interview two\",\"start_line\":101,\"end_line\":200,\"first_words\":\"Second window opens here.\"}],\"not_found\":[\"999-1000\"]}."
+    },
+    {
+      "title": "Find which recording a cited passage of my transcript archive comes from on its own sample",
+      "ask": "Tell me which of my recordings a passage of my transcript archive comes from, given the line numbers it was cited by",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:name-the-recording-behind-transcript-lines",
+            "input": {
+              "ranges": "10-20",
+              "settings_record": "record:setting:name-the-recording-behind-transcript-lines~film~sample-film"
+            }
+          }
+        }
+      },
+      "given": "The input {\"ranges\":\"10-20\",\"settings_record\":\"record:setting:name-the-recording-behind-transcript-lines~film~sample-film\"}, with 1 example row (record:setting) already kept.",
+      "hands_back": "It answered {\"archive\":\"/granted-Mz3L08/film/archive.json\",\"matches\":[{\"range\":\"10-20\",\"id\":\"w-001\",\"recording\":\"Sample interview one\",\"start_line\":1,\"end_line\":100,\"first_words\":\"The first words of window one.\"}],\"not_found\":[],\"settings_from\":{\"id\":\"record:setting:name-the-recording-behind-transcript-lines~film~sample-film\",\"from\":\"made up for this sample\"}}."
     }
   ],
   "pour": {

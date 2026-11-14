@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:calibrate-a-camera-frame's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:calibrate-a-camera-frame with min_confidence.\" Calibrate a camera's view of a court, table or screen once from four corners, so every later point is measured in that frame",
+  "drafted_from": "tool:calibrate-a-camera-frame's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Calibrate a camera's view of a court, table or screen once from four corners, so every later point is measured in that frame\", with {\"min_confidence\":0.8,\"detected\":{\"corners\":[[100,50],[500,80],[540,400],[60,380]],\"confidence\":0.95},\"points\":[[100,50]]}. It runs tool:calibrate-a-camera-frame and answers {\"state\":\"calibrated\",\"source\":\"auto\",\"confidence\":0.95,\"h\":[0.002415578823559963,0.0002927974331587834,-0.25619775401393546,-0.0002757098857977818,0.003676131810637091,-0.15623560195207636,-0.0001480900621827622,0.000613256043876624,1],\"failures\":[],\"points\":[[0,0]]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:calibrate-a-camera-frame"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:calibrate-a-camera-frame\", and give it min_confidence.",
+    "1. Say to your AI: \"Calibrate a camera's view of a court, table or screen once from four corners, so every later point is measured in that frame\", and give it min_confidence.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:calibrate-a-camera-frame and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.source contains \"auto\"."
+    "3. Read what comes back: Give min_confidence (the floor an automatic result must reach) and detected ({ corners: four [x, y] in the order top-left, top-right, bottom-right, bottom-left, confidence }) as a corner detector gave it, or null; manual_corners (four [x, y] from a guided manual adjustment) are used when the automatic result is missing, too unsure or unusable."
   ],
   "worked_examples": [
     {
-      "title": "Calibrate a camera frame on a sample input",
-      "ask": "Run tool:calibrate-a-camera-frame.",
+      "title": "Calibrate a camera frame on its own sample",
+      "ask": "Calibrate a camera's view of a court, table or screen once from four corners, so every later point is measured in that frame",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -58,7 +58,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.source contains \"auto\"."
+      "given": "The input {\"min_confidence\":0.8,\"detected\":{\"corners\":[[100,50],[500,80],[540,400],[60,380]],\"confidence\":0.95},\"points\":[[100,50]]}.",
+      "hands_back": "It answered {\"state\":\"calibrated\",\"source\":\"auto\",\"confidence\":0.95,\"h\":[0.002415578823559963,0.0002927974331587834,-0.25619775401393546,-0.0002757098857977818,0.003676131810637091,-0.15623560195207636,-0.0001480900621827622,0.000613256043876624,1],\"failures\":[],\"points\":[[0,0]]}."
     }
   ]
 }

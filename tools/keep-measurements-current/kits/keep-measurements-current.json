@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:keep-measurements-current's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:keep-measurements-current with action.\" Discover operation catalogs, source revisions and execution receipts, then return current neutral measurement observations and forecast coverage",
+  "drafted_from": "tool:keep-measurements-current's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Discover operation catalogs, source revisions and execution receipts, then return current neutral measurement observations and forecast coverage\", with {\"action\":\"read_source_config\"}. It runs tool:keep-measurements-current and answers {\"schema\":\"measurement-source-config/1\",\"source_roots\":[{\"id\":\"workshop\",\"path\":\"/made-up/source\"}],\"receipt_roots\":[{\"id\":\"workshop\",\"path\":\"/made-up/receipts\",\"source_id\":\"workshop\"}],\"meter_book\":{\"path\":\"meter-definitions.json\"},\"price_book\":{\"source_tool\":\"tool:refresh-provider-prices\"}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (measurement_source_config) through the records door.",
   "workflows": [],
   "tools": [
     "tool:keep-measurements-current"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:keep-measurements-current\", and give it action.",
+    "1. Say to your AI: \"Discover operation catalogs, source revisions and execution receipts, then return current neutral measurement observations and forecast coverage\", and give it action.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:keep-measurements-current and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Discover operation catalogs, source revisions and execution receipts, then return current neutral measurement observations and forecast coverage"
+    "3. Read what comes back: Reads the configured measurement_source_config account record through the records door, resolves bounded source and receipt roots plus the configured meter book, and collects with a freshly returned provider-qualified price book.",
+    "4. It reads and writes only its own rows through the records door: measurement_source_config (records:read)."
   ],
   "worked_examples": [
     {
-      "title": "Collect current measurement coverage on a sample input",
-      "ask": "Run tool:keep-measurements-current.",
+      "title": "Collect current measurement coverage on its own sample",
+      "ask": "Discover operation catalogs, source revisions and execution receipts, then return current neutral measurement observations and forecast coverage",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +32,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Discover operation catalogs, source revisions and execution receipts, then return current neutral measurement observations and forecast coverage"
+      "given": "The input {\"action\":\"read_source_config\"}, with 1 example row (measurement_source_config) already kept.",
+      "hands_back": "It answered {\"schema\":\"measurement-source-config/1\",\"source_roots\":[{\"id\":\"workshop\",\"path\":\"/made-up/source\"}],\"receipt_roots\":[{\"id\":\"workshop\",\"path\":\"/made-up/receipts\",\"source_id\":\"workshop\"}],\"meter_book\":{\"path\":\"meter-definitions.json\"},\"price_book\":{\"source_tool\":\"tool:refresh-provider-prices\"}}."
     }
   ]
 }

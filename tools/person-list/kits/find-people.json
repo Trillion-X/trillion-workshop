@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:find-people's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:find-people with nothing more.\" Search a list of people or contacts by name, company or any other field, and show each match with a name and details",
+  "drafted_from": "tool:find-people's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Search a list of people or contacts by name, company or any other field, and show each match with a name and details\", with {\"records\":[{\"id\":\"person:ana\",\"name\":\"Ana Ruiz\",\"company\":\"Northwind\",\"city\":\"Lisbon\"},{\"id\":\"person:ben\",\"name\":\"Ben Cole\",\"company\":\"Acme\",\"city\":\"Austin\"},{\"id\":\"person:cy\",\"name\":\"Cy Park\",\"company\":\"Northwind\",\"city\":\"Seoul\"}],\"search\":\"northwind\",\"fields\":[{\"key\":\"name\",\"display_role\":\"title\"},{\"key\":\"company\",\"display_role\":\"subtitle\"},{\"key\":\"city\",\"display_role\":\"detail\"}]}. It runs tool:find-people and answers {\"people\":[{\"id\":\"person:ana\",\"fields\":{\"city\":\"Lisbon\",\"company\":\"Northwind\",\"name\":\"Ana Ruiz\"},\"title\":\"Ana Ruiz\",\"subtitle\":\"Northwind\",\"detail\":\"Lisbon\"},{\"id\":\"person:cy\",\"fields\":{\"city\":\"Seoul\",\"company\":\"Northwind\",\"name\":\"Cy Park\"},\"title\":\"Cy Park\",\"subtitle\":\"Northwind\",\"detail\":\"Seoul\"}],\"total\":3,\"matched\":2}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:find-people"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:find-people\", and give it nothing more.",
+    "1. Say to your AI: \"Search a list of people or contacts by name, company or any other field, and show each match with a name and details\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-people and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.people[0].title contains \"Ana Ruiz\"."
+    "3. Read what comes back: Give the people (any records with an id), in records or as a JSON file from your files, and what to search for."
   ],
   "worked_examples": [
     {
-      "title": "Find people in a list on a sample input",
-      "ask": "Run tool:find-people.",
+      "title": "Find people in a list on its own sample",
+      "ask": "Search a list of people or contacts by name, company or any other field, and show each match with a name and details",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -65,7 +65,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.people[0].title contains \"Ana Ruiz\"."
+      "given": "The input {\"records\":[{\"id\":\"person:ana\",\"name\":\"Ana Ruiz\",\"company\":\"Northwind\",\"city\":\"Lisbon\"},{\"id\":\"person:ben\",\"name\":\"Ben Cole\",\"company\":\"Acme\",\"city\":\"Austin\"},{\"id\":\"person:cy\",\"name\":\"Cy Park\",\"company\":\"Northwind\",\"city\":\"Seoul\"}],\"search\":\"northwind\",\"fields\":[{\"key\":\"name\",\"display_role\":\"title\"},{\"key\":\"company\",\"display_role\":\"subtitle\"},{\"key\":\"city\",\"display_role\":\"detail\"}]}.",
+      "hands_back": "It answered {\"people\":[{\"id\":\"person:ana\",\"fields\":{\"city\":\"Lisbon\",\"company\":\"Northwind\",\"name\":\"Ana Ruiz\"},\"title\":\"Ana Ruiz\",\"subtitle\":\"Northwind\",\"detail\":\"Lisbon\"},{\"id\":\"person:cy\",\"fields\":{\"city\":\"Seoul\",\"company\":\"Northwind\",\"name\":\"Cy Park\"},\"title\":\"Cy Park\",\"subtitle\":\"Northwind\",\"detail\":\"Seoul\"}],\"total\":3,\"matched\":2}."
     }
   ]
 }

@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:change-an-ai-job's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:change-an-ai-job with as, id, action.\" Record what happened to a job one of my AIs took: finish it with its result, say it failed, give it back, say what blocks it, take back one I sent, or remove it",
+  "drafted_from": "tool:change-an-ai-job's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Record what happened to a job one of my AIs took: finish it with its result, say it failed, give it back, say what blocks it, take back one I sent, or remove it\", with {\"as\":\"ai:sample-taker\",\"id\":\"ai-job:sample-1\",\"action\":\"finish\",\"result\":\"A made-up sample report.\",\"summary\":\"Made-up summary\"}. It runs tool:change-an-ai-job and answers {\"job_id\":\"ai-job:sample-1\",\"moved\":true,\"from\":\"taken\",\"to\":\"done\",\"job\":{\"id\":\"ai-job:sample-1\",\"status\":\"done\",\"job\":\"Write a made-up sample report\",\"to\":null,\"from\":\"ai:sample-sender\",\"priority\":5,\"sent_at\":\"2026-11-03T00:00:00.000Z\",\"taker\":\"ai:sample-taker\",\"taken_at\":\"2026-11-03T00:05:00.000Z\",\"result\":\"A made-up sample report.\",\"summary\":\"Made-up summary\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (ai-job) through the records door.",
   "workflows": [],
   "tools": [
     "tool:change-an-ai-job"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:change-an-ai-job\", and give it as, id, action.",
+    "1. Say to your AI: \"Record what happened to a job one of my AIs took: finish it with its result, say it failed, give it back, say what blocks it, take back one I sent, or remove it\", and give it as (The acting AI's record id); id (The job's record id); action.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:change-an-ai-job and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields job_id, moved, from, to, reason, job."
+    "3. Read what comes back: Reads the ai-job record `id` and makes the move `action` names, by the rules in read-data/ai-work.json: finish (the taker; needs result, may add summary) and fail (the taker; needs result: why) end it; release gives it back to waiting (the taker, or anyone once it is held longer than the stale-take time; `because` says why); stuck says what blocks it (any AI, so a watcher can flag it; needs words) and unstuck clears that (any AI); withdraw takes back a job still waiting (its sender; `because`); remove deletes the record (its sender, or anyone once it is finished).",
+    "4. It reads and writes only its own rows through the records door: ai-job (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Finish, fail, give back, withdraw, flag or remove a job handed between my AIs on a sample input",
-      "ask": "Run tool:change-an-ai-job.",
+      "title": "Finish, fail, give back, withdraw, flag or remove a job handed between my AIs on its own sample",
+      "ask": "Record what happened to a job one of my AIs took: finish it with its result, say it failed, give it back, say what blocks it, take back one I sent, or remove it",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -35,7 +36,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields job_id, moved, from, to, reason, job."
+      "given": "The input {\"as\":\"ai:sample-taker\",\"id\":\"ai-job:sample-1\",\"action\":\"finish\",\"result\":\"A made-up sample report.\",\"summary\":\"Made-up summary\"}, with 1 example row (ai-job) already kept.",
+      "hands_back": "It answered {\"job_id\":\"ai-job:sample-1\",\"moved\":true,\"from\":\"taken\",\"to\":\"done\",\"job\":{\"id\":\"ai-job:sample-1\",\"status\":\"done\",\"job\":\"Write a made-up sample report\",\"to\":null,\"from\":\"ai:sample-sender\",\"priority\":5,\"sent_at\":\"2026-11-03T00:00:00.000Z\",\"taker\":\"ai:sample-taker\",\"taken_at\":\"2026-11-03T00:05:00.000Z\",\"result\":\"A made-up sample report.\",\"summary\":\"Made-up summary\",\"finished_at\":\"2026-11-14T00:50:23.687Z\",\"finished_by\":\"ai:sample-taker\"}}."
     }
   ]
 }

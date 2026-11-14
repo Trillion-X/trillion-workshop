@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:release-a-place's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:release-a-place with ledger_id, idempotency_key.\" Give a held place back, and offer it to the next person on the waitlist",
+  "drafted_from": "tool:release-a-place's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Give a held place back, and offer it to the next person on the waitlist\", with {\"ledger_id\":\"ledger:sample-class\",\"subject_ref\":\"person:sample-a\",\"idempotency_key\":\"sample-release-a\"}. It runs tool:release-a-place and answers {\"released\":true,\"released_hold\":{\"hold_id\":\"ledger:sample-class:hold:1\",\"subject_ref\":\"person:sample-a\",\"unit_class\":\"general\",\"state\":\"released\",\"idempotency_key\":\"sample-hold-a\",\"held_at\":\"2026-11-03T09:00:00.000Z\",\"expires_at\":\"2026-11-03T09:15:00.000Z\",\"released_at\":\"2026-11-14T00:50:41.244Z\"},\"promoted_hold\":{\"hold_id\":\"ledger:sample-class:hold:3\",\"subject_ref\":\"person:sample-b\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (capacity-ledger) through the records door.",
   "workflows": [],
   "tools": [
     "tool:release-a-place"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:release-a-place\", and give it ledger_id, idempotency_key.",
+    "1. Say to your AI: \"Give a held place back, and offer it to the next person on the waitlist\", and give it ledger_id; idempotency_key.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:release-a-place and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields released, released_hold, promoted_hold, promoted_waitlist_entry, ledger_id, state, total, confirmed."
+    "3. Read what comes back: Releases one confirmed hold, named by its hold id or by its subject, and by default promotes the first waiting entry that fits the freed place.",
+    "4. It reads and writes only its own rows through the records door: capacity-ledger (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Release a place on a sample input",
-      "ask": "Run tool:release-a-place.",
+      "title": "Release a place on its own sample",
+      "ask": "Give a held place back, and offer it to the next person on the waitlist",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +34,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields released, released_hold, promoted_hold, promoted_waitlist_entry, ledger_id, state, total, confirmed."
+      "given": "The input {\"ledger_id\":\"ledger:sample-class\",\"subject_ref\":\"person:sample-a\",\"idempotency_key\":\"sample-release-a\"}, with 1 example row (capacity-ledger) already kept.",
+      "hands_back": "It answered {\"released\":true,\"released_hold\":{\"hold_id\":\"ledger:sample-class:hold:1\",\"subject_ref\":\"person:sample-a\",\"unit_class\":\"general\",\"state\":\"released\",\"idempotency_key\":\"sample-hold-a\",\"held_at\":\"2026-11-03T09:00:00.000Z\",\"expires_at\":\"2026-11-03T09:15:00.000Z\",\"released_at\":\"2026-11-14T00:50:41.244Z\"},\"promoted_hold\":{\"hold_id\":\"ledger:sample-class:hold:3\",\"subject_ref\":\"person:sample-b\",\"unit_class\":\"general\",\"state\":\"confirmed\",\"idempotency_key\":\"promotion:sample-release-a\",\"held_at\":\"2026-11-14T00:50:41.244Z\",\"promoted_from_waitlist_entry_id\":\"ledger:sample-class:waitlist:2\"},\"promoted_waitlist_entry\":{\"waitlist_entry_id\":\"ledger:sample-class:waitlist:2\",\"subject_ref\":\"person:sample-b\" ...."
     }
   ]
 }

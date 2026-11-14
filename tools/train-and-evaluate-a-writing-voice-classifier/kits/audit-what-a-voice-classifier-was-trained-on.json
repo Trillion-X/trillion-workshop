@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:audit-what-a-voice-classifier-was-trained-on's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:audit-what-a-voice-classifier-was-trained-on with training_rows, target_rows.\" Find whether the passages a classifier is tested on also appear in the rows it was trained on: the same text, the same family or the same whole request",
+  "drafted_from": "tool:audit-what-a-voice-classifier-was-trained-on's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Find whether the passages a classifier is tested on also appear in the rows it was trained on: the same text, the same family or the same whole request\", with {\"training_rows\":[{\"family\":\"made-up-kettle\",\"state\":{\"target_text\":\"The kettle boiled in four minutes, so we timed the pot.\"}}],\"target_rows\":[{\"family\":\"made-up-kettle\",\"state\":{\"target_text\":\"kettle boiled in four minutes\"}}]}. It runs tool:audit-what-a-voice-classifier-was-trained-on and answers {\"schema\":\"training-exposure-audit-v1\",\"training_source\":{\"status\":\"unknown\",\"bytes_verified\":false},\"target_source\":{\"status\":\"unknown\",\"bytes_verified\":false},\"training_row_count\":1,\"target_row_count\":1,\"text_matches\":[{\"target_row_index\":0,\"training_row_index\":0,\"field_key\":\"target_text\",\"match\":\"exact_substring\"}],\"text_assessment_status\":\"complete\",\"unassessed_targets\":[] ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:audit-what-a-voice-classifier-was-trained-on"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:audit-what-a-voice-classifier-was-trained-on\", and give it training_rows, target_rows.",
+    "1. Say to your AI: \"Find whether the passages a classifier is tested on also appear in the rows it was trained on: the same text, the same family or the same whole request\", and give it training_rows; target_rows.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:audit-what-a-voice-classifier-was-trained-on and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields schema."
+    "3. Read what comes back: Give training_rows and target_rows (each a row, or a row with state, whose state holds target_text and may hold reader_context and reference_text), and optionally training_source and target_source ({ source_id, blake3, path, schema })."
   ],
   "worked_examples": [
     {
-      "title": "Find where test passages also appear in a classifier's training rows on a sample input",
-      "ask": "Run tool:audit-what-a-voice-classifier-was-trained-on.",
+      "title": "Find where test passages also appear in a classifier's training rows on its own sample",
+      "ask": "Find whether the passages a classifier is tested on also appear in the rows it was trained on: the same text, the same family or the same whole request",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -46,7 +46,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields schema."
+      "given": "The input {\"training_rows\":[{\"family\":\"made-up-kettle\",\"state\":{\"target_text\":\"The kettle boiled in four minutes, so we timed the pot.\"}}],\"target_rows\":[{\"family\":\"made-up-kettle\",\"state\":{\"target_text\":\"kettle boiled in four minutes\"}}]}.",
+      "hands_back": "It answered {\"schema\":\"training-exposure-audit-v1\",\"training_source\":{\"status\":\"unknown\",\"bytes_verified\":false},\"target_source\":{\"status\":\"unknown\",\"bytes_verified\":false},\"training_row_count\":1,\"target_row_count\":1,\"text_matches\":[{\"target_row_index\":0,\"training_row_index\":0,\"field_key\":\"target_text\",\"match\":\"exact_substring\"}],\"text_assessment_status\":\"complete\",\"unassessed_targets\":[],\"same_family_matches\":[{\"target_row_index\":0,\"training_row_index\":0}],\"complete_state_matches\":[],\"text_match_rule\":{\"minimum_normalized_target_characters\":16,\"normalization\":\"Unicode NFKC, casefold, collapsed whitespace\",\"boundary\":\"Unicode alphanumeric/underscore word boundaries when target edge is alphanumeric\"} ...."
     }
   ]
 }

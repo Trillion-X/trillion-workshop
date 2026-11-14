@@ -1,0 +1,8 @@
+{
+  "what_this_is": "How test-helpers/kit-drafter/observe.mjs runs a tool's own sample runs to show what it really answers in a drafted kit (tools/workflows/read-data/draft-a-kit.mjs). Lengths and words are DATA so no number or name sits in code.",
+  "most_runs": 2,
+  "answer_chars": 700,
+  "input_chars": 400,
+  "runs_at_once": 8,
+  "runner_only_words": ["{grant:", "{model_endpoint}"]
+}

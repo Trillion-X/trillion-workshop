@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:expand-a-reply-template's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:expand-a-reply-template with nothing more.\" Fill a canned reply template with the details of a request, such as a name or a button label, and give back the finished reply",
+  "drafted_from": "tool:expand-a-reply-template's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Fill a canned reply template with the details of a request, such as a name or a button label, and give back the finished reply\", with {\"template\":{\"line\":{\"$kind\":\"binding\",\"select\":{\"from\":\"dataSource\",\"key\":\"caller_request\",\"path\":\"greeting\"}}},\"caller_request\":{\"greeting\":\"Fresh bread at nine\"}}. It runs tool:expand-a-reply-template and answers {\"reply\":{\"line\":\"Fresh bread at nine\"}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:expand-a-reply-template"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:expand-a-reply-template\", and give it nothing more.",
+    "1. Say to your AI: \"Fill a canned reply template with the details of a request, such as a name or a button label, and give back the finished reply\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:expand-a-reply-template and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.reply.line contains \"Fresh bread at nine\"."
+    "3. Read what comes back: Give a template (any JSON in which a value to fill is written as {\"$kind\":\"binding\",\"select\":{\"from\":\"dataSource\",\"key\":\"caller_request\",\"path\":\"label\"},\"default\":...}) and the details to fill it from: caller_request, provider_record and data (each top-level entry of data can also be named as a key)."
   ],
   "worked_examples": [
     {
-      "title": "Expand a canned reply template on a sample input",
-      "ask": "Run tool:expand-a-reply-template.",
+      "title": "Expand a canned reply template on its own sample",
+      "ask": "Fill a canned reply template with the details of a request, such as a name or a button label, and give back the finished reply",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -43,7 +43,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.reply.line contains \"Fresh bread at nine\"."
+      "given": "The input {\"template\":{\"line\":{\"$kind\":\"binding\",\"select\":{\"from\":\"dataSource\",\"key\":\"caller_request\",\"path\":\"greeting\"}}},\"caller_request\":{\"greeting\":\"Fresh bread at nine\"}}.",
+      "hands_back": "It answered {\"reply\":{\"line\":\"Fresh bread at nine\"}}."
     }
   ]
 }

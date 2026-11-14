@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:read-a-funnel-definition's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-a-funnel-definition with definitions.\" Read a funnel that is written as stages pointing at workflow steps, offers, price options and measures, and see each stage's title, versions, price and conversion",
+  "drafted_from": "tool:read-a-funnel-definition's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Read a funnel that is written as stages pointing at workflow steps, offers, price options and measures, and see each stage's title, versions, price and conversion\", with {\"definitions\":[{\"kind\":\"funnel-definition\",\"id\":\"funnel:bakery\",\"stages\":[{\"stage_address\":\"stage:bakery:visit\",\"workflow_node_ref\":{\"$ref\":\"workflow-definition:bakery#visit\"},\"metric_selectors\":[{\"measure_ref\":\"measure:visit-entered\",\"role\":\"entered\"},{\"measure_ref\":\"measure:visit-converted\",\"role\":\"converted\"}]}]}],\"owners\":{\"workflowNodes\":[{\"id\":\"visit\",\"label\":\"Visit the shop page\"}] .... It runs tool:read-a-funnel-definition and answers {\"funnel\":{\"id\":\"funnel:bakery\",\"title\":\"funnel:bakery\",\"stages\":[{\"stage_address\":\"stage:bakery:visit\",\"title\":\"Visit the shop page\",\"workflow_node_id\":\"visit\",\"outcome_edges\":[],\"variants\":[],\"measures\":[{\"role\":\"entered\",\"value\":200},{\"role\":\"converted\",\"value\":50}],\"entered\":200,\"converted\":50,\"conversion_rate\":25}]}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:read-a-funnel-definition"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-a-funnel-definition\", and give it definitions.",
+    "1. Say to your AI: \"Read a funnel that is written as stages pointing at workflow steps, offers, price options and measures, and see each stage's title, versions, price and conversion\", and give it definitions (funnel-definition records: { kind, id, title?, stages: [{ stage_address, workflow_node_ref?, outcome_edges?, variant_surface_ref?, offer_price_ref?, price_option_ref?, metric_selectors?, title?).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-a-funnel-definition and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.funnel.stages[0].conversion_rate contains \"25\"."
+    "3. Read what comes back: A funnel definition is a list of stages; each stage points at records kept elsewhere (a workflow step that gives its title, a selection surface holding the versions being tried, an offer with the price option the stage shows, and measures that count who entered and who converted)."
   ],
   "worked_examples": [
     {
-      "title": "Read a funnel definition on a sample input",
-      "ask": "Run tool:read-a-funnel-definition.",
+      "title": "Read a funnel definition on its own sample",
+      "ask": "Read a funnel that is written as stages pointing at workflow steps, offers, price options and measures, and see each stage's title, versions, price and conversion",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -72,7 +72,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.funnel.stages[0].conversion_rate contains \"25\"."
+      "given": "The input {\"definitions\":[{\"kind\":\"funnel-definition\",\"id\":\"funnel:bakery\",\"stages\":[{\"stage_address\":\"stage:bakery:visit\",\"workflow_node_ref\":{\"$ref\":\"workflow-definition:bakery#visit\"},\"metric_selectors\":[{\"measure_ref\":\"measure:visit-entered\",\"role\":\"entered\"},{\"measure_ref\":\"measure:visit-converted\",\"role\":\"converted\"}]}]}],\"owners\":{\"workflowNodes\":[{\"id\":\"visit\",\"label\":\"Visit the shop page\"}] ....",
+      "hands_back": "It answered {\"funnel\":{\"id\":\"funnel:bakery\",\"title\":\"funnel:bakery\",\"stages\":[{\"stage_address\":\"stage:bakery:visit\",\"title\":\"Visit the shop page\",\"workflow_node_id\":\"visit\",\"outcome_edges\":[],\"variants\":[],\"measures\":[{\"role\":\"entered\",\"value\":200},{\"role\":\"converted\",\"value\":50}],\"entered\":200,\"converted\":50,\"conversion_rate\":25}]}}."
     }
   ]
 }

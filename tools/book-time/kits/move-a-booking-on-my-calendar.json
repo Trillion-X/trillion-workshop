@@ -1,23 +1,24 @@
 {
   "draft": true,
-  "drafted_from": "tool:move-a-booking-on-my-calendar's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:move-a-booking-on-my-calendar with event_id, start, end.\" Move a booking's event on my own calendar to a new time",
+  "drafted_from": "tool:move-a-booking-on-my-calendar's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Move a booking's event on my own calendar to a new time\", with {\"event_id\":\"sampleevent1\",\"start\":\"2030-08-12T10:00:00Z\",\"end\":\"2030-08-12T10:30:00Z\"}. It runs tool:move-a-booking-on-my-calendar and answers {\"status\":\"changed\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (booking, booking-book) through the records door.",
   "workflows": [],
   "tools": [
     "tool:move-a-booking-on-my-calendar",
     "tool:put-a-booking-on-my-calendar"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:move-a-booking-on-my-calendar\", and give it event_id, start, end.",
+    "1. Say to your AI: \"Move a booking's event on my own calendar to a new time\", and give it event_id (The event's id, as tool:put-a-booking-on-my-calendar gave it); start (New start instant); end (New end instant).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:move-a-booking-on-my-calendar and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields status, error."
+    "3. Read what comes back: Moves one event on the person's own Google calendar to a new start and end, with the person's own calendar account (the held value calendar-account); Google tells the attendees.",
+    "4. It reads and writes only its own rows through the records door: booking (records:list, records:read, records:write); booking-book (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Move a booking on my calendar on a sample input",
-      "ask": "Run tool:move-a-booking-on-my-calendar.",
+      "title": "Move a booking on my calendar on its own sample",
+      "ask": "Move a booking's event on my own calendar to a new time",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -34,7 +35,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields status, error."
+      "given": "The input {\"event_id\":\"sampleevent1\",\"start\":\"2030-08-12T10:00:00Z\",\"end\":\"2030-08-12T10:30:00Z\"}, the web answering from 2 recorded replies.",
+      "hands_back": "It answered {\"status\":\"changed\"}."
     }
   ]
 }

@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:register-my-live-activity's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:register-my-live-activity with board_key, token, app.\" Keep this iPhone Live Activity token so this account can update or end it",
+  "drafted_from": "tool:register-my-live-activity's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Keep this iPhone Live Activity token so this account can update or end it\", with {\"board_key\":\"running\",\"token\":\"0123456789abcdef0123456789abcdef\",\"app\":\"com.example.app\"}. It runs tool:register-my-live-activity and answers {\"board_key\":\"running\",\"kept\":true,\"ended\":false,\"changed\":true,\"said\":\"The Live Activity is registered.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (notification-live-activity) through the records door.",
   "workflows": [],
   "tools": [
     "tool:register-my-live-activity"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:register-my-live-activity\", and give it board_key, token, app.",
+    "1. Say to your AI: \"Keep this iPhone Live Activity token so this account can update or end it\", and give it board_key; token; app.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:register-my-live-activity and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.said contains \"registered\"."
+    "3. Read what comes back: Pass board_key, the activity push token, app bundle id and environment.",
+    "4. It reads and writes only its own rows through the records door: notification-live-activity (records:read, records:list, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Register or end my Live Activity on a sample input",
-      "ask": "Run tool:register-my-live-activity.",
+      "title": "Register or end my Live Activity on its own sample",
+      "ask": "Keep this iPhone Live Activity token so this account can update or end it",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +34,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.said contains \"registered\"."
+      "given": "The input {\"board_key\":\"running\",\"token\":\"0123456789abcdef0123456789abcdef\",\"app\":\"com.example.app\"}.",
+      "hands_back": "It answered {\"board_key\":\"running\",\"kept\":true,\"ended\":false,\"changed\":true,\"said\":\"The Live Activity is registered.\"}, and kept notification-live-activity:1fbb1a511c4dd0968917910dc770b19200a6ed631dc8323cf0c8c0c611f86988ff."
     }
   ]
 }

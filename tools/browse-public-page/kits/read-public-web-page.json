@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:read-public-web-page's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-public-web-page with url.\" Open one public web page and return its title, readable text, links, the card it describes itself with, every picture and video it declares and its structured data; or walk an outlet's archive from a start address, following its older pages and reading a chosen, dated sample of its entries",
+  "drafted_from": "tool:read-public-web-page's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Open one public web page and return its title, readable text, links, the card it describes itself with, every picture and video it declares and its structured data; or walk an outlet's archive from a start address, following its older pages and reading a chosen, dated sample of its entries\", with {\"url\":\"https://example.com\"}. It runs tool:read-public-web-page and answers {\"url\":\"https://example.com\",\"final_url\":\"https://example.com/\",\"status\":200,\"title\":\"Example Domain\",\"text\":\"Example Domain\\nThis domain is for use in illustrative examples.\",\"links\":[],\"description\":\"A made-up page for a sample run.\",\"image\":null,\"images\":[],\"videos\":[],\"site\":null,\"icon\":null,\"data\":[]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:read-public-web-page"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-public-web-page\", and give it url.",
+    "1. Say to your AI: \"Open one public web page and return its title, readable text, links, the card it describes itself with, every picture and video it declares and its structured data; or walk an outlet's archive from a start address, following its older pages and reading a chosen, dated sample of its entries\", and give it url (One public HTTP or HTTPS page address; only standard ports are supported.).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-public-web-page and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.title contains \"Example Domain\"."
+    "3. Read what comes back: Reads one public HTTP or HTTPS page and returns its title, readable text and links, and the card it describes itself with: its picture, description, site name and icon (each null when the page does not say), every picture (images) and video (videos) it declares in its tags and structured data, and that structured data (data, its schema.org JSON-LD objects)."
   ],
   "worked_examples": [
     {
-      "title": "Read a public web page on a sample input",
-      "ask": "Run tool:read-public-web-page.",
+      "title": "Read a public web page on its own sample",
+      "ask": "Open one public web page and return its title, readable text, links, the card it describes itself with, every picture and video it declares and its structured data; or walk an outlet's archive from a start address, following its older pages and reading a chosen, dated sample of its entries",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +31,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.title contains \"Example Domain\"."
+      "given": "The input {\"url\":\"https://example.com\"}, the web answering from 1 recorded reply.",
+      "hands_back": "It answered {\"url\":\"https://example.com\",\"final_url\":\"https://example.com/\",\"status\":200,\"title\":\"Example Domain\",\"text\":\"Example Domain\\nThis domain is for use in illustrative examples.\",\"links\":[],\"description\":\"A made-up page for a sample run.\",\"image\":null,\"images\":[],\"videos\":[],\"site\":null,\"icon\":null,\"data\":[]}."
     }
   ]
 }

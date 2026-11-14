@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:search-the-public-web's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:search-the-public-web with query.\" Search the public web for a creator, a topic or a question, and get back at most ten results with the address each one cites",
+  "drafted_from": "tool:search-the-public-web's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Search the public web for a creator, a topic or a question, and get back at most ten results with the address each one cites\", with {\"query\":\"sample bread guide\"}. It runs tool:search-the-public-web and answers {\"source\":\"DuckDuckGo HTML\",\"subject_ref\":\"sample bread guide\",\"count\":1,\"items\":[{\"item_id\":\"aHR0cHM6Ly9iYWtlcnkuZXhh\",\"title\":\"Sample Bread Guide\",\"url\":\"https://bakery.example/guide\",\"description\":\"A made-up snippet.\",\"published\":\"\",\"citation\":{\"url\":\"https://bakery.example/guide\",\"retrieved_via\":\"DuckDuckGo HTML\"}}]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:search-the-public-web"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:search-the-public-web\", and give it query.",
+    "1. Say to your AI: \"Search the public web for a creator, a topic or a question, and get back at most ten results with the address each one cites\", and give it query (What to search for).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:search-the-public-web and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields source, subject_ref, count, items."
+    "3. Read what comes back: Sends one query (1 to 500 characters) to a public web search and reads the one results page."
   ],
   "worked_examples": [
     {
-      "title": "Search the public web on a sample input",
-      "ask": "Run tool:search-the-public-web.",
+      "title": "Search the public web on its own sample",
+      "ask": "Search the public web for a creator, a topic or a question, and get back at most ten results with the address each one cites",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +31,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields source, subject_ref, count, items."
+      "given": "The input {\"query\":\"sample bread guide\"}, the web answering from 1 recorded reply.",
+      "hands_back": "It answered {\"source\":\"DuckDuckGo HTML\",\"subject_ref\":\"sample bread guide\",\"count\":1,\"items\":[{\"item_id\":\"aHR0cHM6Ly9iYWtlcnkuZXhh\",\"title\":\"Sample Bread Guide\",\"url\":\"https://bakery.example/guide\",\"description\":\"A made-up snippet.\",\"published\":\"\",\"citation\":{\"url\":\"https://bakery.example/guide\",\"retrieved_via\":\"DuckDuckGo HTML\"}}]}."
     }
   ]
 }

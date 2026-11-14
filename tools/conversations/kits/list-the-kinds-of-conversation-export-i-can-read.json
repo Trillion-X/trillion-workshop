@@ -1,23 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:list-the-kinds-of-conversation-export-i-can-read's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:list-the-kinds-of-conversation-export-i-can-read with nothing more.\" List the kinds of conversation export that can be read (chat apps, email, the Messages database, AI assistant logs, captured web chats), what each one's files look like and what the run must say for it",
+  "drafted_from": "tool:list-the-kinds-of-conversation-export-i-can-read's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"List the kinds of conversation export that can be read (chat apps, email, the Messages database, AI assistant logs, captured web chats), what each one's files look like and what the run must say for it\", with {}. It runs tool:list-the-kinds-of-conversation-export-i-can-read and answers {\"said\":\"16 kinds of export can be read: discord-messages, slack-messages, telegram-messages, signal-messages, instagram-direct-messages, whatsapp-messages, gemini-cli-logs, agent-session-lines, imessage-database, mail-message, gmail-page, agent-session-events, web-conversation-capture, claude-ai-export, grok-export, google-activity\",\"sources\":[{\"id\":\"discord-messages\",\"label\":\"Discord channel ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:list-the-kinds-of-conversation-export-i-can-read",
     "tool:read-an-export-of-my-conversations"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:list-the-kinds-of-conversation-export-i-can-read\", and give it nothing more.",
+    "1. Say to your AI: \"List the kinds of conversation export that can be read (chat apps, email, the Messages database, AI assistant logs, captured web chats), what each one's files look like and what the run must say for it\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-the-kinds-of-conversation-export-i-can-read and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.said contains \"slack-messages\"."
+    "3. Read what comes back: Returns said (the count and the ids, in a line) and sources: each { id, label, format, reader, needs, app, files_look_like }."
   ],
   "worked_examples": [
     {
-      "title": "Kinds of conversation export I can read on a sample input",
-      "ask": "Run tool:list-the-kinds-of-conversation-export-i-can-read.",
+      "title": "Kinds of conversation export I can read on its own sample",
+      "ask": "List the kinds of conversation export that can be read (chat apps, email, the Messages database, AI assistant logs, captured web chats), what each one's files look like and what the run must say for it",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -30,7 +30,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.said contains \"slack-messages\"."
+      "given": "The input {}.",
+      "hands_back": "It answered {\"said\":\"16 kinds of export can be read: discord-messages, slack-messages, telegram-messages, signal-messages, instagram-direct-messages, whatsapp-messages, gemini-cli-logs, agent-session-lines, imessage-database, mail-message, gmail-page, agent-session-events, web-conversation-capture, claude-ai-export, grok-export, google-activity\",\"sources\":[{\"id\":\"discord-messages\",\"label\":\"Discord channel messages\",\"format\":\"Discord REST API v10 message objects, as GET /channels/{id}/messages pages\",\"reader\":\"fields\",\"needs\":[],\"app\":\"Discord\",\"files_look_like\":{\"media_types\":[\"application/json\"],\"required_paths\":[[\"threads\"]],\"message_paths\":[[\"author\",\"id\"],[\"content\"]]}},{\"id\":\"slack-messages\" ...."
     }
   ]
 }

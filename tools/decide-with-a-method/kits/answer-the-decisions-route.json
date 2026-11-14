@@ -1,23 +1,24 @@
 {
   "draft": true,
-  "drafted_from": "tool:answer-the-decisions-route's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:answer-the-decisions-route with path, method.\" Answer the Trillion page route GET /work/api/decisions: the Decisions screen's rows, as old Trillion answered them",
+  "drafted_from": "tool:answer-the-decisions-route's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Answer the Trillion page route GET /work/api/decisions: the Decisions screen's rows, as old Trillion answered them\", with {\"path\":\"/decisions\",\"method\":\"GET\",\"query\":{},\"body\":{},\"browser\":{}}. It runs tool:answer-the-decisions-route and answers {\"status\":200,\"body\":{\"free\":false,\"summaries\":[],\"pursuits\":[],\"space_pursuits\":[],\"plans\":[],\"access\":{\"capabilities\":[],\"limits\":{}},\"allowance\":null,\"pursuits_words\":{\"text\":\"Every decision is weighed against what you are working toward and what it changes beyond you. Tell your AI, and it adds it for you.\",\"measured\":false},\"helped\":{\"decisions\":0,\"goal\":{\"hit_goal\":0,\"with_result\":0 ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (decision, decision-revision, decision-step, decision-evidence, decision-answered-step, decision-option, decision-candidate, decision-report, decision-carried-out, decision-history, decision-cited-pursuit, decision-method, decision-part, decision-refs, pursuit, record-scope, record-stance, plan, record:check, setting) through the records door.",
   "workflows": [],
   "tools": [
     "tool:answer-the-decisions-route",
     "tool:see-my-decisions"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:answer-the-decisions-route\", and give it path, method.",
+    "1. Say to your AI: \"Answer the Trillion page route GET /work/api/decisions: the Decisions screen's rows, as old Trillion answered them\", and give it path (The route after /work/api); method.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:answer-the-decisions-route and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.body.pursuits_words.text contains \"working toward\"."
+    "3. Read what comes back: A page route tool: the engine runs it for the page's account with { path, method, query, body, browser } and answers the page with { status, body }.",
+    "4. It reads and writes only its own rows through the records door: decision (records:read, records:list); decision-revision (records:read); decision-step (records:read); decision-evidence (records:read); decision-answered-step (records:read); decision-option (records:read); decision-candidate (records:read); decision-report (records:read); decision-carried-out (records:read); decision-history (records:read); decision-cited-pursuit (records:read); decision-method (records:read); decision-part (records:read); decision-refs (records:read); pursuit (records:read, records:list); record-scope (records:read); record-stance (records:read); plan (records:list); record:check (records:list); setting (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Answer the Decisions page on a sample input",
-      "ask": "Run tool:answer-the-decisions-route.",
+      "title": "Answer the Decisions page on its own sample",
+      "ask": "Answer the Trillion page route GET /work/api/decisions: the Decisions screen's rows, as old Trillion answered them",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -36,7 +37,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.body.pursuits_words.text contains \"working toward\"."
+      "given": "The input {\"path\":\"/decisions\",\"method\":\"GET\",\"query\":{},\"body\":{},\"browser\":{}}.",
+      "hands_back": "It answered {\"status\":200,\"body\":{\"free\":false,\"summaries\":[],\"pursuits\":[],\"space_pursuits\":[],\"plans\":[],\"access\":{\"capabilities\":[],\"limits\":{}},\"allowance\":null,\"pursuits_words\":{\"text\":\"Every decision is weighed against what you are working toward and what it changes beyond you. Tell your AI, and it adds it for you.\",\"measured\":false},\"helped\":{\"decisions\":0,\"goal\":{\"hit_goal\":0,\"with_result\":0,\"waiting\":0,\"share_shown\":false},\"time\":{\"deciding\":{\"recent\":null,\"earlier\":null,\"recent_count\":0,\"earlier_count\":0,\"compared\":false},\"decision_to_done\":{\"typical\":null,\"count\":0},\"cost\":[],\"goal\":null},\"series\":[],\"questions\":[],\"agents\":{\"plans\":0,\"landed\":0,\"most_cited\":[]},\"minimum\":5}}}."
     }
   ]
 }

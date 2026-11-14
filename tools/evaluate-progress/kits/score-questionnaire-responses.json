@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:score-questionnaire-responses's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:score-questionnaire-responses with instrument, responses.\" Score the answers to a questionnaire, flipping reverse-keyed items and filing each item under its subscale",
+  "drafted_from": "tool:score-questionnaire-responses's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Score the answers to a questionnaire, flipping reverse-keyed items and filing each item under its subscale\", with {\"instrument\":{\"id\":\"taste-quiz\",\"validated\":true,\"responseScale\":{\"min\":1,\"max\":5},\"subscales\":[{\"id\":\"sweet\",\"items\":[\"q1\",\"q2\"]}],\"reverseItems\":[\"q2\"],\"responseFactKind\":\"quiz.answer\"},\"responses\":[{\"item\":\"q1\",\"response\":4},{\"item\":\"q2\",\"response\":2}]}. It runs tool:score-questionnaire-responses and answers {\"facts\":[{\"id\":\"taste-quiz:q1:0\",\"kind\":\"quiz.answer\",\"instrument\":\"taste-quiz\",\"subscale\":\"sweet\",\"item\":\"q1\",\"response\":4,\"scored_value\":4,\"reversed\":false},{\"id\":\"taste-quiz:q2:1\",\"kind\":\"quiz.answer\",\"instrument\":\"taste-quiz\",\"subscale\":\"sweet\",\"item\":\"q2\",\"response\":2,\"scored_value\":4,\"reversed\":true}]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:score-questionnaire-responses"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:score-questionnaire-responses\", and give it instrument, responses.",
+    "1. Say to your AI: \"Score the answers to a questionnaire, flipping reverse-keyed items and filing each item under its subscale\", and give it instrument; responses.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:score-questionnaire-responses and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.facts[0].id contains \"taste-quiz:q1\"."
+    "3. Read what comes back: Takes a questionnaire (its id, the response scale, the subscales and their item ids, which items are reverse-keyed) and a person's responses."
   ],
   "worked_examples": [
     {
-      "title": "Score a questionnaire's answers on a sample input",
-      "ask": "Run tool:score-questionnaire-responses.",
+      "title": "Score a questionnaire's answers on its own sample",
+      "ask": "Score the answers to a questionnaire, flipping reverse-keyed items and filing each item under its subscale",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -61,7 +61,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.facts[0].id contains \"taste-quiz:q1\"."
+      "given": "The input {\"instrument\":{\"id\":\"taste-quiz\",\"validated\":true,\"responseScale\":{\"min\":1,\"max\":5},\"subscales\":[{\"id\":\"sweet\",\"items\":[\"q1\",\"q2\"]}],\"reverseItems\":[\"q2\"],\"responseFactKind\":\"quiz.answer\"},\"responses\":[{\"item\":\"q1\",\"response\":4},{\"item\":\"q2\",\"response\":2}]}.",
+      "hands_back": "It answered {\"facts\":[{\"id\":\"taste-quiz:q1:0\",\"kind\":\"quiz.answer\",\"instrument\":\"taste-quiz\",\"subscale\":\"sweet\",\"item\":\"q1\",\"response\":4,\"scored_value\":4,\"reversed\":false},{\"id\":\"taste-quiz:q2:1\",\"kind\":\"quiz.answer\",\"instrument\":\"taste-quiz\",\"subscale\":\"sweet\",\"item\":\"q2\",\"response\":2,\"scored_value\":4,\"reversed\":true}]}."
     }
   ]
 }

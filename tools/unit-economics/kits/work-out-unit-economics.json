@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:work-out-unit-economics's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:work-out-unit-economics with net_revenue_cents, gross_revenue_cents, active_customers.\" Work out a business's unit economics (ARPU, gross margin, CAC, LTV, LTV to CAC, payback) from one period's revenue, costs, ad spend and customer counts",
+  "drafted_from": "tool:work-out-unit-economics's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Work out a business's unit economics (ARPU, gross margin, CAC, LTV, LTV to CAC, payback) from one period's revenue, costs, ad spend and customer counts\", with {\"net_revenue_cents\":1000000,\"gross_revenue_cents\":1100000,\"cost_of_delivery_cents\":220000,\"acquisition_spend_cents\":300000,\"active_customers\":100,\"new_customers\":20,\"churn_rate\":0.05}. It runs tool:work-out-unit-economics and answers {\"arpu_cents\":10000,\"gross_margin\":0.8,\"cac_cents\":15000,\"ltv_cents\":160000,\"ltv_to_cac\":10.666666666666666,\"payback_periods\":1.875,\"lifetime_periods\":20,\"input\":{\"net_revenue_cents\":1000000,\"gross_revenue_cents\":1100000,\"cost_of_delivery_cents\":220000,\"acquisition_spend_cents\":300000,\"active_customers\":100,\"new_customers\":20,\"churn_rate\":0.05}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:work-out-unit-economics"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:work-out-unit-economics\", and give it net_revenue_cents, gross_revenue_cents, active_customers.",
+    "1. Say to your AI: \"Work out a business's unit economics (ARPU, gross margin, CAC, LTV, LTV to CAC, payback) from one period's revenue, costs, ad spend and customer counts\", and give it net_revenue_cents (Revenue after refunds this period, in cents); gross_revenue_cents (Revenue before refunds this period, in cents); active_customers (Paying customers this period).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:work-out-unit-economics and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.ltv_cents contains \"160000\"."
+    "3. Read what comes back: Takes one period's numbers in whole cents and counts and returns revenue per customer, gross margin, cost to win a customer, lifetime value, lifetime value to acquisition cost and months (periods) to earn back that cost."
   ],
   "worked_examples": [
     {
-      "title": "Work out unit economics on a sample input",
-      "ask": "Run tool:work-out-unit-economics.",
+      "title": "Work out unit economics on its own sample",
+      "ask": "Work out a business's unit economics (ARPU, gross margin, CAC, LTV, LTV to CAC, payback) from one period's revenue, costs, ad spend and customer counts",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -37,7 +37,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.ltv_cents contains \"160000\"."
+      "given": "The input {\"net_revenue_cents\":1000000,\"gross_revenue_cents\":1100000,\"cost_of_delivery_cents\":220000,\"acquisition_spend_cents\":300000,\"active_customers\":100,\"new_customers\":20,\"churn_rate\":0.05}.",
+      "hands_back": "It answered {\"arpu_cents\":10000,\"gross_margin\":0.8,\"cac_cents\":15000,\"ltv_cents\":160000,\"ltv_to_cac\":10.666666666666666,\"payback_periods\":1.875,\"lifetime_periods\":20,\"input\":{\"net_revenue_cents\":1000000,\"gross_revenue_cents\":1100000,\"cost_of_delivery_cents\":220000,\"acquisition_spend_cents\":300000,\"active_customers\":100,\"new_customers\":20,\"churn_rate\":0.05}}."
     }
   ]
 }

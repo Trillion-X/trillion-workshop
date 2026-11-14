@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:find-rows-needing-review's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:find-rows-needing-review with list, rows.\" List the rows of a list set up for review that need someone to look at them, for each owner, with why: never checked, flagged outdated or asked about, past the date it must be checked again by, or empty",
+  "drafted_from": "tool:find-rows-needing-review's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"List the rows of a list set up for review that need someone to look at them, for each owner, with why: never checked, flagged outdated or asked about, past the date it must be checked again by, or empty\", with {\"list\":{\"id\":\"docs\",\"title_field\":\"title\",\"fields\":[{\"id\":\"title\",\"label\":\"Title\",\"kind\":\"text\"},{\"id\":\"owner\",\"label\":\"Owner\",\"kind\":\"text\"},{\"id\":\"review_state\",\"label\":\"Review\",\"kind\":\"choice\",\"choices\":[\"Verified\",\"Outdated\",\"Verification requested\"]},{\"id\":\"review_due\",\"label\":\"Check again by\",\"kind\":\"date\"},{\"id\":\"verified_by\",\"label\":\"Checked by\",\"kind\":\"text\"}] .... It runs tool:find-rows-needing-review and answers {\"list_id\":\"docs\",\"complete\":true,\"owners\":[{\"owner\":\"kim\",\"rows\":[{\"id\":\"c\",\"title\":\"Refunds\",\"reasons\":[\"not_verified\"]}]},{\"owner\":\"sam\",\"rows\":[{\"id\":\"b\",\"title\":\"Pricing\",\"reasons\":[\"expired\"]}]}]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:find-rows-needing-review"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:find-rows-needing-review\", and give it list, rows.",
+    "1. Say to your AI: \"List the rows of a list set up for review that need someone to look at them, for each owner, with why: never checked, flagged outdated or asked about, past the date it must be checked again by, or empty\", and give it list; rows.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-rows-needing-review and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields list_id, owners, complete."
+    "3. Read what comes back: Give list ({ id, title_field, fields, views }: the list as review set_up left it, with its review views), rows ([{ id, title, values }]) and, if you like, owner (one owner's rows only) and now (an ISO time; the current time by default)."
   ],
   "worked_examples": [
     {
-      "title": "Find the rows of a list that need review, by owner on a sample input",
-      "ask": "Run tool:find-rows-needing-review.",
+      "title": "Find the rows of a list that need review, by owner on its own sample",
+      "ask": "List the rows of a list set up for review that need someone to look at them, for each owner, with why: never checked, flagged outdated or asked about, past the date it must be checked again by, or empty",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -160,7 +160,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields list_id, owners, complete."
+      "given": "The input {\"list\":{\"id\":\"docs\",\"title_field\":\"title\",\"fields\":[{\"id\":\"title\",\"label\":\"Title\",\"kind\":\"text\"},{\"id\":\"owner\",\"label\":\"Owner\",\"kind\":\"text\"},{\"id\":\"review_state\",\"label\":\"Review\",\"kind\":\"choice\",\"choices\":[\"Verified\",\"Outdated\",\"Verification requested\"]},{\"id\":\"review_due\",\"label\":\"Check again by\",\"kind\":\"date\"},{\"id\":\"verified_by\",\"label\":\"Checked by\",\"kind\":\"text\"}] ....",
+      "hands_back": "It answered {\"list_id\":\"docs\",\"complete\":true,\"owners\":[{\"owner\":\"kim\",\"rows\":[{\"id\":\"c\",\"title\":\"Refunds\",\"reasons\":[\"not_verified\"]}]},{\"owner\":\"sam\",\"rows\":[{\"id\":\"b\",\"title\":\"Pricing\",\"reasons\":[\"expired\"]}]}]}."
     }
   ]
 }

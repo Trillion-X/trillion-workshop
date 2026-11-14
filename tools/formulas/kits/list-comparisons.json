@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:list-comparisons's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:list-comparisons with nothing more.\" List the comparisons and the all-of and any-of groups a rule can use, for one kind of field or every kind",
+  "drafted_from": "tool:list-comparisons's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"List the comparisons and the all-of and any-of groups a rule can use, for one kind of field or every kind\", with {\"field_kind\":\"tags\"}. It runs tool:list-comparisons and answers {\"combinators\":[{\"id\":\"and\",\"label\":\"All\",\"sentence\":\"and\"},{\"id\":\"or\",\"label\":\"Any\",\"sentence\":\"or\"}],\"comparisons\":[{\"id\":\"has_any_of\",\"label\":\"has any of\",\"input\":\"values\",\"applies_to\":[\"tags\"]},{\"id\":\"has_all_of\",\"label\":\"has all of\",\"input\":\"values\",\"applies_to\":[\"tags\"]},{\"id\":\"has_none_of\",\"label\":\"has none of\",\"input\":\"values\",\"applies_to\":[\"tags\"]},{\"id\":\"has_one_containing\",\"label\":\"has ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:list-comparisons"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:list-comparisons\", and give it nothing more.",
+    "1. Say to your AI: \"List the comparisons and the all-of and any-of groups a rule can use, for one kind of field or every kind\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-comparisons and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.comparisons[0].id contains \"has_any_of\"."
+    "3. Read what comes back: Answers each comparison's id, its label, what it takes (nothing, one value, a list of values, words, text, a day or a range) and the field kinds that offer it, the group combinators, and the field kinds known."
   ],
   "worked_examples": [
     {
-      "title": "List the comparisons a rule can use on a sample input",
-      "ask": "Run tool:list-comparisons.",
+      "title": "List the comparisons a rule can use on its own sample",
+      "ask": "List the comparisons and the all-of and any-of groups a rule can use, for one kind of field or every kind",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +31,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.comparisons[0].id contains \"has_any_of\"."
+      "given": "The input {\"field_kind\":\"tags\"}.",
+      "hands_back": "It answered {\"combinators\":[{\"id\":\"and\",\"label\":\"All\",\"sentence\":\"and\"},{\"id\":\"or\",\"label\":\"Any\",\"sentence\":\"or\"}],\"comparisons\":[{\"id\":\"has_any_of\",\"label\":\"has any of\",\"input\":\"values\",\"applies_to\":[\"tags\"]},{\"id\":\"has_all_of\",\"label\":\"has all of\",\"input\":\"values\",\"applies_to\":[\"tags\"]},{\"id\":\"has_none_of\",\"label\":\"has none of\",\"input\":\"values\",\"applies_to\":[\"tags\"]},{\"id\":\"has_one_containing\",\"label\":\"has one containing\",\"input\":\"text\",\"applies_to\":[\"tags\"]},{\"id\":\"has_none_containing\",\"label\":\"has none containing\",\"input\":\"text\",\"applies_to\":[\"tags\"]},{\"id\":\"is_not_empty\",\"label\":\"is not empty\",\"input\":\"none\",\"applies_to\":[\"text\",\"tags\",\"choice\"]},{\"id\":\"is_empty\",\"label\":\"is empty\",\"input\":\"none\" ...."
     }
   ]
 }

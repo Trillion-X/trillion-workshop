@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:check-proof-of-finished-work's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-proof-of-finished-work with evidence.\" Check whether the proof given for a finished task is something someone else could go and check, or just a claim",
+  "drafted_from": "tool:check-proof-of-finished-work's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Check whether the proof given for a finished task is something someone else could go and check, or just a claim\", with {\"evidence\":\"29 tests, 29 pass, 0 fail, in 91ms.\"}. It runs tool:check-proof-of-finished-work; its answer contains \"CHECKABLE\".",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:check-proof-of-finished-work"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-proof-of-finished-work\", and give it evidence.",
+    "1. Say to your AI: \"Check whether the proof given for a finished task is something someone else could go and check, or just a claim\", and give it evidence (The proof recorded for the finished item, in its own words).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-proof-of-finished-work and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.response contains \"CHECKABLE\"."
+    "3. Read what comes back: Reads the proof recorded for one finished item and answers CHECKABLE when it names something a second person could look at (a command and its result, a count, a file, a measurement, a screen to open, a wall that was hit) or VAGUE when it asserts, restates the task, or describes a feeling or an intention, followed by one sentence saying why."
   ],
   "worked_examples": [
     {
-      "title": "Check the proof behind finished work on a sample input",
-      "ask": "Run tool:check-proof-of-finished-work.",
+      "title": "Check the proof behind finished work on its own sample",
+      "ask": "Check whether the proof given for a finished task is something someone else could go and check, or just a claim",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,6 +31,7 @@
           }
         }
       },
+      "given": "The input {\"evidence\":\"29 tests, 29 pass, 0 fail, in 91ms.\"}.",
       "hands_back": "The answer's $.response contains \"CHECKABLE\"."
     }
   ]

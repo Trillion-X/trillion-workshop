@@ -1,7 +1,7 @@
 {
   "draft": true,
-  "drafted_from": "tool:rank-library-formats-against-concepts's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:rank-library-formats-against-concepts with step.\" For every idea I could make a video of, find which of the formats in my library suit it best, and record the best few per idea with why",
+  "drafted_from": "tool:rank-library-formats-against-concepts's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"For every idea I could make a video of, find which of the formats in my library suit it best, and record the best few per idea with why\", with {\"step\":\"catalog\",\"library\":\"library\",\"concepts\":{\"files\":[\"ideas/A.md\"]},\"settings_record\":\"record:setting:rank-library-formats-against-concepts~film~sample-film\"}. It runs tool:rank-library-formats-against-concepts and answers {\"step\":\"catalog\",\"candidates\":2,\"concepts\":1,\"settings_from\":{\"id\":\"record:setting:rank-library-formats-against-concepts~film~sample-film\",\"from\":\"made up for this sample\"}}",
   "lists": [
     {
       "list": "list:settings",
@@ -108,20 +108,20 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
     "tool:rank-library-formats-against-concepts"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:rank-library-formats-against-concepts\", and give it step.",
+    "1. Say to your AI: \"For every idea I could make a video of, find which of the formats in my library suit it best, and record the best few per idea with why\", and give it step.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:rank-library-formats-against-concepts and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields step, candidates, concepts, palette, distinct_in_options, settings_from."
+    "3. Read what comes back: Two steps.",
+    "4. It reads and writes only its own rows through the records door: record:setting (records:read)."
   ],
   "worked_examples": [
     {
-      "title": "Match every video format I have collected to every idea I could film, and keep the best fits on a sample input",
-      "ask": "Run tool:rank-library-formats-against-concepts.",
+      "title": "Match every video format I have collected to every idea I could film, and keep the best fits on its own sample",
+      "ask": "For every idea I could make a video of, find which of the formats in my library suit it best, and record the best few per idea with why",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -143,7 +143,54 @@
           }
         }
       },
-      "hands_back": "An answer with the fields step, candidates, concepts, palette, distinct_in_options, settings_from."
+      "given": "The input {\"step\":\"catalog\",\"library\":\"library\",\"concepts\":{\"files\":[\"ideas/A.md\"]},\"settings_record\":\"record:setting:rank-library-formats-against-concepts~film~sample-film\"}, with 1 example row (record:setting) already kept.",
+      "hands_back": "It answered {\"step\":\"catalog\",\"candidates\":2,\"concepts\":1,\"settings_from\":{\"id\":\"record:setting:rank-library-formats-against-concepts~film~sample-film\",\"from\":\"made up for this sample\"}}."
+    },
+    {
+      "title": "Match every video format I have collected to every idea I could film, and keep the best fits on its own sample",
+      "ask": "For every idea I could make a video of, find which of the formats in my library suit it best, and record the best few per idea with why",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:rank-library-formats-against-concepts",
+            "input": {
+              "step": "apply",
+              "library": "library",
+              "concepts": {
+                "files": [
+                  "ideas/A.md"
+                ]
+              },
+              "titles": "titles.json",
+              "judged": [
+                "judged.json"
+              ],
+              "settings": {
+                "stable_keys": {
+                  "alpha-001": "tour"
+                },
+                "own_formats": [
+                  {
+                    "key": "own_one",
+                    "type": "own",
+                    "medium": "long video",
+                    "creator": "someone",
+                    "stats": "their template",
+                    "path": "no library item",
+                    "text": "their long structure"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "given": "The input {\"step\":\"apply\",\"library\":\"library\",\"concepts\":{\"files\":[\"ideas/A.md\"]},\"titles\":\"titles.json\",\"judged\":[\"judged.json\"],\"settings\":{\"stable_keys\":{\"alpha-001\":\"tour\"},\"own_formats\":[{\"key\":\"own_one\",\"type\":\"own\",\"medium\":\"long video\",\"creator\":\"someone\",\"stats\":\"their template\",\"path\":\"no library item\",\"text\":\"their long structure\"}]}}.",
+      "hands_back": "It answered {\"step\":\"apply\",\"concepts\":1,\"palette\":1,\"distinct_in_options\":1}."
     }
   ],
   "pour": {

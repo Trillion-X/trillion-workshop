@@ -1,9 +1,9 @@
 {
   "draft": true,
-  "drafted_from": "tool:publish-a-post-now's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:publish-a-post-now with post_id, expected_values.\" Queue an approved post for immediate sending through each destination's existing send row",
+  "drafted_from": "tool:publish-a-post-now's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Queue an approved post for immediate sending through each destination's existing send row\", with {\"post_id\":\"post:sample-1\",\"expected_values\":{\"caption\":\"A made-up sample post.\",\"media\":null,\"caption_by_platform\":{},\"settings_by_platform\":{},\"destinations\":[\"service_connection:x:sample\"],\"link\":null,\"scheduled_for\":null,\"time_zone\":null,\"source\":null,\"format_id\":null,\"reaches\":null}}. It runs tool:publish-a-post-now and answers {\"post_id\":\"post:sample-1\",\"status\":\"scheduled\",\"post\":{\"post_id\":\"post:sample-1\",\"status\":\"scheduled\",\"approval_values\":{\"caption\":\"A made-up sample post.\",\"media\":null,\"caption_by_platform\":{},\"settings_by_platform\":{},\"destinations\":[\"service_connection:x:sample\"],\"link\":null,\"scheduled_for\":\"2026-11-14T00:50:46.770Z\",\"time_zone\":null,\"source\":null,\"format_id\":null,\"reaches\":null},\"media\":null ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (post, connection) through the records door.",
   "workflows": [],
   "tools": [
     "tool:publish-a-post-now",
@@ -11,14 +11,15 @@
     "tool:read-post-calendar"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:publish-a-post-now\", and give it post_id, expected_values.",
+    "1. Say to your AI: \"Queue an approved post for immediate sending through each destination's existing send row\", and give it post_id (A post_id from tool:draft-a-post or tool:read-post-calendar); expected_values (The complete approval_values from the post as reviewed).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:publish-a-post-now and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields post_id, status, post, ready, said."
+    "3. Read what comes back: Give post_id and expected_values (the complete approval_values snapshot reviewed for this action).",
+    "4. It reads and writes only its own rows through the records door: post (records:read, records:write); connection (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Publish a post now on a sample input",
-      "ask": "Run tool:publish-a-post-now.",
+      "title": "Publish a post now on its own sample",
+      "ask": "Queue an approved post for immediate sending through each destination's existing send row",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -48,7 +49,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields post_id, status, post, ready, said."
+      "given": "The input {\"post_id\":\"post:sample-1\",\"expected_values\":{\"caption\":\"A made-up sample post.\",\"media\":null,\"caption_by_platform\":{},\"settings_by_platform\":{},\"destinations\":[\"service_connection:x:sample\"],\"link\":null,\"scheduled_for\":null,\"time_zone\":null,\"source\":null,\"format_id\":null,\"reaches\":null}}, with 2 example rows (post, connection) already kept.",
+      "hands_back": "It answered {\"post_id\":\"post:sample-1\",\"status\":\"scheduled\",\"post\":{\"post_id\":\"post:sample-1\",\"status\":\"scheduled\",\"approval_values\":{\"caption\":\"A made-up sample post.\",\"media\":null,\"caption_by_platform\":{},\"settings_by_platform\":{},\"destinations\":[\"service_connection:x:sample\"],\"link\":null,\"scheduled_for\":\"2026-11-14T00:50:46.770Z\",\"time_zone\":null,\"source\":null,\"format_id\":null,\"reaches\":null},\"media\":null,\"caption\":\"A made-up sample post.\",\"caption_by_platform\":{},\"settings_by_platform\":{},\"source\":null,\"format_id\":null,\"caption_style_check\":null,\"reaches\":[],\"link\":null,\"scheduled_for\":\"2026-11-14T00:50:46.770Z\",\"time_zone\":null,\"sent_at\":null ...."
     }
   ]
 }

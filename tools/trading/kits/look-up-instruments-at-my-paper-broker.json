@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:look-up-instruments-at-my-paper-broker's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:look-up-instruments-at-my-paper-broker with nothing more.\" Find the instruments my broker lists for trading, such as option contracts, from my paper account",
+  "drafted_from": "tool:look-up-instruments-at-my-paper-broker's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Find the instruments my broker lists for trading, such as option contracts, from my paper account\", with {\"route\":{\"mode\":\"paper\",\"timeout_ms\":5000,\"instrument_requests\":{\"equity\":{\"url\":\"https://paper-broker.example.test/v1/orders\",\"method\":\"POST\",\"headers\":{\"accept\":\"application/json\",\"content-type\":\"application/json\"},\"body_template\":{\"symbol\":\"{instrument.symbol}\",\"qty\":\"{qty}\",\"side\":\"{side}\",\"type\":\"{order_type}\",\"limit_price\":{\"from\":\"limit_price\",\"optional\":true} .... It runs tool:look-up-instruments-at-my-paper-broker and answers {\"state\":\"live\",\"http_status\":200,\"items\":[{\"symbol\":\"SAMPLE301220C00010000\",\"tradable\":true,\"strike\":10,\"expires\":\"2030-12-20\",\"type\":\"call\",\"close_price\":1.25,\"open_interest\":250,\"size\":100,\"underlying\":\"SAMPLE\"},{\"symbol\":\"SAMPLE301220C00012000\",\"tradable\":true,\"strike\":12,\"expires\":\"2030-12-20\",\"type\":\"call\",\"close_price\":0.4,\"open_interest\":90,\"size\":100,\"underlying\":\"SAMPLE\"}],\"count\":2 ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:look-up-instruments-at-my-paper-broker"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:look-up-instruments-at-my-paper-broker\", and give it nothing more.",
+    "1. Say to your AI: \"Find the instruments my broker lists for trading, such as option contracts, from my paper account\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:look-up-instruments-at-my-paper-broker and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields state, http_status, count, items, next, note."
+    "3. Read what comes back: Give route (one broker route with mode \"paper\" and its lookups), lookup (a lookup's name) and query (by the names the lookup allows; the lookup's own defaults fill the rest)."
   ],
   "worked_examples": [
     {
-      "title": "Look up instruments at my paper broker on a sample input",
-      "ask": "Run tool:look-up-instruments-at-my-paper-broker.",
+      "title": "Look up instruments at my paper broker on its own sample",
+      "ask": "Find the instruments my broker lists for trading, such as option contracts, from my paper account",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -148,7 +148,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields state, http_status, count, items, next, note."
+      "given": "The input {\"route\":{\"mode\":\"paper\",\"timeout_ms\":5000,\"instrument_requests\":{\"equity\":{\"url\":\"https://paper-broker.example.test/v1/orders\",\"method\":\"POST\",\"headers\":{\"accept\":\"application/json\",\"content-type\":\"application/json\"},\"body_template\":{\"symbol\":\"{instrument.symbol}\",\"qty\":\"{qty}\",\"side\":\"{side}\",\"type\":\"{order_type}\",\"limit_price\":{\"from\":\"limit_price\",\"optional\":true} ..., the web answering from 1 recorded reply.",
+      "hands_back": "It answered {\"state\":\"live\",\"http_status\":200,\"items\":[{\"symbol\":\"SAMPLE301220C00010000\",\"tradable\":true,\"strike\":10,\"expires\":\"2030-12-20\",\"type\":\"call\",\"close_price\":1.25,\"open_interest\":250,\"size\":100,\"underlying\":\"SAMPLE\"},{\"symbol\":\"SAMPLE301220C00012000\",\"tradable\":true,\"strike\":12,\"expires\":\"2030-12-20\",\"type\":\"call\",\"close_price\":0.4,\"open_interest\":90,\"size\":100,\"underlying\":\"SAMPLE\"}],\"count\":2,\"next\":null,\"note\":null}."
     }
   ]
 }

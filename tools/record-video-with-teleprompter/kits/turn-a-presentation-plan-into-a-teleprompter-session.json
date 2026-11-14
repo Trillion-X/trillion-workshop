@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:turn-a-presentation-plan-into-a-teleprompter-session's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:turn-a-presentation-plan-into-a-teleprompter-session with plan.\" Turn a written video presentation plan into the recording session the camera screen runs: the teleprompter script sentence by sentence, the countdown, when to stop on silence, on the final word or on a stop phrase, and whether it may start by itself",
+  "drafted_from": "tool:turn-a-presentation-plan-into-a-teleprompter-session's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Turn a written video presentation plan into the recording session the camera screen runs: the teleprompter script sentence by sentence, the countdown, when to stop on silence, on the final word or on a stop phrase, and whether it may start by itself\", with {\"plan\":{\"id\":\"PLAN-sample-week-plan\",\"title\":\"How I plan a week\",\"material_id\":\"material-sample\",\"material_revision\":1,\"format_id\":\"SAMPLE-DIRECT\",\"format_revision\":1,\"revision\":1,\"medium\":\"video\",\"acquisitions\":[],\"beats\":[{\"id\":\"opening\",\"delivery\":\"speak\",\"text\":\"Here is how I plan a week.\"},{\"id\":\"close\",\"delivery\":\"speak\",\"text\":\"That is the whole plan.\"}] .... It runs tool:turn-a-presentation-plan-into-a-teleprompter-session and answers {\"kind\":\"record-video.recording-session\",\"session_id\":\"presentation-plan:PLAN-sample-week-plan\",\"title\":\"How I plan a week\",\"subtitle\":\"Presentation format SAMPLE-DIRECT\",\"capture_mode\":\"video\",\"auto_start\":true,\"countdown_seconds\":3,\"auto_stop_seconds\":0,\"silence_stop_seconds\":3,\"silence_threshold_rms\":0.02,\"minimum_speech_ms\":750,\"stop_on_final_word\":true,\"completion_grace_ms\":500 ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:turn-a-presentation-plan-into-a-teleprompter-session"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:turn-a-presentation-plan-into-a-teleprompter-session\", and give it plan.",
+    "1. Say to your AI: \"Turn a written video presentation plan into the recording session the camera screen runs: the teleprompter script sentence by sentence, the countdown, when to stop on silence, on the final word or on a stop phrase, and whether it may start by itself\", and give it plan.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:turn-a-presentation-plan-into-a-teleprompter-session and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.status_label contains \"Authorized speech follower\"."
+    "3. Read what comes back: Give plan (one compiled video presentation plan: id, title, medium video, execution.adapter capture.video, beats each with delivery speak and text, no open acquisitions, and the execution settings: countdown_seconds, auto_stop_seconds, silence_stop_seconds, silence_threshold_rms, minimum_speech_ms, stop_on_final_word, completion_grace_ms, completion_slack_words, script_end_quiet_seconds, stop_phrases, mirror_script, speech_language, follow_speech, allow_manual_nudge, completion_label), and optionally readiness (the setup pass's result for this plan), authorization (a grant: plan_id, authorized, authorized_at_ms, grant_until_ms) and nowMs (epoch milliseconds; the run's clock when left out)."
   ],
   "worked_examples": [
     {
-      "title": "Turn a presentation plan into a teleprompter session on a sample input",
-      "ask": "Run tool:turn-a-presentation-plan-into-a-teleprompter-session.",
+      "title": "Turn a presentation plan into a teleprompter session on its own sample",
+      "ask": "Turn a written video presentation plan into the recording session the camera screen runs: the teleprompter script sentence by sentence, the countdown, when to stop on silence, on the final word or on a stop phrase, and whether it may start by itself",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -77,7 +77,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.status_label contains \"Authorized speech follower\"."
+      "given": "The input {\"plan\":{\"id\":\"PLAN-sample-week-plan\",\"title\":\"How I plan a week\",\"material_id\":\"material-sample\",\"material_revision\":1,\"format_id\":\"SAMPLE-DIRECT\",\"format_revision\":1,\"revision\":1,\"medium\":\"video\",\"acquisitions\":[],\"beats\":[{\"id\":\"opening\",\"delivery\":\"speak\",\"text\":\"Here is how I plan a week.\"},{\"id\":\"close\",\"delivery\":\"speak\",\"text\":\"That is the whole plan.\"}] ....",
+      "hands_back": "It answered {\"kind\":\"record-video.recording-session\",\"session_id\":\"presentation-plan:PLAN-sample-week-plan\",\"title\":\"How I plan a week\",\"subtitle\":\"Presentation format SAMPLE-DIRECT\",\"capture_mode\":\"video\",\"auto_start\":true,\"countdown_seconds\":3,\"auto_stop_seconds\":0,\"silence_stop_seconds\":3,\"silence_threshold_rms\":0.02,\"minimum_speech_ms\":750,\"stop_on_final_word\":true,\"completion_grace_ms\":500,\"completion_slack_words\":0,\"script_end_quiet_seconds\":0,\"stop_phrases\":[],\"mirror_script\":false,\"speech_language\":\"en-US\",\"follow_speech\":true,\"allow_manual_nudge\":true,\"status_label\":\"Authorized speech follower\",\"completion_label\":\"Recording saved\",\"sentences\":[\"Here is how I plan a week.\",\"That is the whole ...."
     }
   ]
 }

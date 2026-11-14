@@ -1,23 +1,24 @@
 {
   "draft": true,
-  "drafted_from": "tool:choose-my-notification-choice's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:choose-my-notification-choice with setting, choice.\" Keep one of a notification setting's options as this person's choice",
+  "drafted_from": "tool:choose-my-notification-choice's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Keep one of a notification setting's options as this person's choice\", with {\"setting\":\"sample-digest\",\"choice\":\"daily\"}. It runs tool:choose-my-notification-choice and answers {\"setting\":\"sample-digest\",\"choice\":\"daily\",\"previous\":null,\"changed\":true,\"said\":\"sample-digest is now daily.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (notification-setting, notification-choice) through the records door.",
   "workflows": [],
   "tools": [
     "tool:choose-my-notification-choice",
     "tool:my-notification-choice"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:choose-my-notification-choice\", and give it setting, choice.",
+    "1. Say to your AI: \"Keep one of a notification setting's options as this person's choice\", and give it setting; choice.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:choose-my-notification-choice and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields setting, choice, previous, changed, said."
+    "3. Read what comes back: setting is the setting's name and choice one option id from tool:my-notification-choice.",
+    "4. It reads and writes only its own rows through the records door: notification-setting (records:read); notification-choice (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Choose how I am notified on a sample input",
-      "ask": "Run tool:choose-my-notification-choice.",
+      "title": "Choose how I am notified on its own sample",
+      "ask": "Keep one of a notification setting's options as this person's choice",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +34,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields setting, choice, previous, changed, said."
+      "given": "The input {\"setting\":\"sample-digest\",\"choice\":\"daily\"}, with 1 example row (notification-setting) already kept.",
+      "hands_back": "It answered {\"setting\":\"sample-digest\",\"choice\":\"daily\",\"previous\":null,\"changed\":true,\"said\":\"sample-digest is now daily.\"}, and kept notification-choice:sample-digest."
     }
   ]
 }

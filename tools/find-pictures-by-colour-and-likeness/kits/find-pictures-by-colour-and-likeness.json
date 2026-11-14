@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:find-pictures-by-colour-and-likeness's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:find-pictures-by-colour-and-likeness with rows.\" Find my pictures by a colour I type or name, or find pictures like one I pick",
+  "drafted_from": "tool:find-pictures-by-colour-and-likeness's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Find my pictures by a colour I type or name, or find pictures like one I pick\", with {\"rows\":[{\"id\":\"sea\",\"palette\":[\"#1e5aa8\"]},{\"id\":\"fire\",\"palette\":[\"#d02010\"]}],\"colour\":\"#1f5ba9\"}. It runs tool:find-pictures-by-colour-and-likeness and answers {\"ids\":[\"sea\"],\"by\":\"colour\",\"asked\":[{\"hex\":\"#1f5ba9\"}]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:find-pictures-by-colour-and-likeness"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:find-pictures-by-colour-and-likeness\", and give it rows.",
+    "1. Say to your AI: \"Find my pictures by a colour I type or name, or find pictures like one I pick\", and give it rows.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-pictures-by-colour-and-likeness and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.ids contains \"sea\"."
+    "3. Read what comes back: Give rows (the pictures' facts: [{ id, palette: ['#rrggbb', ...], embedding?"
   ],
   "worked_examples": [
     {
-      "title": "Find pictures by colour or likeness on a sample input",
-      "ask": "Run tool:find-pictures-by-colour-and-likeness.",
+      "title": "Find pictures by colour or likeness on its own sample",
+      "ask": "Find my pictures by a colour I type or name, or find pictures like one I pick",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -45,7 +45,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.ids contains \"sea\"."
+      "given": "The input {\"rows\":[{\"id\":\"sea\",\"palette\":[\"#1e5aa8\"]},{\"id\":\"fire\",\"palette\":[\"#d02010\"]}],\"colour\":\"#1f5ba9\"}.",
+      "hands_back": "It answered {\"ids\":[\"sea\"],\"by\":\"colour\",\"asked\":[{\"hex\":\"#1f5ba9\"}]}."
     }
   ]
 }

@@ -1,9 +1,9 @@
 {
   "draft": true,
-  "drafted_from": "tool:share-a-decision's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:share-a-decision with decision_id.\" Make a decided decision safe to show strangers: the plain privacy pass with the person's own private terms, then a second model's re-identification check bound to the exact words",
+  "drafted_from": "tool:share-a-decision's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Make a decided decision safe to show strangers: the plain privacy pass with the person's own private terms, then a second model's re-identification check bound to the exact words\", with {\"decision_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\"}. It runs tool:share-a-decision and answers {\"case_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"next\":\"rewrite\",\"ai_instructions\":[\"Rewrite this decision so no one could tell who made it. Remove or generalize every name, nickname, company, product, brand, place, event, date, month, age, number, job title, and any unusual detail that could point to one person. Say sizes and shares in words, never as figures, and never write [removed]; write ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (decision, decision-revision, decision-step, decision-evidence, decision-answered-step, decision-option, decision-candidate, decision-report, decision-carried-out, decision-history, decision-cited-pursuit, decision-method, decision-part, decision-refs, record:never-publish) through the records door.",
   "workflows": [],
   "tools": [
     "tool:share-a-decision",
@@ -11,14 +11,15 @@
     "tool:ask-a-small-model-for-a-verdict"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:share-a-decision\", and give it decision_id.",
+    "1. Say to your AI: \"Make a decided decision safe to show strangers: the plain privacy pass with the person's own private terms, then a second model's re-identification check bound to the exact words\", and give it decision_id.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:share-a-decision and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields case_id, next, facts, check, shared, send."
+    "3. Read what comes back: In three turns.",
+    "4. It reads and writes only its own rows through the records door: decision (records:read, records:list, records:write); decision-revision (records:read, records:write); decision-step (records:read); decision-evidence (records:read, records:list, records:write); decision-answered-step (records:read, records:list, records:write); decision-option (records:read, records:list, records:write); decision-candidate (records:read, records:list, records:write); decision-report (records:read, records:list, records:write); decision-carried-out (records:read, records:list, records:write); decision-history (records:read, records:list, records:write); decision-cited-pursuit (records:read, records:list, records:write); decision-method (records:read, records:write); decision-part (records:read, records:write); decision-refs (records:read, records:write); record:never-publish (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Make a decision safe to share on a sample input",
-      "ask": "Run tool:share-a-decision.",
+      "title": "Make a decision safe to share on its own sample",
+      "ask": "Make a decided decision safe to show strangers: the plain privacy pass with the person's own private terms, then a second model's re-identification check bound to the exact words",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +34,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields case_id, next, facts, check, shared, send."
+      "given": "The input {\"decision_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\"}, with 12 example rows (record:never-publish, decision, decision-evidence, decision-method, decision-step, decision-answered-step) already kept.",
+      "hands_back": "It answered {\"case_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"next\":\"rewrite\",\"ai_instructions\":[\"Rewrite this decision so no one could tell who made it. Remove or generalize every name, nickname, company, product, brand, place, event, date, month, age, number, job title, and any unusual detail that could point to one person. Say sizes and shares in words, never as figures, and never write [removed]; write around anything missing in plain general words. Keep the kind of situation, the choices, what was chosen, why, and how success is measured. Send it back as rewrite: { situation, options: [words], chosen, why, measured_by }.\"],\"facts\":{\"goal\":\"Decide the made-up sample class price for spring\" ...."
     }
   ]
 }

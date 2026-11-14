@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:other-ai-files's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:other-ai-files with nothing more.\" Read the instructions, commands, skills and MCP servers the person already keeps for their other AI apps (Claude Code, Codex, Cursor, Claude Desktop, Gemini CLI, Windsurf), in place, without copying them",
+  "drafted_from": "tool:other-ai-files's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Read the instructions, commands, skills and MCP servers the person already keeps for their other AI apps (Claude Code, Codex, Cursor, Claude Desktop, Gemini CLI, Windsurf), in place, without copying them\", with {\"source\":\"claude-code\",\"read\":[\"claude-code/instructions/CLAUDE.md\"]}. It runs tool:other-ai-files and answers {\"entries\":[{\"name\":\"claude-code/instructions/CLAUDE.md\",\"source\":\"claude-code\",\"label\":\"Claude Code\",\"kind\":\"instructions\",\"bytes\":34}],\"files\":[{\"name\":\"claude-code/instructions/CLAUDE.md\",\"source\":\"claude-code\",\"label\":\"Claude Code\",\"kind\":\"instructions\",\"text\":\"Always greet Ada Example by name.\\n\"}]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:other-ai-files"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:other-ai-files\", and give it nothing more.",
+    "1. Say to your AI: \"Read the instructions, commands, skills and MCP servers the person already keeps for their other AI apps (Claude Code, Codex, Cursor, Claude Desktop, Gemini CLI, Windsurf), in place, without copying them\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:other-ai-files and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields entries, files, error."
+    "3. Read what comes back: Lists every entry the rows of read-data/other-ai-files.json name that exists under the folder the person granted (their home folder), as source/kind/name with its app label and size and no contents; `source` and `kind` narrow the list."
   ],
   "worked_examples": [
     {
-      "title": "Read the files I keep for my other AI apps on a sample input",
-      "ask": "Run tool:other-ai-files.",
+      "title": "Read the files I keep for my other AI apps on its own sample",
+      "ask": "Read the instructions, commands, skills and MCP servers the person already keeps for their other AI apps (Claude Code, Codex, Cursor, Claude Desktop, Gemini CLI, Windsurf), in place, without copying them",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -34,7 +34,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields entries, files, error."
+      "given": "The input {\"source\":\"claude-code\",\"read\":[\"claude-code/instructions/CLAUDE.md\"]}.",
+      "hands_back": "It answered {\"entries\":[{\"name\":\"claude-code/instructions/CLAUDE.md\",\"source\":\"claude-code\",\"label\":\"Claude Code\",\"kind\":\"instructions\",\"bytes\":34}],\"files\":[{\"name\":\"claude-code/instructions/CLAUDE.md\",\"source\":\"claude-code\",\"label\":\"Claude Code\",\"kind\":\"instructions\",\"text\":\"Always greet Ada Example by name.\\n\"}]}."
     }
   ]
 }

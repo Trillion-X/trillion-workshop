@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:find-nearest-places's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:find-nearest-places with name, near.\" Find the nearest stores or places of a brand or name around a start, each with route buttons",
+  "drafted_from": "tool:find-nearest-places's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Find the nearest stores or places of a brand or name around a start, each with route buttons\", with {\"name\":\"Sample Coffee\",\"near\":{\"lat\":40,\"lon\":-105},\"radius_km\":5,\"most\":2,\"mode\":\"walk\"}. It runs tool:find-nearest-places and answers {\"places\":[{\"name\":\"Sample Coffee\",\"address\":\"1 Example Street, Sampletown\",\"lat\":40.004,\"lon\":-105.002,\"km\":0.5,\"opening_hours\":\"Mo-Fr 07:00-18:00\",\"id\":\"node/1000001\",\"buttons\":[{\"id\":\"apple-maps\",\"label\":\"Open in Apple Maps\",\"url\":\"https://maps.apple.com/directions?source=40%2C-105&destination=Sample%20Coffee%2C%201%20Example%20Street%2C%20Sampletown&mode=walking\"},{\"id\":\"google-maps\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:find-nearest-places"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:find-nearest-places\", and give it name, near.",
+    "1. Say to your AI: \"Find the nearest stores or places of a brand or name around a start, each with route buttons\", and give it name (A brand or place name); near (An address or place name as words, or { lat, lon }, or { address }).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-nearest-places and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields places, start, said."
+    "3. Read what comes back: Give name (a brand or a place name) and near (an address or place name as words, or { lat, lon }), and optionally radius_km, most and mode."
   ],
   "worked_examples": [
     {
-      "title": "Find the nearest places of a brand or name on a sample input",
-      "ask": "Run tool:find-nearest-places.",
+      "title": "Find the nearest places of a brand or name on its own sample",
+      "ask": "Find the nearest stores or places of a brand or name around a start, each with route buttons",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -38,7 +38,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields places, start, said."
+      "given": "The input {\"name\":\"Sample Coffee\",\"near\":{\"lat\":40,\"lon\":-105},\"radius_km\":5,\"most\":2,\"mode\":\"walk\"}, the web answering from 1 recorded reply.",
+      "hands_back": "It answered {\"places\":[{\"name\":\"Sample Coffee\",\"address\":\"1 Example Street, Sampletown\",\"lat\":40.004,\"lon\":-105.002,\"km\":0.5,\"opening_hours\":\"Mo-Fr 07:00-18:00\",\"id\":\"node/1000001\",\"buttons\":[{\"id\":\"apple-maps\",\"label\":\"Open in Apple Maps\",\"url\":\"https://maps.apple.com/directions?source=40%2C-105&destination=Sample%20Coffee%2C%201%20Example%20Street%2C%20Sampletown&mode=walking\"},{\"id\":\"google-maps\",\"label\":\"Open in Google Maps\",\"url\":\"https://www.google.com/maps/dir/?api=1&origin=40%2C-105&destination=Sample%20Coffee%2C%201%20Example%20Street%2C%20Sampletown&travelmode=walking\"}]},{\"name\":\"Sample Coffee\",\"address\":null,\"lat\":40.01,\"lon\":-104.99,\"km\":1.4,\"opening_hours\":null,\"id\":\"way/2000002\" ...."
     }
   ]
 }

@@ -1,23 +1,24 @@
 {
   "draft": true,
-  "drafted_from": "tool:name-a-heard-voice's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:name-a-heard-voice with listening, voices, name.\" Put a person's name on what they said in a listening before I enrolled their voice",
+  "drafted_from": "tool:name-a-heard-voice's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Put a person's name on what they said in a listening before I enrolled their voice\", with {\"listening\":\"sample-meeting\",\"voices\":[\"voice-2\"],\"name\":\"Sam Example\"}. It runs tool:name-a-heard-voice and answers {\"listening\":\"sample-meeting\",\"name\":\"Sam Example\",\"voices\":[\"voice-2\"],\"renamed\":1,\"said\":\"1 turns are now Sam Example's.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (heard) through the records door.",
   "workflows": [],
   "tools": [
     "tool:name-a-heard-voice",
     "tool:enrol-a-voice-or-face"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:name-a-heard-voice\", and give it listening, voices, name.",
+    "1. Say to your AI: \"Put a person's name on what they said in a listening before I enrolled their voice\", and give it listening (The listening's name); voices (The labels the voice was heard under: the enrol tool's heard_as, or one voice-N); name (The enrolled person's name).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:name-a-heard-voice and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields listening, name, voices, renamed, said."
+    "3. Read what comes back: After tool:enrol-a-voice-or-face names a voice heard in a listening (its heard_as), renames that listening's heard turns still under \"Someone (voice-N)\" for those voices to the person's name, keeping the former label on each row.",
+    "4. It reads and writes only its own rows through the records door: heard (records:list, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Name a voice heard before it was enrolled on a sample input",
-      "ask": "Run tool:name-a-heard-voice.",
+      "title": "Name a voice heard before it was enrolled on its own sample",
+      "ask": "Put a person's name on what they said in a listening before I enrolled their voice",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -36,7 +37,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields listening, name, voices, renamed, said."
+      "given": "The input {\"listening\":\"sample-meeting\",\"voices\":[\"voice-2\"],\"name\":\"Sam Example\"}, with 2 example rows (heard) already kept.",
+      "hands_back": "It answered {\"listening\":\"sample-meeting\",\"name\":\"Sam Example\",\"voices\":[\"voice-2\"],\"renamed\":1,\"said\":\"1 turns are now Sam Example's.\"}."
     }
   ]
 }

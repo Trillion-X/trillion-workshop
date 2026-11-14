@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:practice's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:practice with operation.\" Keep something a person wants to get right every time (a word, a habit, a fact) as a card, ask for what is due now, grade each recall and see how well it is known",
+  "drafted_from": "tool:practice's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Keep something a person wants to get right every time (a word, a habit, a fact) as a card, ask for what is due now, grade each recall and see how well it is known\", with {\"operation\":\"add\",\"prompt\":\"A sample word\",\"answer\":\"Its sample meaning\",\"deck\":\"sample-deck\"}. It runs tool:practice and answers {\"card_id\":\"card:sample-deck:4fd68f6ab03764f9\",\"deck\":\"sample-deck\",\"kept_progress\":false}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:practice-cards, record:practice-grades, record:practice-policy) through the records door.",
   "workflows": [],
   "tools": [
     "tool:practice"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:practice\", and give it operation.",
+    "1. Say to your AI: \"Keep something a person wants to get right every time (a word, a habit, a fact) as a card, ask for what is due now, grade each recall and see how well it is known\", and give it operation.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:practice and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Keep something a person wants to get right every time (a word, a habit, a fact) as a card, ask for what is due now, grade each recall and see how well it is known"
+    "3. Read what comes back: add: { card_id, deck, kept_progress }; grade: { card_id, prompt, grade, grade_in_policy, lapsed, due_at, mastery }; due: { due_count, cards }; cards: { cards }; remove: { card_id, removed }; remind: { due_count, said }",
+    "4. It reads and writes only its own rows through the records door: record:practice-cards (records:read, records:list, records:write); record:practice-grades (records:read, records:list, records:write); record:practice-policy (records:read)."
   ],
   "worked_examples": [
     {
-      "title": "Keep cards to practise and bring them back on schedule on a sample input",
-      "ask": "Run tool:practice.",
+      "title": "Keep cards to practise and bring them back on schedule on its own sample",
+      "ask": "Keep something a person wants to get right every time (a word, a habit, a fact) as a card, ask for what is due now, grade each recall and see how well it is known",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -34,7 +35,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Keep something a person wants to get right every time (a word, a habit, a fact) as a card, ask for what is due now, grade each recall and see how well it is known"
+      "given": "The input {\"operation\":\"add\",\"prompt\":\"A sample word\",\"answer\":\"Its sample meaning\",\"deck\":\"sample-deck\"}.",
+      "hands_back": "It answered {\"card_id\":\"card:sample-deck:4fd68f6ab03764f9\",\"deck\":\"sample-deck\",\"kept_progress\":false}, and kept card:sample-deck:4fd68f6ab03764f9."
     }
   ]
 }

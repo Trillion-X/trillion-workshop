@@ -28,11 +28,19 @@ test('a tool with a sample run is drafted whole, its example is the sample and i
   assert.match(kit.worked_examples[0].hands_back, /contains "3"/);
 });
 
-test('a value only the person can give is shown as a placeholder naming it, never made up', () => {
+test('a tool with no sample run is not given a made-up run: the draft is refused with the gap named', () => {
   const { kit, problems } = draftKit({ tool: { ...tool, verify: [] } });
+  assert.equal(kit.worked_examples.length, 0);
+  assert.ok(problems.some(problem => /it has no sample run/.test(problem)));
+});
+
+test('a tool\'s observed run is its worked example: the real answer, the rows it kept and the input it ran on', () => {
+  const seen = [{ sample: { input: { a: 1, b: 2 }, records: [{ id: 'sum:old', type: 'sum', value: {} }] }, answer: { total: 3 }, kept: ['sum:new'] }];
+  const { kit, problems } = draftKit({ tool, observed: seen });
   assert.deepEqual(problems, []);
-  assert.deepEqual(kit.worked_examples[0].mcp.input.input.input, { a: '<a: number>', b: '<b: number>' });
-  assert.match(kit.worked_examples[0].given, /a, b/);
+  assert.match(kit.worked_examples[0].hands_back, /^It answered \{"total":3\}, and kept sum:new\.$/);
+  assert.match(kit.worked_examples[0].given, /1 example row \(sum\) already kept/);
+  assert.match(kit.start_here, /\{"a":1,"b":2\}.*\{"total":3\}/);
 });
 
 test('a tool whose own words name a list is refused: its example rows cannot be drawn from its row', () => {
@@ -40,13 +48,22 @@ test('a tool whose own words name a list is refused: its example rows cannot be 
   assert.deepEqual(problems, ['kit.lists must carry list:scores, which the item\'s steps name, with example rows.']);
 });
 
-test('a workflow is drafted whole from its steps: its tools, its first step and its input', () => {
-  const { kit, problems } = draftKit({ recipe });
+test('a workflow is drafted from its steps, and a step that runs a tool shows that tool\'s observed run', () => {
+  const runs = { ...recipe, input_schema: { type: 'object' }, steps: [{ ...recipe.steps[0], run_tool: { tool_id: 'tool:fixture-sum', input: {} }, done_when: 'the total is said' }, recipe.steps[1]] };
+  const observed = new Map([['tool:fixture-sum', [{ sample: { input: { a: 1, b: 2 } }, answer: { total: 3 }, kept: [] }]]]);
+  const { kit, problems } = draftKit({ recipe: runs, observed });
   assert.deepEqual(problems, []);
   assert.deepEqual(kit.workflows, ['workflow:fixture-greet']);
-  assert.deepEqual(kit.tools, ['tool:fixture-sum']);
+  assert.deepEqual(kit.tools, ['tool:start-a-recipe-run', 'tool:fixture-sum']);
   assert.equal(kit.worked_examples[0].step, 'say');
-  assert.equal(kit.worked_examples[0].mcp.input.input.input.name, '<name: Who to greet>');
+  assert.match(kit.worked_examples[0].hands_back, /"total":3/);
+  assert.match(kit.instructions[1], /Say it: done when the total is said/);
+});
+
+test('a workflow whose input needs values, or whose steps run no observed tool, is refused with the gap named', () => {
+  const { problems } = draftKit({ recipe });
+  assert.ok(problems.some(problem => /start_here needs real values for its input: name \(Who to greet\.\)/.test(problem)));
+  assert.ok(problems.some(problem => /No real run of a step can be shown/.test(problem)));
 });
 
 test('an item with a kit that names a tool its row never mentions is not drafted from outside its row', () => {

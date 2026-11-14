@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:prepare-a-match-plan's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:prepare-a-match-plan with operation, plan_shape.\" Plan a match against an opponent: gather what the trusted notes say about both sides into the brief a plan is written from, then check and record the plan that was written",
+  "drafted_from": "tool:prepare-a-match-plan's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Plan a match against an opponent: gather what the trusted notes say about both sides into the brief a plan is written from, then check and record the plan that was written\", with {\"operation\":\"context\",\"plan_shape\":{\"strategies\":2,\"tactics_per_strategy\":3},\"self_id\":\"p:1\",\"opponent_id\":\"p:2\",\"requester_id\":\"p:1\",\"request_id\":\"plan-request:sample\",\"now\":\"2026-01-01T09:00:00Z\",\"rows\":[{\"payload\":{\"kind\":\"subject\",\"subjectId\":\"p:1\",\"subjectKind\":\"player\",\"label\":\"Alder\",\"payload\":{\"isSelf\":true},\"createdAt\":\"2026-01-01T09:00:00.000Z\"}},{\"payload\":{\"kind\":\"subject\" .... It runs tool:prepare-a-match-plan and answers {\"request_record\":{\"kind\":\"plan-request\",\"requestId\":\"plan-request:sample\",\"requestKind\":\"match-plan\",\"requesterId\":\"p:1\",\"selfPlayerId\":\"p:1\",\"opponentPlayerId\":\"p:2\",\"publicEvidenceRefs\":[],\"privateEvidenceRefs\":[],\"reviewEvidenceRefs\":[],\"profileRefs\":[],\"resultRefs\":[],\"promptText\":\"Create exactly 2 strategies with exactly 3 tactics each.\\nUse only the evidence listed below. Do not invent ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:prepare-a-match-plan"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:prepare-a-match-plan\", and give it operation, plan_shape.",
+    "1. Say to your AI: \"Plan a match against an opponent: gather what the trusted notes say about both sides into the brief a plan is written from, then check and record the plan that was written\", and give it operation (What to do); plan_shape (How many strategies, and how many tactics in each, the plan has).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:prepare-a-match-plan and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.request_record.promptText contains \"Create exactly 2 strategies with exactly 3 tactics each.\"."
+    "3. Read what comes back: Calls no model: the AI that reads the brief writes the plan."
   ],
   "worked_examples": [
     {
-      "title": "Prepare the notes a match plan is made from, and record the plan on a sample input",
-      "ask": "Run tool:prepare-a-match-plan.",
+      "title": "Prepare the notes a match plan is made from, and record the plan on its own sample",
+      "ask": "Plan a match against an opponent: gather what the trusted notes say about both sides into the brief a plan is written from, then check and record the plan that was written",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -64,7 +64,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.request_record.promptText contains \"Create exactly 2 strategies with exactly 3 tactics each.\"."
+      "given": "The input {\"operation\":\"context\",\"plan_shape\":{\"strategies\":2,\"tactics_per_strategy\":3},\"self_id\":\"p:1\",\"opponent_id\":\"p:2\",\"requester_id\":\"p:1\",\"request_id\":\"plan-request:sample\",\"now\":\"2026-01-01T09:00:00Z\",\"rows\":[{\"payload\":{\"kind\":\"subject\",\"subjectId\":\"p:1\",\"subjectKind\":\"player\",\"label\":\"Alder\",\"payload\":{\"isSelf\":true},\"createdAt\":\"2026-01-01T09:00:00.000Z\"}},{\"payload\":{\"kind\":\"subject\" ....",
+      "hands_back": "It answered {\"request_record\":{\"kind\":\"plan-request\",\"requestId\":\"plan-request:sample\",\"requestKind\":\"match-plan\",\"requesterId\":\"p:1\",\"selfPlayerId\":\"p:1\",\"opponentPlayerId\":\"p:2\",\"publicEvidenceRefs\":[],\"privateEvidenceRefs\":[],\"reviewEvidenceRefs\":[],\"profileRefs\":[],\"resultRefs\":[],\"promptText\":\"Create exactly 2 strategies with exactly 3 tactics each.\\nUse only the evidence listed below. Do not invent facts about either side.\\n\\nSelf: Alder\\n\\nOpponent: Birch\",\"createdAt\":\"2026-01-01T09:00:00.000Z\"}}."
     }
   ]
 }

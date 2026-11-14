@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:read-glance-feeds's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-glance-feeds with nothing more.\" Read one feed or an ordered set of feeds for a glance surface",
+  "drafted_from": "tool:read-glance-feeds's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Read one feed or an ordered set of feeds for a glance surface\", with {\"feed\":\"habits\"}. It runs tool:read-glance-feeds and answers {\"feeds\":[{\"id\":\"habits\",\"label\":\"Things you want to do\",\"about\":\"Actions that serve your pursuits, each opening at the moment it matters.\",\"empty\":\"No action is ready yet.\",\"status\":\"ready\",\"rows\":[{\"id\":\"record:habit:sample-walk\",\"title\":\"Take a short walk\",\"source\":{\"id\":\"record:habit:sample-walk\",\"type\":\"record:habit\",\"value\":{\"habit\":\"Take a short walk\",\"cue\":\"After lunch\",\"state\":\"Active\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:habit, record:waiting-on-you, record:pursuit, told-the-person, ai-job) through the records door.",
   "workflows": [],
   "tools": [
     "tool:read-glance-feeds"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-glance-feeds\", and give it nothing more.",
+    "1. Say to your AI: \"Read one feed or an ordered set of feeds for a glance surface\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-glance-feeds and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields surface, feeds."
+    "3. Read what comes back: Give feed or surface and optionally limit (a positive whole number, default 50 per feed).",
+    "4. It reads and writes only its own rows through the records door: record:habit (records:list); record:waiting-on-you (records:list); record:pursuit (records:list); told-the-person (records:list); ai-job (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Read a glance feed on a sample input",
-      "ask": "Run tool:read-glance-feeds.",
+      "title": "Read a glance feed on its own sample",
+      "ask": "Read one feed or an ordered set of feeds for a glance surface",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +32,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields surface, feeds."
+      "given": "The input {\"feed\":\"habits\"}, with 1 example row (record:habit) already kept.",
+      "hands_back": "It answered {\"feeds\":[{\"id\":\"habits\",\"label\":\"Things you want to do\",\"about\":\"Actions that serve your pursuits, each opening at the moment it matters.\",\"empty\":\"No action is ready yet.\",\"status\":\"ready\",\"rows\":[{\"id\":\"record:habit:sample-walk\",\"title\":\"Take a short walk\",\"source\":{\"id\":\"record:habit:sample-walk\",\"type\":\"record:habit\",\"value\":{\"habit\":\"Take a short walk\",\"cue\":\"After lunch\",\"state\":\"Active\",\"entry_path\":\"/habits/sample-walk\"}},\"detail\":\"After lunch\",\"open\":\"/habits/sample-walk\",\"flagged\":false}]}]}."
     }
   ]
 }

@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:decide-what-a-paste-becomes's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:decide-what-a-paste-becomes with clipboard.\" Decide what a paste into a message or note becomes: a normal insert for short text, a named text file for a long paste, or attached images when the clipboard's markup has no words of its own, with the words the person reads beside the attachment",
+  "drafted_from": "tool:decide-what-a-paste-becomes's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Decide what a paste into a message or note becomes: a normal insert for short text, a named text file for a long paste, or attached images when the clipboard's markup has no words of its own, with the words the person reads beside the attachment\", with {\"clipboard\":{\"text\":\"yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy .... It runs tool:decide-what-a-paste-becomes and answers {\"action\":\"attach_text\",\"name\":\"Pasted text 2026-10-19-09-05-07.txt\",\"text\":\"yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:decide-what-a-paste-becomes"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:decide-what-a-paste-becomes\", and give it clipboard.",
+    "1. Say to your AI: \"Decide what a paste into a message or note becomes: a normal insert for short text, a named text file for a long paste, or attached images when the clipboard's markup has no words of its own, with the words the person reads beside the attachment\", and give it clipboard.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:decide-what-a-paste-becomes and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.name contains \"Pasted text 2026-10-19-09-05-07.txt\"."
+    "3. Read what comes back: Give clipboard ({ text, html, files: [{ type, name }] }) and, optionally, now (an ISO time for the attachment's name)."
   ],
   "worked_examples": [
     {
-      "title": "Decide what a paste becomes on a sample input",
-      "ask": "Run tool:decide-what-a-paste-becomes.",
+      "title": "Decide what a paste becomes on its own sample",
+      "ask": "Decide what a paste into a message or note becomes: a normal insert for short text, a named text file for a long paste, or attached images when the clipboard's markup has no words of its own, with the words the person reads beside the attachment",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -34,7 +34,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.name contains \"Pasted text 2026-10-19-09-05-07.txt\"."
+      "given": "The input {\"clipboard\":{\"text\":\"yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy ....",
+      "hands_back": "It answered {\"action\":\"attach_text\",\"name\":\"Pasted text 2026-10-19-09-05-07.txt\",\"text\":\"yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy ...."
     }
   ]
 }

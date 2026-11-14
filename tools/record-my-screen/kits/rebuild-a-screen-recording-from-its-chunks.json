@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:rebuild-a-screen-recording-from-its-chunks's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:rebuild-a-screen-recording-from-its-chunks with chunks.\" Keep a screen recording's chunks in order as they are recorded and rebuild the finished recording from them, with the file reference it is published with",
+  "drafted_from": "tool:rebuild-a-screen-recording-from-its-chunks's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Keep a screen recording's chunks in order as they are recorded and rebuild the finished recording from them, with the file reference it is published with\", with {\"recording_id\":\"screen-record:sample-demo\",\"media_type\":\"video/webm\",\"observed_at\":\"2026-11-04T10:00:00Z\",\"chunks\":[{\"text\":\"first piece of a made-up recording \"},{\"base64\":\"AAECAwQFBgcICQ==\"},{\"text\":\"last piece\"}]}. It runs tool:rebuild-a-screen-recording-from-its-chunks and answers {\"file\":{\"kind\":\"local-playback.indexeddb-chunks\",\"database\":\"screen-recording\",\"store\":\"recorded-chunks\",\"recording_id\":\"screen-record:sample-demo\",\"chunk_refs\":[{\"key\":\"screen-record:sample-demo:chunk:0\",\"byte_length\":35},{\"key\":\"screen-record:sample-demo:chunk:1\",\"byte_length\":10},{\"key\":\"screen-record:sample-demo:chunk:2\",\"byte_length\":10}],\"media_type\":\"video/webm\",\"byte_length\":55} ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:rebuild-a-screen-recording-from-its-chunks"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:rebuild-a-screen-recording-from-its-chunks\", and give it chunks.",
+    "1. Say to your AI: \"Keep a screen recording's chunks in order as they are recorded and rebuild the finished recording from them, with the file reference it is published with\", and give it chunks.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:rebuild-a-screen-recording-from-its-chunks and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields file, kept_keys, rebuilt."
+    "3. Read what comes back: Give chunks ([{ base64 } or { text }] in the order they were recorded; at most 1000 and 8 MB in all), and optionally recording_id (screen-record:<words>; one is made when left out), media_type (video/webm when left out) and observed_at (the ISO time each chunk is stamped with)."
   ],
   "worked_examples": [
     {
-      "title": "Rebuild a screen recording from its chunks on a sample input",
-      "ask": "Run tool:rebuild-a-screen-recording-from-its-chunks.",
+      "title": "Rebuild a screen recording from its chunks on its own sample",
+      "ask": "Keep a screen recording's chunks in order as they are recorded and rebuild the finished recording from them, with the file reference it is published with",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -44,7 +44,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields file, kept_keys, rebuilt."
+      "given": "The input {\"recording_id\":\"screen-record:sample-demo\",\"media_type\":\"video/webm\",\"observed_at\":\"2026-11-04T10:00:00Z\",\"chunks\":[{\"text\":\"first piece of a made-up recording \"},{\"base64\":\"AAECAwQFBgcICQ==\"},{\"text\":\"last piece\"}]}.",
+      "hands_back": "It answered {\"file\":{\"kind\":\"local-playback.indexeddb-chunks\",\"database\":\"screen-recording\",\"store\":\"recorded-chunks\",\"recording_id\":\"screen-record:sample-demo\",\"chunk_refs\":[{\"key\":\"screen-record:sample-demo:chunk:0\",\"byte_length\":35},{\"key\":\"screen-record:sample-demo:chunk:1\",\"byte_length\":10},{\"key\":\"screen-record:sample-demo:chunk:2\",\"byte_length\":10}],\"media_type\":\"video/webm\",\"byte_length\":55},\"kept_keys\":[\"screen-record:sample-demo:chunk:0\",\"screen-record:sample-demo:chunk:1\",\"screen-record:sample-demo:chunk:2\"],\"rebuilt\":{\"byte_length\":55,\"media_type\":\"video/webm\",\"identity\":\"1f:6e65248ac25071ec752224aa7aa1f6c3f67e6da7b1270dd26da1ad6d19708835\",\"matches_chunks\":true}}."
     }
   ]
 }

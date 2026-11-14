@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:plan-a-stance-reload's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:plan-a-stance-reload with stances, fold.\" Turn stands a person took that were kept somewhere else into their stance records, with every earlier stand as an earlier version, and show what would change before anything is written",
+  "drafted_from": "tool:plan-a-stance-reload's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Turn stands a person took that were kept somewhere else into their stance records, with every earlier stand as an earlier version, and show what would change before anything is written\", with {\"fold\":{\"lowercase\":true,\"strip_trailing\":\"[.!?]+\"},\"summary_only\":true,\"stances\":[{\"kind\":\"title\",\"text\":\"Start Here.\",\"stance\":\"agree\",\"why\":\"good\",\"at\":\"2026-01-01T11:00:00Z\",\"earlier\":[{\"stance\":\"disagree\",\"why\":\"no\",\"at\":\"2026-01-01T10:00:00Z\"}]},{\"kind\":\"title\",\"text\":\"start here\",\"stance\":\"disagree\",\"why\":\"worse\",\"at\":\"2026-01-01T13:00:00Z\"}]}. It runs tool:plan-a-stance-reload and answers {\"summary\":{\"rows\":2,\"records\":1,\"versions\":3,\"by_kind\":{\"title\":{\"records\":1,\"versions\":3,\"rows\":2}},\"refs_changed\":0,\"collisions\":[{\"id\":\"stance:title:1f:2dae034df2d7736abcdbf773cf09d892ca4f5ece5401662617daf3a805ea87cb\",\"kind\":\"title\",\"rows\":[{\"text\":\"Start Here.\",\"at\":\"2026-01-01T11:00:00Z\"},{\"text\":\"start here\",\"at\":\"2026-01-01T13:00:00Z\"}]}],\"already\":0,\"unverified\":[]}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:setting) through the records door.",
   "workflows": [],
   "tools": [
     "tool:plan-a-stance-reload"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:plan-a-stance-reload\", and give it stances, fold.",
+    "1. Say to your AI: \"Turn stands a person took that were kept somewhere else into their stance records, with every earlier stand as an earlier version, and show what would change before anything is written\", and give it stances (The stands kept elsewhere, one row per thing; a row and each of its earlier stands may name the source its words were said in (source, after_line)); fold (How two texts are the same text, as the owner of the rules declares it: lowercase, quotes ([[from characters, to]]), collapse_space, strip_trailing (a pattern)).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:plan-a-stance-reload and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.summary.collisions[0].kind contains \"title\"."
+    "3. Read what comes back: Give stances (rows: kind, text, contains or view, stance, why, by, at, earlier as [{stance, why, at}], and the old ref if there was one) and fold, how the owner of the rules says two texts are the same.",
+    "4. It reads and writes only its own rows through the records door: record:setting (records:read)."
   ],
   "worked_examples": [
     {
-      "title": "Plan moving kept stands into stance records on a sample input",
-      "ask": "Run tool:plan-a-stance-reload.",
+      "title": "Plan moving kept stands into stance records on its own sample",
+      "ask": "Turn stands a person took that were kept somewhere else into their stance records, with every earlier stand as an earlier version, and show what would change before anything is written",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -58,7 +59,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.summary.collisions[0].kind contains \"title\"."
+      "given": "The input {\"fold\":{\"lowercase\":true,\"strip_trailing\":\"[.!?]+\"},\"summary_only\":true,\"stances\":[{\"kind\":\"title\",\"text\":\"Start Here.\",\"stance\":\"agree\",\"why\":\"good\",\"at\":\"2026-01-01T11:00:00Z\",\"earlier\":[{\"stance\":\"disagree\",\"why\":\"no\",\"at\":\"2026-01-01T10:00:00Z\"}]},{\"kind\":\"title\",\"text\":\"start here\",\"stance\":\"disagree\",\"why\":\"worse\",\"at\":\"2026-01-01T13:00:00Z\"}]}.",
+      "hands_back": "It answered {\"summary\":{\"rows\":2,\"records\":1,\"versions\":3,\"by_kind\":{\"title\":{\"records\":1,\"versions\":3,\"rows\":2}},\"refs_changed\":0,\"collisions\":[{\"id\":\"stance:title:1f:2dae034df2d7736abcdbf773cf09d892ca4f5ece5401662617daf3a805ea87cb\",\"kind\":\"title\",\"rows\":[{\"text\":\"Start Here.\",\"at\":\"2026-01-01T11:00:00Z\"},{\"text\":\"start here\",\"at\":\"2026-01-01T13:00:00Z\"}]}],\"already\":0,\"unverified\":[]}}."
     }
   ]
 }

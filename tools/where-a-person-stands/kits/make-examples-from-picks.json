@@ -1,7 +1,7 @@
 {
   "draft": true,
-  "drafted_from": "tool:make-examples-from-picks's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:make-examples-from-picks with films.\" Make labelled examples for calibrating a small model from which options of a piece a person picked or rejected, and the lines they named",
+  "drafted_from": "tool:make-examples-from-picks's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Make labelled examples for calibrating a small model from which options of a piece a person picked or rejected, and the lines they named\", with {\"films\":[{\"name\":\"piece-1\",\"gate\":{\"picked_verdicts\":[\"picked\"],\"pick_labels\":{\"spec_globs\":[\"cuts/{option}.json\"]}},\"decisions\":[{\"option_id\":\"o1\",\"verdict\":\"picked\"}],\"files\":[\"cuts/o1.json\"],\"units\":{\"cuts/o1.json\":[{\"text\":\"A kept line.\",\"kind\":\"onscreen\"}]}}]}. It runs tool:make-examples-from-picks and answers {\"items\":[{\"text\":\"A kept line.\",\"good\":true,\"bad_for\":[],\"split\":\"real\",\"source\":\"pick-implied\",\"kind\":\"onscreen\",\"film\":\"piece-1\",\"option\":\"o1\",\"verdict\":\"picked\",\"their_words\":null,\"spec\":\"cuts/o1.json\",\"context\":null}],\"left_out\":{\"excluded\":0,\"ruled_directly\":0,\"both_labels\":0,\"no_spec\":[],\"several_specs\":[]},\"units_needed\":[]}",
   "lists": [
     {
       "list": "list:settings",
@@ -108,20 +108,20 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
     "tool:make-examples-from-picks"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:make-examples-from-picks\", and give it films.",
+    "1. Say to your AI: \"Make labelled examples for calibrating a small model from which options of a piece a person picked or rejected, and the lines they named\", and give it films (The pieces: { name, gate, decisions, files, units }).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:make-examples-from-picks and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.items[0].source contains \"pick-implied\"."
+    "3. Read what comes back: Give films (each piece: name, gate (its pick settings: picked_verdicts and pick_labels with spec_globs using {option}, and optionally words, exclude, rejected_lines, text_keys, spoken_lead_s), decisions (its pick rows: option_id, verdict, lines, reason_verbatim; the last row of an option governs), files (the piece's file paths) and units ({ <spec path>: [{ text, kind, context }] }, the lines of each spec read so far)), and optionally rulings with real and needs (a text ruled directly is left out: the ruling wins), bad_label and rejected (the pattern a rejecting verdict matches, default ^rejected).",
+    "4. It reads and writes only its own rows through the records door: record:setting (records:read)."
   ],
   "worked_examples": [
     {
-      "title": "Make examples from the options a person picked on a sample input",
-      "ask": "Run tool:make-examples-from-picks.",
+      "title": "Make examples from the options a person picked on its own sample",
+      "ask": "Make labelled examples for calibrating a small model from which options of a piece a person picked or rejected, and the lines they named",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -167,7 +167,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.items[0].source contains \"pick-implied\"."
+      "given": "The input {\"films\":[{\"name\":\"piece-1\",\"gate\":{\"picked_verdicts\":[\"picked\"],\"pick_labels\":{\"spec_globs\":[\"cuts/{option}.json\"]}},\"decisions\":[{\"option_id\":\"o1\",\"verdict\":\"picked\"}],\"files\":[\"cuts/o1.json\"],\"units\":{\"cuts/o1.json\":[{\"text\":\"A kept line.\",\"kind\":\"onscreen\"}]}}]}.",
+      "hands_back": "It answered {\"items\":[{\"text\":\"A kept line.\",\"good\":true,\"bad_for\":[],\"split\":\"real\",\"source\":\"pick-implied\",\"kind\":\"onscreen\",\"film\":\"piece-1\",\"option\":\"o1\",\"verdict\":\"picked\",\"their_words\":null,\"spec\":\"cuts/o1.json\",\"context\":null}],\"left_out\":{\"excluded\":0,\"ruled_directly\":0,\"both_labels\":0,\"no_spec\":[],\"several_specs\":[]},\"units_needed\":[]}."
     }
   ],
   "pour": {

@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:open-the-billing-page-for-one-purchase-and-show-the-card's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:open-the-billing-page-for-one-purchase-and-show-the-card with subscription_id, return_url.\" Open the billing page of one purchase, where the buyer can change or cancel it, and show the card that pays it",
+  "drafted_from": "tool:open-the-billing-page-for-one-purchase-and-show-the-card's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Open the billing page of one purchase, where the buyer can change or cancel it, and show the card that pays it\", with {\"subscription_id\":\"sub_sample0001\",\"return_url\":\"https://app.example.com/billing\"}. It runs tool:open-the-billing-page-for-one-purchase-and-show-the-card and answers {\"subscription_id\":\"sub_sample0001\",\"redirect\":\"https://billing.stripe.com/p/session/test_sample0001\",\"card\":{\"brand\":\"visa\",\"last4\":\"4242\",\"exp_month\":12,\"exp_year\":2030}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:open-the-billing-page-for-one-purchase-and-show-the-card"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:open-the-billing-page-for-one-purchase-and-show-the-card\", and give it subscription_id, return_url.",
+    "1. Say to your AI: \"Open the billing page of one purchase, where the buyer can change or cancel it, and show the card that pays it\", and give it subscription_id; return_url.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:open-the-billing-page-for-one-purchase-and-show-the-card and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields subscription_id, redirect, card."
+    "3. Read what comes back: Give subscription_id (the sub_ id of one purchase) and return_url (an https address the billing page returns to)."
   ],
   "worked_examples": [
     {
-      "title": "Open the billing page for one purchase and show its card on a sample input",
-      "ask": "Run tool:open-the-billing-page-for-one-purchase-and-show-the-card.",
+      "title": "Open the billing page for one purchase and show its card on its own sample",
+      "ask": "Open the billing page of one purchase, where the buyer can change or cancel it, and show the card that pays it",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,7 +32,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields subscription_id, redirect, card."
+      "given": "The input {\"subscription_id\":\"sub_sample0001\",\"return_url\":\"https://app.example.com/billing\"}, the web answering from 3 recorded replies.",
+      "hands_back": "It answered {\"subscription_id\":\"sub_sample0001\",\"redirect\":\"https://billing.stripe.com/p/session/test_sample0001\",\"card\":{\"brand\":\"visa\",\"last4\":\"4242\",\"exp_month\":12,\"exp_year\":2030}}."
     }
   ]
 }

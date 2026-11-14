@@ -1,23 +1,24 @@
 {
   "draft": true,
-  "drafted_from": "tool:advance-a-community-matchmaker's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:advance-a-community-matchmaker with community_id.\" Pair a community's members on its cadence without anyone asking: start a round when it is due, close it at its deadline, make introductions everyone said yes to, and follow up the ones nobody acted on",
+  "drafted_from": "tool:advance-a-community-matchmaker's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Pair a community's members on its cadence without anyone asking: start a round when it is due, close it at its deadline, make introductions everyone said yes to, and follow up the ones nobody acted on\", with {\"community_id\":\"sample-verify-community\"}. It runs tool:advance-a-community-matchmaker and answers {\"ok\":false,\"error\":\"No community sample-verify-community keeps matching settings here.\",\"status\":404}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (match-community, match-member, match-round, match-ask, match, match-answer, ai-job, group) through the records door.",
   "workflows": [],
   "tools": [
     "tool:advance-a-community-matchmaker",
     "tool:check-community-matching-settings"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:advance-a-community-matchmaker\", and give it community_id.",
+    "1. Say to your AI: \"Pair a community's members on its cadence without anyone asking: start a round when it is due, close it at its deadline, make introductions everyone said yes to, and follow up the ones nobody acted on\", and give it community_id (The community whose matchmaker runs: its settings are the match-community record of this id.).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:advance-a-community-matchmaker and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.error contains \"No community sample-verify-community\"."
+    "3. Read what comes back: The wake target of a community's matchmaker; a person declares it as their own wake (a wake-declaration record with tool tool:advance-a-community-matchmaker, a time repeat, and input { community_id }).",
+    "4. It reads and writes only its own rows through the records door: match-community (records:read); match-member (records:read, records:list, records:write); match-round (records:read, records:list, records:write); match-ask (records:read, records:list, records:write); match (records:read, records:list, records:write); match-answer (records:read, records:list, records:write); ai-job (records:read, records:list, records:write); group (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Run a community's matchmaker clock: start or close a round, introduce, follow up on a sample input",
-      "ask": "Run tool:advance-a-community-matchmaker.",
+      "title": "Run a community's matchmaker clock: start or close a round, introduce, follow up on its own sample",
+      "ask": "Pair a community's members on its cadence without anyone asking: start a round when it is due, close it at its deadline, make introductions everyone said yes to, and follow up the ones nobody acted on",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,7 +33,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.error contains \"No community sample-verify-community\"."
+      "given": "The input {\"community_id\":\"sample-verify-community\"}.",
+      "hands_back": "It answered {\"ok\":false,\"error\":\"No community sample-verify-community keeps matching settings here.\",\"status\":404}."
     }
   ]
 }

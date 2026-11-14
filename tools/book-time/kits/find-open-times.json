@@ -1,23 +1,24 @@
 {
   "draft": true,
-  "drafted_from": "tool:find-open-times's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:find-open-times with timezone, windows, from_date, duration_minutes.\" Find the times someone can book with me, from my weekly hours, minus what is already booked and what my calendar shows busy",
+  "drafted_from": "tool:find-open-times's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Find the times someone can book with me, from my weekly hours, minus what is already booked and what my calendar shows busy\", with {\"timezone\":\"America/Chicago\",\"windows\":[{\"weekday\":1,\"start\":\"09:00\",\"end\":\"11:00\"}],\"from_date\":\"2026-08-10\",\"duration_minutes\":45,\"step_minutes\":30}. It runs tool:find-open-times and answers {\"timezone\":\"America/Chicago\",\"count\":3,\"slots\":[{\"start\":\"2026-08-10T14:00:00.000Z\",\"end\":\"2026-08-10T14:45:00.000Z\",\"date\":\"2026-08-10\",\"time\":\"09:00\"},{\"start\":\"2026-08-10T14:30:00.000Z\",\"end\":\"2026-08-10T15:15:00.000Z\",\"date\":\"2026-08-10\",\"time\":\"09:30\"},{\"start\":\"2026-08-10T15:00:00.000Z\",\"end\":\"2026-08-10T15:45:00.000Z\",\"date\":\"2026-08-10\",\"time\":\"10:00\"}]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (booking) through the records door.",
   "workflows": [],
   "tools": [
     "tool:find-open-times",
     "tool:check-when-i-am-busy"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:find-open-times\", and give it timezone, windows, from_date, duration_minutes.",
+    "1. Say to your AI: \"Find the times someone can book with me, from my weekly hours, minus what is already booked and what my calendar shows busy\", and give it timezone (The IANA zone the windows are written in, like \"America/Chicago\"); windows; from_date (The first day, YYYY-MM-DD in the zone); duration_minutes.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-open-times and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.slots[0].time contains \"09:00\"."
+    "3. Read what comes back: Gives the open start times over one or more days, in the person's time zone.",
+    "4. It reads and writes only its own rows through the records door: booking (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Find open times on a sample input",
-      "ask": "Run tool:find-open-times.",
+      "title": "Find open times on its own sample",
+      "ask": "Find the times someone can book with me, from my weekly hours, minus what is already booked and what my calendar shows busy",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -42,7 +43,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.slots[0].time contains \"09:00\"."
+      "given": "The input {\"timezone\":\"America/Chicago\",\"windows\":[{\"weekday\":1,\"start\":\"09:00\",\"end\":\"11:00\"}],\"from_date\":\"2026-08-10\",\"duration_minutes\":45,\"step_minutes\":30}.",
+      "hands_back": "It answered {\"timezone\":\"America/Chicago\",\"count\":3,\"slots\":[{\"start\":\"2026-08-10T14:00:00.000Z\",\"end\":\"2026-08-10T14:45:00.000Z\",\"date\":\"2026-08-10\",\"time\":\"09:00\"},{\"start\":\"2026-08-10T14:30:00.000Z\",\"end\":\"2026-08-10T15:15:00.000Z\",\"date\":\"2026-08-10\",\"time\":\"09:30\"},{\"start\":\"2026-08-10T15:00:00.000Z\",\"end\":\"2026-08-10T15:45:00.000Z\",\"date\":\"2026-08-10\",\"time\":\"10:00\"}]}."
     }
   ]
 }

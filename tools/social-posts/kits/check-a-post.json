@@ -1,9 +1,9 @@
 {
   "draft": true,
-  "drafted_from": "tool:check-a-post's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-a-post with post_id.\" Say whether a post is ready for each place it is going, and what each place will refuse, before it is approved or set to go",
+  "drafted_from": "tool:check-a-post's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Say whether a post is ready for each place it is going, and what each place will refuse, before it is approved or set to go\", with {\"post_id\":\"post:that-is-not-there\"}. It runs tool:check-a-post and answers {\"post_id\":\"post:that-is-not-there\",\"status\":\"missing\",\"said\":\"There is no post post:that-is-not-there, so nothing was checked.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (post, connection) through the records door.",
   "workflows": [],
   "tools": [
     "tool:check-a-post",
@@ -11,14 +11,15 @@
     "tool:read-post-calendar"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-a-post\", and give it post_id.",
+    "1. Say to your AI: \"Say whether a post is ready for each place it is going, and what each place will refuse, before it is approved or set to go\", and give it post_id (A post_id from tool:draft-a-post or tool:read-post-calendar).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-post and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.status contains \"missing\"."
+    "3. Read what comes back: Give post_id.",
+    "4. It reads and writes only its own rows through the records door: post (records:read); connection (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Check a post on a sample input",
-      "ask": "Run tool:check-a-post.",
+      "title": "Check a post on its own sample",
+      "ask": "Say whether a post is ready for each place it is going, and what each place will refuse, before it is approved or set to go",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +34,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.status contains \"missing\"."
+      "given": "The input {\"post_id\":\"post:that-is-not-there\"}.",
+      "hands_back": "It answered {\"post_id\":\"post:that-is-not-there\",\"status\":\"missing\",\"said\":\"There is no post post:that-is-not-there, so nothing was checked.\"}."
     }
   ]
 }

@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:check-corroboration's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-corroboration with checks, need.\" Check that a value has enough independent support before my AI acts on it",
+  "drafted_from": "tool:check-corroboration's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Check that a value has enough independent support before my AI acts on it\", with {\"checks\":[{\"name\":\"two-shops-agree\",\"passed\":true,\"required\":true},{\"name\":\"matches-last-month\",\"passed\":true},{\"name\":\"matches-the-till\",\"passed\":false}],\"need\":1}. It runs tool:check-corroboration and answers {\"permitted\":true,\"required_failed\":[],\"corroborating\":[\"matches-last-month\"],\"reason\":\"required + quorum met\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:check-corroboration"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-corroboration\", and give it checks, need.",
+    "1. Say to your AI: \"Check that a value has enough independent support before my AI acts on it\", and give it checks; need (How many optional checks must have passed).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-corroboration and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.reason contains \"required + quorum met\"."
+    "3. Read what comes back: Takes named checks (each passed or not, some required) and how many of the optional ones must agree."
   ],
   "worked_examples": [
     {
-      "title": "Check a value has enough support on a sample input",
-      "ask": "Run tool:check-corroboration.",
+      "title": "Check a value has enough support on its own sample",
+      "ask": "Check that a value has enough independent support before my AI acts on it",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -46,7 +46,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.reason contains \"required + quorum met\"."
+      "given": "The input {\"checks\":[{\"name\":\"two-shops-agree\",\"passed\":true,\"required\":true},{\"name\":\"matches-last-month\",\"passed\":true},{\"name\":\"matches-the-till\",\"passed\":false}],\"need\":1}.",
+      "hands_back": "It answered {\"permitted\":true,\"required_failed\":[],\"corroborating\":[\"matches-last-month\"],\"reason\":\"required + quorum met\"}."
     }
   ]
 }

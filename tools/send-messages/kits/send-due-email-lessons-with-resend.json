@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:send-due-email-lessons-with-resend's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:send-due-email-lessons-with-resend with provider.\" Send each email-course lesson whose time has come to the people still signed up, once each, and retry a failed one later",
+  "drafted_from": "tool:send-due-email-lessons-with-resend's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Send each email-course lesson whose time has come to the people still signed up, once each, and retry a failed one later\", with {\"provider\":\"resend\"}. It runs tool:send-due-email-lessons-with-resend and answers {\"results\":[],\"said\":\"0 lessons due; 0 sent, 0 failed.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (email-lesson-due, email-course-subscription, email-course-token, contact-point) through the records door.",
   "workflows": [],
   "tools": [
     "tool:send-due-email-lessons-with-resend"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:send-due-email-lessons-with-resend\", and give it provider.",
+    "1. Say to your AI: \"Send each email-course lesson whose time has come to the people still signed up, once each, and retry a failed one later\", and give it provider.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:send-due-email-lessons-with-resend and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields results, said."
+    "3. Read what comes back: Optional limit (up to 50 per run) and provider (resend).",
+    "4. It reads and writes only its own rows through the records door: email-lesson-due (records:list, records:write); email-course-subscription (records:read, records:write); email-course-token (records:read); contact-point (records:read)."
   ],
   "worked_examples": [
     {
-      "title": "Send the email lessons that have come due (through Resend) on a sample input",
-      "ask": "Run tool:send-due-email-lessons-with-resend.",
+      "title": "Send the email lessons that have come due (through Resend) on its own sample",
+      "ask": "Send each email-course lesson whose time has come to the people still signed up, once each, and retry a failed one later",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +32,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields results, said."
+      "given": "The input {\"provider\":\"resend\"}.",
+      "hands_back": "It answered {\"results\":[],\"said\":\"0 lessons due; 0 sent, 0 failed.\"}."
     }
   ]
 }

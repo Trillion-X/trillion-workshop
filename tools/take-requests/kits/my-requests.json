@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:my-requests's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:my-requests with nothing more.\" List the requests taken, newest first, with their receipts and the ones still waiting on an owner",
+  "drafted_from": "tool:my-requests's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"List the requests taken, newest first, with their receipts and the ones still waiting on an owner\", with {\"limit\":1}. It runs tool:my-requests and answers {\"requests\":[],\"said\":\"0 requests, newest first; 0 waiting on an owner.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (intake-request, intake-receipt) through the records door.",
   "workflows": [],
   "tools": [
     "tool:my-requests"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:my-requests\", and give it nothing more.",
+    "1. Say to your AI: \"List the requests taken, newest first, with their receipts and the ones still waiting on an owner\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:my-requests and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.said contains \"request\"."
+    "3. Read what comes back: Optional owner (only that owner's requests), waiting true (only requests handed to an owner that has given no receipt) and limit (up to 100, default 20).",
+    "4. It reads and writes only its own rows through the records door: intake-request (records:list); intake-receipt (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Requests taken and who owes an answer on a sample input",
-      "ask": "Run tool:my-requests.",
+      "title": "Requests taken and who owes an answer on its own sample",
+      "ask": "List the requests taken, newest first, with their receipts and the ones still waiting on an owner",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +32,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.said contains \"request\"."
+      "given": "The input {\"limit\":1}.",
+      "hands_back": "It answered {\"requests\":[],\"said\":\"0 requests, newest first; 0 waiting on an owner.\"}."
     }
   ]
 }

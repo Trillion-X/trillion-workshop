@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:keep-public-posts-by-link's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:keep-public-posts-by-link with links.\" Keep the text, numbers and media addresses of public posts I name by link, through a public mirror, without opening the posts' site",
+  "drafted_from": "tool:keep-public-posts-by-link's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Keep the text, numbers and media addresses of public posts I name by link, through a public mirror, without opening the posts' site\", with {\"links\":[\"https://x.com/sampleuser/status/1234567890\"]}. It runs tool:keep-public-posts-by-link and answers {\"stopped\":\"finished\",\"requests\":1,\"seconds\":0.8,\"posts\":{\"ready\":1,\"failed\":[]},\"settled\":1,\"again\":null}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:sources) through the records door.",
   "workflows": [],
   "tools": [
     "tool:keep-public-posts-by-link"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:keep-public-posts-by-link\", and give it links.",
+    "1. Say to your AI: \"Keep the text, numbers and media addresses of public posts I name by link, through a public mirror, without opening the posts' site\", and give it links (Links to public posts).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:keep-public-posts-by-link and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields stopped, requests, seconds, posts, settled, skipped, rows, wait_minutes."
+    "3. Read what comes back: For each link to a public post (x.com or twitter.com status links; the link pattern is in harvest-settings.json) asks a third-party public mirror for the post as JSON and keeps its text, counts, author and the addresses of its media, never the media themselves.",
+    "4. It reads and writes only its own rows through the records door: record:sources (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Keep public posts by link on a sample input",
-      "ask": "Run tool:keep-public-posts-by-link.",
+      "title": "Keep public posts by link on its own sample",
+      "ask": "Keep the text, numbers and media addresses of public posts I name by link, through a public mirror, without opening the posts' site",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +34,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields stopped, requests, seconds, posts, settled, skipped, rows, wait_minutes."
+      "given": "The input {\"links\":[\"https://x.com/sampleuser/status/1234567890\"]}, the web answering from 1 recorded reply.",
+      "hands_back": "It answered {\"stopped\":\"finished\",\"requests\":1,\"seconds\":0.8,\"posts\":{\"ready\":1,\"failed\":[]},\"settled\":1,\"again\":null}."
     }
   ]
 }

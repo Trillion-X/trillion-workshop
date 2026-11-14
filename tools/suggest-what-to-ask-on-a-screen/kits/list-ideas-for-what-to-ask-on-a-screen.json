@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:list-ideas-for-what-to-ask-on-a-screen's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:list-ideas-for-what-to-ask-on-a-screen with screen.\" Show the written ideas for what to ask an AI on one screen, each with the request a Do this for me button would hand over",
+  "drafted_from": "tool:list-ideas-for-what-to-ask-on-a-screen's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Show the written ideas for what to ask an AI on one screen, each with the request a Do this for me button would hand over\", with {\"screen\":\"calendar\"}. It runs tool:list-ideas-for-what-to-ask-on-a-screen and answers {\"heading\":\"Ideas for Posting calendar\",\"count_words\":\"2 ideas\",\"words\":{\"heading\":\"Ideas for {screen}\",\"written\":\"An example\",\"story\":\"Someone's story\",\"do\":\"Do this for me\",\"not_copied\":\"Could not copy. Press and hold to select the request instead.\",\"handed\":\"Handed to your AI. The next AI you use with Trillion takes it.\",\"plan_copy\":\"Handing jobs to your AI comes with a paid plan, so the ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:list-ideas-for-what-to-ask-on-a-screen"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:list-ideas-for-what-to-ask-on-a-screen\", and give it screen.",
+    "1. Say to your AI: \"Show the written ideas for what to ask an AI on one screen, each with the request a Do this for me button would hand over\", and give it screen.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-ideas-for-what-to-ask-on-a-screen and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.count_words contains \"2 ideas\"."
+    "3. Read what comes back: Give screen (a screen key: calendar, marketplace, home, files, spaces and the others in workspace/examples.json)."
   ],
   "worked_examples": [
     {
-      "title": "Ideas for what to ask an AI on a screen on a sample input",
-      "ask": "Run tool:list-ideas-for-what-to-ask-on-a-screen.",
+      "title": "Ideas for what to ask an AI on a screen on its own sample",
+      "ask": "Show the written ideas for what to ask an AI on one screen, each with the request a Do this for me button would hand over",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +31,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.count_words contains \"2 ideas\"."
+      "given": "The input {\"screen\":\"calendar\"}.",
+      "hands_back": "It answered {\"heading\":\"Ideas for Posting calendar\",\"count_words\":\"2 ideas\",\"words\":{\"heading\":\"Ideas for {screen}\",\"written\":\"An example\",\"story\":\"Someone's story\",\"do\":\"Do this for me\",\"not_copied\":\"Could not copy. Press and hold to select the request instead.\",\"handed\":\"Handed to your AI. The next AI you use with Trillion takes it.\",\"plan_copy\":\"Handing jobs to your AI comes with a paid plan, so the request is copied. Paste it into your AI.\",\"read_story\":\"Read the story\",\"story_request\":\"Read this story on Trillion and help me make a decision like it for my own situation: {url}\"},\"examples\":[{\"id\":\"fill-the-week\",\"title\":\"Fill next week\",\"detail\":\"A post for each day, at the hours people see them.\" ...."
     }
   ]
 }

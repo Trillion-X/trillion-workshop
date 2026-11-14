@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:merge-a-streamed-answer's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:merge-a-streamed-answer with events.\" Merge the events of a streamed answer into keyed parts: text that appends, sources and related questions as parts of their own, patches to parts already sent, and a snapshot to pick up an interrupted stream",
+  "drafted_from": "tool:merge-a-streamed-answer's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Merge the events of a streamed answer into keyed parts: text that appends, sources and related questions as parts of their own, patches to parts already sent, and a snapshot to pick up an interrupted stream\", with {\"events\":[{\"seq\":1,\"type\":\"text\",\"key\":\"answer\",\"text\":\"Hello, \"},{\"seq\":2,\"type\":\"text\",\"key\":\"answer\",\"text\":\"world.\"}]}. It runs tool:merge-a-streamed-answer and answers {\"entry\":{\"seq\":2,\"order\":[\"answer\"],\"parts\":{\"answer\":{\"type\":\"text\",\"text\":\"Hello, world.\"}},\"drift\":[],\"stalls\":0},\"resume\":{\"seq\":2,\"identity\":\"944b406a1c75a01a6b7bb6c0d766dd4678df204243de197eda1adbd762a07ba3\"}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:merge-a-streamed-answer"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:merge-a-streamed-answer\", and give it events.",
+    "1. Say to your AI: \"Merge the events of a streamed answer into keyed parts: text that appends, sources and related questions as parts of their own, patches to parts already sent, and a snapshot to pick up an interrupted stream\", and give it events.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:merge-a-streamed-answer and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.entry.parts.answer.text contains \"Hello, world.\"."
+    "3. Read what comes back: Give events, each { seq, type, key?, ..."
   ],
   "worked_examples": [
     {
-      "title": "Merge a streamed answer's parts on a sample input",
-      "ask": "Run tool:merge-a-streamed-answer.",
+      "title": "Merge a streamed answer's parts on its own sample",
+      "ask": "Merge the events of a streamed answer into keyed parts: text that appends, sources and related questions as parts of their own, patches to parts already sent, and a snapshot to pick up an interrupted stream",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -44,7 +44,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.entry.parts.answer.text contains \"Hello, world.\"."
+      "given": "The input {\"events\":[{\"seq\":1,\"type\":\"text\",\"key\":\"answer\",\"text\":\"Hello, \"},{\"seq\":2,\"type\":\"text\",\"key\":\"answer\",\"text\":\"world.\"}]}.",
+      "hands_back": "It answered {\"entry\":{\"seq\":2,\"order\":[\"answer\"],\"parts\":{\"answer\":{\"type\":\"text\",\"text\":\"Hello, world.\"}},\"drift\":[],\"stalls\":0},\"resume\":{\"seq\":2,\"identity\":\"944b406a1c75a01a6b7bb6c0d766dd4678df204243de197eda1adbd762a07ba3\"}}."
     }
   ]
 }

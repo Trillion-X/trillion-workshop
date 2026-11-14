@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:answer-the-catch-up-here-route's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:answer-the-catch-up-here-route with path, method.\" Answer the Trillion page route POST /work/api/catch-up/here: keep how this device stands and answer the page as old Trillion did",
+  "drafted_from": "tool:answer-the-catch-up-here-route's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Answer the Trillion page route POST /work/api/catch-up/here: keep how this device stands and answer the page as old Trillion did\", with {\"path\":\"/catch-up/here\",\"method\":\"POST\",\"query\":{},\"body\":{\"device_id\":\"d-sample01\",\"state\":\"caught-up\"},\"browser\":{}}. It runs tool:answer-the-catch-up-here-route and answers {\"status\":200,\"body\":{\"device\":{\"device_id\":\"d-sample01\",\"title\":\"\",\"kind\":\"\",\"state\":\"caught-up\",\"waiting\":0,\"seen_at\":\"2026-11-14T00:50:25.274Z\"},\"written\":true}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (setting) through the records door.",
   "workflows": [],
   "tools": [
     "tool:answer-the-catch-up-here-route"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:answer-the-catch-up-here-route\", and give it path, method.",
+    "1. Say to your AI: \"Answer the Trillion page route POST /work/api/catch-up/here: keep how this device stands and answer the page as old Trillion did\", and give it path (The route after /work/api); method.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:answer-the-catch-up-here-route and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.body.device.device_id contains \"d-sample01\"."
+    "3. Read what comes back: A page route tool: the engine runs it for the page's account with { path, method, query, body, browser } and answers the page with { status, body }.",
+    "4. It reads and writes only its own rows through the records door: setting (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Answer the page that says how this device stands on a sample input",
-      "ask": "Run tool:answer-the-catch-up-here-route.",
+      "title": "Answer the page that says how this device stands on its own sample",
+      "ask": "Answer the Trillion page route POST /work/api/catch-up/here: keep how this device stands and answer the page as old Trillion did",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -38,7 +39,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.body.device.device_id contains \"d-sample01\"."
+      "given": "The input {\"path\":\"/catch-up/here\",\"method\":\"POST\",\"query\":{},\"body\":{\"device_id\":\"d-sample01\",\"state\":\"caught-up\"},\"browser\":{}}.",
+      "hands_back": "It answered {\"status\":200,\"body\":{\"device\":{\"device_id\":\"d-sample01\",\"title\":\"\",\"kind\":\"\",\"state\":\"caught-up\",\"waiting\":0,\"seen_at\":\"2026-11-14T00:50:25.274Z\"},\"written\":true}}, and kept setting:catch_up_devices."
     }
   ]
 }

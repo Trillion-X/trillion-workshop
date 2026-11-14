@@ -1,23 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:tally-match-picks's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:tally-match-picks with rows.\" Show how a community picked the winner of each match (the split by choice), what the result was, and how one person's own picks turned out",
+  "drafted_from": "tool:tally-match-picks's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Show how a community picked the winner of each match (the split by choice), what the result was, and how one person's own picks turned out\", with {\"rows\":[{\"payload\":{\"kind\":\"pick-match\",\"matchId\":\"match:1\",\"label\":\"Alder vs Birch\",\"status\":\"open\",\"choices\":[{\"choiceId\":\"alder\",\"label\":\"Alder\"},{\"choiceId\":\"birch\",\"label\":\"Birch\"}]}},{\"payload\":{\"kind\":\"match-pick\",\"pickId\":\"p1\",\"matchId\":\"match:1\",\"pickerId\":\"user:1\",\"choiceId\":\"alder\",\"createdAt\":\"2026-01-01T09:00:00.000Z\"}},{\"payload\":{\"kind\":\"match-pick\",\"pickId\":\"p2\" .... It runs tool:tally-match-picks and answers {\"matches\":[{\"match\":{\"kind\":\"pick-match\",\"matchId\":\"match:1\",\"label\":\"Alder vs Birch\",\"status\":\"open\",\"choices\":[{\"choiceId\":\"alder\",\"label\":\"Alder\"},{\"choiceId\":\"birch\",\"label\":\"Birch\"}]},\"totalPicks\":3,\"choices\":[{\"choiceId\":\"alder\",\"label\":\"Alder\",\"pickCount\":1,\"percentPicked\":33,\"selectedByUser\":false,\"winner\":false},{\"choiceId\":\"birch\",\"label\":\"Birch\",\"pickCount\":2,\"percentPicked\":67 ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:tally-match-picks",
     "tool:check-pick-copy"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:tally-match-picks\", and give it rows.",
+    "1. Say to your AI: \"Show how a community picked the winner of each match (the split by choice), what the result was, and how one person's own picks turned out\", and give it rows (The records, each as { payload } or the record itself).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:tally-match-picks and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.matches[0].choices[1].percentPicked contains \"67\"."
+    "3. Read what comes back: Give the records of the matches (pick-match: matchId, label, startsAt, choices of { choiceId, label }), the picks (match-pick: matchId, pickerId, choiceId, createdAt) and the results (match-pick-result: matchId, winningChoiceId, summary, resolvedAt)."
   ],
   "worked_examples": [
     {
-      "title": "Tally a community's match picks on a sample input",
-      "ask": "Run tool:tally-match-picks.",
+      "title": "Tally a community's match picks on its own sample",
+      "ask": "Show how a community picked the winner of each match (the split by choice), what the result was, and how one person's own picks turned out",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -81,7 +81,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.matches[0].choices[1].percentPicked contains \"67\"."
+      "given": "The input {\"rows\":[{\"payload\":{\"kind\":\"pick-match\",\"matchId\":\"match:1\",\"label\":\"Alder vs Birch\",\"status\":\"open\",\"choices\":[{\"choiceId\":\"alder\",\"label\":\"Alder\"},{\"choiceId\":\"birch\",\"label\":\"Birch\"}]}},{\"payload\":{\"kind\":\"match-pick\",\"pickId\":\"p1\",\"matchId\":\"match:1\",\"pickerId\":\"user:1\",\"choiceId\":\"alder\",\"createdAt\":\"2026-01-01T09:00:00.000Z\"}},{\"payload\":{\"kind\":\"match-pick\",\"pickId\":\"p2\" ....",
+      "hands_back": "It answered {\"matches\":[{\"match\":{\"kind\":\"pick-match\",\"matchId\":\"match:1\",\"label\":\"Alder vs Birch\",\"status\":\"open\",\"choices\":[{\"choiceId\":\"alder\",\"label\":\"Alder\"},{\"choiceId\":\"birch\",\"label\":\"Birch\"}]},\"totalPicks\":3,\"choices\":[{\"choiceId\":\"alder\",\"label\":\"Alder\",\"pickCount\":1,\"percentPicked\":33,\"selectedByUser\":false,\"winner\":false},{\"choiceId\":\"birch\",\"label\":\"Birch\",\"pickCount\":2,\"percentPicked\":67,\"selectedByUser\":false,\"winner\":false}]}]}."
     }
   ]
 }

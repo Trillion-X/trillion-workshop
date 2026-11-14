@@ -1,23 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:brief-a-profile's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:brief-a-profile with profile_ref, subject_ref, subject_records.\" Work out how a person or creator does their thing, such as their style or voice, from what they have made or said",
+  "drafted_from": "tool:brief-a-profile's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Work out how a person or creator does their thing, such as their style or voice, from what they have made or said\", with {\"profile_ref\":\"profile:bakery-voice\",\"subject_ref\":\"baker:1\",\"subject_records\":[{\"text\":\"Warm loaves, no fuss.\"}]}. It runs tool:brief-a-profile and answers {\"brief\":{\"profile_ref\":\"profile:bakery-voice\",\"subject_ref\":\"baker:1\",\"subject_records\":[{\"text\":\"Warm loaves, no fuss.\"}],\"rules\":[\"Use only the supplied subject records.\",\"Derive self-describing items about how the subject does their thing that can condition future drafts and check their fit.\",\"Keep feature, evaluator, generator and validation references as refs, not prose.\",\"Answer with items ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:brief-a-profile",
     "tool:keep-a-profile"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:brief-a-profile\", and give it profile_ref, subject_ref, subject_records.",
+    "1. Say to your AI: \"Work out how a person or creator does their thing, such as their style or voice, from what they have made or said\", and give it profile_ref (The name the profile record will be kept under); subject_ref (Whose way of doing the thing this is); subject_records (What the subject made or said, read from their records).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:brief-a-profile and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.brief.rules contains \"Use only the supplied subject records.\"."
+    "3. Read what comes back: Give the profile's name, the subject's name and the subject's own records (what they made or said)."
   ],
   "worked_examples": [
     {
-      "title": "Brief a profile of how someone does their thing on a sample input",
-      "ask": "Run tool:brief-a-profile.",
+      "title": "Brief a profile of how someone does their thing on its own sample",
+      "ask": "Work out how a person or creator does their thing, such as their style or voice, from what they have made or said",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -38,7 +38,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.brief.rules contains \"Use only the supplied subject records.\"."
+      "given": "The input {\"profile_ref\":\"profile:bakery-voice\",\"subject_ref\":\"baker:1\",\"subject_records\":[{\"text\":\"Warm loaves, no fuss.\"}]}.",
+      "hands_back": "It answered {\"brief\":{\"profile_ref\":\"profile:bakery-voice\",\"subject_ref\":\"baker:1\",\"subject_records\":[{\"text\":\"Warm loaves, no fuss.\"}],\"rules\":[\"Use only the supplied subject records.\",\"Derive self-describing items about how the subject does their thing that can condition future drafts and check their fit.\",\"Keep feature, evaluator, generator and validation references as refs, not prose.\",\"Answer with items, a list of objects; an empty list is refused.\"],\"answer_shape\":{\"items\":[{\"kind\":\"string: what kind of fact this is\",\"value\":\"the fact itself\",\"evidence\":\"which subject record shows it\"}]}}}."
     }
   ]
 }

@@ -1,23 +1,24 @@
 {
   "draft": true,
-  "drafted_from": "tool:record-the-owners-receipt's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:record-the-owners-receipt with request_id, receipt.\" Link an owner's receipt to the request it answers",
+  "drafted_from": "tool:record-the-owners-receipt's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Link an owner's receipt to the request it answers\", with {\"request_id\":\"request-1\",\"receipt\":{\"ref\":\"receipt-1\",\"owner_ref\":\"owner-1\",\"title\":\"Done\"}}. It runs tool:record-the-owners-receipt and answers {\"request_id\":\"request-1\",\"receipt_ref\":\"receipt-1\",\"linked\":false,\"said\":\"There is no request request-1, so nothing was linked. Take the request first.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (intake-request, intake-receipt) through the records door.",
   "workflows": [],
   "tools": [
     "tool:record-the-owners-receipt",
     "tool:take-a-request"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:record-the-owners-receipt\", and give it request_id, receipt.",
+    "1. Say to your AI: \"Link an owner's receipt to the request it answers\", and give it request_id; receipt.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:record-the-owners-receipt and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.request_id contains \"request-1\"."
+    "3. Read what comes back: request_id is a request kept by tool:take-a-request; receipt has ref, owner_ref, title and optionally summary, process_ref, observed_at and raw.",
+    "4. It reads and writes only its own rows through the records door: intake-request (records:read, records:write); intake-receipt (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Record what the owner gave back on a sample input",
-      "ask": "Run tool:record-the-owners-receipt.",
+      "title": "Record what the owner gave back on its own sample",
+      "ask": "Link an owner's receipt to the request it answers",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -37,7 +38,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.request_id contains \"request-1\"."
+      "given": "The input {\"request_id\":\"request-1\",\"receipt\":{\"ref\":\"receipt-1\",\"owner_ref\":\"owner-1\",\"title\":\"Done\"}}.",
+      "hands_back": "It answered {\"request_id\":\"request-1\",\"receipt_ref\":\"receipt-1\",\"linked\":false,\"said\":\"There is no request request-1, so nothing was linked. Take the request first.\"}."
     }
   ]
 }

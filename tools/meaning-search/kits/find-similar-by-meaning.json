@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:find-similar-by-meaning's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:find-similar-by-meaning with index_id, query_text.\" Find the moments in my recordings or documents whose words or transcript are closest in meaning to what I ask, and say the file and time of each",
+  "drafted_from": "tool:find-similar-by-meaning's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Find the moments in my recordings or documents whose words or transcript are closest in meaning to what I ask, and say the file and time of each\", with {\"index_id\":\"synthetic-words\",\"query_text\":\"a made-up question\"}. It runs tool:find-similar-by-meaning and answers {\"index_id\":\"synthetic-words\",\"result\":{\"items\":[{\"address\":\"/Sets/lines.jsonl#0\",\"score\":1,\"index_id\":\"synthetic-words\",\"model_id\":\"synthetic-words-model\",\"model_version\":\"1\",\"descriptor_revision\":\"1f:0000000000000000000000000000000000000000000000000000000000000000\",\"model_provenance_ref\":\"model:synthetic-words-model@1\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (semantic-index-descriptor, ) through the records door.",
   "workflows": [],
   "tools": [
     "tool:find-similar-by-meaning"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:find-similar-by-meaning\", and give it index_id, query_text.",
+    "1. Say to your AI: \"Find the moments in my recordings or documents whose words or transcript are closest in meaning to what I ask, and say the file and time of each\", and give it index_id (The index_id of one of the person's semantic-index-descriptor records); query_text (The words to look for).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-similar-by-meaning and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields index_id, model_id, model_version, result, points_to."
+    "3. Read what comes back: Runs meaning-search's find-similar on one of the person's semantic-index-descriptor records: query_text and any item of the vector set without a vector are embedded by the descriptor's model at its model_endpoint (the package's Ollama embedder), the set is indexed for the run, the ANN index narrows the candidates and the exact cosine ranks them, best first, never padded below the descriptor's min_score.",
+    "4. It reads and writes only its own rows through the records door: semantic-index-descriptor (records:list); undefined (read_file)."
   ],
   "worked_examples": [
     {
-      "title": "Find what is closest in meaning to some words on a sample input",
-      "ask": "Run tool:find-similar-by-meaning.",
+      "title": "Find what is closest in meaning to some words on its own sample",
+      "ask": "Find the moments in my recordings or documents whose words or transcript are closest in meaning to what I ask, and say the file and time of each",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,7 +33,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields index_id, model_id, model_version, result, points_to."
+      "given": "The input {\"index_id\":\"synthetic-words\",\"query_text\":\"a made-up question\"}, with 1 example row (semantic-index-descriptor) already kept.",
+      "hands_back": "It answered {\"index_id\":\"synthetic-words\",\"result\":{\"items\":[{\"address\":\"/Sets/lines.jsonl#0\",\"score\":1,\"index_id\":\"synthetic-words\",\"model_id\":\"synthetic-words-model\",\"model_version\":\"1\",\"descriptor_revision\":\"1f:0000000000000000000000000000000000000000000000000000000000000000\",\"model_provenance_ref\":\"model:synthetic-words-model@1\",\"revision\":\"1f:51bac00d7687aeb50b8e271095e2d4d8ce4541af747e9a0c242b7f1728e7090d\",\"source_snapshot_ref\":\"1f:f72a967544e0e4925aaad75e76fe72cf3dad4bac70212e4700a3f9ea09d64a37\",\"payload_hash\":\"1f:51bac00d7687aeb50b8e271095e2d4d8ce4541af747e9a0c242b7f1728e7090d\"}],\"considered\":1,\"skipped\":0,\"min_score\":0},\"model_id\":\"synthetic-words-model\",\"model_version\":\"1\" ...."
     }
   ]
 }

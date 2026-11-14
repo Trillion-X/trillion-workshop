@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:list-my-recordings-and-media's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:list-my-recordings-and-media with files.\" List a person's recordings and the videos, sounds and pictures their tools made or they saved, newest first, each with what is known about it, as the Media screen shows a page",
+  "drafted_from": "tool:list-my-recordings-and-media's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"List a person's recordings and the videos, sounds and pictures their tools made or they saved, newest first, each with what is known about it, as the Media screen shows a page\", with {\"files\":[{\"name\":\"/Recordings/standup.webm\",\"identity\":\"1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"modified_at_ms\":1762000000000},{\"name\":\"/made by tools/cut.mp4\",\"identity\":\"1f:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"modified_at_ms\":1762100000000},{\"name\":\"/Notes/plan.md\" .... It runs tool:list-my-recordings-and-media and answers {\"revision\":\"a313f95a62337f4508a49260b2f1c99d:2\",\"origin_labels\":{\"recording\":\"Recording\",\"made\":\"Made\",\"file\":\"Saved\"},\"rows\":[{\"identity\":\"1f:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"origin\":\"made\",\"name\":\"cut.mp4\",\"path\":\"/made by tools/cut.mp4\",\"media_kind\":\"video\",\"media_type\":null,\"file\":null,\"stored\":false,\"bytes\":null,\"captured_ms\":1762100000000,\"title\":null ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:list-my-recordings-and-media"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:list-my-recordings-and-media\", and give it files.",
+    "1. Say to your AI: \"List a person's recordings and the videos, sounds and pictures their tools made or they saved, newest first, each with what is known about it, as the Media screen shows a page\", and give it files.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-my-recordings-and-media and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields rows, next_after, origin_labels, revision."
+    "3. Read what comes back: Give files ([{ name, identity, byte_length?, modified_at_ms?"
   ],
   "worked_examples": [
     {
-      "title": "List my recordings and media on a sample input",
-      "ask": "Run tool:list-my-recordings-and-media.",
+      "title": "List my recordings and media on its own sample",
+      "ask": "List a person's recordings and the videos, sounds and pictures their tools made or they saved, newest first, each with what is known about it, as the Media screen shows a page",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -74,7 +74,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields rows, next_after, origin_labels, revision."
+      "given": "The input {\"files\":[{\"name\":\"/Recordings/standup.webm\",\"identity\":\"1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"modified_at_ms\":1762000000000},{\"name\":\"/made by tools/cut.mp4\",\"identity\":\"1f:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"modified_at_ms\":1762100000000},{\"name\":\"/Notes/plan.md\" ....",
+      "hands_back": "It answered {\"revision\":\"a313f95a62337f4508a49260b2f1c99d:2\",\"origin_labels\":{\"recording\":\"Recording\",\"made\":\"Made\",\"file\":\"Saved\"},\"rows\":[{\"identity\":\"1f:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"origin\":\"made\",\"name\":\"cut.mp4\",\"path\":\"/made by tools/cut.mp4\",\"media_kind\":\"video\",\"media_type\":null,\"file\":null,\"stored\":false,\"bytes\":null,\"captured_ms\":1762100000000,\"title\":null,\"duration\":null,\"facts\":null,\"edits\":null,\"words\":null},{\"identity\":\"1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"origin\":\"recording\",\"name\":\"Standup\",\"path\":\"/Recordings/standup.webm\",\"media_kind\":\"video\",\"media_type\":null,\"file\":null,\"stored\":false,\"bytes\":null ...."
     }
   ]
 }

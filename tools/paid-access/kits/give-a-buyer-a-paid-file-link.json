@@ -1,9 +1,9 @@
 {
   "draft": true,
-  "drafted_from": "tool:give-a-buyer-a-paid-file-link's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:give-a-buyer-a-paid-file-link with object_key, subject.\" Give a buyer a short-lived link to a file they paid for, and refuse anyone who has not paid",
+  "drafted_from": "tool:give-a-buyer-a-paid-file-link's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Give a buyer a short-lived link to a file they paid for, and refuse anyone who has not paid\", with {\"object_key\":\"no-such-file.pdf\",\"subject\":\"buyer@example.com\"}. It runs tool:give-a-buyer-a-paid-file-link and answers {\"status\":\"unavailable\",\"reason\":\"governing-item-missing\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (paid-file, payment-event, record:commercial-offer, access-grant, access-effect-rule, effect-lifecycle) through the records door.",
   "workflows": [],
   "tools": [
     "tool:give-a-buyer-a-paid-file-link",
@@ -11,14 +11,15 @@
     "tool:see-who-holds-paid-access"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:give-a-buyer-a-paid-file-link\", and give it object_key, subject.",
+    "1. Say to your AI: \"Give a buyer a short-lived link to a file they paid for, and refuse anyone who has not paid\", and give it object_key (The file the buyer asks for, like \"chapter-one.pdf\"); subject (The account the door verified from the buyer's session, named the way your access rules name a buyer; empty for no session).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:give-a-buyer-a-paid-file-link and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.status contains \"unavailable\"."
+    "3. Read what comes back: Reads the file's paid-file record and answers grant with a link that expires (the record's ttl_seconds, else 3600), only when the subject is a verified account and holds any of the file's required access refs now (worked out as tool:see-who-holds-paid-access works it out).",
+    "4. It reads and writes only its own rows through the records door: paid-file (records:read); payment-event (records:list); record:commercial-offer (records:list); access-grant (records:list); access-effect-rule (records:list); effect-lifecycle (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Give a buyer a paid file link on a sample input",
-      "ask": "Run tool:give-a-buyer-a-paid-file-link.",
+      "title": "Give a buyer a paid file link on its own sample",
+      "ask": "Give a buyer a short-lived link to a file they paid for, and refuse anyone who has not paid",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -34,7 +35,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.status contains \"unavailable\"."
+      "given": "The input {\"object_key\":\"no-such-file.pdf\",\"subject\":\"buyer@example.com\"}.",
+      "hands_back": "It answered {\"status\":\"unavailable\",\"reason\":\"governing-item-missing\"}."
     }
   ]
 }

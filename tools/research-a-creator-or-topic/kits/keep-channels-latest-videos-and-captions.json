@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:keep-channels-latest-videos-and-captions's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:keep-channels-latest-videos-and-captions with seeds, newest, caption_languages.\" List the newest videos of each channel, tab or playlist I name and keep each new video's captions with the times they are said, its description and, if I ask, its top comments, without downloading any video",
+  "drafted_from": "tool:keep-channels-latest-videos-and-captions's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"List the newest videos of each channel, tab or playlist I name and keep each new video's captions with the times they are said, its description and, if I ask, its top comments, without downloading any video\", with {\"seeds\":[\"@samplechannel\"],\"newest\":1,\"caption_languages\":[\"en.*\"],\"budget_seconds\":1}. It runs tool:keep-channels-latest-videos-and-captions and answers {\"stopped\":\"budget\",\"requests\":0,\"seconds\":0,\"seeds\":[],\"captions\":{\"ready\":0,\"empty\":0,\"failed\":[]},\"comments\":0,\"settled\":0,\"again\":{\"seeds\":[\"@samplechannel\"],\"newest\":1,\"caption_languages\":[\"en.*\"],\"budget_seconds\":1,\"skip_ids\":[]}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:sources) through the records door.",
   "workflows": [],
   "tools": [
     "tool:keep-channels-latest-videos-and-captions"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:keep-channels-latest-videos-and-captions\", and give it seeds, newest, caption_languages.",
+    "1. Say to your AI: \"List the newest videos of each channel, tab or playlist I name and keep each new video's captions with the times they are said, its description and, if I ask, its top comments, without downloading any video\", and give it seeds (Channels (@handle, channel id or link), links to a channel's tab, or playlist links; or { seed, id, newest }: id is the row this seed updates when rows are one per seed (no rows.id needed when every seed has one), newest is how many of this seed's videos to keep); newest (How many of each seed's newest videos to keep; left out only when every seed carries its own newest); caption_languages (Caption languages in the order wanted, as the site writes them (* for any ending, for example en.*)).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:keep-channels-latest-videos-and-captions and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields stopped, requests, seconds, seeds, captions, comments, settled, rows."
+    "3. Read what comes back: For each seed (a channel's @handle, id or link, a link to one of its tabs such as /shorts, or a playlist link) lists the newest `newest` videos with yt-dlp on this computer, then fetches the captions (in the first of caption_languages the video has; json3, else WebVTT), the site's description and, with also [\"comments\"], the top comments_per_video comments of every listed video not in skip_ids.",
+    "4. It reads and writes only its own rows through the records door: record:sources (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Keep the newest videos of channels and their captions on a sample input",
-      "ask": "Run tool:keep-channels-latest-videos-and-captions.",
+      "title": "Keep the newest videos of channels and their captions on its own sample",
+      "ask": "List the newest videos of each channel, tab or playlist I name and keep each new video's captions with the times they are said, its description and, if I ask, its top comments, without downloading any video",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -38,7 +39,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields stopped, requests, seconds, seeds, captions, comments, settled, rows."
+      "given": "The input {\"seeds\":[\"@samplechannel\"],\"newest\":1,\"caption_languages\":[\"en.*\"],\"budget_seconds\":1}.",
+      "hands_back": "It answered {\"stopped\":\"budget\",\"requests\":0,\"seconds\":0,\"seeds\":[],\"captions\":{\"ready\":0,\"empty\":0,\"failed\":[]},\"comments\":0,\"settled\":0,\"again\":{\"seeds\":[\"@samplechannel\"],\"newest\":1,\"caption_languages\":[\"en.*\"],\"budget_seconds\":1,\"skip_ids\":[]}}."
     }
   ]
 }

@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:who-does-each-step's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:who-does-each-step with steps, doers.\" For each step of my plan, protocol, checklist or workflow, say who should do it instead of me: a tool or my AIs, a tool after one tap, or only me for a reason only I can meet",
+  "drafted_from": "tool:who-does-each-step's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"For each step of my plan, protocol, checklist or workflow, say who should do it instead of me: a tool or my AIs, a tool after one tap, or only me for a reason only I can meet\", with {\"steps\":[{\"id\":\"one\",\"words\":\"write a note\"}],\"doers\":[{\"id\":\"sample-doer\",\"label\":\"Sample doer\",\"does\":[\"write a note\"],\"cost\":{\"usd\":0}}]}. It runs tool:who-does-each-step and answers {\"steps\":[{\"id\":\"one\",\"words\":\"write a note\",\"who\":\"trillion\",\"doers\":[{\"id\":\"sample-doer\",\"label\":\"Sample doer\",\"cost\":{\"usd\":0},\"spends\":false,\"reaches_others\":false,\"needs_a_tap\":false}],\"uncovered\":[],\"said\":\"This is done for you: Sample doer.\"}],\"counts\":{\"trillion\":1,\"one-tap\":0,\"you\":0,\"nobody-yet\":0},\"said\":\"1 done for you, 0 one tap, 0 only you, 0 to be built.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:who-does-each-step"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:who-does-each-step\", and give it steps, doers.",
+    "1. Say to your AI: \"For each step of my plan, protocol, checklist or workflow, say who should do it instead of me: a tool or my AIs, a tool after one tap, or only me for a reason only I can meet\", and give it steps; doers (The doers that can do steps: the caller's own list).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:who-does-each-step and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.steps.0.who contains \"trillion\"."
+    "3. Read what comes back: Give steps (words, or { id, words, needs, only_a_person_because, given_in, past }) and doers (the caller's own list: { id, label, does: [words], tool_id?, cost?, spends?, reaches_others?, hand_off?, how?"
   ],
   "worked_examples": [
     {
-      "title": "Say who should do each step of a plan on a sample input",
-      "ask": "Run tool:who-does-each-step.",
+      "title": "Say who should do each step of a plan on its own sample",
+      "ask": "For each step of my plan, protocol, checklist or workflow, say who should do it instead of me: a tool or my AIs, a tool after one tap, or only me for a reason only I can meet",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -48,7 +48,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.steps.0.who contains \"trillion\"."
+      "given": "The input {\"steps\":[{\"id\":\"one\",\"words\":\"write a note\"}],\"doers\":[{\"id\":\"sample-doer\",\"label\":\"Sample doer\",\"does\":[\"write a note\"],\"cost\":{\"usd\":0}}]}.",
+      "hands_back": "It answered {\"steps\":[{\"id\":\"one\",\"words\":\"write a note\",\"who\":\"trillion\",\"doers\":[{\"id\":\"sample-doer\",\"label\":\"Sample doer\",\"cost\":{\"usd\":0},\"spends\":false,\"reaches_others\":false,\"needs_a_tap\":false}],\"uncovered\":[],\"said\":\"This is done for you: Sample doer.\"}],\"counts\":{\"trillion\":1,\"one-tap\":0,\"you\":0,\"nobody-yet\":0},\"said\":\"1 done for you, 0 one tap, 0 only you, 0 to be built.\"}."
     }
   ]
 }

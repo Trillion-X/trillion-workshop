@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:find-a-completed-stripe-checkout's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:find-a-completed-stripe-checkout with offer_id.\" Find the completed Stripe checkout for one buyer and offer when the buyer browser never came back",
+  "drafted_from": "tool:find-a-completed-stripe-checkout's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Find the completed Stripe checkout for one buyer and offer when the buyer browser never came back\", with {\"customer_email\":\"buyer@example.test\",\"offer_id\":\"offer:bread-box\"}. It runs tool:find-a-completed-stripe-checkout and answers {\"found\":true,\"provider_session_id\":\"cs_test_sample0001\",\"pages_read\":1,\"sessions_examined\":1,\"matching_email_count\":1,\"matching_offer_count\":1}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:find-a-completed-stripe-checkout"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:find-a-completed-stripe-checkout\", and give it offer_id.",
+    "1. Say to your AI: \"Find the completed Stripe checkout for one buyer and offer when the buyer browser never came back\", and give it offer_id.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-a-completed-stripe-checkout and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields found."
+    "3. Read what comes back: Give offer_id and the buyer customer_email, or a created_after_unix time to look from (then exactly one match is needed)."
   ],
   "worked_examples": [
     {
-      "title": "Find a completed Stripe checkout on a sample input",
-      "ask": "Run tool:find-a-completed-stripe-checkout.",
+      "title": "Find a completed Stripe checkout on its own sample",
+      "ask": "Find the completed Stripe checkout for one buyer and offer when the buyer browser never came back",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,7 +32,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields found."
+      "given": "The input {\"customer_email\":\"buyer@example.test\",\"offer_id\":\"offer:bread-box\"}, the web answering from 1 recorded reply.",
+      "hands_back": "It answered {\"found\":true,\"provider_session_id\":\"cs_test_sample0001\",\"pages_read\":1,\"sessions_examined\":1,\"matching_email_count\":1,\"matching_offer_count\":1}."
     }
   ]
 }

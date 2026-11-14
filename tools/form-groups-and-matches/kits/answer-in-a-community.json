@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:answer-in-a-community's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:answer-in-a-community with community_id, person, kind.\" Give a community's matchmaker what it asked for: a member's answers and on/off switch, an AI's cited scores for its shortlist, a person's yes or no to an introduction, first topics, or that they wrote in the one-to-one",
+  "drafted_from": "tool:answer-in-a-community's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Give a community's matchmaker what it asked for: a member's answers and on/off switch, an AI's cited scores for its shortlist, a person's yes or no to an introduction, first topics, or that they wrote in the one-to-one\", with {\"community_id\":\"sample-verify-community\",\"person\":\"sample-person\",\"kind\":\"profile\",\"answers\":{}}. It runs tool:answer-in-a-community and answers {\"ok\":false,\"error\":\"No community sample-verify-community keeps matching settings here.\",\"status\":404}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (match-community, match-member, match-round, match-ask, match, match-answer, ai-job, group) through the records door.",
   "workflows": [],
   "tools": [
     "tool:answer-in-a-community"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:answer-in-a-community\", and give it community_id, person, kind.",
+    "1. Say to your AI: \"Give a community's matchmaker what it asked for: a member's answers and on/off switch, an AI's cited scores for its shortlist, a person's yes or no to an introduction, first topics, or that they wrote in the one-to-one\", and give it community_id (The community whose matchmaker runs: its settings are the match-community record of this id.); person; kind.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:answer-in-a-community and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.error contains \"No community sample-verify-community\"."
+    "3. Read what comes back: One answer from one person (person), then the community's clock.",
+    "4. It reads and writes only its own rows through the records door: match-community (records:read); match-member (records:read, records:list, records:write); match-round (records:read, records:list, records:write); match-ask (records:read, records:list, records:write); match (records:read, records:list, records:write); match-answer (records:read, records:list, records:write); ai-job (records:read, records:list, records:write); group (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Answer a community's matchmaker: profile, scores, yes or no, topics, wrote on a sample input",
-      "ask": "Run tool:answer-in-a-community.",
+      "title": "Answer a community's matchmaker: profile, scores, yes or no, topics, wrote on its own sample",
+      "ask": "Give a community's matchmaker what it asked for: a member's answers and on/off switch, an AI's cited scores for its shortlist, a person's yes or no to an introduction, first topics, or that they wrote in the one-to-one",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -34,7 +35,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.error contains \"No community sample-verify-community\"."
+      "given": "The input {\"community_id\":\"sample-verify-community\",\"person\":\"sample-person\",\"kind\":\"profile\",\"answers\":{}}.",
+      "hands_back": "It answered {\"ok\":false,\"error\":\"No community sample-verify-community keeps matching settings here.\",\"status\":404}."
     }
   ]
 }

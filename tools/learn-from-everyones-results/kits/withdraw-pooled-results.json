@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:withdraw-pooled-results's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:withdraw-pooled-results with contributor.\" Remove every noisy result one person ever gave the pool when they stop sharing",
+  "drafted_from": "tool:withdraw-pooled-results's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Remove every noisy result one person ever gave the pool when they stop sharing\", with {\"contributor\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}. It runs tool:withdraw-pooled-results and answers {\"removed\":1}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:pooled-result) through the records door.",
   "workflows": [],
   "tools": [
     "tool:withdraw-pooled-results"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:withdraw-pooled-results\", and give it contributor.",
+    "1. Say to your AI: \"Remove every noisy result one person ever gave the pool when they stop sharing\", and give it contributor (The person's random contributor id).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:withdraw-pooled-results and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields removed."
+    "3. Read what comes back: Runs in the account that holds the pool.",
+    "4. It reads and writes only its own rows through the records door: record:pooled-result (records:list, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Take a person's results out of the pool on a sample input",
-      "ask": "Run tool:withdraw-pooled-results.",
+      "title": "Take a person's results out of the pool on its own sample",
+      "ask": "Remove every noisy result one person ever gave the pool when they stop sharing",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +32,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields removed."
+      "given": "The input {\"contributor\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}, with 2 example rows (record:pooled-result) already kept.",
+      "hands_back": "It answered {\"removed\":1}."
     }
   ]
 }

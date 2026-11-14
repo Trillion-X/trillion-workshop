@@ -1,23 +1,24 @@
 {
   "draft": true,
-  "drafted_from": "tool:check-every-piece-is-covered's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-every-piece-is-covered with nothing more.\" Say, for each of a person's source files, how many of its pieces have a check, how many a recorded reason, and which are uncovered",
+  "drafted_from": "tool:check-every-piece-is-covered's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Say, for each of a person's source files, how many of its pieces have a check, how many a recorded reason, and which are uncovered\", with {}. It runs tool:check-every-piece-is-covered and answers {\"status\":\"failed\",\"totals\":{\"files\":1,\"pieces\":3,\"with_check\":1,\"with_reason\":1,\"uncovered\":1},\"files\":[{\"file\":\"made-up.md\",\"pieces\":3,\"with_check\":1,\"with_reason\":1,\"uncovered_count\":1,\"uncovered\":[{\"id\":\"piece-dddddddddddddddddddddddd\",\"section\":\"Made-up / Open\",\"says\":\"Open\"}]}],\"missing_checks\":[],\"missing_covered_by\":[],\"missing_count\":{\"checks\":0,\"covered_by\":0},\"lines\":[\"1 files, 3 ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:check) through the records door.",
   "workflows": [],
   "tools": [
     "tool:check-every-piece-is-covered",
     "tool:split-a-document-into-pieces"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-every-piece-is-covered\", and give it nothing more.",
+    "1. Say to your AI: \"Say, for each of a person's source files, how many of its pieces have a check, how many a recorded reason, and which are uncovered\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-every-piece-is-covered and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.files[0].uncovered[0].id contains \"piece-dddddddddddddddddddddddd\"."
+    "3. Read what comes back: Reads, through the person's records door, read only and in bounded pages, the ids of their Checks list and then its rows whose kind is piece (as tool:split-a-document-into-pieces keeps them, without their text), folding each page into a running tally, so a list of any size (40,000 rows and more) is read in one call.",
+    "4. It reads and writes only its own rows through the records door: record:check (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Check every piece of a person's files has a check or a reason on a sample input",
-      "ask": "Run tool:check-every-piece-is-covered.",
+      "title": "Check every piece of a person's files has a check or a reason on its own sample",
+      "ask": "Say, for each of a person's source files, how many of its pieces have a check, how many a recorded reason, and which are uncovered",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -30,7 +31,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.files[0].uncovered[0].id contains \"piece-dddddddddddddddddddddddd\"."
+      "given": "The input {}, with 4 example rows (record:check) already kept.",
+      "hands_back": "It answered {\"status\":\"failed\",\"totals\":{\"files\":1,\"pieces\":3,\"with_check\":1,\"with_reason\":1,\"uncovered\":1},\"files\":[{\"file\":\"made-up.md\",\"pieces\":3,\"with_check\":1,\"with_reason\":1,\"uncovered_count\":1,\"uncovered\":[{\"id\":\"piece-dddddddddddddddddddddddd\",\"section\":\"Made-up / Open\",\"says\":\"Open\"}]}],\"missing_checks\":[],\"missing_covered_by\":[],\"missing_count\":{\"checks\":0,\"covered_by\":0},\"lines\":[\"1 files, 3 pieces: 1 with a check, 1 with a recorded reason, 1 uncovered\",\"made-up.md: 3 pieces, 1 with a check, 1 with a recorded reason, 1 uncovered\",\"Uncovered in made-up.md: piece-dddddddddddddddddddddddd (Made-up / Open) has no check and no reason. Write a check row and name it in checked_by, or record ...."
     }
   ]
 }

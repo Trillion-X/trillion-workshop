@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:plan-the-address-a-live-camera-streams-to's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:plan-the-address-a-live-camera-streams-to with key.\" Work out how a live camera's stream would be received: the address this computer listens on for the camera's own key, the FFmpeg listener it is taken with, and a public RTMPS address through Tailscale Funnel that never takes a port serving something else",
+  "drafted_from": "tool:plan-the-address-a-live-camera-streams-to's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Work out how a live camera's stream would be received: the address this computer listens on for the camera's own key, the FFmpeg listener it is taken with, and a public RTMPS address through Tailscale Funnel that never takes a port serving something else\", with {\"key\":\"sample-key-abc123xyz\",\"port\":1935,\"output\":[\"-c\",\"copy\",\"-f\",\"flv\",\"rtmp://ingest.example.com/live/{service key}\"],\"funnel\":{\"name\":\"sample-mac.example-tailnet.ts.net.\",\"ports\":[443,8443,10000],\"status\":{\"TCP\":{\"10000\":{\"TCPForward\":\"127.0.0.1:9000\"}},\"Web\":{\"sample-mac.example-tailnet.ts.net:443\":{}}}}}. It runs tool:plan-the-address-a-live-camera-streams-to and answers {\"listening_address\":\"rtmp://0.0.0.0:1935/live/<key>\",\"camera_server_address\":\"rtmp://<this computer>:1935/live\",\"ffmpeg\":{\"program\":\"ffmpeg\",\"arguments\":[\"-hide_banner\",\"-nostdin\",\"-loglevel\",\"info\",\"-listen\",\"1\",\"-timeout\",\"-1\",\"-i\",\"rtmp://0.0.0.0:1935/live/<key>\",\"-c\",\"copy\",\"-f\",\"flv\",\"rtmp://ingest.example.com/live/{service key}\"]},\"public\":{\"port\":8443 ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:plan-the-address-a-live-camera-streams-to"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:plan-the-address-a-live-camera-streams-to\", and give it key.",
+    "1. Say to your AI: \"Work out how a live camera's stream would be received: the address this computer listens on for the camera's own key, the FFmpeg listener it is taken with, and a public RTMPS address through Tailscale Funnel that never takes a port serving something else\", and give it key.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:plan-the-address-a-live-camera-streams-to and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.public.address contains \"rtmps://sample-mac.example-tailnet.ts.net:8443/live\"."
+    "3. Read what comes back: Give key (the camera's stream key), port (1935 when left out), app (live when left out), output (the destination's FFmpeg arguments after the input, [] when left out) and optionally funnel ({ name: this computer's Tailscale name, ports: the public ports its tailnet allows, status: what tailscale funnel status --json printed })."
   ],
   "worked_examples": [
     {
-      "title": "Plan the address a live camera streams to on a sample input",
-      "ask": "Run tool:plan-the-address-a-live-camera-streams-to.",
+      "title": "Plan the address a live camera streams to on its own sample",
+      "ask": "Work out how a live camera's stream would be received: the address this computer listens on for the camera's own key, the FFmpeg listener it is taken with, and a public RTMPS address through Tailscale Funnel that never takes a port serving something else",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -57,7 +57,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.public.address contains \"rtmps://sample-mac.example-tailnet.ts.net:8443/live\"."
+      "given": "The input {\"key\":\"sample-key-abc123xyz\",\"port\":1935,\"output\":[\"-c\",\"copy\",\"-f\",\"flv\",\"rtmp://ingest.example.com/live/{service key}\"],\"funnel\":{\"name\":\"sample-mac.example-tailnet.ts.net.\",\"ports\":[443,8443,10000],\"status\":{\"TCP\":{\"10000\":{\"TCPForward\":\"127.0.0.1:9000\"}},\"Web\":{\"sample-mac.example-tailnet.ts.net:443\":{}}}}}.",
+      "hands_back": "It answered {\"listening_address\":\"rtmp://0.0.0.0:1935/live/<key>\",\"camera_server_address\":\"rtmp://<this computer>:1935/live\",\"ffmpeg\":{\"program\":\"ffmpeg\",\"arguments\":[\"-hide_banner\",\"-nostdin\",\"-loglevel\",\"info\",\"-listen\",\"1\",\"-timeout\",\"-1\",\"-i\",\"rtmp://0.0.0.0:1935/live/<key>\",\"-c\",\"copy\",\"-f\",\"flv\",\"rtmp://ingest.example.com/live/{service key}\"]},\"public\":{\"port\":8443,\"address\":\"rtmps://sample-mac.example-tailnet.ts.net:8443/live\",\"protocol\":\"RTMPS\",\"already_forwarding\":false,\"trust\":[{\"id\":\"lets-encrypt-root-ye\",\"file\":\"RTMPcert.pem\",\"subject\":\"C=US, O=ISRG, CN=Root YE\",\"sha256\":\"e14ffcad5b0025731006caa43a121a22d8e9700f4fb9cf852f02a708aa5d5666\",\"valid_until\":\"2045-09-02T23:59:59Z\",\"use_when\":\"The ...."
     }
   ]
 }

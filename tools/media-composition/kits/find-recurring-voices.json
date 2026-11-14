@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:find-recurring-voices's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:find-recurring-voices with files.\" Group recurring voices across audio and video files, keep stable voice clusters, and show which files contain the same speaker",
+  "drafted_from": "tool:find-recurring-voices's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Group recurring voices across audio and video files, keep stable voice clusters, and show which files contain the same speaker\", with {\"files\":[\"https://files.example.test/namespace/bytes/1f:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef\"]}. It runs tool:find-recurring-voices and answers {\"clusters\":[{\"voice_id\":\"voice:08451a388152eed3198ff2c0\",\"person_name\":null,\"new_segments\":1,\"files\":[\"1f:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef\"],\"needs_name\":true}],\"segments\":[{\"file\":\"1f:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef\",\"from\":0,\"to\":6,\"voice_id\":\"voice:08451a388152eed3198ff2c0\",\"similarity\":null,\"person_name\":null}] ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:find-recurring-voices"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:find-recurring-voices\", and give it files.",
+    "1. Say to your AI: \"Group recurring voices across audio and video files, keep stable voice clusters, and show which files contain the same speaker\", and give it files (One to twenty audio or video file identities from your Files).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-recurring-voices and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields clusters, segments, voice_records, files_checked, errors."
+    "3. Read what comes back: Uses a public CAM++ speaker model on speech windows from your selected files."
   ],
   "worked_examples": [
     {
-      "title": "Find recurring voices on a sample input",
-      "ask": "Run tool:find-recurring-voices.",
+      "title": "Find recurring voices on its own sample",
+      "ask": "Group recurring voices across audio and video files, keep stable voice clusters, and show which files contain the same speaker",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +33,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields clusters, segments, voice_records, files_checked, errors."
+      "given": "The input {\"files\":[\"https://files.example.test/namespace/bytes/1f:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef\"]}.",
+      "hands_back": "It answered {\"clusters\":[{\"voice_id\":\"voice:08451a388152eed3198ff2c0\",\"person_name\":null,\"new_segments\":1,\"files\":[\"1f:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef\"],\"needs_name\":true}],\"segments\":[{\"file\":\"1f:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef\",\"from\":0,\"to\":6,\"voice_id\":\"voice:08451a388152eed3198ff2c0\",\"similarity\":null,\"person_name\":null}],\"voice_records\":[{\"kind\":\"media-voice-cluster\",\"id\":\"voice:08451a388152eed3198ff2c0\",\"voice_id\":\"voice:08451a388152eed3198ff2c0\",\"embedding\":[0.0649025,0.0748514,0.0711809,0.0645344,0.0751867,0.0686738,0.0681633,0.0809359,0.0707196,0.0782424,0.0776784,0.0720496,0.0754754,0.0749369,0.0693058,0.0703121,0.0789768 ...."
     }
   ]
 }

@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:send-a-message-on-this-mac's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:send-a-message-on-this-mac with text.\" Send a message to one person or a list from the Messages app on the person's own Mac",
+  "drafted_from": "tool:send-a-message-on-this-mac's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Send a message to one person or a list from the Messages app on the person's own Mac\", with {\"to\":\"sample-contact@example.com\",\"text\":\"Hello there\"}. It runs tool:send-a-message-on-this-mac and answers {\"provider\":\"messages-on-this-mac\",\"sent\":[{\"recipient\":\"sample-contact@example.com\"}],\"said\":\"Sent to 1 of 1 through Messages on this Mac.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:send-a-message-on-this-mac"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:send-a-message-on-this-mac\", and give it text.",
+    "1. Say to your AI: \"Send a message to one person or a list from the Messages app on the person's own Mac\", and give it text.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:send-a-message-on-this-mac and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields provider, sent, said."
+    "3. Read what comes back: Give recipients (phone numbers or Apple ids Messages knows; to for one) and text."
   ],
   "worked_examples": [
     {
-      "title": "Send a message in Messages on this Mac on a sample input",
-      "ask": "Run tool:send-a-message-on-this-mac.",
+      "title": "Send a message in Messages on this Mac on its own sample",
+      "ask": "Send a message to one person or a list from the Messages app on the person's own Mac",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,7 +32,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields provider, sent, said."
+      "given": "The input {\"to\":\"sample-contact@example.com\",\"text\":\"Hello there\"}.",
+      "hands_back": "It answered {\"provider\":\"messages-on-this-mac\",\"sent\":[{\"recipient\":\"sample-contact@example.com\"}],\"said\":\"Sent to 1 of 1 through Messages on this Mac.\"}."
     }
   ]
 }

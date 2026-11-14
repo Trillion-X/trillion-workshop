@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:send-live-activity-update's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:send-live-activity-update with update_id, board_key, items.\" Start, update or end the one Live Activity board for running work",
+  "drafted_from": "tool:send-live-activity-update's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Start, update or end the one Live Activity board for running work\", with {\"update_id\":\"empty-sample\",\"board_key\":\"running\",\"items\":[]}. It runs tool:send-live-activity-update and answers {\"board_key\":\"running\",\"update_id\":\"empty-sample\",\"state\":\"not-running\",\"accepted\":0,\"attempted\":0,\"said\":\"Nothing is running to show.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (notification-device, notification-live-activity, notification-live-activity-start, notification-live-activity-delivery) through the records door.",
   "workflows": [],
   "tools": [
     "tool:send-live-activity-update"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:send-live-activity-update\", and give it update_id, board_key, items.",
+    "1. Say to your AI: \"Start, update or end the one Live Activity board for running work\", and give it update_id; board_key; items.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:send-live-activity-update and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.said contains \"Nothing is running\"."
+    "3. Read what comes back: Pass a stable update_id, board_key and up to four items.",
+    "4. It reads and writes only its own rows through the records door: notification-device (records:read, records:list, records:write); notification-live-activity (records:read, records:list, records:write); notification-live-activity-start (records:read, records:write); notification-live-activity-delivery (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Update my Live Activity on a sample input",
-      "ask": "Run tool:send-live-activity-update.",
+      "title": "Update my Live Activity on its own sample",
+      "ask": "Start, update or end the one Live Activity board for running work",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +34,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.said contains \"Nothing is running\"."
+      "given": "The input {\"update_id\":\"empty-sample\",\"board_key\":\"running\",\"items\":[]}.",
+      "hands_back": "It answered {\"board_key\":\"running\",\"update_id\":\"empty-sample\",\"state\":\"not-running\",\"accepted\":0,\"attempted\":0,\"said\":\"Nothing is running to show.\"}, and kept notification-live-activity-delivery:1f940f4d472fabf28b88940b26fa6dbf82e650aa083430f864793e8c667e6d68aa."
     }
   ]
 }

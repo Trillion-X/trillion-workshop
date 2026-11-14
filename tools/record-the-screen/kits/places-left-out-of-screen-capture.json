@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:places-left-out-of-screen-capture's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:places-left-out-of-screen-capture with nothing more.\" List, check and turn on or off the categories of places (banking, health, social and more) the person's screen capture must leave out, and take new coverage as a cursor diff",
+  "drafted_from": "tool:places-left-out-of-screen-capture's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"List, check and turn on or off the categories of places (banking, health, social and more) the person's screen capture must leave out, and take new coverage as a cursor diff\", with {\"action\":\"list\"}. It runs tool:places-left-out-of-screen-capture and answers {\"categories\":[{\"id\":\"adult-content\",\"label\":\"Adult content\",\"on\":true,\"domains\":0},{\"id\":\"banking-finance\",\"label\":\"Banking and finance\",\"on\":true,\"domains\":8},{\"id\":\"health\",\"label\":\"Health\",\"on\":false,\"domains\":5},{\"id\":\"social\",\"label\":\"Social networks\",\"on\":false,\"domains\":7},{\"id\":\"shopping\",\"label\":\"Shopping\",\"on\":false,\"domains\":5},{\"id\":\"entertainment\",\"label\":\"Entertainment\",\"on\":false ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:places-left-out-of-screen-capture"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:places-left-out-of-screen-capture\", and give it nothing more.",
+    "1. Say to your AI: \"List, check and turn on or off the categories of places (banking, health, social and more) the person's screen capture must leave out, and take new coverage as a cursor diff\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:places-left-out-of-screen-capture and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields categories, cursor, category, on."
+    "3. Read what comes back: Runs on the person's own Mac."
   ],
   "worked_examples": [
     {
-      "title": "Places left out of screen capture on a sample input",
-      "ask": "Run tool:places-left-out-of-screen-capture.",
+      "title": "Places left out of screen capture on its own sample",
+      "ask": "List, check and turn on or off the categories of places (banking, health, social and more) the person's screen capture must leave out, and take new coverage as a cursor diff",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +31,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields categories, cursor, category, on."
+      "given": "The input {\"action\":\"list\"}.",
+      "hands_back": "It answered {\"categories\":[{\"id\":\"adult-content\",\"label\":\"Adult content\",\"on\":true,\"domains\":0},{\"id\":\"banking-finance\",\"label\":\"Banking and finance\",\"on\":true,\"domains\":8},{\"id\":\"health\",\"label\":\"Health\",\"on\":false,\"domains\":5},{\"id\":\"social\",\"label\":\"Social networks\",\"on\":false,\"domains\":7},{\"id\":\"shopping\",\"label\":\"Shopping\",\"on\":false,\"domains\":5},{\"id\":\"entertainment\",\"label\":\"Entertainment\",\"on\":false,\"domains\":5}],\"cursor\":0}."
     }
   ]
 }

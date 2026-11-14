@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:release-a-device's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:release-a-device with nothing more.\" End a hold on the person's computer now: apps can open again and Focus turns off",
+  "drafted_from": "tool:release-a-device's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"End a hold on the person's computer now: apps can open again and Focus turns off\", with {}. It runs tool:release-a-device and answers {\"released\":[],\"said\":\"Nothing holds this Mac.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:release-a-device"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:release-a-device\", and give it nothing more.",
+    "1. Say to your AI: \"End a hold on the person's computer now: apps can open again and Focus turns off\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:release-a-device and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: End a hold on the person's computer now: apps can open again and Focus turns off"
+    "3. Read what comes back: Give id to end one hold, or nothing to end every hold."
   ],
   "worked_examples": [
     {
-      "title": "Free a held device again on a sample input",
-      "ask": "Run tool:release-a-device.",
+      "title": "Free a held device again on its own sample",
+      "ask": "End a hold on the person's computer now: apps can open again and Focus turns off",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -29,7 +29,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: End a hold on the person's computer now: apps can open again and Focus turns off"
+      "given": "The input {}.",
+      "hands_back": "It answered {\"released\":[],\"said\":\"Nothing holds this Mac.\"}."
     }
   ]
 }

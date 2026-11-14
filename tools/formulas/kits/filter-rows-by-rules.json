@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:filter-rows-by-rules's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:filter-rows-by-rules with records, fields.\" Keep the rows of a list that match my rules: a tree of comparisons (is any of, has all of, contains, is more than, is between, is empty, is known and more) joined by all-of and any-of groups, each group optionally negated",
+  "drafted_from": "tool:filter-rows-by-rules's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Keep the rows of a list that match my rules: a tree of comparisons (is any of, has all of, contains, is more than, is between, is empty, is known and more) joined by all-of and any-of groups, each group optionally negated\", with {\"records\":[{\"id\":\"a\",\"kind\":\"loaf\",\"tags\":[\"rye\",\"seeded\"],\"grams\":800},{\"id\":\"b\",\"kind\":\"roll\",\"tags\":[\"white\"],\"grams\":90},{\"id\":\"c\",\"kind\":\"loaf\",\"tags\":[\"white\"],\"grams\":null}],\"fields\":[{\"id\":\"kind\",\"kind\":\"choice\"},{\"id\":\"grams\",\"kind\":\"number\"}],\"tree\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"kind\",\"operator\":\"is_any_of\" .... It runs tool:filter-rows-by-rules and answers {\"total\":3,\"matches\":[0],\"records\":[{\"id\":\"a\",\"kind\":\"loaf\",\"tags\":[\"rye\",\"seeded\"],\"grams\":800}],\"reads\":[\"kind\",\"grams\"],\"incomplete\":[],\"error_rows\":0,\"first_error\":null}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:filter-rows-by-rules"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:filter-rows-by-rules\", and give it records, fields.",
+    "1. Say to your AI: \"Keep the rows of a list that match my rules: a tree of comparisons (is any of, has all of, contains, is more than, is between, is empty, is known and more) joined by all-of and any-of groups, each group optionally negated\", and give it records (The list to filter); fields.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:filter-rows-by-rules and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.records[0].id contains \"a\"."
+    "3. Read what comes back: Takes records, the fields the rules may read (an id, a kind and a path into each record) and a rule tree."
   ],
   "worked_examples": [
     {
-      "title": "Keep the rows that match my rules on a sample input",
-      "ask": "Run tool:filter-rows-by-rules.",
+      "title": "Keep the rows that match my rules on its own sample",
+      "ask": "Keep the rows of a list that match my rules: a tree of comparisons (is any of, has all of, contains, is more than, is between, is empty, is known and more) joined by all-of and any-of groups, each group optionally negated",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -92,7 +92,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.records[0].id contains \"a\"."
+      "given": "The input {\"records\":[{\"id\":\"a\",\"kind\":\"loaf\",\"tags\":[\"rye\",\"seeded\"],\"grams\":800},{\"id\":\"b\",\"kind\":\"roll\",\"tags\":[\"white\"],\"grams\":90},{\"id\":\"c\",\"kind\":\"loaf\",\"tags\":[\"white\"],\"grams\":null}],\"fields\":[{\"id\":\"kind\",\"kind\":\"choice\"},{\"id\":\"grams\",\"kind\":\"number\"}],\"tree\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"kind\",\"operator\":\"is_any_of\" ....",
+      "hands_back": "It answered {\"total\":3,\"matches\":[0],\"records\":[{\"id\":\"a\",\"kind\":\"loaf\",\"tags\":[\"rye\",\"seeded\"],\"grams\":800}],\"reads\":[\"kind\",\"grams\"],\"incomplete\":[],\"error_rows\":0,\"first_error\":null}."
     }
   ]
 }

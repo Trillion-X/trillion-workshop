@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:rank-records-for-review's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:rank-records-for-review with descriptor, records.\" Put a list of suggestions, matches or any records in the order a person should review them, showing the fields they asked for on each row and whether they already accepted or passed on it",
+  "drafted_from": "tool:rank-records-for-review's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Put a list of suggestions, matches or any records in the order a person should review them, showing the fields they asked for on each row and whether they already accepted or passed on it\", with {\"descriptor\":{\"id\":\"sample.review\",\"source\":{\"address\":\"sample.review.records\"},\"standKind\":\"suggestion\",\"standView\":{\"record\":[\"record_ref\"]},\"fields\":[{\"id\":\"primary\",\"path\":[\"display\",\"primary\"]}]},\"records\":[{\"record_ref\":\"record.late\",\"rank\":2,\"display\":{\"primary\":\"Second record\"}},{\"record_ref\":\"record.early\",\"rank\":1,\"display\":{\"primary\":\"First record\"}}],\"stands\":[{\"kind\":\"suggestion\" .... It runs tool:rank-records-for-review and answers {\"projectionId\":\"sample.review\",\"source\":{\"address\":\"sample.review.records\"},\"cursor\":\"\",\"rows\":[{\"recordId\":\"record.early\",\"candidateRecordRefs\":[],\"sourceRecordRefs\":[],\"evidenceRefs\":[],\"ruleRefs\":[],\"rank\":1,\"values\":{\"primary\":{\"fieldId\":\"primary\",\"raw\":\"First record\",\"text\":\"First record\",\"display\":{}}},\"relationships\":{},\"statusKeys\":{},\"standKind\":\"suggestion\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:rank-records-for-review"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:rank-records-for-review\", and give it descriptor, records.",
+    "1. Say to your AI: \"Put a list of suggestions, matches or any records in the order a person should review them, showing the fields they asked for on each row and whether they already accepted or passed on it\", and give it descriptor (id; source {address}; fields [{id, path, role?, display?}]; standKind (one word, no slash); standView {key: path} naming the parts of a record a stand is on; optional recordIdPath, rankPath, statusKeyPaths {dimension: path}, filters/relationships [{id, method, params}] (methods: field.exists, field.equals, field.notEquals, refs.count) and actions [{id, label, stance, enabledWhen?, disabledReason?, copy?}]); records (The records to rank).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:rank-records-for-review and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.rows.0.recordId contains \"record.early\"."
+    "3. Read what comes back: Give a descriptor (which fields to show, which records to leave out, how rows relate to other records, which parts of a record name the suggestion a stand is on, and the actions on a row), the records, and optionally related records, the person's stands (their accept or pass records) and a list of upsert or delete events to apply over the records first."
   ],
   "worked_examples": [
     {
-      "title": "Rank records for review on a sample input",
-      "ask": "Run tool:rank-records-for-review.",
+      "title": "Rank records for review on its own sample",
+      "ask": "Put a list of suggestions, matches or any records in the order a person should review them, showing the fields they asked for on each row and whether they already accepted or passed on it",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -77,7 +77,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.rows.0.recordId contains \"record.early\"."
+      "given": "The input {\"descriptor\":{\"id\":\"sample.review\",\"source\":{\"address\":\"sample.review.records\"},\"standKind\":\"suggestion\",\"standView\":{\"record\":[\"record_ref\"]},\"fields\":[{\"id\":\"primary\",\"path\":[\"display\",\"primary\"]}]},\"records\":[{\"record_ref\":\"record.late\",\"rank\":2,\"display\":{\"primary\":\"Second record\"}},{\"record_ref\":\"record.early\",\"rank\":1,\"display\":{\"primary\":\"First record\"}}],\"stands\":[{\"kind\":\"suggestion\" ....",
+      "hands_back": "It answered {\"projectionId\":\"sample.review\",\"source\":{\"address\":\"sample.review.records\"},\"cursor\":\"\",\"rows\":[{\"recordId\":\"record.early\",\"candidateRecordRefs\":[],\"sourceRecordRefs\":[],\"evidenceRefs\":[],\"ruleRefs\":[],\"rank\":1,\"values\":{\"primary\":{\"fieldId\":\"primary\",\"raw\":\"First record\",\"text\":\"First record\",\"display\":{}}},\"relationships\":{},\"statusKeys\":{},\"standKind\":\"suggestion\",\"standView\":{\"record\":\"record.early\"},\"stand\":{\"kind\":\"suggestion\",\"view\":{\"record\":\"record.early\"},\"stance\":\"agree\",\"at\":\"2026-01-01T00:00:00Z\"},\"standVersion\":\"2026-01-01T00:00:00Z\",\"source\":{\"record_ref\":\"record.early\",\"rank\":1,\"display\":{\"primary\":\"First record\"}},\"actions\":[]},{\"recordId\":\"record.late\" ...."
     }
   ]
 }

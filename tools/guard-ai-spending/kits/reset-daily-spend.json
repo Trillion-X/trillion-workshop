@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:reset-daily-spend's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:reset-daily-spend with spend_authority_ref.\" When a new day starts (UTC), set my AI's spend today back to zero",
+  "drafted_from": "tool:reset-daily-spend's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"When a new day starts (UTC), set my AI's spend today back to zero\", with {\"spend_authority_ref\":\"spend-authority:sample-research\"}. It runs tool:reset-daily-spend and answers {\"reset\":true,\"day\":\"2026-11-14\",\"total_spent_today\":0}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (spend-authority) through the records door.",
   "workflows": [],
   "tools": [
     "tool:reset-daily-spend"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:reset-daily-spend\", and give it spend_authority_ref.",
+    "1. Say to your AI: \"When a new day starts (UTC), set my AI's spend today back to zero\", and give it spend_authority_ref.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:reset-daily-spend and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields reset, day, total_spent_today."
+    "3. Read what comes back: Sets the spend authority's total for today back to zero the first time it runs on a new UTC day, and remembers that day; every later run the same day changes nothing.",
+    "4. It reads and writes only its own rows through the records door: spend-authority (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Reset today's spend on a sample input",
-      "ask": "Run tool:reset-daily-spend.",
+      "title": "Reset today's spend on its own sample",
+      "ask": "When a new day starts (UTC), set my AI's spend today back to zero",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +32,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields reset, day, total_spent_today."
+      "given": "The input {\"spend_authority_ref\":\"spend-authority:sample-research\"}, with 1 example row (spend-authority) already kept.",
+      "hands_back": "It answered {\"reset\":true,\"day\":\"2026-11-14\",\"total_spent_today\":0}."
     }
   ]
 }

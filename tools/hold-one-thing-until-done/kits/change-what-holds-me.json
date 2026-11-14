@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:change-what-holds-me's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:change-what-holds-me with change, request_key.\" Set the one thing I must do aside with a reason, hand it back to my AIs, choose what turning the hold off costs me, ask to turn it off, or turn it back on",
+  "drafted_from": "tool:change-what-holds-me's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Set the one thing I must do aside with a reason, hand it back to my AIs, choose what turning the hold off costs me, ask to turn it off, or turn it back on\", with {\"change\":\"turn-on\",\"request_key\":\"sample-turn-on\",\"rules\":{\"after_minutes\":0},\"now\":\"2026-01-01T00:00:00.000Z\"}. It runs tool:change-what-holds-me and answers {\"changed\":true,\"jobs\":[],\"state\":{\"on\":true}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (setting) through the records door.",
   "workflows": [],
   "tools": [
     "tool:change-what-holds-me"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:change-what-holds-me\", and give it change, request_key.",
+    "1. Say to your AI: \"Set the one thing I must do aside with a reason, hand it back to my AIs, choose what turning the hold off costs me, ask to turn it off, or turn it back on\", and give it change; request_key (Names this one change).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:change-what-holds-me and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.changed contains \"true\"."
+    "3. Read what comes back: Changes your hold setting (setting:needs_you_hold) by your hold rules: set-aside needs a reason of the rules' length and lasts the rules' minutes, a few times a day; hand-back gives the rest of the thing to your AIs by one of the rules' ways and leaves the hold; choose-stake picks what turning off costs, in force once the stake before it has run its delay; turn-off takes effect only after the stake's delay and comes back by itself; turn-on is at once.",
+    "4. It reads and writes only its own rows through the records door: setting (records:read, records:write); setting (records:read)."
   ],
   "worked_examples": [
     {
-      "title": "Change what holds me on a sample input",
-      "ask": "Run tool:change-what-holds-me.",
+      "title": "Change what holds me on its own sample",
+      "ask": "Set the one thing I must do aside with a reason, hand it back to my AIs, choose what turning the hold off costs me, ask to turn it off, or turn it back on",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -36,7 +37,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.changed contains \"true\"."
+      "given": "The input {\"change\":\"turn-on\",\"request_key\":\"sample-turn-on\",\"rules\":{\"after_minutes\":0},\"now\":\"2026-01-01T00:00:00.000Z\"}.",
+      "hands_back": "It answered {\"changed\":true,\"jobs\":[],\"state\":{\"on\":true}}, and kept setting:needs_you_hold."
     }
   ]
 }

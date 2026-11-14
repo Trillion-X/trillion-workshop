@@ -1,9 +1,9 @@
 {
   "draft": true,
-  "drafted_from": "tool:draft-a-post's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:draft-a-post with nothing more.\" Keep a post as a draft for the person to look at: its words, its video or picture, where it goes and when",
+  "drafted_from": "tool:draft-a-post's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Keep a post as a draft for the person to look at: its words, its video or picture, where it goes and when\", with {\"caption\":\"A sample draft that goes nowhere yet\"}. It runs tool:draft-a-post and answers {\"post\":{\"post_id\":\"post:0mwfovcxb-cac8ec6c58dc\",\"status\":\"draft\",\"approval_values\":{\"caption\":\"A sample draft that goes nowhere yet\",\"media\":null,\"caption_by_platform\":{},\"settings_by_platform\":{},\"destinations\":[],\"link\":null,\"scheduled_for\":null,\"time_zone\":null,\"source\":null,\"format_id\":null,\"reaches\":null},\"media\":null,\"caption\":\"A sample draft that goes nowhere yet\",\"caption_by_platform\":{} ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (post, connection) through the records door.",
   "workflows": [],
   "tools": [
     "tool:draft-a-post",
@@ -12,14 +12,15 @@
     "tool:read-post-calendar"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:draft-a-post\", and give it nothing more.",
+    "1. Say to your AI: \"Keep a post as a draft for the person to look at: its words, its video or picture, where it goes and when\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:draft-a-post and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.post.status contains \"draft\"."
+    "3. Read what comes back: Give caption (the words), media (the file as the person's files list it: { identity, name?, media_type?, byte_length?",
+    "4. It reads and writes only its own rows through the records door: post (records:read, records:write); connection (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Draft a post on a sample input",
-      "ask": "Run tool:draft-a-post.",
+      "title": "Draft a post on its own sample",
+      "ask": "Keep a post as a draft for the person to look at: its words, its video or picture, where it goes and when",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -34,7 +35,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.post.status contains \"draft\"."
+      "given": "The input {\"caption\":\"A sample draft that goes nowhere yet\"}.",
+      "hands_back": "It answered {\"post\":{\"post_id\":\"post:0mwfovcxb-cac8ec6c58dc\",\"status\":\"draft\",\"approval_values\":{\"caption\":\"A sample draft that goes nowhere yet\",\"media\":null,\"caption_by_platform\":{},\"settings_by_platform\":{},\"destinations\":[],\"link\":null,\"scheduled_for\":null,\"time_zone\":null,\"source\":null,\"format_id\":null,\"reaches\":null},\"media\":null,\"caption\":\"A sample draft that goes nowhere yet\",\"caption_by_platform\":{},\"settings_by_platform\":{},\"source\":null,\"format_id\":null,\"caption_style_check\":null,\"reaches\":[],\"link\":null,\"scheduled_for\":null,\"time_zone\":null,\"sent_at\":null,\"destinations\":[],\"platform_urls\":{},\"errors\":[],\"created_at\":\"2026-11-14T00:50:11.374Z\",\"updated_at\":\"2026-11-14T00:50:11.374Z\"} ..., and kept post:0mwfovcxb-cac8ec6c58dc."
     }
   ]
 }

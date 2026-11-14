@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:answer-the-media-page's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:answer-the-media-page with path, method.\" Answer the Media page: read and save an edit of my recordings",
+  "drafted_from": "tool:answer-the-media-page's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Answer the Media page: read and save an edit of my recordings\", with {\"path\":\"/media/edit\",\"method\":\"GET\",\"query\":{\"id\":\"sample-cut\"},\"body\":{}}. It runs tool:answer-the-media-page and answers {\"status\":200,\"body\":{\"edit\":{\"title\":\"Sample cut\",\"clips\":[{\"identity\":\"1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"start\":0,\"end\":3,\"bytes\":\"/sample\"}],\"ratio\":\"9:16\",\"file\":null,\"saved_at\":\"2026-11-01T00:00:00.000Z\"}}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (media-edit, ) through the records door.",
   "workflows": [],
   "tools": [
     "tool:answer-the-media-page"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:answer-the-media-page\", and give it path, method.",
+    "1. Say to your AI: \"Answer the Media page: read and save an edit of my recordings\", and give it path (The page route after /work/api: /media/edit); method.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:answer-the-media-page and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields status, body."
+    "3. Read what comes back: The Media page's routes, answered by old trillion's src/work-media.mjs handleWorkMedia unchanged: GET /media/edit?id= answers { edit } (null when none is saved); POST /media/edit { id, title, clips, ratio?, captions?, textOverlays?, edl?, panels?, file?",
+    "4. It reads and writes only its own rows through the records door: media-edit (records:read, records:write); undefined (record_file_use)."
   ],
   "worked_examples": [
     {
-      "title": "Answer the Media page's saved edits on a sample input",
-      "ask": "Run tool:answer-the-media-page.",
+      "title": "Answer the Media page's saved edits on its own sample",
+      "ask": "Answer the Media page: read and save an edit of my recordings",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -36,7 +37,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields status, body."
+      "given": "The input {\"path\":\"/media/edit\",\"method\":\"GET\",\"query\":{\"id\":\"sample-cut\"},\"body\":{}}, with 1 example row (media-edit) already kept.",
+      "hands_back": "It answered {\"status\":200,\"body\":{\"edit\":{\"title\":\"Sample cut\",\"clips\":[{\"identity\":\"1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"start\":0,\"end\":3,\"bytes\":\"/sample\"}],\"ratio\":\"9:16\",\"file\":null,\"saved_at\":\"2026-11-01T00:00:00.000Z\"}}}."
     }
   ]
 }

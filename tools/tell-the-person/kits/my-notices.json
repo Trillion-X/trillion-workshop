@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:my-notices's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:my-notices with nothing more.\" List what Trillion told this person, newest first: each notice with every way it went (sent, waiting its turn, turned off or unavailable) and the surface the person saw it on",
+  "drafted_from": "tool:my-notices's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"List what Trillion told this person, newest first: each notice with every way it went (sent, waiting its turn, turned off or unavailable) and the surface the person saw it on\", with {\"limit\":1}. It runs tool:my-notices and answers {\"notices\":[],\"said\":\"0 notices, newest first; 0 seen.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (told-the-person) through the records door.",
   "workflows": [],
   "tools": [
     "tool:my-notices"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:my-notices\", and give it nothing more.",
+    "1. Say to your AI: \"List what Trillion told this person, newest first: each notice with every way it went (sent, waiting its turn, turned off or unavailable) and the surface the person saw it on\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:my-notices and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.said contains \"notice\"."
+    "3. Read what comes back: Optional limit (up to 100, default 20) and kind (only notices of that kind, such as take-me-there).",
+    "4. It reads and writes only its own rows through the records door: told-the-person (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "What I was told, where it reached me and where I saw it on a sample input",
-      "ask": "Run tool:my-notices.",
+      "title": "What I was told, where it reached me and where I saw it on its own sample",
+      "ask": "List what Trillion told this person, newest first: each notice with every way it went (sent, waiting its turn, turned off or unavailable) and the surface the person saw it on",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +32,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.said contains \"notice\"."
+      "given": "The input {\"limit\":1}.",
+      "hands_back": "It answered {\"notices\":[],\"said\":\"0 notices, newest first; 0 seen.\"}."
     }
   ]
 }

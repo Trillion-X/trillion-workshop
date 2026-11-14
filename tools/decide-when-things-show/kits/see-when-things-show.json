@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:see-when-things-show's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:see-when-things-show with nothing more.\" Show me the rules that decide when things show, hide or stay quiet for me, and the types I keep",
+  "drafted_from": "tool:see-when-things-show's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Show me the rules that decide when things show, hide or stay quiet for me, and the types I keep\", with {}. It runs tool:see-when-things-show and answers {\"rules\":[{\"id\":\"setup-require-assigned-devices\",\"label\":\"Require the devices assigned to this account\",\"subject\":\"setup-step\",\"effect\":\"change\",\"when\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"owner\",\"operator\":\"is_any_of\",\"params\":{\"values\":[\"device\"]}},{\"kind\":\"rule\",\"field\":\"required_for_account\",\"operator\":\"is_true\",\"params\":{}}]} ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (@own-records) through the records door.",
   "workflows": [],
   "tools": [
     "tool:see-when-things-show"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:see-when-things-show\", and give it nothing more.",
+    "1. Say to your AI: \"Show me the rules that decide when things show, hide or stay quiet for me, and the types I keep\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:see-when-things-show and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $ contains \"rules\"."
+    "3. Read what comes back: Reads your show-rules record and answers every rule in force (the starting rules, your own, and those of the types you have switched on), the subjects a rule can be about with their facts, the moment facts, the effects, the quick choices and the operators a rule's when can use, the types you keep and which are on (in_use).",
+    "4. It reads and writes only its own rows through the records door: @own-records (workspace:read)."
   ],
   "worked_examples": [
     {
-      "title": "See when things show on a sample input",
-      "ask": "Run tool:see-when-things-show.",
+      "title": "See when things show on its own sample",
+      "ask": "Show me the rules that decide when things show, hide or stay quiet for me, and the types I keep",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -29,7 +30,8 @@
           }
         }
       },
-      "hands_back": "The answer's $ contains \"rules\"."
+      "given": "The input {}.",
+      "hands_back": "It answered {\"rules\":[{\"id\":\"setup-require-assigned-devices\",\"label\":\"Require the devices assigned to this account\",\"subject\":\"setup-step\",\"effect\":\"change\",\"when\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"owner\",\"operator\":\"is_any_of\",\"params\":{\"values\":[\"device\"]}},{\"kind\":\"rule\",\"field\":\"required_for_account\",\"operator\":\"is_true\",\"params\":{}}]},\"set\":[{\"path\":[\"required\"],\"value\":true},{\"path\":[\"applicable\"],\"value\":true}],\"starting\":true,\"on\":true},{\"id\":\"what-is-new-waits-a-day\",\"label\":\"What's new waits a day after you close one, unless it is urgent\",\"subject\":\"tour\",\"effect\":\"hide\",\"when\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false ...."
     }
   ]
 }

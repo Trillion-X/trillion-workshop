@@ -1,23 +1,24 @@
 {
   "draft": true,
-  "drafted_from": "tool:save-voice's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:save-voice with fields.\" Save what you learned about how this person writes, for one kind of writing",
+  "drafted_from": "tool:save-voice's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Save what you learned about how this person writes, for one kind of writing\", with {\"kind\":\"post\",\"name\":\"Posts\",\"fields\":{\"how_they_write\":\"Short, plain, no slogans.\",\"words_they_avoid\":\"synergy\"}}. It runs tool:save-voice and answers {\"profile\":{\"profile_id\":\"voice-profile:post\",\"kind\":\"post\",\"name\":\"Posts\",\"fields\":{\"how_they_write\":\"Short, plain, no slogans.\",\"words_they_avoid\":\"synergy\"},\"set_at\":\"2026-11-14T00:50:24.447Z\",\"set_by\":\"ai\"},\"said\":\"Saved the post voice profile.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (voice-profile) through the records door.",
   "workflows": [],
   "tools": [
     "tool:save-voice",
     "tool:read-voice"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:save-voice\", and give it fields.",
+    "1. Say to your AI: \"Save what you learned about how this person writes, for one kind of writing\", and give it fields.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:save-voice and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.said contains \"Saved the post voice profile\"."
+    "3. Read what comes back: Saves what you learned from tool:read-voice as the voice profile of one kind of writing (kind, like post or email; leave out for a general one).",
+    "4. It reads and writes only its own rows through the records door: voice-profile (records:read, records:list, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Save how someone writes on a sample input",
-      "ask": "Run tool:save-voice.",
+      "title": "Save how someone writes on its own sample",
+      "ask": "Save what you learned about how this person writes, for one kind of writing",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -37,7 +38,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.said contains \"Saved the post voice profile\"."
+      "given": "The input {\"kind\":\"post\",\"name\":\"Posts\",\"fields\":{\"how_they_write\":\"Short, plain, no slogans.\",\"words_they_avoid\":\"synergy\"}}.",
+      "hands_back": "It answered {\"profile\":{\"profile_id\":\"voice-profile:post\",\"kind\":\"post\",\"name\":\"Posts\",\"fields\":{\"how_they_write\":\"Short, plain, no slogans.\",\"words_they_avoid\":\"synergy\"},\"set_at\":\"2026-11-14T00:50:24.447Z\",\"set_by\":\"ai\"},\"said\":\"Saved the post voice profile.\"}, and kept voice-profile:post."
     }
   ]
 }

@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:plan-my-time's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:plan-my-time with nothing more.\" Plan the person's tasks into their free time and judge their meetings against their pursuits, like an auto-scheduling calendar: ASAP first, then hard deadlines, then what serves their most important pursuit, then due date; tasks wait for their blockers, long tasks split into pieces, hard deadlines may use time outside working hours.",
+  "drafted_from": "tool:plan-my-time's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Plan the person's tasks into their free time and judge their meetings against their pursuits, like an auto-scheduling calendar: ASAP first, then hard deadlines, then what serves their most important pursuit, then due date; tasks wait for their blockers, long tasks split into pieces, hard deadlines may use time outside working hours.\", with {\"now\":\"2026-10-19T13:00:00Z\",\"tasks\":[{\"id\":\"write-the-update\",\"duration_minutes\":30}]}. It runs tool:plan-my-time and answers {\"planned_at\":\"2026-10-19T13:00:00.000Z\",\"time_zone\":\"UTC\",\"days\":[{\"date\":\"2026-10-19\",\"planned_minutes\":30,\"cap_minutes\":360,\"over_by_minutes\":0}],\"tasks\":[{\"id\":\"write-the-update\",\"value\":1,\"fit\":\"on_track\",\"finish\":\"2026-10-19T13:30:00.000Z\",\"pieces\":[{\"start\":\"2026-10-19T13:00:00.000Z\",\"end\":\"2026-10-19T13:30:00.000Z\"}]}],\"meetings\":[]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:plan-my-time"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:plan-my-time\", and give it nothing more.",
+    "1. Say to your AI: \"Plan the person's tasks into their free time and judge their meetings against their pursuits, like an auto-scheduling calendar: ASAP first, then hard deadlines, then what serves their most important pursuit, then due date; tasks wait for their blockers, long tasks split into pieces, hard deadlines may use time outside working hours.\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:plan-my-time and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.tasks[0].fit contains \"on_track\"."
+    "3. Read what comes back: Free time is the weekly schedule in the person's time zone, minus busy events, blocks and work already placed."
   ],
   "worked_examples": [
     {
-      "title": "Plan my time on a sample input",
-      "ask": "Run tool:plan-my-time.",
+      "title": "Plan my time on its own sample",
+      "ask": "Plan the person's tasks into their free time and judge their meetings against their pursuits, like an auto-scheduling calendar: ASAP first, then hard deadlines, then what serves their most important pursuit, then due date; tasks wait for their blockers, long tasks split into pieces, hard deadlines may use time outside working hours.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -37,7 +37,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.tasks[0].fit contains \"on_track\"."
+      "given": "The input {\"now\":\"2026-10-19T13:00:00Z\",\"tasks\":[{\"id\":\"write-the-update\",\"duration_minutes\":30}]}.",
+      "hands_back": "It answered {\"planned_at\":\"2026-10-19T13:00:00.000Z\",\"time_zone\":\"UTC\",\"days\":[{\"date\":\"2026-10-19\",\"planned_minutes\":30,\"cap_minutes\":360,\"over_by_minutes\":0}],\"tasks\":[{\"id\":\"write-the-update\",\"value\":1,\"fit\":\"on_track\",\"finish\":\"2026-10-19T13:30:00.000Z\",\"pieces\":[{\"start\":\"2026-10-19T13:00:00.000Z\",\"end\":\"2026-10-19T13:30:00.000Z\"}]}],\"meetings\":[]}."
     }
   ]
 }

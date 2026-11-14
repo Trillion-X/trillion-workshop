@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:make-tracked-link's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:make-tracked-link with destination, project, source, campaign.\" Make a tracked link with UTM fields for a post, ad, email or bio, so visits and sales can be traced to it",
+  "drafted_from": "tool:make-tracked-link's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Make a tracked link with UTM fields for a post, ad, email or bio, so visits and sales can be traced to it\", with {\"destination\":\"https://shop.example/offer\",\"project\":\"spring-launch\",\"source\":\"instagram\",\"campaign\":\"reel-12\"}. It runs tool:make-tracked-link and answers {\"link\":\"https://shop.example/offer?bf_project=spring-launch&utm_source=instagram&utm_campaign=reel-12\",\"fields\":{\"bf_project\":\"spring-launch\",\"utm_source\":\"instagram\",\"utm_campaign\":\"reel-12\"}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:make-tracked-link"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:make-tracked-link\", and give it destination, project, source, campaign.",
+    "1. Say to your AI: \"Make a tracked link with UTM fields for a post, ad, email or bio, so visits and sales can be traced to it\", and give it destination (The web page the link opens); project (Your name for what is being promoted, letters, numbers, dots, dashes or underscores); source (Where the link is posted, like instagram or newsletter); campaign.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:make-tracked-link and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.link contains \"utm_source=instagram\"."
+    "3. Read what comes back: Adds the project, source and campaign (and optionally the medium and a content tag for one post) to a web address as UTM fields, replacing any already there."
   ],
   "worked_examples": [
     {
-      "title": "Make a tracked link on a sample input",
-      "ask": "Run tool:make-tracked-link.",
+      "title": "Make a tracked link on its own sample",
+      "ask": "Make a tracked link with UTM fields for a post, ad, email or bio, so visits and sales can be traced to it",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -34,7 +34,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.link contains \"utm_source=instagram\"."
+      "given": "The input {\"destination\":\"https://shop.example/offer\",\"project\":\"spring-launch\",\"source\":\"instagram\",\"campaign\":\"reel-12\"}.",
+      "hands_back": "It answered {\"link\":\"https://shop.example/offer?bf_project=spring-launch&utm_source=instagram&utm_campaign=reel-12\",\"fields\":{\"bf_project\":\"spring-launch\",\"utm_source\":\"instagram\",\"utm_campaign\":\"reel-12\"}}."
     }
   ]
 }

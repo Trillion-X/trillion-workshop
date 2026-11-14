@@ -1,23 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:read-an-export-of-my-conversations's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-an-export-of-my-conversations with file.\" Read an export of the person's conversations (a chat app's saved messages, a mailbox page or email file, the Messages database, an AI assistant's logs or a captured web chat) from a folder they chose, and give each conversation's messages in order, ready to be kept as the person's messages",
+  "drafted_from": "tool:read-an-export-of-my-conversations's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Read an export of the person's conversations (a chat app's saved messages, a mailbox page or email file, the Messages database, an AI assistant's logs or a captured web chat) from a folder they chose, and give each conversation's messages in order, ready to be kept as the person's messages\", with {\"file\":\"saved/orders.json\"}. It runs tool:read-an-export-of-my-conversations and answers {\"source\":\"slack-messages\",\"source_ref\":\"source:slack-messages\",\"mode\":\"all\",\"threads\":[{\"thread_ref\":\"thread:source:slack-messages:C1\",\"session_id\":\"C1\",\"source_ref\":\"source:slack-messages\",\"native_ref\":\"/granted-skTAYd/saved/orders.json\",\"presentation\":{\"mark_ref\":null,\"title\":\"bakery-orders\",\"subtitle\":\"Two loaves please\",\"at\":\"2023-11-14T22:14:20.000200Z\"},\"atom_count\":2 ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:read-an-export-of-my-conversations",
     "tool:list-the-kinds-of-conversation-export-i-can-read"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-an-export-of-my-conversations\", and give it file.",
+    "1. Say to your AI: \"Read an export of the person's conversations (a chat app's saved messages, a mailbox page or email file, the Messages database, an AI assistant's logs or a captured web chat) from a folder they chose, and give each conversation's messages in order, ready to be kept as the person's messages\", and give it file (The export, a path inside the granted folder).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-an-export-of-my-conversations and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields source, source_ref, mode, threads, atoms, total_atoms, total_threads, conversations."
+    "3. Read what comes back: Runs on the person's computer over the folder they granted it to read, and reads only inside it."
   ],
   "worked_examples": [
     {
-      "title": "Read an export of my conversations on a sample input",
-      "ask": "Run tool:read-an-export-of-my-conversations.",
+      "title": "Read an export of my conversations on its own sample",
+      "ask": "Read an export of the person's conversations (a chat app's saved messages, a mailbox page or email file, the Messages database, an AI assistant's logs or a captured web chat) from a folder they chose, and give each conversation's messages in order, ready to be kept as the person's messages",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,7 +32,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields source, source_ref, mode, threads, atoms, total_atoms, total_threads, conversations."
+      "given": "The input {\"file\":\"saved/orders.json\"}.",
+      "hands_back": "It answered {\"source\":\"slack-messages\",\"source_ref\":\"source:slack-messages\",\"mode\":\"all\",\"threads\":[{\"thread_ref\":\"thread:source:slack-messages:C1\",\"session_id\":\"C1\",\"source_ref\":\"source:slack-messages\",\"native_ref\":\"/granted-skTAYd/saved/orders.json\",\"presentation\":{\"mark_ref\":null,\"title\":\"bakery-orders\",\"subtitle\":\"Two loaves please\",\"at\":\"2023-11-14T22:14:20.000200Z\"},\"atom_count\":2,\"started_at\":\"2023-11-14T22:13:20.000100Z\",\"last_activity_at\":\"2023-11-14T22:14:20.000200Z\"}],\"atoms\":[{\"atom_ref\":\"atom:1f:27d1127e00a958098f5a8eae5b176fdac335409a23ec0a5d6f2544175a9e78d4\",\"thread_ref\":\"thread:source:slack-messages:C1\",\"kind\":\"utterance\",\"speaker_ref\":\"speaker:source:slack-messages:me\" ...."
     }
   ]
 }

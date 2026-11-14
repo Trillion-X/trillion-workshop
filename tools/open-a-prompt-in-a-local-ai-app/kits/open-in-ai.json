@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:open-in-ai's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:open-in-ai with app, prompt.\" Hand one prompt (an issue, a task) to a coding AI app the person already has on their computer, such as Claude Code or Codex",
+  "drafted_from": "tool:open-in-ai's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Hand one prompt (an issue, a task) to a coding AI app the person already has on their computer, such as Claude Code or Codex\", with {\"app\":\"claude-code\",\"prompt\":\"Summarise the notes for Ada Example.\"}. It runs tool:open-in-ai and answers {\"outcome\":\"launched\",\"app\":\"claude-code\",\"via\":\"url\",\"command\":\"open\",\"prompt_chars\":36,\"said\":\"Opened the prompt in Claude Code.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:open-in-ai"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:open-in-ai\", and give it app, prompt.",
+    "1. Say to your AI: \"Hand one prompt (an issue, a task) to a coding AI app the person already has on their computer, such as Claude Code or Codex\", and give it app (The app's id from read-data/open-in-ai.json (for example claude-code or codex)); prompt (The prompt to open).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:open-in-ai and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields outcome, app, via, command, prompt_chars, folder, dry_run, argv."
+    "3. Read what comes back: Opens the prompt in the app named by `app`, one of the rows of read-data/open-in-ai.json (the rows are the allowlist; an app not in them is refused)."
   ],
   "worked_examples": [
     {
-      "title": "Open a prompt in a local AI app on a sample input",
-      "ask": "Run tool:open-in-ai.",
+      "title": "Open a prompt in a local AI app on its own sample",
+      "ask": "Hand one prompt (an issue, a task) to a coding AI app the person already has on their computer, such as Claude Code or Codex",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,7 +32,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields outcome, app, via, command, prompt_chars, folder, dry_run, argv."
+      "given": "The input {\"app\":\"claude-code\",\"prompt\":\"Summarise the notes for Ada Example.\"}.",
+      "hands_back": "It answered {\"outcome\":\"launched\",\"app\":\"claude-code\",\"via\":\"url\",\"command\":\"open\",\"prompt_chars\":36,\"said\":\"Opened the prompt in Claude Code.\"}."
     }
   ]
 }

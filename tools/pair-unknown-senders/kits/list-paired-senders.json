@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:list-paired-senders's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:list-paired-senders with nothing more.\" List which senders are paired and which pairing codes are waiting, for one source or all",
+  "drafted_from": "tool:list-paired-senders's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"List which senders are paired and which pairing codes are waiting, for one source or all\", with {}. It runs tool:list-paired-senders and answers {\"waiting\":[],\"paired\":[]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (sender-pairing) through the records door.",
   "workflows": [],
   "tools": [
     "tool:list-paired-senders"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:list-paired-senders\", and give it nothing more.",
+    "1. Say to your AI: \"List which senders are paired and which pairing codes are waiting, for one source or all\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-paired-senders and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.waiting contains \"\"."
+    "3. Read what comes back: Optional source_id narrows to one source.",
+    "4. It reads and writes only its own rows through the records door: sender-pairing (records:read, records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Paired senders and waiting codes on a sample input",
-      "ask": "Run tool:list-paired-senders.",
+      "title": "Paired senders and waiting codes on its own sample",
+      "ask": "List which senders are paired and which pairing codes are waiting, for one source or all",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -29,7 +30,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.waiting contains \"\"."
+      "given": "The input {}.",
+      "hands_back": "It answered {\"waiting\":[],\"paired\":[]}."
     }
   ]
 }

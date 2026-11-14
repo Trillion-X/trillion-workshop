@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:run-a-poker-table's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:run-a-poker-table with operation.\" Run a game of Texas Hold'em poker for a table of players: open a table, seat players, deal a hand, take each player's action, and deal the next hand",
+  "drafted_from": "tool:run-a-poker-table's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Run a game of Texas Hold'em poker for a table of players: open a table, seat players, deal a hand, take each player's action, and deal the next hand\", with {\"operation\":\"open-table\",\"room_id\":\"room:sample\",\"players\":[\"Alder\",\"Birch\"],\"config\":{\"smallBlind\":5,\"bigBlind\":10,\"startingChips\":200}}. It runs tool:run-a-poker-table and answers {\"operation\":\"open-table\",\"room\":{\"kind\":\"poker-room-state\",\"version\":1,\"roomId\":\"room:sample\",\"board\":[],\"config\":{\"startingChips\":200,\"smallBlind\":5,\"bigBlind\":10,\"blindMode\":\"fixed\",\"blindIncrease\":0,\"maxPlayers\":9},\"handNumber\":0,\"holeCards\":{},\"hostPlayerId\":\"player-1\",\"state\":{\"phase\":\"lobby\",\"config\":{\"startingChips\":200,\"smallBlind\":5,\"bigBlind\":10,\"blindMode\":\"fixed\",\"blindIncrease\":0 ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:run-a-poker-table"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:run-a-poker-table\", and give it operation.",
+    "1. Say to your AI: \"Run a game of Texas Hold'em poker for a table of players: open a table, seat players, deal a hand, take each player's action, and deal the next hand\", and give it operation (What to do to the table).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:run-a-poker-table and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.room.state.phase contains \"lobby\"."
+    "3. Read what comes back: Keep the table's saved state (the room) and send it back with one operation each time."
   ],
   "worked_examples": [
     {
-      "title": "Run a game of Texas Hold'em at a table on a sample input",
-      "ask": "Run tool:run-a-poker-table.",
+      "title": "Run a game of Texas Hold'em at a table on its own sample",
+      "ask": "Run a game of Texas Hold'em poker for a table of players: open a table, seat players, deal a hand, take each player's action, and deal the next hand",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -41,7 +41,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.room.state.phase contains \"lobby\"."
+      "given": "The input {\"operation\":\"open-table\",\"room_id\":\"room:sample\",\"players\":[\"Alder\",\"Birch\"],\"config\":{\"smallBlind\":5,\"bigBlind\":10,\"startingChips\":200}}.",
+      "hands_back": "It answered {\"operation\":\"open-table\",\"room\":{\"kind\":\"poker-room-state\",\"version\":1,\"roomId\":\"room:sample\",\"board\":[],\"config\":{\"startingChips\":200,\"smallBlind\":5,\"bigBlind\":10,\"blindMode\":\"fixed\",\"blindIncrease\":0,\"maxPlayers\":9},\"handNumber\":0,\"holeCards\":{},\"hostPlayerId\":\"player-1\",\"state\":{\"phase\":\"lobby\",\"config\":{\"startingChips\":200,\"smallBlind\":5,\"bigBlind\":10,\"blindMode\":\"fixed\",\"blindIncrease\":0,\"maxPlayers\":9},\"players\":[{\"id\":\"player-1\",\"name\":\"Alder\",\"chips\":200,\"currentBet\":0,\"totalCommitted\":0,\"hasActed\":false,\"folded\":false,\"allIn\":false,\"eliminated\":false,\"connected\":true},{\"id\":\"player-2\",\"name\":\"Birch\",\"chips\":200,\"currentBet\":0,\"totalCommitted\":0,\"hasActed\":false,\"folded\":false ...."
     }
   ]
 }

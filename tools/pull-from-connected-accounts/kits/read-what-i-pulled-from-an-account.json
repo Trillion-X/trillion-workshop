@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:read-what-i-pulled-from-an-account's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-what-i-pulled-from-an-account with source.\" Read the conversations, messages and saved items I pulled from a connected account such as Discord, Slack, Telegram, Signal, Instagram, Messenger, X bookmarks or Pinterest",
+  "drafted_from": "tool:read-what-i-pulled-from-an-account's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Read the conversations, messages and saved items I pulled from a connected account such as Discord, Slack, Telegram, Signal, Instagram, Messenger, X bookmarks or Pinterest\", with {\"source\":\"slack\",\"account\":\"sample\"}. It runs tool:read-what-i-pulled-from-an-account and answers {\"source\":\"slack\",\"account\":\"sample\",\"self_id\":\"U0000SAMPLE\",\"cursor\":\"1793534700.000200\",\"pulled_at\":\"2026-11-03T12:00:00.000Z\",\"threads\":[{\"id\":\"C0000SAMPLE\",\"title\":\"general\",\"messages\":1}],\"collections\":{},\"said\":\"Pulled from slack (sample): 1 conversations.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (account-snapshot-part) through the records door.",
   "workflows": [],
   "tools": [
     "tool:read-what-i-pulled-from-an-account"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-what-i-pulled-from-an-account\", and give it source.",
+    "1. Say to your AI: \"Read the conversations, messages and saved items I pulled from a connected account such as Discord, Slack, Telegram, Signal, Instagram, Messenger, X bookmarks or Pinterest\", and give it source.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-what-i-pulled-from-an-account and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields source, account, self_id, cursor, pulled_at, threads, collections, thread."
+    "3. Read what comes back: Give source (discord, slack, telegram, signal, instagram-messages, messenger-messages, x-bookmarks or pinterest-pins) and optionally account (the name it was pulled under, default \"default\").",
+    "4. It reads and writes only its own rows through the records door: account-snapshot-part (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Read what I pulled from a connected account on a sample input",
-      "ask": "Run tool:read-what-i-pulled-from-an-account.",
+      "title": "Read what I pulled from a connected account on its own sample",
+      "ask": "Read the conversations, messages and saved items I pulled from a connected account such as Discord, Slack, Telegram, Signal, Instagram, Messenger, X bookmarks or Pinterest",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,7 +33,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields source, account, self_id, cursor, pulled_at, threads, collections, thread."
+      "given": "The input {\"source\":\"slack\",\"account\":\"sample\"}, with 2 example rows (account-snapshot-part) already kept.",
+      "hands_back": "It answered {\"source\":\"slack\",\"account\":\"sample\",\"self_id\":\"U0000SAMPLE\",\"cursor\":\"1793534700.000200\",\"pulled_at\":\"2026-11-03T12:00:00.000Z\",\"threads\":[{\"id\":\"C0000SAMPLE\",\"title\":\"general\",\"messages\":1}],\"collections\":{},\"said\":\"Pulled from slack (sample): 1 conversations.\"}."
     }
   ]
 }

@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:cancel-a-booking-on-my-calendar's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:cancel-a-booking-on-my-calendar with event_id.\" Remove a booking's event from my own calendar",
+  "drafted_from": "tool:cancel-a-booking-on-my-calendar's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Remove a booking's event from my own calendar\", with {\"event_id\":\"sampleevent1\"}. It runs tool:cancel-a-booking-on-my-calendar and answers {\"status\":\"changed\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (booking, booking-book) through the records door.",
   "workflows": [],
   "tools": [
     "tool:cancel-a-booking-on-my-calendar"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:cancel-a-booking-on-my-calendar\", and give it event_id.",
+    "1. Say to your AI: \"Remove a booking's event from my own calendar\", and give it event_id.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:cancel-a-booking-on-my-calendar and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields status, error."
+    "3. Read what comes back: Deletes one event from the person's own Google calendar, with the person's own calendar account (the held value calendar-account); Google tells the attendees.",
+    "4. It reads and writes only its own rows through the records door: booking (records:list, records:read, records:write); booking-book (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Cancel a booking on my calendar on a sample input",
-      "ask": "Run tool:cancel-a-booking-on-my-calendar.",
+      "title": "Cancel a booking on my calendar on its own sample",
+      "ask": "Remove a booking's event from my own calendar",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +32,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields status, error."
+      "given": "The input {\"event_id\":\"sampleevent1\"}, the web answering from 2 recorded replies.",
+      "hands_back": "It answered {\"status\":\"changed\"}."
     }
   ]
 }

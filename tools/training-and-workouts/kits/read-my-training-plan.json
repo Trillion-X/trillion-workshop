@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:read-my-training-plan's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-my-training-plan with plan.\" Read my training plan: its goals, phases, weeks and the sessions prescribed in each week",
+  "drafted_from": "tool:read-my-training-plan's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Read my training plan: its goals, phases, weeks and the sessions prescribed in each week\", with {\"plan\":{\"goals\":[{\"id\":\"g1\",\"name\":\"Juggle five\",\"domain\":\"juggling\"}],\"phases\":[{\"id\":\"p1\",\"goalId\":\"g1\",\"name\":\"Build\",\"intent\":\"build\",\"sequence\":1}],\"weeks\":[{\"id\":\"w1\",\"phaseId\":\"p1\",\"sequence\":1,\"loadIntent\":\"steady\"}],\"sessions\":[{\"id\":\"s1\",\"weekBlockId\":\"w1\",\"title\":\"Cascade blocks\",\"activity\":\"technical\",\"dose\":{\"sets\":4,\"throws\":60},\"intensity\":{\"heightCm\":100}},{\"id\":\"s2\" .... It runs tool:read-my-training-plan and answers {\"plan\":{\"goals\":[{\"id\":\"g1\",\"name\":\"Juggle five\",\"domain\":\"juggling\"}],\"phases\":[{\"id\":\"p1\",\"goalId\":\"g1\",\"name\":\"Build\",\"intent\":\"build\",\"sequence\":1}],\"weeks\":[{\"id\":\"w1\",\"phaseId\":\"p1\",\"sequence\":1,\"loadIntent\":{\"id\":\"steady\",\"label\":\"steady\",\"data\":{}}}],\"sessions\":[{\"id\":\"s1\",\"weekBlockId\":\"w1\",\"title\":\"Cascade blocks\",\"activity\":\"technical\",\"dose\":{\"sets\":4,\"throws\":60} ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:read-my-training-plan"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-my-training-plan\", and give it plan.",
+    "1. Say to your AI: \"Read my training plan: its goals, phases, weeks and the sessions prescribed in each week\", and give it plan (The training plan record: goals, phases, weeks, sessions).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-my-training-plan and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.week_sessions[1].title contains \"Rest and review\"."
+    "3. Read what comes back: Takes the training plan record (goals, phases in a goal, week blocks in a phase, session prescriptions in a week, each prescription with an open dose record and an open intensity record) and answers it decoded, with a count of each, and the sessions of one week when week_id is given."
   ],
   "worked_examples": [
     {
-      "title": "Read my training plan on a sample input",
-      "ask": "Run tool:read-my-training-plan.",
+      "title": "Read my training plan on its own sample",
+      "ask": "Read my training plan: its goals, phases, weeks and the sessions prescribed in each week",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -80,7 +80,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.week_sessions[1].title contains \"Rest and review\"."
+      "given": "The input {\"plan\":{\"goals\":[{\"id\":\"g1\",\"name\":\"Juggle five\",\"domain\":\"juggling\"}],\"phases\":[{\"id\":\"p1\",\"goalId\":\"g1\",\"name\":\"Build\",\"intent\":\"build\",\"sequence\":1}],\"weeks\":[{\"id\":\"w1\",\"phaseId\":\"p1\",\"sequence\":1,\"loadIntent\":\"steady\"}],\"sessions\":[{\"id\":\"s1\",\"weekBlockId\":\"w1\",\"title\":\"Cascade blocks\",\"activity\":\"technical\",\"dose\":{\"sets\":4,\"throws\":60},\"intensity\":{\"heightCm\":100}},{\"id\":\"s2\" ....",
+      "hands_back": "It answered {\"plan\":{\"goals\":[{\"id\":\"g1\",\"name\":\"Juggle five\",\"domain\":\"juggling\"}],\"phases\":[{\"id\":\"p1\",\"goalId\":\"g1\",\"name\":\"Build\",\"intent\":\"build\",\"sequence\":1}],\"weeks\":[{\"id\":\"w1\",\"phaseId\":\"p1\",\"sequence\":1,\"loadIntent\":{\"id\":\"steady\",\"label\":\"steady\",\"data\":{}}}],\"sessions\":[{\"id\":\"s1\",\"weekBlockId\":\"w1\",\"title\":\"Cascade blocks\",\"activity\":\"technical\",\"dose\":{\"sets\":4,\"throws\":60},\"intensity\":{\"heightCm\":100}},{\"id\":\"s2\",\"weekBlockId\":\"w1\",\"title\":\"Rest and review\",\"activity\":\"rest\",\"dose\":{},\"intensity\":{}}]},\"summary\":{\"goals\":1,\"phases\":1,\"weeks\":1,\"sessions\":2},\"week_sessions\":[{\"id\":\"s1\",\"weekBlockId\":\"w1\",\"title\":\"Cascade blocks\",\"activity\":\"technical\",\"dose\":{\"sets\":4,\"throws\":60} ...."
     }
   ]
 }

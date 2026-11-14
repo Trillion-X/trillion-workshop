@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:ask-what-was-said's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:ask-what-was-said with listening, conversation.\" Tell me what was said in a listening since I last asked, once what was said before my question is written down",
+  "drafted_from": "tool:ask-what-was-said's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Tell me what was said in a listening since I last asked, once what was said before my question is written down\", with {\"listening\":\"sample-meeting\",\"conversation\":\"sample-conversation\",\"wait_seconds\":0}. It runs tool:ask-what-was-said and answers {\"listening\":\"sample-meeting\",\"conversation\":\"sample-conversation\",\"flushed\":false,\"live\":false,\"heard_until\":null,\"waited_ms\":166,\"lines\":[{\"id\":\"heard:sample-meeting:1000\",\"start\":\"2026-11-03T22:00:01.000Z\",\"end\":\"2026-11-03T22:00:03.000Z\",\"speaker\":\"Someone (voice-2)\",\"me\":false,\"text\":\"The garden budget is next.\"},{\"id\":\"heard:sample-meeting:5000\",\"start\":\"2026-11-03T22:00:05.000Z\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (heard, listening-status, captions, ask-cursor) through the records door.",
   "workflows": [],
   "tools": [
     "tool:ask-what-was-said"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:ask-what-was-said\", and give it listening, conversation.",
+    "1. Say to your AI: \"Tell me what was said in a listening since I last asked, once what was said before my question is written down\", and give it listening (The listening's name); conversation (The conversation asking, so it is given each turn once).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:ask-what-was-said and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields listening, conversation, lines, flushed, live, heard_until, waited_ms, cursor."
+    "3. Read what comes back: Waits (at most wait_seconds) until what was said before the ask is heard and written, from the listening's status row; then answers the turns this conversation was not given yet, with the captions' corrections applied, and moves the conversation's cursor past them.",
+    "4. It reads and writes only its own rows through the records door: heard (records:list); listening-status (records:read); captions (records:read); ask-cursor (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "What was said since this conversation last asked on a sample input",
-      "ask": "Run tool:ask-what-was-said.",
+      "title": "What was said since this conversation last asked on its own sample",
+      "ask": "Tell me what was said in a listening since I last asked, once what was said before my question is written down",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +34,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields listening, conversation, lines, flushed, live, heard_until, waited_ms, cursor."
+      "given": "The input {\"listening\":\"sample-meeting\",\"conversation\":\"sample-conversation\",\"wait_seconds\":0}, with 2 example rows (heard) already kept.",
+      "hands_back": "It answered {\"listening\":\"sample-meeting\",\"conversation\":\"sample-conversation\",\"flushed\":false,\"live\":false,\"heard_until\":null,\"waited_ms\":166,\"lines\":[{\"id\":\"heard:sample-meeting:1000\",\"start\":\"2026-11-03T22:00:01.000Z\",\"end\":\"2026-11-03T22:00:03.000Z\",\"speaker\":\"Someone (voice-2)\",\"me\":false,\"text\":\"The garden budget is next.\"},{\"id\":\"heard:sample-meeting:5000\",\"start\":\"2026-11-03T22:00:05.000Z\",\"end\":\"2026-11-03T22:00:07.000Z\",\"speaker\":\"Ada Example\",\"me\":false,\"text\":\"Thank you, go on.\"}],\"cursor\":5000}, and kept ask-cursor:sample-conversation:sample-meeting."
     }
   ]
 }

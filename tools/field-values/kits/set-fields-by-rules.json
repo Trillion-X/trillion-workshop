@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:set-fields-by-rules's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:set-fields-by-rules with records, fields, groups.\" Set fields on the rows my rules match, like coding transactions by merchant and amount: my rule groups in order, the first matching rule sets each field, never over a value I set myself, with a preview of what each rule would change",
+  "drafted_from": "tool:set-fields-by-rules's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Set fields on the rows my rules match, like coding transactions by merchant and amount: my rule groups in order, the first matching rule sets each field, never over a value I set myself, with a preview of what each rule would change\", with {\"records\":[{\"id\":\"t1\",\"merchant\":\"North Flour Mill\",\"amount\":120},{\"id\":\"t2\",\"merchant\":\"Oven Parts Co\",\"amount\":80,\"category\":\"Repairs\"}],\"fields\":[{\"id\":\"merchant\",\"kind\":\"text\"},{\"id\":\"category\",\"kind\":\"choice\"}],\"groups\":[{\"id\":\"ingredients\",\"rules\":[{\"id\":\"flour\",\"when\":{\"kind\":\"rule\",\"field\":\"merchant\",\"operator\":\"contains\",\"params\":{\"text\":\"flour\"}},\"set\":[{\"field\":\"category\" .... It runs tool:set-fields-by-rules and answers {\"total\":2,\"changes\":[{\"row\":0,\"id\":\"t1\",\"field\":\"category\",\"from\":null,\"to\":\"Ingredients\",\"rule\":\"flour\",\"group\":\"ingredients\",\"reason\":\"set\"}],\"held\":[],\"shadowed\":[],\"rows\":[{\"row\":0,\"id\":\"t1\",\"fields\":[\"category\"],\"record\":{\"id\":\"t1\",\"merchant\":\"North Flour Mill\",\"amount\":120,\"category\":\"Ingredients\"}}],\"rules\":[{\"group\":\"ingredients\",\"rule\":\"flour\",\"says\":null,\"matches\":[0],\"incomplete\":[] ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:set-fields-by-rules"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:set-fields-by-rules\", and give it records, fields, groups.",
+    "1. Say to your AI: \"Set fields on the rows my rules match, like coding transactions by merchant and amount: my rule groups in order, the first matching rule sets each field, never over a value I set myself, with a preview of what each rule would change\", and give it records (The rows); fields; groups (Rule groups in the order they are tried).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:set-fields-by-rules and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.changes[0].to contains \"Ingredients\"."
+    "3. Read what comes back: Takes rows, the fields (an id, a kind and a path into each row), and groups of rules in the order they are tried."
   ],
   "worked_examples": [
     {
-      "title": "Set fields on the rows my rules match on a sample input",
-      "ask": "Run tool:set-fields-by-rules.",
+      "title": "Set fields on the rows my rules match on its own sample",
+      "ask": "Set fields on the rows my rules match, like coding transactions by merchant and amount: my rule groups in order, the first matching rule sets each field, never over a value I set myself, with a preview of what each rule would change",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -80,7 +80,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.changes[0].to contains \"Ingredients\"."
+      "given": "The input {\"records\":[{\"id\":\"t1\",\"merchant\":\"North Flour Mill\",\"amount\":120},{\"id\":\"t2\",\"merchant\":\"Oven Parts Co\",\"amount\":80,\"category\":\"Repairs\"}],\"fields\":[{\"id\":\"merchant\",\"kind\":\"text\"},{\"id\":\"category\",\"kind\":\"choice\"}],\"groups\":[{\"id\":\"ingredients\",\"rules\":[{\"id\":\"flour\",\"when\":{\"kind\":\"rule\",\"field\":\"merchant\",\"operator\":\"contains\",\"params\":{\"text\":\"flour\"}},\"set\":[{\"field\":\"category\" ....",
+      "hands_back": "It answered {\"total\":2,\"changes\":[{\"row\":0,\"id\":\"t1\",\"field\":\"category\",\"from\":null,\"to\":\"Ingredients\",\"rule\":\"flour\",\"group\":\"ingredients\",\"reason\":\"set\"}],\"held\":[],\"shadowed\":[],\"rows\":[{\"row\":0,\"id\":\"t1\",\"fields\":[\"category\"],\"record\":{\"id\":\"t1\",\"merchant\":\"North Flour Mill\",\"amount\":120,\"category\":\"Ingredients\"}}],\"rules\":[{\"group\":\"ingredients\",\"rule\":\"flour\",\"says\":null,\"matches\":[0],\"incomplete\":[],\"error_rows\":0,\"changes\":1,\"held\":0,\"already\":0,\"shadowed\":0}],\"incomplete\":[]}."
     }
   ]
 }

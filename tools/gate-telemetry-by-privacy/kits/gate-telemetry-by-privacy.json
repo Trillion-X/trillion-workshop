@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:gate-telemetry-by-privacy's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:gate-telemetry-by-privacy with surface, path.\" Say whether a telemetry sink may send or keep anything about a page or event, from how private the page that was served is",
+  "drafted_from": "tool:gate-telemetry-by-privacy's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Say whether a telemetry sink may send or keep anything about a page or event, from how private the page that was served is\", with {\"surface\":\"app\",\"path\":\"/spaces/team-plans\",\"sink\":\"page_events\"}. It runs tool:gate-telemetry-by-privacy and answers {\"class\":\"shared-with-others\",\"sinks\":[\"page_script\",\"client_health\"],\"sink\":\"page_events\",\"may_send\":false}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:gate-telemetry-by-privacy"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:gate-telemetry-by-privacy\", and give it surface, path.",
+    "1. Say to your AI: \"Say whether a telemetry sink may send or keep anything about a page or event, from how private the page that was served is\", and give it surface; path.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:gate-telemetry-by-privacy and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.class contains \"shared-with-others\"."
+    "3. Read what comes back: Give surface (site, public-page, elsewhere, app or service) and path of the served page, optionally declared (the privacy class its handler declared) and sink (page_script, page_events, client_health or server_events)."
   ],
   "worked_examples": [
     {
-      "title": "May telemetry send about this page on a sample input",
-      "ask": "Run tool:gate-telemetry-by-privacy.",
+      "title": "May telemetry send about this page on its own sample",
+      "ask": "Say whether a telemetry sink may send or keep anything about a page or event, from how private the page that was served is",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +33,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.class contains \"shared-with-others\"."
+      "given": "The input {\"surface\":\"app\",\"path\":\"/spaces/team-plans\",\"sink\":\"page_events\"}.",
+      "hands_back": "It answered {\"class\":\"shared-with-others\",\"sinks\":[\"page_script\",\"client_health\"],\"sink\":\"page_events\",\"may_send\":false}."
     }
   ]
 }

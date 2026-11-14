@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:prepare-a-receptionist-build-host's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:prepare-a-receptionist-build-host with host, source_root, rust, build_packages, swap.\" Make my rented Linux server able to build the public receptionist",
+  "drafted_from": "tool:prepare-a-receptionist-build-host's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Make my rented Linux server able to build the public receptionist\", with {\"host\":{\"address\":\"192.0.2.10\",\"ssh_port\":22,\"admin_user\":\"builder\",\"host_key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleExampleExampleExampleExampleExample\"},\"dry_run\":true,\"source_root\":\"/srv/receptionist/source\",\"rust\":{\"toolchain\":\"1.93.0\",\"cargo_home\":\"/srv/rust/cargo\",\"rustup_home\":\"/srv/rust/rustup\"},\"build_packages\":[\"ca-certificates\",\"curl\",\"openssl\",\"pkg-config\",\"libssl-dev\" .... It runs tool:prepare-a-receptionist-build-host; its answer contains \"--default-toolchain 1.93.0\".",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:prepare-a-receptionist-build-host"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:prepare-a-receptionist-build-host\", and give it host, source_root, rust, build_packages, swap.",
+    "1. Say to your AI: \"Make my rented Linux server able to build the public receptionist\", and give it host (The rented Linux host the receptionist is built on.); source_root (The folder on the host that holds one folder per built commit.); rust (The pinned Rust toolchain and where it lives on the host.); build_packages (Debian packages the build needs.); swap.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:prepare-a-receptionist-build-host and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.remote_command contains \"--default-toolchain 1.93.0\"."
+    "3. Read what comes back: Installs the build packages given, makes the source folder, adds a swap file if there is none and installs the exact Rust toolchain given, over SSH as the host's administrator with the held key."
   ],
   "worked_examples": [
     {
-      "title": "Prepare a receptionist build host on a sample input",
-      "ask": "Run tool:prepare-a-receptionist-build-host.",
+      "title": "Prepare a receptionist build host on its own sample",
+      "ask": "Make my rented Linux server able to build the public receptionist",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -55,6 +55,7 @@
           }
         }
       },
+      "given": "The input {\"host\":{\"address\":\"192.0.2.10\",\"ssh_port\":22,\"admin_user\":\"builder\",\"host_key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleExampleExampleExampleExampleExample\"},\"dry_run\":true,\"source_root\":\"/srv/receptionist/source\",\"rust\":{\"toolchain\":\"1.93.0\",\"cargo_home\":\"/srv/rust/cargo\",\"rustup_home\":\"/srv/rust/rustup\"},\"build_packages\":[\"ca-certificates\",\"curl\",\"openssl\",\"pkg-config\",\"libssl-dev\" ....",
       "hands_back": "The answer's $.remote_command contains \"--default-toolchain 1.93.0\"."
     }
   ]

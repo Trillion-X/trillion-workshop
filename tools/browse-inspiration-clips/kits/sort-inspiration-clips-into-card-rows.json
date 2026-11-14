@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:sort-inspiration-clips-into-card-rows's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:sort-inspiration-clips-into-card-rows with sources.\" Sort the clips, recent files, formats, saved examples and prepared posts handed in into the named rows of inspiration cards, marking which clips can start a new edit",
+  "drafted_from": "tool:sort-inspiration-clips-into-card-rows's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Sort the clips, recent files, formats, saved examples and prepared posts handed in into the named rows of inspiration cards, marking which clips can start a new edit\", with {\"sources\":{\"library\":{\"rows\":[{\"identity\":\"clip-1\",\"title\":\"Morning walk\",\"file\":\"clips/morning-walk.mp4\",\"media_kind\":\"video\",\"duration\":42,\"origin\":\"recording\",\"edits\":0,\"words\":120,\"captured_ms\":1762243200000}]},\"formats\":{\"formats\":[{\"id\":\"before-after\",\"label\":\"Before and after\",\"description\":\"Show the start, then the end\"}]}}}. It runs tool:sort-inspiration-clips-into-card-rows and answers {\"layouts\":[{\"id\":\"sections\",\"label\":\"Sections\",\"icon\":\"Rows3\",\"grouped\":true,\"shuffle\":false,\"flow\":\"row\"},{\"id\":\"wall\",\"label\":\"Wall\",\"icon\":\"LayoutDashboard\",\"grouped\":false,\"shuffle\":true,\"flow\":\"wall\"},{\"id\":\"grid\",\"label\":\"Grid\",\"icon\":\"LayoutGrid\",\"grouped\":false,\"shuffle\":false,\"flow\":\"grid\"}],\"default_layout\":\"sections\",\"view_all_layout\":\"grid\",\"card_actions\":[{\"id\":\"make\",\"label\":\"Make ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:sort-inspiration-clips-into-card-rows"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:sort-inspiration-clips-into-card-rows\", and give it sources.",
+    "1. Say to your AI: \"Sort the clips, recent files, formats, saved examples and prepared posts handed in into the named rows of inspiration cards, marking which clips can start a new edit\", and give it sources.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:sort-inspiration-clips-into-card-rows and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.said contains \"You talk in these (1)\"."
+    "3. Read what comes back: Give sources: { source name: the answer it gives } for any of pick ({ pick: { clips, title?, reason?"
   ],
   "worked_examples": [
     {
-      "title": "Sort inspiration clips into rows of cards on a sample input",
-      "ask": "Run tool:sort-inspiration-clips-into-card-rows.",
+      "title": "Sort inspiration clips into rows of cards on its own sample",
+      "ask": "Sort the clips, recent files, formats, saved examples and prepared posts handed in into the named rows of inspiration cards, marking which clips can start a new edit",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -56,7 +56,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.said contains \"You talk in these (1)\"."
+      "given": "The input {\"sources\":{\"library\":{\"rows\":[{\"identity\":\"clip-1\",\"title\":\"Morning walk\",\"file\":\"clips/morning-walk.mp4\",\"media_kind\":\"video\",\"duration\":42,\"origin\":\"recording\",\"edits\":0,\"words\":120,\"captured_ms\":1762243200000}]},\"formats\":{\"formats\":[{\"id\":\"before-after\",\"label\":\"Before and after\",\"description\":\"Show the start, then the end\"}]}}}.",
+      "hands_back": "It answered {\"layouts\":[{\"id\":\"sections\",\"label\":\"Sections\",\"icon\":\"Rows3\",\"grouped\":true,\"shuffle\":false,\"flow\":\"row\"},{\"id\":\"wall\",\"label\":\"Wall\",\"icon\":\"LayoutDashboard\",\"grouped\":false,\"shuffle\":true,\"flow\":\"wall\"},{\"id\":\"grid\",\"label\":\"Grid\",\"icon\":\"LayoutGrid\",\"grouped\":false,\"shuffle\":false,\"flow\":\"grid\"}],\"default_layout\":\"sections\",\"view_all_layout\":\"grid\",\"card_actions\":[{\"id\":\"make\",\"label\":\"Make this\",\"icon\":\"Scissors\",\"lead\":true,\"run\":\"edit\",\"when\":[{\"edit\":true}]},{\"id\":\"use-format\",\"label\":\"Make with this format\",\"icon\":\"LayoutTemplate\",\"lead\":true,\"run\":\"open\",\"when\":[{\"source\":\"formats\"}]},{\"id\":\"open\",\"label\":\"Open\",\"icon\":\"ArrowUpRight\",\"run\":\"open\",\"when\":[]}] ...."
     }
   ]
 }

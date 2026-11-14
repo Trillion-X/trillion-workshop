@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:roll-up-work-completion's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:roll-up-work-completion with tree.\" See how much of a body of work is really finished, which items were said done with no proof, and what is blocked",
+  "drafted_from": "tool:roll-up-work-completion's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"See how much of a body of work is really finished, which items were said done with no proof, and what is blocked\", with {\"tree\":{\"id\":\"launch\",\"title\":\"Launch\",\"children\":[{\"id\":\"site\",\"title\":\"Site\",\"children\":[{\"id\":\"copy\",\"title\":\"Write the copy\",\"state\":\"done\",\"verified_by\":\"published at /; 3 sections render\"},{\"id\":\"pay\",\"title\":\"Take payments\",\"state\":\"done\"}]},{\"id\":\"ads\",\"title\":\"Run ads\",\"state\":\"blocked\",\"blocked_by\":\"ad account not approved\"}]}}. It runs tool:roll-up-work-completion and answers {\"title\":\"Launch\",\"leaves\":3,\"finished\":1,\"claimed_without_verification\":1,\"blocked\":1,\"share_finished\":33.3,\"state_counts\":{\"done\":2,\"open\":0,\"blocked\":1},\"unverified_ids\":[\"pay\"],\"blocked_items\":[{\"id\":\"ads\",\"wall\":\"ad account not approved\"}],\"routed_leaves\":0,\"routings\":[],\"unrouted_open_ids\":[\"pay\",\"ads\"]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:roll-up-work-completion"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:roll-up-work-completion\", and give it tree.",
+    "1. Say to your AI: \"See how much of a body of work is really finished, which items were said done with no proof, and what is blocked\", and give it tree (The work as a tree: { id, title, states?, children: [ { id, title, state?, verified_by?, blocked_by?, through?, children?).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:roll-up-work-completion and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.unverified_ids[0] contains \"pay\"."
+    "3. Read what comes back: Counts a work tree from its items' states: an item marked done with nothing anyone can check is counted apart as said done, never as finished, and a percentage typed into the tree is refused rather than trusted."
   ],
   "worked_examples": [
     {
-      "title": "Roll up how much work is finished on a sample input",
-      "ask": "Run tool:roll-up-work-completion.",
+      "title": "Roll up how much work is finished on its own sample",
+      "ask": "See how much of a body of work is really finished, which items were said done with no proof, and what is blocked",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -59,7 +59,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.unverified_ids[0] contains \"pay\"."
+      "given": "The input {\"tree\":{\"id\":\"launch\",\"title\":\"Launch\",\"children\":[{\"id\":\"site\",\"title\":\"Site\",\"children\":[{\"id\":\"copy\",\"title\":\"Write the copy\",\"state\":\"done\",\"verified_by\":\"published at /; 3 sections render\"},{\"id\":\"pay\",\"title\":\"Take payments\",\"state\":\"done\"}]},{\"id\":\"ads\",\"title\":\"Run ads\",\"state\":\"blocked\",\"blocked_by\":\"ad account not approved\"}]}}.",
+      "hands_back": "It answered {\"title\":\"Launch\",\"leaves\":3,\"finished\":1,\"claimed_without_verification\":1,\"blocked\":1,\"share_finished\":33.3,\"state_counts\":{\"done\":2,\"open\":0,\"blocked\":1},\"unverified_ids\":[\"pay\"],\"blocked_items\":[{\"id\":\"ads\",\"wall\":\"ad account not approved\"}],\"routed_leaves\":0,\"routings\":[],\"unrouted_open_ids\":[\"pay\",\"ads\"]}."
     }
   ]
 }

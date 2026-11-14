@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:record-the-screen's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:record-the-screen with nothing more.\" Record one display or one window of the person's Mac as a movie the person chose, pause, resume and stop it, note the pointer (positions and presses, never keys) beside it, and save it only to a place the person's allow-list names",
+  "drafted_from": "tool:record-the-screen's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Record one display or one window of the person's Mac as a movie the person chose, pause, resume and stop it, note the pointer (positions and presses, never keys) beside it, and save it only to a place the person's allow-list names\", with {\"action\":\"status\"}. It runs tool:record-the-screen and answers {\"state\":\"idle\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:record-the-screen"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:record-the-screen\", and give it nothing more.",
+    "1. Say to your AI: \"Record one display or one window of the person's Mac as a movie the person chose, pause, resume and stop it, note the pointer (positions and presses, never keys) beside it, and save it only to a place the person's allow-list names\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:record-the-screen and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields id, state, capturer, source, file, reason, pointer_samples, saved."
+    "3. Read what comes back: Runs on the person's own Mac."
   ],
   "worked_examples": [
     {
-      "title": "Record my screen on a sample input",
-      "ask": "Run tool:record-the-screen.",
+      "title": "Record my screen on its own sample",
+      "ask": "Record one display or one window of the person's Mac as a movie the person chose, pause, resume and stop it, note the pointer (positions and presses, never keys) beside it, and save it only to a place the person's allow-list names",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +31,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields id, state, capturer, source, file, reason, pointer_samples, saved."
+      "given": "The input {\"action\":\"status\"}.",
+      "hands_back": "It answered {\"state\":\"idle\"}."
     }
   ]
 }

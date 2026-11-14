@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:place-paper-orders-from-a-trading-policy's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:place-paper-orders-from-a-trading-policy with nothing more.\" Place the orders of my trading policy at my broker's paper account",
+  "drafted_from": "tool:place-paper-orders-from-a-trading-policy's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Place the orders of my trading policy at my broker's paper account\", with {\"policy\":{\"policy_version\":\"sample-v1\",\"decided_at\":\"2026-11-03T14:00:00Z\",\"orders\":[{\"instrument\":{\"kind\":\"equity\",\"symbol\":\"SAMPLE\"},\"side\":\"buy\",\"qty\":1,\"order_type\":\"limit\",\"limit_price\":10,\"time_in_force\":\"day\",\"live\":false,\"route_ref\":\"paper-route\"}],\"risk\":{\"max_order_notional\":100,\"max_daily_notional\":200,\"day_time_zone\":\"UTC\"}},\"routes\":{\"paper-route\":{\"mode\":\"paper\",\"timeout_ms\":5000 .... It runs tool:place-paper-orders-from-a-trading-policy and answers {\"mode\":\"paper\",\"policy_version\":\"sample-v1\",\"placed\":[{\"order_id\":\"paper-sample-v1-14ec1ba6f66bc516\",\"instrument\":{\"kind\":\"equity\",\"symbol\":\"SAMPLE\"},\"side\":\"buy\",\"qty\":1,\"notional\":10,\"status\":\"submitted\",\"broker_order_id\":\"sample-broker-order-paper-1\",\"filled_qty\":0,\"filled_avg_price\":null,\"http_status\":200,\"note\":null}],\"skipped\":[],\"day\":{\"day\":\"2026-11-14\",\"used\":10,\"limit\":200} ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (trade-order, trade-order-event, trade-day-spend) through the records door.",
   "workflows": [],
   "tools": [
     "tool:place-paper-orders-from-a-trading-policy"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:place-paper-orders-from-a-trading-policy\", and give it nothing more.",
+    "1. Say to your AI: \"Place the orders of my trading policy at my broker's paper account\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:place-paper-orders-from-a-trading-policy and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields mode, policy_version, placed, skipped, day, said."
+    "3. Read what comes back: Give policy (its version, its orders, and its own limits: risk.max_order_notional, risk.max_daily_notional and risk.day_time_zone; risk.allowed_symbols, when given, is the only symbols it may trade), routes (how your broker takes an order, each route with mode \"paper\") and prices for market orders.",
+    "4. It reads and writes only its own rows through the records door: trade-order (records:read, records:list, records:write); trade-order-event (records:write); trade-day-spend (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Place paper orders from a trading policy on a sample input",
-      "ask": "Run tool:place-paper-orders-from-a-trading-policy.",
+      "title": "Place paper orders from a trading policy on its own sample",
+      "ask": "Place the orders of my trading policy at my broker's paper account",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -168,7 +169,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields mode, policy_version, placed, skipped, day, said."
+      "given": "The input {\"policy\":{\"policy_version\":\"sample-v1\",\"decided_at\":\"2026-11-03T14:00:00Z\",\"orders\":[{\"instrument\":{\"kind\":\"equity\",\"symbol\":\"SAMPLE\"},\"side\":\"buy\",\"qty\":1,\"order_type\":\"limit\",\"limit_price\":10,\"time_in_force\":\"day\",\"live\":false,\"route_ref\":\"paper-route\"}],\"risk\":{\"max_order_notional\":100,\"max_daily_notional\":200,\"day_time_zone\":\"UTC\"}},\"routes\":{\"paper-route\":{\"mode\":\"paper\",\"timeout_ms\":5000 ..., the web answering from 1 recorded reply.",
+      "hands_back": "It answered {\"mode\":\"paper\",\"policy_version\":\"sample-v1\",\"placed\":[{\"order_id\":\"paper-sample-v1-14ec1ba6f66bc516\",\"instrument\":{\"kind\":\"equity\",\"symbol\":\"SAMPLE\"},\"side\":\"buy\",\"qty\":1,\"notional\":10,\"status\":\"submitted\",\"broker_order_id\":\"sample-broker-order-paper-1\",\"filled_qty\":0,\"filled_avg_price\":null,\"http_status\":200,\"note\":null}],\"skipped\":[],\"day\":{\"day\":\"2026-11-14\",\"used\":10,\"limit\":200},\"said\":\"Paper run of policy sample-v1: 1 sent, 0 skipped; 10 of 200 used on 2026-11-14.\"}, and kept paper-sample-v1-14ec1ba6f66bc516, paper-2026-11-14, paper-sample-v1-14ec1ba6f66bc516-sent."
     }
   ]
 }

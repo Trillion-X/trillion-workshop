@@ -1,23 +1,24 @@
 {
   "draft": true,
-  "drafted_from": "tool:send-an-email-with-resend's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:send-an-email-with-resend with nothing more.\" Send an email, to one person or a list, through my Resend account",
+  "drafted_from": "tool:send-an-email-with-resend's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Send an email, to one person or a list, through my Resend account\", with {\"to\":\"reader@example.com\",\"subject\":\"Hello\",\"html\":\"<p>Hello there</p>\",\"text\":\"Hello there\"}. It runs tool:send-an-email-with-resend and answers {\"provider\":\"resend\",\"sent\":[{\"recipient\":\"reader@example.com\",\"error\":\"This account names no sender for its emails yet, so nothing was sent.\"}],\"said\":\"Sent to 0 of 1 through resend. Not sent: reader@example.com (This account names no sender for its emails yet, so nothing was sent.)\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (mail-settings, mail-sent, mail-day, @own-records) through the records door.",
   "workflows": [],
   "tools": [
     "tool:send-an-email-with-resend",
     "tool:list-email-sending-domains"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:send-an-email-with-resend\", and give it nothing more.",
+    "1. Say to your AI: \"Send an email, to one person or a list, through my Resend account\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:send-an-email-with-resend and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields provider, sent, said."
+    "3. Read what comes back: Give recipients (a list of addresses; to for one) and the words: subject and text (drawn as an email in the look the person wears, read from their screen-look records (the shipped look until they choose one; an email whose look cannot be read is not sent), with its mark from the mail row's brand and made_with) or your own html, markdown for a written email (it also goes as a BCC to the account's own address, and answers sent_copy), or template (a template name from read-data/message-templates.json, or your own templates) with variables; kind names what it is for the account's limits (sign-in-code, message ...).",
+    "4. It reads and writes only its own rows through the records door: mail-settings (records:read, records:write); mail-sent (records:read, records:write); mail-day (records:read, records:write); @own-records (workspace:read); @own-records (workspace:read); @own-records (workspace:read); @own-records (workspace:read)."
   ],
   "worked_examples": [
     {
-      "title": "Send an email with Resend on a sample input",
-      "ask": "Run tool:send-an-email-with-resend.",
+      "title": "Send an email with Resend on its own sample",
+      "ask": "Send an email, to one person or a list, through my Resend account",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -35,7 +36,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields provider, sent, said."
+      "given": "The input {\"to\":\"reader@example.com\",\"subject\":\"Hello\",\"html\":\"<p>Hello there</p>\",\"text\":\"Hello there\"}.",
+      "hands_back": "It answered {\"provider\":\"resend\",\"sent\":[{\"recipient\":\"reader@example.com\",\"error\":\"This account names no sender for its emails yet, so nothing was sent.\"}],\"said\":\"Sent to 0 of 1 through resend. Not sent: reader@example.com (This account names no sender for its emails yet, so nothing was sent.)\"}, and kept settings:mail."
     }
   ]
 }

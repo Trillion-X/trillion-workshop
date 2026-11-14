@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:settle-a-triage's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:settle-a-triage with item, priorities, dispositions, min_confidence.\" Keep the decision made about one incoming item only if it holds up against the person's priorities and dispositions, and otherwise hold the item back",
+  "drafted_from": "tool:settle-a-triage's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Keep the decision made about one incoming item only if it holds up against the person's priorities and dispositions, and otherwise hold the item back\", with {\"item\":{\"ref\":\"note:1\",\"version\":\"v1\",\"text\":\"The flour bin is nearly empty\"},\"priorities\":[{\"text\":\"Never run out of flour\"}],\"dispositions\":[{\"ref\":\"keep-note\",\"label\":\"Keep the note\",\"blocked_default\":false},{\"ref\":\"hold\",\"label\":\"Hold for the baker\",\"fallback\":true}],\"min_confidence\":0.6,\"answers\":[{\"disposition_ref\":\"keep-note\",\"confidence\":0.8,\"rationale\":\"Matches the flour priority.\"}]}. It runs tool:settle-a-triage and answers {\"decision\":{\"type\":\"triage-decision\",\"id\":\"triage-decision:note%3A1:v1\",\"item\":{\"ref\":\"note:1\",\"version\":\"v1\"},\"priorities_seen\":1,\"disposition_ref\":\"keep-note\",\"confidence\":0.8,\"blocked\":false,\"fail_closed\":false,\"reasons\":[],\"rationale\":\"Matches the flour priority.\"}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:settle-a-triage"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:settle-a-triage\", and give it item, priorities, dispositions, min_confidence.",
+    "1. Say to your AI: \"Keep the decision made about one incoming item only if it holds up against the person's priorities and dispositions, and otherwise hold the item back\", and give it item; priorities; dispositions; min_confidence.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:settle-a-triage and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.decision.disposition_ref contains \"keep-note\"."
+    "3. Read what comes back: Give the same item, priorities, dispositions and least confidence you were briefed with, and answers: a list holding your one answer ({disposition_ref, confidence, rationale, target_ref, and objective with acceptance_criteria where the disposition needs them})."
   ],
   "worked_examples": [
     {
-      "title": "Settle a triage of one incoming item on a sample input",
-      "ask": "Run tool:settle-a-triage.",
+      "title": "Settle a triage of one incoming item on its own sample",
+      "ask": "Keep the decision made about one incoming item only if it holds up against the person's priorities and dispositions, and otherwise hold the item back",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -60,7 +60,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.decision.disposition_ref contains \"keep-note\"."
+      "given": "The input {\"item\":{\"ref\":\"note:1\",\"version\":\"v1\",\"text\":\"The flour bin is nearly empty\"},\"priorities\":[{\"text\":\"Never run out of flour\"}],\"dispositions\":[{\"ref\":\"keep-note\",\"label\":\"Keep the note\",\"blocked_default\":false},{\"ref\":\"hold\",\"label\":\"Hold for the baker\",\"fallback\":true}],\"min_confidence\":0.6,\"answers\":[{\"disposition_ref\":\"keep-note\",\"confidence\":0.8,\"rationale\":\"Matches the flour priority.\"}]}.",
+      "hands_back": "It answered {\"decision\":{\"type\":\"triage-decision\",\"id\":\"triage-decision:note%3A1:v1\",\"item\":{\"ref\":\"note:1\",\"version\":\"v1\"},\"priorities_seen\":1,\"disposition_ref\":\"keep-note\",\"confidence\":0.8,\"blocked\":false,\"fail_closed\":false,\"reasons\":[],\"rationale\":\"Matches the flour priority.\"}}."
     }
   ]
 }

@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:take-pictures-out-of-a-zip-archive's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:take-pictures-out-of-a-zip-archive with zip_base64.\" Take the pictures out of a zip archive as files to import, without ever unpacking it to disk by entry name",
+  "drafted_from": "tool:take-pictures-out-of-a-zip-archive's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Take the pictures out of a zip archive as files to import, without ever unpacking it to disk by entry name\", with {\"zip_base64\":\"UEsDBBQAAAAIAPWzY10Lp5HHCQAAAAcAAAARAAAAaG9saWRheS9iZWFjaC5wbmfrDPBzZ2RiBgBQSwMEFAAAAAgA9bNjXRvfBaUDAAAAAQAAAA4AAABfX01BQ09TWC94LnBuZ2MEAFBLAQIUABQAAAAIAPWzY10Lp5HHCQAAAAcAAAARAAAAAAAAAAAAAAAAAAAAAABob2xpZGF5L2JlYWNoLnBuZ1BLAQIUABQAAAAIAPWzY10b3wWlAwAAAAEAAAAOAAAAAAAAAAAAAAAAADgAAABfX01BQ09TWC94LnBuZ1BLBQYAAAAAAgACAHsAAABnAAAAAAA=\"}. It runs tool:take-pictures-out-of-a-zip-archive and answers {\"entries\":[{\"title\":\"beach\",\"media_type\":\"image/png\",\"byte_count\":7,\"bytes_base64\":\"iVBORwECAw==\"}],\"count\":1}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:take-pictures-out-of-a-zip-archive"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:take-pictures-out-of-a-zip-archive\", and give it zip_base64.",
+    "1. Say to your AI: \"Take the pictures out of a zip archive as files to import, without ever unpacking it to disk by entry name\", and give it zip_base64.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:take-pictures-out-of-a-zip-archive and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.entries contains \"beach\"."
+    "3. Read what comes back: Give zip_base64 (the archive's bytes), and when wanted profile (chat_export: the conversations*.json files of an account export) or limits (max_entries, max_entry_bytes, max_total_bytes, max_ratio, media_types, title_prefix)."
   ],
   "worked_examples": [
     {
-      "title": "Take the pictures out of a zip archive on a sample input",
-      "ask": "Run tool:take-pictures-out-of-a-zip-archive.",
+      "title": "Take the pictures out of a zip archive on its own sample",
+      "ask": "Take the pictures out of a zip archive as files to import, without ever unpacking it to disk by entry name",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +31,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.entries contains \"beach\"."
+      "given": "The input {\"zip_base64\":\"UEsDBBQAAAAIAPWzY10Lp5HHCQAAAAcAAAARAAAAaG9saWRheS9iZWFjaC5wbmfrDPBzZ2RiBgBQSwMEFAAAAAgA9bNjXRvfBaUDAAAAAQAAAA4AAABfX01BQ09TWC94LnBuZ2MEAFBLAQIUABQAAAAIAPWzY10Lp5HHCQAAAAcAAAARAAAAAAAAAAAAAAAAAAAAAABob2xpZGF5L2JlYWNoLnBuZ1BLAQIUABQAAAAIAPWzY10b3wWlAwAAAAEAAAAOAAAAAAAAAAAAAAAAADgAAABfX01BQ09TWC94LnBuZ1BLBQYAAAAAAgACAHsAAABnAAAAAAA=\"}.",
+      "hands_back": "It answered {\"entries\":[{\"title\":\"beach\",\"media_type\":\"image/png\",\"byte_count\":7,\"bytes_base64\":\"iVBORwECAw==\"}],\"count\":1}."
     }
   ]
 }

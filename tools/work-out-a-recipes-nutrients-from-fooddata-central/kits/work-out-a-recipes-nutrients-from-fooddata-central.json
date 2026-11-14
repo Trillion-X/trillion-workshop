@@ -1,7 +1,7 @@
 {
   "draft": true,
-  "drafted_from": "tool:work-out-a-recipes-nutrients-from-fooddata-central's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:work-out-a-recipes-nutrients-from-fooddata-central with datasets.\" Work out the nutrients in my recipe, per batch and per 100 g, against the daily intakes an adult needs",
+  "drafted_from": "tool:work-out-a-recipes-nutrients-from-fooddata-central's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Work out the nutrients in my recipe, per batch and per 100 g, against the daily intakes an adult needs\", with {\"id\":\"made-up-smoothie\",\"title\":\"Made-up smoothie\",\"built\":\"2026-01-01T00:00:00+00:00\",\"datasets\":{\"made_up\":{\"food_nutrient\":\"id,fdc_id,nutrient_id,amount\\n1,101,1008,60\\n2,101,1003,3\\n3,101,1087,120\\n4,102,2047,90\\n5,102,1003,1\\n6,102,1093,\\n\",\"food_portion\":\"id,fdc_id,seq_num,amount,measure_unit_id,portion_description,modifier,gram_weight\\n1,101,1,1,1,,cup,240\\n\",\"food\":\"fdc_id .... It runs tool:work-out-a-recipes-nutrients-from-fooddata-central and answers {\"profile\":{\"id\":\"made-up-smoothie\",\"built\":\"2026-01-01T00:00:00+00:00\",\"basis\":\"per_batch = the whole batch; per_100g over mix mass\",\"mix_mass_g\":340,\"cross_check\":{\"this_model\":{\"kcal\":234,\"protein_g\":8.2}},\"nutrients\":[{\"key\":\"energy\",\"nutrient\":\"Energy\",\"unit\":\"kcal\",\"per_batch\":234,\"per_100g\":68.824,\"ingredients_without_data\":[]},{\"key\":\"protein\",\"nutrient\":\"Protein\",\"unit\":\"g\" ...",
   "lists": [
     {
       "list": "list:settings",
@@ -108,20 +108,20 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
     "tool:work-out-a-recipes-nutrients-from-fooddata-central"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:work-out-a-recipes-nutrients-from-fooddata-central\", and give it datasets.",
+    "1. Say to your AI: \"Work out the nutrients in my recipe, per batch and per 100 g, against the daily intakes an adult needs\", and give it datasets.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:work-out-a-recipes-nutrients-from-fooddata-central and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.profile.mix_mass_g contains \"340\"."
+    "3. Read what comes back: Takes a recipe (each ingredient's FoodData Central food id and grams, or a count of a portion such as 2 tbsp) and the person's FoodData Central CSV downloads, and works out 33 nutrients for the whole batch and per 100 g of mix, each ingredient's share, and % of the adult 19-30 Dietary Reference Intake for men and women, with a flag: gap, low, meets a third or more, meets a full day, a limit (sodium), or unknown_lower_bound_only where a main ingredient has no value.",
+    "4. It reads and writes only its own rows through the records door: record:setting (records:read)."
   ],
   "worked_examples": [
     {
-      "title": "Work out a recipe's nutrients from USDA FoodData Central on a sample input",
-      "ask": "Run tool:work-out-a-recipes-nutrients-from-fooddata-central.",
+      "title": "Work out a recipe's nutrients from USDA FoodData Central on its own sample",
+      "ask": "Work out the nutrients in my recipe, per batch and per 100 g, against the daily intakes an adult needs",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -167,7 +167,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.profile.mix_mass_g contains \"340\"."
+      "given": "The input {\"id\":\"made-up-smoothie\",\"title\":\"Made-up smoothie\",\"built\":\"2026-01-01T00:00:00+00:00\",\"datasets\":{\"made_up\":{\"food_nutrient\":\"id,fdc_id,nutrient_id,amount\\n1,101,1008,60\\n2,101,1003,3\\n3,101,1087,120\\n4,102,2047,90\\n5,102,1003,1\\n6,102,1093,\\n\",\"food_portion\":\"id,fdc_id,seq_num,amount,measure_unit_id,portion_description,modifier,gram_weight\\n1,101,1,1,1,,cup,240\\n\",\"food\":\"fdc_id ....",
+      "hands_back": "It answered {\"profile\":{\"id\":\"made-up-smoothie\",\"built\":\"2026-01-01T00:00:00+00:00\",\"basis\":\"per_batch = the whole batch; per_100g over mix mass\",\"mix_mass_g\":340,\"cross_check\":{\"this_model\":{\"kcal\":234,\"protein_g\":8.2}},\"nutrients\":[{\"key\":\"energy\",\"nutrient\":\"Energy\",\"unit\":\"kcal\",\"per_batch\":234,\"per_100g\":68.824,\"ingredients_without_data\":[]},{\"key\":\"protein\",\"nutrient\":\"Protein\",\"unit\":\"g\",\"per_batch\":8.2,\"per_100g\":2.412,\"ingredients_without_data\":[],\"dri_kind\":\"RDA\",\"dri_male_19_30\":56,\"dri_female_19_30\":46,\"pct_dri_male\":14.6,\"pct_dri_female\":17.8,\"flag\":\"low\"},{\"key\":\"fat\",\"nutrient\":\"Total fat\",\"unit\":\"g\",\"per_batch\":0,\"per_100g\":0,\"ingredients_without_data\":[\"drink\",\"fruit\"]} ...."
     }
   ],
   "pour": {

@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:device-holds's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:device-holds with nothing more.\" See which holds are keeping apps closed on the person's computer and when each ends",
+  "drafted_from": "tool:device-holds's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"See which holds are keeping apps closed on the person's computer and when each ends\", with {}. It runs tool:device-holds and answers {\"holds\":[],\"said\":\"Nothing holds this Mac.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:device-holds"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:device-holds\", and give it nothing more.",
+    "1. Say to your AI: \"See which holds are keeping apps closed on the person's computer and when each ends\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:device-holds and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: See which holds are keeping apps closed on the person's computer and when each ends"
+    "3. Read what comes back: Answers every hold still lasting."
   ],
   "worked_examples": [
     {
-      "title": "What holds a device on a sample input",
-      "ask": "Run tool:device-holds.",
+      "title": "What holds a device on its own sample",
+      "ask": "See which holds are keeping apps closed on the person's computer and when each ends",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -29,7 +29,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: See which holds are keeping apps closed on the person's computer and when each ends"
+      "given": "The input {}.",
+      "hands_back": "It answered {\"holds\":[],\"said\":\"Nothing holds this Mac.\"}."
     }
   ]
 }

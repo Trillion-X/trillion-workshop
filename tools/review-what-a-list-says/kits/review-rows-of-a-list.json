@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:review-rows-of-a-list's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:review-rows-of-a-list with list_id, row_kind, action.\" Keep what a list of mine says true: set it up for review (an owner, a review state and a check-again date on each row, and views of what needs review), and mark rows verified, outdated or asking to be checked, or name their owner",
+  "drafted_from": "tool:review-rows-of-a-list's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Keep what a list of mine says true: set it up for review (an owner, a review state and a check-again date on each row, and views of what needs review), and mark rows verified, outdated or asking to be checked, or name their owner\", with {\"list_id\":\"docs\",\"row_kind\":\"record:docs\",\"action\":\"set_up\",\"expires_days\":30}. It runs tool:review-rows-of-a-list and answers {\"list_id\":\"docs\",\"set_up\":true,\"fields_added\":[\"owner\",\"review_state\",\"review_due\",\"verified_by\"],\"views_added\":[\"review-needed\",\"review-expired\",\"review-empty\"],\"expires_days\":30}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (list, [object Object]) through the records door.",
   "workflows": [],
   "tools": [
     "tool:review-rows-of-a-list"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:review-rows-of-a-list\", and give it list_id, row_kind, action.",
+    "1. Say to your AI: \"Keep what a list of mine says true: set it up for review (an owner, a review state and a check-again date on each row, and views of what needs review), and mark rows verified, outdated or asking to be checked, or name their owner\", and give it list_id; row_kind (The record kind of the list's rows: record:<the list's row_type>); action.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:review-rows-of-a-list and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields list_id, set_up, fields_added, views_added, action, kept."
+    "3. Read what comes back: Give list_id (one of the person's lists), row_kind (record:<its row_type>, the records its rows are) and action.",
+    "4. It reads and writes only its own rows through the records door: list (records:read, records:write); [object Object] (records:read, records:list, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Review the rows of a list on a sample input",
-      "ask": "Run tool:review-rows-of-a-list.",
+      "title": "Review the rows of a list on its own sample",
+      "ask": "Keep what a list of mine says true: set it up for review (an owner, a review state and a check-again date on each row, and views of what needs review), and mark rows verified, outdated or asking to be checked, or name their owner",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -34,7 +35,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields list_id, set_up, fields_added, views_added, action, kept."
+      "given": "The input {\"list_id\":\"docs\",\"row_kind\":\"record:docs\",\"action\":\"set_up\",\"expires_days\":30}, with 2 example rows (list, record:docs) already kept.",
+      "hands_back": "It answered {\"list_id\":\"docs\",\"set_up\":true,\"fields_added\":[\"owner\",\"review_state\",\"review_due\",\"verified_by\"],\"views_added\":[\"review-needed\",\"review-expired\",\"review-empty\"],\"expires_days\":30}."
     }
   ]
 }

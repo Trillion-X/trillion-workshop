@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:read-time-blocks's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-time-blocks with lenses, feeds.\" Turn any records that have a start and an end (bookings, scheduled work, reservations, events) into one ordered list of time blocks, and say which rows could not be shown",
+  "drafted_from": "tool:read-time-blocks's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Turn any records that have a start and an end (bookings, scheduled work, reservations, events) into one ordered list of time blocks, and say which rows could not be shown\", with {\"lenses\":[{\"kind\":\"time-block-lens\",\"lens_id\":\"orders\",\"input_address\":\"pickups\",\"owner_ref\":\"bakery\",\"selectors\":{\"identity\":\"id\",\"start\":\"window.from\",\"end\":\"window.to\",\"title\":\"what\"}}],\"feeds\":{\"pickups\":[{\"id\":\"p1\",\"window\":{\"from\":\"2026-01-05T09:00:00Z\",\"to\":\"2026-01-05T09:30:00Z\"},\"what\":\"Rye loaf pickup\"}]}}. It runs tool:read-time-blocks and answers {\"blocks\":[{\"id\":\"bakery:orders:p1\",\"source\":{\"lensId\":\"orders\",\"inputAddress\":\"pickups\",\"ownerRef\":\"bakery\",\"rowRef\":\"p1\"},\"interval\":{\"start\":\"2026-01-05T09:00:00Z\",\"end\":\"2026-01-05T09:30:00Z\",\"allDay\":false,\"timezone\":\"local\"},\"display\":{\"title\":\"Rye loaf pickup\",\"color\":\"\",\"ownerLabel\":\"bakery\"},\"state\":{\"ref\":\"ready\",\"lane\":\"default\"},\"relations\":{}}],\"diagnostics\":{\"lensCount\":1 ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:read-time-blocks"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-time-blocks\", and give it lenses, feeds.",
+    "1. Say to your AI: \"Turn any records that have a start and an end (bookings, scheduled work, reservations, events) into one ordered list of time blocks, and say which rows could not be shown\", and give it lenses (time-block-lens records: { kind: 'time-block-lens', lens_id, input_address, owner_ref, owner_label?, selectors: { identity, start, end, title?, all_day?, timezone?, color?, state?, lane?); feeds (The rows each lens reads, by the lens's input_address: a list of records or of lists of cells.).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-time-blocks and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.blocks[0].id contains \"bakery:orders:p1\"."
+    "3. Read what comes back: Reads each kind of record through a lens the person wrote: which field is the identity, the start, the end, the title, the colour, the state, and which fields point at other records."
   ],
   "worked_examples": [
     {
-      "title": "Read records as time blocks on a sample input",
-      "ask": "Run tool:read-time-blocks.",
+      "title": "Read records as time blocks on its own sample",
+      "ask": "Turn any records that have a start and an end (bookings, scheduled work, reservations, events) into one ordered list of time blocks, and say which rows could not be shown",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -56,7 +56,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.blocks[0].id contains \"bakery:orders:p1\"."
+      "given": "The input {\"lenses\":[{\"kind\":\"time-block-lens\",\"lens_id\":\"orders\",\"input_address\":\"pickups\",\"owner_ref\":\"bakery\",\"selectors\":{\"identity\":\"id\",\"start\":\"window.from\",\"end\":\"window.to\",\"title\":\"what\"}}],\"feeds\":{\"pickups\":[{\"id\":\"p1\",\"window\":{\"from\":\"2026-01-05T09:00:00Z\",\"to\":\"2026-01-05T09:30:00Z\"},\"what\":\"Rye loaf pickup\"}]}}.",
+      "hands_back": "It answered {\"blocks\":[{\"id\":\"bakery:orders:p1\",\"source\":{\"lensId\":\"orders\",\"inputAddress\":\"pickups\",\"ownerRef\":\"bakery\",\"rowRef\":\"p1\"},\"interval\":{\"start\":\"2026-01-05T09:00:00Z\",\"end\":\"2026-01-05T09:30:00Z\",\"allDay\":false,\"timezone\":\"local\"},\"display\":{\"title\":\"Rye loaf pickup\",\"color\":\"\",\"ownerLabel\":\"bakery\"},\"state\":{\"ref\":\"ready\",\"lane\":\"default\"},\"relations\":{}}],\"diagnostics\":{\"lensCount\":1,\"rowCount\":1,\"skippedRowCount\":0},\"issues\":[]}."
     }
   ]
 }

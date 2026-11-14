@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:job's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:job with nothing more.\" Keep a long job on the person's computer (a meeting summary, a transcription) under a key, so starting it twice gives the same job, its output so far is kept in numbered pieces, and any client can resume reading from a cursor or cancel it",
+  "drafted_from": "tool:job's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Keep a long job on the person's computer (a meeting summary, a transcription) under a key, so starting it twice gives the same job, its output so far is kept in numbered pieces, and any client can resume reading from a cursor or cancel it\", with {\"action\":\"start\",\"key\":\"sample-meeting-summary-1\",\"seed\":{\"topic\":\"Weekly sync with Ada Example\"}}. It runs tool:job and answers {\"id\":\"898f5b84838a1894\",\"state\":\"running\",\"stream_url\":\"trillion-job://898f5b84838a1894\",\"expires_at\":\"2026-11-14T01:50:24.921Z\",\"seed\":{\"topic\":\"Weekly sync with Ada Example\"},\"version\":1,\"chunks\":0}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:job"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:job\", and give it nothing more.",
+    "1. Say to your AI: \"Keep a long job on the person's computer (a meeting summary, a transcription) under a key, so starting it twice gives the same job, its output so far is kept in numbered pieces, and any client can resume reading from a cursor or cancel it\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:job and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Keep a long job on the person's computer (a meeting summary, a transcription) under a key, so starting it twice gives the same job, its output so far is kept in numbered pieces, and any client can resume reading from a cursor or cancel it"
+    "3. Read what comes back: Give action: start (key, and seed and version when wanted), append (id, piece), read (id, cursor: the last seq read, 0 for all), finish (id), cancel (id) or list."
   ],
   "worked_examples": [
     {
-      "title": "Keep a long job resumable on a sample input",
-      "ask": "Run tool:job.",
+      "title": "Keep a long job resumable on its own sample",
+      "ask": "Keep a long job on the person's computer (a meeting summary, a transcription) under a key, so starting it twice gives the same job, its output so far is kept in numbered pieces, and any client can resume reading from a cursor or cancel it",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -35,7 +35,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Keep a long job on the person's computer (a meeting summary, a transcription) under a key, so starting it twice gives the same job, its output so far is kept in numbered pieces, and any client can resume reading from a cursor or cancel it"
+      "given": "The input {\"action\":\"start\",\"key\":\"sample-meeting-summary-1\",\"seed\":{\"topic\":\"Weekly sync with Ada Example\"}}.",
+      "hands_back": "It answered {\"id\":\"898f5b84838a1894\",\"state\":\"running\",\"stream_url\":\"trillion-job://898f5b84838a1894\",\"expires_at\":\"2026-11-14T01:50:24.921Z\",\"seed\":{\"topic\":\"Weekly sync with Ada Example\"},\"version\":1,\"chunks\":0}."
     }
   ]
 }

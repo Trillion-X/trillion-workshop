@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:see-what-is-left-to-set-up's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:see-what-is-left-to-set-up with account_id.\" Show me what is left to set up in my account, who does each step and what to do next",
+  "drafted_from": "tool:see-what-is-left-to-set-up's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Show me what is left to set up in my account, who does each step and what to do next\", with {\"account_id\":\"acct-sample\",\"facts\":{\"aiConnected\":false,\"aiApps\":[]},\"origin\":\"https://app.example.test\",\"now\":\"2026-01-01T00:00:00.000Z\"}. It runs tool:see-what-is-left-to-set-up and answers {\"title\":\"Connect your AI to start\",\"lead\":\"Your AI connects what you already use and checks that each part works. Only something that needs your own hand asks you.\",\"ready\":false,\"workspace_ready\":false,\"setup_complete\":false,\"requirements\":[{\"id\":\"identity\",\"title\":\"Add your name\",\"done\":null,\"body\":\"Trillion is checking this. It updates by itself.\",\"audience\":\"person_only\",\"result\":\"Your name ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:see-what-is-left-to-set-up"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:see-what-is-left-to-set-up\", and give it account_id.",
+    "1. Say to your AI: \"Show me what is left to set up in my account, who does each step and what to do next\", and give it account_id (The account whose setup this is (it picks the account's own setup context and its rollout bucket)).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:see-what-is-left-to-set-up and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result.sections[1].id contains \"setup-with-ai\"."
+    "3. Read what comes back: Draws the Get started screen from your setup facts: which setup steps apply to your account (picked by the setup show rules, yours and the operator's), which are done, which only you can do, whether your workspace is ready, and the steps for connecting your AI."
   ],
   "worked_examples": [
     {
-      "title": "See what is left to set up on a sample input",
-      "ask": "Run tool:see-what-is-left-to-set-up.",
+      "title": "See what is left to set up on its own sample",
+      "ask": "Show me what is left to set up in my account, who does each step and what to do next",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -37,7 +37,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result.sections[1].id contains \"setup-with-ai\"."
+      "given": "The input {\"account_id\":\"acct-sample\",\"facts\":{\"aiConnected\":false,\"aiApps\":[]},\"origin\":\"https://app.example.test\",\"now\":\"2026-01-01T00:00:00.000Z\"}.",
+      "hands_back": "It answered {\"title\":\"Connect your AI to start\",\"lead\":\"Your AI connects what you already use and checks that each part works. Only something that needs your own hand asks you.\",\"ready\":false,\"workspace_ready\":false,\"setup_complete\":false,\"requirements\":[{\"id\":\"identity\",\"title\":\"Add your name\",\"done\":null,\"body\":\"Trillion is checking this. It updates by itself.\",\"audience\":\"person_only\",\"result\":\"Your name is saved.\",\"owner\":\"setup-capability\",\"required\":true},{\"id\":\"pursuits\",\"title\":\"Tell Trillion what you are pursuing\",\"done\":null,\"body\":\"Trillion is checking this. It updates by itself.\",\"audience\":\"person_only\",\"result\":\"Trillion knows what you are pursuing.\",\"owner\":\"setup-capability\" ...."
     }
   ]
 }

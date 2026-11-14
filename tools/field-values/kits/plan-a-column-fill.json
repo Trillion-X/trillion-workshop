@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:plan-a-column-fill's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:plan-a-column-fill with records, id_path, field, sources.\" Fill one column of my list row by row by asking my sources in my order until one gives an answer that passes my check, paying only for the sources each row needs: tell me the next calls to run, and turn what they answered into values",
+  "drafted_from": "tool:plan-a-column-fill's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Fill one column of my list row by row by asking my sources in my order until one gives an answer that passes my check, paying only for the sources each row needs: tell me the next calls to run, and turn what they answered into values\", with {\"records\":[{\"id\":\"p1\",\"name\":\"Rye Bakery\",\"city\":\"Eastham\"}],\"id_path\":[\"id\"],\"field\":{\"id\":\"website\"},\"sources\":[{\"id\":\"guess\",\"tool\":\"tool:guess-a-website\",\"input\":{\"name\":{\"from\":[\"name\"]},\"city\":{\"from\":[\"city\"]}},\"answer_path\":[\"site\"]}],\"attempts\":[{\"row\":\"p1\",\"source\":\"guess\",\"answer\":{\"site\":\"https://rye.example\"}}]}. It runs tool:plan-a-column-fill and answers {\"calls\":[],\"filled\":[{\"row\":\"p1\",\"field\":\"website\",\"value\":\"https://rye.example\",\"answered_by\":\"guess\",\"offer\":{\"row\":\"p1\",\"field\":\"website\",\"value\":\"https://rye.example\",\"source\":{\"kind\":\"source\",\"by\":\"guess\"}}}],\"skipped\":[],\"exhausted\":[],\"waiting\":0,\"done\":true,\"cost\":{\"spent\":0,\"next\":0}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:plan-a-column-fill"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:plan-a-column-fill\", and give it records, id_path, field, sources.",
+    "1. Say to your AI: \"Fill one column of my list row by row by asking my sources in my order until one gives an answer that passes my check, paying only for the sources each row needs: tell me the next calls to run, and turn what they answered into values\", and give it records; id_path (Where each row's id is); field; sources.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:plan-a-column-fill and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.filled[0].value contains \"https://rye.example\"."
+    "3. Read what comes back: Takes rows, where each row's id is, the column (field), the sources in the order to ask them (each a Workshop tool, its input built from the row's fields or fixed values, where the value is in its answer, its cost and its source kind), an accept check (a tools/formulas rule tree over the answer as field value), an optional run_if rule tree over the rows, and the attempts already made with what each answered."
   ],
   "worked_examples": [
     {
-      "title": "Fill a column by asking my sources in order on a sample input",
-      "ask": "Run tool:plan-a-column-fill.",
+      "title": "Fill a column by asking my sources in order on its own sample",
+      "ask": "Fill one column of my list row by row by asking my sources in my order until one gives an answer that passes my check, paying only for the sources each row needs: tell me the next calls to run, and turn what they answered into values",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -73,7 +73,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.filled[0].value contains \"https://rye.example\"."
+      "given": "The input {\"records\":[{\"id\":\"p1\",\"name\":\"Rye Bakery\",\"city\":\"Eastham\"}],\"id_path\":[\"id\"],\"field\":{\"id\":\"website\"},\"sources\":[{\"id\":\"guess\",\"tool\":\"tool:guess-a-website\",\"input\":{\"name\":{\"from\":[\"name\"]},\"city\":{\"from\":[\"city\"]}},\"answer_path\":[\"site\"]}],\"attempts\":[{\"row\":\"p1\",\"source\":\"guess\",\"answer\":{\"site\":\"https://rye.example\"}}]}.",
+      "hands_back": "It answered {\"calls\":[],\"filled\":[{\"row\":\"p1\",\"field\":\"website\",\"value\":\"https://rye.example\",\"answered_by\":\"guess\",\"offer\":{\"row\":\"p1\",\"field\":\"website\",\"value\":\"https://rye.example\",\"source\":{\"kind\":\"source\",\"by\":\"guess\"}}}],\"skipped\":[],\"exhausted\":[],\"waiting\":0,\"done\":true,\"cost\":{\"spent\":0,\"next\":0}}."
     }
   ]
 }

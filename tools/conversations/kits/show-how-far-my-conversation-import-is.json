@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:show-how-far-my-conversation-import-is's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:show-how-far-my-conversation-import-is with nothing more.\" Show how far bringing in my conversations has got: for each source, files done, conversations and messages kept, and whether it stopped",
+  "drafted_from": "tool:show-how-far-my-conversation-import-is's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Show how far bringing in my conversations has got: for each source, files done, conversations and messages kept, and whether it stopped\", with {}. It runs tool:show-how-far-my-conversation-import-is and answers {\"sources\":[]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (conversation-import-cursor) through the records door.",
   "workflows": [],
   "tools": [
     "tool:show-how-far-my-conversation-import-is"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:show-how-far-my-conversation-import-is\", and give it nothing more.",
+    "1. Say to your AI: \"Show how far bringing in my conversations has got: for each source, files done, conversations and messages kept, and whether it stopped\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:show-how-far-my-conversation-import-is and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $ contains \"sources\"."
+    "3. Read what comes back: Reads the import's cursor rows (conversation-import-cursor) through the records door and answers, per source, the files seen and done, conversations kept, messages added and already kept, files the messages carried that were not copied, its state (done, more, stopped) and when it last moved.",
+    "4. It reads and writes only its own rows through the records door: conversation-import-cursor (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Show how far my conversation import is on a sample input",
-      "ask": "Run tool:show-how-far-my-conversation-import-is.",
+      "title": "Show how far my conversation import is on its own sample",
+      "ask": "Show how far bringing in my conversations has got: for each source, files done, conversations and messages kept, and whether it stopped",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -29,7 +30,8 @@
           }
         }
       },
-      "hands_back": "The answer's $ contains \"sources\"."
+      "given": "The input {}.",
+      "hands_back": "It answered {\"sources\":[]}."
     }
   ]
 }

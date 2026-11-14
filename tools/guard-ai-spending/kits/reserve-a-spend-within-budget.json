@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:reserve-a-spend-within-budget's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:reserve-a-spend-within-budget with spend_authority_ref, operation_ref, estimated_cost.\" Before my AI spends money, check the spend against my budget and reserve it, or refuse it",
+  "drafted_from": "tool:reserve-a-spend-within-budget's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Before my AI spends money, check the spend against my budget and reserve it, or refuse it\", with {\"spend_authority_ref\":\"spend-authority:sample-research\",\"operation_ref\":\"operation:sample-report\",\"estimated_cost\":250,\"idempotency_key\":\"idem:sample-one\"}. It runs tool:reserve-a-spend-within-budget and answers {\"approved\":true,\"reason\":\"ok\",\"idempotent\":false,\"budget_check\":{\"kind\":\"spend_budget_check\",\"check_ref\":\"spend-budget-check:operation:sample-report\",\"operation_ref\":\"operation:sample-report\",\"spend_authority_ref\":\"spend-authority:sample-research\",\"wallet_ref\":\"spend-authority:sample-research\",\"rail_ref\":\"payment-rail:unspecified\",\"spender_id\":\"\",\"agent_id\":\"\",\"idempotency_key\":\"idem:sample-one\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (spend-authority, spend-budget-check, spend-budget-reservation) through the records door.",
   "workflows": [],
   "tools": [
     "tool:reserve-a-spend-within-budget"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:reserve-a-spend-within-budget\", and give it spend_authority_ref, operation_ref, estimated_cost.",
+    "1. Say to your AI: \"Before my AI spends money, check the spend against my budget and reserve it, or refuse it\", and give it spend_authority_ref (The person's spend authority to spend from, like \"spend-authority:research\"); operation_ref (What the money is for, like \"operation:buy-a-report\"); estimated_cost (Whole cents).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:reserve-a-spend-within-budget and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields approved, reason, idempotent, budget_check, budget_reservation, spend_snapshot."
+    "3. Read what comes back: Checks one spend (whole cents) against the person's spend authority: it must be turned on and active, and stay inside the daily limit and the per-spend limit.",
+    "4. It reads and writes only its own rows through the records door: spend-authority (records:read); spend-budget-check (records:write); spend-budget-reservation (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Reserve a spend within budget on a sample input",
-      "ask": "Run tool:reserve-a-spend-within-budget.",
+      "title": "Reserve a spend within budget on its own sample",
+      "ask": "Before my AI spends money, check the spend against my budget and reserve it, or refuse it",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -34,7 +35,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields approved, reason, idempotent, budget_check, budget_reservation, spend_snapshot."
+      "given": "The input {\"spend_authority_ref\":\"spend-authority:sample-research\",\"operation_ref\":\"operation:sample-report\",\"estimated_cost\":250,\"idempotency_key\":\"idem:sample-one\"}, with 1 example row (spend-authority) already kept.",
+      "hands_back": "It answered {\"approved\":true,\"reason\":\"ok\",\"idempotent\":false,\"budget_check\":{\"kind\":\"spend_budget_check\",\"check_ref\":\"spend-budget-check:operation:sample-report\",\"operation_ref\":\"operation:sample-report\",\"spend_authority_ref\":\"spend-authority:sample-research\",\"wallet_ref\":\"spend-authority:sample-research\",\"rail_ref\":\"payment-rail:unspecified\",\"spender_id\":\"\",\"agent_id\":\"\",\"idempotency_key\":\"idem:sample-one\",\"result\":\"approved\",\"denied_reason\":\"\",\"estimated_cost\":250,\"currency\":\"USD\",\"spend_snapshot_ref\":\"spend-authority-snapshot:operation:sample-report\",\"checked_at\":\"2026-11-14T00:50:22.913Z\",\"expires_at\":\"2026-11-14T00:55:22.913Z\",\"evidence_refs\":[\"spend-authority:sample-research\" ..., and kept spend-budget-check:operation:sample-report, spend-budget-reservation:operation:sample-report."
     }
   ]
 }

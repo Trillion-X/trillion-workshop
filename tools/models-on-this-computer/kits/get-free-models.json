@@ -1,23 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:get-free-models's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:get-free-models with nothing more.\" See which free AI models fit the person's computer (its chip, memory and free space) and which it already has, and have its model server download them",
+  "drafted_from": "tool:get-free-models's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"See which free AI models fit the person's computer (its chip, memory and free space) and which it already has, and have its model server download them\", with {}. It runs tool:get-free-models and answers {\"mac\":{\"chip\":\"Apple M5 Max\",\"memory_gb\":128,\"free_disk_gb\":118.6},\"server\":{\"running\":true},\"models\":[{\"id\":\"small-chat\",\"model\":\"gemma3:4b\",\"job\":\"Quick answers and checks on any Mac\",\"size_gb\":3.3,\"min_memory_gb\":8,\"fits\":true,\"have\":true},{\"id\":\"strong-chat\",\"model\":\"qwen2.5:14b-instruct\",\"job\":\"Careful answers, and telling requests from room chatter\",\"size_gb\":9,\"min_memory_gb\":16 ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:get-free-models",
     "tool:ask-a-model"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:get-free-models\", and give it nothing more.",
+    "1. Say to your AI: \"See which free AI models fit the person's computer (its chip, memory and free space) and which it already has, and have its model server download them\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:get-free-models and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: See which free AI models fit the person's computer (its chip, memory and free space) and which it already has, and have its model server download them"
+    "3. Read what comes back: Runs on the person's computer."
   ],
   "worked_examples": [
     {
-      "title": "Free AI models that fit my device on a sample input",
-      "ask": "Run tool:get-free-models.",
+      "title": "Free AI models that fit my device on its own sample",
+      "ask": "See which free AI models fit the person's computer (its chip, memory and free space) and which it already has, and have its model server download them",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -30,7 +30,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: See which free AI models fit the person's computer (its chip, memory and free space) and which it already has, and have its model server download them"
+      "given": "The input {}.",
+      "hands_back": "It answered {\"mac\":{\"chip\":\"Apple M5 Max\",\"memory_gb\":128,\"free_disk_gb\":118.6},\"server\":{\"running\":true},\"models\":[{\"id\":\"small-chat\",\"model\":\"gemma3:4b\",\"job\":\"Quick answers and checks on any Mac\",\"size_gb\":3.3,\"min_memory_gb\":8,\"fits\":true,\"have\":true},{\"id\":\"strong-chat\",\"model\":\"qwen2.5:14b-instruct\",\"job\":\"Careful answers, and telling requests from room chatter\",\"size_gb\":9,\"min_memory_gb\":16,\"fits\":true,\"have\":true}]}."
     }
   ]
 }

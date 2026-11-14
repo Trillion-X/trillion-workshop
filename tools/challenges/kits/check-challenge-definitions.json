@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:check-challenge-definitions's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-challenge-definitions with definitions.\" Check my time-boxed challenge definitions are complete before I enroll anyone in them",
+  "drafted_from": "tool:check-challenge-definitions's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Check my time-boxed challenge definitions are complete before I enroll anyone in them\", with {\"definitions\":[{\"kind\":\"challenge-definition\",\"id\":\"bake-week\",\"label\":\"Bake week\",\"engagement_window\":{\"unit\":\"day\",\"length\":7},\"audience_decider_ref\":\"rule:everyone\",\"feed_ref\":\"feed:bake-week\",\"enrollment_policy\":{\"min_score\":0.5}},{\"kind\":\"challenge-definition\",\"id\":\"broken\",\"label\":\"\",\"engagement_window\":{\"unit\":\"day\",\"length\":0},\"audience_decider_ref\":\"\",\"feed_ref\":\"feed:x\" .... It runs tool:check-challenge-definitions and answers {\"results\":[{\"id\":\"bake-week\",\"valid\":true,\"errors\":[]},{\"id\":\"broken\",\"valid\":false,\"errors\":[\"label must be a non-empty string\",\"audience_decider_ref must be a non-empty string (the reference to the rule that scores who fits)\",\"engagement_window.length must be a positive number\",\"enrollment_policy.min_score must be a finite number\"]}]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:check-challenge-definitions"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-challenge-definitions\", and give it definitions.",
+    "1. Say to your AI: \"Check my time-boxed challenge definitions are complete before I enroll anyone in them\", and give it definitions (The challenge definition records to check).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-challenge-definitions and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.results[1].errors contains \"engagement_window.length must be a positive number\"."
+    "3. Read what comes back: Takes a list of challenge definitions and checks each one: its kind, id and label, the window it runs (a unit and a positive length, any unit), the reference to the rule that scores who fits, the reference to the content it walks through, the lowest score that joins, and an optional objective reference."
   ],
   "worked_examples": [
     {
-      "title": "Check my challenge definitions on a sample input",
-      "ask": "Run tool:check-challenge-definitions.",
+      "title": "Check my challenge definitions on its own sample",
+      "ask": "Check my time-boxed challenge definitions are complete before I enroll anyone in them",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -58,7 +58,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.results[1].errors contains \"engagement_window.length must be a positive number\"."
+      "given": "The input {\"definitions\":[{\"kind\":\"challenge-definition\",\"id\":\"bake-week\",\"label\":\"Bake week\",\"engagement_window\":{\"unit\":\"day\",\"length\":7},\"audience_decider_ref\":\"rule:everyone\",\"feed_ref\":\"feed:bake-week\",\"enrollment_policy\":{\"min_score\":0.5}},{\"kind\":\"challenge-definition\",\"id\":\"broken\",\"label\":\"\",\"engagement_window\":{\"unit\":\"day\",\"length\":0},\"audience_decider_ref\":\"\",\"feed_ref\":\"feed:x\" ....",
+      "hands_back": "It answered {\"results\":[{\"id\":\"bake-week\",\"valid\":true,\"errors\":[]},{\"id\":\"broken\",\"valid\":false,\"errors\":[\"label must be a non-empty string\",\"audience_decider_ref must be a non-empty string (the reference to the rule that scores who fits)\",\"engagement_window.length must be a positive number\",\"enrollment_policy.min_score must be a finite number\"]}]}."
     }
   ]
 }

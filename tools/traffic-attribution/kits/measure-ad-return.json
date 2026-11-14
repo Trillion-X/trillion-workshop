@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:measure-ad-return's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:measure-ad-return with project, visits, paying_outcome.\" Measure return on ad spend per source, campaign or keyword: cost per sign-up, CAC, customer lifetime value, LTV to CAC ratio and payback months, flagging what meets 5x",
+  "drafted_from": "tool:measure-ad-return's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Measure return on ad spend per source, campaign or keyword: cost per sign-up, CAC, customer lifetime value, LTV to CAC ratio and payback months, flagging what meets 5x\", with {\"project\":{\"id\":\"spring-launch\",\"outcomes\":[\"signup\",\"payment\"]},\"paying_outcome\":\"payment\",\"signup_outcome\":\"signup\",\"gross_margin\":0.8,\"monthly_churn\":0.1,\"visits\":[{\"visitor\":\"v1\",\"signals\":{\"source\":\"google\"}},{\"visitor\":\"v2\",\"signals\":{\"source\":\"google\"}},{\"visitor\":\"v3\",\"signals\":{\"source\":\"facebook\"}}],\"conversions\":[{\"visitor\":\"v1\",\"outcome\":\"signup\"},{\"visitor\":\"v1\",\"outcome\":\"payment\" .... It runs tool:measure-ad-return and answers {\"title\":\"Return on ad spend — spring-launch\",\"break_down_by\":\"source\",\"currency\":\"USD\",\"target_ltv_to_cac\":5,\"revenue_months\":1,\"spend_from\":[{\"from\":\"entered\",\"rows\":2,\"amount\":150}],\"rows\":[{\"value\":\"google\",\"spend\":100,\"visitors\":2,\"signups\":2,\"customers\":1,\"revenue\":100,\"cost_per_signup\":50,\"cac\":100,\"revenue_per_customer_per_month\":100,\"ltv\":800,\"ltv_to_cac\":8,\"payback_months\":1.25 ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:measure-ad-return"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:measure-ad-return\", and give it project, visits, paying_outcome.",
+    "1. Say to your AI: \"Measure return on ad spend per source, campaign or keyword: cost per sign-up, CAC, customer lifetime value, LTV to CAC ratio and payback months, flagging what meets 5x\", and give it project; visits (First-touch visits: one per visitor, with where they came from (source, utm_campaign, utm_term...)); paying_outcome (The outcome a paying customer records, like payment; its values are revenue).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:measure-ad-return and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.rows[0].ltv_to_cac contains \"8\"."
+    "3. Read what comes back: Joins ad spend with the visitors each source, campaign or keyword brought (first touch, the same counting as the visits breakdown), their sign-ups, paying customers and revenue."
   ],
   "worked_examples": [
     {
-      "title": "Measure what ad spend brings back (CAC, LTV, payback) on a sample input",
-      "ask": "Run tool:measure-ad-return.",
+      "title": "Measure what ad spend brings back (CAC, LTV, payback) on its own sample",
+      "ask": "Measure return on ad spend per source, campaign or keyword: cost per sign-up, CAC, customer lifetime value, LTV to CAC ratio and payback months, flagging what meets 5x",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -86,7 +86,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.rows[0].ltv_to_cac contains \"8\"."
+      "given": "The input {\"project\":{\"id\":\"spring-launch\",\"outcomes\":[\"signup\",\"payment\"]},\"paying_outcome\":\"payment\",\"signup_outcome\":\"signup\",\"gross_margin\":0.8,\"monthly_churn\":0.1,\"visits\":[{\"visitor\":\"v1\",\"signals\":{\"source\":\"google\"}},{\"visitor\":\"v2\",\"signals\":{\"source\":\"google\"}},{\"visitor\":\"v3\",\"signals\":{\"source\":\"facebook\"}}],\"conversions\":[{\"visitor\":\"v1\",\"outcome\":\"signup\"},{\"visitor\":\"v1\",\"outcome\":\"payment\" ....",
+      "hands_back": "It answered {\"title\":\"Return on ad spend — spring-launch\",\"break_down_by\":\"source\",\"currency\":\"USD\",\"target_ltv_to_cac\":5,\"revenue_months\":1,\"spend_from\":[{\"from\":\"entered\",\"rows\":2,\"amount\":150}],\"rows\":[{\"value\":\"google\",\"spend\":100,\"visitors\":2,\"signups\":2,\"customers\":1,\"revenue\":100,\"cost_per_signup\":50,\"cac\":100,\"revenue_per_customer_per_month\":100,\"ltv\":800,\"ltv_to_cac\":8,\"payback_months\":1.25,\"meets_target\":true,\"display\":{\"spend\":\"$100.00\",\"revenue\":\"$100.00\",\"cost_per_signup\":\"$50.00\",\"cac\":\"$100.00\",\"revenue_per_customer_per_month\":\"$100.00\",\"ltv\":\"$800.00\",\"ltv_to_cac\":\"8x\",\"payback_months\":\"1.25 months\",\"meets_target\":\"Meets 5x\"}},{\"value\":\"facebook\",\"spend\":50,\"visitors\":1,\"signups\":0 ...."
     }
   ]
 }

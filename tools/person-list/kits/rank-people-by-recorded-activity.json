@@ -1,23 +1,24 @@
 {
   "draft": true,
-  "drafted_from": "tool:rank-people-by-recorded-activity's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:rank-people-by-recorded-activity with weights, metrics, levels.\" Rank the people in the person's own records by the points their recorded activity earns, all time or over the last days, and give each their level",
+  "drafted_from": "tool:rank-people-by-recorded-activity's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Rank the people in the person's own records by the points their recorded activity earns, all time or over the last days, and give each their level\", with {\"weights\":{\"post\":5,\"reply\":1},\"metrics\":[{\"key\":\"all_time\",\"label\":\"All time\",\"lookback_days\":null,\"order\":0},{\"key\":\"week\",\"label\":\"Last 7 days\",\"lookback_days\":7,\"order\":1}],\"levels\":[{\"level\":1,\"name\":\"New\",\"min_points\":0},{\"level\":2,\"name\":\"Regular\",\"min_points\":5}],\"rank_by\":\"all_time\",\"now\":\"2026-09-27T12:00:00Z\"}. It runs tool:rank-people-by-recorded-activity and answers {\"ranked\":[],\"rank_by\":\"all_time\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (person-activity) through the records door.",
   "workflows": [],
   "tools": [
     "tool:rank-people-by-recorded-activity",
     "tool:rank-people-by-activity"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:rank-people-by-recorded-activity\", and give it weights, metrics, levels.",
+    "1. Say to your AI: \"Rank the people in the person's own records by the points their recorded activity earns, all time or over the last days, and give each their level\", and give it weights (Points per kind of activity, like {\"post\": 5, \"reply\": 1}); metrics; levels.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:rank-people-by-recorded-activity and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.ranked[0].person contains \"ana\"."
+    "3. Read what comes back: Reads the person-activity records the person holds (each {person, kind, at}; fields maps another shape by dotted path) instead of being handed the activity.",
+    "4. It reads and writes only its own rows through the records door: person-activity (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Rank people by the activity in your records on a sample input",
-      "ask": "Run tool:rank-people-by-recorded-activity.",
+      "title": "Rank people by the activity in your records on its own sample",
+      "ask": "Rank the people in the person's own records by the points their recorded activity earns, all time or over the last days, and give each their level",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -63,7 +64,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.ranked[0].person contains \"ana\"."
+      "given": "The input {\"weights\":{\"post\":5,\"reply\":1},\"metrics\":[{\"key\":\"all_time\",\"label\":\"All time\",\"lookback_days\":null,\"order\":0},{\"key\":\"week\",\"label\":\"Last 7 days\",\"lookback_days\":7,\"order\":1}],\"levels\":[{\"level\":1,\"name\":\"New\",\"min_points\":0},{\"level\":2,\"name\":\"Regular\",\"min_points\":5}],\"rank_by\":\"all_time\",\"now\":\"2026-09-27T12:00:00Z\"}.",
+      "hands_back": "It answered {\"ranked\":[],\"rank_by\":\"all_time\"}."
     }
   ]
 }

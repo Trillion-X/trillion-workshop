@@ -1,7 +1,7 @@
 {
   "draft": true,
-  "drafted_from": "tool:pull-a-time-window-from-a-stored-camera-file's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:pull-a-time-window-from-a-stored-camera-file with identity, out.\" Get the sound of a few seconds, or one still picture, out of a big camera video I keep in cloud storage, reading only the small part of the file that holds it",
+  "drafted_from": "tool:pull-a-time-window-from-a-stored-camera-file's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Get the sound of a few seconds, or one still picture, out of a big camera video I keep in cloud storage, reading only the small part of the file that holds it\", with {\"identity\":\"12:made-up\",\"from\":1,\"to\":2,\"out\":\"window.wav\",\"settings_record\":\"record:setting:pull-a-time-window-from-a-stored-camera-file~person~all\"}. It runs tool:pull-a-time-window-from-a-stored-camera-file and answers {\"mode\":\"window\",\"identity\":\"12:made-up\",\"from\":1,\"to\":2,\"audio_packets\":1,\"audio_reads\":1,\"audio_bytes\":16,\"out\":\"/granted-NcJLEd/window.wav\",\"bytes_fetched\":48,\"reads\":3,\"settings_from\":{\"id\":\"record:setting:pull-a-time-window-from-a-stored-camera-file~person~all\",\"from\":\"made up for this sample\"}}",
   "lists": [
     {
       "list": "list:settings",
@@ -108,20 +108,20 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
     "tool:pull-a-time-window-from-a-stored-camera-file"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:pull-a-time-window-from-a-stored-camera-file\", and give it identity, out.",
+    "1. Say to your AI: \"Get the sound of a few seconds, or one still picture, out of a big camera video I keep in cloud storage, reading only the small part of the file that holds it\", and give it identity (The stored file's identity as the store names it.); out (The wav (window) or jpg (frame) to write, in the folder the person let this tool change.).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:pull-a-time-window-from-a-stored-camera-file and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields mode, identity, out, bytes_fetched, reads, from, to, audio_packets."
+    "3. Read what comes back: Reads the MP4's box headers and its index (moov) by byte range, builds a sparse local copy with the same layout, asks ffprobe which byte ranges hold the audio packets inside the window (or the one key frame at or before the second asked for), reads only those ranges through the person's own reader program and decodes them with ffmpeg.",
+    "4. It reads and writes only its own rows through the records door: record:setting (records:read)."
   ],
   "worked_examples": [
     {
-      "title": "Get one stretch of sound, or one picture, from a camera file in my cloud storage without downloading it on a sample input",
-      "ask": "Run tool:pull-a-time-window-from-a-stored-camera-file.",
+      "title": "Get one stretch of sound, or one picture, from a camera file in my cloud storage without downloading it on its own sample",
+      "ask": "Get the sound of a few seconds, or one still picture, out of a big camera video I keep in cloud storage, reading only the small part of the file that holds it",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -140,7 +140,48 @@
           }
         }
       },
-      "hands_back": "An answer with the fields mode, identity, out, bytes_fetched, reads, from, to, audio_packets."
+      "given": "The input {\"identity\":\"12:made-up\",\"from\":1,\"to\":2,\"out\":\"window.wav\",\"settings_record\":\"record:setting:pull-a-time-window-from-a-stored-camera-file~person~all\"}, with 1 example row (record:setting) already kept.",
+      "hands_back": "It answered {\"mode\":\"window\",\"identity\":\"12:made-up\",\"from\":1,\"to\":2,\"audio_packets\":1,\"audio_reads\":1,\"audio_bytes\":16,\"out\":\"/granted-NcJLEd/window.wav\",\"bytes_fetched\":48,\"reads\":3,\"settings_from\":{\"id\":\"record:setting:pull-a-time-window-from-a-stored-camera-file~person~all\",\"from\":\"made up for this sample\"}}."
+    },
+    {
+      "title": "Get one stretch of sound, or one picture, from a camera file in my cloud storage without downloading it on its own sample",
+      "ask": "Get the sound of a few seconds, or one still picture, out of a big camera video I keep in cloud storage, reading only the small part of the file that holds it",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:pull-a-time-window-from-a-stored-camera-file",
+            "input": {
+              "mode": "frame",
+              "identity": "12:made-up",
+              "at": 1,
+              "out": "frame.jpg",
+              "settings": {
+                "store": "sample-store",
+                "account": "acct-made-up",
+                "reader": {
+                  "argv": [
+                    "camera-store-reader",
+                    "{store}",
+                    "{account}",
+                    "{identity}",
+                    "{out}",
+                    "{offset}",
+                    "{length}"
+                  ],
+                  "retries": 2,
+                  "retry_seconds": 0
+                }
+              }
+            }
+          }
+        }
+      },
+      "given": "The input {\"mode\":\"frame\",\"identity\":\"12:made-up\",\"at\":1,\"out\":\"frame.jpg\",\"settings\":{\"store\":\"sample-store\",\"account\":\"acct-made-up\",\"reader\":{\"argv\":[\"camera-store-reader\",\"{store}\",\"{account}\",\"{identity}\",\"{out}\",\"{offset}\",\"{length}\"],\"retries\":2,\"retry_seconds\":0}}}.",
+      "hands_back": "It answered {\"mode\":\"frame\",\"identity\":\"12:made-up\",\"frame_at\":1,\"asked_at\":1,\"packet_bytes\":16,\"out\":\"/granted-8TwcSp/frame.jpg\",\"bytes_fetched\":48,\"reads\":3}."
     }
   ],
   "pour": {

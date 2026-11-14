@@ -1,23 +1,24 @@
 {
   "draft": true,
-  "drafted_from": "tool:answer-the-search-page-route's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:answer-the-search-page-route with path, method.\" Answer the page's one search (GET /work/api/search) over every list, record and file name I keep",
+  "drafted_from": "tool:answer-the-search-page-route's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Answer the page's one search (GET /work/api/search) over every list, record and file name I keep\", with {\"path\":\"/search\",\"method\":\"GET\",\"query\":{\"q\":\"merlinfalcon\",\"sources\":\"trillion\"},\"body\":{},\"browser\":{}}. It runs tool:answer-the-search-page-route and answers {\"status\":200,\"body\":{\"question\":\"merlinfalcon\",\"terms\":[\"merlinfalcon\"],\"results\":[{\"start\":0,\"end\":0,\"id\":\"record:c1\",\"source\":\"trillion\",\"type\":\"sample-contacts\",\"record\":\"c1\",\"found_in\":[\"written\"],\"address\":{\"resource\":\"@own-records\",\"operation\":\"records:read\",\"input\":{\"id\":\"c1\",\"type\":\"sample-contacts\"}},\"score\":0.01639,\"places\":[{\"place\":\"written\",\"label\":\"Notes and text\",\"said\":null ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (*, ) through the records door.",
   "workflows": [],
   "tools": [
     "tool:answer-the-search-page-route",
     "tool:search-everything-in-a-small-container"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:answer-the-search-page-route\", and give it path, method.",
+    "1. Say to your AI: \"Answer the page's one search (GET /work/api/search) over every list, record and file name I keep\", and give it path (The route after /work/api (/search)); method.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:answer-the-search-page-route and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.body.results[0].found_in[0] contains \"written\"."
+    "3. Read what comes back: The page's GET /work/api/search, run by the engine for the page's account (workshop-routes): the request's { path, method, query } in, { status, body } out, where body is the one search's answer (searchEverything) for query q, with places, sources and matches as comma lists and limit (1..200) as old src/search.mjs searchOptions read them.",
+    "4. It reads and writes only its own rows through the records door: * (records:search); undefined (search)."
   ],
   "worked_examples": [
     {
-      "title": "Answer the search page route on a sample input",
-      "ask": "Run tool:answer-the-search-page-route.",
+      "title": "Answer the search page route on its own sample",
+      "ask": "Answer the page's one search (GET /work/api/search) over every list, record and file name I keep",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -39,7 +40,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.body.results[0].found_in[0] contains \"written\"."
+      "given": "The input {\"path\":\"/search\",\"method\":\"GET\",\"query\":{\"q\":\"merlinfalcon\",\"sources\":\"trillion\"},\"body\":{},\"browser\":{}}, with 4 example rows (sample-contacts, sample-invoices, sample-places) already kept.",
+      "hands_back": "It answered {\"status\":200,\"body\":{\"question\":\"merlinfalcon\",\"terms\":[\"merlinfalcon\"],\"results\":[{\"start\":0,\"end\":0,\"id\":\"record:c1\",\"source\":\"trillion\",\"type\":\"sample-contacts\",\"record\":\"c1\",\"found_in\":[\"written\"],\"address\":{\"resource\":\"@own-records\",\"operation\":\"records:read\",\"input\":{\"id\":\"c1\",\"type\":\"sample-contacts\"}},\"score\":0.01639,\"places\":[{\"place\":\"written\",\"label\":\"Notes and text\",\"said\":null,\"score\":0.016}],\"moments\":[{\"start\":0,\"end\":0,\"timed\":false,\"said\":null,\"places\":[\"written\"]}],\"said\":null},{\"start\":0,\"end\":0,\"id\":\"record:i1\",\"source\":\"trillion\",\"type\":\"sample-invoices\",\"record\":\"i1\",\"found_in\":[\"written\"],\"address\":{\"resource\":\"@own-records\",\"operation\":\"records:read\" ...."
     }
   ]
 }

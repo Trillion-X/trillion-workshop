@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:publish_site's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:publish_site with nothing more.\" Publish a website's pages and files so it can be given its own address",
+  "drafted_from": "tool:publish_site's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Publish a website's pages and files so it can be given its own address\", with {\"files\":{\"index.html\":\"<title>Field Notes</title><h1>made up</h1>\",\"style.css\":\"h1{color:teal}\"},\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}. It runs tool:publish_site and answers {\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"files\":2,\"bytes\":56,\"llms\":true,\"suggested_name\":\"field-notes\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows () through the records door.",
   "workflows": [],
   "tools": [
     "tool:publish_site"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:publish_site\", and give it nothing more.",
+    "1. Say to your AI: \"Publish a website's pages and files so it can be given its own address\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:publish_site and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields installation, files, bytes, suggested_name, llms."
+    "3. Read what comes back: Keeps a site's files (files by path, index.html first, text or data: URLs; or site, the name of a site.json in your files such as copy_a_site leaves) under a new installation in your files, or a new version of one already published (installation).",
+    "4. It reads and writes only its own rows through the records door: undefined (find_file, read_file); undefined (list_files, find_file, read_file, write_file_start, write_file_piece, write_file_finish)."
   ],
   "worked_examples": [
     {
-      "title": "Publish a site on a sample input",
-      "ask": "Run tool:publish_site.",
+      "title": "Publish a site on its own sample",
+      "ask": "Publish a website's pages and files so it can be given its own address",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -35,7 +36,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields installation, files, bytes, suggested_name, llms."
+      "given": "The input {\"files\":{\"index.html\":\"<title>Field Notes</title><h1>made up</h1>\",\"style.css\":\"h1{color:teal}\"},\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}.",
+      "hands_back": "It answered {\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"files\":2,\"bytes\":56,\"llms\":true,\"suggested_name\":\"field-notes\"}."
     }
   ]
 }

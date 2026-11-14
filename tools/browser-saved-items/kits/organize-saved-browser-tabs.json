@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:organize-saved-browser-tabs's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:organize-saved-browser-tabs with file.\" Sort the tabs a person pinned in their browser into folders by rules they wrote, keep every tab and a backup of the file, and undo it",
+  "drafted_from": "tool:organize-saved-browser-tabs's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Sort the tabs a person pinned in their browser into folders by rules they wrote, keep every tab and a backup of the file, and undo it\", with {\"file\":\"StorableSidebar.json\",\"rules\":{\"space\":\"Shop\",\"root_folder\":\"Kitchen\",\"folders\":{\"Reading\":[]},\"fallback\":[\"Reading\"],\"relevant_words\":[\"bread\"]},\"apply\":false}. It runs tool:organize-saved-browser-tabs and answers {\"space_id\":\"space-1\",\"tab_count\":1,\"organized_tab_count\":1,\"moved_from_outside_root\":1,\"kept_in_place_count\":0,\"category_counts\":{\"Reading\":1},\"tabs\":[{\"id\":\"t-1\",\"title\":\"Sourdough starter guide\",\"url\":\"https://www.bread.example/starter\",\"host\":\"bread.example\",\"original_path\":[\"Shop\",\"Pinned\",\"Pinned\",\"Sourdough starter guide\"],\"decision\":\"organize\",\"basis\":\"covered_by_rules\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:organize-saved-browser-tabs"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:organize-saved-browser-tabs\", and give it file.",
+    "1. Say to your AI: \"Sort the tabs a person pinned in their browser into folders by rules they wrote, keep every tab and a backup of the file, and undo it\", and give it file (The sidebar file's plain name inside the granted folder).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:organize-saved-browser-tabs and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields file, applied, backup, tab_count, organized_tab_count, moved_from_outside_root, kept_in_place_count, category_counts."
+    "3. Read what comes back: Works on the browser's sidebar file (the Arc layout) inside the folder the person granted for change; close the browser first, because it rewrites the file while it runs."
   ],
   "worked_examples": [
     {
-      "title": "Sort my saved browser tabs into folders by my rules on a sample input",
-      "ask": "Run tool:organize-saved-browser-tabs.",
+      "title": "Sort my saved browser tabs into folders by my rules on its own sample",
+      "ask": "Sort the tabs a person pinned in their browser into folders by rules they wrote, keep every tab and a backup of the file, and undo it",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -45,7 +45,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields file, applied, backup, tab_count, organized_tab_count, moved_from_outside_root, kept_in_place_count, category_counts."
+      "given": "The input {\"file\":\"StorableSidebar.json\",\"rules\":{\"space\":\"Shop\",\"root_folder\":\"Kitchen\",\"folders\":{\"Reading\":[]},\"fallback\":[\"Reading\"],\"relevant_words\":[\"bread\"]},\"apply\":false}.",
+      "hands_back": "It answered {\"space_id\":\"space-1\",\"tab_count\":1,\"organized_tab_count\":1,\"moved_from_outside_root\":1,\"kept_in_place_count\":0,\"category_counts\":{\"Reading\":1},\"tabs\":[{\"id\":\"t-1\",\"title\":\"Sourdough starter guide\",\"url\":\"https://www.bread.example/starter\",\"host\":\"bread.example\",\"original_path\":[\"Shop\",\"Pinned\",\"Pinned\",\"Sourdough starter guide\"],\"decision\":\"organize\",\"basis\":\"covered_by_rules\",\"category\":[\"Reading\",null]}],\"file\":\"StorableSidebar.json\",\"applied\":false,\"backup\":null}."
     }
   ]
 }

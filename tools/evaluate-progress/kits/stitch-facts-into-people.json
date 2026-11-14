@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:stitch-facts-into-people's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:stitch-facts-into-people with facts, config.\" Link records that share a key into one person and give each person the highest stage their records reach",
+  "drafted_from": "tool:stitch-facts-into-people's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Link records that share a key into one person and give each person the highest stage their records reach\", with {\"facts\":[{\"member\":\"m-17\",\"visit\":\"first\",\"source\":\"flyer\",\"at\":\"2026-01-01\"},{\"member\":\"m-17\",\"visit\":\"bought\",\"source\":\"shop\",\"at\":\"2026-01-02\"}],\"config\":{\"keyPaths\":[[\"member\"]],\"strongKeyPaths\":[[\"member\"]],\"stageRules\":[{\"when\":{\"field\":[\"visit\"],\"equals\":\"first\"},\"stage\":\"visited\",\"rank\":1},{\"when\":{\"field\":[\"visit\"],\"equals\":\"bought\"},\"stage\":\"customer\",\"rank\":2}],\"sourcePath\":[\"source\"] .... It runs tool:stitch-facts-into-people and answers {\"ledger\":[{\"personId\":\"m-17\",\"source\":\"flyer\",\"stage\":\"customer\",\"stageRank\":2,\"confidence\":\"known\",\"value\":0,\"keyCount\":1,\"factCount\":2}]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:stitch-facts-into-people"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:stitch-facts-into-people\", and give it facts, config.",
+    "1. Say to your AI: \"Link records that share a key into one person and give each person the highest stage their records reach\", and give it facts; config.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:stitch-facts-into-people and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.ledger[0].stage contains \"customer\"."
+    "3. Read what comes back: Takes records and a config."
   ],
   "worked_examples": [
     {
-      "title": "Link records into people and stage each on a sample input",
-      "ask": "Run tool:stitch-facts-into-people.",
+      "title": "Link records into people and stage each on its own sample",
+      "ask": "Link records that share a key into one person and give each person the highest stage their records reach",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -88,7 +88,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.ledger[0].stage contains \"customer\"."
+      "given": "The input {\"facts\":[{\"member\":\"m-17\",\"visit\":\"first\",\"source\":\"flyer\",\"at\":\"2026-01-01\"},{\"member\":\"m-17\",\"visit\":\"bought\",\"source\":\"shop\",\"at\":\"2026-01-02\"}],\"config\":{\"keyPaths\":[[\"member\"]],\"strongKeyPaths\":[[\"member\"]],\"stageRules\":[{\"when\":{\"field\":[\"visit\"],\"equals\":\"first\"},\"stage\":\"visited\",\"rank\":1},{\"when\":{\"field\":[\"visit\"],\"equals\":\"bought\"},\"stage\":\"customer\",\"rank\":2}],\"sourcePath\":[\"source\"] ....",
+      "hands_back": "It answered {\"ledger\":[{\"personId\":\"m-17\",\"source\":\"flyer\",\"stage\":\"customer\",\"stageRank\":2,\"confidence\":\"known\",\"value\":0,\"keyCount\":1,\"factCount\":2}]}."
     }
   ]
 }

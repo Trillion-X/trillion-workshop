@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:put-a-booking-on-my-calendar's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:put-a-booking-on-my-calendar with title, start_local, end_local, timezone.\" Make the event for a booking on my own calendar and invite the people booked",
+  "drafted_from": "tool:put-a-booking-on-my-calendar's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Make the event for a booking on my own calendar and invite the people booked\", with {\"title\":\"Sample session\",\"start_local\":\"2030-08-12T09:00\",\"end_local\":\"2030-08-12T09:30\",\"timezone\":\"UTC\",\"attendees\":[{\"email\":\"sample.person@example.test\",\"displayName\":\"Sample Person\"}],\"booking_id\":\"booking:sample-booking-1\"}. It runs tool:put-a-booking-on-my-calendar and answers {\"status\":\"created\",\"external_event_id\":\"sampleevent1\",\"html_link\":\"https://calendar.example.test/event?eid=sampleevent1\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (booking) through the records door.",
   "workflows": [],
   "tools": [
     "tool:put-a-booking-on-my-calendar"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:put-a-booking-on-my-calendar\", and give it title, start_local, end_local, timezone.",
+    "1. Say to your AI: \"Make the event for a booking on my own calendar and invite the people booked\", and give it title; start_local (Wall-clock start in the zone, like 2026-08-12T09:00); end_local; timezone.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:put-a-booking-on-my-calendar and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields status, external_event_id, html_link, video_link, error."
+    "3. Read what comes back: Makes one event on the person's own Google calendar, with the person's own calendar account (the held value calendar-account), and has Google invite the attendees.",
+    "4. It reads and writes only its own rows through the records door: booking (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Put a booking on my calendar on a sample input",
-      "ask": "Run tool:put-a-booking-on-my-calendar.",
+      "title": "Put a booking on my calendar on its own sample",
+      "ask": "Make the event for a booking on my own calendar and invite the people booked",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -41,7 +42,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields status, external_event_id, html_link, video_link, error."
+      "given": "The input {\"title\":\"Sample session\",\"start_local\":\"2030-08-12T09:00\",\"end_local\":\"2030-08-12T09:30\",\"timezone\":\"UTC\",\"attendees\":[{\"email\":\"sample.person@example.test\",\"displayName\":\"Sample Person\"}],\"booking_id\":\"booking:sample-booking-1\"}, with 1 example row (booking) already kept, the web answering from 2 recorded replies.",
+      "hands_back": "It answered {\"status\":\"created\",\"external_event_id\":\"sampleevent1\",\"html_link\":\"https://calendar.example.test/event?eid=sampleevent1\"}."
     }
   ]
 }

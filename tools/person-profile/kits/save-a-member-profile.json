@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:save-a-member-profile's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:save-a-member-profile with who, fields.\" Save the name, about text or email of a member's profile, changing only the fields given and keeping the rest of the profile",
+  "drafted_from": "tool:save-a-member-profile's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Save the name, about text or email of a member's profile, changing only the fields given and keeping the rest of the profile\", with {\"who\":\"member:sample\",\"fields\":{\"display_name\":\"Sam Example\",\"about\":\"Makes things.\"}}. It runs tool:save-a-member-profile and answers {\"saved\":true,\"profile\":{\"display_name\":\"Sam Example\",\"about\":\"Makes things.\",\"email\":\"\"}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (member-profile) through the records door.",
   "workflows": [],
   "tools": [
     "tool:save-a-member-profile"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:save-a-member-profile\", and give it who, fields.",
+    "1. Say to your AI: \"Save the name, about text or email of a member's profile, changing only the fields given and keeping the rest of the profile\", and give it who (The member's id); fields.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:save-a-member-profile and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.saved contains \"true\"."
+    "3. Read what comes back: Give who (the member's id) and fields: any of display_name, about and email, as text.",
+    "4. It reads and writes only its own rows through the records door: member-profile (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Save a member's profile fields on a sample input",
-      "ask": "Run tool:save-a-member-profile.",
+      "title": "Save a member's profile fields on its own sample",
+      "ask": "Save the name, about text or email of a member's profile, changing only the fields given and keeping the rest of the profile",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -35,7 +36,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.saved contains \"true\"."
+      "given": "The input {\"who\":\"member:sample\",\"fields\":{\"display_name\":\"Sam Example\",\"about\":\"Makes things.\"}}.",
+      "hands_back": "It answered {\"saved\":true,\"profile\":{\"display_name\":\"Sam Example\",\"about\":\"Makes things.\",\"email\":\"\"}}, and kept member-profile:member:sample."
     }
   ]
 }

@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:choose-what-a-visitor-sees's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:choose-what-a-visitor-sees with surface, decider.\" Pick which version of a page, offer, headline or feature one visitor gets, from rules you write as data, keeping the same visitor on the same version",
+  "drafted_from": "tool:choose-what-a-visitor-sees's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Pick which version of a page, offer, headline or feature one visitor gets, from rules you write as data, keeping the same visitor on the same version\", with {\"surface\":{\"entity_type\":\"selection-surface\",\"address\":\"page:/offer\",\"decider_program_ref\":\"decider:split\",\"candidates\":[{\"candidate_id\":\"a\",\"material_ref\":\"material:a\"},{\"candidate_id\":\"b\",\"material_ref\":\"material:b\"}]},\"decider\":{\"entity_type\":\"decider\",\"decider_id\":\"split\",\"score\":{\"op\":\"sticky_hash\",\"of\":{\"const\":\"visitor\"},\"split\":{\"split\":{\"a\":0.5,\"b\":0.5}}} .... It runs tool:choose-what-a-visitor-sees and answers {\"chosen\":{\"candidate_id\":\"b\",\"material_ref\":\"material:b\"},\"ranked\":[{\"candidate_id\":\"b\",\"score\":1,\"is_winner\":true},{\"candidate_id\":\"a\",\"score\":0,\"is_winner\":false}],\"findings\":[],\"rule_used\":\"sticky_hash\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:choose-what-a-visitor-sees"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:choose-what-a-visitor-sees\", and give it surface, decider.",
+    "1. Say to your AI: \"Pick which version of a page, offer, headline or feature one visitor gets, from rules you write as data, keeping the same visitor on the same version\", and give it surface ({ entity_type: 'selection-surface', address, decider_program_ref, candidates: [{ candidate_id, material_ref }] }); decider ({ entity_type: 'decider', decider_id, score, accepts_trust: [text] }; score is a structured expression such as { op: 'sticky_hash', ...).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:choose-what-a-visitor-sees and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.rule_used contains \"sticky_hash\"."
+    "3. Read what comes back: Scores every candidate version with a decider (a rule written as structured data: a split by visitor, a switch on what is known about the visitor, a preference for the version with the best recorded result) and returns the winner, the full ranking and any findings."
   ],
   "worked_examples": [
     {
-      "title": "Choose what one visitor sees on a sample input",
-      "ask": "Run tool:choose-what-a-visitor-sees.",
+      "title": "Choose what one visitor sees on its own sample",
+      "ask": "Pick which version of a page, offer, headline or feature one visitor gets, from rules you write as data, keeping the same visitor on the same version",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -65,7 +65,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.rule_used contains \"sticky_hash\"."
+      "given": "The input {\"surface\":{\"entity_type\":\"selection-surface\",\"address\":\"page:/offer\",\"decider_program_ref\":\"decider:split\",\"candidates\":[{\"candidate_id\":\"a\",\"material_ref\":\"material:a\"},{\"candidate_id\":\"b\",\"material_ref\":\"material:b\"}]},\"decider\":{\"entity_type\":\"decider\",\"decider_id\":\"split\",\"score\":{\"op\":\"sticky_hash\",\"of\":{\"const\":\"visitor\"},\"split\":{\"split\":{\"a\":0.5,\"b\":0.5}}} ....",
+      "hands_back": "It answered {\"chosen\":{\"candidate_id\":\"b\",\"material_ref\":\"material:b\"},\"ranked\":[{\"candidate_id\":\"b\",\"score\":1,\"is_winner\":true},{\"candidate_id\":\"a\",\"score\":0,\"is_winner\":false}],\"findings\":[],\"rule_used\":\"sticky_hash\"}."
     }
   ]
 }

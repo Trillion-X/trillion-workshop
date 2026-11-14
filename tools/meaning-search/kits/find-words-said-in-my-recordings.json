@@ -1,23 +1,24 @@
 {
   "draft": true,
-  "drafted_from": "tool:find-words-said-in-my-recordings's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:find-words-said-in-my-recordings with index_ids, query_text.\" Find the spoken lines in my recordings that say all of some words, and say the file and time of each",
+  "drafted_from": "tool:find-words-said-in-my-recordings's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Find the spoken lines in my recordings that say all of some words, and say the file and time of each\", with {\"index_ids\":[\"synthetic-said\"],\"query_text\":\"made-up words\"}. It runs tool:find-words-said-in-my-recordings and answers {\"index_ids\":[\"synthetic-said\"],\"lines\":[{\"address\":\"/Sets/said.jsonl#0\",\"file\":\"/Clips/made-up.m4a\",\"start\":0,\"end\":null,\"text\":\"some made-up words here\"}]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (semantic-index-descriptor, ) through the records door.",
   "workflows": [],
   "tools": [
     "tool:find-words-said-in-my-recordings",
     "tool:find-similar-by-meaning"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:find-words-said-in-my-recordings\", and give it index_ids, query_text.",
+    "1. Say to your AI: \"Find the spoken lines in my recordings that say all of some words, and say the file and time of each\", and give it index_ids (The index_id of each of the person's semantic-index-descriptor records to search together); query_text (The words to look for; every word longer than two letters must be in a line).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-words-said-in-my-recordings and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's result contains \"some made-up words here\"."
+    "3. Read what comes back: Reads the vector sets of several of the person's semantic-index-descriptor records (index_ids) whose points_to names a text field, and returns, in the order the sets hold them, the lines that contain every word of query_text longer than two letters (case ignored), at most limit (8 when none is asked).",
+    "4. It reads and writes only its own rows through the records door: semantic-index-descriptor (records:list); undefined (read_file)."
   ],
   "worked_examples": [
     {
-      "title": "Find the lines my recordings say, by their words on a sample input",
-      "ask": "Run tool:find-words-said-in-my-recordings.",
+      "title": "Find the lines my recordings say, by their words on its own sample",
+      "ask": "Find the spoken lines in my recordings that say all of some words, and say the file and time of each",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -35,7 +36,8 @@
           }
         }
       },
-      "hands_back": "The answer's result contains \"some made-up words here\"."
+      "given": "The input {\"index_ids\":[\"synthetic-said\"],\"query_text\":\"made-up words\"}, with 1 example row (semantic-index-descriptor) already kept.",
+      "hands_back": "It answered {\"index_ids\":[\"synthetic-said\"],\"lines\":[{\"address\":\"/Sets/said.jsonl#0\",\"file\":\"/Clips/made-up.m4a\",\"start\":0,\"end\":null,\"text\":\"some made-up words here\"}]}."
     }
   ]
 }

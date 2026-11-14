@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:screen-actions's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:screen-actions with nothing more.\" List the actions this computer keeps for operating its screen, what each needs, and how to describe a target",
+  "drafted_from": "tool:screen-actions's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"List the actions this computer keeps for operating its screen, what each needs, and how to describe a target\", with {}. It runs tool:screen-actions and answers {\"actions\":[{\"id\":\"click\",\"what\":\"Click once on a thing on the screen with the primary button.\",\"target\":\"required\",\"inputs\":{}},{\"id\":\"double_click\",\"what\":\"Double-click on a thing on the screen.\",\"target\":\"required\",\"inputs\":{}},{\"id\":\"right_click\",\"what\":\"Open the context menu of a thing on the screen.\",\"target\":\"required\",\"inputs\":{}},{\"id\":\"hover\",\"what\":\"Rest the pointer on a thing on the ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:screen-actions"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:screen-actions\", and give it nothing more.",
+    "1. Say to your AI: \"List the actions this computer keeps for operating its screen, what each needs, and how to describe a target\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:screen-actions and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.actions contains \"\"press\"\"."
+    "3. Read what comes back: Read-only and needs no permission; it reads the computer's own list."
   ],
   "worked_examples": [
     {
-      "title": "List what can be done on the person's computer screen on a sample input",
-      "ask": "Run tool:screen-actions.",
+      "title": "List what can be done on the person's computer screen on its own sample",
+      "ask": "List the actions this computer keeps for operating its screen, what each needs, and how to describe a target",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -29,7 +29,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.actions contains \"\"press\"\"."
+      "given": "The input {}.",
+      "hands_back": "It answered {\"actions\":[{\"id\":\"click\",\"what\":\"Click once on a thing on the screen with the primary button.\",\"target\":\"required\",\"inputs\":{}},{\"id\":\"double_click\",\"what\":\"Double-click on a thing on the screen.\",\"target\":\"required\",\"inputs\":{}},{\"id\":\"right_click\",\"what\":\"Open the context menu of a thing on the screen.\",\"target\":\"required\",\"inputs\":{}},{\"id\":\"hover\",\"what\":\"Rest the pointer on a thing on the screen without pressing.\",\"target\":\"required\",\"inputs\":{}},{\"id\":\"drag\",\"what\":\"Press on one thing, move to another and let go.\",\"target\":\"required\",\"inputs\":{\"to\":\"target (required)\"}},{\"id\":\"scroll\",\"what\":\"Scroll by pixels (dy positive moves the content down); over a target when one is given.\" ...."
     }
   ]
 }

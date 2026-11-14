@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:enrol-a-voice-or-face's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:enrol-a-voice-or-face with kind, name, consent.\" Let the person's AI name this person later by their voice or face, after they agreed to be known that way",
+  "drafted_from": "tool:enrol-a-voice-or-face's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Let the person's AI name this person later by their voice or face, after they agreed to be known that way\", with {\"kind\":\"voice\",\"name\":\"Sam Example\",\"consent\":\"Sam Example agreed in a made-up sample to be known by their voice here.\",\"heard_voice\":\"voice-1\",\"listening\":\"standup\",\"voice_sessions\":[{\"value\":{\"listening\":\"standup\",\"unknown\":[{\"id\":\"voice-1\",\"seconds\":12,\"count\":3,\"mean\":[0.15,0.2,0.4,0.45,0.5,0.7,0.05,0.1,0.3,0.35,0.4,0.6,0.65,0,0.2,0.25,0.3,0.5,0.55,0.6,0.1,0.15,0.2,0.4,0.45,0.5,0.7,0.05,0.1 .... It runs tool:enrol-a-voice-or-face and answers {\"person\":\"sam-example\",\"kind\":\"voice\",\"samples\":1,\"records\":[{\"kind\":\"voice-print\",\"id\":\"voice-print:sam-example\",\"person\":\"sam-example\",\"name\":\"Sam Example\",\"me\":false,\"samples\":[[0.0268328,0.0357771,0.0715542,0.0804984,0.0894427,0.1252198,0.0089443,0.0178885,0.0536656,0.0626099,0.0715542,0.1073313,0.1162755,0,0.0357771,0.0447214,0.0536656,0.0894427,0.098387,0.1073313,0.0178885,0.0268328 ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:enrol-a-voice-or-face"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:enrol-a-voice-or-face\", and give it kind, name, consent.",
+    "1. Say to your AI: \"Let the person's AI name this person later by their voice or face, after they agreed to be known that way\", and give it kind (Enrol a voice or a face); name (The person's name); consent (Who agreed to be known by their voice or face, and how (for example: said yes in the team call on Monday)).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:enrol-a-voice-or-face and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields person, kind, samples, heard_as, records."
+    "3. Read what comes back: Measures a recording of one person speaking, or a picture or video of one person's face, or takes a voice heard in a listening, and keeps it as that person's print so later recordings and pictures can name them."
   ],
   "worked_examples": [
     {
-      "title": "Enrol someone's voice or face so they can be named on a sample input",
-      "ask": "Run tool:enrol-a-voice-or-face.",
+      "title": "Enrol someone's voice or face so they can be named on its own sample",
+      "ask": "Let the person's AI name this person later by their voice or face, after they agreed to be known that way",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -243,7 +243,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields person, kind, samples, heard_as, records."
+      "given": "The input {\"kind\":\"voice\",\"name\":\"Sam Example\",\"consent\":\"Sam Example agreed in a made-up sample to be known by their voice here.\",\"heard_voice\":\"voice-1\",\"listening\":\"standup\",\"voice_sessions\":[{\"value\":{\"listening\":\"standup\",\"unknown\":[{\"id\":\"voice-1\",\"seconds\":12,\"count\":3,\"mean\":[0.15,0.2,0.4,0.45,0.5,0.7,0.05,0.1,0.3,0.35,0.4,0.6,0.65,0,0.2,0.25,0.3,0.5,0.55,0.6,0.1,0.15,0.2,0.4,0.45,0.5,0.7,0.05,0.1 ....",
+      "hands_back": "It answered {\"person\":\"sam-example\",\"kind\":\"voice\",\"samples\":1,\"records\":[{\"kind\":\"voice-print\",\"id\":\"voice-print:sam-example\",\"person\":\"sam-example\",\"name\":\"Sam Example\",\"me\":false,\"samples\":[[0.0268328,0.0357771,0.0715542,0.0804984,0.0894427,0.1252198,0.0089443,0.0178885,0.0536656,0.0626099,0.0715542,0.1073313,0.1162755,0,0.0357771,0.0447214,0.0536656,0.0894427,0.098387,0.1073313,0.0178885,0.0268328,0.0357771,0.0715542,0.0804984,0.0894427,0.1252198,0.0089443,0.0178885,0.0536656,0.0626099,0.0715542,0.1073313,0.1162755,0,0.0357771,0.0447214,0.0536656,0.0894427,0.098387,0.1073313,0.0178885,0.0268328,0.0357771,0.0715542,0.0804984,0.0894427,0.1252198,0.0089443,0.0178885,0.0536656,0.0626099,0.0715542 ...."
     }
   ]
 }

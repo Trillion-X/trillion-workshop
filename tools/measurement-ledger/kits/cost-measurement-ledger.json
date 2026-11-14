@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:cost-measurement-ledger's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:cost-measurement-ledger with action.\" Append cost observations once, keep forecasts by version, and aggregate only comparable measured units",
+  "drafted_from": "tool:cost-measurement-ledger's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Append cost observations once, keep forecasts by version, and aggregate only comparable measured units\", with {\"action\":\"save_billing\",\"request_key\":\"sample-billing-1\",\"billing\":{\"provider\":\"vendor\",\"billing_id\":\"invoice-1\",\"version\":1,\"billing_period_start\":\"2026-10-01\",\"billing_period_end\":\"2026-10-31\",\"currency\":\"USD\",\"unit\":\"invoice\",\"source_revision\":\"rev\",\"observed_at\":\"2026-10-31\",\"scope\":\"unknown\",\"amount\":null}}. It runs tool:cost-measurement-ledger and answers {\"saved\":true,\"id\":\"record:cost-measurement-billing:invoice-1:v1\",\"type\":\"record:cost-measurement-billing\",\"scope\":\"unknown\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:cost-measurement-observation, record:cost-measurement-forecast, record:cost-measurement-billing) through the records door.",
   "workflows": [],
   "tools": [
     "tool:cost-measurement-ledger"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:cost-measurement-ledger\", and give it action.",
+    "1. Say to your AI: \"Append cost observations once, keep forecasts by version, and aggregate only comparable measured units\", and give it action.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:cost-measurement-ledger and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Append cost observations once, keep forecasts by version, and aggregate only comparable measured units"
+    "3. Read what comes back: Writes provider and operation level measurements through the existing records door, preserves corrections and unknown coverage, and reads grouped history with scenario, currency, source revision and time windows kept distinct.",
+    "4. It reads and writes only its own rows through the records door: record:cost-measurement-observation (records:read, records:list, records:write); record:cost-measurement-forecast (records:read, records:list, records:write); record:cost-measurement-billing (records:read, records:list, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Keep and review cost measurements on a sample input",
-      "ask": "Run tool:cost-measurement-ledger.",
+      "title": "Keep and review cost measurements on its own sample",
+      "ask": "Append cost observations once, keep forecasts by version, and aggregate only comparable measured units",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -45,7 +46,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Append cost observations once, keep forecasts by version, and aggregate only comparable measured units"
+      "given": "The input {\"action\":\"save_billing\",\"request_key\":\"sample-billing-1\",\"billing\":{\"provider\":\"vendor\",\"billing_id\":\"invoice-1\",\"version\":1,\"billing_period_start\":\"2026-10-01\",\"billing_period_end\":\"2026-10-31\",\"currency\":\"USD\",\"unit\":\"invoice\",\"source_revision\":\"rev\",\"observed_at\":\"2026-10-31\",\"scope\":\"unknown\",\"amount\":null}}.",
+      "hands_back": "It answered {\"saved\":true,\"id\":\"record:cost-measurement-billing:invoice-1:v1\",\"type\":\"record:cost-measurement-billing\",\"scope\":\"unknown\"}, and kept record:cost-measurement-billing:invoice-1:v1."
     }
   ]
 }

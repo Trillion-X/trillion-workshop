@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:report-on-accrual-or-cash's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:report-on-accrual-or-cash with action, list_id, target_kind.\" Read the same rows on an accrual basis (by the date each row is due) and on a cash basis (by the date of each allocation to it) for a period, each figure naming its basis and the rows behind it",
+  "drafted_from": "tool:report-on-accrual-or-cash's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Read the same rows on an accrual basis (by the date each row is due) and on a cash basis (by the date of each allocation to it) for a period, each figure naming its basis and the rows behind it\", with {\"action\":\"basis\",\"list_id\":\"invoices\",\"target_kind\":\"record:settle-invoice\",\"targets\":{\"amount_field\":\"total\",\"date_field\":\"due\"},\"allocations\":{\"list_id\":\"payments-to-invoices-allocations\"},\"from\":\"2026-01-01\",\"to\":\"2026-03-31\"}. It runs tool:report-on-accrual-or-cash and answers {\"from\":\"2026-01-01\",\"to\":\"2026-03-31\",\"basis\":\"both\",\"basis_says\":\"Both bases are shown side by side, each named.\",\"accrual\":{\"basis\":\"accrual\",\"says\":\"Accrual: each row counts on the date it is due, whether or not it was paid.\",\"total\":130.2,\"count\":2,\"rows\":[{\"row_id\":\"inv-feb\",\"amount\":80.2,\"date\":\"2026-02-01\"},{\"row_id\":\"inv-jan\",\"amount\":50,\"date\":\"2026-01-01\"}],\"truncated\":false} ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (list, [object Object], record:list-settlement-allocation) through the records door.",
   "workflows": [],
   "tools": [
     "tool:report-on-accrual-or-cash"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:report-on-accrual-or-cash\", and give it action, list_id, target_kind.",
+    "1. Say to your AI: \"Read the same rows on an accrual basis (by the date each row is due) and on a cash basis (by the date of each allocation to it) for a period, each figure naming its basis and the rows behind it\", and give it action; list_id (The list in the request: the source (or the lines, or the row's list) when the body leaves its own list_id out.); target_kind (The record kind of the target list's rows (record:<its row_type>); the run's right is filled from this field.).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:report-on-accrual-or-cash and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Read the same rows on an accrual basis (by the date each row is due) and on a cash basis (by the date of each allocation to it) for a period, each figure naming its basis and the rows behind it"
+    "3. Read what comes back: action basis takes targets { amount_field, date_field }, allocations { list_id }, from, to and basis (accrual, cash or both; the list's saved report_basis, else both, when left out).",
+    "4. It reads and writes only its own rows through the records door: list (records:read, records:list, records:write); [object Object] (records:read, records:list); record:list-settlement-allocation (records:read, records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Report on an accrual or a cash basis on a sample input",
-      "ask": "Run tool:report-on-accrual-or-cash.",
+      "title": "Report on an accrual or a cash basis on its own sample",
+      "ask": "Read the same rows on an accrual basis (by the date each row is due) and on a cash basis (by the date of each allocation to it) for a period, each figure naming its basis and the rows behind it",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -42,7 +43,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Read the same rows on an accrual basis (by the date each row is due) and on a cash basis (by the date of each allocation to it) for a period, each figure naming its basis and the rows behind it"
+      "given": "The input {\"action\":\"basis\",\"list_id\":\"invoices\",\"target_kind\":\"record:settle-invoice\",\"targets\":{\"amount_field\":\"total\",\"date_field\":\"due\"},\"allocations\":{\"list_id\":\"payments-to-invoices-allocations\"},\"from\":\"2026-01-01\",\"to\":\"2026-03-31\"}, with 5 example rows (list, record:settle-invoice, record:settle-payment) already kept.",
+      "hands_back": "It answered {\"from\":\"2026-01-01\",\"to\":\"2026-03-31\",\"basis\":\"both\",\"basis_says\":\"Both bases are shown side by side, each named.\",\"accrual\":{\"basis\":\"accrual\",\"says\":\"Accrual: each row counts on the date it is due, whether or not it was paid.\",\"total\":130.2,\"count\":2,\"rows\":[{\"row_id\":\"inv-feb\",\"amount\":80.2,\"date\":\"2026-02-01\"},{\"row_id\":\"inv-jan\",\"amount\":50,\"date\":\"2026-01-01\"}],\"truncated\":false},\"cash\":{\"basis\":\"cash\",\"says\":\"Cash: each amount counts on the date it was applied, and every one lists the allocation behind it.\",\"total\":0,\"count\":0,\"rows\":[],\"truncated\":false}}."
     }
   ]
 }

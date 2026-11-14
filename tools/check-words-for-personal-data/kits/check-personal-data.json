@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:check-personal-data's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-personal-data with text.\" Before words go to a model that is not on the person's computer, check on the computer whether they hold personal data (email addresses, phone numbers, card numbers that pass the checksum, IBANs, national ids, and by a model on the computer a name with an address or health details), and offer the person the choice: send as it is, do it on this computer only, or keep it back",
+  "drafted_from": "tool:check-personal-data's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Before words go to a model that is not on the person's computer, check on the computer whether they hold personal data (email addresses, phone numbers, card numbers that pass the checksum, IBANs, national ids, and by a model on the computer a name with an address or health details), and offer the person the choice: send as it is, do it on this computer only, or keep it back\", with {\"text\":\"Please write to Ada Example at ada@example.invalid about the invoice.\"}. It runs tool:check-personal-data and answers {\"contains\":true,\"kinds\":[{\"kind\":\"email-address\",\"how\":\"rule\",\"count\":1}],\"model_checked\":false,\"choices\":[{\"id\":\"share\",\"label\":\"Send it as it is\"},{\"id\":\"local\",\"label\":\"Do it on this Mac only\",\"tool\":\"tool:ask-a-model\"},{\"id\":\"keep\",\"label\":\"Do not send it\"}],\"said\":\"The model on this Mac did not answer, so only the shapes found by rule were checked: no model on this computer was named\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:check, record:setting) through the records door.",
   "workflows": [],
   "tools": [
     "tool:check-personal-data"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-personal-data\", and give it text.",
+    "1. Say to your AI: \"Before words go to a model that is not on the person's computer, check on the computer whether they hold personal data (email addresses, phone numbers, card numbers that pass the checksum, IBANs, national ids, and by a model on the computer a name with an address or health details), and offer the person the choice: send as it is, do it on this computer only, or keep it back\", and give it text.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-personal-data and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields contains, kinds, model_checked, choices, said."
+    "3. Read what comes back: Give text, and model ({ endpoint, model, timeout_seconds } of a model served on this computer) to also ask the model questions.",
+    "4. It reads and writes only its own rows through the records door: record:check (records:list, records:read); record:setting (records:read)."
   ],
   "worked_examples": [
     {
-      "title": "Check words for personal data on a sample input",
-      "ask": "Run tool:check-personal-data.",
+      "title": "Check words for personal data on its own sample",
+      "ask": "Before words go to a model that is not on the person's computer, check on the computer whether they hold personal data (email addresses, phone numbers, card numbers that pass the checksum, IBANs, national ids, and by a model on the computer a name with an address or health details), and offer the person the choice: send as it is, do it on this computer only, or keep it back",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +32,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields contains, kinds, model_checked, choices, said."
+      "given": "The input {\"text\":\"Please write to Ada Example at ada@example.invalid about the invoice.\"}.",
+      "hands_back": "It answered {\"contains\":true,\"kinds\":[{\"kind\":\"email-address\",\"how\":\"rule\",\"count\":1}],\"model_checked\":false,\"choices\":[{\"id\":\"share\",\"label\":\"Send it as it is\"},{\"id\":\"local\",\"label\":\"Do it on this Mac only\",\"tool\":\"tool:ask-a-model\"},{\"id\":\"keep\",\"label\":\"Do not send it\"}],\"said\":\"The model on this Mac did not answer, so only the shapes found by rule were checked: no model on this computer was named\"}."
     }
   ]
 }

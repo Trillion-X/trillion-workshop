@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:write-public-share-files's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:write-public-share-files with origin, row_kind.\" Write the public files of every share link of mine that anyone may open, into the folder my public server serves, and remove the files of links I revoked or that expired",
+  "drafted_from": "tool:write-public-share-files's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Write the public files of every share link of mine that anyone may open, into the folder my public server serves, and remove the files of links I revoked or that expired\", with {\"origin\":\"https://example.com\",\"row_kind\":\"record:example\"}. It runs tool:write-public-share-files and answers {\"written\":2,\"unchanged\":0,\"removed\":[],\"published\":[],\"left_out\":[],\"ended\":[],\"next_change_at\":null}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (sharing, list, [object Object], ) through the records door.",
   "workflows": [],
   "tools": [
     "tool:write-public-share-files"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:write-public-share-files\", and give it origin, row_kind.",
+    "1. Say to your AI: \"Write the public files of every share link of mine that anyone may open, into the folder my public server serves, and remove the files of links I revoked or that expired\", and give it origin (The https address the public server answers on, with no path, like https://example.com.); row_kind (The record kind of the shared Lists' rows (record:<the List's row_type>), the one row kind this run is granted to list.).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:write-public-share-files and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $ contains \"published\"."
+    "3. Read what comes back: Reads the person's sharing rows (each link grant), the Lists those links share (a whole List, or one row of it), the List's rows and the files its shown rows name, through this run's records door, and writes into the folder the person granted: <code>.json (and <name>.json for a link with a readable address) in the shape { kind: \"list\", title, about, changed, fields, rows: [{ id, title, address, url, values }], files: [{ identity, name, url, media_type }] }, whole and never paged; <name>/index.html for the List and <name>/<row address>/index.html for each row; files/<identity> for each file a shown row names; sitemap.xml and llms.txt over every listed link; and manifest.json, every file with its BLAKE3 content identity and the files this run removed.",
+    "4. It reads and writes only its own rows through the records door: sharing (records:list, records:read); list (records:list, records:read); [object Object] (records:list); undefined (read_file)."
   ],
   "worked_examples": [
     {
-      "title": "Write the public files of my share links on a sample input",
-      "ask": "Run tool:write-public-share-files.",
+      "title": "Write the public files of my share links on its own sample",
+      "ask": "Write the public files of every share link of mine that anyone may open, into the folder my public server serves, and remove the files of links I revoked or that expired",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,7 +33,8 @@
           }
         }
       },
-      "hands_back": "The answer's $ contains \"published\"."
+      "given": "The input {\"origin\":\"https://example.com\",\"row_kind\":\"record:example\"}.",
+      "hands_back": "It answered {\"written\":2,\"unchanged\":0,\"removed\":[],\"published\":[],\"left_out\":[],\"ended\":[],\"next_change_at\":null}."
     }
   ]
 }

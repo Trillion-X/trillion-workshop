@@ -1,23 +1,24 @@
 {
   "draft": true,
-  "drafted_from": "tool:remove-a-saved-example's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:remove-a-saved-example with id.\" Remove one saved example this person no longer wants",
+  "drafted_from": "tool:remove-a-saved-example's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Remove one saved example this person no longer wants\", with {\"id\":\"example:0123456789abcdef0123456789abcdef\"}. It runs tool:remove-a-saved-example and answers {\"id\":\"example:0123456789abcdef0123456789abcdef\",\"removed\":true}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (saved-example) through the records door.",
   "workflows": [],
   "tools": [
     "tool:remove-a-saved-example",
     "tool:list-saved-examples"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:remove-a-saved-example\", and give it id.",
+    "1. Say to your AI: \"Remove one saved example this person no longer wants\", and give it id.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:remove-a-saved-example and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields id, removed."
+    "3. Read what comes back: id is the example's id from tool:list-saved-examples.",
+    "4. It reads and writes only its own rows through the records door: saved-example (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Remove a saved example on a sample input",
-      "ask": "Run tool:remove-a-saved-example.",
+      "title": "Remove a saved example on its own sample",
+      "ask": "Remove one saved example this person no longer wants",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,7 +33,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields id, removed."
+      "given": "The input {\"id\":\"example:0123456789abcdef0123456789abcdef\"}, with 1 example row (saved-example) already kept.",
+      "hands_back": "It answered {\"id\":\"example:0123456789abcdef0123456789abcdef\",\"removed\":true}."
     }
   ]
 }

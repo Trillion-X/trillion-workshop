@@ -1,23 +1,24 @@
 {
   "draft": true,
-  "drafted_from": "tool:find-similar-to-a-vector's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:find-similar-to-a-vector with index_id, query_vector_base64.\" Find the moments in my recordings, pictures or documents closest in meaning to a query vector, such as the picture vector of some words, and say the file and time of each",
+  "drafted_from": "tool:find-similar-to-a-vector's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Find the moments in my recordings, pictures or documents closest in meaning to a query vector, such as the picture vector of some words, and say the file and time of each\", with {\"index_id\":\"synthetic-pictures\",\"query_vector_base64\":\"eyJ2ZWN0b3IiOlsxLDAsMCwwXX0=\"}. It runs tool:find-similar-to-a-vector and answers {\"index_id\":\"synthetic-pictures\",\"result\":{\"items\":[],\"considered\":0,\"skipped\":0,\"min_score\":0},\"model_id\":\"synthetic-picture-model\",\"model_version\":\"1\",\"points_to\":{}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (semantic-index-descriptor, ) through the records door.",
   "workflows": [],
   "tools": [
     "tool:find-similar-to-a-vector",
     "tool:words-as-picture-vector"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:find-similar-to-a-vector\", and give it index_id, query_vector_base64.",
+    "1. Say to your AI: \"Find the moments in my recordings, pictures or documents closest in meaning to a query vector, such as the picture vector of some words, and say the file and time of each\", and give it index_id (The index_id of one of the person's semantic-index-descriptor records); query_vector_base64 (base64 of JSON {\"vector\": [...]}, made by the model the descriptor names).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-similar-to-a-vector and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields index_id, model_id, model_version, result, points_to."
+    "3. Read what comes back: Runs meaning-search's find-similar-vector on one of the person's semantic-index-descriptor records: the descriptor's vector set (items and their vectors, two of the person's files) is indexed by the package's own scripts for the run, the ANN index narrows the candidates and the exact cosine ranks them, best first, never padded below the descriptor's min_score.",
+    "4. It reads and writes only its own rows through the records door: semantic-index-descriptor (records:list); undefined (read_file)."
   ],
   "worked_examples": [
     {
-      "title": "Find what is closest to a vector on a sample input",
-      "ask": "Run tool:find-similar-to-a-vector.",
+      "title": "Find what is closest to a vector on its own sample",
+      "ask": "Find the moments in my recordings, pictures or documents closest in meaning to a query vector, such as the picture vector of some words, and say the file and time of each",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +34,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields index_id, model_id, model_version, result, points_to."
+      "given": "The input {\"index_id\":\"synthetic-pictures\",\"query_vector_base64\":\"eyJ2ZWN0b3IiOlsxLDAsMCwwXX0=\"}, with 1 example row (semantic-index-descriptor) already kept.",
+      "hands_back": "It answered {\"index_id\":\"synthetic-pictures\",\"result\":{\"items\":[],\"considered\":0,\"skipped\":0,\"min_score\":0},\"model_id\":\"synthetic-picture-model\",\"model_version\":\"1\",\"points_to\":{}}."
     }
   ]
 }

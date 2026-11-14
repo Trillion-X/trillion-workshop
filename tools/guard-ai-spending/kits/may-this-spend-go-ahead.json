@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:may-this-spend-go-ahead's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:may-this-spend-go-ahead with spend_authority_ref, operation_ref, idempotency_key.\" Just before my AI pays, check that the spend still holds its one current budget reservation",
+  "drafted_from": "tool:may-this-spend-go-ahead's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Just before my AI pays, check that the spend still holds its one current budget reservation\", with {\"spend_authority_ref\":\"spend-authority:sample-research\",\"operation_ref\":\"operation:sample-report\",\"idempotency_key\":\"idem:sample-one\"}. It runs tool:may-this-spend-go-ahead and answers {\"available\":true,\"reason\":\"budget admitted\",\"amount\":250,\"fencing_token\":\"spend-authority-budget-fence:idem:sample-one\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (spend-budget-check, spend-budget-reservation) through the records door.",
   "workflows": [],
   "tools": [
     "tool:may-this-spend-go-ahead"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:may-this-spend-go-ahead\", and give it spend_authority_ref, operation_ref, idempotency_key.",
+    "1. Say to your AI: \"Just before my AI pays, check that the spend still holds its one current budget reservation\", and give it spend_authority_ref; operation_ref; idempotency_key.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:may-this-spend-go-ahead and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields available, reason, amount, fencing_token."
+    "3. Read what comes back: Reads the latest budget check and the reservation for one operation and answers available only when the check approved this operation, idempotency key and spend authority, has not expired, and exactly one current reservation matches it.",
+    "4. It reads and writes only its own rows through the records door: spend-budget-check (records:read); spend-budget-reservation (records:read)."
   ],
   "worked_examples": [
     {
-      "title": "May this spend go ahead on a sample input",
-      "ask": "Run tool:may-this-spend-go-ahead.",
+      "title": "May this spend go ahead on its own sample",
+      "ask": "Just before my AI pays, check that the spend still holds its one current budget reservation",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +34,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields available, reason, amount, fencing_token."
+      "given": "The input {\"spend_authority_ref\":\"spend-authority:sample-research\",\"operation_ref\":\"operation:sample-report\",\"idempotency_key\":\"idem:sample-one\"}, with 2 example rows (spend-budget-check, spend-budget-reservation) already kept.",
+      "hands_back": "It answered {\"available\":true,\"reason\":\"budget admitted\",\"amount\":250,\"fencing_token\":\"spend-authority-budget-fence:idem:sample-one\"}."
     }
   ]
 }

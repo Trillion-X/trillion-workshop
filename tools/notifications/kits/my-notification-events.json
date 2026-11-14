@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:my-notification-events's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:my-notification-events with audience.\" List the notification events recorded for one audience, newest first",
+  "drafted_from": "tool:my-notification-events's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"List the notification events recorded for one audience, newest first\", with {\"audience\":\"person:sample\"}. It runs tool:my-notification-events and answers {\"audience\":\"person:sample\",\"events\":[{\"notification_id\":\"sample-notice-1\",\"kind\":\"report\",\"audience_refs\":[\"person:sample\"],\"conversation_ref\":\"conversation:sample-1\",\"privacy_class\":\"private\",\"title\":\"Sample report\",\"body\":\"A made-up report is ready.\",\"occurred_at\":\"2026-11-03T12:00:00Z\",\"source_refs\":[\"source:sample-1\"],\"proof_refs\":[\"proof:sample-1\"]}],\"said\":\"1 event for person:sample, ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (notification-event) through the records door.",
   "workflows": [],
   "tools": [
     "tool:my-notification-events"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:my-notification-events\", and give it audience.",
+    "1. Say to your AI: \"List the notification events recorded for one audience, newest first\", and give it audience.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:my-notification-events and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields audience, events, said."
+    "3. Read what comes back: audience is the reference the events name in audience_refs; limit is optional (up to 100, default 20).",
+    "4. It reads and writes only its own rows through the records door: notification-event (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Notices recorded for me on a sample input",
-      "ask": "Run tool:my-notification-events.",
+      "title": "Notices recorded for me on its own sample",
+      "ask": "List the notification events recorded for one audience, newest first",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +32,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields audience, events, said."
+      "given": "The input {\"audience\":\"person:sample\"}, with 1 example row (notification-event) already kept.",
+      "hands_back": "It answered {\"audience\":\"person:sample\",\"events\":[{\"notification_id\":\"sample-notice-1\",\"kind\":\"report\",\"audience_refs\":[\"person:sample\"],\"conversation_ref\":\"conversation:sample-1\",\"privacy_class\":\"private\",\"title\":\"Sample report\",\"body\":\"A made-up report is ready.\",\"occurred_at\":\"2026-11-03T12:00:00Z\",\"source_refs\":[\"source:sample-1\"],\"proof_refs\":[\"proof:sample-1\"]}],\"said\":\"1 event for person:sample, newest first.\"}."
     }
   ]
 }

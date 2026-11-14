@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:read-current-worn-look's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-current-worn-look with time_zone, app_data.\" Read this person's current worn screen look, look rules and day plan as the device token payload native screens draw",
+  "drafted_from": "tool:read-current-worn-look's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Read this person's current worn screen look, look rules and day plan as the device token payload native screens draw\", with {\"time_zone\":\"UTC\",\"host\":\"mac\",\"device\":\"computer\",\"app_data\":{\"looks\":{\"start_with\":\"harbor\",\"themes\":[{\"address\":\"look:harbor\",\"payload\":{\"kind\":\"screen-look-editable-theme\",\"id\":\"harbor\",\"name\":\"Harbor\",\"tokens\":[{\"key\":\"accent-primary\",\"kind\":\"color\",\"value\":\"#247b70\",\"css_variable\":\"--accent-primary\"}]}},{\"address\":\"look:dusk\",\"payload\":{\"kind\":\"screen-look-editable-theme\",\"id\":\"dusk\" .... It runs tool:read-current-worn-look and answers {\"worn\":\"harbor\",\"worn_record\":{\"address\":\"package::screen-look::published-record::editable-theme::harbor\",\"payload\":{\"kind\":\"screen-look-editable-theme\",\"id\":\"harbor\",\"name\":\"Harbor\",\"tokens\":[{\"key\":\"accent-primary\",\"kind\":\"color\",\"value\":\"#247b70\",\"css_variable\":\"--accent-primary\"}]}},\"now\":{\"look_id\":\"harbor\",\"name\":\"Harbor\",\"colors\":{\"surface-1\":[0.1137,0.1373,0.1961,1],\"surface-2\":[0.1373 ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (@own-records) through the records door.",
   "workflows": [],
   "tools": [
     "tool:read-current-worn-look"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-current-worn-look\", and give it time_zone, app_data.",
+    "1. Say to your AI: \"Read this person's current worn screen look, look rules and day plan as the device token payload native screens draw\", and give it time_zone (The native device's IANA time zone, such as America/Denver); app_data.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-current-worn-look and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields worn, worn_record, now, ahead, looks, read_again_at."
+    "3. Read what comes back: Reads this person's current worn screen look and returns the token payload native screens draw: every wearable look, the look now (including a scheduled blend), upcoming changes for twelve hours, and when to read again.",
+    "4. It reads and writes only its own rows through the records door: @own-records (workspace:read); @own-records (workspace:read); @own-records (workspace:read); @own-records (workspace:read)."
   ],
   "worked_examples": [
     {
-      "title": "Read my current screen look on a sample input",
-      "ask": "Run tool:read-current-worn-look.",
+      "title": "Read my current screen look on its own sample",
+      "ask": "Read this person's current worn screen look, look rules and day plan as the device token payload native screens draw",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -118,7 +119,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields worn, worn_record, now, ahead, looks, read_again_at."
+      "given": "The input {\"time_zone\":\"UTC\",\"host\":\"mac\",\"device\":\"computer\",\"app_data\":{\"looks\":{\"start_with\":\"harbor\",\"themes\":[{\"address\":\"look:harbor\",\"payload\":{\"kind\":\"screen-look-editable-theme\",\"id\":\"harbor\",\"name\":\"Harbor\",\"tokens\":[{\"key\":\"accent-primary\",\"kind\":\"color\",\"value\":\"#247b70\",\"css_variable\":\"--accent-primary\"}]}},{\"address\":\"look:dusk\",\"payload\":{\"kind\":\"screen-look-editable-theme\",\"id\":\"dusk\" ....",
+      "hands_back": "It answered {\"worn\":\"harbor\",\"worn_record\":{\"address\":\"package::screen-look::published-record::editable-theme::harbor\",\"payload\":{\"kind\":\"screen-look-editable-theme\",\"id\":\"harbor\",\"name\":\"Harbor\",\"tokens\":[{\"key\":\"accent-primary\",\"kind\":\"color\",\"value\":\"#247b70\",\"css_variable\":\"--accent-primary\"}]}},\"now\":{\"look_id\":\"harbor\",\"name\":\"Harbor\",\"colors\":{\"surface-1\":[0.1137,0.1373,0.1961,1],\"surface-2\":[0.1373,0.1647,0.2196,1],\"surface-3\":[0.1647,0.1922,0.2431,1],\"surface-edge\":[0.9725,0.9804,0.9882,0.08],\"shadow-tint\":[0,0,0,1],\"focus-ring-color\":[0.9725,0.9804,0.9882,0.9],\"focus-ring-glow\":[0.1412,0.4824,0.4392,0.22],\"focus-ring-danger-color\":[0.8627,0.149,0.149,0.9],\"border-focus\":[0.9725,0.9804,0.9882 ...."
     }
   ]
 }

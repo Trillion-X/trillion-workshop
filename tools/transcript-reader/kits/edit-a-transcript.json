@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:edit-a-transcript's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:edit-a-transcript with passages.\" Edit a recording's transcript the way the transcript reader does: name a speaker or take the name back, split a passage before a chosen word, and write the passages as plain words to copy or export",
+  "drafted_from": "tool:edit-a-transcript's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Edit a recording's transcript the way the transcript reader does: name a speaker or take the name back, split a passage before a chosen word, and write the passages as plain words to copy or export\", with {\"passages\":[{\"start\":0,\"end\":4,\"speaker\":\"Speaker 1\",\"text\":\"Welcome to the sample call. Let us begin.\",\"words\":[{\"word\":\"Welcome\",\"start\":0,\"end\":0.5},{\"word\":\"to\",\"start\":0.5,\"end\":0.6},{\"word\":\"the\",\"start\":0.6,\"end\":0.7},{\"word\":\"sample\",\"start\":0.7,\"end\":1.1},{\"word\":\"call.\",\"start\":1.1,\"end\":1.6},{\"word\":\"Let\",\"start\":2.5,\"end\":2.8},{\"word\":\"us\",\"start\":2.8,\"end\":3},{\"word\":\"begin.\" .... It runs tool:edit-a-transcript and answers {\"passages\":[{\"start\":0,\"end\":2.5,\"speaker\":\"Host\",\"text\":\"Welcome to the sample call.\",\"words\":[{\"word\":\"Welcome\",\"start\":0,\"end\":0.5},{\"word\":\"to\",\"start\":0.5,\"end\":0.6},{\"word\":\"the\",\"start\":0.6,\"end\":0.7},{\"word\":\"sample\",\"start\":0.7,\"end\":1.1},{\"word\":\"call.\",\"start\":1.1,\"end\":1.6}],\"speaker_was\":\"Speaker 1\"},{\"start\":2.5,\"end\":4,\"speaker\":\"Host\",\"text\":\"Let us begin.\",\"words\":[{\"word\":\"Let\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:edit-a-transcript"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:edit-a-transcript\", and give it passages.",
+    "1. Say to your AI: \"Edit a recording's transcript the way the transcript reader does: name a speaker or take the name back, split a passage before a chosen word, and write the passages as plain words to copy or export\", and give it passages.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:edit-a-transcript and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields passages, speakers, named_speakers, text."
+    "3. Read what comes back: Give passages ([{ start, end, text, speaker?, speaker_was?, words?"
   ],
   "worked_examples": [
     {
-      "title": "Edit a transcript on a sample input",
-      "ask": "Run tool:edit-a-transcript.",
+      "title": "Edit a transcript on its own sample",
+      "ask": "Edit a recording's transcript the way the transcript reader does: name a speaker or take the name back, split a passage before a chosen word, and write the passages as plain words to copy or export",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -120,7 +120,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields passages, speakers, named_speakers, text."
+      "given": "The input {\"passages\":[{\"start\":0,\"end\":4,\"speaker\":\"Speaker 1\",\"text\":\"Welcome to the sample call. Let us begin.\",\"words\":[{\"word\":\"Welcome\",\"start\":0,\"end\":0.5},{\"word\":\"to\",\"start\":0.5,\"end\":0.6},{\"word\":\"the\",\"start\":0.6,\"end\":0.7},{\"word\":\"sample\",\"start\":0.7,\"end\":1.1},{\"word\":\"call.\",\"start\":1.1,\"end\":1.6},{\"word\":\"Let\",\"start\":2.5,\"end\":2.8},{\"word\":\"us\",\"start\":2.8,\"end\":3},{\"word\":\"begin.\" ....",
+      "hands_back": "It answered {\"passages\":[{\"start\":0,\"end\":2.5,\"speaker\":\"Host\",\"text\":\"Welcome to the sample call.\",\"words\":[{\"word\":\"Welcome\",\"start\":0,\"end\":0.5},{\"word\":\"to\",\"start\":0.5,\"end\":0.6},{\"word\":\"the\",\"start\":0.6,\"end\":0.7},{\"word\":\"sample\",\"start\":0.7,\"end\":1.1},{\"word\":\"call.\",\"start\":1.1,\"end\":1.6}],\"speaker_was\":\"Speaker 1\"},{\"start\":2.5,\"end\":4,\"speaker\":\"Host\",\"text\":\"Let us begin.\",\"words\":[{\"word\":\"Let\",\"start\":2.5,\"end\":2.8},{\"word\":\"us\",\"start\":2.8,\"end\":3},{\"word\":\"begin.\",\"start\":3,\"end\":4}],\"speaker_was\":\"Speaker 1\"},{\"start\":4,\"end\":6,\"speaker\":\"Speaker 2\",\"text\":\"Thanks for having me.\",\"words\":[{\"word\":\"Thanks\",\"start\":4,\"end\":4.4},{\"word\":\"for\",\"start\":4.4,\"end\":4.6},{\"word\":\"having\" ...."
     }
   ]
 }

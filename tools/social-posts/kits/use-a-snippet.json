@@ -1,23 +1,24 @@
 {
   "draft": true,
-  "drafted_from": "tool:use-a-snippet's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:use-a-snippet with snippet_id.\" Fill in one of my snippets with this time's names and give me its words to put in what I am writing",
+  "drafted_from": "tool:use-a-snippet's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Fill in one of my snippets with this time's names and give me its words to put in what I am writing\", with {\"snippet_id\":\"snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5\",\"values\":{\"name\":\"Ana\"}}. It runs tool:use-a-snippet and answers {\"snippet_id\":\"snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5\",\"title\":\"Thanks\",\"text\":\"Thanks Ana!\",\"left_blank\":[]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (snippet) through the records door.",
   "workflows": [],
   "tools": [
     "tool:use-a-snippet",
     "tool:find-snippets"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:use-a-snippet\", and give it snippet_id.",
+    "1. Say to your AI: \"Fill in one of my snippets with this time's names and give me its words to put in what I am writing\", and give it snippet_id (A snippet_id from tool:find-snippets).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:use-a-snippet and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result.text contains \"Thanks Ana!\"."
+    "3. Read what comes back: Give snippet_id (from tool:find-snippets) and values: { name: words } for each {name} blank.",
+    "4. It reads and writes only its own rows through the records door: snippet (records:read, records:list, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Use a snippet on a sample input",
-      "ask": "Run tool:use-a-snippet.",
+      "title": "Use a snippet on its own sample",
+      "ask": "Fill in one of my snippets with this time's names and give me its words to put in what I am writing",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -35,7 +36,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result.text contains \"Thanks Ana!\"."
+      "given": "The input {\"snippet_id\":\"snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5\",\"values\":{\"name\":\"Ana\"}}, with 1 example row (snippet) already kept.",
+      "hands_back": "It answered {\"snippet_id\":\"snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5\",\"title\":\"Thanks\",\"text\":\"Thanks Ana!\",\"left_blank\":[]}."
     }
   ]
 }

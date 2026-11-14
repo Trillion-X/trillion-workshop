@@ -1,23 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:check-writing-against-its-recipe's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-writing-against-its-recipe with writing.\" Check something written from a recipe before it goes anywhere: it cites only the sources given, it keeps the recipe's rules and reviews, and it is shaped for the next tool",
+  "drafted_from": "tool:check-writing-against-its-recipe's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Check something written from a recipe before it goes anywhere: it cites only the sources given, it keeps the recipe's rules and reviews, and it is shaped for the next tool\", with {\"recipe\":{\"gate_policy\":{\"grounding_id_field\":\"ref\",\"citation_specs\":[{\"array\":\"sections\",\"ids_key\":\"refs\"}],\"checks\":[{\"kind\":\"cite-or-reject\",\"params\":{}}]},\"delivery_target\":{\"tool_id\":\"tool:draft-a-note\",\"input\":{\"title\":{\"from\":\"item\",\"field\":\"title\"}}}},\"writing\":{\"title\":\"Two steps\",\"sections\":[{\"text\":\"The example has two steps.\",\"refs\":[\"source:one\"]}]},\"grounding\":[{\"ref\":\"source:one\" .... It runs tool:check-writing-against-its-recipe and answers {\"passed\":true,\"delivery\":{\"tool_id\":\"tool:draft-a-note\",\"input\":{\"title\":\"Two steps\"}}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:check-writing-against-its-recipe",
     "tool:compose-a-writing-instruction"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-writing-against-its-recipe\", and give it writing.",
+    "1. Say to your AI: \"Check something written from a recipe before it goes anywhere: it cites only the sources given, it keeps the recipe's rules and reviews, and it is shaped for the next tool\", and give it writing (What the AI wrote, as a JSON object).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-writing-against-its-recipe and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.delivery.tool_id contains \"tool:draft-a-note\"."
+    "3. Read what comes back: Give recipe_id or recipe (as tool:compose-a-writing-instruction took), writing (the JSON object you wrote in the recipe output shape), grounding, work_item, context and review."
   ],
   "worked_examples": [
     {
-      "title": "Check writing against its recipe on a sample input",
-      "ask": "Run tool:check-writing-against-its-recipe.",
+      "title": "Check writing against its recipe on its own sample",
+      "ask": "Check something written from a recipe before it goes anywhere: it cites only the sources given, it keeps the recipe's rules and reviews, and it is shaped for the next tool",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -74,7 +74,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.delivery.tool_id contains \"tool:draft-a-note\"."
+      "given": "The input {\"recipe\":{\"gate_policy\":{\"grounding_id_field\":\"ref\",\"citation_specs\":[{\"array\":\"sections\",\"ids_key\":\"refs\"}],\"checks\":[{\"kind\":\"cite-or-reject\",\"params\":{}}]},\"delivery_target\":{\"tool_id\":\"tool:draft-a-note\",\"input\":{\"title\":{\"from\":\"item\",\"field\":\"title\"}}}},\"writing\":{\"title\":\"Two steps\",\"sections\":[{\"text\":\"The example has two steps.\",\"refs\":[\"source:one\"]}]},\"grounding\":[{\"ref\":\"source:one\" ....",
+      "hands_back": "It answered {\"passed\":true,\"delivery\":{\"tool_id\":\"tool:draft-a-note\",\"input\":{\"title\":\"Two steps\"}}}."
     }
   ]
 }

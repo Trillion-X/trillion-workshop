@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:remove-my-notification-device's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:remove-my-notification-device with device_id.\" Stop sending or queueing notices for one of my devices",
+  "drafted_from": "tool:remove-my-notification-device's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Stop sending or queueing notices for one of my devices\", with {\"device_id\":\"missing\"}. It runs tool:remove-my-notification-device and answers {\"device_id\":\"missing\",\"removed\":false,\"said\":\"That device was not registered.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (notification-device) through the records door.",
   "workflows": [],
   "tools": [
     "tool:remove-my-notification-device"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:remove-my-notification-device\", and give it device_id.",
+    "1. Say to your AI: \"Stop sending or queueing notices for one of my devices\", and give it device_id.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:remove-my-notification-device and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.said contains \"not registered\"."
+    "3. Read what comes back: Pass the opaque device_id from my-notification-devices.",
+    "4. It reads and writes only its own rows through the records door: notification-device (records:read, records:list, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Remove my notification device on a sample input",
-      "ask": "Run tool:remove-my-notification-device.",
+      "title": "Remove my notification device on its own sample",
+      "ask": "Stop sending or queueing notices for one of my devices",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +32,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.said contains \"not registered\"."
+      "given": "The input {\"device_id\":\"missing\"}.",
+      "hands_back": "It answered {\"device_id\":\"missing\",\"removed\":false,\"said\":\"That device was not registered.\"}."
     }
   ]
 }

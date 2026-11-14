@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:say-what-was-done's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:say-what-was-done with decision_id, state, what_happened.\" Tell Trillion my AI did the next step of a decision, or the exact wall it reached",
+  "drafted_from": "tool:say-what-was-done's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Tell Trillion my AI did the next step of a decision, or the exact wall it reached\", with {\"decision_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"state\":\"done\",\"what_happened\":\"Sent the made-up email to the sample families\",\"by\":\"sample-ai\"}. It runs tool:say-what-was-done and answers {\"case_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"carried_out\":{\"decision_generation\":1,\"state\":\"done\",\"what_happened\":\"Sent the made-up email to the sample families\",\"by\":\"sample-ai\",\"at\":\"2026-11-14T00:50:20.177Z\"},\"status\":\"needs_outcome\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (decision, decision-revision, decision-step, decision-call, decision-evidence, decision-answered-step, decision-option, decision-candidate, decision-report, decision-carried-out, decision-history, decision-cited-pursuit, decision-method, decision-part, decision-refs, ai-job, pursuit, record:check, record:decision-kind) through the records door.",
   "workflows": [],
   "tools": [
     "tool:say-what-was-done"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:say-what-was-done\", and give it decision_id, state, what_happened.",
+    "1. Say to your AI: \"Tell Trillion my AI did the next step of a decision, or the exact wall it reached\", and give it decision_id; state; what_happened.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:say-what-was-done and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields case_id."
+    "3. Read what comes back: Keeps, with the decision generation it carried out, that its next action was done (state done) or the exact wall reached (state wall: the file, field, refused command or missing credential), in what_happened.",
+    "4. It reads and writes only its own rows through the records door: decision (records:read, records:list, records:write); decision-revision (records:read, records:write); decision-step (records:read, records:write); decision-call (records:write); decision-evidence (records:read, records:list, records:write); decision-answered-step (records:read, records:list, records:write); decision-option (records:read, records:list, records:write); decision-candidate (records:read, records:list, records:write); decision-report (records:read, records:list, records:write); decision-carried-out (records:read, records:list, records:write); decision-history (records:read, records:list, records:write); decision-cited-pursuit (records:read, records:list, records:write); decision-method (records:read, records:write); decision-part (records:read, records:write); decision-refs (records:read, records:write); ai-job (records:read); pursuit (records:read, records:list); record:check (records:list); record:decision-kind (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Say what was done about a decision on a sample input",
-      "ask": "Run tool:say-what-was-done.",
+      "title": "Say what was done about a decision on its own sample",
+      "ask": "Tell Trillion my AI did the next step of a decision, or the exact wall it reached",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -34,7 +35,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields case_id."
+      "given": "The input {\"decision_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"state\":\"done\",\"what_happened\":\"Sent the made-up email to the sample families\",\"by\":\"sample-ai\"}, with 14 example rows (record:check, record:method-check, decision, decision-evidence, decision-method, decision-step, decision-answered-step) already kept.",
+      "hands_back": "It answered {\"case_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"carried_out\":{\"decision_generation\":1,\"state\":\"done\",\"what_happened\":\"Sent the made-up email to the sample families\",\"by\":\"sample-ai\",\"at\":\"2026-11-14T00:50:20.177Z\"},\"status\":\"needs_outcome\"}, and kept decision-revision:source:c2FtcGxlOmNsYXNzLXByaWNlLTE, decision-refs:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:c1f:bfd6ab5e333bfffd38f0c76e88f980cb9a790ced43a9a27aa6d881696b468ff1, decision-carried-out:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:0000:c1f:0622dcd98cb729473b9b8e6fc42d6df03b537f481ca68f04e195e56249d92213."
     }
   ]
 }

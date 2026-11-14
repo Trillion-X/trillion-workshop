@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:make-a-view-patch's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:make-a-view-patch with previous, next.\" Turn the next JSON answer a screen will read into just the changes from the answer it already holds, when that is smaller",
+  "drafted_from": "tool:make-a-view-patch's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Turn the next JSON answer a screen will read into just the changes from the answer it already holds, when that is smaller\", with {\"previous\":\"{\\\"a\\\":1}\",\"next\":\"{\\\"a\\\":2}\"}. It runs tool:make-a-view-patch and answers {\"status\":200,\"content_type\":\"application/json\",\"text\":\"{\\\"a\\\":2}\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:make-a-view-patch"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:make-a-view-patch\", and give it previous, next.",
+    "1. Say to your AI: \"Turn the next JSON answer a screen will read into just the changes from the answer it already holds, when that is smaller\", and give it previous; next.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:make-a-view-patch and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.text contains \"\"a\":2\"."
+    "3. Read what comes back: Give previous and next, each the JSON text of one answer."
   ],
   "worked_examples": [
     {
-      "title": "Send only what changed in an answer on a sample input",
-      "ask": "Run tool:make-a-view-patch.",
+      "title": "Send only what changed in an answer on its own sample",
+      "ask": "Turn the next JSON answer a screen will read into just the changes from the answer it already holds, when that is smaller",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,7 +32,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.text contains \"\"a\":2\"."
+      "given": "The input {\"previous\":\"{\\\"a\\\":1}\",\"next\":\"{\\\"a\\\":2}\"}.",
+      "hands_back": "It answered {\"status\":200,\"content_type\":\"application/json\",\"text\":\"{\\\"a\\\":2}\"}."
     }
   ]
 }

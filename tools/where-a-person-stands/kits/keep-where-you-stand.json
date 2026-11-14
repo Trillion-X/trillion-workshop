@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:keep-where-you-stand's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:keep-where-you-stand with kind, stance, answered_by.\" Write down whether a person agrees, disagrees or partly agrees with something made for them, such as a title, a take, a plan or a file, in their own words",
+  "drafted_from": "tool:keep-where-you-stand's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Write down whether a person agrees, disagrees or partly agrees with something made for them, such as a title, a take, a plan or a file, in their own words\", with {\"kind\":\"title\",\"text\":\"Start Here.\",\"fold\":{\"lowercase\":true,\"collapse_space\":true,\"strip_trailing\":\"[.!?]+\"},\"stance\":\"partly\",\"why\":\"fine for now\",\"answered_by\":\"person\",\"at\":\"2026-01-01T12:00:00Z\"}. It runs tool:keep-where-you-stand and answers {\"stance_record\":{\"type\":\"stance\",\"id\":\"stance:title:1f:2dae034df2d7736abcdbf773cf09d892ca4f5ece5401662617daf3a805ea87cb\",\"kind\":\"title\",\"artifact\":\"1f:2dae034df2d7736abcdbf773cf09d892ca4f5ece5401662617daf3a805ea87cb\",\"text\":\"Start Here.\",\"stance\":\"partly\",\"said\":\"You partly agree with this.\",\"why\":\"fine for now\",\"by\":\"person\",\"at\":\"2026-01-01T12:00:00Z\"}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:setting) through the records door.",
   "workflows": [],
   "tools": [
     "tool:keep-where-you-stand"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:keep-where-you-stand\", and give it kind, stance, answered_by.",
+    "1. Say to your AI: \"Write down whether a person agrees, disagrees or partly agrees with something made for them, such as a title, a take, a plan or a file, in their own words\", and give it kind (What kind of thing the stand is on (title, voice take, plan, file)); stance (Where the person stands; null takes the stand back); answered_by (Always person: a stand is only ever theirs).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:keep-where-you-stand and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.stance_record.id contains \"stance:title:1f:\"."
+    "3. Read what comes back: Give kind (what the thing is: a title, a take, a plan, a file), the thing (artifact_ref, its identity: 1f: and 64 hex digits, or file: and that identity; or the thing itself: text, contains for a part of a text, or view for any JSON, with fold, how its owner says two texts are the same), stance (agree, disagree or partly, or null to take a stand back), why (the person's own words, kept exactly) and answered_by \"person\": only send what the person said.",
+    "4. It reads and writes only its own rows through the records door: record:setting (records:read)."
   ],
   "worked_examples": [
     {
-      "title": "Keep where you stand on something on a sample input",
-      "ask": "Run tool:keep-where-you-stand.",
+      "title": "Keep where you stand on something on its own sample",
+      "ask": "Write down whether a person agrees, disagrees or partly agrees with something made for them, such as a title, a take, a plan or a file, in their own words",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -41,7 +42,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.stance_record.id contains \"stance:title:1f:\"."
+      "given": "The input {\"kind\":\"title\",\"text\":\"Start Here.\",\"fold\":{\"lowercase\":true,\"collapse_space\":true,\"strip_trailing\":\"[.!?]+\"},\"stance\":\"partly\",\"why\":\"fine for now\",\"answered_by\":\"person\",\"at\":\"2026-01-01T12:00:00Z\"}.",
+      "hands_back": "It answered {\"stance_record\":{\"type\":\"stance\",\"id\":\"stance:title:1f:2dae034df2d7736abcdbf773cf09d892ca4f5ece5401662617daf3a805ea87cb\",\"kind\":\"title\",\"artifact\":\"1f:2dae034df2d7736abcdbf773cf09d892ca4f5ece5401662617daf3a805ea87cb\",\"text\":\"Start Here.\",\"stance\":\"partly\",\"said\":\"You partly agree with this.\",\"why\":\"fine for now\",\"by\":\"person\",\"at\":\"2026-01-01T12:00:00Z\"}}."
     }
   ]
 }

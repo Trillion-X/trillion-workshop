@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:take-a-request's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:take-a-request with request, decision.\" Keep one request that arrived, as decided, and ask the owner who should act on it",
+  "drafted_from": "tool:take-a-request's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Keep one request that arrived, as decided, and ask the owner who should act on it\", with {\"request\":{\"request_id\":\"request-1\",\"source_ref\":\"source-1\",\"atom_ref\":\"atom-1\",\"text\":\"Two loaves for Friday.\",\"origin_ref\":\"origin-1\"},\"decision\":{\"disposition\":\"recorded\",\"reason\":\"A customer asked.\"}}. It runs tool:take-a-request and answers {\"status\":\"refused\",\"request_id\":\"request-1\",\"problems\":[{\"code\":\"no_accepted_origins\",\"said\":\"No accepted origins are on file. Save a intake-origins record with id intake-origins:accepted and the origins that count as someone asking.\"}],\"owner_request\":null,\"said\":\"No accepted origins are on file. Save a intake-origins record with id intake-origins:accepted and the origins that count as someone ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (intake-origins, intake-owner, intake-request, owner-action-request) through the records door.",
   "workflows": [],
   "tools": [
     "tool:take-a-request"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:take-a-request\", and give it request, decision.",
+    "1. Say to your AI: \"Keep one request that arrived, as decided, and ask the owner who should act on it\", and give it request; decision.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:take-a-request and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.request_id contains \"request-1\"."
+    "3. Read what comes back: request is what arrived: request_id, source_ref, atom_ref, text, origin_ref, optionally message_ref, content_revision and at.",
+    "4. It reads and writes only its own rows through the records door: intake-origins (records:read); intake-owner (records:read); intake-request (records:read, records:write); owner-action-request (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Take a request on a sample input",
-      "ask": "Run tool:take-a-request.",
+      "title": "Take a request on its own sample",
+      "ask": "Keep one request that arrived, as decided, and ask the owner who should act on it",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -41,7 +42,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.request_id contains \"request-1\"."
+      "given": "The input {\"request\":{\"request_id\":\"request-1\",\"source_ref\":\"source-1\",\"atom_ref\":\"atom-1\",\"text\":\"Two loaves for Friday.\",\"origin_ref\":\"origin-1\"},\"decision\":{\"disposition\":\"recorded\",\"reason\":\"A customer asked.\"}}.",
+      "hands_back": "It answered {\"status\":\"refused\",\"request_id\":\"request-1\",\"problems\":[{\"code\":\"no_accepted_origins\",\"said\":\"No accepted origins are on file. Save a intake-origins record with id intake-origins:accepted and the origins that count as someone asking.\"}],\"owner_request\":null,\"said\":\"No accepted origins are on file. Save a intake-origins record with id intake-origins:accepted and the origins that count as someone asking.\"}."
     }
   ]
 }

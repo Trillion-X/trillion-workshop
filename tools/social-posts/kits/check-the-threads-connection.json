@@ -1,23 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:check-the-threads-connection's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-the-threads-connection with account_id.\" Check that the person's Threads connection still reaches its account, before a post is set to go there",
+  "drafted_from": "tool:check-the-threads-connection's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Check that the person's Threads connection still reaches its account, before a post is set to go there\", with {\"account_id\":\"service_connection:threads\"}. It runs tool:check-the-threads-connection; its answer contains \"id\".",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:check-the-threads-connection",
     "tool:list-post-destinations"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-the-threads-connection\", and give it account_id.",
+    "1. Say to your AI: \"Check that the person's Threads connection still reaches its account, before a post is set to go there\", and give it account_id (One of the person's accounts of this kind, service_connection:threads or service_connection:threads:<account>, from tool:list-post-destinations).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-the-threads-connection and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $ contains \"id\"."
+    "3. Read what comes back: Asks Threads which account the person's threads connection signs in as, with the value the person's vault holds for it (placed only as the request leaves, never shown)."
   ],
   "worked_examples": [
     {
-      "title": "Check the Threads connection on a sample input",
-      "ask": "Run tool:check-the-threads-connection.",
+      "title": "Check the Threads connection on its own sample",
+      "ask": "Check that the person's Threads connection still reaches its account, before a post is set to go there",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,6 +32,7 @@
           }
         }
       },
+      "given": "The input {\"account_id\":\"service_connection:threads\"}.",
       "hands_back": "The answer's $ contains \"id\"."
     }
   ]

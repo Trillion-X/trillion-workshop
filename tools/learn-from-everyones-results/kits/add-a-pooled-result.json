@@ -1,23 +1,24 @@
 {
   "draft": true,
-  "drafted_from": "tool:add-a-pooled-result's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:add-a-pooled-result with contributor, situation, worked.\" Keep one person's noisy yes or no about a shared situation in the pool everyone learns from, under their random contributor id",
+  "drafted_from": "tool:add-a-pooled-result's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Keep one person's noisy yes or no about a shared situation in the pool everyone learns from, under their random contributor id\", with {\"contributor\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"situation\":\"sample-situation-1\",\"worked\":true}. It runs tool:add-a-pooled-result and answers {\"added\":true}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:pooled-situation, record:pooled-result) through the records door.",
   "workflows": [],
   "tools": [
     "tool:add-a-pooled-result",
     "tool:randomize-a-result"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:add-a-pooled-result\", and give it contributor, situation, worked.",
+    "1. Say to your AI: \"Keep one person's noisy yes or no about a shared situation in the pool everyone learns from, under their random contributor id\", and give it contributor (The person's random contributor id); situation (The shared situation's row id in pooled-situations); worked (The randomized bit, as the person's store drew it).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:add-a-pooled-result and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields added."
+    "3. Read what comes back: Runs in the account that holds the pool.",
+    "4. It reads and writes only its own rows through the records door: record:pooled-situation (records:read); record:pooled-result (records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Add a private result to the pool on a sample input",
-      "ask": "Run tool:add-a-pooled-result.",
+      "title": "Add a private result to the pool on its own sample",
+      "ask": "Keep one person's noisy yes or no about a shared situation in the pool everyone learns from, under their random contributor id",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -34,7 +35,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields added."
+      "given": "The input {\"contributor\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"situation\":\"sample-situation-1\",\"worked\":true}, with 1 example row (record:pooled-situation) already kept.",
+      "hands_back": "It answered {\"added\":true}, and kept record:pooled-result:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:38f0bce7-cc90-4d52-8947-daf86a8cd05b."
     }
   ]
 }

@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:suggest-zooms's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:suggest-zooms with sidecar.\" Turn the pointer moves and clicks noted beside a screen recording into zoom suggestions (where the pointer settled, for how long, how strong), as plain rows the person can edit before the video is exported",
+  "drafted_from": "tool:suggest-zooms's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Turn the pointer moves and clicks noted beside a screen recording into zoom suggestions (where the pointer settled, for how long, how strong), as plain rows the person can edit before the video is exported\", with {\"sidecar\":{\"space\":\"normalized-source\",\"samples\":[{\"type\":\"move\",\"t\":0,\"x\":0.2,\"y\":0.2},{\"type\":\"move\",\"t\":100,\"x\":0.5,\"y\":0.5},{\"type\":\"click\",\"t\":700,\"x\":0.5,\"y\":0.5},{\"type\":\"move\",\"t\":1500,\"x\":0.51,\"y\":0.5},{\"type\":\"move\",\"t\":2000,\"x\":0.9,\"y\":0.9}]}}. It runs tool:suggest-zooms and answers {\"zooms\":[{\"start_ms\":100,\"end_ms\":1980,\"x\":0.5,\"y\":0.5,\"strength\":\"strong\",\"zoom\":2,\"clicks\":1}]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:suggest-zooms"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:suggest-zooms\", and give it sidecar.",
+    "1. Say to your AI: \"Turn the pointer moves and clicks noted beside a screen recording into zoom suggestions (where the pointer settled, for how long, how strong), as plain rows the person can edit before the video is exported\", and give it sidecar.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:suggest-zooms and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields zooms."
+    "3. Read what comes back: Give sidecar: { space: 'normalized-source', samples: [{ t (ms), type: move | click, x, y (0 to 1 of the captured source) }] }."
   ],
   "worked_examples": [
     {
-      "title": "Suggest zooms for a screen recording on a sample input",
-      "ask": "Run tool:suggest-zooms.",
+      "title": "Suggest zooms for a screen recording on its own sample",
+      "ask": "Turn the pointer moves and clicks noted beside a screen recording into zoom suggestions (where the pointer settled, for how long, how strong), as plain rows the person can edit before the video is exported",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -65,7 +65,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields zooms."
+      "given": "The input {\"sidecar\":{\"space\":\"normalized-source\",\"samples\":[{\"type\":\"move\",\"t\":0,\"x\":0.2,\"y\":0.2},{\"type\":\"move\",\"t\":100,\"x\":0.5,\"y\":0.5},{\"type\":\"click\",\"t\":700,\"x\":0.5,\"y\":0.5},{\"type\":\"move\",\"t\":1500,\"x\":0.51,\"y\":0.5},{\"type\":\"move\",\"t\":2000,\"x\":0.9,\"y\":0.9}]}}.",
+      "hands_back": "It answered {\"zooms\":[{\"start_ms\":100,\"end_ms\":1980,\"x\":0.5,\"y\":0.5,\"strength\":\"strong\",\"zoom\":2,\"clicks\":1}]}."
     }
   ]
 }

@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:adapt-the-next-training-session's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:adapt-the-next-training-session with adjustments.\" Adapt the next training session from the adjustments my progress rules gave for the session I just did",
+  "drafted_from": "tool:adapt-the-next-training-session's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Adapt the next training session from the adjustments my progress rules gave for the session I just did\", with {\"prescription\":{\"id\":\"s1\",\"weekBlockId\":\"w1\",\"title\":\"Cascade blocks\",\"activity\":\"technical\",\"dose\":{\"sets\":4,\"reps\":\"6-8\",\"throws\":60},\"intensity\":{\"heightCm\":100}},\"adjustments\":[{\"doseScale\":1.1,\"intensityScale\":1.1,\"note\":\"Add load.\"}]}. It runs tool:adapt-the-next-training-session and answers {\"from\":{\"id\":\"s1\",\"weekBlockId\":\"w1\",\"title\":\"Cascade blocks\",\"activity\":\"technical\",\"dose\":{\"sets\":4,\"reps\":\"6-8\",\"throws\":60},\"intensity\":{\"heightCm\":100}},\"next\":{\"id\":\"s1\",\"weekBlockId\":\"w1\",\"title\":\"Cascade blocks\",\"activity\":\"technical\",\"dose\":{\"sets\":4,\"reps\":\"6-8\",\"throws\":66},\"intensity\":{\"heightCm\":110,\"note\":\"Add load.\"}},\"applied\":1}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:adapt-the-next-training-session"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:adapt-the-next-training-session\", and give it adjustments.",
+    "1. Say to your AI: \"Adapt the next training session from the adjustments my progress rules gave for the session I just did\", and give it adjustments (The adjustments the progress evaluator returned).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:adapt-the-next-training-session and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.next.dose.throws contains \"66\"."
+    "3. Read what comes back: Takes a session prescription (or the plan and the id of the session) and the adjustments already worked out by the progress evaluator (its list may be empty)."
   ],
   "worked_examples": [
     {
-      "title": "Adapt my next training session on a sample input",
-      "ask": "Run tool:adapt-the-next-training-session.",
+      "title": "Adapt my next training session on its own sample",
+      "ask": "Adapt the next training session from the adjustments my progress rules gave for the session I just did",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -51,7 +51,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.next.dose.throws contains \"66\"."
+      "given": "The input {\"prescription\":{\"id\":\"s1\",\"weekBlockId\":\"w1\",\"title\":\"Cascade blocks\",\"activity\":\"technical\",\"dose\":{\"sets\":4,\"reps\":\"6-8\",\"throws\":60},\"intensity\":{\"heightCm\":100}},\"adjustments\":[{\"doseScale\":1.1,\"intensityScale\":1.1,\"note\":\"Add load.\"}]}.",
+      "hands_back": "It answered {\"from\":{\"id\":\"s1\",\"weekBlockId\":\"w1\",\"title\":\"Cascade blocks\",\"activity\":\"technical\",\"dose\":{\"sets\":4,\"reps\":\"6-8\",\"throws\":60},\"intensity\":{\"heightCm\":100}},\"next\":{\"id\":\"s1\",\"weekBlockId\":\"w1\",\"title\":\"Cascade blocks\",\"activity\":\"technical\",\"dose\":{\"sets\":4,\"reps\":\"6-8\",\"throws\":66},\"intensity\":{\"heightCm\":110,\"note\":\"Add load.\"}},\"applied\":1}."
     }
   ]
 }

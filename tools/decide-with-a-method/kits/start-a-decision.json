@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:start-a-decision's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:start-a-decision with source_id, goal, evidence.\" Start a decision my AI will make with my method: what is being decided, the facts and constraints, and the options only if I already hold them",
+  "drafted_from": "tool:start-a-decision's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Start a decision my AI will make with my method: what is being decided, the facts and constraints, and the options only if I already hold them\", with {\"source_id\":\"sample:class-price-1\",\"goal\":\"Decide the made-up sample class price for spring\",\"evidence\":[{\"ref\":\"e1\",\"claim\":\"Last spring twelve made-up families signed up at the old price\"},{\"ref\":\"e2\",\"claim\":\"The made-up material costs went up this year\"}],\"options\":[{\"id\":\"keep\",\"label\":\"Keep the price\"},{\"id\":\"raise\",\"label\":\"Raise the price\"}]}. It runs tool:start-a-decision and answers {\"case_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"source_id\":\"sample:class-price-1\",\"question\":{\"step_id\":\"scope\",\"question\":\"What kind of decision is this?\",\"fields\":[\"decision_context\",\"omission_reasons\"],\"requires\":[\"evidence_refs\"],\"optional\":[\"scratchpad\"],\"answer_schema\":{\"type\":\"object\",\"required\":[\"evidence_refs\",\"decision_context\"],\"properties\":{\"evidence_refs\":{\"type\":\"array\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (decision, decision-revision, decision-step, decision-call, decision-evidence, decision-answered-step, decision-option, decision-candidate, decision-report, decision-carried-out, decision-history, decision-cited-pursuit, decision-method, decision-part, decision-refs, pursuit, record:check, record:decision-kind) through the records door.",
   "workflows": [],
   "tools": [
     "tool:start-a-decision"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:start-a-decision\", and give it source_id, goal, evidence.",
+    "1. Say to your AI: \"Start a decision my AI will make with my method: what is being decided, the facts and constraints, and the options only if I already hold them\", and give it source_id (Unique text naming where this decision comes from); goal (What is being decided); evidence.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:start-a-decision and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields case_id."
+    "3. Read what comes back: Opens a decision in the person's own records from a source_id (the same source always opens the same decision; the same input again is that decision, different input is refused), its goal, its evidence ({ref, claim}, each ref unique: the facts and every non-negotiable constraint) and, only when the caller already holds them, at least two options ({id, label}); with no options the method's own steps generate the candidates and rule them out, and what the rule-out step leaves standing are the options, under the method named or the person's default (their Methods list).",
+    "4. It reads and writes only its own rows through the records door: decision (records:read, records:list, records:write); decision-revision (records:read, records:write); decision-step (records:read, records:write); decision-call (records:write); decision-evidence (records:read, records:list, records:write); decision-answered-step (records:read, records:list, records:write); decision-option (records:read, records:list, records:write); decision-candidate (records:read, records:list, records:write); decision-report (records:read, records:list, records:write); decision-carried-out (records:read, records:list, records:write); decision-history (records:read, records:list, records:write); decision-cited-pursuit (records:read, records:list, records:write); decision-method (records:read, records:write); decision-part (records:read, records:write); decision-refs (records:read, records:write); pursuit (records:read, records:list); record:check (records:list, records:read); record:decision-kind (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Start a decision with my method on a sample input",
-      "ask": "Run tool:start-a-decision.",
+      "title": "Start a decision with my method on its own sample",
+      "ask": "Start a decision my AI will make with my method: what is being decided, the facts and constraints, and the options only if I already hold them",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -52,7 +53,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields case_id."
+      "given": "The input {\"source_id\":\"sample:class-price-1\",\"goal\":\"Decide the made-up sample class price for spring\",\"evidence\":[{\"ref\":\"e1\",\"claim\":\"Last spring twelve made-up families signed up at the old price\"},{\"ref\":\"e2\",\"claim\":\"The made-up material costs went up this year\"}],\"options\":[{\"id\":\"keep\",\"label\":\"Keep the price\"},{\"id\":\"raise\",\"label\":\"Raise the price\"}]}, with 3 example rows (record:check, record:method-check) already kept.",
+      "hands_back": "It answered {\"case_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"source_id\":\"sample:class-price-1\",\"question\":{\"step_id\":\"scope\",\"question\":\"What kind of decision is this?\",\"fields\":[\"decision_context\",\"omission_reasons\"],\"requires\":[\"evidence_refs\"],\"optional\":[\"scratchpad\"],\"answer_schema\":{\"type\":\"object\",\"required\":[\"evidence_refs\",\"decision_context\"],\"properties\":{\"evidence_refs\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"string\",\"minLength\":1},\"description\":\"Refs of the case evidence (or the person's pursuits) this rests on\"},\"scratchpad\":{\"type\":\"string\"},\"decision_context\":{\"type\":\"object\",\"required\":[\"compare_existing\"],\"properties\":{\"worth_weighing\":{\"type\":\"boolean\",\"description\":\"Is this ..., and kept source:c2FtcGxlOmNsYXNzLXByaWNlLTE, decision-revision:source:c2FtcGxlOmNsYXNzLXByaWNlLTE, decision-refs:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:c1f:2c031468f3e8e22b3edfc88e76aac05f8fdca1491b38add5d783119ce64cbcf8, decision-evidence:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:0000:c1f:eaca71172164ebe344b37ae49b332a7a6751648506e76853e0c7ee99317f74dc, ...."
     }
   ]
 }

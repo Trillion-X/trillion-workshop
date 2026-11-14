@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:set-up-someone-i-pay-in-stripe's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:set-up-someone-i-pay-in-stripe with refresh_url, return_url.\" Make a Stripe account for a person I pay, or check one, and get their Stripe onboarding page and what Stripe still needs from them",
+  "drafted_from": "tool:set-up-someone-i-pay-in-stripe's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Make a Stripe account for a person I pay, or check one, and get their Stripe onboarding page and what Stripe still needs from them\", with {\"settings\":{\"country\":\"US\",\"controller\":{\"fees\":{\"payer\":\"application\"}},\"capabilities\":[\"transfers\"]},\"email\":\"payee@example.test\",\"owner\":\"sample-shop\",\"payee_ref\":\"payee:sample-1\",\"refresh_url\":\"https://shop.example.test/refresh\",\"return_url\":\"https://shop.example.test/done\",\"idempotency_key\":\"sample-payee-1\"}. It runs tool:set-up-someone-i-pay-in-stripe and answers {\"account\":\"acct_sample0002\",\"readiness\":{\"can_be_paid\":false,\"onboarding_done\":false,\"payouts_enabled\":false,\"due\":[\"tos_acceptance.date\"]},\"onboarding_url\":\"https://connect.stripe.com/setup/s/sample0001\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:set-up-someone-i-pay-in-stripe"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:set-up-someone-i-pay-in-stripe\", and give it refresh_url, return_url.",
+    "1. Say to your AI: \"Make a Stripe account for a person I pay, or check one, and get their Stripe onboarding page and what Stripe still needs from them\", and give it refresh_url; return_url.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:set-up-someone-i-pay-in-stripe and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields account, readiness, onboarding_url."
+    "3. Read what comes back: Give settings ({ country, controller, capabilities }), owner, payee_ref, refresh_url and return_url, or an existing account id."
   ],
   "worked_examples": [
     {
-      "title": "Set up someone I pay in Stripe on a sample input",
-      "ask": "Run tool:set-up-someone-i-pay-in-stripe.",
+      "title": "Set up someone I pay in Stripe on its own sample",
+      "ask": "Make a Stripe account for a person I pay, or check one, and get their Stripe onboarding page and what Stripe still needs from them",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -47,7 +47,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields account, readiness, onboarding_url."
+      "given": "The input {\"settings\":{\"country\":\"US\",\"controller\":{\"fees\":{\"payer\":\"application\"}},\"capabilities\":[\"transfers\"]},\"email\":\"payee@example.test\",\"owner\":\"sample-shop\",\"payee_ref\":\"payee:sample-1\",\"refresh_url\":\"https://shop.example.test/refresh\",\"return_url\":\"https://shop.example.test/done\",\"idempotency_key\":\"sample-payee-1\"}, the web answering from 2 recorded replies.",
+      "hands_back": "It answered {\"account\":\"acct_sample0002\",\"readiness\":{\"can_be_paid\":false,\"onboarding_done\":false,\"payouts_enabled\":false,\"due\":[\"tos_acceptance.date\"]},\"onboarding_url\":\"https://connect.stripe.com/setup/s/sample0001\"}."
     }
   ]
 }

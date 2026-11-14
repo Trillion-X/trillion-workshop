@@ -1,7 +1,7 @@
 {
   "draft": true,
-  "drafted_from": "tool:plan-a-motion-films-soundtrack-premix's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:plan-a-motion-films-soundtrack-premix with nothing more.\" Show me exactly how my film's soundtrack will be mixed: the music bed and how loud it is when, every voice line and every sound effect at its time, before anything is rendered",
+  "drafted_from": "tool:plan-a-motion-films-soundtrack-premix's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Show me exactly how my film's soundtrack will be mixed: the music bed and how loud it is when, every voice line and every sound effect at its time, before anything is rendered\", with {\"cue_sheet\":{\"DUR\":6,\"VO\":[0.5,2.3],\"voiced\":[[0.6,1.8],[2.4,3.5]],\"cues\":[[0,\"whoosh\",-12],[1.25,\"tick\",-18],[4,\"chime\",-9]]},\"film_folder\":\"films/sample-film\",\"sound_folder\":\"sound\",\"settings\":{\"music\":{\"file\":\"{sound}/music/bed.wav\",\"start\":2,\"fade_out\":1.5,\"chain\":\"aresample=48000,aformat=channel_layouts=stereo,atrim={start:.3f}:{end:.3f},asetpts=PTS-STARTPTS,volume='{gain_expr}':eval=frame .... It runs tool:plan-a-motion-films-soundtrack-premix and answers {\"out\":\"films/sample-film/assets/soundtrack.wav\",\"DUR\":6,\"method\":\"linear-two-pass\",\"gain_segments\":[[0,-6],[0.5,-14],[2.05,-6],[2.3,-14],[3.75,-6],[4,-30],[4.55,-6]],\"counts\":{\"voice_lines\":2,\"effects\":3,\"recordings\":3,\"inputs\":6},\"premix\":[\"ffmpeg\",\"-nostdin\",\"-y\",\"-v\",\"error\",\"-i\",\"sound/music/bed.wav\",\"-i\",\"films/sample-film/assets/vo/l01.wav\",\"-i\",\"films/sample-film/assets/vo/l02.wav\",\"-i\" ...",
   "lists": [
     {
       "list": "list:settings",
@@ -108,21 +108,21 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
     "tool:plan-a-motion-films-soundtrack-premix",
     "tool:premix-a-motion-films-soundtrack"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:plan-a-motion-films-soundtrack-premix\", and give it nothing more.",
+    "1. Say to your AI: \"Show me exactly how my film's soundtrack will be mixed: the music bed and how loud it is when, every voice line and every sound effect at its time, before anything is rendered\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:plan-a-motion-films-soundtrack-premix and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields DUR, method, out, counts, premix, measure, gain_segments, settings_from."
+    "3. Read what comes back: Reads a motion film's cue sheet (its length, voice line offsets, the stretches where a voice is heard, and every sound effect as [time, palette sound, gain in dB]) and the film's settings, and answers the ffmpeg commands that premix its soundtrack: the music bed trimmed from its start and shaped over time (ducked while a voice is heard, set or lifted in named windows, faded out), each voice line delayed to its offset, each effect delayed to its time at its gain, all summed, then the film's loudness pass (in the graph, a measured gain and a limiter, or a linear two-pass loudnorm).",
+    "4. It reads and writes only its own rows through the records door: record:setting (records:read)."
   ],
   "worked_examples": [
     {
-      "title": "Work out the ffmpeg commands that premix a motion film's soundtrack on a sample input",
-      "ask": "Run tool:plan-a-motion-films-soundtrack-premix.",
+      "title": "Work out the ffmpeg commands that premix a motion film's soundtrack on its own sample",
+      "ask": "Show me exactly how my film's soundtrack will be mixed: the music bed and how loud it is when, every voice line and every sound effect at its time, before anything is rendered",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -194,7 +194,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields DUR, method, out, counts, premix, measure, gain_segments, settings_from."
+      "given": "The input {\"cue_sheet\":{\"DUR\":6,\"VO\":[0.5,2.3],\"voiced\":[[0.6,1.8],[2.4,3.5]],\"cues\":[[0,\"whoosh\",-12],[1.25,\"tick\",-18],[4,\"chime\",-9]]},\"film_folder\":\"films/sample-film\",\"sound_folder\":\"sound\",\"settings\":{\"music\":{\"file\":\"{sound}/music/bed.wav\",\"start\":2,\"fade_out\":1.5,\"chain\":\"aresample=48000,aformat=channel_layouts=stereo,atrim={start:.3f}:{end:.3f},asetpts=PTS-STARTPTS,volume='{gain_expr}':eval=frame ....",
+      "hands_back": "It answered {\"out\":\"films/sample-film/assets/soundtrack.wav\",\"DUR\":6,\"method\":\"linear-two-pass\",\"gain_segments\":[[0,-6],[0.5,-14],[2.05,-6],[2.3,-14],[3.75,-6],[4,-30],[4.55,-6]],\"counts\":{\"voice_lines\":2,\"effects\":3,\"recordings\":3,\"inputs\":6},\"premix\":[\"ffmpeg\",\"-nostdin\",\"-y\",\"-v\",\"error\",\"-i\",\"sound/music/bed.wav\",\"-i\",\"films/sample-film/assets/vo/l01.wav\",\"-i\",\"films/sample-film/assets/vo/l02.wav\",\"-i\",\"sound/palette/whoosh.wav\",\"-i\",\"sound/palette/tick.wav\",\"-i\",\"sound/palette/chime.wav\",\"-filter_complex\",\"[0:a]aresample=48000,aformat=channel_layouts=stereo,atrim=2.000:8.000,asetpts=PTS-STARTPTS,volume='if(lt(t,0.50),0.50119,if(lt(t,2.05),0.19953,if(lt(t,2.30),0.50119,if(lt(t,3.75),0.19953,if(lt(t ...."
     }
   ],
   "pour": {

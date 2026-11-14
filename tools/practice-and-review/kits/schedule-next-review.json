@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:schedule-next-review's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:schedule-next-review with grade.\" Work out when a flashcard, drill, passage or any other thing being learned should come back, from how well the person just recalled it",
+  "drafted_from": "tool:schedule-next-review's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Work out when a flashcard, drill, passage or any other thing being learned should come back, from how well the person just recalled it\", with {\"grade\":\"solid\",\"reviewed_at\":\"2026-01-01T12:00:00Z\",\"policy\":{\"initial_ease\":2.5,\"min_ease\":1.3,\"first_interval_days\":1,\"second_interval_days\":6,\"lapse_below_quality\":0.6,\"grade_quality\":{\"miss\":0,\"shaky\":0.6,\"solid\":0.8,\"instant\":1}}}. It runs tool:schedule-next-review and answers {\"state\":{\"reps\":1,\"ease_factor\":2.5,\"interval_days\":1},\"due_at\":\"2026-01-02T12:00:00.000Z\",\"due_on\":\"2026-01-02\",\"lapsed\":false,\"quality\":0.8,\"grade_in_policy\":true}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:schedule-next-review"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:schedule-next-review\", and give it grade.",
+    "1. Say to your AI: \"Work out when a flashcard, drill, passage or any other thing being learned should come back, from how well the person just recalled it\", and give it grade (The grade word the person gave: a key of policy.grade_quality.).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:schedule-next-review and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.due_on contains \"2026-01-02\"."
+    "3. Read what comes back: Give the grade the person just gave, the item's state from its last review (leave it out the first time) and the person's own spacing policy: the starting ease, the ease floor, the gap after the first and the second success, the recall quality below which an item lapses, and a map from each grade word to a recall quality between 0 and 1."
   ],
   "worked_examples": [
     {
-      "title": "Schedule the next review of something being learned on a sample input",
-      "ask": "Run tool:schedule-next-review.",
+      "title": "Schedule the next review of something being learned on its own sample",
+      "ask": "Work out when a flashcard, drill, passage or any other thing being learned should come back, from how well the person just recalled it",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -45,7 +45,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.due_on contains \"2026-01-02\"."
+      "given": "The input {\"grade\":\"solid\",\"reviewed_at\":\"2026-01-01T12:00:00Z\",\"policy\":{\"initial_ease\":2.5,\"min_ease\":1.3,\"first_interval_days\":1,\"second_interval_days\":6,\"lapse_below_quality\":0.6,\"grade_quality\":{\"miss\":0,\"shaky\":0.6,\"solid\":0.8,\"instant\":1}}}.",
+      "hands_back": "It answered {\"state\":{\"reps\":1,\"ease_factor\":2.5,\"interval_days\":1},\"due_at\":\"2026-01-02T12:00:00.000Z\",\"due_on\":\"2026-01-02\",\"lapsed\":false,\"quality\":0.8,\"grade_in_policy\":true}."
     }
   ]
 }

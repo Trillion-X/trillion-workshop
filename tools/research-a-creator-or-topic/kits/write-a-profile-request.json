@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:write-a-profile-request's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:write-a-profile-request with subject_ref, instruction.\" Turn what was gathered about a creator or a topic (video words, page text) into the instruction the person's AI writes a profile from",
+  "drafted_from": "tool:write-a-profile-request's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Turn what was gathered about a creator or a topic (video words, page text) into the instruction the person's AI writes a profile from\", with {\"subject_ref\":\"a bakery channel\",\"instruction\":\"Look for how they open a lesson. Material: \",\"material\":\"Fold the dough.\"}. It runs tool:write-a-profile-request and answers {\"subject_ref\":\"a bakery channel\",\"profile_ref\":\"profile:a bakery channel\",\"skipped\":[],\"requests\":[{\"kind\":\"profile-request\",\"status\":\"requested\",\"request_id\":\"a bakery channel\",\"profile_ref\":\"profile:a bakery channel\",\"subject_ref\":\"a bakery channel\",\"output_kind\":\"profile\",\"instruction_text\":\"Look for how they open a lesson. Material: Fold the dough.\"}]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:write-a-profile-request"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:write-a-profile-request\", and give it subject_ref, instruction.",
+    "1. Say to your AI: \"Turn what was gathered about a creator or a topic (video words, page text) into the instruction the person's AI writes a profile from\", and give it subject_ref; instruction (What the writer is to look for, in the person's words).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:write-a-profile-request and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.requests[0].instruction_text contains \"Material: Fold the dough.\"."
+    "3. Read what comes back: Give subject_ref (who or what is profiled), instruction (the person's own words on what to look for; they come before the material) and either material (one text) or evidence ([{ id, text }], for example one video's words each)."
   ],
   "worked_examples": [
     {
-      "title": "Prepare the request for a profile of a creator or a topic on a sample input",
-      "ask": "Run tool:write-a-profile-request.",
+      "title": "Prepare the request for a profile of a creator or a topic on its own sample",
+      "ask": "Turn what was gathered about a creator or a topic (video words, page text) into the instruction the person's AI writes a profile from",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +33,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.requests[0].instruction_text contains \"Material: Fold the dough.\"."
+      "given": "The input {\"subject_ref\":\"a bakery channel\",\"instruction\":\"Look for how they open a lesson. Material: \",\"material\":\"Fold the dough.\"}.",
+      "hands_back": "It answered {\"subject_ref\":\"a bakery channel\",\"profile_ref\":\"profile:a bakery channel\",\"skipped\":[],\"requests\":[{\"kind\":\"profile-request\",\"status\":\"requested\",\"request_id\":\"a bakery channel\",\"profile_ref\":\"profile:a bakery channel\",\"subject_ref\":\"a bakery channel\",\"output_kind\":\"profile\",\"instruction_text\":\"Look for how they open a lesson. Material: Fold the dough.\"}]}."
     }
   ]
 }

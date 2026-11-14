@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:read-resource-usage-settlement's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-resource-usage-settlement with settlement_id.\" Inspect a supplier-cost settlement and its original or corrected version, including exact customer amounts, company expense and unresolved funding, without moving money",
+  "drafted_from": "tool:read-resource-usage-settlement's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Inspect a supplier-cost settlement and its original or corrected version, including exact customer amounts, company expense and unresolved funding, without moving money\", with {\"settlement_id\":\"pool-sample-2026-10\"}. It runs tool:read-resource-usage-settlement and answers {\"record_id\":\"resource-usage-settlement:pool-sample-2026-10\",\"settlement\":{\"id\":\"pool-sample-2026-10\",\"version\":1,\"version_ref\":\"resource-usage-settlement:pool-sample-2026-10:v1\",\"result\":{\"settlement_key\":{\"supplier_pool\":\"pool:sample\",\"tariff_version\":\"tariff:sample-1\",\"cost_class\":\"source-transfer\",\"invoice_period\":\"2026-10\",\"currency\":\"usd\",\"resource_id\":\"resource:source-bytes\"} ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (usage-pricing-rule, usage-pricing-rule-version, resource-usage-observation, resource-usage-settlement, resource-usage-settlement-version, resource-usage-receipt, resource-usage-allocation, resource-usage-settlement-evidence) through the records door.",
   "workflows": [],
   "tools": [
     "tool:read-resource-usage-settlement"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-resource-usage-settlement\", and give it settlement_id.",
+    "1. Say to your AI: \"Inspect a supplier-cost settlement and its original or corrected version, including exact customer amounts, company expense and unresolved funding, without moving money\", and give it settlement_id.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-resource-usage-settlement and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields record_id, settlement, allocations, next."
+    "3. Read what comes back: Inspect a supplier-cost settlement and its original or corrected version, including exact customer amounts, company expense and unresolved funding, without moving money",
+    "4. It reads and writes only its own rows through the records door: usage-pricing-rule (records:read, records:list); usage-pricing-rule-version (records:read, records:list); resource-usage-observation (records:read, records:list); resource-usage-settlement (records:read, records:list); resource-usage-settlement-version (records:read, records:list); resource-usage-receipt (records:read, records:list); resource-usage-allocation (records:read, records:list); resource-usage-settlement-evidence (records:read, records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Read a resource usage settlement on a sample input",
-      "ask": "Run tool:read-resource-usage-settlement.",
+      "title": "Read a resource usage settlement on its own sample",
+      "ask": "Inspect a supplier-cost settlement and its original or corrected version, including exact customer amounts, company expense and unresolved funding, without moving money",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +32,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields record_id, settlement, allocations, next."
+      "given": "The input {\"settlement_id\":\"pool-sample-2026-10\"}, with 4 example rows (resource-usage-allocation, resource-usage-settlement, resource-usage-settlement-version, resource-usage-receipt) already kept.",
+      "hands_back": "It answered {\"record_id\":\"resource-usage-settlement:pool-sample-2026-10\",\"settlement\":{\"id\":\"pool-sample-2026-10\",\"version\":1,\"version_ref\":\"resource-usage-settlement:pool-sample-2026-10:v1\",\"result\":{\"settlement_key\":{\"supplier_pool\":\"pool:sample\",\"tariff_version\":\"tariff:sample-1\",\"cost_class\":\"source-transfer\",\"invoice_period\":\"2026-10\",\"currency\":\"usd\",\"resource_id\":\"resource:source-bytes\"},\"state\":\"reconciled\",\"invoice\":{\"status\":\"confirmed\",\"amount\":{\"n\":\"1\",\"d\":\"1\"},\"evidence_ref\":\"supplier:invoice:sample\"},\"customer_supplier_cost\":{\"n\":\"1\",\"d\":\"1\"},\"platform_supplier_cost\":{\"n\":\"0\",\"d\":\"1\"},\"company_residual\":{\"n\":\"0\",\"d\":\"1\"},\"company_cost\":{\"n\":\"0\",\"d\":\"1\"},\"company_funding\":{\"n\":\"0\",\"d\":\"1\"} ...."
     }
   ]
 }

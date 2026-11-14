@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:report-resource-usage's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:report-resource-usage with settlement_id, settlement_version, payer_id, agreement_ref.\" Report exact reconciled usage once to its purchased subscription, retaining fractional carry and unknown-outcome recovery",
+  "drafted_from": "tool:report-resource-usage's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Report exact reconciled usage once to its purchased subscription, retaining fractional carry and unknown-outcome recovery\", with {\"agreement_ref\":\"usage-billing-agreement:sample\",\"payer_id\":\"payer:sample-a\",\"settlement_id\":\"pool-sample-2026-10\",\"settlement_version\":1}. It runs tool:report-resource-usage and answers {\"report_id\":\"resource-usage-provider-report:1f:8fb2b35aaaf79a20cad694025a5d681875798fa2191d2940319d5f48ed4c8713\",\"state\":\"provider_accepted\",\"settlement_ref\":\"resource-usage-settlement:pool-sample-2026-10:v1\",\"payer_id\":\"payer:sample-a\",\"currency\":\"usd\",\"exact_delta\":{\"n\":\"13\",\"d\":\"10\"},\"cash_amount\":{\"n\":\"13\",\"d\":\"10\"},\"carry_after\":{\"n\":\"0\",\"d\":\"1\"},\"planned_carry\":{\"n\":\"0\",\"d\":\"1\"} ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (resource-usage-settlement, resource-usage-settlement-version, resource-usage-allocation, usage-billing-agreement, resource-usage-cash, resource-usage-applied-source, resource-usage-provider-report) through the records door.",
   "workflows": [],
   "tools": [
     "tool:report-resource-usage"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:report-resource-usage\", and give it settlement_id, settlement_version, payer_id, agreement_ref.",
+    "1. Say to your AI: \"Report exact reconciled usage once to its purchased subscription, retaining fractional carry and unknown-outcome recovery\", and give it settlement_id; settlement_version; payer_id; agreement_ref.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:report-resource-usage and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields report_id, state, payer_id, currency, cash_amount, payment_state."
+    "3. Read what comes back: Report exact reconciled usage once to its purchased subscription, retaining fractional carry and unknown-outcome recovery",
+    "4. It reads and writes only its own rows through the records door: resource-usage-settlement (records:read, records:list); resource-usage-settlement-version (records:read, records:list); resource-usage-allocation (records:read, records:list); usage-billing-agreement (records:read, records:list); resource-usage-cash (records:read, records:list, records:write); resource-usage-applied-source (records:read, records:list, records:write); resource-usage-provider-report (records:read, records:list, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Report resource usage on a sample input",
-      "ask": "Run tool:report-resource-usage.",
+      "title": "Report resource usage on its own sample",
+      "ask": "Report exact reconciled usage once to its purchased subscription, retaining fractional carry and unknown-outcome recovery",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -34,7 +35,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields report_id, state, payer_id, currency, cash_amount, payment_state."
+      "given": "The input {\"agreement_ref\":\"usage-billing-agreement:sample\",\"payer_id\":\"payer:sample-a\",\"settlement_id\":\"pool-sample-2026-10\",\"settlement_version\":1}, with 5 example rows (resource-usage-allocation, resource-usage-settlement, resource-usage-settlement-version, resource-usage-receipt, usage-billing-agreement) already kept, the web answering from 3 recorded replies.",
+      "hands_back": "It answered {\"report_id\":\"resource-usage-provider-report:1f:8fb2b35aaaf79a20cad694025a5d681875798fa2191d2940319d5f48ed4c8713\",\"state\":\"provider_accepted\",\"settlement_ref\":\"resource-usage-settlement:pool-sample-2026-10:v1\",\"payer_id\":\"payer:sample-a\",\"currency\":\"usd\",\"exact_delta\":{\"n\":\"13\",\"d\":\"10\"},\"cash_amount\":{\"n\":\"13\",\"d\":\"10\"},\"carry_after\":{\"n\":\"0\",\"d\":\"1\"},\"planned_carry\":{\"n\":\"0\",\"d\":\"1\"},\"provider_receipt\":{\"id\":\"ii_sample0001\",\"object\":\"invoiceitem\",\"customer\":\"cus_sample0001\",\"currency\":\"usd\",\"amount_minor\":\"130\",\"subscription\":\"sub_sample0001\",\"usage_report_id\":\"resource-usage-provider-report:1f:8fb2b35aaaf79a20cad694025a5d681875798fa2191d2940319d5f48ed4c8713\" ..., and kept resource-usage-provider-report:1f:8fb2b35aaaf79a20cad694025a5d681875798fa2191d2940319d5f48ed4c8713, resource-usage-cash:1f:1c0c7bf86432a89edde6a8923cdd9ab17742f09bc6181f29ee5fa0b4d19de51b, resource-usage-applied-source:1f:74887a07dc2c73fdd4accaacb3accf70cfd22d141a79c525c04aa489642e021e."
     }
   ]
 }

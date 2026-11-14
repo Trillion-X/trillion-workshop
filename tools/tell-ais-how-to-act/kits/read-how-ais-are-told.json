@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:read-how-ais-are-told's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-how-ais-are-told with nothing more.\" See the standing instructions every AI is given when it first connects, or read one of them whole",
+  "drafted_from": "tool:read-how-ais-are-told's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"See the standing instructions every AI is given when it first connects, or read one of them whole\", with {}. It runs tool:read-how-ais-are-told and answers {\"rows\":[{\"id\":\"decide-first\",\"order\":10,\"on\":true,\"reaches\":[\"initialize\"],\"bytes\":223},{\"id\":\"look-first\",\"order\":20,\"on\":true,\"reaches\":[\"initialize\"],\"bytes\":150},{\"id\":\"opening\",\"order\":30,\"on\":true,\"reaches\":[\"initialize\"],\"bytes\":135},{\"id\":\"current-resource-tool-entrypoint\",\"order\":35,\"on\":true,\"reaches\":[\"initialize\"],\"bytes\":692},{\"id\":\"ai-job-on-connect\",\"order\":40,\"on\":true ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:read-how-ais-are-told"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-how-ais-are-told\", and give it nothing more.",
+    "1. Say to your AI: \"See the standing instructions every AI is given when it first connects, or read one of them whole\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-how-ais-are-told and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields rows, count, row."
+    "3. Read what comes back: Answers the rows an AI is told on first connecting: with no id, each row's id, order, whether it is on, where it reaches and its size; with an id, that row whole."
   ],
   "worked_examples": [
     {
-      "title": "Read how AIs are told to act on a sample input",
-      "ask": "Run tool:read-how-ais-are-told.",
+      "title": "Read how AIs are told to act on its own sample",
+      "ask": "See the standing instructions every AI is given when it first connects, or read one of them whole",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -29,7 +29,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields rows, count, row."
+      "given": "The input {}.",
+      "hands_back": "It answered {\"rows\":[{\"id\":\"decide-first\",\"order\":10,\"on\":true,\"reaches\":[\"initialize\"],\"bytes\":223},{\"id\":\"look-first\",\"order\":20,\"on\":true,\"reaches\":[\"initialize\"],\"bytes\":150},{\"id\":\"opening\",\"order\":30,\"on\":true,\"reaches\":[\"initialize\"],\"bytes\":135},{\"id\":\"current-resource-tool-entrypoint\",\"order\":35,\"on\":true,\"reaches\":[\"initialize\"],\"bytes\":692},{\"id\":\"ai-job-on-connect\",\"order\":40,\"on\":true,\"reaches\":[\"initialize\"],\"bytes\":130},{\"id\":\"work-waiting-for-this-ai\",\"order\":42,\"on\":true,\"reaches\":[\"initialize\"],\"bytes\":147},{\"id\":\"named-execution-modes\",\"order\":45,\"on\":true,\"reaches\":[\"initialize\"],\"bytes\":5394},{\"id\":\"when-a-relevant-decision-is-already-underway-con\",\"order\":50,\"on\":true ...."
     }
   ]
 }

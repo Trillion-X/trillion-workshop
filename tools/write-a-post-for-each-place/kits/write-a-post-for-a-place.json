@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:write-a-post-for-a-place's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:write-a-post-for-a-place with blocks.\" Write one message for a pull request thread, a merge request note, a chat or a post from the same blocks, using only what that place can show",
+  "drafted_from": "tool:write-a-post-for-a-place's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Write one message for a pull request thread, a merge request note, a chat or a post from the same blocks, using only what that place can show\", with {\"surface\":\"bitbucket_comment\",\"marker\":\"sample-marker:1\",\"blocks\":[{\"type\":\"heading\",\"text\":\"What changed\"},{\"type\":\"checklist\",\"items\":[{\"text\":\"Tests\",\"done\":true}]}]}. It runs tool:write-a-post-for-a-place and answers {\"body\":\"sample-marker:1\\n\\n## What changed\\n\\n• done: Tests\",\"degraded\":[\"checkboxes\"],\"unproven_used\":[\"max_chars\"],\"truncated\":false,\"capability\":{\"id\":\"bitbucket_comment\",\"html\":false,\"collapsibles\":false,\"checkboxes\":false,\"dialect\":\"markdown\",\"max_chars\":32768,\"theme\":{\"strategy\":\"single\"},\"unproven\":[\"html\",\"collapsibles\",\"checkboxes\",\"max_chars\",\"theme\"]}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:write-a-post-for-a-place"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:write-a-post-for-a-place\", and give it blocks.",
+    "1. Say to your AI: \"Write one message for a pull request thread, a merge request note, a chat or a post from the same blocks, using only what that place can show\", and give it blocks.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:write-a-post-for-a-place and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.body contains \"done: Tests\"."
+    "3. Read what comes back: Give blocks (heading, paragraph, code, list, checklist, image with an optional dark_url, collapsible holding more blocks) and exactly one of surface (github_comment, gitlab_note, bitbucket_comment or plain_message), capability (a record with html, collapsibles, checkboxes, dialect 'markdown' or 'plain', max_chars or null, theme { strategy 'picture', 'suffix' or 'single' } and unproven) or place (a post place whose format may carry caption_max_characters and source)."
   ],
   "worked_examples": [
     {
-      "title": "Write a post for one place on a sample input",
-      "ask": "Run tool:write-a-post-for-a-place.",
+      "title": "Write a post for one place on its own sample",
+      "ask": "Write one message for a pull request thread, a merge request note, a chat or a post from the same blocks, using only what that place can show",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -47,7 +47,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.body contains \"done: Tests\"."
+      "given": "The input {\"surface\":\"bitbucket_comment\",\"marker\":\"sample-marker:1\",\"blocks\":[{\"type\":\"heading\",\"text\":\"What changed\"},{\"type\":\"checklist\",\"items\":[{\"text\":\"Tests\",\"done\":true}]}]}.",
+      "hands_back": "It answered {\"body\":\"sample-marker:1\\n\\n## What changed\\n\\n• done: Tests\",\"degraded\":[\"checkboxes\"],\"unproven_used\":[\"max_chars\"],\"truncated\":false,\"capability\":{\"id\":\"bitbucket_comment\",\"html\":false,\"collapsibles\":false,\"checkboxes\":false,\"dialect\":\"markdown\",\"max_chars\":32768,\"theme\":{\"strategy\":\"single\"},\"unproven\":[\"html\",\"collapsibles\",\"checkboxes\",\"max_chars\",\"theme\"]}}."
     }
   ]
 }

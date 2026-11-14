@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:answer-the-content-formats-page's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:answer-the-content-formats-page with path, method.\" Answer the Formats page: read and save my content formats, list what can fill them, shape a thought into them and follow a script",
+  "drafted_from": "tool:answer-the-content-formats-page's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Answer the Formats page: read and save my content formats, list what can fill them, shape a thought into them and follow a script\", with {\"path\":\"/content-formats\",\"method\":\"GET\",\"query\":{},\"body\":{}}. It runs tool:answer-the-content-formats-page and answers {\"status\":200,\"body\":{\"formats\":[{\"id\":\"walk_note\",\"label\":\"Walk note\",\"spec\":\"Say it plainly.\",\"slots\":[],\"tags\":[],\"from\":\"saved\"},{\"id\":\"blog\",\"label\":\"Blog post\",\"category\":\"Writing\",\"category_id\":\"writing\",\"category_icon\":\"PenLine\",\"icon\":\"FileText\",\"content_type\":\"text/markdown\",\"input\":\"Notes, a transcript or a recording of the person talking, and the one idea this piece is about with the ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (content-formats, pursuit, ) through the records door.",
   "workflows": [],
   "tools": [
     "tool:answer-the-content-formats-page"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:answer-the-content-formats-page\", and give it path, method.",
+    "1. Say to your AI: \"Answer the Formats page: read and save my content formats, list what can fill them, shape a thought into them and follow a script\", and give it path (The page route after /work/api: /content-formats, /content-formats/sources, /content-formats/shape, /content-formats/follow); method.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:answer-the-content-formats-page and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields status, body."
+    "3. Read what comes back: The Formats page's routes, as the old account owner answered them: GET /content-formats (the person's saved formats first, then the starters, with removed_starters and example_kinds); POST /content-formats { formats } replaces their own list, checked whole first (a refused save is 400 and keeps the list as it was); GET /content-formats/sources (their recordings and notes from their files and their pursuits, newest first); POST /content-formats/shape { thought?, source?, format_ids?",
+    "4. It reads and writes only its own rows through the records door: content-formats (records:read, records:write); pursuit (records:list); undefined (list_files, read_file); undefined (list_files, read_file); undefined (list_files, read_file); undefined (list_files, read_file)."
   ],
   "worked_examples": [
     {
-      "title": "Answer the Formats page on a sample input",
-      "ask": "Run tool:answer-the-content-formats-page.",
+      "title": "Answer the Formats page on its own sample",
+      "ask": "Answer the Formats page: read and save my content formats, list what can fill them, shape a thought into them and follow a script",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -34,7 +35,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields status, body."
+      "given": "The input {\"path\":\"/content-formats\",\"method\":\"GET\",\"query\":{},\"body\":{}}, with 1 example row (content-formats) already kept.",
+      "hands_back": "It answered {\"status\":200,\"body\":{\"formats\":[{\"id\":\"walk_note\",\"label\":\"Walk note\",\"spec\":\"Say it plainly.\",\"slots\":[],\"tags\":[],\"from\":\"saved\"},{\"id\":\"blog\",\"label\":\"Blog post\",\"category\":\"Writing\",\"category_id\":\"writing\",\"category_icon\":\"PenLine\",\"icon\":\"FileText\",\"content_type\":\"text/markdown\",\"input\":\"Notes, a transcript or a recording of the person talking, and the one idea this piece is about with the exact words they used.\",\"process\":[\"Pick the one idea and the strongest exact quotes for it.\",\"Fill each slot in order, in the speaker's own words.\",\"Add at least one real example from example_kinds for every main point.\",\"Cut anything the speaker did not mean or cannot stand behind.\"],\"output\":\"One ...."
     }
   ]
 }

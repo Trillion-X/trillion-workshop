@@ -1,23 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:read-what-a-running-app-shows's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-what-a-running-app-shows with app_url, steps.\" Drive my running app through some steps and report what is actually on the screen after each: which controls exist, what a click would land on, errors, timing",
+  "drafted_from": "tool:read-what-a-running-app-shows's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Drive my running app through some steps and report what is actually on the screen after each: which controls exist, what a click would land on, errors, timing\", with {\"app_url\":\"data:text/html,<title>Ready</title><h1>Ready</h1><button>Go</button>\",\"steps\":[{\"id\":\"look\",\"observe\":{\"buttons\":{\"read\":\"elements\",\"selector\":\"button\"}}}]}. It runs tool:read-what-a-running-app-shows; its answer contains \"Go\".",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:read-what-a-running-app-shows",
     "tool:walk-through-an-app-like-its-users"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-what-a-running-app-shows\", and give it app_url, steps.",
+    "1. Say to your AI: \"Drive my running app through some steps and report what is actually on the screen after each: which controls exist, what a click would land on, errors, timing\", and give it app_url (The address of the running app: http, https, file or data.); steps.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-what-a-running-app-shows and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.steps[0].observed.buttons[0].label contains \"Go\"."
+    "3. Read what comes back: Opens the app at app_url in a headless Chromium on the person's own computer, does each step's `do` (the same actions as a walk: goto, click, fill, press, upload, wait, on a control named by role and name), then reads what the page holds as the step's `observe` asks: `elements` (for each match of a selector: its box, cursor, stacking, opacity, whether it is disabled, what a pointer aimed at its own centre would land on, and `pointer_is_self`, which tells a control that is missing from one a layer covers), `count`, `attributes` (named attributes and the form value), `text`, `global_path` (whether a dotted name exists on the page and its kind) and `media_ready` (milliseconds until a video or audio can play)."
   ],
   "worked_examples": [
     {
-      "title": "Read what a running app really shows on a sample input",
-      "ask": "Run tool:read-what-a-running-app-shows.",
+      "title": "Read what a running app really shows on its own sample",
+      "ask": "Drive my running app through some steps and report what is actually on the screen after each: which controls exist, what a click would land on, errors, timing",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -43,6 +43,7 @@
           }
         }
       },
+      "given": "The input {\"app_url\":\"data:text/html,<title>Ready</title><h1>Ready</h1><button>Go</button>\",\"steps\":[{\"id\":\"look\",\"observe\":{\"buttons\":{\"read\":\"elements\",\"selector\":\"button\"}}}]}, the web answering from 1 recorded reply.",
       "hands_back": "The answer's $.steps[0].observed.buttons[0].label contains \"Go\"."
     }
   ]

@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:assess-wikimedia-commons-file-reuse's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:assess-wikimedia-commons-file-reuse with file.\" Check one Commons file's exact original license fields, exclude unsupported rights and prepare required source attribution for any objective",
+  "drafted_from": "tool:assess-wikimedia-commons-file-reuse's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Check one Commons file's exact original license fields, exclude unsupported rights and prepare required source attribution for any objective\", with {\"file\":{\"title\":\"File:Example.jpg\",\"imageinfo\":[{\"descriptionurl\":\"https://commons.wikimedia.org/wiki/File:Example.jpg\",\"extmetadata\":{\"Title\":{\"value\":\"Example\"},\"Artist\":{\"value\":\"A. Author\"},\"LicenseShortName\":{\"value\":\"CC BY 4.0\"},\"LicenseUrl\":{\"value\":\"https://creativecommons.org/licenses/by/4.0/\"}}}]}}. It runs tool:assess-wikimedia-commons-file-reuse and answers {\"eligible_for_selection\":true,\"status\":\"eligible_under_license_policy\",\"file_title\":\"File:Example.jpg\",\"source_url\":\"https://commons.wikimedia.org/wiki/File:Example.jpg\",\"original_metadata\":{\"page_title\":\"File:Example.jpg\",\"title\":\"Example\",\"object_name\":null,\"artist\":\"A. Author\",\"author\":null,\"license_short_name\":\"CC BY 4.0\",\"license_statement\":null ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:assess-wikimedia-commons-file-reuse"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:assess-wikimedia-commons-file-reuse\", and give it file.",
+    "1. Say to your AI: \"Check one Commons file's exact original license fields, exclude unsupported rights and prepare required source attribution for any objective\", and give it file (One Commons page object from the `query.pages` array of the file metadata lookup; keep the original extmetadata intact.).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:assess-wikimedia-commons-file-reuse and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.eligible_for_selection contains \"true\"."
+    "3. Read what comes back: Offline, file-specific check over the page object returned by Commons metadata lookup."
   ],
   "worked_examples": [
     {
-      "title": "Assess Commons file reuse and prepare credit on a sample input",
-      "ask": "Run tool:assess-wikimedia-commons-file-reuse.",
+      "title": "Assess Commons file reuse and prepare credit on its own sample",
+      "ask": "Check one Commons file's exact original license fields, exclude unsupported rights and prepare required source attribution for any objective",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -52,7 +52,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.eligible_for_selection contains \"true\"."
+      "given": "The input {\"file\":{\"title\":\"File:Example.jpg\",\"imageinfo\":[{\"descriptionurl\":\"https://commons.wikimedia.org/wiki/File:Example.jpg\",\"extmetadata\":{\"Title\":{\"value\":\"Example\"},\"Artist\":{\"value\":\"A. Author\"},\"LicenseShortName\":{\"value\":\"CC BY 4.0\"},\"LicenseUrl\":{\"value\":\"https://creativecommons.org/licenses/by/4.0/\"}}}]}}.",
+      "hands_back": "It answered {\"eligible_for_selection\":true,\"status\":\"eligible_under_license_policy\",\"file_title\":\"File:Example.jpg\",\"source_url\":\"https://commons.wikimedia.org/wiki/File:Example.jpg\",\"original_metadata\":{\"page_title\":\"File:Example.jpg\",\"title\":\"Example\",\"object_name\":null,\"artist\":\"A. Author\",\"author\":null,\"license_short_name\":\"CC BY 4.0\",\"license_statement\":null,\"license_url\":\"https://creativecommons.org/licenses/by/4.0/\",\"license_version\":\"4.0\",\"copyrighted\":null,\"credit_statement\":null,\"attribution\":null,\"usage_terms\":null,\"rights_warnings\":[]},\"credit\":{\"title\":\"Example\",\"author\":\"A. Author\",\"source_url\":\"https://commons.wikimedia.org/wiki/File:Example.jpg\",\"license_name\":\"CC BY 4.0\" ...."
     }
   ]
 }

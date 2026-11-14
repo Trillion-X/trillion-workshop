@@ -1,23 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:name-voices-from-the-call's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:name-voices-from-the-call with turns, samples.\" Name the unnamed voices of a recorded call from who the call app showed as speaking on screen, only where the screen evidence is enough, one name to one voice",
+  "drafted_from": "tool:name-voices-from-the-call's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Name the unnamed voices of a recorded call from who the call app showed as speaking on screen, only where the screen evidence is enough, one name to one voice\", with {\"turns\":[{\"start\":0,\"end\":10,\"who\":\"Someone (voice-1)\"}],\"samples\":[{\"at\":600,\"names\":[\"Ada Example\"]},{\"at\":1600,\"names\":[\"Ada Example\"]},{\"at\":2600,\"names\":[\"Ada Example\"]},{\"at\":3600,\"names\":[\"Ada Example\"]},{\"at\":4600,\"names\":[\"Ada Example\"]},{\"at\":5600,\"names\":[\"Ada Example\"]},{\"at\":6600,\"names\":[\"Ada Example\"]},{\"at\":7600,\"names\":[\"Ada Example\"]},{\"at\":8600,\"names\":[\"Ada Example\"]} .... It runs tool:name-voices-from-the-call and answers {\"assignments\":[{\"voice\":\"Someone (voice-1)\",\"name\":\"Ada Example\",\"overlap_ms\":9900,\"share\":0.99}],\"unnamed\":[]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:name-voices-from-the-call",
     "tool:who-is-in-this"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:name-voices-from-the-call\", and give it turns, samples.",
+    "1. Say to your AI: \"Name the unnamed voices of a recorded call from who the call app showed as speaking on screen, only where the screen evidence is enough, one name to one voice\", and give it turns; samples.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:name-voices-from-the-call and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields assignments, unnamed."
+    "3. Read what comes back: Give turns ([{ start, end, who }] in seconds, such as tool:who-is-in-this answered) and samples ([{ at, names }] or [{ at, elements }] in milliseconds from the start of the recording, elements being the call window's accessibility elements), and app (the call app's name) when known."
   ],
   "worked_examples": [
     {
-      "title": "Name the voices from the call app on a sample input",
-      "ask": "Run tool:name-voices-from-the-call.",
+      "title": "Name the voices from the call app on its own sample",
+      "ask": "Name the unnamed voices of a recorded call from who the call app showed as speaking on screen, only where the screen evidence is enough, one name to one voice",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -100,7 +100,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields assignments, unnamed."
+      "given": "The input {\"turns\":[{\"start\":0,\"end\":10,\"who\":\"Someone (voice-1)\"}],\"samples\":[{\"at\":600,\"names\":[\"Ada Example\"]},{\"at\":1600,\"names\":[\"Ada Example\"]},{\"at\":2600,\"names\":[\"Ada Example\"]},{\"at\":3600,\"names\":[\"Ada Example\"]},{\"at\":4600,\"names\":[\"Ada Example\"]},{\"at\":5600,\"names\":[\"Ada Example\"]},{\"at\":6600,\"names\":[\"Ada Example\"]},{\"at\":7600,\"names\":[\"Ada Example\"]},{\"at\":8600,\"names\":[\"Ada Example\"]} ....",
+      "hands_back": "It answered {\"assignments\":[{\"voice\":\"Someone (voice-1)\",\"name\":\"Ada Example\",\"overlap_ms\":9900,\"share\":0.99}],\"unnamed\":[]}."
     }
   ]
 }

@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:set-up-stripe-payment-links's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:set-up-stripe-payment-links with owner, after_payment_url.\" Make Stripe hold one lasting payment link for every priced option of my offers, with the buyer plan page and my discount codes",
+  "drafted_from": "tool:set-up-stripe-payment-links's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Make Stripe hold one lasting payment link for every priced option of my offers, with the buyer plan page and my discount codes\", with {\"owner\":\"sample-shop\",\"after_payment_url\":\"https://shop.example.test/\"}. It runs tool:set-up-stripe-payment-links and answers {\"links\":[{\"offer_id\":\"offer:bread-box\",\"price_option_id\":\"price:box:monthly\",\"url\":\"https://buy.stripe.com/test_sample0001\"},{\"offer_id\":\"offer:sample-cake\",\"price_option_id\":\"price:cake\",\"url\":\"https://buy.stripe.com/test_sample0001\"}],\"retired\":[],\"portal_url\":\"https://billing.stripe.com/p/login/test_sample0001\",\"portal_configuration\":\"bpc_sample0001\",\"codes\":[],\"retired_codes\":[]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:commercial-offer, checkout-code-adjustment) through the records door.",
   "workflows": [],
   "tools": [
     "tool:set-up-stripe-payment-links"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:set-up-stripe-payment-links\", and give it owner, after_payment_url.",
+    "1. Say to your AI: \"Make Stripe hold one lasting payment link for every priced option of my offers, with the buyer plan page and my discount codes\", and give it owner; after_payment_url.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:set-up-stripe-payment-links and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields links, retired, codes."
+    "3. Read what comes back: Give owner (a name that marks the Stripe objects as yours) and after_payment_url (where a buyer lands after paying: an offer row with post_purchase_route_path lands at that path under it, any other at its root).",
+    "4. It reads and writes only its own rows through the records door: record:commercial-offer (records:list); checkout-code-adjustment (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Set up Stripe payment links on a sample input",
-      "ask": "Run tool:set-up-stripe-payment-links.",
+      "title": "Set up Stripe payment links on its own sample",
+      "ask": "Make Stripe hold one lasting payment link for every priced option of my offers, with the buyer plan page and my discount codes",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,7 +33,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields links, retired, codes."
+      "given": "The input {\"owner\":\"sample-shop\",\"after_payment_url\":\"https://shop.example.test/\"}, with 2 example rows (record:commercial-offer) already kept, the web answering from 7 recorded replies.",
+      "hands_back": "It answered {\"links\":[{\"offer_id\":\"offer:bread-box\",\"price_option_id\":\"price:box:monthly\",\"url\":\"https://buy.stripe.com/test_sample0001\"},{\"offer_id\":\"offer:sample-cake\",\"price_option_id\":\"price:cake\",\"url\":\"https://buy.stripe.com/test_sample0001\"}],\"retired\":[],\"portal_url\":\"https://billing.stripe.com/p/login/test_sample0001\",\"portal_configuration\":\"bpc_sample0001\",\"codes\":[],\"retired_codes\":[]}."
     }
   ]
 }

@@ -1,23 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:link-signal-on-this-computer's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:link-signal-on-this-computer with nothing more.\" Link my Signal account to this computer so my messages can be read here",
+  "drafted_from": "tool:link-signal-on-this-computer's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Link my Signal account to this computer so my messages can be read here\", with {}. It runs tool:link-signal-on-this-computer and answers {\"state\":\"linked\",\"self_id\":\"11111111-1111-4111-8111-111111111111\",\"said\":\"Signal is linked on this computer. tool:read-my-signal-messages-on-this-computer now reads it.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:link-signal-on-this-computer",
     "tool:read-my-signal-messages-on-this-computer"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:link-signal-on-this-computer\", and give it nothing more.",
+    "1. Say to your AI: \"Link my Signal account to this computer so my messages can be read here\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:link-signal-on-this-computer and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields state, self_id, said."
+    "3. Read what comes back: Links this computer to your Signal account as one of its devices, once, so tool:read-my-signal-messages-on-this-computer can read your messages here."
   ],
   "worked_examples": [
     {
-      "title": "Link Signal on this computer on a sample input",
-      "ask": "Run tool:link-signal-on-this-computer.",
+      "title": "Link Signal on this computer on its own sample",
+      "ask": "Link my Signal account to this computer so my messages can be read here",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -30,7 +30,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields state, self_id, said."
+      "given": "The input {}.",
+      "hands_back": "It answered {\"state\":\"linked\",\"self_id\":\"11111111-1111-4111-8111-111111111111\",\"said\":\"Signal is linked on this computer. tool:read-my-signal-messages-on-this-computer now reads it.\"}."
     }
   ]
 }

@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:turn-signed-events-into-effects-once's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:turn-signed-events-into-effects-once with op, descriptor_ref, replies.\" Turn signed events into the effects their installed rules name, each effect once, from a verifier answer given in the input, and list a subject's effects from a reader answer given in the input, showing every call that would be sent",
+  "drafted_from": "tool:turn-signed-events-into-effects-once's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Turn signed events into the effects their installed rules name, each effect once, from a verifier answer given in the input, and list a subject's effects from a reader answer given in the input, showing every call that would be sent\", with {\"op\":\"admit\",\"descriptor_ref\":\"signed-event-effects.payment-provider-event-accepted.v1\",\"request_id\":\"req-sample-1\",\"events\":[{\"payload\":{\"event_id\":\"event:sample-1\",\"namespace\":\"payments.sample\",\"occurred_at\":\"2026-11-01T10:00:00Z\",\"idempotency_key\":\"idem-sample-1\",\"facts\":[{\"fact_id\":\"fact:sample-1\",\"subject\":\"person:sample-a\",\"relation\":\"payment.confirmed\",\"object\":\"order:sample-7\" .... It runs tool:turn-signed-events-into-effects-once and answers {\"admitted_count\":1,\"effects\":[{\"effect_id\":\"payment_confirmed:30cf49f4\",\"kind\":\"payment.confirmed\",\"material\":{\"provider_event_id\":\"evt_sample_0001\",\"amount_minor\":1200,\"currency\":\"EUR\",\"event_id\":\"event:sample-1\",\"occurred_at\":\"2026-11-01T10:00:00Z\",\"idempotency_key\":\"idem-sample-1\",\"fact_id\":\"fact:sample-1\",\"relation\":\"payment.confirmed\",\"object\":\"order:sample-7\"},\"object\":\"order:sample-7\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:turn-signed-events-into-effects-once"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:turn-signed-events-into-effects-once\", and give it op, descriptor_ref, replies.",
+    "1. Say to your AI: \"Turn signed events into the effects their installed rules name, each effect once, from a verifier answer given in the input, and list a subject's effects from a reader answer given in the input, showing every call that would be sent\", and give it op; descriptor_ref; replies.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:turn-signed-events-into-effects-once and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields admitted_count, effects, request_id, write_replies, account_id, sent."
+    "3. Read what comes back: Runs the signed-event-effects targets with no transport."
   ],
   "worked_examples": [
     {
-      "title": "Turn signed events into their effects, once each on a sample input",
-      "ask": "Run tool:turn-signed-events-into-effects-once.",
+      "title": "Turn signed events into their effects, once each on its own sample",
+      "ask": "Turn signed events into the effects their installed rules name, each effect once, from a verifier answer given in the input, and list a subject's effects from a reader answer given in the input, showing every call that would be sent",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -72,7 +72,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields admitted_count, effects, request_id, write_replies, account_id, sent."
+      "given": "The input {\"op\":\"admit\",\"descriptor_ref\":\"signed-event-effects.payment-provider-event-accepted.v1\",\"request_id\":\"req-sample-1\",\"events\":[{\"payload\":{\"event_id\":\"event:sample-1\",\"namespace\":\"payments.sample\",\"occurred_at\":\"2026-11-01T10:00:00Z\",\"idempotency_key\":\"idem-sample-1\",\"facts\":[{\"fact_id\":\"fact:sample-1\",\"subject\":\"person:sample-a\",\"relation\":\"payment.confirmed\",\"object\":\"order:sample-7\" ....",
+      "hands_back": "It answered {\"admitted_count\":1,\"effects\":[{\"effect_id\":\"payment_confirmed:30cf49f4\",\"kind\":\"payment.confirmed\",\"material\":{\"provider_event_id\":\"evt_sample_0001\",\"amount_minor\":1200,\"currency\":\"EUR\",\"event_id\":\"event:sample-1\",\"occurred_at\":\"2026-11-01T10:00:00Z\",\"idempotency_key\":\"idem-sample-1\",\"fact_id\":\"fact:sample-1\",\"relation\":\"payment.confirmed\",\"object\":\"order:sample-7\"},\"object\":\"order:sample-7\",\"proof\":{\"canonical_hash\":\"1f:sample-hash\",\"signer_id\":\"signer:sample\",\"signature_ref\":\"00ff\"},\"source_event_ids\":[\"event:sample-1\"],\"subject\":\"person:sample-a\"}],\"request_id\":\"req-sample-1\",\"write_replies\":[{\"written\":true}],\"sent\":[{\"target\":\"payment-provider.verified-webhook-event\" ...."
     }
   ]
 }

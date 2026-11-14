@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:read-deleted-files-keep-for's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-deleted-files-keep-for with nothing more.\" Read how many days this person's Recently Deleted and Archived keep things before they move on",
+  "drafted_from": "tool:read-deleted-files-keep-for's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Read how many days this person's Recently Deleted and Archived keep things before they move on\", with {}. It runs tool:read-deleted-files-keep-for and answers {\"states\":[{\"id\":\"deleted\",\"label\":\"Recently Deleted\",\"after_days\":30,\"default_after_days\":30,\"when_due\":null,\"due_words\":\"Deleted for good\"},{\"id\":\"archived\",\"label\":\"Archived\",\"after_days\":30,\"default_after_days\":30,\"when_due\":\"deleted\",\"due_words\":\"Moves to Recently Deleted\"}],\"choices\":[1,7,30,90,365,null]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (setting) through the records door.",
   "workflows": [],
   "tools": [
     "tool:read-deleted-files-keep-for"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-deleted-files-keep-for\", and give it nothing more.",
+    "1. Say to your AI: \"Read how many days this person's Recently Deleted and Archived keep things before they move on\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-deleted-files-keep-for and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.states[0].id contains \"deleted\"."
+    "3. Read what comes back: Takes no input.",
+    "4. It reads and writes only its own rows through the records door: setting (records:read)."
   ],
   "worked_examples": [
     {
-      "title": "How long deleted files are kept on a sample input",
-      "ask": "Run tool:read-deleted-files-keep-for.",
+      "title": "How long deleted files are kept on its own sample",
+      "ask": "Read how many days this person's Recently Deleted and Archived keep things before they move on",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -29,7 +30,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.states[0].id contains \"deleted\"."
+      "given": "The input {}.",
+      "hands_back": "It answered {\"states\":[{\"id\":\"deleted\",\"label\":\"Recently Deleted\",\"after_days\":30,\"default_after_days\":30,\"when_due\":null,\"due_words\":\"Deleted for good\"},{\"id\":\"archived\",\"label\":\"Archived\",\"after_days\":30,\"default_after_days\":30,\"when_due\":\"deleted\",\"due_words\":\"Moves to Recently Deleted\"}],\"choices\":[1,7,30,90,365,null]}."
     }
   ]
 }

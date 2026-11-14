@@ -1,23 +1,24 @@
 {
   "draft": true,
-  "drafted_from": "tool:grant-paid-access-to-people's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:grant-paid-access-to-people with grants.\" Give people paid access by hand, all at once or one by one (members who moved over from another place, a gift, a pass with an end date), and end a grant I gave",
+  "drafted_from": "tool:grant-paid-access-to-people's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Give people paid access by hand, all at once or one by one (members who moved over from another place, a gift, a pass with an end date), and end a grant I gave\", with {\"grants\":[{\"subject\":\"member@example.com\",\"access_ref\":\"access:sample-course\"}]}. It runs tool:grant-paid-access-to-people and answers {\"written\":1,\"already\":0,\"refused\":[]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (access-grant) through the records door.",
   "workflows": [],
   "tools": [
     "tool:grant-paid-access-to-people",
     "tool:see-who-holds-paid-access"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:grant-paid-access-to-people\", and give it grants.",
+    "1. Say to your AI: \"Give people paid access by hand, all at once or one by one (members who moved over from another place, a gift, a pass with an end date), and end a grant I gave\", and give it grants (The access to give, one item per person and access ref; leave empty when only revoking).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:grant-paid-access-to-people and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.written contains \"1\"."
+    "3. Read what comes back: Writes one access-grant record for each grant: the person (subject, named the way your access rules name a buyer), the access ref they now hold, an optional grant_ref that names the grant (left out, it is \"grant:\" and the access ref), an optional window (valid_from_ms and expires_at_ms together, whole milliseconds since 1970, the end after the start) and an optional note.",
+    "4. It reads and writes only its own rows through the records door: access-grant (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Grant paid access to people on a sample input",
-      "ask": "Run tool:grant-paid-access-to-people.",
+      "title": "Grant paid access to people on its own sample",
+      "ask": "Give people paid access by hand, all at once or one by one (members who moved over from another place, a gift, a pass with an end date), and end a grant I gave",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -37,7 +38,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.written contains \"1\"."
+      "given": "The input {\"grants\":[{\"subject\":\"member@example.com\",\"access_ref\":\"access:sample-course\"}]}.",
+      "hands_back": "It answered {\"written\":1,\"already\":0,\"refused\":[]}, and kept access-grant:member%40example.com:grant:grant%3Aaccess%3Asample-course."
     }
   ]
 }

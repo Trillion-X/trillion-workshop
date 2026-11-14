@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:see-changes-in-a-project's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:see-changes-in-a-project with folder.\" See every file that changed in a project on the person's computer and where each one stands: staged for the next commit, changed but not staged, or new",
+  "drafted_from": "tool:see-changes-in-a-project's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"See every file that changed in a project on the person's computer and where each one stands: staged for the next commit, changed but not staged, or new\", with {\"folder\":\"/projects/sample\"}. It runs tool:see-changes-in-a-project and answers {\"folder\":\"/projects/sample\",\"branch\":\"main\",\"ahead\":1,\"behind\":0,\"changes\":[{\"file_path\":\"notes.txt\",\"bucket\":\"unstaged\",\"status\":\"M\"},{\"file_path\":\"scratch.txt\",\"bucket\":\"untracked\",\"status\":\"?\"}]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:see-changes-in-a-project"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:see-changes-in-a-project\", and give it folder.",
+    "1. Say to your AI: \"See every file that changed in a project on the person's computer and where each one stands: staged for the next commit, changed but not staged, or new\", and give it folder (The full path of the project folder.).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:see-changes-in-a-project and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields folder, branch, ahead, behind, changes."
+    "3. Read what comes back: Give folder, the full path of a project folder the person has let this tool use."
   ],
   "worked_examples": [
     {
-      "title": "See what changed in a project on a sample input",
-      "ask": "Run tool:see-changes-in-a-project.",
+      "title": "See what changed in a project on its own sample",
+      "ask": "See every file that changed in a project on the person's computer and where each one stands: staged for the next commit, changed but not staged, or new",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +31,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields folder, branch, ahead, behind, changes."
+      "given": "The input {\"folder\":\"/projects/sample\"}.",
+      "hands_back": "It answered {\"folder\":\"/projects/sample\",\"branch\":\"main\",\"ahead\":1,\"behind\":0,\"changes\":[{\"file_path\":\"notes.txt\",\"bucket\":\"unstaged\",\"status\":\"M\"},{\"file_path\":\"scratch.txt\",\"bucket\":\"untracked\",\"status\":\"?\"}]}."
     }
   ]
 }

@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:see-my-decisions's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:see-my-decisions with nothing more.\" Show my decisions, what I am working toward, my plans and what has helped me decide",
+  "drafted_from": "tool:see-my-decisions's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Show my decisions, what I am working toward, my plans and what has helped me decide\", with {\"metadata_only\":true,\"access\":{\"capabilities\":[],\"limits\":{}}}. It runs tool:see-my-decisions and answers {\"free\":false,\"access\":{\"capabilities\":[],\"limits\":{}},\"allowance\":null,\"space_pursuits\":[],\"pursuits_words\":{\"text\":\"Every decision is weighed against what you are working toward and what it changes beyond you. Tell your AI, and it adds it for you.\",\"measured\":false}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (decision, decision-revision, decision-step, decision-evidence, decision-answered-step, decision-option, decision-candidate, decision-report, decision-carried-out, decision-history, decision-cited-pursuit, decision-method, decision-part, decision-refs, pursuit, record-scope, record-stance, plan, record:check, setting) through the records door.",
   "workflows": [],
   "tools": [
     "tool:see-my-decisions"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:see-my-decisions\", and give it nothing more.",
+    "1. Say to your AI: \"Show my decisions, what I am working toward, my plans and what has helped me decide\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:see-my-decisions and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.pursuits_words.text contains \"working toward\"."
+    "3. Read what comes back: Reads your own rows and answers the Decisions screen: your newest decisions (at most 100) as summaries with the pursuits each cites, where each stands and how far it has got (decided, next action carried out, result checked); your current pursuits as the tree they nest into (from your record-scope choice rows); your newest plans; and what has helped you (which questions changed your answers and how those decisions turned out).",
+    "4. It reads and writes only its own rows through the records door: decision (records:read, records:list); decision-revision (records:read); decision-step (records:read); decision-evidence (records:read); decision-answered-step (records:read); decision-option (records:read); decision-candidate (records:read); decision-report (records:read); decision-carried-out (records:read); decision-history (records:read); decision-cited-pursuit (records:read); decision-method (records:read); decision-part (records:read); decision-refs (records:read); pursuit (records:read, records:list); record-scope (records:read); record-stance (records:read); plan (records:list); record:check (records:list); setting (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "See my decisions on a sample input",
-      "ask": "Run tool:see-my-decisions.",
+      "title": "See my decisions on its own sample",
+      "ask": "Show my decisions, what I am working toward, my plans and what has helped me decide",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -35,7 +36,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.pursuits_words.text contains \"working toward\"."
+      "given": "The input {\"metadata_only\":true,\"access\":{\"capabilities\":[],\"limits\":{}}}.",
+      "hands_back": "It answered {\"free\":false,\"access\":{\"capabilities\":[],\"limits\":{}},\"allowance\":null,\"space_pursuits\":[],\"pursuits_words\":{\"text\":\"Every decision is weighed against what you are working toward and what it changes beyond you. Tell your AI, and it adds it for you.\",\"measured\":false}}."
     }
   ]
 }

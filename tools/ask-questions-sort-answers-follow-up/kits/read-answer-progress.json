@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:read-answer-progress's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-answer-progress with form_id, respondent_id, field_map.\" Show one person's answers to a form across every time they answered, in order, and the trend of one numeric answer",
+  "drafted_from": "tool:read-answer-progress's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Show one person's answers to a form across every time they answered, in order, and the trend of one numeric answer\", with {\"form_id\":\"sample-intake\",\"respondent_id\":\"respondent-1\",\"field_map\":{\"budget\":\"budget\"}}. It runs tool:read-answer-progress and answers {\"rows\":[{\"id\":\"session-1\",\"label\":\"2026-06-26T00:00:00Z\",\"fields\":{\"budget\":5,\"answeredAt\":\"2026-06-26T00:00:00Z\"}}],\"trend\":{\"field\":\"budget\",\"points\":[5]},\"latest\":{\"budget\":5,\"answeredAt\":\"2026-06-26T00:00:00Z\"},\"count\":1}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (answer-fact) through the records door.",
   "workflows": [],
   "tools": [
     "tool:read-answer-progress"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-answer-progress\", and give it form_id, respondent_id, field_map.",
+    "1. Say to your AI: \"Show one person's answers to a form across every time they answered, in order, and the trend of one numeric answer\", and give it form_id (The form); respondent_id (The person whose answers to read); field_map (Output field name to questionId).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-answer-progress and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields rows, trend, latest, count."
+    "3. Read what comes back: Give form_id, respondent_id and field_map (the name you want for each answer, to its questionId), and optionally trend_field (which mapped answer to chart; default the first that is numeric).",
+    "4. It reads and writes only its own rows through the records door: answer-fact (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Answers over time on a sample input",
-      "ask": "Run tool:read-answer-progress.",
+      "title": "Answers over time on its own sample",
+      "ask": "Show one person's answers to a form across every time they answered, in order, and the trend of one numeric answer",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -35,7 +36,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields rows, trend, latest, count."
+      "given": "The input {\"form_id\":\"sample-intake\",\"respondent_id\":\"respondent-1\",\"field_map\":{\"budget\":\"budget\"}}, with 1 example row (answer-fact) already kept.",
+      "hands_back": "It answered {\"rows\":[{\"id\":\"session-1\",\"label\":\"2026-06-26T00:00:00Z\",\"fields\":{\"budget\":5,\"answeredAt\":\"2026-06-26T00:00:00Z\"}}],\"trend\":{\"field\":\"budget\",\"points\":[5]},\"latest\":{\"budget\":5,\"answeredAt\":\"2026-06-26T00:00:00Z\"},\"count\":1}."
     }
   ]
 }

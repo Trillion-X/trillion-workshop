@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:rehearse-a-payment-schedule-in-stripe-test-mode's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:rehearse-a-payment-schedule-in-stripe-test-mode with payment_schedule, product_name.\" Build a payment schedule in Stripe test mode and see what Stripe says it will charge and when, before a real buyer meets it",
+  "drafted_from": "tool:rehearse-a-payment-schedule-in-stripe-test-mode's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Build a payment schedule in Stripe test mode and see what Stripe says it will charge and when, before a real buyer meets it\", with {\"payment_schedule\":{\"charges\":[{\"amount_cents\":\"800\",\"days_after_signup\":0},{\"amount_cents\":\"3200\",\"days_after_signup\":7}],\"repeat\":{\"amount_cents\":\"4000\",\"interval\":\"month\",\"first_days_after_signup\":37}},\"product_name\":\"Sample course\"}. It runs tool:rehearse-a-payment-schedule-in-stripe-test-mode and answers {\"schedule_id\":\"sub_sched_sample0002\",\"status\":\"active\",\"what_stripe_says\":[{\"phase\":0,\"amount_cents\":3200,\"days_after_start\":0},{\"phase\":1,\"amount_cents\":4000,\"days_after_start\":30}]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:rehearse-a-payment-schedule-in-stripe-test-mode"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:rehearse-a-payment-schedule-in-stripe-test-mode\", and give it payment_schedule, product_name.",
+    "1. Say to your AI: \"Build a payment schedule in Stripe test mode and see what Stripe says it will charge and when, before a real buyer meets it\", and give it payment_schedule; product_name.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:rehearse-a-payment-schedule-in-stripe-test-mode and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields schedule_id, what_stripe_says."
+    "3. Read what comes back: Give payment_schedule and product_name."
   ],
   "worked_examples": [
     {
-      "title": "Rehearse a payment schedule in Stripe test mode on a sample input",
-      "ask": "Run tool:rehearse-a-payment-schedule-in-stripe-test-mode.",
+      "title": "Rehearse a payment schedule in Stripe test mode on its own sample",
+      "ask": "Build a payment schedule in Stripe test mode and see what Stripe says it will charge and when, before a real buyer meets it",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -48,7 +48,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields schedule_id, what_stripe_says."
+      "given": "The input {\"payment_schedule\":{\"charges\":[{\"amount_cents\":\"800\",\"days_after_signup\":0},{\"amount_cents\":\"3200\",\"days_after_signup\":7}],\"repeat\":{\"amount_cents\":\"4000\",\"interval\":\"month\",\"first_days_after_signup\":37}},\"product_name\":\"Sample course\"}, the web answering from 4 recorded replies.",
+      "hands_back": "It answered {\"schedule_id\":\"sub_sched_sample0002\",\"status\":\"active\",\"what_stripe_says\":[{\"phase\":0,\"amount_cents\":3200,\"days_after_start\":0},{\"phase\":1,\"amount_cents\":4000,\"days_after_start\":30}]}."
     }
   ]
 }

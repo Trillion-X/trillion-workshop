@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:describe-connected-accounts's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:describe-connected-accounts with connections.\" Say in plain words, for each of my connected accounts, which one is primary, what its sign-in allowed, what Trillion copies from it, what stays live and what Trillion may do with it",
+  "drafted_from": "tool:describe-connected-accounts's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Say in plain words, for each of my connected accounts, which one is primary, what its sign-in allowed, what Trillion copies from it, what stays live and what Trillion may do with it\", with {\"connections\":[{\"connection_id\":\"c-1\",\"vendor\":\"notion\",\"service\":\"Notion\",\"status\":\"connected\",\"can_send\":false}]}. It runs tool:describe-connected-accounts and answers {\"primary\":{},\"accounts\":[{\"connection_id\":\"c-1\",\"primary\":false,\"allowed_groups\":[],\"words\":{\"copied\":\"Nothing is copied into Trillion ahead of time.\",\"live\":\"Everything else is read live with this account's own sign-in when you or your AI ask.\",\"allowed\":\"Your AI may only read with it; it cannot send.\"},\"steps\":[{\"title\":\"What is copied\",\"body\":\"Nothing is copied into Trillion ahead of time.\"} ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:describe-connected-accounts"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:describe-connected-accounts\", and give it connections.",
+    "1. Say to your AI: \"Say in plain words, for each of my connected accounts, which one is primary, what its sign-in allowed, what Trillion copies from it, what stays live and what Trillion may do with it\", and give it connections.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:describe-connected-accounts and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.accounts contains \"it cannot send\"."
+    "3. Read what comes back: Give connections ([{ connection_id, vendor, service, account_label, status, connected_at, grant_scopes_known, grant_scopes, can_send, visibility, carried_by, capabilityChoices }]) and when wanted chosen ({ vendor: connection_id }, the kept primary choice), arriving ({ vendor: [labels of event sources listening] }), local_copies (connection ids a computer may keep the sign-in of) and capabilities ({ vendor: [{ id, label }] })."
   ],
   "worked_examples": [
     {
-      "title": "Describe my connected accounts on a sample input",
-      "ask": "Run tool:describe-connected-accounts.",
+      "title": "Describe my connected accounts on its own sample",
+      "ask": "Say in plain words, for each of my connected accounts, which one is primary, what its sign-in allowed, what Trillion copies from it, what stays live and what Trillion may do with it",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -39,7 +39,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.accounts contains \"it cannot send\"."
+      "given": "The input {\"connections\":[{\"connection_id\":\"c-1\",\"vendor\":\"notion\",\"service\":\"Notion\",\"status\":\"connected\",\"can_send\":false}]}.",
+      "hands_back": "It answered {\"primary\":{},\"accounts\":[{\"connection_id\":\"c-1\",\"primary\":false,\"allowed_groups\":[],\"words\":{\"copied\":\"Nothing is copied into Trillion ahead of time.\",\"live\":\"Everything else is read live with this account's own sign-in when you or your AI ask.\",\"allowed\":\"Your AI may only read with it; it cannot send.\"},\"steps\":[{\"title\":\"What is copied\",\"body\":\"Nothing is copied into Trillion ahead of time.\"},{\"title\":\"What stays live\",\"body\":\"Everything else is read live with this account's own sign-in when you or your AI ask.\"},{\"title\":\"What Trillion may do\",\"body\":\"Your AI may only read with it; it cannot send.\"}]}]}."
     }
   ]
 }

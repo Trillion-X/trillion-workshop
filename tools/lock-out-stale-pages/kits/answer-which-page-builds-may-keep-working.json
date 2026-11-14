@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:answer-which-page-builds-may-keep-working's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:answer-which-page-builds-may-keep-working with path, method.\" Say which builds of the Trillion page may keep working, so an open tab the store moved past shows a reload screen",
+  "drafted_from": "tool:answer-which-page-builds-may-keep-working's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Say which builds of the Trillion page may keep working, so an open tab the store moved past shows a reload screen\", with {\"path\":\"/client-version\",\"method\":\"GET\",\"query\":{},\"body\":{}}. It runs tool:answer-which-page-builds-may-keep-working and answers {\"status\":200,\"body\":{\"minimum_generation\":1,\"lock_out_before\":null}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:answer-which-page-builds-may-keep-working"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:answer-which-page-builds-may-keep-working\", and give it path, method.",
+    "1. Say to your AI: \"Say which builds of the Trillion page may keep working, so an open tab the store moved past shows a reload screen\", and give it path (The page route after /work/api: /client-version); method.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:answer-which-page-builds-may-keep-working and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.status contains \"200\"."
+    "3. Read what comes back: The page route GET /client-version: answers { minimum_generation, lock_out_before } from the minimum-version DATA this tool carries (src/client-version.json), as old trillion's Worker answered it."
   ],
   "worked_examples": [
     {
-      "title": "Answer which page builds may keep working on a sample input",
-      "ask": "Run tool:answer-which-page-builds-may-keep-working.",
+      "title": "Answer which page builds may keep working on its own sample",
+      "ask": "Say which builds of the Trillion page may keep working, so an open tab the store moved past shows a reload screen",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -34,7 +34,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.status contains \"200\"."
+      "given": "The input {\"path\":\"/client-version\",\"method\":\"GET\",\"query\":{},\"body\":{}}.",
+      "hands_back": "It answered {\"status\":200,\"body\":{\"minimum_generation\":1,\"lock_out_before\":null}}."
     }
   ]
 }

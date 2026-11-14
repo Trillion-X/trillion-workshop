@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:hold-to-it's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:hold-to-it with operation, group.\" Keep an agreement a group made, or a session one person planned (a daily meeting, a habit, a deadline), work out when to remind and check, mark who kept it and keep the scorecard",
+  "drafted_from": "tool:hold-to-it's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Keep an agreement a group made, or a session one person planned (a daily meeting, a habit, a deadline), work out when to remind and check, mark who kept it and keep the scorecard\", with {\"operation\":\"keep\",\"group\":\"bread-club\",\"what\":\"Meet every morning\",\"agreed_by\":[\"Priya Shah\",\"Omar Reyes\",\"Lin\"],\"cadence\":{\"every\":\"day\",\"at\":\"09:00\",\"minutes\":30,\"time_zone\":\"UTC\"},\"policy\":{\"defaults\":{\"minutes\":30,\"time_zone\":\"UTC\",\"remind_minutes\":10,\"check_after_minutes\":30},\"marks\":[{\"id\":\"came\",\"label\":\"Came\",\"points\":1,\"when\":\"present\"},{\"id\":\"missed\",\"label\":\"Missed the meeting\" .... It runs tool:hold-to-it and answers {\"agreement_id\":\"record:agreements:bread-club:meet-every-morning\",\"said\":\"Kept: Meet every morning. Priya Shah, Omar Reyes and Lin agreed. It is set for its time, with a reminder 10 minutes before and a check afterwards of who came.\",\"next\":{\"starts_at\":\"2026-11-14T09:00:00.000Z\",\"ends_at\":\"2026-11-14T09:30:00.000Z\"} ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:agreements, record:agreement-marks, record:agreement-policy) through the records door.",
   "workflows": [],
   "tools": [
     "tool:hold-to-it"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:hold-to-it\", and give it operation, group.",
+    "1. Say to your AI: \"Keep an agreement a group made, or a session one person planned (a daily meeting, a habit, a deadline), work out when to remind and check, mark who kept it and keep the scorecard\", and give it operation; group (Which group's agreements).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:hold-to-it and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Keep an agreement a group made, or a session one person planned (a daily meeting, a habit, a deadline), work out when to remind and check, mark who kept it and keep the scorecard"
+    "3. Read what comes back: keep: { agreement_id, next, remind, check, said } or { agreement_id, needs_time, said }; retime the same; agreements: { agreements }; remind: { said, people }; check: { date, present, absent, marks, said }; mark: { said }; scorecard: { people, said }",
+    "4. It reads and writes only its own rows through the records door: record:agreements (records:read, records:list, records:write); record:agreement-marks (records:read, records:list, records:write); record:agreement-policy (records:read)."
   ],
   "worked_examples": [
     {
-      "title": "Hold a group to what it agreed on a sample input",
-      "ask": "Run tool:hold-to-it.",
+      "title": "Hold a group to what it agreed on its own sample",
+      "ask": "Keep an agreement a group made, or a session one person planned (a daily meeting, a habit, a deadline), work out when to remind and check, mark who kept it and keep the scorecard",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -67,7 +68,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Keep an agreement a group made, or a session one person planned (a daily meeting, a habit, a deadline), work out when to remind and check, mark who kept it and keep the scorecard"
+      "given": "The input {\"operation\":\"keep\",\"group\":\"bread-club\",\"what\":\"Meet every morning\",\"agreed_by\":[\"Priya Shah\",\"Omar Reyes\",\"Lin\"],\"cadence\":{\"every\":\"day\",\"at\":\"09:00\",\"minutes\":30,\"time_zone\":\"UTC\"},\"policy\":{\"defaults\":{\"minutes\":30,\"time_zone\":\"UTC\",\"remind_minutes\":10,\"check_after_minutes\":30},\"marks\":[{\"id\":\"came\",\"label\":\"Came\",\"points\":1,\"when\":\"present\"},{\"id\":\"missed\",\"label\":\"Missed the meeting\" ....",
+      "hands_back": "It answered {\"agreement_id\":\"record:agreements:bread-club:meet-every-morning\",\"said\":\"Kept: Meet every morning. Priya Shah, Omar Reyes and Lin agreed. It is set for its time, with a reminder 10 minutes before and a check afterwards of who came.\",\"next\":{\"starts_at\":\"2026-11-14T09:00:00.000Z\",\"ends_at\":\"2026-11-14T09:30:00.000Z\"},\"remind\":{\"schedule_id\":\"hold-remind-record-agreements-bread-club-meet-every-morning\",\"every\":{\"unit\":\"day\",\"at\":\"08:50\",\"time_zone\":\"UTC\"}},\"check\":{\"schedule_id\":\"hold-check-record-agreements-bread-club-meet-every-morning\",\"every\":{\"unit\":\"day\",\"at\":\"10:00\",\"time_zone\":\"UTC\"}}}, and kept record:agreements:bread-club:meet-every-morning."
     }
   ]
 }

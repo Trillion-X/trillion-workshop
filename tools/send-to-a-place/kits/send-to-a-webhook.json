@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:send-to-a-webhook's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:send-to-a-webhook with things.\" Send a note, or anything picked, to a web address as JSON",
+  "drafted_from": "tool:send-to-a-webhook's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Send a note, or anything picked, to a web address as JSON\", with {\"things\":[{\"kind\":\"note\",\"label\":\"Sample note\",\"address\":\"https://example.com/share/sample\"}],\"note\":\"A sample post from the publish check\",\"title\":\"Sample\",\"address\":\"https://httpbin.org/post\"}. It runs tool:send-to-a-webhook; its answer contains \"httpbin.org answered 200\".",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:send-to-a-webhook"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:send-to-a-webhook\", and give it things.",
+    "1. Say to your AI: \"Send a note, or anything picked, to a web address as JSON\", and give it things (What is being sent: each { kind, label, address?, id?).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:send-to-a-webhook and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.said contains \"httpbin.org answered 200\"."
+    "3. Read what comes back: Posts { title, link, words, things } as JSON to address, a public web address you give, and says what the address answered."
   ],
   "worked_examples": [
     {
-      "title": "Send to a webhook on a sample input",
-      "ask": "Run tool:send-to-a-webhook.",
+      "title": "Send to a webhook on its own sample",
+      "ask": "Send a note, or anything picked, to a web address as JSON",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -40,6 +40,7 @@
           }
         }
       },
+      "given": "The input {\"things\":[{\"kind\":\"note\",\"label\":\"Sample note\",\"address\":\"https://example.com/share/sample\"}],\"note\":\"A sample post from the publish check\",\"title\":\"Sample\",\"address\":\"https://httpbin.org/post\"}.",
       "hands_back": "The answer's $.said contains \"httpbin.org answered 200\"."
     }
   ]

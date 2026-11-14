@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:open-a-capacity-ledger's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:open-a-capacity-ledger with ledger_id, scope_ref, total.\" Set up how many places there are for a class, table, room or any limited thing, so my AI can hold them one by one",
+  "drafted_from": "tool:open-a-capacity-ledger's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Set up how many places there are for a class, table, room or any limited thing, so my AI can hold them one by one\", with {\"ledger_id\":\"ledger:sample-class\",\"scope_ref\":\"scope:sample-class\",\"total\":2}. It runs tool:open-a-capacity-ledger and answers {\"already_open\":false,\"ledger_id\":\"ledger:sample-class\",\"state\":\"open\",\"total\":2,\"confirmed\":0,\"waiting\":0}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (capacity-ledger) through the records door.",
   "workflows": [],
   "tools": [
     "tool:open-a-capacity-ledger"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:open-a-capacity-ledger\", and give it ledger_id, scope_ref, total.",
+    "1. Say to your AI: \"Set up how many places there are for a class, table, room or any limited thing, so my AI can hold them one by one\", and give it ledger_id (The ledger's id, like \"ledger:saturday-class\"); scope_ref (What the places are for, like \"scope:saturday-class\"); total (How many places there are).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:open-a-capacity-ledger and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields already_open, ledger_id, state, total, confirmed, waiting."
+    "3. Read what comes back: Opens one capacity ledger as a record in the person's own records: the total number of places, and optionally how many are kept back for a named class (members, guests, VIP).",
+    "4. It reads and writes only its own rows through the records door: capacity-ledger (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Open a capacity ledger on a sample input",
-      "ask": "Run tool:open-a-capacity-ledger.",
+      "title": "Open a capacity ledger on its own sample",
+      "ask": "Set up how many places there are for a class, table, room or any limited thing, so my AI can hold them one by one",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +34,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields already_open, ledger_id, state, total, confirmed, waiting."
+      "given": "The input {\"ledger_id\":\"ledger:sample-class\",\"scope_ref\":\"scope:sample-class\",\"total\":2}.",
+      "hands_back": "It answered {\"already_open\":false,\"ledger_id\":\"ledger:sample-class\",\"state\":\"open\",\"total\":2,\"confirmed\":0,\"waiting\":0}, and kept ledger:sample-class."
     }
   ]
 }

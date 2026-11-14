@@ -1,23 +1,24 @@
 {
   "draft": true,
-  "drafted_from": "tool:trillion-media-work-control's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:trillion-media-work-control with id, action.\" Pause, resume or stop one long file job on this person's computer drives (a copy or a move), optionally resuming it at a chosen time",
+  "drafted_from": "tool:trillion-media-work-control's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Pause, resume or stop one long file job on this person's computer drives (a copy or a move), optionally resuming it at a chosen time\", with {\"id\":\"copy-sample-1\",\"action\":\"pause\",\"check\":true}. It runs tool:trillion-media-work-control and answers {\"id\":\"copy-sample-1\",\"action\":\"pause\",\"ready\":false}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows () through the records door.",
   "workflows": [],
   "tools": [
     "tool:trillion-media-work-control",
     "tool:trillion-media-work"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:trillion-media-work-control\", and give it id, action.",
+    "1. Say to your AI: \"Pause, resume or stop one long file job on this person's computer drives (a copy or a move), optionally resuming it at a chosen time\", and give it id; action (A control tool:trillion-media-work lists for this job, like pause, resume or stop).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:trillion-media-work-control and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Pause, resume or stop one long file job on this person's computer drives (a copy or a move), optionally resuming it at a chosen time"
+    "3. Read what comes back: Runs on the person's computer.",
+    "4. It reads and writes only its own rows through the records door: undefined (find_file)."
   ],
   "worked_examples": [
     {
-      "title": "Pause, resume or stop drive work on a sample input",
-      "ask": "Run tool:trillion-media-work-control.",
+      "title": "Pause, resume or stop drive work on its own sample",
+      "ask": "Pause, resume or stop one long file job on this person's computer drives (a copy or a move), optionally resuming it at a chosen time",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -34,7 +35,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Pause, resume or stop one long file job on this person's computer drives (a copy or a move), optionally resuming it at a chosen time"
+      "given": "The input {\"id\":\"copy-sample-1\",\"action\":\"pause\",\"check\":true}.",
+      "hands_back": "It answered {\"id\":\"copy-sample-1\",\"action\":\"pause\",\"ready\":false}."
     }
   ]
 }

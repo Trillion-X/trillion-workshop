@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:expire-old-holds's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:expire-old-holds with ledger_id.\" Free the places whose hold time has run out, and offer each to the waitlist",
+  "drafted_from": "tool:expire-old-holds's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Free the places whose hold time has run out, and offer each to the waitlist\", with {\"ledger_id\":\"ledger:sample-class\"}. It runs tool:expire-old-holds and answers {\"expired_holds\":[{\"hold_id\":\"ledger:sample-class:hold:1\",\"subject_ref\":\"person:sample-a\",\"unit_class\":\"general\",\"state\":\"expired\",\"idempotency_key\":\"sample-hold-a\",\"held_at\":\"2026-11-03T09:00:00.000Z\",\"expires_at\":\"2026-11-03T09:15:00.000Z\",\"released_at\":\"2026-11-14T00:50:41.389Z\"}],\"promoted_holds\":[{\"hold_id\":\"ledger:sample-class:hold:3\",\"subject_ref\":\"person:sample-b\",\"unit_class\":\"general\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (capacity-ledger) through the records door.",
   "workflows": [],
   "tools": [
     "tool:expire-old-holds"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:expire-old-holds\", and give it ledger_id.",
+    "1. Say to your AI: \"Free the places whose hold time has run out, and offer each to the waitlist\", and give it ledger_id.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:expire-old-holds and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields expired_holds, promoted_holds, ledger_id, state, total, confirmed, waiting."
+    "3. Read what comes back: Ends every confirmed hold whose expiry has passed by this run's clock and, by default, promotes one waiting entry into each freed place.",
+    "4. It reads and writes only its own rows through the records door: capacity-ledger (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Expire old holds on a sample input",
-      "ask": "Run tool:expire-old-holds.",
+      "title": "Expire old holds on its own sample",
+      "ask": "Free the places whose hold time has run out, and offer each to the waitlist",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +32,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields expired_holds, promoted_holds, ledger_id, state, total, confirmed, waiting."
+      "given": "The input {\"ledger_id\":\"ledger:sample-class\"}, with 1 example row (capacity-ledger) already kept.",
+      "hands_back": "It answered {\"expired_holds\":[{\"hold_id\":\"ledger:sample-class:hold:1\",\"subject_ref\":\"person:sample-a\",\"unit_class\":\"general\",\"state\":\"expired\",\"idempotency_key\":\"sample-hold-a\",\"held_at\":\"2026-11-03T09:00:00.000Z\",\"expires_at\":\"2026-11-03T09:15:00.000Z\",\"released_at\":\"2026-11-14T00:50:41.389Z\"}],\"promoted_holds\":[{\"hold_id\":\"ledger:sample-class:hold:3\",\"subject_ref\":\"person:sample-b\",\"unit_class\":\"general\",\"state\":\"confirmed\",\"idempotency_key\":\"expiry:ledger:sample-class:hold:1\",\"held_at\":\"2026-11-14T00:50:41.389Z\",\"promoted_from_waitlist_entry_id\":\"ledger:sample-class:waitlist:2\"}],\"ledger_id\":\"ledger:sample-class\",\"state\":\"open\",\"total\":2,\"confirmed\":1,\"waiting\":0}."
     }
   ]
 }

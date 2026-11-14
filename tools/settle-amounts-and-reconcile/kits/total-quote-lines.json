@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:total-quote-lines's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:total-quote-lines with action, list_id, lines_kind.\" Total the lines of a quote or invoice in order, where each percent line names the base it multiplies (the line above, the lines since the last subtotal, or all above) and a subtotal line resets that base",
+  "drafted_from": "tool:total-quote-lines's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Total the lines of a quote or invoice in order, where each percent line names the base it multiplies (the line above, the lines since the last subtotal, or all above) and a subtotal line resets that base\", with {\"action\":\"totals\",\"list_id\":\"quote\",\"lines_kind\":\"record:settle-quote\",\"lines\":{\"order_field\":\"pos\"}}. It runs tool:total-quote-lines and answers {\"list_id\":\"quote\",\"lines\":[{\"id\":\"a\",\"kind\":\"amount\",\"value\":200,\"amount\":200,\"running\":200},{\"id\":\"b\",\"kind\":\"amount\",\"value\":800,\"amount\":800,\"running\":1000},{\"id\":\"c\",\"kind\":\"percent\",\"value\":-10,\"base\":{\"id\":\"previous_line\",\"says\":\"The line directly above only.\",\"amount\":800},\"amount\":-80,\"running\":920}],\"total\":920}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (list, [object Object]) through the records door.",
   "workflows": [],
   "tools": [
     "tool:total-quote-lines"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:total-quote-lines\", and give it action, list_id, lines_kind.",
+    "1. Say to your AI: \"Total the lines of a quote or invoice in order, where each percent line names the base it multiplies (the line above, the lines since the last subtotal, or all above) and a subtotal line resets that base\", and give it action; list_id (The list in the request: the source (or the lines, or the row's list) when the body leaves its own list_id out.); lines_kind (The record kind of the lines list's rows (record:<its row_type>); the run's right is filled from this field.).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:total-quote-lines and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Total the lines of a quote or invoice in order, where each percent line names the base it multiplies (the line above, the lines since the last subtotal, or all above) and a subtotal line resets that base"
+    "3. Read what comes back: action totals takes lines { kind_field?, value_field?, base_field?, order_field?",
+    "4. It reads and writes only its own rows through the records door: list (records:read, records:list, records:write); [object Object] (records:read, records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Total the lines of a quote or invoice on a sample input",
-      "ask": "Run tool:total-quote-lines.",
+      "title": "Total the lines of a quote or invoice on its own sample",
+      "ask": "Total the lines of a quote or invoice in order, where each percent line names the base it multiplies (the line above, the lines since the last subtotal, or all above) and a subtotal line resets that base",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -36,7 +37,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Total the lines of a quote or invoice in order, where each percent line names the base it multiplies (the line above, the lines since the last subtotal, or all above) and a subtotal line resets that base"
+      "given": "The input {\"action\":\"totals\",\"list_id\":\"quote\",\"lines_kind\":\"record:settle-quote\",\"lines\":{\"order_field\":\"pos\"}}, with 4 example rows (list, record:settle-quote) already kept.",
+      "hands_back": "It answered {\"list_id\":\"quote\",\"lines\":[{\"id\":\"a\",\"kind\":\"amount\",\"value\":200,\"amount\":200,\"running\":200},{\"id\":\"b\",\"kind\":\"amount\",\"value\":800,\"amount\":800,\"running\":1000},{\"id\":\"c\",\"kind\":\"percent\",\"value\":-10,\"base\":{\"id\":\"previous_line\",\"says\":\"The line directly above only.\",\"amount\":800},\"amount\":-80,\"running\":920}],\"total\":920}."
     }
   ]
 }

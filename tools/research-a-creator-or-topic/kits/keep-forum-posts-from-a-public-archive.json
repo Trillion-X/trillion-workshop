@@ -1,23 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:keep-forum-posts-from-a-public-archive's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:keep-forum-posts-from-a-public-archive with forums.\" Keep the newest posts of the forums I name (subreddits), with their titles, words, scores and comment counts, from a public archive of the site",
+  "drafted_from": "tool:keep-forum-posts-from-a-public-archive's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Keep the newest posts of the forums I name (subreddits), with their titles, words, scores and comment counts, from a public archive of the site\", with {\"forums\":[{\"name\":\"baking\",\"group\":\"home-bakers\"}],\"pages\":1}. It runs tool:keep-forum-posts-from-a-public-archive and answers {\"stopped\":\"finished\",\"forums\":[{\"forum\":\"baking\",\"posts\":1,\"pages\":1,\"finished\":true}],\"failed\":[],\"again\":null}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:keep-forum-posts-from-a-public-archive",
     "tool:collect-and-rank-viewer-questions"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:keep-forum-posts-from-a-public-archive\", and give it forums.",
+    "1. Say to your AI: \"Keep the newest posts of the forums I name (subreddits), with their titles, words, scores and comment counts, from a public archive of the site\", and give it forums (Forums by name (a subreddit without r/): {forum: group}, or a list of names or { name, group }; group is your own word for who writes there, kept on each post).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:keep-forum-posts-from-a-public-archive and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields stopped, forums, failed, again."
+    "3. Read what comes back: For each forum (a subreddit) asks the Arctic Shift public archive of Reddit (a third-party service, not the site itself) for its newest posts, a page of 100 at a time, each page older than the last, up to `pages` pages a forum (6 when left out), and keeps each post's id, link, title, words, score, comment count and time, with the forum and the group you name for it."
   ],
   "worked_examples": [
     {
-      "title": "Keep the latest posts of forums I name on a sample input",
-      "ask": "Run tool:keep-forum-posts-from-a-public-archive.",
+      "title": "Keep the latest posts of forums I name on its own sample",
+      "ask": "Keep the newest posts of the forums I name (subreddits), with their titles, words, scores and comment counts, from a public archive of the site",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -38,7 +38,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields stopped, forums, failed, again."
+      "given": "The input {\"forums\":[{\"name\":\"baking\",\"group\":\"home-bakers\"}],\"pages\":1}, the web answering from 1 recorded reply.",
+      "hands_back": "It answered {\"stopped\":\"finished\",\"forums\":[{\"forum\":\"baking\",\"posts\":1,\"pages\":1,\"finished\":true}],\"failed\":[],\"again\":null}."
     }
   ]
 }

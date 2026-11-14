@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:answer-the-tell-notices-route's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:answer-the-tell-notices-route with path, method.\" Answer the Trillion page route GET /work/api/tell/notices: the notices the open page shows, or what one channel's devices read, as old Trillion did",
+  "drafted_from": "tool:answer-the-tell-notices-route's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Answer the Trillion page route GET /work/api/tell/notices: the notices the open page shows, or what one channel's devices read, as old Trillion did\", with {\"path\":\"/tell/notices\",\"method\":\"GET\",\"query\":{},\"body\":{},\"browser\":{}}. It runs tool:answer-the-tell-notices-route and answers {\"status\":200,\"body\":{\"notices\":[]}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (told-the-person) through the records door.",
   "workflows": [],
   "tools": [
     "tool:answer-the-tell-notices-route"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:answer-the-tell-notices-route\", and give it path, method.",
+    "1. Say to your AI: \"Answer the Trillion page route GET /work/api/tell/notices: the notices the open page shows, or what one channel's devices read, as old Trillion did\", and give it path (The route after /work/api); method.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:answer-the-tell-notices-route and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.status contains \"200\"."
+    "3. Read what comes back: A page route tool: the engine runs it for the page's account with { path, method, query, body, browser } and answers the page with { status, body }.",
+    "4. It reads and writes only its own rows through the records door: told-the-person (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Answer the page that lists what Trillion told me on a sample input",
-      "ask": "Run tool:answer-the-tell-notices-route.",
+      "title": "Answer the page that lists what Trillion told me on its own sample",
+      "ask": "Answer the Trillion page route GET /work/api/tell/notices: the notices the open page shows, or what one channel's devices read, as old Trillion did",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -35,7 +36,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.status contains \"200\"."
+      "given": "The input {\"path\":\"/tell/notices\",\"method\":\"GET\",\"query\":{},\"body\":{},\"browser\":{}}.",
+      "hands_back": "It answered {\"status\":200,\"body\":{\"notices\":[]}}."
     }
   ]
 }

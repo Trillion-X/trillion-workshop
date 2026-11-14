@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:read-post-calendar's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-post-calendar with from, to.\" Show what this person is posting between two times, and which drafts have no time yet, so a post can be given a time or moved to another",
+  "drafted_from": "tool:read-post-calendar's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Show what this person is posting between two times, and which drafts have no time yet, so a post can be given a time or moved to another\", with {\"from\":\"2026-10-01T00:00:00Z\",\"to\":\"2026-11-01T00:00:00Z\"}. It runs tool:read-post-calendar and answers {\"from\":\"2026-10-01T00:00:00.000Z\",\"to\":\"2026-11-01T00:00:00.000Z\",\"posts\":[],\"unscheduled\":[]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (post) through the records door.",
   "workflows": [],
   "tools": [
     "tool:read-post-calendar"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-post-calendar\", and give it from, to.",
+    "1. Say to your AI: \"Show what this person is posting between two times, and which drafts have no time yet, so a post can be given a time or moved to another\", and give it from (The start of the span, like 2026-10-01T00:00:00-04:00); to (The end of the span, after from).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-post-calendar and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.from contains \"2026-10-01\"."
+    "3. Read what comes back: Give from and to (dates and times with their zone).",
+    "4. It reads and writes only its own rows through the records door: post (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Posting calendar on a sample input",
-      "ask": "Run tool:read-post-calendar.",
+      "title": "Posting calendar on its own sample",
+      "ask": "Show what this person is posting between two times, and which drafts have no time yet, so a post can be given a time or moved to another",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,7 +33,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.from contains \"2026-10-01\"."
+      "given": "The input {\"from\":\"2026-10-01T00:00:00Z\",\"to\":\"2026-11-01T00:00:00Z\"}.",
+      "hands_back": "It answered {\"from\":\"2026-10-01T00:00:00.000Z\",\"to\":\"2026-11-01T00:00:00.000Z\",\"posts\":[],\"unscheduled\":[]}."
     }
   ]
 }

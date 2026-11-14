@@ -1,7 +1,7 @@
 {
   "draft": true,
-  "drafted_from": "tool:render-an-overlay-insert-for-a-cut's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:render-an-overlay-insert-for-a-cut with assets, out.\" Make everything I need to cut a narrated correction into my film: the overlay, the narrator voice and the music and sound stem lined up with it, freeze frames from the camera clip and from my graded export, and a preview with a few seconds of my cut before and after, after checking its claims",
+  "drafted_from": "tool:render-an-overlay-insert-for-a-cut's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Make everything I need to cut a narrated correction into my film: the overlay, the narrator voice and the music and sound stem lined up with it, freeze frames from the camera clip and from my graded export, and a preview with a few seconds of my cut before and after, after checking its claims\", with {\"settings_files\":[\"read-data/example-look/look.json\"],\"assets\":\"read-data/example-look\",\"out\":\"out/sample-insert\",\"stills\":[0.2],\"claim_check\":{\"skip\":\"a made-up shot that makes no claim\"},\"spec\":{\"id\":\"sample-insert\",\"canvas\":[256,256],\"cutout\":{\"image\":\"paper.png\"},\"plate\":{\"source\":\"none.mp4\",\"frame\":0},\"graded_frame\":{\"export\":\"none.mp4\",\"cut_frame\":0},\"cut_insert_s\":0 .... It runs tool:render-an-overlay-insert-for-a-cut and answers {\"inserts\":[{\"id\":\"sample-insert\",\"frames\":27,\"duration_s\":1.1261,\"timeline\":\"out/sample-insert/sample-insert/sample-insert-timeline.json\",\"claim_check\":[\"sample-insert: claim check skipped: a made-up shot that makes no claim\"],\"stills\":[\"out/sample-insert/sample-insert/still-00.20.jpg\"]}]}",
   "lists": [
     {
       "list": "list:settings",
@@ -108,7 +108,6 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
     "tool:render-an-overlay-insert-for-a-cut",
@@ -116,14 +115,15 @@
     "tool:render-a-motion-graphics-overlay"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:render-an-overlay-insert-for-a-cut\", and give it assets, out.",
+    "1. Say to your AI: \"Make everything I need to cut a narrated correction into my film: the overlay, the narrator voice and the music and sound stem lined up with it, freeze frames from the camera clip and from my graded export, and a preview with a few seconds of my cut before and after, after checking its claims\", and give it assets (The folder the look's relative file names (faces, textures, recordings) are read from); out (The folder the overlay, sound, timeline and the render's scratch are written to).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:render-an-overlay-insert-for-a-cut and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields inserts."
+    "3. Read what comes back: For each shot (a spec with plate {source, frame}, graded_frame {export, cut_frame}, cut_insert_s and optional preview_before_end_s / preview_after_start_s), first runs tool:check-every-claim-against-its-facts-and-sources on it and refuses a shot whose claims fail; then writes into out/<shot id>/: <id>-overlay-prores4444.mov (ProRes 4444 with alpha), <id>-narrator.wav (the voice padded so 0 s is the overlay's first frame), <id>-sfx-music.wav (the music bed from the look's recipe.sound.music and every placed sound effect, same alignment), <id>-plate-slog3-prores422hq.mov (the camera frame held, ungraded), <id>-plate-graded-prores422hq.mov (the same moment from the graded export, held, to sit above the editor's adjustment layer), <id>-preview.mp4 (3 s of the graded export, the insert, 3 s after) and <id>-timeline.json.",
+    "4. It reads and writes only its own rows through the records door: record:setting (records:read); record:setting (records:read)."
   ],
   "worked_examples": [
     {
-      "title": "Render a correction insert for a film cut: its overlay, the voice and music stems, freeze plates and a preview in context on a sample input",
-      "ask": "Run tool:render-an-overlay-insert-for-a-cut.",
+      "title": "Render a correction insert for a film cut: its overlay, the voice and music stems, freeze plates and a preview in context on its own sample",
+      "ask": "Make everything I need to cut a narrated correction into my film: the overlay, the narrator voice and the music and sound stem lined up with it, freeze frames from the camera clip and from my graded export, and a preview with a few seconds of my cut before and after, after checking its claims",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -177,7 +177,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields inserts."
+      "given": "The input {\"settings_files\":[\"read-data/example-look/look.json\"],\"assets\":\"read-data/example-look\",\"out\":\"out/sample-insert\",\"stills\":[0.2],\"claim_check\":{\"skip\":\"a made-up shot that makes no claim\"},\"spec\":{\"id\":\"sample-insert\",\"canvas\":[256,256],\"cutout\":{\"image\":\"paper.png\"},\"plate\":{\"source\":\"none.mp4\",\"frame\":0},\"graded_frame\":{\"export\":\"none.mp4\",\"cut_frame\":0},\"cut_insert_s\":0 ....",
+      "hands_back": "It answered {\"inserts\":[{\"id\":\"sample-insert\",\"frames\":27,\"duration_s\":1.1261,\"timeline\":\"out/sample-insert/sample-insert/sample-insert-timeline.json\",\"claim_check\":[\"sample-insert: claim check skipped: a made-up shot that makes no claim\"],\"stills\":[\"out/sample-insert/sample-insert/still-00.20.jpg\"]}]}."
     }
   ],
   "pour": {

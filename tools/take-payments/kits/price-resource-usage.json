@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:price-resource-usage's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:price-resource-usage with at.\" Price measured resource costs from my versioned resource, plan and client rules or purchased snapshots, and keep one total with expandable detail without charging rollups twice",
+  "drafted_from": "tool:price-resource-usage's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Price measured resource costs from my versioned resource, plan and client rules or purchased snapshots, and keep one total with expandable detail without charging rollups twice\", with {\"at\":\"2026-10-31T00:00:00Z\",\"resource_id\":\"resource:bytes\",\"rules\":[{\"id\":\"rule:sample\",\"scope\":{},\"effective_at\":\"2026-01-01T00:00:00Z\",\"markup_bps\":\"3000\"}]}. It runs tool:price-resource-usage and answers {\"terms\":{\"resource_id\":\"resource:bytes\",\"markup_bps\":\"3000\",\"rule_ref\":\"rule:sample\",\"effective_at\":\"2026-01-01T00:00:00Z\",\"pinned\":false}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (usage-pricing-rule, usage-pricing-rule-version, resource-usage-observation, resource-usage-settlement, resource-usage-settlement-version, resource-usage-receipt, resource-usage-allocation, resource-usage-settlement-evidence) through the records door.",
   "workflows": [],
   "tools": [
     "tool:price-resource-usage"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:price-resource-usage\", and give it at.",
+    "1. Say to your AI: \"Price measured resource costs from my versioned resource, plan and client rules or purchased snapshots, and keep one total with expandable detail without charging rollups twice\", and give it at.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:price-resource-usage and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.terms.markup_bps contains \"3000\"."
+    "3. Read what comes back: Price measured resource costs from my versioned resource, plan and client rules or purchased snapshots, and keep one total with expandable detail without charging rollups twice",
+    "4. It reads and writes only its own rows through the records door: usage-pricing-rule (records:read, records:list); usage-pricing-rule-version (records:read, records:list); resource-usage-observation (records:read, records:list); resource-usage-settlement (records:read, records:list); resource-usage-settlement-version (records:read, records:list); resource-usage-receipt (records:read, records:list); resource-usage-allocation (records:read, records:list); resource-usage-settlement-evidence (records:read, records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Price resource usage on a sample input",
-      "ask": "Run tool:price-resource-usage.",
+      "title": "Price resource usage on its own sample",
+      "ask": "Price measured resource costs from my versioned resource, plan and client rules or purchased snapshots, and keep one total with expandable detail without charging rollups twice",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -40,7 +41,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.terms.markup_bps contains \"3000\"."
+      "given": "The input {\"at\":\"2026-10-31T00:00:00Z\",\"resource_id\":\"resource:bytes\",\"rules\":[{\"id\":\"rule:sample\",\"scope\":{},\"effective_at\":\"2026-01-01T00:00:00Z\",\"markup_bps\":\"3000\"}]}.",
+      "hands_back": "It answered {\"terms\":{\"resource_id\":\"resource:bytes\",\"markup_bps\":\"3000\",\"rule_ref\":\"rule:sample\",\"effective_at\":\"2026-01-01T00:00:00Z\",\"pinned\":false}}."
     }
   ]
 }

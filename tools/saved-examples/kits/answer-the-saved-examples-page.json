@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:answer-the-saved-examples-page's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:answer-the-saved-examples-page with path, method.\" Answer the Saved examples page: list my saved examples, save one from its link, remove one",
+  "drafted_from": "tool:answer-the-saved-examples-page's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Answer the Saved examples page: list my saved examples, save one from its link, remove one\", with {\"path\":\"/saved-examples\",\"method\":\"GET\",\"query\":{},\"body\":{}}. It runs tool:answer-the-saved-examples-page and answers {\"status\":200,\"body\":{\"examples\":[{\"id\":\"example:0123456789abcdef0123456789abcdef\",\"url\":\"https://example.com/posts/sample\",\"host\":\"example.com\",\"site\":\"Example\",\"title\":\"A sample post\",\"words\":\"Made-up words.\",\"pictures\":[],\"why_it_worked\":\"A made-up reason.\",\"collection\":null,\"added_from\":\"sample\",\"added_at\":\"2026-11-01T00:00:00.000Z\",\"updated_at\":\"2026-11-01T00:00:00.000Z\"}],\"count\":1}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (saved-example) through the records door.",
   "workflows": [],
   "tools": [
     "tool:answer-the-saved-examples-page"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:answer-the-saved-examples-page\", and give it path, method.",
+    "1. Say to your AI: \"Answer the Saved examples page: list my saved examples, save one from its link, remove one\", and give it path (The page route after /work/api: /saved-examples, /saved-examples/remove); method.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:answer-the-saved-examples-page and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields status, body."
+    "3. Read what comes back: The Saved examples page's routes (GET /saved-examples lists every example newest first with its count; POST /saved-examples saves one from { url, title?, words?, pictures?, why_it_worked?, collection?, added_from?",
+    "4. It reads and writes only its own rows through the records door: saved-example (records:list, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Answer the Saved examples page on a sample input",
-      "ask": "Run tool:answer-the-saved-examples-page.",
+      "title": "Answer the Saved examples page on its own sample",
+      "ask": "Answer the Saved examples page: list my saved examples, save one from its link, remove one",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -34,7 +35,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields status, body."
+      "given": "The input {\"path\":\"/saved-examples\",\"method\":\"GET\",\"query\":{},\"body\":{}}, with 1 example row (saved-example) already kept.",
+      "hands_back": "It answered {\"status\":200,\"body\":{\"examples\":[{\"id\":\"example:0123456789abcdef0123456789abcdef\",\"url\":\"https://example.com/posts/sample\",\"host\":\"example.com\",\"site\":\"Example\",\"title\":\"A sample post\",\"words\":\"Made-up words.\",\"pictures\":[],\"why_it_worked\":\"A made-up reason.\",\"collection\":null,\"added_from\":\"sample\",\"added_at\":\"2026-11-01T00:00:00.000Z\",\"updated_at\":\"2026-11-01T00:00:00.000Z\"}],\"count\":1}}."
     }
   ]
 }

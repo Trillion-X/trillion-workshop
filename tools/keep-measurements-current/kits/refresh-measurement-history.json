@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:refresh-measurement-history's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:refresh-measurement-history with nothing more.\" Collect configured operation evidence and save current history directly on a timed or record wake without an AI",
+  "drafted_from": "tool:refresh-measurement-history's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Collect configured operation evidence and save current history directly on a timed or record wake without an AI\", with {}. It runs tool:refresh-measurement-history and answers {\"physical_refresh\":{\"invocation\":\"1f:771350c116fb407c3a9c0dbcd04e220185ba64e3f3246453016681555e1e02dd\",\"appended\":{\"inserted\":5,\"replayed\":0,\"receipts\":[{\"changed\":5,\"write_count\":5}]},\"measurements\":[{\"event_id\":\"1f:771350c116fb407c3a9c0dbcd04e220185ba64e3f3246453016681555e1e02dd:wall_until_final_persist_ms\",\"provider\":\"native-computer\",\"operation\":\"collector.process\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (measurement_source_config, record:cost-measurement-observation, record:cost-measurement-forecast) through the records door.",
   "workflows": [],
   "tools": [
     "tool:refresh-measurement-history"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:refresh-measurement-history\", and give it nothing more.",
+    "1. Say to your AI: \"Collect configured operation evidence and save current history directly on a timed or record wake without an AI\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:refresh-measurement-history and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Collect configured operation evidence and save current history directly on a timed or record wake without an AI"
+    "3. Read what comes back: Reads account source configuration, packaged qualified price DATA and prior forecast state, runs the canonical collector and ledger directly, and reads back append-once observations and forecast.",
+    "4. It reads and writes only its own rows through the records door: measurement_source_config (records:read); record:cost-measurement-observation (records:read, records:list, records:write); record:cost-measurement-forecast (records:read, records:list, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Keep measurement history current on a sample input",
-      "ask": "Run tool:refresh-measurement-history.",
+      "title": "Keep measurement history current on its own sample",
+      "ask": "Collect configured operation evidence and save current history directly on a timed or record wake without an AI",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -29,7 +30,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Collect configured operation evidence and save current history directly on a timed or record wake without an AI"
+      "given": "The input {}, with 1 example row (measurement_source_config) already kept.",
+      "hands_back": "It answered {\"physical_refresh\":{\"invocation\":\"1f:771350c116fb407c3a9c0dbcd04e220185ba64e3f3246453016681555e1e02dd\",\"appended\":{\"inserted\":5,\"replayed\":0,\"receipts\":[{\"changed\":5,\"write_count\":5}]},\"measurements\":[{\"event_id\":\"1f:771350c116fb407c3a9c0dbcd04e220185ba64e3f3246453016681555e1e02dd:wall_until_final_persist_ms\",\"provider\":\"native-computer\",\"operation\":\"collector.process\",\"metric\":\"wall_until_final_persist_ms\",\"metric_kind\":\"duration_distribution\",\"aggregation\":\"duration_distribution\",\"unit\":\"ms\",\"currency\":\"none\",\"scenario_id\":\"monitoring-overhead\",\"source_revision\":\"1f:8c660ac64241576fd492574cbc1fb81061d6d7f5621c1ad18edc74dc19ffc8be\",\"source_coverage\":\"observer-entry-only\" ..., and kept record:cost-measurement-observation:1f%3A17bc3a91453a522230122c35997feb60fe9b82188b17226cfc680892799e813b, record:cost-measurement-observation:1f%3A38fd2e8349c31ad1824be99b1dd2bb851e8fd4149599f7017b40d247521aa395, record:cost-measurement-observation:1f%3Adc873c8f55ee274530c28b66dd7d308164be0768b444e8310601acf9a7457e3c, ...."
     }
   ]
 }

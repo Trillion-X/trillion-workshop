@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:pair-an-unknown-sender's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:pair-an-unknown-sender with source_id, sender.\" Hold a message from a sender the person has not paired yet and give that sender a short code the person can approve",
+  "drafted_from": "tool:pair-an-unknown-sender's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Hold a message from a sender the person has not paired yet and give that sender a short code the person can approve\", with {\"source_id\":\"events:sample\",\"sender\":\"sender-one\"}. It runs tool:pair-an-unknown-sender and answers {\"code\":\"H2BMNFA2\",\"expires_at\":\"2026-11-14T01:50:34.724Z\",\"said\":\"sender-one is not paired yet. Their code is H2BMNFA2 until 2026-11-14T01:50:34.724Z; approve it to let their messages through.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (sender-pairing) through the records door.",
   "workflows": [],
   "tools": [
     "tool:pair-an-unknown-sender"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:pair-an-unknown-sender\", and give it source_id, sender.",
+    "1. Say to your AI: \"Hold a message from a sender the person has not paired yet and give that sender a short code the person can approve\", and give it source_id; sender.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:pair-an-unknown-sender and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.said contains \"not paired yet\"."
+    "3. Read what comes back: Give source_id (the event source the message came in on) and sender (the sender's own id on that source).",
+    "4. It reads and writes only its own rows through the records door: sender-pairing (records:read, records:list, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Give an unknown sender a pairing code on a sample input",
-      "ask": "Run tool:pair-an-unknown-sender.",
+      "title": "Give an unknown sender a pairing code on its own sample",
+      "ask": "Hold a message from a sender the person has not paired yet and give that sender a short code the person can approve",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,7 +33,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.said contains \"not paired yet\"."
+      "given": "The input {\"source_id\":\"events:sample\",\"sender\":\"sender-one\"}.",
+      "hands_back": "It answered {\"code\":\"H2BMNFA2\",\"expires_at\":\"2026-11-14T01:50:34.724Z\",\"said\":\"sender-one is not paired yet. Their code is H2BMNFA2 until 2026-11-14T01:50:34.724Z; approve it to let their messages through.\"}, and kept pairing-waiting:events:sample:H2BMNFA2."
     }
   ]
 }

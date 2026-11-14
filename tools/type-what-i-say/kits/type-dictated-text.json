@@ -1,23 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:type-dictated-text's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:type-dictated-text with text.\" Put dictated text where the person's cursor is as one clipboard transaction (save, write, paste, restore, verify), never pasting over a clipboard it cannot put back, and note the dictation in their bounded history",
+  "drafted_from": "tool:type-dictated-text's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Put dictated text where the person's cursor is as one clipboard transaction (save, write, paste, restore, verify), never pasting over a clipboard it cannot put back, and note the dictation in their bounded history\", with {\"text\":\"Hello from Ada Example.\",\"context\":{\"app\":\"Notes\"}}. It runs tool:type-dictated-text and answers {\"entry_id\":\"9c6df61dfb4c27d0\",\"kind\":\"inserted-verified\",\"saved\":true,\"wrote\":true,\"pasted\":true,\"restored\":true,\"verified\":true,\"error\":null}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:type-dictated-text",
     "tool:dictate"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:type-dictated-text\", and give it text.",
+    "1. Say to your AI: \"Put dictated text where the person's cursor is as one clipboard transaction (save, write, paste, restore, verify), never pasting over a clipboard it cannot put back, and note the dictation in their bounded history\", and give it text.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:type-dictated-text and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Put dictated text where the person's cursor is as one clipboard transaction (save, write, paste, restore, verify), never pasting over a clipboard it cannot put back, and note the dictation in their bounded history"
+    "3. Read what comes back: Give text (cleaned by tool:dictate) and entry_id and context.app when known."
   ],
   "worked_examples": [
     {
-      "title": "Type dictated text at the cursor on a sample input",
-      "ask": "Run tool:type-dictated-text.",
+      "title": "Type dictated text at the cursor on its own sample",
+      "ask": "Put dictated text where the person's cursor is as one clipboard transaction (save, write, paste, restore, verify), never pasting over a clipboard it cannot put back, and note the dictation in their bounded history",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -35,7 +35,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Put dictated text where the person's cursor is as one clipboard transaction (save, write, paste, restore, verify), never pasting over a clipboard it cannot put back, and note the dictation in their bounded history"
+      "given": "The input {\"text\":\"Hello from Ada Example.\",\"context\":{\"app\":\"Notes\"}}.",
+      "hands_back": "It answered {\"entry_id\":\"9c6df61dfb4c27d0\",\"kind\":\"inserted-verified\",\"saved\":true,\"wrote\":true,\"pasted\":true,\"restored\":true,\"verified\":true,\"error\":null}."
     }
   ]
 }

@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:read-form-results's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-form-results with nothing more.\" Show who answered a form, the score each earned and the segment each was sorted into, with a count per segment",
+  "drafted_from": "tool:read-form-results's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Show who answered a form, the score each earned and the segment each was sorted into, with a count per segment\", with {}. It runs tool:read-form-results and answers {\"rows\":[],\"summary\":{\"total\":0,\"bySegment\":{}}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (segment-assignment) through the records door.",
   "workflows": [],
   "tools": [
     "tool:read-form-results"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-form-results\", and give it nothing more.",
+    "1. Say to your AI: \"Show who answered a form, the score each earned and the segment each was sorted into, with a count per segment\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-form-results and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.summary.total contains \"0\"."
+    "3. Read what comes back: Give a form_id to see one form, or nothing to see every form.",
+    "4. It reads and writes only its own rows through the records door: segment-assignment (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Form results on a sample input",
-      "ask": "Run tool:read-form-results.",
+      "title": "Form results on its own sample",
+      "ask": "Show who answered a form, the score each earned and the segment each was sorted into, with a count per segment",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -29,7 +30,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.summary.total contains \"0\"."
+      "given": "The input {}.",
+      "hands_back": "It answered {\"rows\":[],\"summary\":{\"total\":0,\"bySegment\":{}}}."
     }
   ]
 }

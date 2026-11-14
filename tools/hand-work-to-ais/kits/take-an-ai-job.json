@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:take-an-ai-job's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:take-an-ai-job with as.\" Take the next job another of my AIs left for me, so no other AI does it too",
+  "drafted_from": "tool:take-an-ai-job's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Take the next job another of my AIs left for me, so no other AI does it too\", with {\"as\":\"ai:sample-taker\"}. It runs tool:take-an-ai-job and answers {\"taken\":{\"id\":\"ai-job:sample-1\",\"status\":\"taken\",\"job\":\"Write a made-up sample report\",\"to\":null,\"from\":\"ai:sample-sender\",\"priority\":5,\"sent_at\":\"2026-11-03T00:00:00.000Z\",\"taker\":\"ai:sample-taker\",\"taken_at\":\"2026-11-14T00:50:23.662Z\"},\"tried\":1}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (ai-job) through the records door.",
   "workflows": [],
   "tools": [
     "tool:take-an-ai-job"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:take-an-ai-job\", and give it as.",
+    "1. Say to your AI: \"Take the next job another of my AIs left for me, so no other AI does it too\", and give it as (The taking AI's record id).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:take-an-ai-job and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields taken, tried, job_id, reason, job."
+    "3. Read what comes back: Without `id`, reads the ai-job records a take may move (read-data/ai-work.json: waiting ones for any AI or for `as`, and taken ones held longer than the stale-take time), sorts them by take_order (priority, then oldest first), and takes the first: one write of the whole job as taken by `as` at this time, conditioned on the value it read.",
+    "4. It reads and writes only its own rows through the records door: ai-job (records:read, records:list, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Take the next job waiting for me, or one job by its id on a sample input",
-      "ask": "Run tool:take-an-ai-job.",
+      "title": "Take the next job waiting for me, or one job by its id on its own sample",
+      "ask": "Take the next job another of my AIs left for me, so no other AI does it too",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +32,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields taken, tried, job_id, reason, job."
+      "given": "The input {\"as\":\"ai:sample-taker\"}, with 1 example row (ai-job) already kept.",
+      "hands_back": "It answered {\"taken\":{\"id\":\"ai-job:sample-1\",\"status\":\"taken\",\"job\":\"Write a made-up sample report\",\"to\":null,\"from\":\"ai:sample-sender\",\"priority\":5,\"sent_at\":\"2026-11-03T00:00:00.000Z\",\"taker\":\"ai:sample-taker\",\"taken_at\":\"2026-11-14T00:50:23.662Z\"},\"tried\":1}."
     }
   ]
 }

@@ -1,7 +1,7 @@
 {
   "draft": true,
-  "drafted_from": "tool:find-a-spoken-passage-in-word-times's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:find-a-spoken-passage-in-word-times with step.\" Tell me the exact seconds a passage I quote starts and ends in a recording, read a recording's words back as timed sentences, or keep its word times in the one file shape my plans cut from",
+  "drafted_from": "tool:find-a-spoken-passage-in-word-times's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Tell me the exact seconds a passage I quote starts and ends in a recording, read a recording's words back as timed sentences, or keep its word times in the one file shape my plans cut from\", with {\"step\":\"span\",\"words\":\"take.words.json\",\"first\":\"then\",\"last\":\"wait\"}. It runs tool:find-a-spoken-passage-in-word-times and answers {\"step\":\"span\",\"words\":\"/granted-jNUzLv/take.words.json\",\"start\":1,\"end\":2.4,\"text\":\"Then we wait.\"}",
   "lists": [
     {
       "list": "list:settings",
@@ -108,20 +108,20 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
     "tool:find-a-spoken-passage-in-word-times"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:find-a-spoken-passage-in-word-times\", and give it step.",
+    "1. Say to your AI: \"Tell me the exact seconds a passage I quote starts and ends in a recording, read a recording's words back as timed sentences, or keep its word times in the one file shape my plans cut from\", and give it step.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-a-spoken-passage-in-word-times and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields step, words, start, end, text, sentences, out, count."
+    "3. Read what comes back: Works on a recording's word-time file (a words list of {text, start, end}, the {t, start, end} words the transcription tool writes, or Whisper's segments with words), in the folder the person let this tool change.",
+    "4. It reads and writes only its own rows through the records door: record:setting (records:read)."
   ],
   "worked_examples": [
     {
-      "title": "Find where a spoken passage starts and ends in a recording's word times on a sample input",
-      "ask": "Run tool:find-a-spoken-passage-in-word-times.",
+      "title": "Find where a spoken passage starts and ends in a recording's word times on its own sample",
+      "ask": "Tell me the exact seconds a passage I quote starts and ends in a recording, read a recording's words back as timed sentences, or keep its word times in the one file shape my plans cut from",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -139,7 +139,30 @@
           }
         }
       },
-      "hands_back": "An answer with the fields step, words, start, end, text, sentences, out, count."
+      "given": "The input {\"step\":\"span\",\"words\":\"take.words.json\",\"first\":\"then\",\"last\":\"wait\"}.",
+      "hands_back": "It answered {\"step\":\"span\",\"words\":\"/granted-jNUzLv/take.words.json\",\"start\":1,\"end\":2.4,\"text\":\"Then we wait.\"}."
+    },
+    {
+      "title": "Find where a spoken passage starts and ends in a recording's word times on its own sample",
+      "ask": "Tell me the exact seconds a passage I quote starts and ends in a recording, read a recording's words back as timed sentences, or keep its word times in the one file shape my plans cut from",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:find-a-spoken-passage-in-word-times",
+            "input": {
+              "step": "sentences",
+              "clip": "take",
+              "settings_record": "record:setting:find-a-spoken-passage-in-word-times~film~sample-film"
+            }
+          }
+        }
+      },
+      "given": "The input {\"step\":\"sentences\",\"clip\":\"take\",\"settings_record\":\"record:setting:find-a-spoken-passage-in-word-times~film~sample-film\"}, with 1 example row (record:setting) already kept.",
+      "hands_back": "It answered {\"step\":\"sentences\",\"words\":\"/granted-U0jZsQ/words/take.words.json\",\"sentences\":[{\"start\":0,\"end\":0.9,\"text\":\"Start here.\"},{\"start\":1,\"end\":2.4,\"text\":\"Then we wait.\"}],\"settings_from\":{\"id\":\"record:setting:find-a-spoken-passage-in-word-times~film~sample-film\",\"from\":\"made up for this sample\"}}."
     }
   ],
   "pour": {

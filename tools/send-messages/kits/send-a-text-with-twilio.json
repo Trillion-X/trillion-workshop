@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:send-a-text-with-twilio's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:send-a-text-with-twilio with from, account_sid.\" Send a text message, to one number or a list, through my Twilio account",
+  "drafted_from": "tool:send-a-text-with-twilio's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Send a text message, to one number or a list, through my Twilio account\", with {\"to\":\"+15550100101\",\"from\":\"+15550100100\",\"account_sid\":\"ACsample00000000000000000000000000\",\"text\":\"Hello there\"}. It runs tool:send-a-text-with-twilio and answers {\"provider\":\"twilio-sms\",\"sent\":[{\"recipient\":\"+15550100101\",\"messageId\":\"SMsample00000000000000000000000000\"}],\"said\":\"Sent to 1 of 1 through Twilio text message.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:send-a-text-with-twilio"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:send-a-text-with-twilio\", and give it from, account_sid.",
+    "1. Say to your AI: \"Send a text message, to one number or a list, through my Twilio account\", and give it from; account_sid.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:send-a-text-with-twilio and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields provider, sent, said."
+    "3. Read what comes back: Give recipients (phone numbers with country code; to for one), from (a number on the Twilio account), account_sid (the account's id) and text (or subject when there is no text)."
   ],
   "worked_examples": [
     {
-      "title": "Send a text message with Twilio on a sample input",
-      "ask": "Run tool:send-a-text-with-twilio.",
+      "title": "Send a text message with Twilio on its own sample",
+      "ask": "Send a text message, to one number or a list, through my Twilio account",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -34,7 +34,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields provider, sent, said."
+      "given": "The input {\"to\":\"+15550100101\",\"from\":\"+15550100100\",\"account_sid\":\"ACsample00000000000000000000000000\",\"text\":\"Hello there\"}, the web answering from 1 recorded reply.",
+      "hands_back": "It answered {\"provider\":\"twilio-sms\",\"sent\":[{\"recipient\":\"+15550100101\",\"messageId\":\"SMsample00000000000000000000000000\"}],\"said\":\"Sent to 1 of 1 through Twilio text message.\"}."
     }
   ]
 }

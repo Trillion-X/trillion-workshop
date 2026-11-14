@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:hold-a-place's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:hold-a-place with ledger_id, subject_ref, idempotency_key.\" Hold a place for someone, or put them on the waitlist when every place is taken",
+  "drafted_from": "tool:hold-a-place's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Hold a place for someone, or put them on the waitlist when every place is taken\", with {\"ledger_id\":\"ledger:sample-class\",\"subject_ref\":\"person:sample-c\",\"idempotency_key\":\"sample-hold-c\"}. It runs tool:hold-a-place and answers {\"outcome\":\"held\",\"hold\":{\"hold_id\":\"ledger:sample-class:hold:3\",\"subject_ref\":\"person:sample-c\",\"unit_class\":\"general\",\"state\":\"confirmed\",\"idempotency_key\":\"sample-hold-c\",\"held_at\":\"2026-11-14T00:50:41.190Z\"},\"ledger_id\":\"ledger:sample-class\",\"state\":\"waitlist_open\",\"total\":2,\"confirmed\":2,\"waiting\":1}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (capacity-ledger) through the records door.",
   "workflows": [],
   "tools": [
     "tool:hold-a-place"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:hold-a-place\", and give it ledger_id, subject_ref, idempotency_key.",
+    "1. Say to your AI: \"Hold a place for someone, or put them on the waitlist when every place is taken\", and give it ledger_id; subject_ref (Who the place is for, like \"person:ana\"); idempotency_key (The same key for the same request sent again).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:hold-a-place and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields outcome, hold, waitlist_entry, ledger_id, state, total, confirmed, waiting."
+    "3. Read what comes back: Holds one place on a capacity ledger for a subject, or adds them to the waitlist when their class has no place left.",
+    "4. It reads and writes only its own rows through the records door: capacity-ledger (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Hold a place on a sample input",
-      "ask": "Run tool:hold-a-place.",
+      "title": "Hold a place on its own sample",
+      "ask": "Hold a place for someone, or put them on the waitlist when every place is taken",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +34,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields outcome, hold, waitlist_entry, ledger_id, state, total, confirmed, waiting."
+      "given": "The input {\"ledger_id\":\"ledger:sample-class\",\"subject_ref\":\"person:sample-c\",\"idempotency_key\":\"sample-hold-c\"}, with 1 example row (capacity-ledger) already kept.",
+      "hands_back": "It answered {\"outcome\":\"held\",\"hold\":{\"hold_id\":\"ledger:sample-class:hold:3\",\"subject_ref\":\"person:sample-c\",\"unit_class\":\"general\",\"state\":\"confirmed\",\"idempotency_key\":\"sample-hold-c\",\"held_at\":\"2026-11-14T00:50:41.190Z\"},\"ledger_id\":\"ledger:sample-class\",\"state\":\"waitlist_open\",\"total\":2,\"confirmed\":2,\"waiting\":1}."
     }
   ]
 }

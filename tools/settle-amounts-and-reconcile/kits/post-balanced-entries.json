@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:post-balanced-entries's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:post-balanced-entries with action, list_id, lines_kind.\" Post an entry of signed lines only when they add to zero, once per entry id, undo it by a new entry with every line negated, and list every entry in a list that does not add to zero",
+  "drafted_from": "tool:post-balanced-entries's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Post an entry of signed lines only when they add to zero, once per entry id, undo it by a new entry with every line negated, and list every entry in a list that does not add to zero\", with {\"action\":\"balance\",\"list_id\":\"journal\",\"lines_kind\":\"record:settle-journal\",\"lines\":{\"amount_field\":\"amount\",\"group_field\":\"entry\"}}. It runs tool:post-balanced-entries and answers {\"list_id\":\"journal\",\"groups\":1,\"unbalanced\":[],\"unplaced\":[],\"balanced\":true}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (list, [object Object]) through the records door.",
   "workflows": [],
   "tools": [
     "tool:post-balanced-entries"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:post-balanced-entries\", and give it action, list_id, lines_kind.",
+    "1. Say to your AI: \"Post an entry of signed lines only when they add to zero, once per entry id, undo it by a new entry with every line negated, and list every entry in a list that does not add to zero\", and give it action; list_id (The list in the request: the source (or the lines, or the row's list) when the body leaves its own list_id out.); lines_kind (The record kind of the lines list's rows (record:<its row_type>); the run's right is filled from this field.).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:post-balanced-entries and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Post an entry of signed lines only when they add to zero, once per entry id, undo it by a new entry with every line negated, and list every entry in a list that does not add to zero"
+    "3. Read what comes back: action post takes lines { amount_field, group_field }, entry_id and rows [{ values }] (two or more); lines that do not add to zero are refused and nothing is written; the same entry_id posts once.",
+    "4. It reads and writes only its own rows through the records door: list (records:read, records:list, records:write); [object Object] (records:read, records:list, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Post entries whose lines add to zero on a sample input",
-      "ask": "Run tool:post-balanced-entries.",
+      "title": "Post entries whose lines add to zero on its own sample",
+      "ask": "Post an entry of signed lines only when they add to zero, once per entry id, undo it by a new entry with every line negated, and list every entry in a list that does not add to zero",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -37,7 +38,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Post an entry of signed lines only when they add to zero, once per entry id, undo it by a new entry with every line negated, and list every entry in a list that does not add to zero"
+      "given": "The input {\"action\":\"balance\",\"list_id\":\"journal\",\"lines_kind\":\"record:settle-journal\",\"lines\":{\"amount_field\":\"amount\",\"group_field\":\"entry\"}}, with 3 example rows (list, record:settle-journal) already kept.",
+      "hands_back": "It answered {\"list_id\":\"journal\",\"groups\":1,\"unbalanced\":[],\"unplaced\":[],\"balanced\":true}."
     }
   ]
 }

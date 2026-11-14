@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:pick-a-screen-for-typed-words's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:pick-a-screen-for-typed-words with words.\" Pick, as a person types, the screen that already does what their words ask from the screens they are offered, the interfaces made for them and the screens they kept, with no model, and keep the shown screen calm",
+  "drafted_from": "tool:pick-a-screen-for-typed-words's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Pick, as a person types, the screen that already does what their words ask from the screens they are offered, the interfaces made for them and the screens they kept, with no model, and keep the shown screen calm\", with {\"words\":\"focus timer\",\"rows\":[{\"id\":\"tool:focus-timer\",\"label\":\"Focus timer\",\"description\":\"Counts down a focus session\"}]}. It runs tool:pick-a-screen-for-typed-words and answers {\"picks\":[{\"entry\":{\"key\":\"screen:tool:focus-timer\",\"kind\":\"screen\",\"screen\":\"tool:focus-timer\",\"input\":{},\"label\":\"Focus timer\",\"about\":\"Counts down a focus session\",\"asked\":[],\"source\":{},\"terms\":{\"label\":[{\"raw\":\"focus\",\"word\":\"focu\",\"at\":0,\"end\":5},{\"raw\":\"timer\",\"word\":\"timer\",\"at\":6,\"end\":11}],\"about\":[{\"raw\":\"counts\",\"word\":\"count\",\"at\":0,\"end\":6},{\"raw\":\"down\",\"word\":\"down\",\"at\":7 ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:pick-a-screen-for-typed-words"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:pick-a-screen-for-typed-words\", and give it words.",
+    "1. Say to your AI: \"Pick, as a person types, the screen that already does what their words ask from the screens they are offered, the interfaces made for them and the screens they kept, with no model, and keep the shown screen calm\", and give it words.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:pick-a-screen-for-typed-words and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.memory.shown.entry.screen contains \"tool:focus-timer\"."
+    "3. Read what comes back: Give words (what is typed so far) and the catalog: rows (offered screens, each { id, label, description?, asked?, source?"
   ],
   "worked_examples": [
     {
-      "title": "Pick the screen for what I am typing on a sample input",
-      "ask": "Run tool:pick-a-screen-for-typed-words.",
+      "title": "Pick the screen for what I am typing on its own sample",
+      "ask": "Pick, as a person types, the screen that already does what their words ask from the screens they are offered, the interfaces made for them and the screens they kept, with no model, and keep the shown screen calm",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -38,7 +38,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.memory.shown.entry.screen contains \"tool:focus-timer\"."
+      "given": "The input {\"words\":\"focus timer\",\"rows\":[{\"id\":\"tool:focus-timer\",\"label\":\"Focus timer\",\"description\":\"Counts down a focus session\"}]}.",
+      "hands_back": "It answered {\"picks\":[{\"entry\":{\"key\":\"screen:tool:focus-timer\",\"kind\":\"screen\",\"screen\":\"tool:focus-timer\",\"input\":{},\"label\":\"Focus timer\",\"about\":\"Counts down a focus session\",\"asked\":[],\"source\":{},\"terms\":{\"label\":[{\"raw\":\"focus\",\"word\":\"focu\",\"at\":0,\"end\":5},{\"raw\":\"timer\",\"word\":\"timer\",\"at\":6,\"end\":11}],\"about\":[{\"raw\":\"counts\",\"word\":\"count\",\"at\":0,\"end\":6},{\"raw\":\"down\",\"word\":\"down\",\"at\":7,\"end\":11},{\"raw\":\"a\",\"word\":\"a\",\"at\":12,\"end\":13},{\"raw\":\"focus\",\"word\":\"focu\",\"at\":14,\"end\":19},{\"raw\":\"session\",\"word\":\"session\",\"at\":20,\"end\":27}],\"asked\":[]},\"phrases\":{}},\"score\":1,\"matched\":[[0,5],[6,11]]}],\"memory\":{\"shown\":{\"entry\":{\"key\":\"screen:tool:focus-timer\",\"kind\":\"screen\" ...."
     }
   ]
 }

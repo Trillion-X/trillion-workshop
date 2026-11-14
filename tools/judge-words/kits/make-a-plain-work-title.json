@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:make-a-plain-work-title's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:make-a-plain-work-title with job.\" Give a piece of work a short plain title from its own words, so a person sees what it is at a glance",
+  "drafted_from": "tool:make-a-plain-work-title's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Give a piece of work a short plain title from its own words, so a person sees what it is at a glance\", with {\"job\":\"Handoff: fix h_4677423f69aed1fb495164bc so the [login](https://x.com/a) page works.\"}. It runs tool:make-a-plain-work-title and answers {\"title\":\"Fix so the login page works\",\"from\":\"job\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:make-a-plain-work-title"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:make-a-plain-work-title\", and give it job.",
+    "1. Say to your AI: \"Give a piece of work a short plain title from its own words, so a person sees what it is at a glance\", and give it job (The work's own words).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:make-a-plain-work-title and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.title contains \"Fix so the login page works\"."
+    "3. Read what comes back: Give the job's words (job), and optionally the title someone already said (said) and the words to show when the job holds no sentence a person reads (fallback)."
   ],
   "worked_examples": [
     {
-      "title": "Give a job a short plain title on a sample input",
-      "ask": "Run tool:make-a-plain-work-title.",
+      "title": "Give a job a short plain title on its own sample",
+      "ask": "Give a piece of work a short plain title from its own words, so a person sees what it is at a glance",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +31,28 @@
           }
         }
       },
-      "hands_back": "The answer's $.title contains \"Fix so the login page works\"."
+      "given": "The input {\"job\":\"Handoff: fix h_4677423f69aed1fb495164bc so the [login](https://x.com/a) page works.\"}.",
+      "hands_back": "It answered {\"title\":\"Fix so the login page works\",\"from\":\"job\"}."
+    },
+    {
+      "title": "Give a job a short plain title on its own sample",
+      "ask": "Give a piece of work a short plain title from its own words, so a person sees what it is at a glance",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:make-a-plain-work-title",
+            "input": {
+              "job": "Use list_pursuits first. Draft the launch post for Friday."
+            }
+          }
+        }
+      },
+      "given": "The input {\"job\":\"Use list_pursuits first. Draft the launch post for Friday.\"}.",
+      "hands_back": "It answered {\"title\":\"Draft the launch post for Friday\",\"from\":\"job\"}."
     }
   ]
 }

@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:prepare-public-content-for-discovery's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:prepare-public-content-for-discovery with site, source, routes.\" Prepare one explicitly authorized public source page as consistent HTML, Markdown, structured data and discovery-feed data, with exact source versions and continuation state.",
+  "drafted_from": "tool:prepare-public-content-for-discovery's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Prepare one explicitly authorized public source page as consistent HTML, Markdown, structured data and discovery-feed data, with exact source versions and continuation state.\", with {\"site\":{\"origin\":\"https://cedar.invalid\",\"name\":\"Cedar Field Lab\",\"language\":\"en\"},\"source\":{\"ref\":\"source:cedar:public-page\",\"version\":\"snapshot:sample-1\",\"observedAt\":\"2026-10-31T10:00:00Z\",\"requestedCursor\":null,\"complete\":true,\"nextCursor\":null,\"documents\":[{\"ref\":\"document:cedar:guide\",\"version\":\"edition:1\",\"title\":\"A public guide\",\"schemaType\":\"Article\",\"openGraphType\":\"article\" .... It runs tool:prepare-public-content-for-discovery and answers {\"manifest\":{\"kind\":\"public-content-discovery-manifest\",\"source\":{\"version\":\"snapshot:sample-1\",\"observedAt\":\"2026-10-31T10:00:00Z\",\"requestedCursor\":null,\"complete\":true,\"continuation\":null},\"site\":{\"name\":\"Cedar Field Lab\",\"language\":\"en\",\"origin\":\"https://cedar.invalid\",\"trailingSlash\":false},\"documents\":[{\"path\":\"/guides/public-guide\",\"canonicalUrl\":\"https://cedar.invalid/guides/public-guide\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:prepare-public-content-for-discovery"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:prepare-public-content-for-discovery\", and give it site, source, routes.",
+    "1. Say to your AI: \"Prepare one explicitly authorized public source page as consistent HTML, Markdown, structured data and discovery-feed data, with exact source versions and continuation state.\", and give it site; source; routes.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:prepare-public-content-for-discovery and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.outputs.documents[0].canonicalUrl contains \"https://cedar.invalid/guides/public-guide\"."
+    "3. Read what comes back: Takes a site identity, one bounded page from the existing current-public-view owner, its real source version and observation time, public document citations and one origin-relative route per document."
   ],
   "worked_examples": [
     {
-      "title": "Prepare public content for people and discovery tools on a sample input",
-      "ask": "Run tool:prepare-public-content-for-discovery.",
+      "title": "Prepare public content for people and discovery tools on its own sample",
+      "ask": "Prepare one explicitly authorized public source page as consistent HTML, Markdown, structured data and discovery-feed data, with exact source versions and continuation state.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -62,7 +62,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.outputs.documents[0].canonicalUrl contains \"https://cedar.invalid/guides/public-guide\"."
+      "given": "The input {\"site\":{\"origin\":\"https://cedar.invalid\",\"name\":\"Cedar Field Lab\",\"language\":\"en\"},\"source\":{\"ref\":\"source:cedar:public-page\",\"version\":\"snapshot:sample-1\",\"observedAt\":\"2026-10-31T10:00:00Z\",\"requestedCursor\":null,\"complete\":true,\"nextCursor\":null,\"documents\":[{\"ref\":\"document:cedar:guide\",\"version\":\"edition:1\",\"title\":\"A public guide\",\"schemaType\":\"Article\",\"openGraphType\":\"article\" ....",
+      "hands_back": "It answered {\"manifest\":{\"kind\":\"public-content-discovery-manifest\",\"source\":{\"version\":\"snapshot:sample-1\",\"observedAt\":\"2026-10-31T10:00:00Z\",\"requestedCursor\":null,\"complete\":true,\"continuation\":null},\"site\":{\"name\":\"Cedar Field Lab\",\"language\":\"en\",\"origin\":\"https://cedar.invalid\",\"trailingSlash\":false},\"documents\":[{\"path\":\"/guides/public-guide\",\"canonicalUrl\":\"https://cedar.invalid/guides/public-guide\",\"title\":\"A public guide\",\"description\":\"A short guide from a public source.\",\"updatedAt\":\"2026-10-31T10:00:00.000Z\",\"openGraphType\":\"article\",\"schemaProperties\":{},\"citations\":[],\"identity\":{\"html\":\"1f:32f618b88f648f3432eab6830deac4fd75fcfc781cde13c392e3ec453ec7f3aa\" ...."
     }
   ]
 }

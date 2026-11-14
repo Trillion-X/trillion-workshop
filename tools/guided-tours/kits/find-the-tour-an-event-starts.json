@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:find-the-tour-an-event-starts's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:find-the-tour-an-event-starts with tours, event.\" Decide which guided tour, if any, should start when something happens in an app (it opened, a page was entered, a replay was asked for), without showing a tour that was already seen",
+  "drafted_from": "tool:find-the-tour-an-event-starts's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Decide which guided tour, if any, should start when something happens in an app (it opened, a page was entered, a replay was asked for), without showing a tour that was already seen\", with {\"tours\":[{\"kind\":\"walkthrough-definition\",\"id\":\"tour:welcome\",\"entry_step\":\"a\",\"steps\":[{\"id\":\"a\"}],\"triggers\":[{\"reason\":\"first-visit\",\"on_event\":{\"event_kind\":\"shop-opened\"},\"once_key\":\"tour:welcome\"}]}],\"event\":{\"event_kind\":\"shop-opened\"}}. It runs tool:find-the-tour-an-event-starts and answers {\"tour_id\":\"tour:welcome\",\"trigger\":{\"reason\":\"first-visit\",\"on_event\":{\"event_kind\":\"shop-opened\"},\"once_key\":\"tour:welcome\"},\"suppression_key\":\"tour:welcome\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:find-the-tour-an-event-starts"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:find-the-tour-an-event-starts\", and give it tours, event.",
+    "1. Say to your AI: \"Decide which guided tour, if any, should start when something happens in an app (it opened, a page was entered, a replay was asked for), without showing a tour that was already seen\", and give it tours (The tour records, oldest first); event (What happened: { event_kind, ...fields }).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-the-tour-an-event-starts and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.tour_id contains \"tour:welcome\"."
+    "3. Read what comes back: Give the tour records in the order they were written (a later record at the same id replaces an earlier one; one marked status deleted removes it; records that are not tours are skipped), the event ({ event_kind, plus any fields }) and the suppression keys already used up."
   ],
   "worked_examples": [
     {
-      "title": "Find which guided tour an event starts on a sample input",
-      "ask": "Run tool:find-the-tour-an-event-starts.",
+      "title": "Find which guided tour an event starts on its own sample",
+      "ask": "Decide which guided tour, if any, should start when something happens in an app (it opened, a page was entered, a replay was asked for), without showing a tour that was already seen",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -54,7 +54,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.tour_id contains \"tour:welcome\"."
+      "given": "The input {\"tours\":[{\"kind\":\"walkthrough-definition\",\"id\":\"tour:welcome\",\"entry_step\":\"a\",\"steps\":[{\"id\":\"a\"}],\"triggers\":[{\"reason\":\"first-visit\",\"on_event\":{\"event_kind\":\"shop-opened\"},\"once_key\":\"tour:welcome\"}]}],\"event\":{\"event_kind\":\"shop-opened\"}}.",
+      "hands_back": "It answered {\"tour_id\":\"tour:welcome\",\"trigger\":{\"reason\":\"first-visit\",\"on_event\":{\"event_kind\":\"shop-opened\"},\"once_key\":\"tour:welcome\"},\"suppression_key\":\"tour:welcome\"}."
     }
   ]
 }

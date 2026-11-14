@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:see-my-ais's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:see-my-ais with nothing more.\" Show me my AIs and computers: which are live now, what each can do and how many jobs each is doing",
+  "drafted_from": "tool:see-my-ais's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Show me my AIs and computers: which are live now, what each can do and how many jobs each is doing\", with {\"can\":[\"code\"]}. It runs tool:see-my-ais and answers {\"ais\":[{\"id\":\"ai:sample-sender\",\"value\":{\"label\":\"Sample sample-sender\",\"can\":[\"code\"],\"order\":1,\"live\":{\"seen_at\":\"2026-11-03T00:00:00.000Z\",\"minutes\":10}},\"live\":false,\"seen_at\":\"2026-11-03T00:00:00.000Z\",\"busy\":0},{\"id\":\"ai:sample-taker\",\"value\":{\"label\":\"Sample sample-taker\",\"can\":[\"code\"],\"order\":2,\"live\":{\"seen_at\":\"2026-11-03T00:00:00.000Z\",\"minutes\":10}},\"live\":false ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (ai, ai-job) through the records door.",
   "workflows": [],
   "tools": [
     "tool:see-my-ais"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:see-my-ais\", and give it nothing more.",
+    "1. Say to your AI: \"Show me my AIs and computers: which are live now, what each can do and how many jobs each is doing\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:see-my-ais and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields ais."
+    "3. Read what comes back: Reads the person's ai records and counts the ai-job records each AI holds as taker.",
+    "4. It reads and writes only its own rows through the records door: ai (records:list); ai-job (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "See my AIs: which are live, what each can do and how many jobs each holds on a sample input",
-      "ask": "Run tool:see-my-ais.",
+      "title": "See my AIs: which are live, what each can do and how many jobs each holds on its own sample",
+      "ask": "Show me my AIs and computers: which are live now, what each can do and how many jobs each is doing",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +34,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields ais."
+      "given": "The input {\"can\":[\"code\"]}, with 3 example rows (ai, ai-job) already kept.",
+      "hands_back": "It answered {\"ais\":[{\"id\":\"ai:sample-sender\",\"value\":{\"label\":\"Sample sample-sender\",\"can\":[\"code\"],\"order\":1,\"live\":{\"seen_at\":\"2026-11-03T00:00:00.000Z\",\"minutes\":10}},\"live\":false,\"seen_at\":\"2026-11-03T00:00:00.000Z\",\"busy\":0},{\"id\":\"ai:sample-taker\",\"value\":{\"label\":\"Sample sample-taker\",\"can\":[\"code\"],\"order\":2,\"live\":{\"seen_at\":\"2026-11-03T00:00:00.000Z\",\"minutes\":10}},\"live\":false,\"seen_at\":\"2026-11-03T00:00:00.000Z\",\"busy\":1}]}."
     }
   ]
 }

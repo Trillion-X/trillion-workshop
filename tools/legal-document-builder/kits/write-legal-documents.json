@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:write-legal-documents's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:write-legal-documents with documents, facts.\" Write a business's terms of service, privacy policy, refund policy or waiver from its facts",
+  "drafted_from": "tool:write-legal-documents's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Write a business's terms of service, privacy policy, refund policy or waiver from its facts\", with {\"documents\":[\"terms\"],\"facts\":{\"business_legal_name\":\"Harbor Coaching LLC\",\"service_name\":\"Harbor Coaching\",\"site_url\":\"https://harbor.example\",\"contact_email\":\"user-a4af8001@example.com\",\"service_description\":\"One-to-one swim coaching sessions booked online.\",\"has_accounts\":true,\"has_paid_offers\":true}}. It runs tool:write-legal-documents and answers {\"documents\":[{\"document_type\":\"terms\",\"title\":\"Terms of Service\",\"text\":\"# Terms of Service\\n\\nThese Terms of Service (the \\\"Terms\\\") are a binding agreement between you and Harbor Coaching LLC (\\\"we\\\", \\\"us\\\") governing your use of Harbor Coaching and the services offered at https://harbor.example.\\n\\nYou accept these Terms by checking the acceptance box presented at signup or purchase, or by ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:write-legal-documents"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:write-legal-documents\", and give it documents, facts.",
+    "1. Say to your AI: \"Write a business's terms of service, privacy policy, refund policy or waiver from its facts\", and give it documents (Which documents to write); facts (The business's facts by name (business_legal_name, service_name, site_url, contact_email, service_description, has_accounts, has_paid_offers, has_subscriptions, uses_ai, has_physical_activity, serves_minors, governing_law_state, ...).).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:write-legal-documents and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.documents[0].text contains \"Harbor Coaching LLC\"."
+    "3. Read what comes back: Assembles each document you ask for from a library of forty clauses, choosing the clauses the business's facts call for (accounts, paid offers, subscriptions, AI, physical activity, minors) and filling in its name, address, contact and policies."
   ],
   "worked_examples": [
     {
-      "title": "Write legal documents on a sample input",
-      "ask": "Run tool:write-legal-documents.",
+      "title": "Write legal documents on its own sample",
+      "ask": "Write a business's terms of service, privacy policy, refund policy or waiver from its facts",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -42,7 +42,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.documents[0].text contains \"Harbor Coaching LLC\"."
+      "given": "The input {\"documents\":[\"terms\"],\"facts\":{\"business_legal_name\":\"Harbor Coaching LLC\",\"service_name\":\"Harbor Coaching\",\"site_url\":\"https://harbor.example\",\"contact_email\":\"user-a4af8001@example.com\",\"service_description\":\"One-to-one swim coaching sessions booked online.\",\"has_accounts\":true,\"has_paid_offers\":true}}.",
+      "hands_back": "It answered {\"documents\":[{\"document_type\":\"terms\",\"title\":\"Terms of Service\",\"text\":\"# Terms of Service\\n\\nThese Terms of Service (the \\\"Terms\\\") are a binding agreement between you and Harbor Coaching LLC (\\\"we\\\", \\\"us\\\") governing your use of Harbor Coaching and the services offered at https://harbor.example.\\n\\nYou accept these Terms by checking the acceptance box presented at signup or purchase, or by creating an account. If you do not agree, do not use the service. The version of these Terms you accept is identified by its document identity shown at the bottom of this page, and we keep a record of the exact version you agreed to.\\n\\nOne-to-one swim coaching sessions booked online.\\n\\nYou are ...."
     }
   ]
 }

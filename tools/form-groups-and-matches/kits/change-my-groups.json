@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:change-my-groups's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:change-my-groups with nothing more.\" Add things to my groups, lists or collections, move and reorder them, put some into a new group inside, take a group apart, or bring a whole folder tree in as groups",
+  "drafted_from": "tool:change-my-groups's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Add things to my groups, lists or collections, move and reorder them, put some into a new group inside, take a group apart, or bring a whole folder tree in as groups\", with {\"changes\":[{\"kind\":\"ensure-group\",\"groupRef\":{\"family\":\"sample-shelf\",\"parts\":{\"id\":\"verify\"}}}]}. It runs tool:change-my-groups and answers {\"groups\":[{\"groupRef\":{\"family\":\"sample-shelf\",\"parts\":{\"id\":\"verify\"}},\"memberOrder\":[],\"members\":{}}],\"removed\":[],\"written\":1,\"unplaced\":[]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (group) through the records door.",
   "workflows": [],
   "tools": [
     "tool:change-my-groups"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:change-my-groups\", and give it nothing more.",
+    "1. Say to your AI: \"Add things to my groups, lists or collections, move and reorder them, put some into a new group inside, take a group apart, or bring a whole folder tree in as groups\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:change-my-groups and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.groups[0].groupRef.parts.id contains \"verify\"."
+    "3. Read what comes back: A group is any list of addresses (records, pages, people, other groups) in an order; a member whose address is a group nests that group.",
+    "4. It reads and writes only its own rows through the records door: group (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Change my groups: add, move, order, nest and remove on a sample input",
-      "ask": "Run tool:change-my-groups.",
+      "title": "Change my groups: add, move, order, nest and remove on its own sample",
+      "ask": "Add things to my groups, lists or collections, move and reorder them, put some into a new group inside, take a group apart, or bring a whole folder tree in as groups",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -41,7 +42,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.groups[0].groupRef.parts.id contains \"verify\"."
+      "given": "The input {\"changes\":[{\"kind\":\"ensure-group\",\"groupRef\":{\"family\":\"sample-shelf\",\"parts\":{\"id\":\"verify\"}}}]}.",
+      "hands_back": "It answered {\"groups\":[{\"groupRef\":{\"family\":\"sample-shelf\",\"parts\":{\"id\":\"verify\"}},\"memberOrder\":[],\"members\":{}}],\"removed\":[],\"written\":1,\"unplaced\":[]}, and kept group:sample-shelf:id=verify."
     }
   ]
 }

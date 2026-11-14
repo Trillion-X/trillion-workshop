@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:work-out-measures's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:work-out-measures with facts.\" Work out measures from my records: counts, totals, ratios, ranks, quantiles, the latest value, groups, or a ranked and packed list",
+  "drafted_from": "tool:work-out-measures's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Work out measures from my records: counts, totals, ratios, ranks, quantiles, the latest value, groups, or a ranked and packed list\", with {\"facts\":[{\"id\":\"o1\",\"kind\":\"order\",\"item\":\"rye\",\"t\":1},{\"id\":\"o2\",\"kind\":\"order\",\"item\":\"scone\",\"t\":2},{\"id\":\"r1\",\"kind\":\"refund\",\"item\":\"rye\",\"t\":3}],\"measures\":[{\"id\":\"last-ordered\",\"op\":\"latest\",\"inputs\":[{\"match\":{\"kind\":\"order\"},\"field\":[\"item\"]}],\"params\":{\"sortBy\":[\"t\"]}}]}. It runs tool:work-out-measures and answers {\"measures\":[{\"measureId\":\"last-ordered\",\"emit\":null,\"value\":\"scone\",\"window\":null,\"provenance\":[{\"op\":\"latest\",\"inputCount\":2}],\"confidence\":1,\"basis\":[\"o1\",\"o2\"],\"ok\":true}]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:work-out-measures"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:work-out-measures\", and give it facts.",
+    "1. Say to your AI: \"Work out measures from my records: counts, totals, ratios, ranks, quantiles, the latest value, groups, or a ranked and packed list\", and give it facts (The records to measure over).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:work-out-measures and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.measures[0].value contains \"scone\"."
+    "3. Read what comes back: Takes facts (a list of records) and measure definitions, or a pipeline of stages where a later stage reads the rows an earlier stage emitted."
   ],
   "worked_examples": [
     {
-      "title": "Work out measures from my records on a sample input",
-      "ask": "Run tool:work-out-measures.",
+      "title": "Work out measures from my records on its own sample",
+      "ask": "Work out measures from my records: counts, totals, ratios, ranks, quantiles, the latest value, groups, or a ranked and packed list",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -71,7 +71,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.measures[0].value contains \"scone\"."
+      "given": "The input {\"facts\":[{\"id\":\"o1\",\"kind\":\"order\",\"item\":\"rye\",\"t\":1},{\"id\":\"o2\",\"kind\":\"order\",\"item\":\"scone\",\"t\":2},{\"id\":\"r1\",\"kind\":\"refund\",\"item\":\"rye\",\"t\":3}],\"measures\":[{\"id\":\"last-ordered\",\"op\":\"latest\",\"inputs\":[{\"match\":{\"kind\":\"order\"},\"field\":[\"item\"]}],\"params\":{\"sortBy\":[\"t\"]}}]}.",
+      "hands_back": "It answered {\"measures\":[{\"measureId\":\"last-ordered\",\"emit\":null,\"value\":\"scone\",\"window\":null,\"provenance\":[{\"op\":\"latest\",\"inputCount\":2}],\"confidence\":1,\"basis\":[\"o1\",\"o2\"],\"ok\":true}]}."
     }
   ]
 }

@@ -1,23 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:list-what-is-due's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:list-what-is-due with prompts.\" See which of the things a person is learning are due for review now, soonest first, from the grades they have given them",
+  "drafted_from": "tool:list-what-is-due's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"See which of the things a person is learning are due for review now, soonest first, from the grades they have given them\", with {\"prompts\":[{\"id\":\"card-1\",\"text\":\"Alpha\"},{\"id\":\"card-2\",\"text\":\"Beta\"}],\"responses\":[{\"prompt_id\":\"card-1\",\"grade\":\"solid\",\"at\":\"2026-01-01T12:00:00Z\"}],\"now\":\"2026-01-01T18:00:00Z\",\"policy\":{\"initial_ease\":2.5,\"min_ease\":1.3,\"first_interval_days\":1,\"second_interval_days\":6,\"lapse_below_quality\":0.6,\"grade_quality\":{\"miss\":0,\"shaky\":0.6,\"solid\":0.8,\"instant\":1}}}. It runs tool:list-what-is-due and answers {\"now\":\"2026-01-01T18:00:00Z\",\"due_count\":1,\"items\":[{\"prompt\":{\"id\":\"card-2\",\"text\":\"Beta\"},\"is_due\":true,\"review_count\":0,\"state\":null,\"due_at\":null},{\"prompt\":{\"id\":\"card-1\",\"text\":\"Alpha\"},\"is_due\":false,\"review_count\":1,\"state\":{\"reps\":1,\"ease_factor\":2.5,\"interval_days\":1},\"due_at\":\"2026-01-02T12:00:00.000Z\"}]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:list-what-is-due",
     "tool:schedule-next-review"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:list-what-is-due\", and give it prompts.",
+    "1. Say to your AI: \"See which of the things a person is learning are due for review now, soonest first, from the grades they have given them\", and give it prompts (The items being learned: [{ id, text?).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-what-is-due and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.items[0].prompt.id contains \"card-2\"."
+    "3. Read what comes back: Give the items being learned (each with an id and optional text; anything else on an item is handed back), the grades given so far (the item id, the grade word and when) and the person's own spacing policy."
   ],
   "worked_examples": [
     {
-      "title": "List what is due for review on a sample input",
-      "ask": "Run tool:list-what-is-due.",
+      "title": "List what is due for review on its own sample",
+      "ask": "See which of the things a person is learning are due for review now, soonest first, from the grades they have given them",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -62,7 +62,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.items[0].prompt.id contains \"card-2\"."
+      "given": "The input {\"prompts\":[{\"id\":\"card-1\",\"text\":\"Alpha\"},{\"id\":\"card-2\",\"text\":\"Beta\"}],\"responses\":[{\"prompt_id\":\"card-1\",\"grade\":\"solid\",\"at\":\"2026-01-01T12:00:00Z\"}],\"now\":\"2026-01-01T18:00:00Z\",\"policy\":{\"initial_ease\":2.5,\"min_ease\":1.3,\"first_interval_days\":1,\"second_interval_days\":6,\"lapse_below_quality\":0.6,\"grade_quality\":{\"miss\":0,\"shaky\":0.6,\"solid\":0.8,\"instant\":1}}}.",
+      "hands_back": "It answered {\"now\":\"2026-01-01T18:00:00Z\",\"due_count\":1,\"items\":[{\"prompt\":{\"id\":\"card-2\",\"text\":\"Beta\"},\"is_due\":true,\"review_count\":0,\"state\":null,\"due_at\":null},{\"prompt\":{\"id\":\"card-1\",\"text\":\"Alpha\"},\"is_due\":false,\"review_count\":1,\"state\":{\"reps\":1,\"ease_factor\":2.5,\"interval_days\":1},\"due_at\":\"2026-01-02T12:00:00.000Z\"}]}."
     }
   ]
 }

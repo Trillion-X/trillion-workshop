@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:scout-an-opponent's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:scout-an-opponent with operation, rows.\" Look up an opponent: list the people scouted, and pull together everything on file about one (what they are good and weak at, what worked and failed against them, their style and ratings) and which notes are trusted enough to plan from",
+  "drafted_from": "tool:scout-an-opponent's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Look up an opponent: list the people scouted, and pull together everything on file about one (what they are good and weak at, what worked and failed against them, their style and ratings) and which notes are trusted enough to plan from\", with {\"operation\":\"search\",\"rows\":[{\"payload\":{\"kind\":\"subject\",\"subjectId\":\"p:1\",\"subjectKind\":\"player\",\"label\":\"Alder\",\"payload\":{\"isSelf\":true},\"createdAt\":\"2026-01-01T09:00:00.000Z\"}},{\"payload\":{\"kind\":\"subject\",\"subjectId\":\"p:2\",\"subjectKind\":\"player\",\"label\":\"Birch\",\"payload\":{},\"createdAt\":\"2026-01-01T09:00:00.000Z\"}}]}. It runs tool:scout-an-opponent and answers {\"opponents\":[{\"subjectId\":\"p:2\",\"name\":\"Birch\",\"facts\":{},\"styleLabels\":[],\"reportCount\":0,\"profileCount\":0,\"workedCount\":0,\"failedCount\":0}]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:scout-an-opponent"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:scout-an-opponent\", and give it operation, rows.",
+    "1. Say to your AI: \"Look up an opponent: list the people scouted, and pull together everything on file about one (what they are good and weak at, what worked and failed against them, their style and ratings) and which notes are trusted enough to plan from\", and give it operation (What to do); rows (The records (subject, evidence, profile-projection, result, evidence-confidence-policy), each as { payload } or the record itself).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:scout-an-opponent and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.opponents[0].name contains \"Birch\"."
+    "3. Read what comes back: Give the person's records and an operation."
   ],
   "worked_examples": [
     {
-      "title": "Scout an opponent from the notes on file on a sample input",
-      "ask": "Run tool:scout-an-opponent.",
+      "title": "Scout an opponent from the notes on file on its own sample",
+      "ask": "Look up an opponent: list the people scouted, and pull together everything on file about one (what they are good and weak at, what worked and failed against them, their style and ratings) and which notes are trusted enough to plan from",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -55,7 +55,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.opponents[0].name contains \"Birch\"."
+      "given": "The input {\"operation\":\"search\",\"rows\":[{\"payload\":{\"kind\":\"subject\",\"subjectId\":\"p:1\",\"subjectKind\":\"player\",\"label\":\"Alder\",\"payload\":{\"isSelf\":true},\"createdAt\":\"2026-01-01T09:00:00.000Z\"}},{\"payload\":{\"kind\":\"subject\",\"subjectId\":\"p:2\",\"subjectKind\":\"player\",\"label\":\"Birch\",\"payload\":{},\"createdAt\":\"2026-01-01T09:00:00.000Z\"}}]}.",
+      "hands_back": "It answered {\"opponents\":[{\"subjectId\":\"p:2\",\"name\":\"Birch\",\"facts\":{},\"styleLabels\":[],\"reportCount\":0,\"profileCount\":0,\"workedCount\":0,\"failedCount\":0}]}."
     }
   ]
 }

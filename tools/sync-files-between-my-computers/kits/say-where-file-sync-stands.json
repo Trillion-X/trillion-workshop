@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:say-where-file-sync-stands's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:say-where-file-sync-stands with feed.\" Say where the sync of a person's files on one computer stands: starting, synced, syncing, offline, conflict or error, why Trillion was not reached, and how many saves are still moving",
+  "drafted_from": "tool:say-where-file-sync-stands's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Say where the sync of a person's files on one computer stands: starting, synced, syncing, offline, conflict or error, why Trillion was not reached, and how many saves are still moving\", with {\"feed\":{\"version\":7,\"reached_at\":1792404000000,\"failure\":null},\"writes\":{\"owing\":[{\"size\":10},{\"size\":5}],\"conflicts\":[],\"failed\":[]}}. It runs tool:say-where-file-sync-stands and answers {\"state\":\"syncing\",\"version\":7,\"network\":{\"checked\":true,\"reached\":true,\"last_reached_at\":\"2026-10-19T10:00:00.000Z\"},\"error\":null,\"moving\":{\"count\":2,\"bytes\":15},\"conflicts\":0,\"failed\":0,\"said\":\"Sending 2 saves to Trillion.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:say-where-file-sync-stands"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:say-where-file-sync-stands\", and give it feed.",
+    "1. Say to your AI: \"Say where the sync of a person's files on one computer stands: starting, synced, syncing, offline, conflict or error, why Trillion was not reached, and how many saves are still moving\", and give it feed.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:say-where-file-sync-stands and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.state contains \"syncing\"."
+    "3. Read what comes back: Gives one typed sync status record from what the computer's change feed and write journal observed."
   ],
   "worked_examples": [
     {
-      "title": "Say where file sync stands on a sample input",
-      "ask": "Run tool:say-where-file-sync-stands.",
+      "title": "Say where file sync stands on its own sample",
+      "ask": "Say where the sync of a person's files on one computer stands: starting, synced, syncing, offline, conflict or error, why Trillion was not reached, and how many saves are still moving",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -47,7 +47,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.state contains \"syncing\"."
+      "given": "The input {\"feed\":{\"version\":7,\"reached_at\":1792404000000,\"failure\":null},\"writes\":{\"owing\":[{\"size\":10},{\"size\":5}],\"conflicts\":[],\"failed\":[]}}.",
+      "hands_back": "It answered {\"state\":\"syncing\",\"version\":7,\"network\":{\"checked\":true,\"reached\":true,\"last_reached_at\":\"2026-10-19T10:00:00.000Z\"},\"error\":null,\"moving\":{\"count\":2,\"bytes\":15},\"conflicts\":0,\"failed\":0,\"said\":\"Sending 2 saves to Trillion.\"}."
     }
   ]
 }

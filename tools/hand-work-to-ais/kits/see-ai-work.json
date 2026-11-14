@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:see-ai-work's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:see-ai-work with nothing more.\" Show me the jobs my AIs handed each other: what is waiting, who took what, and what each finished with",
+  "drafted_from": "tool:see-ai-work's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Show me the jobs my AIs handed each other: what is waiting, who took what, and what each finished with\", with {\"status\":\"waiting\"}. It runs tool:see-ai-work and answers {\"jobs\":[{\"id\":\"ai-job:sample-1\",\"status\":\"waiting\",\"job\":\"Write a made-up sample report\",\"to\":null,\"from\":\"ai:sample-sender\",\"priority\":5,\"sent_at\":\"2026-11-03T00:00:00.000Z\"}],\"more\":false}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (ai-job) through the records door.",
   "workflows": [],
   "tools": [
     "tool:see-ai-work"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:see-ai-work\", and give it nothing more.",
+    "1. Say to your AI: \"Show me the jobs my AIs handed each other: what is waiting, who took what, and what each finished with\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:see-ai-work and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields jobs, more."
+    "3. Read what comes back: With `id`, reads that one ai-job record.",
+    "4. It reads and writes only its own rows through the records door: ai-job (records:read, records:list)."
   ],
   "worked_examples": [
     {
-      "title": "See the work handed between my AIs: one job, or the newest that match on a sample input",
-      "ask": "Run tool:see-ai-work.",
+      "title": "See the work handed between my AIs: one job, or the newest that match on its own sample",
+      "ask": "Show me the jobs my AIs handed each other: what is waiting, who took what, and what each finished with",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +32,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields jobs, more."
+      "given": "The input {\"status\":\"waiting\"}, with 1 example row (ai-job) already kept.",
+      "hands_back": "It answered {\"jobs\":[{\"id\":\"ai-job:sample-1\",\"status\":\"waiting\",\"job\":\"Write a made-up sample report\",\"to\":null,\"from\":\"ai:sample-sender\",\"priority\":5,\"sent_at\":\"2026-11-03T00:00:00.000Z\"}],\"more\":false}."
     }
   ]
 }

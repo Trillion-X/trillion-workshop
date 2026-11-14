@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:check-a-destination-is-honest's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-a-destination-is-honest with descriptor.\" Check a progress or results screen description before publishing it: it must not ship made-up numbers, ranks, bars or percents before the owner has worked them out",
+  "drafted_from": "tool:check-a-destination-is-honest's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Check a progress or results screen description before publishing it: it must not ship made-up numbers, ranks, bars or percents before the owner has worked them out\", with {\"descriptor\":{\"kind\":\"destination-descriptor\",\"ref\":\"destination:bakery\",\"subject_ref\":\"subject:bakery\",\"statement\":\"Your week at the bakery\",\"sections\":[{\"presentation\":\"pulse\",\"bars\":[{\"value\":70}]}]}}. It runs tool:check-a-destination-is-honest and answers {\"honest\":false,\"problems\":[\"section 1: bars must start empty and come from the owner's output\"]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:check-a-destination-is-honest"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-a-destination-is-honest\", and give it descriptor.",
+    "1. Say to your AI: \"Check a progress or results screen description before publishing it: it must not ship made-up numbers, ranks, bars or percents before the owner has worked them out\", and give it descriptor (The destination descriptor to check).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-destination-is-honest and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.problems contains \"bars must start empty\"."
+    "3. Read what comes back: Give a destination descriptor and, if you want, refuse_keys: keys that may not appear anywhere in it."
   ],
   "worked_examples": [
     {
-      "title": "Check a destination is honest before it is published on a sample input",
-      "ask": "Run tool:check-a-destination-is-honest.",
+      "title": "Check a destination is honest before it is published on its own sample",
+      "ask": "Check a progress or results screen description before publishing it: it must not ship made-up numbers, ranks, bars or percents before the owner has worked them out",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -46,7 +46,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.problems contains \"bars must start empty\"."
+      "given": "The input {\"descriptor\":{\"kind\":\"destination-descriptor\",\"ref\":\"destination:bakery\",\"subject_ref\":\"subject:bakery\",\"statement\":\"Your week at the bakery\",\"sections\":[{\"presentation\":\"pulse\",\"bars\":[{\"value\":70}]}]}}.",
+      "hands_back": "It answered {\"honest\":false,\"problems\":[\"section 1: bars must start empty and come from the owner's output\"]}."
     }
   ]
 }

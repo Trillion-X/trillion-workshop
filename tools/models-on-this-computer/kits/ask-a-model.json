@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:ask-a-model's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:ask-a-model with nothing more.\" Ask a model served on the person's own computer (a local model, free to run) a conversation or a yes-or-no question about some words, instead of a service billed per word",
+  "drafted_from": "tool:ask-a-model's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Ask a model served on the person's own computer (a local model, free to run) a conversation or a yes-or-no question about some words, instead of a service billed per word\", with {\"messages\":[{\"role\":\"user\",\"content\":\"Say hello to Ada Example.\"}]}. It runs tool:ask-a-model and answers {\"id\":\"chatcmpl-60\",\"object\":\"chat.completion\",\"created\":1794617432,\"model\":\"gemma3:4b\",\"system_fingerprint\":\"fp_ollama\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"Hello Ada Example! It's nice to meet you. 😊 \\n\\nIs there anything you'd like to chat about?\"},\"finish_reason\":\"stop\"}],\"usage\":{\"prompt_tokens\":16,\"prompt_tokens_details\":{\"cached_tokens\":11},\"completion_tokens\":27 ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:ask-a-model"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:ask-a-model\", and give it nothing more.",
+    "1. Say to your AI: \"Ask a model served on the person's own computer (a local model, free to run) a conversation or a yes-or-no question about some words, instead of a service billed per word\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:ask-a-model and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Ask a model served on the person's own computer (a local model, free to run) a conversation or a yes-or-no question about some words, instead of a service billed per word"
+    "3. Read what comes back: Runs on the person's computer with the models it serves (read-data/models-on-this-computer.json: Ollama for conversations, a small classifier for yes-or-no questions)."
   ],
   "worked_examples": [
     {
-      "title": "Ask a model on a sample input",
-      "ask": "Run tool:ask-a-model.",
+      "title": "Ask a model on its own sample",
+      "ask": "Ask a model served on the person's own computer (a local model, free to run) a conversation or a yes-or-no question about some words, instead of a service billed per word",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -36,7 +36,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Ask a model served on the person's own computer (a local model, free to run) a conversation or a yes-or-no question about some words, instead of a service billed per word"
+      "given": "The input {\"messages\":[{\"role\":\"user\",\"content\":\"Say hello to Ada Example.\"}]}.",
+      "hands_back": "It answered {\"id\":\"chatcmpl-60\",\"object\":\"chat.completion\",\"created\":1794617432,\"model\":\"gemma3:4b\",\"system_fingerprint\":\"fp_ollama\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"Hello Ada Example! It's nice to meet you. 😊 \\n\\nIs there anything you'd like to chat about?\"},\"finish_reason\":\"stop\"}],\"usage\":{\"prompt_tokens\":16,\"prompt_tokens_details\":{\"cached_tokens\":11},\"completion_tokens\":27,\"total_tokens\":43},\"served_by\":\"ollama-gemma3-4b\"}."
     }
   ]
 }

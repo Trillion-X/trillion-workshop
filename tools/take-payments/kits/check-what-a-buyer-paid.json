@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:check-what-a-buyer-paid's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-what-a-buyer-paid with offer_id, paid.\" Check that the money a buyer actually paid is a price my offer declares, before giving them what they bought",
+  "drafted_from": "tool:check-what-a-buyer-paid's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Check that the money a buyer actually paid is a price my offer declares, before giving them what they bought\", with {\"offers\":[{\"kind\":\"commercial-offer\",\"id\":\"offer:bread-box\",\"label\":\"Bread box\",\"price_options\":[{\"id\":\"price:box:monthly\",\"label\":\"Monthly\",\"amount_cents\":1200,\"currency\":\"usd\",\"payment_timing\":\"subscription\",\"interval\":\"month\"}]}],\"offer_id\":\"offer:bread-box\",\"paid\":{\"amountCents\":1200,\"currency\":\"USD\"}}. It runs tool:check-what-a-buyer-paid and answers {\"matches\":true,\"reason\":\"\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:commercial-offer) through the records door.",
   "workflows": [],
   "tools": [
     "tool:check-what-a-buyer-paid"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-what-a-buyer-paid\", and give it offer_id, paid.",
+    "1. Say to your AI: \"Check that the money a buyer actually paid is a price my offer declares, before giving them what they bought\", and give it offer_id; paid.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-what-a-buyer-paid and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.matches contains \"true\"."
+    "3. Read what comes back: Give offer_id and paid ({ amountCents, currency }), and optionally quoted (the amount, currency, cadence and priceOptionId that were quoted).",
+    "4. It reads and writes only its own rows through the records door: record:commercial-offer (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Check what a buyer paid on a sample input",
-      "ask": "Run tool:check-what-a-buyer-paid.",
+      "title": "Check what a buyer paid on its own sample",
+      "ask": "Check that the money a buyer actually paid is a price my offer declares, before giving them what they bought",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -52,7 +53,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.matches contains \"true\"."
+      "given": "The input {\"offers\":[{\"kind\":\"commercial-offer\",\"id\":\"offer:bread-box\",\"label\":\"Bread box\",\"price_options\":[{\"id\":\"price:box:monthly\",\"label\":\"Monthly\",\"amount_cents\":1200,\"currency\":\"usd\",\"payment_timing\":\"subscription\",\"interval\":\"month\"}]}],\"offer_id\":\"offer:bread-box\",\"paid\":{\"amountCents\":1200,\"currency\":\"USD\"}}.",
+      "hands_back": "It answered {\"matches\":true,\"reason\":\"\"}."
     }
   ]
 }

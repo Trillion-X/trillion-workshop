@@ -1,23 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:build-a-quoted-section-from-entries's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:build-a-quoted-section-from-entries with heading, sources.\" Write one markdown section out of a list of entries (what people said or wrote), keeping every entry's words exactly as they came in",
+  "drafted_from": "tool:build-a-quoted-section-from-entries's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Write one markdown section out of a list of entries (what people said or wrote), keeping every entry's words exactly as they came in\", with {\"heading\":\"What was said\",\"sources\":[{\"document\":{\"session_id\":\"first\",\"messages\":[{\"ordinal\":1,\"content\":\"One line.\"}]}}]}. It runs tool:build-a-quoted-section-from-entries and answers {\"text\":\"## What was said\\n\\n### first (1)\\n\\n**#1**\\n\\n> One line.\\n\",\"entries\":1,\"sources\":1}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:build-a-quoted-section-from-entries",
     "tool:place-a-section-in-a-markdown-document"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:build-a-quoted-section-from-entries\", and give it heading, sources.",
+    "1. Say to your AI: \"Write one markdown section out of a list of entries (what people said or wrote), keeping every entry's words exactly as they came in\", and give it heading (The section heading; written as a second-level heading unless it already starts with #); sources.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:build-a-quoted-section-from-entries and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.text contains \"> One line.\"."
+    "3. Read what comes back: Give a heading and one or more sources, each a JSON document holding a list of entries."
   ],
   "worked_examples": [
     {
-      "title": "Build a markdown section from entries, word for word on a sample input",
-      "ask": "Run tool:build-a-quoted-section-from-entries.",
+      "title": "Build a markdown section from entries, word for word on its own sample",
+      "ask": "Write one markdown section out of a list of entries (what people said or wrote), keeping every entry's words exactly as they came in",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -45,7 +45,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.text contains \"> One line.\"."
+      "given": "The input {\"heading\":\"What was said\",\"sources\":[{\"document\":{\"session_id\":\"first\",\"messages\":[{\"ordinal\":1,\"content\":\"One line.\"}]}}]}.",
+      "hands_back": "It answered {\"text\":\"## What was said\\n\\n### first (1)\\n\\n**#1**\\n\\n> One line.\\n\",\"entries\":1,\"sources\":1}."
     }
   ]
 }

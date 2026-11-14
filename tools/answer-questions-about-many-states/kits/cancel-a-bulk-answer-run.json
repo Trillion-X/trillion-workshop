@@ -1,23 +1,24 @@
 {
   "draft": true,
-  "drafted_from": "tool:cancel-a-bulk-answer-run's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:cancel-a-bulk-answer-run with job_id.\" Stop my bulk question run",
+  "drafted_from": "tool:cancel-a-bulk-answer-run's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Stop my bulk question run\", with {\"job_id\":\"1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}. It runs tool:cancel-a-bulk-answer-run and answers {\"job_id\":\"1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"status\":\"cancelled\",\"states_done\":0,\"states\":2,\"pages\":0}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (bulk-answer-run, bulk-answer-cancel) through the records door.",
   "workflows": [],
   "tools": [
     "tool:cancel-a-bulk-answer-run",
     "tool:read-a-bulk-answer-run"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:cancel-a-bulk-answer-run\", and give it job_id.",
+    "1. Say to your AI: \"Stop my bulk question run\", and give it job_id (The job_id the run answered: the BLAKE3 identity of the rows it read.).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:cancel-a-bulk-answer-run and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Stop my bulk question run"
+    "3. Read what comes back: {\"result\": {\"job_id\", \"status\": \"cancelling\" | \"cancelled\" | \"finished\" | \"failed\", \"states_done\", \"states\", \"pages\"}} or {\"error\": \"what to change\"}.",
+    "4. It reads and writes only its own rows through the records door: bulk-answer-run (records:read, records:write); bulk-answer-cancel (records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Stop a bulk answer run on a sample input",
-      "ask": "Run tool:cancel-a-bulk-answer-run.",
+      "title": "Stop a bulk answer run on its own sample",
+      "ask": "Stop my bulk question run",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,7 +33,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Stop my bulk question run"
+      "given": "The input {\"job_id\":\"1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}, with 1 example row (bulk-answer-run) already kept.",
+      "hands_back": "It answered {\"job_id\":\"1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"status\":\"cancelled\",\"states_done\":0,\"states\":2,\"pages\":0}."
     }
   ]
 }

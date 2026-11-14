@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:hold-back-on-risk's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:hold-back-on-risk with threshold.\" Hold an output back, and give the person's own support resources instead, when its risk is too high or unknown",
+  "drafted_from": "tool:hold-back-on-risk's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Hold an output back, and give the person's own support resources instead, when its risk is too high or unknown\", with {\"assessment\":{\"evaluated\":true,\"risk\":0.9,\"categories\":[\"spoilage\"]},\"threshold\":0.5,\"support_resources\":[\"Call the supplier line\"]}. It runs tool:hold-back-on-risk and answers {\"release\":false,\"hold_back\":true,\"reason\":\"risk is at or above the threshold: held back\",\"support_resources\":[\"Call the supplier line\"],\"categories\":[\"spoilage\"]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:hold-back-on-risk"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:hold-back-on-risk\", and give it threshold.",
+    "1. Say to your AI: \"Hold an output back, and give the person's own support resources instead, when its risk is too high or unknown\", and give it threshold.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:hold-back-on-risk and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.reason contains \"at or above the threshold\"."
+    "3. Read what comes back: Takes a risk assessment (was it run, the risk from 0 to 1 or null, categories) and the person's threshold."
   ],
   "worked_examples": [
     {
-      "title": "Hold an output back when risk is too high on a sample input",
-      "ask": "Run tool:hold-back-on-risk.",
+      "title": "Hold an output back when risk is too high on its own sample",
+      "ask": "Hold an output back, and give the person's own support resources instead, when its risk is too high or unknown",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -41,7 +41,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.reason contains \"at or above the threshold\"."
+      "given": "The input {\"assessment\":{\"evaluated\":true,\"risk\":0.9,\"categories\":[\"spoilage\"]},\"threshold\":0.5,\"support_resources\":[\"Call the supplier line\"]}.",
+      "hands_back": "It answered {\"release\":false,\"hold_back\":true,\"reason\":\"risk is at or above the threshold: held back\",\"support_resources\":[\"Call the supplier line\"],\"categories\":[\"spoilage\"]}."
     }
   ]
 }

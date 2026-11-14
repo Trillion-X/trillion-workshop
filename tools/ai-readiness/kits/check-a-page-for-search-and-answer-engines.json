@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:check-a-page-for-search-and-answer-engines's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-a-page-for-search-and-answer-engines with url.\" Read one public page the way a search or answer engine does, from the HTML it is served with and no script run, and say which checks it passes, which it misses and how to fix each",
+  "drafted_from": "tool:check-a-page-for-search-and-answer-engines's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Read one public page the way a search or answer engine does, from the HTML it is served with and no script run, and say which checks it passes, which it misses and how to fix each\", with {\"url\":\"https://example.com\"}. It runs tool:check-a-page-for-search-and-answer-engines and answers {\"url\":\"https://example.com\",\"final_url\":\"https://example.com/\",\"status\":200,\"indexable\":true,\"score\":67,\"passed\":10,\"failed\":5,\"missing\":[{\"id\":\"facts-in-served-html\",\"says\":\"The page's words are in the HTML it is served with, not added by a script\",\"fix\":\"Draw the page's text on the server; a script may add to it, never be the only source.\",\"examples\":[]},{\"id\":\"page-has-title-and-description\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:check-a-page-for-search-and-answer-engines"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-a-page-for-search-and-answer-engines\", and give it url.",
+    "1. Say to your AI: \"Read one public page the way a search or answer engine does, from the HTML it is served with and no script run, and say which checks it passes, which it misses and how to fix each\", and give it url (One public HTTP or HTTPS page address.).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-page-for-search-and-answer-engines and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.final_url contains \"example.com\"."
+    "3. Read what comes back: Fetches one public HTTP or HTTPS page, its host's robots.txt and, up to a set number, the pages it links to, and checks the served HTML against check rows: readable text without a script, one clear definition in the first words, a question as the first subheading, headings in order, named controls and labelled fields, structured data, a canonical address, published and updated dates, robots rules that let the answer-engine crawlers in, working links and more."
   ],
   "worked_examples": [
     {
-      "title": "Check a page for search and answer engines on a sample input",
-      "ask": "Run tool:check-a-page-for-search-and-answer-engines.",
+      "title": "Check a page for search and answer engines on its own sample",
+      "ask": "Read one public page the way a search or answer engine does, from the HTML it is served with and no script run, and say which checks it passes, which it misses and how to fix each",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +31,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.final_url contains \"example.com\"."
+      "given": "The input {\"url\":\"https://example.com\"}, the web answering from 2 recorded replies.",
+      "hands_back": "It answered {\"url\":\"https://example.com\",\"final_url\":\"https://example.com/\",\"status\":200,\"indexable\":true,\"score\":67,\"passed\":10,\"failed\":5,\"missing\":[{\"id\":\"facts-in-served-html\",\"says\":\"The page's words are in the HTML it is served with, not added by a script\",\"fix\":\"Draw the page's text on the server; a script may add to it, never be the only source.\",\"examples\":[]},{\"id\":\"page-has-title-and-description\",\"says\":\"The page has a title and a description\",\"fix\":\"Write a <title> and a meta description that say what the page is.\",\"examples\":[]},{\"id\":\"page-names-its-language-and-address\",\"says\":\"The page names its language and its own address\",\"fix\":\"Set <html lang> and a canonical link.\",\"examples\":[]} ...."
     }
   ]
 }

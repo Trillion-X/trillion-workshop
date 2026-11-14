@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:end-a-decision's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:end-a-decision with decisions, by.\" Close decisions that will never be carried on, and keep why",
+  "drafted_from": "tool:end-a-decision's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Close decisions that will never be carried on, and keep why\", with {\"decisions\":[{\"decision_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"because\":\"A made-up sample decision no longer needed\"}],\"by\":\"sample-person\"}. It runs tool:end-a-decision and answers {\"ended\":1,\"not_ended\":0,\"decisions\":[{\"decision_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"ended\":true,\"previous_status\":\"needs_outcome\",\"ended_at\":\"2026-11-14T00:50:19.904Z\"}]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (decision, decision-revision, decision-step, decision-call, decision-evidence, decision-answered-step, decision-option, decision-candidate, decision-report, decision-carried-out, decision-history, decision-cited-pursuit, decision-method, decision-part, decision-refs) through the records door.",
   "workflows": [],
   "tools": [
     "tool:end-a-decision"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:end-a-decision\", and give it decisions, by.",
+    "1. Say to your AI: \"Close decisions that will never be carried on, and keep why\", and give it decisions; by.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:end-a-decision and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields ended, not_ended, decisions."
+    "3. Read what comes back: Sets each named decision's status to ended and keeps the status it had (previous_status), ended_at, ended_by and ended_because, with every other field unchanged and nothing deleted.",
+    "4. It reads and writes only its own rows through the records door: decision (records:read, records:list, records:write); decision-revision (records:read, records:write); decision-step (records:read, records:write); decision-call (records:write); decision-evidence (records:read, records:list, records:write); decision-answered-step (records:read, records:list, records:write); decision-option (records:read, records:list, records:write); decision-candidate (records:read, records:list, records:write); decision-report (records:read, records:list, records:write); decision-carried-out (records:read, records:list, records:write); decision-history (records:read, records:list, records:write); decision-cited-pursuit (records:read, records:list, records:write); decision-method (records:read, records:write); decision-part (records:read, records:write); decision-refs (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "End decisions no one will carry on on a sample input",
-      "ask": "Run tool:end-a-decision.",
+      "title": "End decisions no one will carry on on its own sample",
+      "ask": "Close decisions that will never be carried on, and keep why",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -37,7 +38,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields ended, not_ended, decisions."
+      "given": "The input {\"decisions\":[{\"decision_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"because\":\"A made-up sample decision no longer needed\"}],\"by\":\"sample-person\"}, with 11 example rows (decision, decision-evidence, decision-method, decision-step, decision-answered-step) already kept.",
+      "hands_back": "It answered {\"ended\":1,\"not_ended\":0,\"decisions\":[{\"decision_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"ended\":true,\"previous_status\":\"needs_outcome\",\"ended_at\":\"2026-11-14T00:50:19.904Z\"}]}."
     }
   ]
 }

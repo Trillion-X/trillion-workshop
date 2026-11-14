@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:read-latest-answers-as-lines's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-latest-answers-as-lines with form_id.\" Give the latest answers to a form as plain lines, each starting with the question it answers, ready to hand to a writer or a summary",
+  "drafted_from": "tool:read-latest-answers-as-lines's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Give the latest answers to a form as plain lines, each starting with the question it answers, ready to hand to a writer or a summary\", with {\"form_id\":\"sample-intake\",\"respondent_id\":\"respondent-1\"}. It runs tool:read-latest-answers-as-lines and answers {\"lines\":[\"Budget: 5\"]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (answer-fact, question-sequence) through the records door.",
   "workflows": [],
   "tools": [
     "tool:read-latest-answers-as-lines"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-latest-answers-as-lines\", and give it form_id.",
+    "1. Say to your AI: \"Give the latest answers to a form as plain lines, each starting with the question it answers, ready to hand to a writer or a summary\", and give it form_id (The form).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-latest-answers-as-lines and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields lines."
+    "3. Read what comes back: Give form_id and optionally respondent_id.",
+    "4. It reads and writes only its own rows through the records door: answer-fact (records:list); question-sequence (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Latest answers as lines on a sample input",
-      "ask": "Run tool:read-latest-answers-as-lines.",
+      "title": "Latest answers as lines on its own sample",
+      "ask": "Give the latest answers to a form as plain lines, each starting with the question it answers, ready to hand to a writer or a summary",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,7 +33,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields lines."
+      "given": "The input {\"form_id\":\"sample-intake\",\"respondent_id\":\"respondent-1\"}, with 2 example rows (question-sequence, answer-fact) already kept.",
+      "hands_back": "It answered {\"lines\":[\"Budget: 5\"]}."
     }
   ]
 }

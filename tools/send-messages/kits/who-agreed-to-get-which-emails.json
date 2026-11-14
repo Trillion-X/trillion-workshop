@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:who-agreed-to-get-which-emails's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:who-agreed-to-get-which-emails with nothing more.\" Show who agreed to get which email list, in what words, when and from where, and whether they still do",
+  "drafted_from": "tool:who-agreed-to-get-which-emails's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Show who agreed to get which email list, in what words, when and from where, and whether they still do\", with {}. It runs tool:who-agreed-to-get-which-emails and answers {\"people\":[],\"agreed\":[],\"said\":\"0 people; 0 can be sent to now.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (email-course-subscription, email-course-interest, contact-point) through the records door.",
   "workflows": [],
   "tools": [
     "tool:who-agreed-to-get-which-emails"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:who-agreed-to-get-which-emails\", and give it nothing more.",
+    "1. Say to your AI: \"Show who agreed to get which email list, in what words, when and from where, and whether they still do\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:who-agreed-to-get-which-emails and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields people, agreed, said."
+    "3. Read what comes back: Optional list (one list's id) and status (active, pending or unsubscribed).",
+    "4. It reads and writes only its own rows through the records door: email-course-subscription (records:list); email-course-interest (records:list); contact-point (records:read)."
   ],
   "worked_examples": [
     {
-      "title": "Who agreed to get which emails on a sample input",
-      "ask": "Run tool:who-agreed-to-get-which-emails.",
+      "title": "Who agreed to get which emails on its own sample",
+      "ask": "Show who agreed to get which email list, in what words, when and from where, and whether they still do",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -29,7 +30,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields people, agreed, said."
+      "given": "The input {}.",
+      "hands_back": "It answered {\"people\":[],\"agreed\":[],\"said\":\"0 people; 0 can be sent to now.\"}."
     }
   ]
 }

@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:start-a-stripe-checkout's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:start-a-stripe-checkout with checkoutAttemptId, checkoutStartedAt, offerId, priceOptionId, consent, success_url, cancel_url.\" Make the Stripe hosted checkout page a buyer is sent to, for one of my offers, with my own Stripe account",
+  "drafted_from": "tool:start-a-stripe-checkout's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Make the Stripe hosted checkout page a buyer is sent to, for one of my offers, with my own Stripe account\", with {\"checkoutAttemptId\":\"attempt-000000000001\",\"checkoutStartedAt\":\"2026-11-03T03:04:05Z\",\"offerId\":\"offer:bread-box\",\"priceOptionId\":\"price:box:monthly\",\"consent\":{\"billing\":true,\"legal\":true},\"customer\":{\"email\":\"buyer@example.test\",\"firstName\":\"Sample\",\"lastName\":\"Buyer\"},\"success_url\":\"https://shop.example.test/ok?session={CHECKOUT_SESSION_ID}\",\"cancel_url\":\"https://shop.example.test/no\"}. It runs tool:start-a-stripe-checkout and answers {\"accessRefs\":[\"access:bread-box\"],\"amountDueTodayCents\":\"1200\",\"billingMode\":\"month\",\"canonicalPlanId\":\"offer:bread-box\",\"currency\":\"usd\",\"offerId\":\"offer:bread-box\",\"paymentMode\":\"subscription\",\"priceOptionId\":\"price:box:monthly\",\"recurringAmountCents\":\"1200\",\"trialDays\":0,\"unitCount\":1,\"providerSessionId\":\"cs_test_sample0001\",\"redirectUrl\":\"https://checkout.stripe.com/c/pay/cs_test_sample0001\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:commercial-offer, checkout-code-adjustment) through the records door.",
   "workflows": [],
   "tools": [
     "tool:start-a-stripe-checkout"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:start-a-stripe-checkout\", and give it checkoutAttemptId, checkoutStartedAt, offerId, priceOptionId, consent, success_url, cancel_url.",
+    "1. Say to your AI: \"Make the Stripe hosted checkout page a buyer is sent to, for one of my offers, with my own Stripe account\", and give it checkoutAttemptId; checkoutStartedAt; offerId; priceOptionId; consent; success_url; cancel_url.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:start-a-stripe-checkout and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields redirectUrl, providerSessionId, amountDueTodayCents."
+    "3. Read what comes back: Prices the sale as price-a-sale does, needs the buyer agreement in consent (billing and legal), and success_url and cancel_url for where the buyer lands afterwards (they only land the buyer; they never grant access).",
+    "4. It reads and writes only its own rows through the records door: record:commercial-offer (records:list); checkout-code-adjustment (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Start a Stripe checkout on a sample input",
-      "ask": "Run tool:start-a-stripe-checkout.",
+      "title": "Start a Stripe checkout on its own sample",
+      "ask": "Make the Stripe hosted checkout page a buyer is sent to, for one of my offers, with my own Stripe account",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -45,7 +46,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields redirectUrl, providerSessionId, amountDueTodayCents."
+      "given": "The input {\"checkoutAttemptId\":\"attempt-000000000001\",\"checkoutStartedAt\":\"2026-11-03T03:04:05Z\",\"offerId\":\"offer:bread-box\",\"priceOptionId\":\"price:box:monthly\",\"consent\":{\"billing\":true,\"legal\":true},\"customer\":{\"email\":\"buyer@example.test\",\"firstName\":\"Sample\",\"lastName\":\"Buyer\"},\"success_url\":\"https://shop.example.test/ok?session={CHECKOUT_SESSION_ID}\",\"cancel_url\":\"https://shop.example.test/no\"}, with 2 example rows (record:commercial-offer) already kept, the web answering from 1 recorded reply.",
+      "hands_back": "It answered {\"accessRefs\":[\"access:bread-box\"],\"amountDueTodayCents\":\"1200\",\"billingMode\":\"month\",\"canonicalPlanId\":\"offer:bread-box\",\"currency\":\"usd\",\"offerId\":\"offer:bread-box\",\"paymentMode\":\"subscription\",\"priceOptionId\":\"price:box:monthly\",\"recurringAmountCents\":\"1200\",\"trialDays\":0,\"unitCount\":1,\"providerSessionId\":\"cs_test_sample0001\",\"redirectUrl\":\"https://checkout.stripe.com/c/pay/cs_test_sample0001\"}."
     }
   ]
 }

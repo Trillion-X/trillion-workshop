@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:my-device-notices's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:my-device-notices with device_id.\" Read the newest notices kept for one registered device, oldest first after its cursor",
+  "drafted_from": "tool:my-device-notices's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Read the newest notices kept for one registered device, oldest first after its cursor\", with {\"device_id\":\"device-sample-1\"}. It runs tool:my-device-notices and answers {\"device_id\":\"device-sample-1\",\"channel\":\"device-pull\",\"cursor\":1,\"notices\":[{\"id\":\"told:1\",\"seq\":1,\"kind\":\"report\",\"title\":\"Sample notice\",\"body\":\"A made-up notice for the sample run.\",\"open\":null,\"at\":\"2026-11-03T12:00:00Z\",\"read\":false,\"actions\":[{\"id\":\"open\",\"label\":\"the sample page\",\"open\":\"/sample-page\"}],\"level\":\"active\"}],\"said\":\"1 notice is ready for this device, oldest first.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (notification-device, told-the-person) through the records door.",
   "workflows": [],
   "tools": [
     "tool:my-device-notices"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:my-device-notices\", and give it device_id.",
+    "1. Say to your AI: \"Read the newest notices kept for one registered device, oldest first after its cursor\", and give it device_id.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:my-device-notices and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields device_id, channel, cursor, notices, said."
+    "3. Read what comes back: Pass the device_id returned by notification-device registration.",
+    "4. It reads and writes only its own rows through the records door: notification-device (records:read); told-the-person (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Notices for this device on a sample input",
-      "ask": "Run tool:my-device-notices.",
+      "title": "Notices for this device on its own sample",
+      "ask": "Read the newest notices kept for one registered device, oldest first after its cursor",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +32,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields device_id, channel, cursor, notices, said."
+      "given": "The input {\"device_id\":\"device-sample-1\"}, with 3 example rows (notification-device, told-the-person) already kept.",
+      "hands_back": "It answered {\"device_id\":\"device-sample-1\",\"channel\":\"device-pull\",\"cursor\":1,\"notices\":[{\"id\":\"told:1\",\"seq\":1,\"kind\":\"report\",\"title\":\"Sample notice\",\"body\":\"A made-up notice for the sample run.\",\"open\":null,\"at\":\"2026-11-03T12:00:00Z\",\"read\":false,\"actions\":[{\"id\":\"open\",\"label\":\"the sample page\",\"open\":\"/sample-page\"}],\"level\":\"active\"}],\"said\":\"1 notice is ready for this device, oldest first.\"}."
     }
   ]
 }

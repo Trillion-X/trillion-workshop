@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:build-a-sellers-payment-setup-request's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:build-a-sellers-payment-setup-request with operation_id.\" Build, without sending it, the payment provider (Stripe) request that starts a seller's payment setup and gets their hosted onboarding link, or any other request the folder's operation map names",
+  "drafted_from": "tool:build-a-sellers-payment-setup-request's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Build, without sending it, the payment provider (Stripe) request that starts a seller's payment setup and gets their hosted onboarding link, or any other request the folder's operation map names\", with {\"operation_id\":\"operation:create-account-link\",\"idempotency_key\":\"seller-setup-sample-0001\",\"input_facts\":{\"operation_subject\":{\"account\":\"acct_sample_seller_0001\",\"type\":\"account_onboarding\",\"refresh_url\":\"https://shop.example/payments/setup/again\",\"return_url\":\"https://shop.example/payments/setup/done\"}}}. It runs tool:build-a-sellers-payment-setup-request and answers {\"operation_id\":\"operation:create-account-link\",\"method\":\"POST\",\"url\":\"https://api.stripe.com/v1/account_links\",\"headers\":{\"Stripe-Version\":\"2026-05-27.dahlia\",\"Content-Type\":\"application/x-www-form-urlencoded\",\"Idempotency-Key\":\"seller-setup-sample-0001\"},\"auth\":{\"scheme\":\"bearer\",\"credential_ref\":\"credential-class:stripe-restricted-key\"},\"api_version\":\"2026-05-27.dahlia\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:build-a-sellers-payment-setup-request"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:build-a-sellers-payment-setup-request\", and give it operation_id.",
+    "1. Say to your AI: \"Build, without sending it, the payment provider (Stripe) request that starts a seller's payment setup and gets their hosted onboarding link, or any other request the folder's operation map names\", and give it operation_id.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:build-a-sellers-payment-setup-request and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.url contains \"https://api.stripe.com/v1/account_links\"."
+    "3. Read what comes back: Calls buildStripeHttpRequest (process/build-stripe-http-request.mjs) with the input: operation_id names one row of data/stripe-operation-map.json (operation:create-connected-account and operation:create-account-link start a seller's setup and its hosted onboarding link; the map has every other operation too), input_facts holds what the request says (operation_subject becomes the form-encoded body of a write or the query of a search, provider_object_ref fills the address, acting_account the Stripe-Account header where the row declares it; a subject id becomes client_reference_id), idempotency_key becomes the Idempotency-Key header of a write, api_version_policy the Stripe-Version (the map's current version when left out) and required_credential_ref the name of the key a sender would use (credential-class:stripe-restricted-key when left out)."
   ],
   "worked_examples": [
     {
-      "title": "Build the request that starts a seller's payment setup on a sample input",
-      "ask": "Run tool:build-a-sellers-payment-setup-request.",
+      "title": "Build the request that starts a seller's payment setup on its own sample",
+      "ask": "Build, without sending it, the payment provider (Stripe) request that starts a seller's payment setup and gets their hosted onboarding link, or any other request the folder's operation map names",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -40,7 +40,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.url contains \"https://api.stripe.com/v1/account_links\"."
+      "given": "The input {\"operation_id\":\"operation:create-account-link\",\"idempotency_key\":\"seller-setup-sample-0001\",\"input_facts\":{\"operation_subject\":{\"account\":\"acct_sample_seller_0001\",\"type\":\"account_onboarding\",\"refresh_url\":\"https://shop.example/payments/setup/again\",\"return_url\":\"https://shop.example/payments/setup/done\"}}}.",
+      "hands_back": "It answered {\"operation_id\":\"operation:create-account-link\",\"method\":\"POST\",\"url\":\"https://api.stripe.com/v1/account_links\",\"headers\":{\"Stripe-Version\":\"2026-05-27.dahlia\",\"Content-Type\":\"application/x-www-form-urlencoded\",\"Idempotency-Key\":\"seller-setup-sample-0001\"},\"auth\":{\"scheme\":\"bearer\",\"credential_ref\":\"credential-class:stripe-restricted-key\"},\"api_version\":\"2026-05-27.dahlia\",\"body\":\"account=acct_sample_seller_0001&type=account_onboarding&refresh_url=https%3A%2F%2Fshop.example%2Fpayments%2Fsetup%2Fagain&return_url=https%3A%2F%2Fshop.example%2Fpayments%2Fsetup%2Fdone\",\"idempotency_key\":\"seller-setup-sample-0001\"}."
     }
   ]
 }

@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:answer-the-pursuits-page's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:answer-the-pursuits-page with path, method.\" List what I am pursuing now, and keep a goal I add or change from the page",
+  "drafted_from": "tool:answer-the-pursuits-page's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"List what I am pursuing now, and keep a goal I add or change from the page\", with {\"path\":\"/pursuits\",\"method\":\"GET\",\"query\":{},\"body\":{}}. It runs tool:answer-the-pursuits-page and answers {\"status\":200,\"body\":{\"pursuits\":[{\"id\":\"pursuit:grow-a-sample-newsletter\",\"kind\":\"pursuit\",\"title\":\"Grow a sample newsletter\",\"now\":\"100 readers\",\"after\":\"1,000 readers\",\"status\":\"active\"}]}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (pursuit) through the records door.",
   "workflows": [],
   "tools": [
     "tool:answer-the-pursuits-page"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:answer-the-pursuits-page\", and give it path, method.",
+    "1. Say to your AI: \"List what I am pursuing now, and keep a goal I add or change from the page\", and give it path (The page route after /work/api: /pursuits); method.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:answer-the-pursuits-page and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.body.pursuits[0].title contains \"Grow a sample newsletter\"."
+    "3. Read what comes back: The page route /pursuits: GET answers { pursuits } (every pursuit that is not ended or archived); PUT { pursuits: [{ title, now, after, ...",
+    "4. It reads and writes only its own rows through the records door: pursuit (records:list, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Answer the page's pursuits on a sample input",
-      "ask": "Run tool:answer-the-pursuits-page.",
+      "title": "Answer the page's pursuits on its own sample",
+      "ask": "List what I am pursuing now, and keep a goal I add or change from the page",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -34,7 +35,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.body.pursuits[0].title contains \"Grow a sample newsletter\"."
+      "given": "The input {\"path\":\"/pursuits\",\"method\":\"GET\",\"query\":{},\"body\":{}}, with 1 example row (pursuit) already kept.",
+      "hands_back": "It answered {\"status\":200,\"body\":{\"pursuits\":[{\"id\":\"pursuit:grow-a-sample-newsletter\",\"kind\":\"pursuit\",\"title\":\"Grow a sample newsletter\",\"now\":\"100 readers\",\"after\":\"1,000 readers\",\"status\":\"active\"}]}}."
     }
   ]
 }

@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:my-notification-choice's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:my-notification-choice with setting.\" Show the options a notification setting offers this person and which one they chose",
+  "drafted_from": "tool:my-notification-choice's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Show the options a notification setting offers this person and which one they chose\", with {\"setting\":\"sample-digest\"}. It runs tool:my-notification-choice and answers {\"setting\":\"sample-digest\",\"heading\":\"Sample digest\",\"explanation\":\"How often a made-up digest arrives.\",\"options\":[{\"id\":\"daily\",\"label\":\"Daily\",\"description\":\"\",\"current\":true},{\"id\":\"weekly\",\"label\":\"Weekly\",\"description\":\"\",\"current\":false}],\"current\":\"daily\",\"status\":\"ready\",\"said\":\"The current choice is daily.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (notification-setting, notification-choice) through the records door.",
   "workflows": [],
   "tools": [
     "tool:my-notification-choice"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:my-notification-choice\", and give it setting.",
+    "1. Say to your AI: \"Show the options a notification setting offers this person and which one they chose\", and give it setting (The setting's name).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:my-notification-choice and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields setting, heading, explanation, options, current, status, said."
+    "3. Read what comes back: setting is the name of a setting the person described in their own records.",
+    "4. It reads and writes only its own rows through the records door: notification-setting (records:read); notification-choice (records:read)."
   ],
   "worked_examples": [
     {
-      "title": "How I chose to be notified on a sample input",
-      "ask": "Run tool:my-notification-choice.",
+      "title": "How I chose to be notified on its own sample",
+      "ask": "Show the options a notification setting offers this person and which one they chose",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +32,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields setting, heading, explanation, options, current, status, said."
+      "given": "The input {\"setting\":\"sample-digest\"}, with 2 example rows (notification-setting, notification-choice) already kept.",
+      "hands_back": "It answered {\"setting\":\"sample-digest\",\"heading\":\"Sample digest\",\"explanation\":\"How often a made-up digest arrives.\",\"options\":[{\"id\":\"daily\",\"label\":\"Daily\",\"description\":\"\",\"current\":true},{\"id\":\"weekly\",\"label\":\"Weekly\",\"description\":\"\",\"current\":false}],\"current\":\"daily\",\"status\":\"ready\",\"said\":\"The current choice is daily.\"}."
     }
   ]
 }

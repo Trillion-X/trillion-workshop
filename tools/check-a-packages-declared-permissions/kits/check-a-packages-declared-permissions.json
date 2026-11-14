@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:check-a-packages-declared-permissions's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-a-packages-declared-permissions with manifest.\" Say whether a package's manifest names only permissions the host has a row for, and what each permission it names lets it do",
+  "drafted_from": "tool:check-a-packages-declared-permissions's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Say whether a package's manifest names only permissions the host has a row for, and what each permission it names lets it do\", with {\"manifest\":{\"permissions\":[\"network_egress\",\"read_files\"]}}. It runs tool:check-a-packages-declared-permissions and answers {\"ok\":true,\"unknown\":[],\"needs\":[{\"id\":\"network_egress\",\"says\":\"Send data off this computer\",\"calls\":[\"fetch\",\"openSocket\"]},{\"id\":\"read_files\",\"says\":\"Read files on this computer\",\"calls\":[\"readFile\",\"listFolder\"]}]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:check-a-packages-declared-permissions"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-a-packages-declared-permissions\", and give it manifest.",
+    "1. Say to your AI: \"Say whether a package's manifest names only permissions the host has a row for, and what each permission it names lets it do\", and give it manifest.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-packages-declared-permissions and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields ok, unknown, needs, why."
+    "3. Read what comes back: Give manifest ({ permissions: [ids] }) and, if wanted, permissions (the host's own rows, each { id, says, calls }; the shipped rows otherwise: network_egress, read_files, write_files, run_programs, use_microphone, read_screen)."
   ],
   "worked_examples": [
     {
-      "title": "Check a package's declared permissions on a sample input",
-      "ask": "Run tool:check-a-packages-declared-permissions.",
+      "title": "Check a package's declared permissions on its own sample",
+      "ask": "Say whether a package's manifest names only permissions the host has a row for, and what each permission it names lets it do",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -36,7 +36,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields ok, unknown, needs, why."
+      "given": "The input {\"manifest\":{\"permissions\":[\"network_egress\",\"read_files\"]}}.",
+      "hands_back": "It answered {\"ok\":true,\"unknown\":[],\"needs\":[{\"id\":\"network_egress\",\"says\":\"Send data off this computer\",\"calls\":[\"fetch\",\"openSocket\"]},{\"id\":\"read_files\",\"says\":\"Read files on this computer\",\"calls\":[\"readFile\",\"listFolder\"]}]}."
     }
   ]
 }

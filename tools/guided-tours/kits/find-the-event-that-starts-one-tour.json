@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:find-the-event-that-starts-one-tour's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:find-the-event-that-starts-one-tour with tours, tour_id.\" Work out the event a Start or Replay control should send to run one named guided tour on demand",
+  "drafted_from": "tool:find-the-event-that-starts-one-tour's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Work out the event a Start or Replay control should send to run one named guided tour on demand\", with {\"tours\":[{\"kind\":\"walkthrough-definition\",\"id\":\"tour:welcome\",\"entry_step\":\"a\",\"steps\":[{\"id\":\"a\"}],\"triggers\":[{\"reason\":\"replay\",\"on_event\":{\"event_kind\":\"tour-requested\",\"match\":{\"walkthrough_id\":\"tour:welcome\"}}}]}],\"tour_id\":\"tour:welcome\"}. It runs tool:find-the-event-that-starts-one-tour and answers {\"event\":{\"event_kind\":\"tour-requested\",\"walkthrough_id\":\"tour:welcome\"}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:find-the-event-that-starts-one-tour"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:find-the-event-that-starts-one-tour\", and give it tours, tour_id.",
+    "1. Say to your AI: \"Work out the event a Start or Replay control should send to run one named guided tour on demand\", and give it tours (The tour records, oldest first); tour_id (The tour to start).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-the-event-that-starts-one-tour and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.event.event_kind contains \"tour-requested\"."
+    "3. Read what comes back: Give the tour records (oldest first) and the id of the tour."
   ],
   "worked_examples": [
     {
-      "title": "Find the event that starts or replays one guided tour on a sample input",
-      "ask": "Run tool:find-the-event-that-starts-one-tour.",
+      "title": "Find the event that starts or replays one guided tour on its own sample",
+      "ask": "Work out the event a Start or Replay control should send to run one named guided tour on demand",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -54,7 +54,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.event.event_kind contains \"tour-requested\"."
+      "given": "The input {\"tours\":[{\"kind\":\"walkthrough-definition\",\"id\":\"tour:welcome\",\"entry_step\":\"a\",\"steps\":[{\"id\":\"a\"}],\"triggers\":[{\"reason\":\"replay\",\"on_event\":{\"event_kind\":\"tour-requested\",\"match\":{\"walkthrough_id\":\"tour:welcome\"}}}]}],\"tour_id\":\"tour:welcome\"}.",
+      "hands_back": "It answered {\"event\":{\"event_kind\":\"tour-requested\",\"walkthrough_id\":\"tour:welcome\"}}."
     }
   ]
 }

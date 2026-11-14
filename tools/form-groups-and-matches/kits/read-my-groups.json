@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:read-my-groups's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-my-groups with roots.\" Show what is in my groups, lists or collections, with the groups inside them, in their order",
+  "drafted_from": "tool:read-my-groups's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Show what is in my groups, lists or collections, with the groups inside them, in their order\", with {\"roots\":[{\"family\":\"sample-shelf\",\"parts\":{\"id\":\"verify\"}}]}. It runs tool:read-my-groups and answers {\"groups\":[],\"count\":0,\"skipped\":[]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (group) through the records door.",
   "workflows": [],
   "tools": [
     "tool:read-my-groups"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-my-groups\", and give it roots.",
+    "1. Say to your AI: \"Show what is in my groups, lists or collections, with the groups inside them, in their order\", and give it roots (The groups to start from).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-my-groups and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.count contains \"0\"."
+    "3. Read what comes back: Give roots: the addresses of the groups to start from, each { family, parts: { name: text } }.",
+    "4. It reads and writes only its own rows through the records door: group (records:read)."
   ],
   "worked_examples": [
     {
-      "title": "Read my groups and everything inside them on a sample input",
-      "ask": "Run tool:read-my-groups.",
+      "title": "Read my groups and everything inside them on its own sample",
+      "ask": "Show what is in my groups, lists or collections, with the groups inside them, in their order",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -38,7 +39,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.count contains \"0\"."
+      "given": "The input {\"roots\":[{\"family\":\"sample-shelf\",\"parts\":{\"id\":\"verify\"}}]}.",
+      "hands_back": "It answered {\"groups\":[],\"count\":0,\"skipped\":[]}."
     }
   ]
 }

@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:pack-my-device-copys-settle-upload's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:pack-my-device-copys-settle-upload with account, request.\" Work out what my device's copy of my records would send when it settles with my account: where the account's copy is kept on the device and the exact upload for one batch, compressed when that makes it smaller",
+  "drafted_from": "tool:pack-my-device-copys-settle-upload's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Work out what my device's copy of my records would send when it settles with my account: where the account's copy is kept on the device and the exact upload for one batch, compressed when that makes it smaller\", with {\"account\":\"sample-person\",\"request\":{\"copy\":\"device-1\",\"root\":\"0123456789abcdef\",\"took_through\":null,\"rows\":[{\"id\":\"01a15709-3f0a-7019-81df-90cabc197099\",\"envelopes\":[{\"id\":\"note:0\",\"type\":\"note\",\"value\":{\"title\":\"Note 0\",\"text\":\"Words of note 0 about the plan for the week\",\"created_at\":\"2026-09-21T14:13:20.000Z\",\"space_id\":\"space-1\",\"status\":\"open\",\"tags\":[\"a\"]},\"at\":\"01a157093f040000000\" .... It runs tool:pack-my-device-copys-settle-upload and answers {\"location\":{\"directory\":\".trillion-account-records-73616d706c652d706572736f6e\",\"name\":\"records.sqlite3\"},\"sends\":\"frame\",\"headers\":{\"content-type\":\"application/x-trillion-frame\",\"x-trillion-device-account\":\"sample-person\",\"x-trillion-frame-dictionary\":\"215eb371fc1b6ff140184dcfdd0fad32dfb2bef71bcb563577dba15c861037e7\",\"x-trillion-frame-size\":\"3380\"},\"plain_bytes\":3380,\"sent_bytes\":354 ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:pack-my-device-copys-settle-upload"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:pack-my-device-copys-settle-upload\", and give it account, request.",
+    "1. Say to your AI: \"Work out what my device's copy of my records would send when it settles with my account: where the account's copy is kept on the device and the exact upload for one batch, compressed when that makes it smaller\", and give it account; request.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:pack-my-device-copys-settle-upload and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.sends contains \"frame\"."
+    "3. Read what comes back: Give account (the signed-in account name, 1 to 256 characters) and request (one settle batch as a JSON object, the shape record-sync.mjs sends: copy, root, took_through, rows)."
   ],
   "worked_examples": [
     {
-      "title": "Pack my device copy's settle upload on a sample input",
-      "ask": "Run tool:pack-my-device-copys-settle-upload.",
+      "title": "Pack my device copy's settle upload on its own sample",
+      "ask": "Work out what my device's copy of my records would send when it settles with my account: where the account's copy is kept on the device and the exact upload for one batch, compressed when that makes it smaller",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -247,7 +247,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.sends contains \"frame\"."
+      "given": "The input {\"account\":\"sample-person\",\"request\":{\"copy\":\"device-1\",\"root\":\"0123456789abcdef\",\"took_through\":null,\"rows\":[{\"id\":\"01a15709-3f0a-7019-81df-90cabc197099\",\"envelopes\":[{\"id\":\"note:0\",\"type\":\"note\",\"value\":{\"title\":\"Note 0\",\"text\":\"Words of note 0 about the plan for the week\",\"created_at\":\"2026-09-21T14:13:20.000Z\",\"space_id\":\"space-1\",\"status\":\"open\",\"tags\":[\"a\"]},\"at\":\"01a157093f040000000\" ....",
+      "hands_back": "It answered {\"location\":{\"directory\":\".trillion-account-records-73616d706c652d706572736f6e\",\"name\":\"records.sqlite3\"},\"sends\":\"frame\",\"headers\":{\"content-type\":\"application/x-trillion-frame\",\"x-trillion-device-account\":\"sample-person\",\"x-trillion-frame-dictionary\":\"215eb371fc1b6ff140184dcfdd0fad32dfb2bef71bcb563577dba15c861037e7\",\"x-trillion-frame-size\":\"3380\"},\"plain_bytes\":3380,\"sent_bytes\":354 ...."
     }
   ]
 }

@@ -1,23 +1,24 @@
 {
   "draft": true,
-  "drafted_from": "tool:find-repeated-voice-edits's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:find-repeated-voice-edits with nothing more.\" Find the word changes a person keeps making to drafts written for them",
+  "drafted_from": "tool:find-repeated-voice-edits's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Find the word changes a person keeps making to drafts written for them\", with {}. It runs tool:find-repeated-voice-edits and answers {\"edits\":0,\"min_distinct_drafts\":3,\"repeated\":[],\"said\":\"No word change recurs in enough different drafts yet.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (voice-edit) through the records door.",
   "workflows": [],
   "tools": [
     "tool:find-repeated-voice-edits",
     "tool:save-voice"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:find-repeated-voice-edits\", and give it nothing more.",
+    "1. Say to your AI: \"Find the word changes a person keeps making to drafts written for them\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-repeated-voice-edits and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.said contains \"No word change recurs\"."
+    "3. Read what comes back: Counts, over the person's kept edits (kind narrows them), the words removed, added or replaced, each once per draft, and returns the changes found in at least min_distinct_drafts different drafts (3 when left out, never below 2), each with an example edit_id.",
+    "4. It reads and writes only its own rows through the records door: voice-edit (records:read, records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Find the edits a person repeats on a sample input",
-      "ask": "Run tool:find-repeated-voice-edits.",
+      "title": "Find the edits a person repeats on its own sample",
+      "ask": "Find the word changes a person keeps making to drafts written for them",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -30,7 +31,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.said contains \"No word change recurs\"."
+      "given": "The input {}.",
+      "hands_back": "It answered {\"edits\":0,\"min_distinct_drafts\":3,\"repeated\":[],\"said\":\"No word change recurs in enough different drafts yet.\"}."
     }
   ]
 }

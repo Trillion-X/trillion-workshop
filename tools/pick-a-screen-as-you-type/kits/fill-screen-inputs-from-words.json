@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:fill-screen-inputs-from-words's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:fill-screen-inputs-from-words with schema, words.\" Fill a screen's inputs from the words a person typed, such as timer 25 min or lunch with Ruth tomorrow at 1, by each input's format, choices or type, with no model",
+  "drafted_from": "tool:fill-screen-inputs-from-words's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Fill a screen's inputs from the words a person typed, such as timer 25 min or lunch with Ruth tomorrow at 1, by each input's format, choices or type, with no model\", with {\"schema\":{\"properties\":{\"seconds\":{\"type\":\"number\"}}},\"words\":\"timer 25 min\"}. It runs tool:fill-screen-inputs-from-words and answers {\"values\":{\"seconds\":1500},\"spans\":{\"seconds\":[[6,12]]},\"leftover\":\"timer\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:fill-screen-inputs-from-words"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:fill-screen-inputs-from-words\", and give it schema, words.",
+    "1. Say to your AI: \"Fill a screen's inputs from the words a person typed, such as timer 25 min or lunch with Ruth tomorrow at 1, by each input's format, choices or type, with no model\", and give it schema; words.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:fill-screen-inputs-from-words and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.values.seconds contains \"1500\"."
+    "3. Read what comes back: Give schema (the screen's input schema, { properties }), words, and now (the device's time, ISO) for words like tomorrow or in 20 minutes; used ([[start, end]]) are the spans of the words that picked the screen, which are not values; choices names labels for enum values."
   ],
   "worked_examples": [
     {
-      "title": "Fill a screen's inputs from my words on a sample input",
-      "ask": "Run tool:fill-screen-inputs-from-words.",
+      "title": "Fill a screen's inputs from my words on its own sample",
+      "ask": "Fill a screen's inputs from the words a person typed, such as timer 25 min or lunch with Ruth tomorrow at 1, by each input's format, choices or type, with no model",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -38,7 +38,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.values.seconds contains \"1500\"."
+      "given": "The input {\"schema\":{\"properties\":{\"seconds\":{\"type\":\"number\"}}},\"words\":\"timer 25 min\"}.",
+      "hands_back": "It answered {\"values\":{\"seconds\":1500},\"spans\":{\"seconds\":[[6,12]]},\"leftover\":\"timer\"}."
     }
   ]
 }

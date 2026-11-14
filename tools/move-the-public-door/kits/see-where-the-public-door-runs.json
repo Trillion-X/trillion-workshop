@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:see-where-the-public-door-runs's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:see-where-the-public-door-runs with nothing more.\" See where my public door runs now and which hosting and DNS services it can move between",
+  "drafted_from": "tool:see-where-the-public-door-runs's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"See where my public door runs now and which hosting and DNS services it can move between\", with {}. It runs tool:see-where-the-public-door-runs and answers {\"current\":{\"kind\":\"public-door-placement\",\"id\":\"current\",\"name\":\"Where the public door runs\",\"hosting_provider\":\"own-box\",\"dns_provider\":\"names\",\"hostname\":\"door.example.com\",\"server_id\":null,\"address\":\"192.0.2.10\",\"dns_record\":null,\"lease_file\":null,\"proof\":{\"health\":\"/healthz\",\"download\":\"/download/App.dmg\"}},\"hosting_providers\":[{\"id\":\"own-box\",\"name\":\"Your own box over SSH\",\"move_ready\":true ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:service-connection) through the records door.",
   "workflows": [],
   "tools": [
     "tool:see-where-the-public-door-runs"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:see-where-the-public-door-runs\", and give it nothing more.",
+    "1. Say to your AI: \"See where my public door runs now and which hosting and DNS services it can move between\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:see-where-the-public-door-runs and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.current.hosting_provider contains \"own-box\"."
+    "3. Read what comes back: Reads the person's Service connections list and answers where their public door runs now (its hosting row, its DNS row, its address and what proves it), each hosting row with whether the door can move there and why not, and each DNS row, with the vault name of the key each uses.",
+    "4. It reads and writes only its own rows through the records door: record:service-connection (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "See where the public door runs on a sample input",
-      "ask": "Run tool:see-where-the-public-door-runs.",
+      "title": "See where the public door runs on its own sample",
+      "ask": "See where my public door runs now and which hosting and DNS services it can move between",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -29,7 +30,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.current.hosting_provider contains \"own-box\"."
+      "given": "The input {}, with 3 example rows (record:service-connection) already kept.",
+      "hands_back": "It answered {\"current\":{\"kind\":\"public-door-placement\",\"id\":\"current\",\"name\":\"Where the public door runs\",\"hosting_provider\":\"own-box\",\"dns_provider\":\"names\",\"hostname\":\"door.example.com\",\"server_id\":null,\"address\":\"192.0.2.10\",\"dns_record\":null,\"lease_file\":null,\"proof\":{\"health\":\"/healthz\",\"download\":\"/download/App.dmg\"}},\"hosting_providers\":[{\"id\":\"own-box\",\"name\":\"Your own box over SSH\",\"move_ready\":true,\"not_ready_because\":null,\"vault_key\":null}],\"dns_providers\":[{\"id\":\"names\",\"name\":\"Names\",\"vault_key\":\"names-api-token\"}]}."
     }
   ]
 }

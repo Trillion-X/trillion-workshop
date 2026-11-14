@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:plan-an-evaluation-write's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:plan-an-evaluation-write with receipt.\" Accept the result of judging a learner's work on a step: the receipt to keep and the learner's next progress state, without applying one twice",
+  "drafted_from": "tool:plan-an-evaluation-write's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Accept the result of judging a learner's work on a step: the receipt to keep and the learner's next progress state, without applying one twice\", with {\"receipt\":{\"kind\":\"progress-evaluation-receipt\",\"evaluationId\":\"evaluation:1\",\"learnerId\":\"learner:1\",\"trackId\":\"track:bread\",\"stepId\":\"step:knead\",\"evidenceRefs\":[\"evidence:1\"],\"measureFactRef\":\"measure-fact:1\",\"measureDefinitionRef\":\"measure-definition:1\",\"decisionKey\":\"continue\",\"decision\":{\"completed\":true,\"nextStepId\":\"step:proof\"},\"score\":0.8,\"confidence\":0.9 .... It runs tool:plan-an-evaluation-write and answers {\"idempotent\":false,\"receipt_ref\":\"evaluation::evaluation%3A1\",\"state_ref\":\"progress-state::learner%3A1::track%3Abread\",\"revision\":1,\"decision_key\":\"continue\",\"writes\":[{\"ref\":\"evaluation::evaluation%3A1\",\"record\":{\"kind\":\"progress-evaluation-receipt\",\"evaluationId\":\"evaluation:1\",\"learnerId\":\"learner:1\",\"trackId\":\"track:bread\",\"stepId\":\"step:knead\",\"evidenceRefs\":[\"evidence:1\"] ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:plan-an-evaluation-write"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:plan-an-evaluation-write\", and give it receipt.",
+    "1. Say to your AI: \"Accept the result of judging a learner's work on a step: the receipt to keep and the learner's next progress state, without applying one twice\", and give it receipt.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:plan-an-evaluation-write and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.writes[1].ref contains \"progress-state::learner%3A1\"."
+    "3. Read what comes back: Give the evaluation receipt, the learner's current progress state (leave out if none) and the revision you expect it to be at, and the receipt already stored under that evaluation id if there is one."
   ],
   "worked_examples": [
     {
-      "title": "Plan the write that accepts an evaluation of a learner's step on a sample input",
-      "ask": "Run tool:plan-an-evaluation-write.",
+      "title": "Plan the write that accepts an evaluation of a learner's step on its own sample",
+      "ask": "Accept the result of judging a learner's work on a step: the receipt to keep and the learner's next progress state, without applying one twice",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -54,7 +54,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.writes[1].ref contains \"progress-state::learner%3A1\"."
+      "given": "The input {\"receipt\":{\"kind\":\"progress-evaluation-receipt\",\"evaluationId\":\"evaluation:1\",\"learnerId\":\"learner:1\",\"trackId\":\"track:bread\",\"stepId\":\"step:knead\",\"evidenceRefs\":[\"evidence:1\"],\"measureFactRef\":\"measure-fact:1\",\"measureDefinitionRef\":\"measure-definition:1\",\"decisionKey\":\"continue\",\"decision\":{\"completed\":true,\"nextStepId\":\"step:proof\"},\"score\":0.8,\"confidence\":0.9 ....",
+      "hands_back": "It answered {\"idempotent\":false,\"receipt_ref\":\"evaluation::evaluation%3A1\",\"state_ref\":\"progress-state::learner%3A1::track%3Abread\",\"revision\":1,\"decision_key\":\"continue\",\"writes\":[{\"ref\":\"evaluation::evaluation%3A1\",\"record\":{\"kind\":\"progress-evaluation-receipt\",\"evaluationId\":\"evaluation:1\",\"learnerId\":\"learner:1\",\"trackId\":\"track:bread\",\"stepId\":\"step:knead\",\"evidenceRefs\":[\"evidence:1\"],\"measureFactRef\":\"measure-fact:1\",\"measureDefinitionRef\":\"measure-definition:1\",\"decisionKey\":\"continue\",\"decision\":{\"completed\":true,\"nextStepId\":\"step:proof\"},\"score\":0.8,\"confidence\":0.9,\"provenance\":{\"evaluator\":\"evaluator:1\"},\"evaluatedAt\":\"2026-01-01T12:00:00Z\"},\"expect\":{\"stored\":false}} ...."
     }
   ]
 }

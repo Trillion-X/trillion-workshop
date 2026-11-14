@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:what-is-waiting-on-me's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:what-is-waiting-on-me with sources, found.\" Show everything waiting on this person that only they can do, gathered from every place it is kept: what their AIs asked them for, drafts to approve, work that is stuck, a sign-in, a decision",
+  "drafted_from": "tool:what-is-waiting-on-me's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Show everything waiting on this person that only they can do, gathered from every place it is kept: what their AIs asked them for, drafts to approve, work that is stuck, a sign-in, a decision\", with {\"sources\":[{\"id\":\"sample\",\"label\":\"Sample\",\"title\":\"{name}\"}],\"found\":{\"sample\":[{\"id\":\"r1\",\"value\":{\"name\":\"A made-up thing\"}}]}}. It runs tool:what-is-waiting-on-me and answers {\"cards\":[{\"source\":\"sample\",\"label\":\"Sample\",\"id\":\"r1\",\"title\":\"A made-up thing\"}],\"sources\":[{\"id\":\"sample\",\"label\":\"Sample\",\"waiting\":1,\"skipped\":0,\"unread\":false}],\"count\":1,\"said\":\"1 thing is waiting on you.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:what-is-waiting-on-me"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:what-is-waiting-on-me\", and give it sources, found.",
+    "1. Say to your AI: \"Show everything waiting on this person that only they can do, gathered from every place it is kept: what their AIs asked them for, drafts to approve, work that is stuck, a sign-in, a decision\", and give it sources; found (The records of each source, by source id).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:what-is-waiting-on-me and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.cards.0.title contains \"A made-up thing\"."
+    "3. Read what comes back: Give sources (the places that hold things up, the person's own list: { id, label, title, where?, detail?, opens?, at?, most?"
   ],
   "worked_examples": [
     {
-      "title": "Show everything waiting on me on a sample input",
-      "ask": "Run tool:what-is-waiting-on-me.",
+      "title": "Show everything waiting on me on its own sample",
+      "ask": "Show everything waiting on this person that only they can do, gathered from every place it is kept: what their AIs asked them for, drafts to approve, work that is stuck, a sign-in, a decision",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -47,7 +47,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.cards.0.title contains \"A made-up thing\"."
+      "given": "The input {\"sources\":[{\"id\":\"sample\",\"label\":\"Sample\",\"title\":\"{name}\"}],\"found\":{\"sample\":[{\"id\":\"r1\",\"value\":{\"name\":\"A made-up thing\"}}]}}.",
+      "hands_back": "It answered {\"cards\":[{\"source\":\"sample\",\"label\":\"Sample\",\"id\":\"r1\",\"title\":\"A made-up thing\"}],\"sources\":[{\"id\":\"sample\",\"label\":\"Sample\",\"waiting\":1,\"skipped\":0,\"unread\":false}],\"count\":1,\"said\":\"1 thing is waiting on you.\"}."
     }
   ]
 }

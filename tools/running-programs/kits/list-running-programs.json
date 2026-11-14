@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:list-running-programs's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:list-running-programs with nothing more.\" List the programs running on this person's computer and how much memory each one uses, the largest first, optionally only the programs whose name has some words",
+  "drafted_from": "tool:list-running-programs's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"List the programs running on this person's computer and how much memory each one uses, the largest first, optionally only the programs whose name has some words\", with {}. It runs tool:list-running-programs and answers {\"total\":0,\"programs\":[],\"complete\":true}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:list-running-programs"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:list-running-programs\", and give it nothing more.",
+    "1. Say to your AI: \"List the programs running on this person's computer and how much memory each one uses, the largest first, optionally only the programs whose name has some words\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-running-programs and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields total, programs, complete."
+    "3. Read what comes back: Runs on the person's computer with the right they granted it to see the programs running there."
   ],
   "worked_examples": [
     {
-      "title": "Programs running on my computer on a sample input",
-      "ask": "Run tool:list-running-programs.",
+      "title": "Programs running on my computer on its own sample",
+      "ask": "List the programs running on this person's computer and how much memory each one uses, the largest first, optionally only the programs whose name has some words",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -29,7 +29,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields total, programs, complete."
+      "given": "The input {}.",
+      "hands_back": "It answered {\"total\":0,\"programs\":[],\"complete\":true}."
     }
   ]
 }

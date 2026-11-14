@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:read-a-member-profile's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-a-member-profile with who.\" Read the name, about text and email a member keeps in their profile",
+  "drafted_from": "tool:read-a-member-profile's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Read the name, about text and email a member keeps in their profile\", with {\"who\":\"member:sample\"}. It runs tool:read-a-member-profile and answers {\"profile\":null}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (member-profile) through the records door.",
   "workflows": [],
   "tools": [
     "tool:read-a-member-profile"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-a-member-profile\", and give it who.",
+    "1. Say to your AI: \"Read the name, about text and email a member keeps in their profile\", and give it who (The member's id).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-a-member-profile and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.profile contains \"null\"."
+    "3. Read what comes back: Give who (the member's id).",
+    "4. It reads and writes only its own rows through the records door: member-profile (records:read)."
   ],
   "worked_examples": [
     {
-      "title": "Read a member's profile on a sample input",
-      "ask": "Run tool:read-a-member-profile.",
+      "title": "Read a member's profile on its own sample",
+      "ask": "Read the name, about text and email a member keeps in their profile",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +32,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.profile contains \"null\"."
+      "given": "The input {\"who\":\"member:sample\"}.",
+      "hands_back": "It answered {\"profile\":null}."
     }
   ]
 }

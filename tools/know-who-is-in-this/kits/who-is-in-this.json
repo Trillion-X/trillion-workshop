@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:who-is-in-this's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:who-is-in-this with file, segments.\" Name who said each stretch of a call or recording, from the voices of people who agreed to be known",
+  "drafted_from": "tool:who-is-in-this's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Name who said each stretch of a call or recording, from the voices of people who agreed to be known\", with {\"file\":\"sample-call.wav\",\"listening\":\"standup\",\"segments\":[{\"start\":0,\"end\":5,\"text\":\"Hello from a made-up call.\"}]}. It runs tool:who-is-in-this and answers {\"speakers\":[{\"start\":0,\"end\":5,\"who\":\"Someone (voice-1)\",\"me\":false,\"voice\":\"voice-1\",\"score\":-1,\"text\":\"Hello from a made-up call.\"}],\"voices_heard\":[\"voice-1\"],\"records\":[{\"kind\":\"listening-voices\",\"id\":\"listening-voices:standup\",\"listening\":\"standup\",\"unknown\":[{\"id\":\"voice-1\",\"mean\":[0.0648835381516442,0.07467360114067076,0.07119001509722611,0.0644501006216696,0.07542574470901567 ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:who-is-in-this"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:who-is-in-this\", and give it file, segments.",
+    "1. Say to your AI: \"Name who said each stretch of a call or recording, from the voices of people who agreed to be known\", and give it file (The recording (audio or video), by identity in your files); segments (The transcript's timed stretches, in seconds, in order).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:who-is-in-this and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields speakers, voices_heard, records."
+    "3. Read what comes back: Takes a recording and its transcript (the timed stretches tools/audio-transcription gives) and answers each turn with who said it: the person's name when one enrolled person is clearly the closest voice; every person it could be when two are too close to tell, so a guess is never made silently; otherwise an unknown voice with a number that stays the same for the whole listening, across every recording of it."
   ],
   "worked_examples": [
     {
-      "title": "Say who said each part of a recording on a sample input",
-      "ask": "Run tool:who-is-in-this.",
+      "title": "Say who said each part of a recording on its own sample",
+      "ask": "Name who said each stretch of a call or recording, from the voices of people who agreed to be known",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -39,7 +39,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields speakers, voices_heard, records."
+      "given": "The input {\"file\":\"sample-call.wav\",\"listening\":\"standup\",\"segments\":[{\"start\":0,\"end\":5,\"text\":\"Hello from a made-up call.\"}]}.",
+      "hands_back": "It answered {\"speakers\":[{\"start\":0,\"end\":5,\"who\":\"Someone (voice-1)\",\"me\":false,\"voice\":\"voice-1\",\"score\":-1,\"text\":\"Hello from a made-up call.\"}],\"voices_heard\":[\"voice-1\"],\"records\":[{\"kind\":\"listening-voices\",\"id\":\"listening-voices:standup\",\"listening\":\"standup\",\"unknown\":[{\"id\":\"voice-1\",\"mean\":[0.0648835381516442,0.07467360114067076,0.07119001509722611,0.0644501006216696,0.07542574470901567,0.06869686454341864,0.06840231328755245,0.08094776491792434,0.07082878859502141,0.07840257205819728,0.07769233800607252,0.07198971572193248,0.07556145703576234,0.07491859858455824,0.06926997810905175,0.07047490836534881,0.07906960764364748,0.08103441517101595,0.0682923203652488,0.0764937407433376 ...."
     }
   ]
 }

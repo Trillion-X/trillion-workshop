@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:mark-my-notices-read's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:mark-my-notices-read with nothing more.\" Record which notices this person has read and the first surface they saw them on",
+  "drafted_from": "tool:mark-my-notices-read's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Record which notices this person has read and the first surface they saw them on\", with {\"ids\":[\"told:1\"],\"on\":{\"channel\":\"in-app\"}}. It runs tool:mark-my-notices-read and answers {\"ids\":[\"told:1\"],\"read\":true,\"changed\":true,\"on\":{\"channel\":\"in-app\",\"at\":\"2026-11-14T00:50:55.094Z\"},\"said\":\"1 notice marked read.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (told-the-person) through the records door.",
   "workflows": [],
   "tools": [
     "tool:mark-my-notices-read"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:mark-my-notices-read\", and give it nothing more.",
+    "1. Say to your AI: \"Record which notices this person has read and the first surface they saw them on\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:mark-my-notices-read and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields ids, read, changed, on, said."
+    "3. Read what comes back: Pass ids such as told:12, or a notification key, and optionally read=false to undo.",
+    "4. It reads and writes only its own rows through the records door: told-the-person (records:list); told-the-person (records:read, records:write); told-the-person (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Mark my notices read on a sample input",
-      "ask": "Run tool:mark-my-notices-read.",
+      "title": "Mark my notices read on its own sample",
+      "ask": "Record which notices this person has read and the first surface they saw them on",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -36,7 +37,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields ids, read, changed, on, said."
+      "given": "The input {\"ids\":[\"told:1\"],\"on\":{\"channel\":\"in-app\"}}, with 2 example rows (told-the-person) already kept.",
+      "hands_back": "It answered {\"ids\":[\"told:1\"],\"read\":true,\"changed\":true,\"on\":{\"channel\":\"in-app\",\"at\":\"2026-11-14T00:50:55.094Z\"},\"said\":\"1 notice marked read.\"}."
     }
   ]
 }

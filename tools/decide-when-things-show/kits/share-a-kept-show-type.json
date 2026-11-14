@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:share-a-kept-show-type's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:share-a-kept-show-type with type, principal, grant.\" Share one of my show-rule presets with people so they see Trillion that way",
+  "drafted_from": "tool:share-a-kept-show-type's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Share one of my show-rule presets with people so they see Trillion that way\", with {\"type\":\"sample-preset\",\"principal\":\"sample-account\",\"grant\":\"sharing:show-types-shared:sample-preset\"}. It runs tool:share-a-kept-show-type and answers {\"shared\":\"show-types-shared:sample-preset\",\"people\":[\"sample-account\"],\"key\":\"shr_f-j1O_BhjVBLDqrGKRJCHHTE4oLV76b0BPCHV7JfvCM\",\"keep\":[{\"label\":\"show-types-shared:sample-preset\",\"value\":{\"label\":\"Sample preset\",\"types\":[{\"id\":\"sample-preset\",\"label\":\"Sample preset\",\"inherits\":[],\"rules\":[]}]}},{\"label\":\"sharing:show-types-shared:sample-preset\",\"value\":{\"record\":\"show-types-shared:sample-preset\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (@own-records) through the records door.",
   "workflows": [],
   "tools": [
     "tool:share-a-kept-show-type"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:share-a-kept-show-type\", and give it type, principal, grant.",
+    "1. Say to your AI: \"Share one of my show-rule presets with people so they see Trillion that way\", and give it type (The id of a type you keep); principal (The person or account); grant (Where the type's share is kept: sharing:show-types-shared:<type id> (see-when-things-show names it for each type as grant)).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:share-a-kept-show-type and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $ contains \"show-types-shared:sample-preset\"."
+    "3. Read what comes back: Shares a type you keep with one person or account (principal), as the Account visibility screen does: answers two records to keep, in order, the preset's copy show-types-shared:<id> = { label, types } (the preset with every preset it inherits) and its grant sharing:<that label> = { record, people: [{ principal, key_blake3 }], changed_at }.",
+    "4. It reads and writes only its own rows through the records door: @own-records (workspace:read); @own-records (workspace:read)."
   ],
   "worked_examples": [
     {
-      "title": "Share a kept show type on a sample input",
-      "ask": "Run tool:share-a-kept-show-type.",
+      "title": "Share a kept show type on its own sample",
+      "ask": "Share one of my show-rule presets with people so they see Trillion that way",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +34,8 @@
           }
         }
       },
-      "hands_back": "The answer's $ contains \"show-types-shared:sample-preset\"."
+      "given": "The input {\"type\":\"sample-preset\",\"principal\":\"sample-account\",\"grant\":\"sharing:show-types-shared:sample-preset\"}.",
+      "hands_back": "It answered {\"shared\":\"show-types-shared:sample-preset\",\"people\":[\"sample-account\"],\"key\":\"shr_f-j1O_BhjVBLDqrGKRJCHHTE4oLV76b0BPCHV7JfvCM\",\"keep\":[{\"label\":\"show-types-shared:sample-preset\",\"value\":{\"label\":\"Sample preset\",\"types\":[{\"id\":\"sample-preset\",\"label\":\"Sample preset\",\"inherits\":[],\"rules\":[]}]}},{\"label\":\"sharing:show-types-shared:sample-preset\",\"value\":{\"record\":\"show-types-shared:sample-preset\",\"people\":[{\"principal\":\"sample-account\",\"key_blake3\":\"4af9fc695dd376d700eb048d18dd201d5e981f949fb67564dbec82810211d2f6\"}],\"changed_at\":\"2026-11-14T00:50:19.440Z\"},\"expected\":null}],\"said\":\"Shared with sample-account. Copy their share key now; it is not shown again.\"}."
     }
   ]
 }

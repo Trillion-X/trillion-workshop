@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:keep-a-show-rule's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:keep-a-show-rule with nothing more.\" Keep a rule about when something shows, hides or stays quiet for me, or switch a starting rule off or on",
+  "drafted_from": "tool:keep-a-show-rule's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Keep a rule about when something shows, hides or stays quiet for me, or switch a starting rule off or on\", with {\"rule\":{\"label\":\"Sample: quiet notices\",\"subject\":\"notification\",\"when\":null,\"effect\":\"silence\"},\"now\":\"2026-01-01T00:00:00.000Z\"}. It runs tool:keep-a-show-rule and answers {\"rule\":{\"label\":\"Sample: quiet notices\",\"subject\":\"notification\",\"when\":null,\"effect\":\"silence\",\"id\":\"rule-mjuohs00-n2aedk\",\"on\":true,\"made_at\":\"2026-01-01T00:00:00.000Z\"},\"rules\":[{\"id\":\"setup-require-assigned-devices\",\"label\":\"Require the devices assigned to this account\",\"subject\":\"setup-step\",\"effect\":\"change\",\"when\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (@own-records) through the records door.",
   "workflows": [],
   "tools": [
     "tool:keep-a-show-rule"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:keep-a-show-rule\", and give it nothing more.",
+    "1. Say to your AI: \"Keep a rule about when something shows, hides or stays quiet for me, or switch a starting rule off or on\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:keep-a-show-rule and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $ contains \"keep\"."
+    "3. Read what comes back: Keeps one rule in your show-rules record (rule; one with the id of a rule you keep changes it), or switches a starting rule off or on (starting: { id, on }).",
+    "4. It reads and writes only its own rows through the records door: @own-records (workspace:read)."
   ],
   "worked_examples": [
     {
-      "title": "Keep a show rule on a sample input",
-      "ask": "Run tool:keep-a-show-rule.",
+      "title": "Keep a show rule on its own sample",
+      "ask": "Keep a rule about when something shows, hides or stays quiet for me, or switch a starting rule off or on",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -37,7 +38,8 @@
           }
         }
       },
-      "hands_back": "The answer's $ contains \"keep\"."
+      "given": "The input {\"rule\":{\"label\":\"Sample: quiet notices\",\"subject\":\"notification\",\"when\":null,\"effect\":\"silence\"},\"now\":\"2026-01-01T00:00:00.000Z\"}.",
+      "hands_back": "It answered {\"rule\":{\"label\":\"Sample: quiet notices\",\"subject\":\"notification\",\"when\":null,\"effect\":\"silence\",\"id\":\"rule-mjuohs00-n2aedk\",\"on\":true,\"made_at\":\"2026-01-01T00:00:00.000Z\"},\"rules\":[{\"id\":\"setup-require-assigned-devices\",\"label\":\"Require the devices assigned to this account\",\"subject\":\"setup-step\",\"effect\":\"change\",\"when\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"owner\",\"operator\":\"is_any_of\",\"params\":{\"values\":[\"device\"]}},{\"kind\":\"rule\",\"field\":\"required_for_account\",\"operator\":\"is_true\",\"params\":{}}]},\"set\":[{\"path\":[\"required\"],\"value\":true},{\"path\":[\"applicable\"],\"value\":true}],\"starting\":true,\"on\":true},{\"id\":\"what-is-new-waits-a-day\" ...."
     }
   ]
 }

@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:read-a-link's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-a-link with url.\" Read one public link into a card: its title, picture, description, site and the words on the page",
+  "drafted_from": "tool:read-a-link's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Read one public link into a card: its title, picture, description, site and the words on the page\", with {\"url\":\"https://example.com\"}. It runs tool:read-a-link and answers {\"url\":\"https://example.com/\",\"final_url\":\"https://example.com/\",\"host\":\"example.com\",\"site\":null,\"title\":\"Example Domain\",\"description\":\"A made-up page for a sample run.\",\"image\":null,\"images\":[],\"videos\":[],\"icon\":null,\"data\":[],\"text\":\"Example Domain\\nThis domain is for use in illustrative examples.\",\"unread\":null}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:read-a-link"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-a-link\", and give it url.",
+    "1. Say to your AI: \"Read one public link into a card: its title, picture, description, site and the words on the page\", and give it url (One public http or https address.).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-a-link and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.title contains \"Example Domain\"."
+    "3. Read what comes back: Reads one public http or https page (at most 2 MB, 6 seconds) and returns its title, picture (image, and every picture in images), videos, description, site name and icon from the page's own tags and structured data (data, its schema.org JSON-LD), and its readable text."
   ],
   "worked_examples": [
     {
-      "title": "Read a link on a sample input",
-      "ask": "Run tool:read-a-link.",
+      "title": "Read a link on its own sample",
+      "ask": "Read one public link into a card: its title, picture, description, site and the words on the page",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +31,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.title contains \"Example Domain\"."
+      "given": "The input {\"url\":\"https://example.com\"}, the web answering from 1 recorded reply.",
+      "hands_back": "It answered {\"url\":\"https://example.com/\",\"final_url\":\"https://example.com/\",\"host\":\"example.com\",\"site\":null,\"title\":\"Example Domain\",\"description\":\"A made-up page for a sample run.\",\"image\":null,\"images\":[],\"videos\":[],\"icon\":null,\"data\":[],\"text\":\"Example Domain\\nThis domain is for use in illustrative examples.\",\"unread\":null}."
     }
   ]
 }

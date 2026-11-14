@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:ask-a-web-address-or-give-the-last-answer's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:ask-a-web-address-or-give-the-last-answer with address, key.\" Ask a web address for its answer and keep that answer; when the address cannot answer, give back the last answer it gave, so a feed or service that is down does not leave the person with nothing",
+  "drafted_from": "tool:ask-a-web-address-or-give-the-last-answer's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Ask a web address for its answer and keep that answer; when the address cannot answer, give back the last answer it gave, so a feed or service that is down does not leave the person with nothing\", with {\"address\":\"https://feeds.example.test/daily-prices.json\",\"key\":\"daily-prices\"}. It runs tool:ask-a-web-address-or-give-the-last-answer and answers {\"origin\":\"from-the-source\",\"answer\":{\"items\":[{\"name\":\"Sample loaf\",\"price\":4.5}]},\"kept_at\":\"2026-11-14T00:50:26.693Z\",\"source_failure\":null,\"keep_failure\":null,\"kept_failure\":null,\"retry_after_seconds\":null,\"said\":\"The address answered and the answer is kept.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (kept-answer) through the records door.",
   "workflows": [],
   "tools": [
     "tool:ask-a-web-address-or-give-the-last-answer"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:ask-a-web-address-or-give-the-last-answer\", and give it address, key.",
+    "1. Say to your AI: \"Ask a web address for its answer and keep that answer; when the address cannot answer, give back the last answer it gave, so a feed or service that is down does not leave the person with nothing\", and give it address (The web address to ask); key (A short name for this answer, so the last good one can be found again).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:ask-a-web-address-or-give-the-last-answer and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields origin, answer, kept_at, source_failure, keep_failure, kept_failure, retry_after_seconds, said."
+    "3. Read what comes back: Give address (a web address that starts with http:// or https://) and key (a short name for this answer: lower-case letters, digits and hyphens, so the last answer can be found again); wait_seconds (1 to 120, default 20) is how long to wait for the address.",
+    "4. It reads and writes only its own rows through the records door: kept-answer (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Ask a web address, or give me the last answer it gave on a sample input",
-      "ask": "Run tool:ask-a-web-address-or-give-the-last-answer.",
+      "title": "Ask a web address, or give me the last answer it gave on its own sample",
+      "ask": "Ask a web address for its answer and keep that answer; when the address cannot answer, give back the last answer it gave, so a feed or service that is down does not leave the person with nothing",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,7 +33,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields origin, answer, kept_at, source_failure, keep_failure, kept_failure, retry_after_seconds, said."
+      "given": "The input {\"address\":\"https://feeds.example.test/daily-prices.json\",\"key\":\"daily-prices\"}, the web answering from 1 recorded reply.",
+      "hands_back": "It answered {\"origin\":\"from-the-source\",\"answer\":{\"items\":[{\"name\":\"Sample loaf\",\"price\":4.5}]},\"kept_at\":\"2026-11-14T00:50:26.693Z\",\"source_failure\":null,\"keep_failure\":null,\"kept_failure\":null,\"retry_after_seconds\":null,\"said\":\"The address answered and the answer is kept.\"}, and kept kept-answer:daily-prices."
     }
   ]
 }

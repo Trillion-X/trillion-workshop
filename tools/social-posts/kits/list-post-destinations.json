@@ -1,23 +1,24 @@
 {
   "draft": true,
-  "drafted_from": "tool:list-post-destinations's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:list-post-destinations with nothing more.\" List the accounts this person can post to, each ready or not and why, and each place they have no account for yet",
+  "drafted_from": "tool:list-post-destinations's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"List the accounts this person can post to, each ready or not and why, and each place they have no account for yet\", with {}. It runs tool:list-post-destinations and answers {\"destinations\":[],\"not_connected\":[{\"platform\":\"youtube\",\"label\":\"YouTube\",\"connection_vendor\":\"youtube\"},{\"platform\":\"tiktok\",\"label\":\"TikTok\",\"connection_vendor\":\"tiktok\"},{\"platform\":\"instagram\",\"label\":\"Instagram\",\"connection_vendor\":\"instagram\"},{\"platform\":\"facebook\",\"label\":\"Facebook Page\",\"connection_vendor\":\"facebook-messenger\"},{\"platform\":\"instagram\",\"label\":\"Instagram through ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (connection) through the records door.",
   "workflows": [],
   "tools": [
     "tool:list-post-destinations",
     "tool:draft-a-post"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:list-post-destinations\", and give it nothing more.",
+    "1. Say to your AI: \"List the accounts this person can post to, each ready or not and why, and each place they have no account for yet\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-post-destinations and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.said contains \"connect\"."
+    "3. Read what comes back: Reads the person's connection records.",
+    "4. It reads and writes only its own rows through the records door: connection (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Where a post can go on a sample input",
-      "ask": "Run tool:list-post-destinations.",
+      "title": "Where a post can go on its own sample",
+      "ask": "List the accounts this person can post to, each ready or not and why, and each place they have no account for yet",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -30,7 +31,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.said contains \"connect\"."
+      "given": "The input {}.",
+      "hands_back": "It answered {\"destinations\":[],\"not_connected\":[{\"platform\":\"youtube\",\"label\":\"YouTube\",\"connection_vendor\":\"youtube\"},{\"platform\":\"tiktok\",\"label\":\"TikTok\",\"connection_vendor\":\"tiktok\"},{\"platform\":\"instagram\",\"label\":\"Instagram\",\"connection_vendor\":\"instagram\"},{\"platform\":\"facebook\",\"label\":\"Facebook Page\",\"connection_vendor\":\"facebook-messenger\"},{\"platform\":\"instagram\",\"label\":\"Instagram through Facebook\",\"connection_vendor\":\"instagram-facebook\"},{\"platform\":\"threads\",\"label\":\"Threads\",\"connection_vendor\":\"threads\"},{\"platform\":\"linkedin\",\"label\":\"LinkedIn\",\"connection_vendor\":\"linkedin\"},{\"platform\":\"substack\",\"label\":\"Substack\",\"connection_vendor\":\"substack\"},{\"platform\":\"x\",\"label\":\"X\" ...."
     }
   ]
 }

@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:compare-two-diagrams's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:compare-two-diagrams with before, after.\" Tell me what changed between two versions of a diagram: boxes and arrows added, removed or changed, and what changed on each",
+  "drafted_from": "tool:compare-two-diagrams's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Tell me what changed between two versions of a diagram: boxes and arrows added, removed or changed, and what changed on each\", with {\"before\":{\"nodes\":[{\"id\":\"Order received\"},{\"id\":\"Packed\"}],\"edges\":[{\"from\":\"Order received\",\"to\":\"Packed\"}]},\"after\":{\"nodes\":[{\"id\":\"Order received\"},{\"id\":\"Packed\"},{\"id\":\"Shipped\"}],\"edges\":[{\"from\":\"Order received\",\"to\":\"Packed\"},{\"from\":\"Packed\",\"to\":\"Shipped\"}]}}. It runs tool:compare-two-diagrams and answers {\"nodes\":{\"added\":[\"Shipped\"],\"removed\":[],\"changed\":[]},\"edges\":{\"added\":[\"Packed -> Shipped\"],\"removed\":[],\"changed\":[]}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:compare-two-diagrams"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:compare-two-diagrams\", and give it before, after.",
+    "1. Say to your AI: \"Tell me what changed between two versions of a diagram: boxes and arrows added, removed or changed, and what changed on each\", and give it before; after.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:compare-two-diagrams and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.nodes.added[0] contains \"Shipped\"."
+    "3. Read what comes back: Takes a before and an after, each with boxes (an id, and optionally a label, a size, a lane and a style) and arrows (from, to, an optional id and label)."
   ],
   "worked_examples": [
     {
-      "title": "Compare two versions of a diagram on a sample input",
-      "ask": "Run tool:compare-two-diagrams.",
+      "title": "Compare two versions of a diagram on its own sample",
+      "ask": "Tell me what changed between two versions of a diagram: boxes and arrows added, removed or changed, and what changed on each",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -69,7 +69,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.nodes.added[0] contains \"Shipped\"."
+      "given": "The input {\"before\":{\"nodes\":[{\"id\":\"Order received\"},{\"id\":\"Packed\"}],\"edges\":[{\"from\":\"Order received\",\"to\":\"Packed\"}]},\"after\":{\"nodes\":[{\"id\":\"Order received\"},{\"id\":\"Packed\"},{\"id\":\"Shipped\"}],\"edges\":[{\"from\":\"Order received\",\"to\":\"Packed\"},{\"from\":\"Packed\",\"to\":\"Shipped\"}]}}.",
+      "hands_back": "It answered {\"nodes\":{\"added\":[\"Shipped\"],\"removed\":[],\"changed\":[]},\"edges\":{\"added\":[\"Packed -> Shipped\"],\"removed\":[],\"changed\":[]}}."
     }
   ]
 }

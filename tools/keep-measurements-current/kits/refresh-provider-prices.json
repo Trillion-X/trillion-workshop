@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:refresh-provider-prices's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:refresh-provider-prices with nothing more.\" Read the current version of the declared provider price DATA and return provider-qualified unit prices with source revisions",
+  "drafted_from": "tool:refresh-provider-prices's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Read the current version of the declared provider price DATA and return provider-qualified unit prices with source revisions\", with {}. It runs tool:refresh-provider-prices and answers {\"format\":\"provider-price-input/1\",\"source_revision\":\"public-tariffs-2026-10-31\",\"observed_at\":\"2026-10-31\",\"sources\":[{\"id\":\"aws-dynamodb-pricing\",\"url\":\"https://aws.amazon.com/dynamodb/pricing/\",\"scope\":\"US East (N. Virginia), Standard table class, on-demand rates from AWS pricing example\",\"accessed_at\":\"2026-10-31\"},{\"id\":\"aws-s3-pricing\",\"url\":\"https://aws.amazon.com/s3/pricing/\",\"scope\":\"S3 ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:refresh-provider-prices"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:refresh-provider-prices\", and give it nothing more.",
+    "1. Say to your AI: \"Read the current version of the declared provider price DATA and return provider-qualified unit prices with source revisions\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:refresh-provider-prices and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields format, source_revision, observed_at, prices, excluded."
+    "3. Read what comes back: Reads the dated provider-price-source DATA through its owner."
   ],
   "worked_examples": [
     {
-      "title": "Refresh provider price book on a sample input",
-      "ask": "Run tool:refresh-provider-prices.",
+      "title": "Refresh provider price book on its own sample",
+      "ask": "Read the current version of the declared provider price DATA and return provider-qualified unit prices with source revisions",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -29,7 +29,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields format, source_revision, observed_at, prices, excluded."
+      "given": "The input {}.",
+      "hands_back": "It answered {\"format\":\"provider-price-input/1\",\"source_revision\":\"public-tariffs-2026-10-31\",\"observed_at\":\"2026-10-31\",\"sources\":[{\"id\":\"aws-dynamodb-pricing\",\"url\":\"https://aws.amazon.com/dynamodb/pricing/\",\"scope\":\"US East (N. Virginia), Standard table class, on-demand rates from AWS pricing example\",\"accessed_at\":\"2026-10-31\"},{\"id\":\"aws-s3-pricing\",\"url\":\"https://aws.amazon.com/s3/pricing/\",\"scope\":\"S3 Standard request and storage list rates; regional and volume-tier applicability must be resolved for a concrete bucket\",\"accessed_at\":\"2026-10-31\"},{\"id\":\"aws-s3-standard-rate-example\" ...."
     }
   ]
 }

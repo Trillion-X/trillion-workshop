@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:find-cold-rows's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:find-cold-rows with list, rows.\" List the rows of a list that nobody uses any more, so they can be cleaned up, leaving out rows a person verified and whose review is still current",
+  "drafted_from": "tool:find-cold-rows's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"List the rows of a list that nobody uses any more, so they can be cleaned up, leaving out rows a person verified and whose review is still current\", with {\"list\":{\"id\":\"docs\",\"title_field\":\"title\",\"fields\":[{\"id\":\"title\",\"label\":\"Title\"}]},\"rows\":[{\"id\":\"a\",\"title\":\"Onboarding\",\"values\":{\"title\":\"Onboarding\"}},{\"id\":\"b\",\"title\":\"Pricing\",\"values\":{\"title\":\"Pricing\"}}],\"heats\":{\"a\":{\"heat\":3,\"at\":\"2026-11-01T00:00:00.000Z\"}}}. It runs tool:find-cold-rows and answers {\"list_id\":\"docs\",\"rows\":[{\"id\":\"b\",\"title\":\"Pricing\",\"heat\":0,\"last_used\":null}],\"complete\":true}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:find-cold-rows"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:find-cold-rows\", and give it list, rows.",
+    "1. Say to your AI: \"List the rows of a list that nobody uses any more, so they can be cleaned up, leaving out rows a person verified and whose review is still current\", and give it list; rows.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-cold-rows and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields list_id, rows, complete, next_cursor."
+    "3. Read what comes back: Give list ({ id, title_field, fields }), rows ([{ id, title, values }]) and heats ({ <row id>: { heat, at } }, the use-heat records kept for the rows)."
   ],
   "worked_examples": [
     {
-      "title": "Find the rows nobody uses on a sample input",
-      "ask": "Run tool:find-cold-rows.",
+      "title": "Find the rows nobody uses on its own sample",
+      "ask": "List the rows of a list that nobody uses any more, so they can be cleaned up, leaving out rows a person verified and whose review is still current",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -62,7 +62,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields list_id, rows, complete, next_cursor."
+      "given": "The input {\"list\":{\"id\":\"docs\",\"title_field\":\"title\",\"fields\":[{\"id\":\"title\",\"label\":\"Title\"}]},\"rows\":[{\"id\":\"a\",\"title\":\"Onboarding\",\"values\":{\"title\":\"Onboarding\"}},{\"id\":\"b\",\"title\":\"Pricing\",\"values\":{\"title\":\"Pricing\"}}],\"heats\":{\"a\":{\"heat\":3,\"at\":\"2026-11-01T00:00:00.000Z\"}}}.",
+      "hands_back": "It answered {\"list_id\":\"docs\",\"rows\":[{\"id\":\"b\",\"title\":\"Pricing\",\"heat\":0,\"last_used\":null}],\"complete\":true}."
     }
   ]
 }

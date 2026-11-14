@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:draft-a-funnel's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:draft-a-funnel with nothing more.\" Start a new funnel with a title and its steps, or add steps to a funnel I already have",
+  "drafted_from": "tool:draft-a-funnel's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Start a new funnel with a title and its steps, or add steps to a funnel I already have\", with {\"title\":\"Spring loaf offers\",\"stages\":[\"Visit\",\"Order\"],\"entropy\":\"a1\"}. It runs tool:draft-a-funnel and answers {\"funnel\":{\"kind\":\"funnel-definition\",\"id\":\"funnel:spring-loaf-offers-a1\",\"title\":\"Spring loaf offers\",\"stages\":[{\"stage_address\":\"stage:spring-loaf-offers-a1:s1\",\"title\":\"Visit\"},{\"stage_address\":\"stage:spring-loaf-offers-a1:s2\",\"title\":\"Order\"}]}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:draft-a-funnel"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:draft-a-funnel\", and give it nothing more.",
+    "1. Say to your AI: \"Start a new funnel with a title and its steps, or add steps to a funnel I already have\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:draft-a-funnel and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.funnel.id contains \"funnel:spring-loaf-offers-a1\"."
+    "3. Read what comes back: Gives back a funnel-definition record for the person to save in their own records: a new one from a title (with an id that cannot clash with another funnel of the same title) and the step titles, or the person's existing one with steps appended after its last, every other field of it kept as it is."
   ],
   "worked_examples": [
     {
-      "title": "Draft a funnel on a sample input",
-      "ask": "Run tool:draft-a-funnel.",
+      "title": "Draft a funnel on its own sample",
+      "ask": "Start a new funnel with a title and its steps, or add steps to a funnel I already have",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -36,7 +36,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.funnel.id contains \"funnel:spring-loaf-offers-a1\"."
+      "given": "The input {\"title\":\"Spring loaf offers\",\"stages\":[\"Visit\",\"Order\"],\"entropy\":\"a1\"}.",
+      "hands_back": "It answered {\"funnel\":{\"kind\":\"funnel-definition\",\"id\":\"funnel:spring-loaf-offers-a1\",\"title\":\"Spring loaf offers\",\"stages\":[{\"stage_address\":\"stage:spring-loaf-offers-a1:s1\",\"title\":\"Visit\"},{\"stage_address\":\"stage:spring-loaf-offers-a1:s2\",\"title\":\"Order\"}]}}."
     }
   ]
 }

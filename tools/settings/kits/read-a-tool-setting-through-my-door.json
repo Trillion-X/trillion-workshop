@@ -1,7 +1,7 @@
 {
   "draft": true,
-  "drafted_from": "tool:read-a-tool-setting-through-my-door's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-a-tool-setting-through-my-door with settings_prefix, scopes.\" Read the settings I keep for one of my tools from my list:settings, trying the most specific scope first",
+  "drafted_from": "tool:read-a-tool-setting-through-my-door's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Read the settings I keep for one of my tools from my list:settings, trying the most specific scope first\", with {\"settings_prefix\":\"record:setting:make-a-sample~\",\"scopes\":[[\"film\",\"sample-film\"],[\"account\",\"main\"]]}. It runs tool:read-a-tool-setting-through-my-door and answers {\"folder\":\"make-a-sample\",\"found\":true,\"settings\":{\"pace\":1}}",
   "lists": [
     {
       "list": "list:settings",
@@ -108,21 +108,21 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
     "tool:read-a-tool-setting-through-my-door",
     "tool:read-a-tool-setting"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-a-tool-setting-through-my-door\", and give it settings_prefix, scopes.",
+    "1. Say to your AI: \"Read the settings I keep for one of my tools from my list:settings, trying the most specific scope first\", and give it settings_prefix (record:setting:<workshop-folder>~ : the tool whose rows to read.); scopes ([[scope_kind, scope_id], ...], most specific first, e.g.).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-a-tool-setting-through-my-door and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields folder, found, settings."
+    "3. Read what comes back: Reads the person's list:settings rows for one Workshop tool through their records door at run time (records:read of record:setting:<folder>~<scope_kind>~<scope_id> for each scope given, most specific first) and answers the settings of the first row found, or found false when none is there.",
+    "4. It reads and writes only its own rows through the records door: record:setting (records:read)."
   ],
   "worked_examples": [
     {
-      "title": "Read the settings I keep for one of my tools, from my own lists on a sample input",
-      "ask": "Run tool:read-a-tool-setting-through-my-door.",
+      "title": "Read the settings I keep for one of my tools, from my own lists on its own sample",
+      "ask": "Read the settings I keep for one of my tools from my list:settings, trying the most specific scope first",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -147,7 +147,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields folder, found, settings."
+      "given": "The input {\"settings_prefix\":\"record:setting:make-a-sample~\",\"scopes\":[[\"film\",\"sample-film\"],[\"account\",\"main\"]]}, with 1 example row (record:setting) already kept.",
+      "hands_back": "It answered {\"folder\":\"make-a-sample\",\"found\":true,\"settings\":{\"pace\":1}}."
     }
   ],
   "pour": {

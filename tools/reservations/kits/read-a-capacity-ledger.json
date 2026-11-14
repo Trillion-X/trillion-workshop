@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:read-a-capacity-ledger's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-a-capacity-ledger with ledger_id.\" See who holds the places and who is waiting",
+  "drafted_from": "tool:read-a-capacity-ledger's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"See who holds the places and who is waiting\", with {\"ledger_id\":\"ledger:sample-class\"}. It runs tool:read-a-capacity-ledger and answers {\"ledger\":{\"ledger_id\":\"ledger:sample-class\",\"scope_ref\":\"scope:sample-class\",\"capacity_policy\":{\"total\":2,\"reserved_by_class\":{},\"oversubscription_policy\":{},\"release_policy\":{}},\"holds\":[{\"hold_id\":\"ledger:sample-class:hold:1\",\"subject_ref\":\"person:sample-a\",\"unit_class\":\"general\",\"state\":\"confirmed\",\"idempotency_key\":\"sample-hold-a\",\"held_at\":\"2026-11-03T09:00:00.000Z\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (capacity-ledger) through the records door.",
   "workflows": [],
   "tools": [
     "tool:read-a-capacity-ledger"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-a-capacity-ledger\", and give it ledger_id.",
+    "1. Say to your AI: \"See who holds the places and who is waiting\", and give it ledger_id.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-a-capacity-ledger and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields ledger, projection, ledger_id, state, total, confirmed, waiting."
+    "3. Read what comes back: Reads one capacity ledger: every hold and waitlist entry, how full it is, and the ledger as one reservation row (the scope, its state and who holds a place).",
+    "4. It reads and writes only its own rows through the records door: capacity-ledger (records:read)."
   ],
   "worked_examples": [
     {
-      "title": "Read a capacity ledger on a sample input",
-      "ask": "Run tool:read-a-capacity-ledger.",
+      "title": "Read a capacity ledger on its own sample",
+      "ask": "See who holds the places and who is waiting",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +32,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields ledger, projection, ledger_id, state, total, confirmed, waiting."
+      "given": "The input {\"ledger_id\":\"ledger:sample-class\"}, with 1 example row (capacity-ledger) already kept.",
+      "hands_back": "It answered {\"ledger\":{\"ledger_id\":\"ledger:sample-class\",\"scope_ref\":\"scope:sample-class\",\"capacity_policy\":{\"total\":2,\"reserved_by_class\":{},\"oversubscription_policy\":{},\"release_policy\":{}},\"holds\":[{\"hold_id\":\"ledger:sample-class:hold:1\",\"subject_ref\":\"person:sample-a\",\"unit_class\":\"general\",\"state\":\"confirmed\",\"idempotency_key\":\"sample-hold-a\",\"held_at\":\"2026-11-03T09:00:00.000Z\",\"expires_at\":\"2026-11-03T09:15:00.000Z\"}],\"waitlist_entries\":[{\"waitlist_entry_id\":\"ledger:sample-class:waitlist:2\",\"subject_ref\":\"person:sample-b\",\"unit_class\":\"general\",\"rank\":1,\"reason\":\"Sample reason\",\"promotion_policy\":{},\"notification_preference\":{},\"idempotency_key\":\"sample-join-b\",\"state\":\"waiting\" ...."
     }
   ]
 }

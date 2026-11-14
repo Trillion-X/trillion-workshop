@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:read-my-workout-log's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-my-workout-log with log.\" Read my workout log: what still needs checking, my summary views, the rows to export and my progress over time",
+  "drafted_from": "tool:read-my-workout-log's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Read my workout log: what still needs checking, my summary views, the rows to export and my progress over time\", with {\"log\":{\"evidenceAtoms\":[{\"id\":\"entry:1\",\"observedAt\":\"2026-01-01T09:00:00Z\",\"source\":{\"kind\":\"typed\"},\"subject\":{\"kind\":\"drill\",\"label\":\"Cascade\"},\"dimensions\":{\"throws\":{\"value\":400,\"unit\":\"throws\"}},\"confidence\":{\"state\":\"needs_review\",\"reviewReason\":\"a lot of throws\"}},{\"id\":\"entry:2\",\"observedAt\":\"2026-01-02T09:00:00Z\",\"source\":{\"kind\":\"typed\"},\"subject\":{\"kind\":\"drill\",\"label\":\"Cascade\"} .... It runs tool:read-my-workout-log and answers {\"sessions\":[],\"sets\":[],\"evidenceAtoms\":[{\"id\":\"entry:1\",\"schema\":\"evidence-atom\",\"observedAt\":\"2026-01-01T09:00:00Z\",\"source\":{\"kind\":\"typed\"},\"subject\":{\"kind\":\"drill\",\"label\":\"Cascade\"},\"dimensions\":{\"throws\":{\"value\":400,\"unit\":\"throws\"}},\"links\":[],\"confidence\":{\"state\":\"needs_review\",\"reviewReason\":\"a lot of throws\"},\"rawArtifactRefs\":[],\"evidenceRefs\":[]},{\"id\":\"entry:2\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:read-my-workout-log"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-my-workout-log\", and give it log.",
+    "1. Say to your AI: \"Read my workout log: what still needs checking, my summary views, the rows to export and my progress over time\", and give it log (The workout log record: evidenceAtoms, rawArtifacts, projectionLenses, sessions, sets).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-my-workout-log and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.reviewQueue[0].id contains \"entry:1\"."
+    "3. Read what comes back: Takes the workout log record: a ledger of evidence atoms (each one thing observed, with when, source, subject, measured dimensions, links to other atoms and how sure it is), plus optional sessions, sets and the person's own projection lenses."
   ],
   "worked_examples": [
     {
-      "title": "Read my workout log on a sample input",
-      "ask": "Run tool:read-my-workout-log.",
+      "title": "Read my workout log on its own sample",
+      "ask": "Read my workout log: what still needs checking, my summary views, the rows to export and my progress over time",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -72,7 +72,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.reviewQueue[0].id contains \"entry:1\"."
+      "given": "The input {\"log\":{\"evidenceAtoms\":[{\"id\":\"entry:1\",\"observedAt\":\"2026-01-01T09:00:00Z\",\"source\":{\"kind\":\"typed\"},\"subject\":{\"kind\":\"drill\",\"label\":\"Cascade\"},\"dimensions\":{\"throws\":{\"value\":400,\"unit\":\"throws\"}},\"confidence\":{\"state\":\"needs_review\",\"reviewReason\":\"a lot of throws\"}},{\"id\":\"entry:2\",\"observedAt\":\"2026-01-02T09:00:00Z\",\"source\":{\"kind\":\"typed\"},\"subject\":{\"kind\":\"drill\",\"label\":\"Cascade\"} ....",
+      "hands_back": "It answered {\"sessions\":[],\"sets\":[],\"evidenceAtoms\":[{\"id\":\"entry:1\",\"schema\":\"evidence-atom\",\"observedAt\":\"2026-01-01T09:00:00Z\",\"source\":{\"kind\":\"typed\"},\"subject\":{\"kind\":\"drill\",\"label\":\"Cascade\"},\"dimensions\":{\"throws\":{\"value\":400,\"unit\":\"throws\"}},\"links\":[],\"confidence\":{\"state\":\"needs_review\",\"reviewReason\":\"a lot of throws\"},\"rawArtifactRefs\":[],\"evidenceRefs\":[]},{\"id\":\"entry:2\",\"schema\":\"evidence-atom\",\"observedAt\":\"2026-01-02T09:00:00Z\",\"source\":{\"kind\":\"typed\"},\"subject\":{\"kind\":\"drill\",\"label\":\"Cascade\"},\"dimensions\":{\"throws\":{\"value\":40,\"unit\":\"throws\"}},\"links\":[],\"rawArtifactRefs\":[],\"evidenceRefs\":[]}],\"canonicalEvidenceAtoms\":[{\"id\":\"entry:1\",\"schema\":\"evidence-atom\" ...."
     }
   ]
 }

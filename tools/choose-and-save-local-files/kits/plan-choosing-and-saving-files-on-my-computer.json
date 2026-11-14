@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:plan-choosing-and-saving-files-on-my-computer's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:plan-choosing-and-saving-files-on-my-computer with operation.\" Make the requests the Mac's local files target gets when a person chooses files on their computer or saves a copy back, and read what the picker answered into the files chosen, without touching any computer",
+  "drafted_from": "tool:plan-choosing-and-saving-files-on-my-computer's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Make the requests the Mac's local files target gets when a person chooses files on their computer or saves a copy back, and read what the picker answered into the files chosen, without touching any computer\", with {\"operation\":\"save\",\"file_name\":\"notes.txt\",\"content_base64\":\"U2FtcGxlIG5vdGVz\",\"copy_id\":\"copy-1\",\"directory\":\"/sample-home/Downloads\"}. It runs tool:plan-choosing-and-saving-files-on-my-computer and answers {\"operation\":\"save\",\"requests\":[{\"target\":\"local.files\",\"payload\":{\"operation\":\"write_new_file\",\"path\":\"/sample-home/Downloads/notes-copy-1.txt\",\"content_base64\":\"12 bytes\"}},{\"target\":\"local.files\",\"payload\":{\"operation\":\"read_file\",\"path\":\"/sample-home/Downloads/notes-copy-1.txt\",\"include_bytes\":true}}],\"path\":\"/sample-home/Downloads/notes-copy-1.txt\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:plan-choosing-and-saving-files-on-my-computer"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:plan-choosing-and-saving-files-on-my-computer\", and give it operation.",
+    "1. Say to your AI: \"Make the requests the Mac's local files target gets when a person chooses files on their computer or saves a copy back, and read what the picker answered into the files chosen, without touching any computer\", and give it operation.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:plan-choosing-and-saving-files-on-my-computer and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields operation, requests, files, path."
+    "3. Read what comes back: Give operation choose with picker_reply (what the picker answered: { cancelled?, files: [{ path, name, byte_length, content_type, bytes_base64?"
   ],
   "worked_examples": [
     {
-      "title": "Plan choosing and saving files on my computer on a sample input",
-      "ask": "Run tool:plan-choosing-and-saving-files-on-my-computer.",
+      "title": "Plan choosing and saving files on my computer on its own sample",
+      "ask": "Make the requests the Mac's local files target gets when a person chooses files on their computer or saves a copy back, and read what the picker answered into the files chosen, without touching any computer",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -35,7 +35,42 @@
           }
         }
       },
-      "hands_back": "An answer with the fields operation, requests, files, path."
+      "given": "The input {\"operation\":\"save\",\"file_name\":\"notes.txt\",\"content_base64\":\"U2FtcGxlIG5vdGVz\",\"copy_id\":\"copy-1\",\"directory\":\"/sample-home/Downloads\"}.",
+      "hands_back": "It answered {\"operation\":\"save\",\"requests\":[{\"target\":\"local.files\",\"payload\":{\"operation\":\"write_new_file\",\"path\":\"/sample-home/Downloads/notes-copy-1.txt\",\"content_base64\":\"12 bytes\"}},{\"target\":\"local.files\",\"payload\":{\"operation\":\"read_file\",\"path\":\"/sample-home/Downloads/notes-copy-1.txt\",\"include_bytes\":true}}],\"path\":\"/sample-home/Downloads/notes-copy-1.txt\"}."
+    },
+    {
+      "title": "Plan choosing and saving files on my computer on its own sample",
+      "ask": "Make the requests the Mac's local files target gets when a person chooses files on their computer or saves a copy back, and read what the picker answered into the files chosen, without touching any computer",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:plan-choosing-and-saving-files-on-my-computer",
+            "input": {
+              "operation": "choose",
+              "allowed_content_prefixes": [
+                "audio/"
+              ],
+              "include_bytes": false,
+              "picker_reply": {
+                "files": [
+                  {
+                    "path": "/sample-home/Music/take-1.wav",
+                    "name": "take-1.wav",
+                    "byte_length": 4096,
+                    "content_type": "application/octet-stream"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "given": "The input {\"operation\":\"choose\",\"allowed_content_prefixes\":[\"audio/\"],\"include_bytes\":false,\"picker_reply\":{\"files\":[{\"path\":\"/sample-home/Music/take-1.wav\",\"name\":\"take-1.wav\",\"byte_length\":4096,\"content_type\":\"application/octet-stream\"}]}}.",
+      "hands_back": "It answered {\"operation\":\"choose\",\"requests\":[{\"target\":\"local.files\",\"payload\":{\"operation\":\"choose_files\",\"prompt\":\"Choose files\",\"multiple\":true,\"include_bytes\":false}}],\"files\":[{\"path\":\"/sample-home/Music/take-1.wav\",\"name\":\"take-1.wav\",\"byte_length\":4096,\"content_type\":\"audio/wav\",\"has_bytes\":false}]}."
     }
   ]
 }

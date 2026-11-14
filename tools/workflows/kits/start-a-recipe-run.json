@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:start-a-recipe-run's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:start-a-recipe-run with row.\" When a recipe of mine is started, by a wake I switched on or by a call, put its steps and its input in my own records as one job waiting for my AI, once per firing",
+  "drafted_from": "tool:start-a-recipe-run's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"When a recipe of mine is started, by a wake I switched on or by a call, put its steps and its input in my own records as one job waiting for my AI, once per firing\", with {\"row\":\"workflow:bring-in-a-framework\"}. It runs tool:start-a-recipe-run and answers {\"job\":\"ai-job:workflow:bring-in-a-framework:sample\",\"status\":\"written\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (ai-job, record:workflow-recipe, record:workflow-step) through the records door.",
   "workflows": [],
   "tools": [
     "tool:start-a-recipe-run"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:start-a-recipe-run\", and give it row.",
+    "1. Say to your AI: \"When a recipe of mine is started, by a wake I switched on or by a call, put its steps and its input in my own records as one job waiting for my AI, once per firing\", and give it row (The recipe's id (workflow:...).).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:start-a-recipe-run and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields job, status."
+    "3. Read what comes back: Every recipe row runs as this tool (the recipes' row source names it in invoke_with), with the recipe's id in input.row.",
+    "4. It reads and writes only its own rows through the records door: ai-job (records:read, records:write); record:workflow-recipe (records:read); record:workflow-step (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Start a run of a recipe: leave its steps as a job for my AI on a sample input",
-      "ask": "Run tool:start-a-recipe-run.",
+      "title": "Start a run of a recipe: leave its steps as a job for my AI on its own sample",
+      "ask": "When a recipe of mine is started, by a wake I switched on or by a call, put its steps and its input in my own records as one job waiting for my AI, once per firing",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +32,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields job, status."
+      "given": "The input {\"row\":\"workflow:bring-in-a-framework\"}.",
+      "hands_back": "It answered {\"job\":\"ai-job:workflow:bring-in-a-framework:sample\",\"status\":\"written\"}, and kept ai-job:workflow:bring-in-a-framework:sample."
     }
   ]
 }

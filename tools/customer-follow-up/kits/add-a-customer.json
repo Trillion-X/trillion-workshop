@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:add-a-customer's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:add-a-customer with name.\" Add a customer or contact to my customer list, with their name, how to reach them and where they came from",
+  "drafted_from": "tool:add-a-customer's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Add a customer or contact to my customer list, with their name, how to reach them and where they came from\", with {\"name\":\"Dee Lo\",\"reach_them_by\":\"Email\",\"came_from\":\"A referral from Ana\"}. It runs tool:add-a-customer and answers {\"contact_id\":\"contact:8d3c1560-13b3-4d37-8618-11665ab93a1c\",\"contact_record\":{\"kind\":\"customer-contact\",\"contactId\":\"contact:8d3c1560-13b3-4d37-8618-11665ab93a1c\",\"displayName\":\"Dee Lo\",\"channelLabel\":\"Email\",\"sourceLabel\":\"A referral from Ana\"}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:add-a-customer"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:add-a-customer\", and give it name.",
+    "1. Say to your AI: \"Add a customer or contact to my customer list, with their name, how to reach them and where they came from\", and give it name (The customer's name).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:add-a-customer and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.contact_record.displayName contains \"Dee Lo\"."
+    "3. Read what comes back: Keeps the customer in your own customer records and returns their record with its id, which record-a-customer-step and see-where-each-customer-is use."
   ],
   "worked_examples": [
     {
-      "title": "Add a customer on a sample input",
-      "ask": "Run tool:add-a-customer.",
+      "title": "Add a customer on its own sample",
+      "ask": "Add a customer or contact to my customer list, with their name, how to reach them and where they came from",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +33,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.contact_record.displayName contains \"Dee Lo\"."
+      "given": "The input {\"name\":\"Dee Lo\",\"reach_them_by\":\"Email\",\"came_from\":\"A referral from Ana\"}.",
+      "hands_back": "It answered {\"contact_id\":\"contact:8d3c1560-13b3-4d37-8618-11665ab93a1c\",\"contact_record\":{\"kind\":\"customer-contact\",\"contactId\":\"contact:8d3c1560-13b3-4d37-8618-11665ab93a1c\",\"displayName\":\"Dee Lo\",\"channelLabel\":\"Email\",\"sourceLabel\":\"A referral from Ana\"}}."
     }
   ]
 }

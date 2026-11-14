@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:lay-out-a-diagram's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:lay-out-a-diagram with nodes, edges.\" Lay out a diagram of boxes and arrows so few arrows cross, and give me the positions, the arrow routes, how many arrows cross and a picture of it as SVG",
+  "drafted_from": "tool:lay-out-a-diagram's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Lay out a diagram of boxes and arrows so few arrows cross, and give me the positions, the arrow routes, how many arrows cross and a picture of it as SVG\", with {\"nodes\":[{\"id\":\"Order received\"},{\"id\":\"Packed\"},{\"id\":\"Shipped\"},{\"id\":\"Delivered\"}],\"edges\":[{\"from\":\"Order received\",\"to\":\"Delivered\"},{\"from\":\"Packed\",\"to\":\"Shipped\"}]}. It runs tool:lay-out-a-diagram and answers {\"width\":246.5,\"height\":136,\"nodes\":[{\"id\":\"Order received\",\"x\":0,\"y\":0,\"width\":125,\"height\":38,\"rank\":0,\"order\":0,\"lane\":null},{\"id\":\"Packed\",\"x\":165,\"y\":0,\"width\":79,\"height\":38,\"rank\":0,\"order\":1,\"lane\":null},{\"id\":\"Shipped\",\"x\":162.5,\"y\":98,\"width\":84,\"height\":38,\"rank\":1,\"order\":1,\"lane\":null},{\"id\":\"Delivered\",\"x\":16.5,\"y\":98,\"width\":92,\"height\":38,\"rank\":1,\"order\":0,\"lane\":null}] ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:lay-out-a-diagram"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:lay-out-a-diagram\", and give it nodes, edges.",
+    "1. Say to your AI: \"Lay out a diagram of boxes and arrows so few arrows cross, and give me the positions, the arrow routes, how many arrows cross and a picture of it as SVG\", and give it nodes; edges.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:lay-out-a-diagram and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.quality.crossings_after contains \"0\"."
+    "3. Read what comes back: Takes the boxes (an id, and optionally a label, a size, a lane and a style) and the arrows between them (from, to, an optional id and label)."
   ],
   "worked_examples": [
     {
-      "title": "Lay out a diagram of boxes and arrows on a sample input",
-      "ask": "Run tool:lay-out-a-diagram.",
+      "title": "Lay out a diagram of boxes and arrows on its own sample",
+      "ask": "Lay out a diagram of boxes and arrows so few arrows cross, and give me the positions, the arrow routes, how many arrows cross and a picture of it as SVG",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -54,7 +54,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.quality.crossings_after contains \"0\"."
+      "given": "The input {\"nodes\":[{\"id\":\"Order received\"},{\"id\":\"Packed\"},{\"id\":\"Shipped\"},{\"id\":\"Delivered\"}],\"edges\":[{\"from\":\"Order received\",\"to\":\"Delivered\"},{\"from\":\"Packed\",\"to\":\"Shipped\"}]}.",
+      "hands_back": "It answered {\"width\":246.5,\"height\":136,\"nodes\":[{\"id\":\"Order received\",\"x\":0,\"y\":0,\"width\":125,\"height\":38,\"rank\":0,\"order\":0,\"lane\":null},{\"id\":\"Packed\",\"x\":165,\"y\":0,\"width\":79,\"height\":38,\"rank\":0,\"order\":1,\"lane\":null},{\"id\":\"Shipped\",\"x\":162.5,\"y\":98,\"width\":84,\"height\":38,\"rank\":1,\"order\":1,\"lane\":null},{\"id\":\"Delivered\",\"x\":16.5,\"y\":98,\"width\":92,\"height\":38,\"rank\":1,\"order\":0,\"lane\":null}],\"edges\":[{\"id\":\"e0\",\"from\":\"Order received\",\"to\":\"Delivered\",\"points\":[[62.5,38],[62.5,98]],\"reversed\":false,\"label\":null},{\"id\":\"e1\",\"from\":\"Packed\",\"to\":\"Shipped\",\"points\":[[204.5,38],[204.5,98]],\"reversed\":false,\"label\":null}],\"quality\":{\"crossings_before\":1,\"crossings_after\":0,\"reversed_edges\":0 ...."
     }
   ]
 }

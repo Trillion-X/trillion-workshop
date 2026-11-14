@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:add-decision-evidence's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:add-decision-evidence with decision_id, evidence.\" Add evidence to a decision I am making, at any time, so that its answers can cite it, or bring it in from another of my decisions",
+  "drafted_from": "tool:add-decision-evidence's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Add evidence to a decision I am making, at any time, so that its answers can cite it, or bring it in from another of my decisions\", with {\"decision_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"evidence\":[{\"ref\":\"e3\",\"claim\":\"A made-up nearby class costs a little more\"}]}. It runs tool:add-decision-evidence and answers {\"case_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"added\":[{\"ref\":\"e3\",\"claim\":\"A made-up nearby class costs a little more\",\"added_at\":\"2026-11-14T00:50:19.853Z\"}],\"evidence\":3}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (decision, decision-revision, decision-step, decision-call, decision-evidence, decision-answered-step, decision-option, decision-candidate, decision-report, decision-carried-out, decision-history, decision-cited-pursuit, decision-method, decision-part, decision-refs) through the records door.",
   "workflows": [],
   "tools": [
     "tool:add-decision-evidence"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:add-decision-evidence\", and give it decision_id, evidence.",
+    "1. Say to your AI: \"Add evidence to a decision I am making, at any time, so that its answers can cite it, or bring it in from another of my decisions\", and give it decision_id (The decision); evidence (The rows to add: each { ref, claim } or { ref, from: { decision_id, ref } }).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:add-decision-evidence and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields case_id."
+    "3. Read what comes back: Adds evidence rows to a decision in the person's own records: each { ref, claim }, or { ref, from: { decision_id, ref } } to bring in another of the person's decisions' evidence as it stood.",
+    "4. It reads and writes only its own rows through the records door: decision (records:read, records:list, records:write); decision-revision (records:read, records:write); decision-step (records:read, records:write); decision-call (records:write); decision-evidence (records:read, records:list, records:write); decision-answered-step (records:read, records:list, records:write); decision-option (records:read, records:list, records:write); decision-candidate (records:read, records:list, records:write); decision-report (records:read, records:list, records:write); decision-carried-out (records:read, records:list, records:write); decision-history (records:read, records:list, records:write); decision-cited-pursuit (records:read, records:list, records:write); decision-method (records:read, records:write); decision-part (records:read, records:write); decision-refs (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Add evidence to a decision on a sample input",
-      "ask": "Run tool:add-decision-evidence.",
+      "title": "Add evidence to a decision on its own sample",
+      "ask": "Add evidence to a decision I am making, at any time, so that its answers can cite it, or bring it in from another of my decisions",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -37,7 +38,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields case_id."
+      "given": "The input {\"decision_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"evidence\":[{\"ref\":\"e3\",\"claim\":\"A made-up nearby class costs a little more\"}]}, with 6 example rows (decision, decision-evidence, decision-method, decision-step, decision-answered-step) already kept.",
+      "hands_back": "It answered {\"case_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"added\":[{\"ref\":\"e3\",\"claim\":\"A made-up nearby class costs a little more\",\"added_at\":\"2026-11-14T00:50:19.853Z\"}],\"evidence\":3}, and kept decision-revision:source:c2FtcGxlOmNsYXNzLXByaWNlLTE, decision-refs:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:c1f:8c601ebe4f77be1e6509e7555eaee1cdc628d146cb5952e86ad3e2a1534567e9, decision-evidence:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:0002:c1f:76ee9ea1c1bb721f8321d521f7c44c7d6b9fec0c8d56afc3197634b2c720fb55."
     }
   ]
 }

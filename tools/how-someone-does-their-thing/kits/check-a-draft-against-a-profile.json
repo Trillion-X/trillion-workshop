@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:check-a-draft-against-a-profile's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-a-draft-against-a-profile with draft, required_ref_fields.\" Check that a draft made for a person carries the references to the profile that shaped it and the profile it is checked by",
+  "drafted_from": "tool:check-a-draft-against-a-profile's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Check that a draft made for a person carries the references to the profile that shaped it and the profile it is checked by\", with {\"draft\":{\"blocks\":[{\"text\":\"Fresh today.\",\"profile_ref\":\"profile:bakery-voice\"}]},\"required_ref_fields\":[\"profile_ref\"],\"profile_ref\":\"profile:bakery-voice\"}. It runs tool:check-a-draft-against-a-profile and answers {\"fits\":true,\"rules\":[{\"field\":\"profile_ref\",\"passed\":true,\"reason\":\"\"}]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:check-a-draft-against-a-profile"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-a-draft-against-a-profile\", and give it draft, required_ref_fields.",
+    "1. Say to your AI: \"Check that a draft made for a person carries the references to the profile that shaped it and the profile it is checked by\", and give it draft; required_ref_fields.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-draft-against-a-profile and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.fits contains \"true\"."
+    "3. Read what comes back: Give the draft (a list of blocks, each an object), the names of the fields that must carry a profile reference, and optionally the profile's name."
   ],
   "worked_examples": [
     {
-      "title": "Check a draft carries its profile on a sample input",
-      "ask": "Run tool:check-a-draft-against-a-profile.",
+      "title": "Check a draft carries its profile on its own sample",
+      "ask": "Check that a draft made for a person carries the references to the profile that shaped it and the profile it is checked by",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -42,7 +42,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.fits contains \"true\"."
+      "given": "The input {\"draft\":{\"blocks\":[{\"text\":\"Fresh today.\",\"profile_ref\":\"profile:bakery-voice\"}]},\"required_ref_fields\":[\"profile_ref\"],\"profile_ref\":\"profile:bakery-voice\"}.",
+      "hands_back": "It answered {\"fits\":true,\"rules\":[{\"field\":\"profile_ref\",\"passed\":true,\"reason\":\"\"}]}."
     }
   ]
 }

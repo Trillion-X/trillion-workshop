@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:read-stripe-promotion-codes's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-stripe-promotion-codes with nothing more.\" Read the promotion codes and the coupons they give in your Stripe account, to see whether a code is active, how often it was used and what it takes off",
+  "drafted_from": "tool:read-stripe-promotion-codes's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Read the promotion codes and the coupons they give in your Stripe account, to see whether a code is active, how often it was used and what it takes off\", with {\"code\":\"SAMPLEFRIEND25\"}. It runs tool:read-stripe-promotion-codes and answers {\"promotion_codes\":[{\"id\":\"promo_sample0001\",\"code\":\"SAMPLEFRIEND25\",\"active\":true,\"times_redeemed\":3,\"max_redemptions\":100,\"expires_at\":1893456000,\"restrictions\":{\"first_time_transaction\":true,\"minimum_amount\":500,\"currency\":\"usd\"},\"coupon\":{\"id\":\"coupon_sample0001\",\"name\":\"Sample friend discount\",\"amount_off\":null,\"percent_off\":25,\"currency\":null,\"duration\":\"repeating\",\"duration_in_months\":3 ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:read-stripe-promotion-codes"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-stripe-promotion-codes\", and give it nothing more.",
+    "1. Say to your AI: \"Read the promotion codes and the coupons they give in your Stripe account, to see whether a code is active, how often it was used and what it takes off\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-stripe-promotion-codes and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields promotion_codes, has_more."
+    "3. Read what comes back: Reads the promotion codes of your own Stripe account."
   ],
   "worked_examples": [
     {
-      "title": "Read the promotion codes in Stripe on a sample input",
-      "ask": "Run tool:read-stripe-promotion-codes.",
+      "title": "Read the promotion codes in Stripe on its own sample",
+      "ask": "Read the promotion codes and the coupons they give in your Stripe account, to see whether a code is active, how often it was used and what it takes off",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +31,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields promotion_codes, has_more."
+      "given": "The input {\"code\":\"SAMPLEFRIEND25\"}, the web answering from 1 recorded reply.",
+      "hands_back": "It answered {\"promotion_codes\":[{\"id\":\"promo_sample0001\",\"code\":\"SAMPLEFRIEND25\",\"active\":true,\"times_redeemed\":3,\"max_redemptions\":100,\"expires_at\":1893456000,\"restrictions\":{\"first_time_transaction\":true,\"minimum_amount\":500,\"currency\":\"usd\"},\"coupon\":{\"id\":\"coupon_sample0001\",\"name\":\"Sample friend discount\",\"amount_off\":null,\"percent_off\":25,\"currency\":null,\"duration\":\"repeating\",\"duration_in_months\":3,\"valid\":true,\"times_redeemed\":3,\"max_redemptions\":null,\"redeem_by\":null}}],\"has_more\":false}."
     }
   ]
 }

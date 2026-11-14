@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:fit-a-tool-list-in-a-budget's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:fit-a-tool-list-in-a-budget with tools.\" Shrink a list of tools for an AI so it fits in a number of characters, keeping as much detail as fits",
+  "drafted_from": "tool:fit-a-tool-list-in-a-budget's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Shrink a list of tools for an AI so it fits in a number of characters, keeping as much detail as fits\", with {\"tools\":[{\"name\":\"sample_tool\",\"description\":\"Lists sample things. It takes nothing and changes nothing.\",\"inputSchema\":{\"type\":\"object\"}}],\"budget_chars\":60}. It runs tool:fit-a-tool-list-in-a-budget and answers {\"tools\":[{\"name\":\"sample_tool\",\"inputSchema\":{\"type\":\"object\"}}],\"listing\":{\"level\":\"schema-only\",\"chars\":56,\"budget_chars\":60,\"fits\":true,\"tools\":1,\"said\":\"This list was shortened to fit 60 characters (level schema-only). Ask again with a larger budget_chars, or none, for every tool in full.\"}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:fit-a-tool-list-in-a-budget"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:fit-a-tool-list-in-a-budget\", and give it tools.",
+    "1. Say to your AI: \"Shrink a list of tools for an AI so it fits in a number of characters, keeping as much detail as fits\", and give it tools.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:fit-a-tool-list-in-a-budget and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.listing.said contains \"shortened to fit 60 characters\"."
+    "3. Read what comes back: Give tools (MCP tool entries: name, description, inputSchema), budget_chars (a positive number of characters of the JSON list) and, optionally, names (tools to keep in full whatever the budget)."
   ],
   "worked_examples": [
     {
-      "title": "Fit a tool list in a budget on a sample input",
-      "ask": "Run tool:fit-a-tool-list-in-a-budget.",
+      "title": "Fit a tool list in a budget on its own sample",
+      "ask": "Shrink a list of tools for an AI so it fits in a number of characters, keeping as much detail as fits",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -40,7 +40,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.listing.said contains \"shortened to fit 60 characters\"."
+      "given": "The input {\"tools\":[{\"name\":\"sample_tool\",\"description\":\"Lists sample things. It takes nothing and changes nothing.\",\"inputSchema\":{\"type\":\"object\"}}],\"budget_chars\":60}.",
+      "hands_back": "It answered {\"tools\":[{\"name\":\"sample_tool\",\"inputSchema\":{\"type\":\"object\"}}],\"listing\":{\"level\":\"schema-only\",\"chars\":56,\"budget_chars\":60,\"fits\":true,\"tools\":1,\"said\":\"This list was shortened to fit 60 characters (level schema-only). Ask again with a larger budget_chars, or none, for every tool in full.\"}}."
     }
   ]
 }

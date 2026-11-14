@@ -1,23 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:map-an-apps-screens-and-controls's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:map-an-apps-screens-and-controls with app_url.\" Find the screens of my app and what a person can do on each, so journeys can be written to check it",
+  "drafted_from": "tool:map-an-apps-screens-and-controls's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Find the screens of my app and what a person can do on each, so journeys can be written to check it\", with {\"app_url\":\"data:text/html,<title>Ready</title><h1>Ready</h1><button>Go</button>\"}. It runs tool:map-an-apps-screens-and-controls; its answer contains \"Ready\".",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:map-an-apps-screens-and-controls",
     "tool:walk-through-an-app-like-its-users"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:map-an-apps-screens-and-controls\", and give it app_url.",
+    "1. Say to your AI: \"Find the screens of my app and what a person can do on each, so journeys can be written to check it\", and give it app_url.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:map-an-apps-screens-and-controls and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.screens[0].title contains \"Ready\"."
+    "3. Read what comes back: Opens the app at app_url in a headless Chromium on the person's own computer and follows its links within the same origin, at most most_screens screens (20 at most)."
   ],
   "worked_examples": [
     {
-      "title": "Map an app's screens and controls on a sample input",
-      "ask": "Run tool:map-an-apps-screens-and-controls.",
+      "title": "Map an app's screens and controls on its own sample",
+      "ask": "Find the screens of my app and what a person can do on each, so journeys can be written to check it",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,6 +32,7 @@
           }
         }
       },
+      "given": "The input {\"app_url\":\"data:text/html,<title>Ready</title><h1>Ready</h1><button>Go</button>\"}, the web answering from 1 recorded reply.",
       "hands_back": "The answer's $.screens[0].title contains \"Ready\"."
     }
   ]

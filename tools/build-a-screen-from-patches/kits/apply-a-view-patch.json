@@ -1,23 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:apply-a-view-patch's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:apply-a-view-patch with answer.\" Rebuild the answer a screen should show from the answer it holds and the changes it was sent",
+  "drafted_from": "tool:apply-a-view-patch's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Rebuild the answer a screen should show from the answer it holds and the changes it was sent\", with {\"previous\":\"{\\\"a\\\":1}\",\"answer\":{\"status\":200,\"text\":\"{\\\"a\\\":2}\"}}. It runs tool:apply-a-view-patch and answers {\"text\":\"{\\\"a\\\":2}\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:apply-a-view-patch",
     "tool:make-a-view-patch"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:apply-a-view-patch\", and give it answer.",
+    "1. Say to your AI: \"Rebuild the answer a screen should show from the answer it holds and the changes it was sent\", and give it answer.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:apply-a-view-patch and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.text contains \"\"a\":2\"."
+    "3. Read what comes back: Give answer (what tool:make-a-view-patch returned: whole with text, or with patch) and previous, the JSON text the screen holds."
   ],
   "worked_examples": [
     {
-      "title": "Rebuild an answer from its changes on a sample input",
-      "ask": "Run tool:apply-a-view-patch.",
+      "title": "Rebuild an answer from its changes on its own sample",
+      "ask": "Rebuild the answer a screen should show from the answer it holds and the changes it was sent",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -36,7 +36,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.text contains \"\"a\":2\"."
+      "given": "The input {\"previous\":\"{\\\"a\\\":1}\",\"answer\":{\"status\":200,\"text\":\"{\\\"a\\\":2}\"}}.",
+      "hands_back": "It answered {\"text\":\"{\\\"a\\\":2}\"}."
     }
   ]
 }

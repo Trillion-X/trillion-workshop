@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:stop-an-email-course's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:stop-an-email-course with token.\" End a person's email course subscription from the token in their unsubscribe link, so no further lesson is sent",
+  "drafted_from": "tool:stop-an-email-course's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"End a person's email course subscription from the token in their unsubscribe link, so no further lesson is sent\", with {\"token\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"}. It runs tool:stop-an-email-course and answers {\"status\":\"unsubscribed\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (email-course-token, email-course-subscription) through the records door.",
   "workflows": [],
   "tools": [
     "tool:stop-an-email-course"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:stop-an-email-course\", and give it token.",
+    "1. Say to your AI: \"End a person's email course subscription from the token in their unsubscribe link, so no further lesson is sent\", and give it token.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:stop-an-email-course and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields status."
+    "3. Read what comes back: Give token (the unsubscribe token in the link the person was sent).",
+    "4. It reads and writes only its own rows through the records door: email-course-token (records:read); email-course-subscription (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Stop sending an email course to someone who unsubscribed on a sample input",
-      "ask": "Run tool:stop-an-email-course.",
+      "title": "Stop sending an email course to someone who unsubscribed on its own sample",
+      "ask": "End a person's email course subscription from the token in their unsubscribe link, so no further lesson is sent",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +32,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields status."
+      "given": "The input {\"token\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"}.",
+      "hands_back": "It answered {\"status\":\"unsubscribed\"}."
     }
   ]
 }

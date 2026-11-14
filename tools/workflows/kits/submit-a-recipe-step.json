@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:submit-a-recipe-step's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:submit-a-recipe-step with run, step, answer.\" Hand in my answer to a step of my recipe run, and have it kept only when the step's checks pass, judged on what my own records say ran",
+  "drafted_from": "tool:submit-a-recipe-step's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Hand in my answer to a step of my recipe run, and have it kept only when the step's checks pass, judged on what my own records say ran\", with {\"run\":\"ai-job:workflow:sample-dig:k1\",\"step\":\"dig\",\"answer\":{\"lanes\":[{\"id\":\"dig-1\",\"job\":\"ai-job:workflow:sample-dig:k1:dig:dig-1\"},{\"id\":\"dig-2\",\"job\":\"ai-job:workflow:sample-dig:k1:dig:dig-2\"}]}}. It runs tool:submit-a-recipe-step and answers {\"status\":\"kept\",\"answer_id\":\"ai-job:workflow:sample-dig:k1#answer:dig\",\"checks\":[{\"kind\":\"lane-jobs\",\"says\":\"Every lane comes from its own job that ran\",\"passed\":true}],\"unchecked\":[]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (ai-job, record:calendar-task, record:workflow-step, record:workflow-recipe, ) through the records door.",
   "workflows": [],
   "tools": [
     "tool:submit-a-recipe-step"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:submit-a-recipe-step\", and give it run, step, answer.",
+    "1. Say to your AI: \"Hand in my answer to a step of my recipe run, and have it kept only when the step's checks pass, judged on what my own records say ran\", and give it run (The id of the run's ai-job); step (The id of the step answered); answer (The step's answer, in the shape the step's submit says).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:submit-a-recipe-step and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields status, answer_id, checks, unchecked."
+    "3. Read what comes back: Reads the run, the step and the answers kept for the steps before it, and judges the step's checks.",
+    "4. It reads and writes only its own rows through the records door: ai-job (records:read, records:write); record:calendar-task (records:read); record:workflow-step (records:read); record:workflow-recipe (records:read); undefined (find_file, read_file)."
   ],
   "worked_examples": [
     {
-      "title": "Hand in the answer to one step of a recipe run, judged by the step's checks on what the records hold on a sample input",
-      "ask": "Run tool:submit-a-recipe-step.",
+      "title": "Hand in the answer to one step of a recipe run, judged by the step's checks on what the records hold on its own sample",
+      "ask": "Hand in my answer to a step of my recipe run, and have it kept only when the step's checks pass, judged on what my own records say ran",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -44,7 +45,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields status, answer_id, checks, unchecked."
+      "given": "The input {\"run\":\"ai-job:workflow:sample-dig:k1\",\"step\":\"dig\",\"answer\":{\"lanes\":[{\"id\":\"dig-1\",\"job\":\"ai-job:workflow:sample-dig:k1:dig:dig-1\"},{\"id\":\"dig-2\",\"job\":\"ai-job:workflow:sample-dig:k1:dig:dig-2\"}]}}, with 3 example rows (ai-job) already kept.",
+      "hands_back": "It answered {\"status\":\"kept\",\"answer_id\":\"ai-job:workflow:sample-dig:k1#answer:dig\",\"checks\":[{\"kind\":\"lane-jobs\",\"says\":\"Every lane comes from its own job that ran\",\"passed\":true}],\"unchecked\":[]}, and kept ai-job:workflow:sample-dig:k1#answer:dig."
     }
   ]
 }

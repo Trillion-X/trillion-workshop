@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:choose-the-feed-each-widget-shows's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:choose-the-feed-each-widget-shows with surface, widgets.\" Say which feed each widget on my phone or Mac shows: the one I picked for it, or else the feed its size takes from the surface's feeds in order",
+  "drafted_from": "tool:choose-the-feed-each-widget-shows's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Say which feed each widget on my phone or Mac shows: the one I picked for it, or else the feed its size takes from the surface's feeds in order\", with {\"surface\":\"widgets\",\"rows\":{\"waiting\":2,\"today\":1},\"widgets\":[{\"widget_id\":\"w1\",\"size\":\"small\"},{\"widget_id\":\"w2\",\"size\":\"medium\",\"picked_feed\":\"decisions\"}]}. It runs tool:choose-the-feed-each-widget-shows and answers {\"surface\":\"widgets\",\"feeds_in_order\":[\"waiting\",\"today\"],\"widgets\":[{\"widget_id\":\"w1\",\"size\":\"small\",\"feed\":\"waiting\",\"source\":\"unpicked\"},{\"widget_id\":\"w2\",\"size\":\"medium\",\"feed\":\"decisions\",\"source\":\"picked\"}]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:choose-the-feed-each-widget-shows"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:choose-the-feed-each-widget-shows\", and give it surface, widgets.",
+    "1. Say to your AI: \"Say which feed each widget on my phone or Mac shows: the one I picked for it, or else the feed its size takes from the surface's feeds in order\", and give it surface; widgets.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:choose-the-feed-each-widget-shows and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result.surface contains \"widgets\"."
+    "3. Read what comes back: Give the surface (widgets, watch) and the widgets on it, each with its size (small, medium, large or extra_large) and the feed the person picked for it if any, and optionally how many rows each feed has kept (a feed with rows is taken first; with no counts every feed counts)."
   ],
   "worked_examples": [
     {
-      "title": "Choose the feed each widget shows on a sample input",
-      "ask": "Run tool:choose-the-feed-each-widget-shows.",
+      "title": "Choose the feed each widget shows on its own sample",
+      "ask": "Say which feed each widget on my phone or Mac shows: the one I picked for it, or else the feed its size takes from the surface's feeds in order",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -46,7 +46,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result.surface contains \"widgets\"."
+      "given": "The input {\"surface\":\"widgets\",\"rows\":{\"waiting\":2,\"today\":1},\"widgets\":[{\"widget_id\":\"w1\",\"size\":\"small\"},{\"widget_id\":\"w2\",\"size\":\"medium\",\"picked_feed\":\"decisions\"}]}.",
+      "hands_back": "It answered {\"surface\":\"widgets\",\"feeds_in_order\":[\"waiting\",\"today\"],\"widgets\":[{\"widget_id\":\"w1\",\"size\":\"small\",\"feed\":\"waiting\",\"source\":\"unpicked\"},{\"widget_id\":\"w2\",\"size\":\"medium\",\"feed\":\"decisions\",\"source\":\"picked\"}]}."
     }
   ]
 }

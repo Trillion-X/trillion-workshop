@@ -1,9 +1,9 @@
 {
   "draft": true,
-  "drafted_from": "tool:approve-a-post's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:approve-a-post with post_id, expected_values.\" Approve a drafted post exactly as it was reviewed, so it may be set to go",
+  "drafted_from": "tool:approve-a-post's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Approve a drafted post exactly as it was reviewed, so it may be set to go\", with {\"post_id\":\"post:sample-1\",\"expected_values\":{\"caption\":\"A made-up sample post.\",\"media\":null,\"caption_by_platform\":{},\"settings_by_platform\":{},\"destinations\":[\"service_connection:x:sample\"],\"link\":null,\"scheduled_for\":null,\"time_zone\":null,\"source\":null,\"format_id\":null,\"reaches\":null},\"approved_by\":\"person:sample\"}. It runs tool:approve-a-post and answers {\"post\":{\"post_id\":\"post:sample-1\",\"status\":\"approved\",\"approval_values\":{\"caption\":\"A made-up sample post.\",\"media\":null,\"caption_by_platform\":{},\"settings_by_platform\":{},\"destinations\":[\"service_connection:x:sample\"],\"link\":null,\"scheduled_for\":null,\"time_zone\":null,\"source\":null,\"format_id\":null,\"reaches\":null},\"media\":null,\"caption\":\"A made-up sample post.\",\"caption_by_platform\":{} ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (post) through the records door.",
   "workflows": [],
   "tools": [
     "tool:approve-a-post",
@@ -11,14 +11,15 @@
     "tool:read-post-calendar"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:approve-a-post\", and give it post_id, expected_values.",
+    "1. Say to your AI: \"Approve a drafted post exactly as it was reviewed, so it may be set to go\", and give it post_id (A post_id from tool:draft-a-post or tool:read-post-calendar); expected_values.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:approve-a-post and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields post, ready, said."
+    "3. Read what comes back: Give post_id and expected_values (the complete approval_values of the post as it was reviewed); expected_values is required, and approval is refused when its words, file, destinations or time changed since.",
+    "4. It reads and writes only its own rows through the records door: post (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Approve a post on a sample input",
-      "ask": "Run tool:approve-a-post.",
+      "title": "Approve a post on its own sample",
+      "ask": "Approve a drafted post exactly as it was reviewed, so it may be set to go",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -49,7 +50,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields post, ready, said."
+      "given": "The input {\"post_id\":\"post:sample-1\",\"expected_values\":{\"caption\":\"A made-up sample post.\",\"media\":null,\"caption_by_platform\":{},\"settings_by_platform\":{},\"destinations\":[\"service_connection:x:sample\"],\"link\":null,\"scheduled_for\":null,\"time_zone\":null,\"source\":null,\"format_id\":null,\"reaches\":null},\"approved_by\":\"person:sample\"}, with 1 example row (post) already kept.",
+      "hands_back": "It answered {\"post\":{\"post_id\":\"post:sample-1\",\"status\":\"approved\",\"approval_values\":{\"caption\":\"A made-up sample post.\",\"media\":null,\"caption_by_platform\":{},\"settings_by_platform\":{},\"destinations\":[\"service_connection:x:sample\"],\"link\":null,\"scheduled_for\":null,\"time_zone\":null,\"source\":null,\"format_id\":null,\"reaches\":null},\"media\":null,\"caption\":\"A made-up sample post.\",\"caption_by_platform\":{},\"settings_by_platform\":{},\"source\":null,\"format_id\":null,\"caption_style_check\":null,\"reaches\":[],\"link\":null,\"scheduled_for\":null,\"time_zone\":null,\"sent_at\":null,\"destinations\":[{\"account_id\":\"service_connection:x:sample\",\"status\":\"not sent\"}],\"platform_urls\":{},\"errors\":[] ...."
     }
   ]
 }

@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:reconcile-lines-against-a-statement's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:reconcile-lines-against-a-statement with action, list_id, lines_kind.\" Close a set of cleared lines against a statement with any difference explained in words, keep a receipt of each close, find lines changed or removed after they were closed, and undo the last close",
+  "drafted_from": "tool:reconcile-lines-against-a-statement's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Close a set of cleared lines against a statement with any difference explained in words, keep a receipt of each close, find lines changed or removed after they were closed, and undo the last close\", with {\"action\":\"check\",\"list_id\":\"bank\",\"lines_kind\":\"record:settle-bank\",\"lines\":{\"amount_field\":\"amount\"}}. It runs tool:reconcile-lines-against-a-statement and answers {\"receipts_list\":\"bank-reconciliations\",\"discrepancies\":[],\"recorded\":0,\"ok\":true}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (list, [object Object], record:list-settlement-receipt) through the records door.",
   "workflows": [],
   "tools": [
     "tool:reconcile-lines-against-a-statement"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:reconcile-lines-against-a-statement\", and give it action, list_id, lines_kind.",
+    "1. Say to your AI: \"Close a set of cleared lines against a statement with any difference explained in words, keep a receipt of each close, find lines changed or removed after they were closed, and undo the last close\", and give it action; list_id (The list in the request: the source (or the lines, or the row's list) when the body leaves its own list_id out.); lines_kind (The record kind of the lines list's rows (record:<its row_type>); the run's right is filled from this field.).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:reconcile-lines-against-a-statement and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Close a set of cleared lines against a statement with any difference explained in words, keep a receipt of each close, find lines changed or removed after they were closed, and undo the last close"
+    "3. Read what comes back: action close takes lines { amount_field, closed_in_field?",
+    "4. It reads and writes only its own rows through the records door: list (records:read, records:list, records:write); [object Object] (records:read, records:list, records:write); record:list-settlement-receipt (records:read, records:list, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Reconcile lines against a statement on a sample input",
-      "ask": "Run tool:reconcile-lines-against-a-statement.",
+      "title": "Reconcile lines against a statement on its own sample",
+      "ask": "Close a set of cleared lines against a statement with any difference explained in words, keep a receipt of each close, find lines changed or removed after they were closed, and undo the last close",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -36,7 +37,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Close a set of cleared lines against a statement with any difference explained in words, keep a receipt of each close, find lines changed or removed after they were closed, and undo the last close"
+      "given": "The input {\"action\":\"check\",\"list_id\":\"bank\",\"lines_kind\":\"record:settle-bank\",\"lines\":{\"amount_field\":\"amount\"}}, with 3 example rows (list, record:settle-bank) already kept.",
+      "hands_back": "It answered {\"receipts_list\":\"bank-reconciliations\",\"discrepancies\":[],\"recorded\":0,\"ok\":true}."
     }
   ]
 }

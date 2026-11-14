@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:open-the-document-a-pursuit-edits-together's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:open-the-document-a-pursuit-edits-together with pages.\" Say which document each page of Write opens, so everyone in a pursuit edits the same document together and a personal page stays personal",
+  "drafted_from": "tool:open-the-document-a-pursuit-edits-together's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Say which document each page of Write opens, so everyone in a pursuit edits the same document together and a personal page stays personal\", with {\"pages\":[{\"space_id\":\"garden-club\",\"member_id\":\"sample-a\"},{\"space_id\":\"garden-club\",\"member_id\":\"sample-b\"},{\"scene_address\":\"package::documents::documents::personal\"},{\"space_id\":\"a/b\"}]}. It runs tool:open-the-document-a-pursuit-edits-together and answers {\"pages\":[{\"opened\":true,\"input\":{\"space_id\":\"garden-club\",\"member_id\":\"sample-a\",\"scene_address\":\"space-room:garden-club/package::documents::documents\"},\"shared\":true},{\"opened\":true,\"input\":{\"space_id\":\"garden-club\",\"member_id\":\"sample-b\",\"scene_address\":\"space-room:garden-club/package::documents::documents\"},\"shared\":true},{\"opened\":true ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:open-the-document-a-pursuit-edits-together"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:open-the-document-a-pursuit-edits-together\", and give it pages.",
+    "1. Say to your AI: \"Say which document each page of Write opens, so everyone in a pursuit edits the same document together and a personal page stays personal\", and give it pages.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:open-the-document-a-pursuit-edits-together and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.shared_rooms contains \"space-room:garden-club/package::documents::documents\"."
+    "3. Read what comes back: Give pages: what each page of Write is opened with ({ space_id?, scene_address?, ..."
   ],
   "worked_examples": [
     {
-      "title": "Open the document a pursuit edits together on a sample input",
-      "ask": "Run tool:open-the-document-a-pursuit-edits-together.",
+      "title": "Open the document a pursuit edits together on its own sample",
+      "ask": "Say which document each page of Write opens, so everyone in a pursuit edits the same document together and a personal page stays personal",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -46,7 +46,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.shared_rooms contains \"space-room:garden-club/package::documents::documents\"."
+      "given": "The input {\"pages\":[{\"space_id\":\"garden-club\",\"member_id\":\"sample-a\"},{\"space_id\":\"garden-club\",\"member_id\":\"sample-b\"},{\"scene_address\":\"package::documents::documents::personal\"},{\"space_id\":\"a/b\"}]}.",
+      "hands_back": "It answered {\"pages\":[{\"opened\":true,\"input\":{\"space_id\":\"garden-club\",\"member_id\":\"sample-a\",\"scene_address\":\"space-room:garden-club/package::documents::documents\"},\"shared\":true},{\"opened\":true,\"input\":{\"space_id\":\"garden-club\",\"member_id\":\"sample-b\",\"scene_address\":\"space-room:garden-club/package::documents::documents\"},\"shared\":true},{\"opened\":true,\"input\":{\"scene_address\":\"package::documents::documents::personal\"},\"shared\":false},{\"opened\":false,\"refused\":\"This pursuit could not open its documents.\"}],\"shared_rooms\":[\"space-room:garden-club/package::documents::documents\"]}."
     }
   ]
 }

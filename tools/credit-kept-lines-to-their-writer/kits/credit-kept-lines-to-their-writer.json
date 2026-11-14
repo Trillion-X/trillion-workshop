@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:credit-kept-lines-to-their-writer's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:credit-kept-lines-to-their-writer with versions.\" Credit each line of a text's newest version to whoever first wrote it, an AI or a person, from its versions, and count how many kept lines are each writer's",
+  "drafted_from": "tool:credit-kept-lines-to-their-writer's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Credit each line of a text's newest version to whoever first wrote it, an AI or a person, from its versions, and count how many kept lines are each writer's\", with {\"versions\":[{\"by\":\"ai\",\"text\":\"Intro\\nBody\"},{\"by\":\"person\",\"text\":\"Intro\\nBody rewritten\"}]}. It runs tool:credit-kept-lines-to-their-writer and answers {\"by\":{\"ai\":1,\"person\":1},\"kept\":2,\"versions\":2}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:credit-kept-lines-to-their-writer"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:credit-kept-lines-to-their-writer\", and give it versions.",
+    "1. Say to your AI: \"Credit each line of a text's newest version to whoever first wrote it, an AI or a person, from its versions, and count how many kept lines are each writer's\", and give it versions.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:credit-kept-lines-to-their-writer and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.kept contains \"2\"."
+    "3. Read what comes back: Give versions, oldest first, each { by, text } (by is the writer: ai, person, or any name)."
   ],
   "worked_examples": [
     {
-      "title": "Credit the kept lines to who wrote them on a sample input",
-      "ask": "Run tool:credit-kept-lines-to-their-writer.",
+      "title": "Credit the kept lines to who wrote them on its own sample",
+      "ask": "Credit each line of a text's newest version to whoever first wrote it, an AI or a person, from its versions, and count how many kept lines are each writer's",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -40,7 +40,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.kept contains \"2\"."
+      "given": "The input {\"versions\":[{\"by\":\"ai\",\"text\":\"Intro\\nBody\"},{\"by\":\"person\",\"text\":\"Intro\\nBody rewritten\"}]}.",
+      "hands_back": "It answered {\"by\":{\"ai\":1,\"person\":1},\"kept\":2,\"versions\":2}."
     }
   ]
 }

@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:rehearse-a-billing-page-in-stripe-test-mode's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:rehearse-a-billing-page-in-stripe-test-mode with product_name, amount_cents, return_url.\" Make a test subscription in Stripe test mode and open its billing page, to see the billing page comes back before a real buyer needs it",
+  "drafted_from": "tool:rehearse-a-billing-page-in-stripe-test-mode's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Make a test subscription in Stripe test mode and open its billing page, to see the billing page comes back before a real buyer needs it\", with {\"product_name\":\"Sample membership\",\"amount_cents\":1000,\"return_url\":\"https://app.example.com/billing\"}. It runs tool:rehearse-a-billing-page-in-stripe-test-mode and answers {\"subscription_id\":\"sub_sample0004\",\"redirect\":\"https://billing.stripe.com/p/session/test_sample0004\",\"card\":null,\"customer_id\":\"cus_sample0004\",\"schedule_id\":\"sub_sched_sample0004\",\"portal_configuration\":\"bpc_sample0004\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:rehearse-a-billing-page-in-stripe-test-mode"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:rehearse-a-billing-page-in-stripe-test-mode\", and give it product_name, amount_cents, return_url.",
+    "1. Say to your AI: \"Make a test subscription in Stripe test mode and open its billing page, to see the billing page comes back before a real buyer needs it\", and give it product_name; amount_cents; return_url.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:rehearse-a-billing-page-in-stripe-test-mode and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields subscription_id, redirect, card, customer_id, schedule_id, portal_configuration."
+    "3. Read what comes back: Give product_name, amount_cents and return_url (an https address the billing page returns to)."
   ],
   "worked_examples": [
     {
-      "title": "Rehearse a billing page in Stripe test mode on a sample input",
-      "ask": "Run tool:rehearse-a-billing-page-in-stripe-test-mode.",
+      "title": "Rehearse a billing page in Stripe test mode on its own sample",
+      "ask": "Make a test subscription in Stripe test mode and open its billing page, to see the billing page comes back before a real buyer needs it",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +33,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields subscription_id, redirect, card, customer_id, schedule_id, portal_configuration."
+      "given": "The input {\"product_name\":\"Sample membership\",\"amount_cents\":1000,\"return_url\":\"https://app.example.com/billing\"}, the web answering from 7 recorded replies.",
+      "hands_back": "It answered {\"subscription_id\":\"sub_sample0004\",\"redirect\":\"https://billing.stripe.com/p/session/test_sample0004\",\"card\":null,\"customer_id\":\"cus_sample0004\",\"schedule_id\":\"sub_sched_sample0004\",\"portal_configuration\":\"bpc_sample0004\"}."
     }
   ]
 }

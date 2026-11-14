@@ -1,23 +1,24 @@
 {
   "draft": true,
-  "drafted_from": "tool:remove-a-snippet's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:remove-a-snippet with snippet_id.\" Remove one of my saved snippets",
+  "drafted_from": "tool:remove-a-snippet's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Remove one of my saved snippets\", with {\"snippet_id\":\"snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5\"}. It runs tool:remove-a-snippet and answers {\"removed\":true,\"snippet_id\":\"snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5\",\"said\":\"Removed the snippet \\\"Thanks\\\".\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (snippet) through the records door.",
   "workflows": [],
   "tools": [
     "tool:remove-a-snippet",
     "tool:find-snippets"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:remove-a-snippet\", and give it snippet_id.",
+    "1. Say to your AI: \"Remove one of my saved snippets\", and give it snippet_id (A snippet_id from tool:find-snippets).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:remove-a-snippet and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result.said contains \"Removed the snippet\"."
+    "3. Read what comes back: Give snippet_id (from tool:find-snippets).",
+    "4. It reads and writes only its own rows through the records door: snippet (records:read, records:list, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Remove a snippet on a sample input",
-      "ask": "Run tool:remove-a-snippet.",
+      "title": "Remove a snippet on its own sample",
+      "ask": "Remove one of my saved snippets",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,7 +33,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result.said contains \"Removed the snippet\"."
+      "given": "The input {\"snippet_id\":\"snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5\"}, with 1 example row (snippet) already kept.",
+      "hands_back": "It answered {\"removed\":true,\"snippet_id\":\"snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5\",\"said\":\"Removed the snippet \\\"Thanks\\\".\"}."
     }
   ]
 }

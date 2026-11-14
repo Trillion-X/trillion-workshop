@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:place-a-section-in-a-markdown-document's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:place-a-section-in-a-markdown-document with document_text, section_text.\" Put one named section into a markdown document without repeating it: replace the section with the same heading, or add it at the end",
+  "drafted_from": "tool:place-a-section-in-a-markdown-document's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Put one named section into a markdown document without repeating it: replace the section with the same heading, or add it at the end\", with {\"document_text\":\"# Notes\\n\\n## One\\n\\nOld.\\n\\n## Two\\n\\nKeep.\\n\",\"section_text\":\"## One\\n\\nNew.\\n\"}. It runs tool:place-a-section-in-a-markdown-document and answers {\"text\":\"# Notes\\n\\n## One\\n\\nNew.\\n\\n## Two\\n\\nKeep.\\n\",\"placement\":\"replaced\",\"heading\":\"## One\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:place-a-section-in-a-markdown-document"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:place-a-section-in-a-markdown-document\", and give it document_text, section_text.",
+    "1. Say to your AI: \"Put one named section into a markdown document without repeating it: replace the section with the same heading, or add it at the end\", and give it document_text (The whole markdown document); section_text (The section to place, starting with its own heading line).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:place-a-section-in-a-markdown-document and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.placement contains \"replaced\"."
+    "3. Read what comes back: Give the whole markdown document as text and the section as text."
   ],
   "worked_examples": [
     {
-      "title": "Put a section into a markdown document on a sample input",
-      "ask": "Run tool:place-a-section-in-a-markdown-document.",
+      "title": "Put a section into a markdown document on its own sample",
+      "ask": "Put one named section into a markdown document without repeating it: replace the section with the same heading, or add it at the end",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,7 +32,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.placement contains \"replaced\"."
+      "given": "The input {\"document_text\":\"# Notes\\n\\n## One\\n\\nOld.\\n\\n## Two\\n\\nKeep.\\n\",\"section_text\":\"## One\\n\\nNew.\\n\"}.",
+      "hands_back": "It answered {\"text\":\"# Notes\\n\\n## One\\n\\nNew.\\n\\n## Two\\n\\nKeep.\\n\",\"placement\":\"replaced\",\"heading\":\"## One\"}."
     }
   ]
 }

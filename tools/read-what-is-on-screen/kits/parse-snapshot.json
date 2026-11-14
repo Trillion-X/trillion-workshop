@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:parse-snapshot's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:parse-snapshot with elements.\" Turn the accessibility elements of one app's window ({ role, label }) into fields through that app's declarative parser row, with emails, card numbers and tokens removed before anything is returned",
+  "drafted_from": "tool:parse-snapshot's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Turn the accessibility elements of one app's window ({ role, label }) into fields through that app's declarative parser row, with emails, card numbers and tokens removed before anything is returned\", with {\"app\":\"Notes Example\",\"elements\":[{\"role\":\"AXStaticText\",\"label\":\"Meeting notes for Ada Example\"},{\"role\":\"AXButton\",\"label\":\"Share\"}]}. It runs tool:parse-snapshot and answers {\"rows\":[{\"text\":\"Meeting notes for Ada Example\"}]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:parse-snapshot"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:parse-snapshot\", and give it elements.",
+    "1. Say to your AI: \"Turn the accessibility elements of one app's window ({ role, label }) into fields through that app's declarative parser row, with emails, card numbers and tokens removed before anything is returned\", and give it elements.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:parse-snapshot and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields rows."
+    "3. Read what comes back: Give app (its name) and elements ([{ role, label }], as the Mac app's reader takes them)."
   ],
   "worked_examples": [
     {
-      "title": "Read fields out of a screen snapshot on a sample input",
-      "ask": "Run tool:parse-snapshot.",
+      "title": "Read fields out of a screen snapshot on its own sample",
+      "ask": "Turn the accessibility elements of one app's window ({ role, label }) into fields through that app's declarative parser row, with emails, card numbers and tokens removed before anything is returned",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -41,7 +41,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields rows."
+      "given": "The input {\"app\":\"Notes Example\",\"elements\":[{\"role\":\"AXStaticText\",\"label\":\"Meeting notes for Ada Example\"},{\"role\":\"AXButton\",\"label\":\"Share\"}]}.",
+      "hands_back": "It answered {\"rows\":[{\"text\":\"Meeting notes for Ada Example\"}]}."
     }
   ]
 }

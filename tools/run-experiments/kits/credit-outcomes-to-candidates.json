@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:credit-outcomes-to-candidates's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:credit-outcomes-to-candidates with join, assignments, outcomes, at.\" Join who saw which version with who bought, signed up or clicked, so each version's results can be read",
+  "drafted_from": "tool:credit-outcomes-to-candidates's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Join who saw which version with who bought, signed up or clicked, so each version's results can be read\", with {\"join\":{\"entity_type\":\"attribution-join\",\"join_id\":\"join:offer\",\"assignment\":{\"observer_key_path\":[\"visitor\"],\"candidate_key_path\":[\"candidate\"]},\"outcome\":{\"observer_key_path\":[\"visitor\"],\"metric_path\":[\"what\"]},\"emit\":{\"observe_address\":\"page:/offer\",\"metric_map\":{\"purchase\":\"converted\"}}},\"assignments\":[{\"visitor\":\"v1\",\"candidate\":\"a\"}],\"outcomes\":[{\"visitor\":\"v1\",\"what\":\"purchase\"}] .... It runs tool:credit-outcomes-to-candidates and answers {\"observations\":[{\"observerId\":\"v1\",\"trustRef\":\"trust:derived\",\"path\":[\"candidate\",\"outcome\",\"converted\",\"a\"],\"value\":1,\"at\":\"2026-01-01T00:00:00.000Z\",\"basis\":\"join:offer\"}],\"findings\":[]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:credit-outcomes-to-candidates"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:credit-outcomes-to-candidates\", and give it join, assignments, outcomes, at.",
+    "1. Say to your AI: \"Join who saw which version with who bought, signed up or clicked, so each version's results can be read\", and give it join ({ entity_type: 'attribution-join', join_id, assignment: { observer_key_path, candidate_key_path, where?); assignments; outcomes; at (The ISO time stamped on every observation).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:credit-outcomes-to-candidates and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.observations contains \"converted\"."
+    "3. Read what comes back: Takes two lists of records (which visitor was assigned which candidate, and which outcomes each visitor produced) and a join that names the fields of each, and returns one observation per visitor, outcome and candidate with how many times it happened and the value it carried."
   ],
   "worked_examples": [
     {
-      "title": "Credit what visitors did to the version they saw on a sample input",
-      "ask": "Run tool:credit-outcomes-to-candidates.",
+      "title": "Credit what visitors did to the version they saw on its own sample",
+      "ask": "Join who saw which version with who bought, signed up or clicked, so each version's results can be read",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -69,7 +69,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.observations contains \"converted\"."
+      "given": "The input {\"join\":{\"entity_type\":\"attribution-join\",\"join_id\":\"join:offer\",\"assignment\":{\"observer_key_path\":[\"visitor\"],\"candidate_key_path\":[\"candidate\"]},\"outcome\":{\"observer_key_path\":[\"visitor\"],\"metric_path\":[\"what\"]},\"emit\":{\"observe_address\":\"page:/offer\",\"metric_map\":{\"purchase\":\"converted\"}}},\"assignments\":[{\"visitor\":\"v1\",\"candidate\":\"a\"}],\"outcomes\":[{\"visitor\":\"v1\",\"what\":\"purchase\"}] ....",
+      "hands_back": "It answered {\"observations\":[{\"observerId\":\"v1\",\"trustRef\":\"trust:derived\",\"path\":[\"candidate\",\"outcome\",\"converted\",\"a\"],\"value\":1,\"at\":\"2026-01-01T00:00:00.000Z\",\"basis\":\"join:offer\"}],\"findings\":[]}."
     }
   ]
 }

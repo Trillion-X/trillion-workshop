@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:list-the-conversation-sources-on-this-computer's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:list-the-conversation-sources-on-this-computer with nothing more.\" Find every app's conversations on this computer (AI chat exports, Google Takeout activity, and the sessions local AI apps keep) and say how many files of each there are",
+  "drafted_from": "tool:list-the-conversation-sources-on-this-computer's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Find every app's conversations on this computer (AI chat exports, Google Takeout activity, and the sessions local AI apps keep) and say how many files of each there are\", with {}. It runs tool:list-the-conversation-sources-on-this-computer and answers {\"sources\":[{\"source\":\"chatgpt-export\",\"label\":\"ChatGPT account export\",\"app\":\"ChatGPT\",\"kind\":\"account-export\",\"files\":0,\"bytes\":0,\"found\":[]},{\"source\":\"claude-ai-export\",\"label\":\"Claude.ai account export\",\"app\":\"Claude\",\"kind\":\"account-export\",\"files\":0,\"bytes\":0,\"found\":[]},{\"source\":\"grok-export\",\"label\":\"Grok account export\",\"app\":\"Grok\",\"kind\":\"account-export\",\"files\":0,\"bytes\":0 ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:list-the-conversation-sources-on-this-computer"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:list-the-conversation-sources-on-this-computer\", and give it nothing more.",
+    "1. Say to your AI: \"Find every app's conversations on this computer (AI chat exports, Google Takeout activity, and the sessions local AI apps keep) and say how many files of each there are\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-the-conversation-sources-on-this-computer and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $ contains \"codex-sessions\"."
+    "3. Read what comes back: Runs on the person's computer over the folder they granted it to read (their home folder), and reads only inside it."
   ],
   "worked_examples": [
     {
-      "title": "List the conversation sources on this computer on a sample input",
-      "ask": "Run tool:list-the-conversation-sources-on-this-computer.",
+      "title": "List the conversation sources on this computer on its own sample",
+      "ask": "Find every app's conversations on this computer (AI chat exports, Google Takeout activity, and the sessions local AI apps keep) and say how many files of each there are",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -29,7 +29,8 @@
           }
         }
       },
-      "hands_back": "The answer's $ contains \"codex-sessions\"."
+      "given": "The input {}.",
+      "hands_back": "It answered {\"sources\":[{\"source\":\"chatgpt-export\",\"label\":\"ChatGPT account export\",\"app\":\"ChatGPT\",\"kind\":\"account-export\",\"files\":0,\"bytes\":0,\"found\":[]},{\"source\":\"claude-ai-export\",\"label\":\"Claude.ai account export\",\"app\":\"Claude\",\"kind\":\"account-export\",\"files\":0,\"bytes\":0,\"found\":[]},{\"source\":\"grok-export\",\"label\":\"Grok account export\",\"app\":\"Grok\",\"kind\":\"account-export\",\"files\":0,\"bytes\":0,\"found\":[]},{\"source\":\"gemini-apps-activity\",\"label\":\"Gemini Apps activity (Google Takeout)\",\"app\":\"Gemini\",\"kind\":\"account-export\",\"files\":0,\"bytes\":0,\"found\":[]},{\"source\":\"google-assistant-activity\",\"label\":\"Google Assistant activity (Google Takeout)\",\"app\":\"Google Assistant\",\"kind\":\"account-export\" ...."
     }
   ]
 }

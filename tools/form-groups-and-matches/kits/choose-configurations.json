@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:choose-configurations's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:choose-configurations with configurations, scope_fields.\" Choose which of several options (a person, a workflow, a tool, a place) go ahead now: every worthwhile one that does not compete for the same thing, the best where they do",
+  "drafted_from": "tool:choose-configurations's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Choose which of several options (a person, a workflow, a tool, a place) go ahead now: every worthwhile one that does not compete for the same thing, the best where they do\", with {\"scope_fields\":[\"goal_ref\"],\"configurations\":[{\"id\":\"oven-class\",\"configuration_kind\":\"workshop\",\"expected_value\":0.6,\"scope\":{\"goal_ref\":\"goal:sourdough\"},\"collision_refs\":[\"room:kitchen\"]},{\"id\":\"proofing-timer\",\"configuration_kind\":\"tool\",\"expected_value\":0.3,\"scope\":{\"goal_ref\":\"goal:sourdough\"}}]}. It runs tool:choose-configurations and answers {\"selected\":[{\"id\":\"oven-class\",\"configuration_kind\":\"workshop\",\"expected_value\":0.6,\"scope\":{\"goal_ref\":\"goal:sourdough\"},\"collision_refs\":[\"room:kitchen\"],\"scope_key\":\"goal_ref:goal:sourdough\",\"required_resource_refs\":[]},{\"id\":\"proofing-timer\",\"configuration_kind\":\"tool\",\"expected_value\":0.3,\"scope\":{\"goal_ref\":\"goal:sourdough\"},\"scope_key\":\"goal_ref:goal:sourdough\",\"required_resource_refs\":[] ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:choose-configurations"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:choose-configurations\", and give it configurations, scope_fields.",
+    "1. Say to your AI: \"Choose which of several options (a person, a workflow, a tool, a place) go ahead now: every worthwhile one that does not compete for the same thing, the best where they do\", and give it configurations; scope_fields.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:choose-configurations and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.selected[1].id contains \"proofing-timer\"."
+    "3. Read what comes back: configurations [{ id, configuration_kind (any word), expected_value, scope: { <field>: text }, required_resource_refs?, collision_refs?"
   ],
   "worked_examples": [
     {
-      "title": "Choose which options go ahead together on a sample input",
-      "ask": "Run tool:choose-configurations.",
+      "title": "Choose which options go ahead together on its own sample",
+      "ask": "Choose which of several options (a person, a workflow, a tool, a place) go ahead now: every worthwhile one that does not compete for the same thing, the best where they do",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -54,7 +54,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.selected[1].id contains \"proofing-timer\"."
+      "given": "The input {\"scope_fields\":[\"goal_ref\"],\"configurations\":[{\"id\":\"oven-class\",\"configuration_kind\":\"workshop\",\"expected_value\":0.6,\"scope\":{\"goal_ref\":\"goal:sourdough\"},\"collision_refs\":[\"room:kitchen\"]},{\"id\":\"proofing-timer\",\"configuration_kind\":\"tool\",\"expected_value\":0.3,\"scope\":{\"goal_ref\":\"goal:sourdough\"}}]}.",
+      "hands_back": "It answered {\"selected\":[{\"id\":\"oven-class\",\"configuration_kind\":\"workshop\",\"expected_value\":0.6,\"scope\":{\"goal_ref\":\"goal:sourdough\"},\"collision_refs\":[\"room:kitchen\"],\"scope_key\":\"goal_ref:goal:sourdough\",\"required_resource_refs\":[]},{\"id\":\"proofing-timer\",\"configuration_kind\":\"tool\",\"expected_value\":0.3,\"scope\":{\"goal_ref\":\"goal:sourdough\"},\"scope_key\":\"goal_ref:goal:sourdough\",\"required_resource_refs\":[],\"collision_refs\":[]}],\"rejected\":[],\"configuration_requests\":[{\"configuration_ref\":\"oven-class\",\"configuration_kind\":\"workshop\",\"scope\":{\"goal_ref\":\"goal:sourdough\"},\"required_resource_refs\":[],\"state\":\"proposed\"},{\"configuration_ref\":\"proofing-timer\",\"configuration_kind\":\"tool\" ...."
     }
   ]
 }

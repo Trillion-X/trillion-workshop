@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:see-a-files-change's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:see-a-files-change with folder, file_path.\" See the difference between one file in a project on the person's computer and the last commit",
+  "drafted_from": "tool:see-a-files-change's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"See the difference between one file in a project on the person's computer and the last commit\", with {\"folder\":\"/projects/sample\",\"file_path\":\"notes.txt\"}. It runs tool:see-a-files-change and answers {\"folder\":\"/projects/sample\",\"file_path\":\"notes.txt\",\"diff\":\"diff --git a/notes.txt b/notes.txt\\n--- a/notes.txt\\n+++ b/notes.txt\\n@@ -1 +1 @@\\n-first line\\n+second line\\n\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:see-a-files-change"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:see-a-files-change\", and give it folder, file_path.",
+    "1. Say to your AI: \"See the difference between one file in a project on the person's computer and the last commit\", and give it folder; file_path.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:see-a-files-change and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields folder, file_path, diff."
+    "3. Read what comes back: Give folder (the full path of the project folder the person has let this tool use) and file_path (the file, relative to the folder)."
   ],
   "worked_examples": [
     {
-      "title": "See how one file changed on a sample input",
-      "ask": "Run tool:see-a-files-change.",
+      "title": "See how one file changed on its own sample",
+      "ask": "See the difference between one file in a project on the person's computer and the last commit",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,7 +32,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields folder, file_path, diff."
+      "given": "The input {\"folder\":\"/projects/sample\",\"file_path\":\"notes.txt\"}.",
+      "hands_back": "It answered {\"folder\":\"/projects/sample\",\"file_path\":\"notes.txt\",\"diff\":\"diff --git a/notes.txt b/notes.txt\\n--- a/notes.txt\\n+++ b/notes.txt\\n@@ -1 +1 @@\\n-first line\\n+second line\\n\"}."
     }
   ]
 }

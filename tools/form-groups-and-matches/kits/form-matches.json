@@ -1,23 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:form-matches's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:form-matches with program_id, cycle, relationship_kind, expected_value.\" Match people in a community, club, cohort or mentoring program into pairs or small groups who can actually help each other, and prepare introductions that wait for everyone's consent",
+  "drafted_from": "tool:form-matches's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Match people in a community, club, cohort or mentoring program into pairs or small groups who can actually help each other, and prepare introductions that wait for everyone's consent\", with {\"program_id\":\"sample-bakers-circle\",\"cycle\":\"week-1\",\"relationship_kind\":\"practice-partner\",\"expected_value\":{\"factors\":[\"fit\"],\"scope_fields\":[\"goal_ref\"]},\"candidates\":[{\"subject\":\"ana\",\"participant\":\"ben\",\"expected_value\":0.8,\"factors\":{\"fit\":0.8},\"scope\":{\"goal_ref\":\"goal:sourdough\"},\"scope_key\":\"goal_ref:goal:sourdough\",\"factor_evidence\":{\"status\":\"grounded\",\"evidence_refs\":[\"answer:ana:1\"] .... It runs tool:form-matches and answers {\"program_id\":\"sample-bakers-circle\",\"cycle\":\"week-1\",\"connections\":[{\"id\":\"sample-bakers-circle:week-1:ana-ben\",\"source\":\"ana\",\"target\":\"ben\",\"members\":[\"ana\",\"ben\"],\"relation\":\"practice-partner\",\"attributes\":{\"program_id\":\"sample-bakers-circle\",\"cycle\":\"week-1\",\"grouping\":null,\"expected_value\":0.8,\"expected_value_factors\":{\"fit\":0.8},\"scope\":{\"goal_ref\":\"goal:sourdough\"} ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:form-matches",
     "tool:check-match-evidence"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:form-matches\", and give it program_id, cycle, relationship_kind, expected_value.",
+    "1. Say to your AI: \"Match people in a community, club, cohort or mentoring program into pairs or small groups who can actually help each other, and prepare introductions that wait for everyone's consent\", and give it program_id; cycle; relationship_kind; expected_value.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:form-matches and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.connections[0].id contains \"sample-bakers-circle:week-1:ana-ben\"."
+    "3. Read what comes back: One matching cycle, all of it data: expected_value { factors, scope_fields, minimum_expected_value?, minimum_distinguishable_delta?, require_scope?"
   ],
   "worked_examples": [
     {
-      "title": "Form matches and small groups by grounded expected value on a sample input",
-      "ask": "Run tool:form-matches.",
+      "title": "Form matches and small groups by grounded expected value on its own sample",
+      "ask": "Match people in a community, club, cohort or mentoring program into pairs or small groups who can actually help each other, and prepare introductions that wait for everyone's consent",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -90,7 +90,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.connections[0].id contains \"sample-bakers-circle:week-1:ana-ben\"."
+      "given": "The input {\"program_id\":\"sample-bakers-circle\",\"cycle\":\"week-1\",\"relationship_kind\":\"practice-partner\",\"expected_value\":{\"factors\":[\"fit\"],\"scope_fields\":[\"goal_ref\"]},\"candidates\":[{\"subject\":\"ana\",\"participant\":\"ben\",\"expected_value\":0.8,\"factors\":{\"fit\":0.8},\"scope\":{\"goal_ref\":\"goal:sourdough\"},\"scope_key\":\"goal_ref:goal:sourdough\",\"factor_evidence\":{\"status\":\"grounded\",\"evidence_refs\":[\"answer:ana:1\"] ....",
+      "hands_back": "It answered {\"program_id\":\"sample-bakers-circle\",\"cycle\":\"week-1\",\"connections\":[{\"id\":\"sample-bakers-circle:week-1:ana-ben\",\"source\":\"ana\",\"target\":\"ben\",\"members\":[\"ana\",\"ben\"],\"relation\":\"practice-partner\",\"attributes\":{\"program_id\":\"sample-bakers-circle\",\"cycle\":\"week-1\",\"grouping\":null,\"expected_value\":0.8,\"expected_value_factors\":{\"fit\":0.8},\"scope\":{\"goal_ref\":\"goal:sourdough\"},\"scope_key\":\"goal_ref:goal:sourdough\",\"match_provenance\":\"per-candidate expected-value products; group aggregate is the minimum selected candidate\",\"prepared_introduction_id\":\"ana:ana-ben\",\"introduction_send_status\":\"ready\"}}],\"groups\":[{\"subject\":\"ana\",\"scope\":{\"goal_ref\":\"goal:sourdough\"} ...."
     }
   ]
 }

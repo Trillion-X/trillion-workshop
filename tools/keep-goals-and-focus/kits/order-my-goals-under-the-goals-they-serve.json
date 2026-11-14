@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:order-my-goals-under-the-goals-they-serve's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:order-my-goals-under-the-goals-they-serve with goals.\" Keep my goals in the order they are shown, each one under the goal it serves, so a goal with several parents is shown once and none is hidden by a missing parent or a loop",
+  "drafted_from": "tool:order-my-goals-under-the-goals-they-serve's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Keep my goals in the order they are shown, each one under the goal it serves, so a goal with several parents is shown once and none is hidden by a missing parent or a loop\", with {\"goals\":[{\"id\":\"grow-food\",\"title\":\"Grow our own food\",\"parents\":[\"life\"]},{\"id\":\"life\",\"title\":\"A calm, healthy year\"},{\"id\":\"run\",\"title\":\"Run a 10k\",\"parents\":[\"life\",\"missing\"]}]}. It runs tool:order-my-goals-under-the-goals-they-serve and answers {\"rows\":[{\"id\":\"life\",\"title\":\"A calm, healthy year\",\"depth\":0,\"shown_under\":null,\"parents\":[]},{\"id\":\"grow-food\",\"title\":\"Grow our own food\",\"depth\":1,\"shown_under\":\"life\",\"parents\":[\"life\"]},{\"id\":\"run\",\"title\":\"Run a 10k\",\"depth\":1,\"shown_under\":\"life\",\"parents\":[\"life\"]}],\"count\":3}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:order-my-goals-under-the-goals-they-serve"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:order-my-goals-under-the-goals-they-serve\", and give it goals.",
+    "1. Say to your AI: \"Keep my goals in the order they are shown, each one under the goal it serves, so a goal with several parents is shown once and none is hidden by a missing parent or a loop\", and give it goals.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:order-my-goals-under-the-goals-they-serve and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields rows, count."
+    "3. Read what comes back: Give goals ([{ id, title?, parents?, children?"
   ],
   "worked_examples": [
     {
-      "title": "Order my goals under the goals they serve on a sample input",
-      "ask": "Run tool:order-my-goals-under-the-goals-they-serve.",
+      "title": "Order my goals under the goals they serve on its own sample",
+      "ask": "Keep my goals in the order they are shown, each one under the goal it serves, so a goal with several parents is shown once and none is hidden by a missing parent or a loop",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -51,7 +51,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields rows, count."
+      "given": "The input {\"goals\":[{\"id\":\"grow-food\",\"title\":\"Grow our own food\",\"parents\":[\"life\"]},{\"id\":\"life\",\"title\":\"A calm, healthy year\"},{\"id\":\"run\",\"title\":\"Run a 10k\",\"parents\":[\"life\",\"missing\"]}]}.",
+      "hands_back": "It answered {\"rows\":[{\"id\":\"life\",\"title\":\"A calm, healthy year\",\"depth\":0,\"shown_under\":null,\"parents\":[]},{\"id\":\"grow-food\",\"title\":\"Grow our own food\",\"depth\":1,\"shown_under\":\"life\",\"parents\":[\"life\"]},{\"id\":\"run\",\"title\":\"Run a 10k\",\"depth\":1,\"shown_under\":\"life\",\"parents\":[\"life\"]}],\"count\":3}."
     }
   ]
 }

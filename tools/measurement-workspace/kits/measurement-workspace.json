@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:measurement-workspace's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:measurement-workspace with nothing more.\" Review provider and operation usage, forecasts, unknown coverage, and billed history in my account",
+  "drafted_from": "tool:measurement-workspace's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Review provider and operation usage, forecasts, unknown coverage, and billed history in my account\", with {}. It runs tool:measurement-workspace and answers {\"screen\":\"Cost measurements\",\"opens\":\"/lists/cost-measurements\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:measurement-workspace"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:measurement-workspace\", and give it nothing more.",
+    "1. Say to your AI: \"Review provider and operation usage, forecasts, unknown coverage, and billed history in my account\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:measurement-workspace and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.screen contains \"Cost measurements\"."
+    "3. Read what comes back: Shows the account's saved measurement Lists with a live overview, run history, provider and operation filters, versioned forecasts, billed records, source revisions, retries and errors."
   ],
   "worked_examples": [
     {
-      "title": "Cost measurements on a sample input",
-      "ask": "Run tool:measurement-workspace.",
+      "title": "Cost measurements on its own sample",
+      "ask": "Review provider and operation usage, forecasts, unknown coverage, and billed history in my account",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -29,7 +29,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.screen contains \"Cost measurements\"."
+      "given": "The input {}.",
+      "hands_back": "It answered {\"screen\":\"Cost measurements\",\"opens\":\"/lists/cost-measurements\"}."
     }
   ]
 }

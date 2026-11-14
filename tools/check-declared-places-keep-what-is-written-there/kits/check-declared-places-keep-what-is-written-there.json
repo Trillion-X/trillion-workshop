@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:check-declared-places-keep-what-is-written-there's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-declared-places-keep-what-is-written-there with places_key, id_key, retention_kinds.\" Check that every place declared writable (on the promise that something keeps what is written there, such as a version history) really keeps it, and say which keep nothing",
+  "drafted_from": "tool:check-declared-places-keep-what-is-written-there's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Check that every place declared writable (on the promise that something keeps what is written there, such as a version history) really keeps it, and say which keep nothing\", with {\"declaration\":{\"rules\":{\"deeper\":{\"may_write_here\":[{\"path_contains\":\"kept\"}]}}},\"places_key\":\"may_write_here\",\"id_key\":\"path_contains\",\"bases\":[\"projects\"],\"retention_kinds\":[{\"kind\":\"history\",\"marker\":\".history\"}]}. It runs tool:check-declared-places-keep-what-is-written-there and answers {\"passed\":true,\"places_declared\":1,\"examined_count\":1,\"keeps_nothing_count\":0,\"unresolved_count\":0,\"examined\":[{\"place\":\"kept\",\"directory\":\"projects/kept\",\"kept\":[\"history\"],\"exemptFor\":null}],\"keeps_nothing\":[],\"unresolved\":[],\"remedy_hint\":null}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:check-declared-places-keep-what-is-written-there"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-declared-places-keep-what-is-written-there\", and give it places_key, id_key, retention_kinds.",
+    "1. Say to your AI: \"Check that every place declared writable (on the promise that something keeps what is written there, such as a version history) really keeps it, and say which keep nothing\", and give it places_key; id_key; retention_kinds.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-declared-places-keep-what-is-written-there and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields passed, places_declared, examined_count, keeps_nothing_count, unresolved_count, examined, keeps_nothing, unresolved."
+    "3. Read what comes back: Give the declaration (the JSON that lists the places, or declaration_file, a path inside the folder the person granted for reading), places_key (the key that holds the list, found at any depth), id_key (the key naming each place), bases (folders inside the granted folder a place may live under; \"\" is the folder itself) and retention_kinds ([{ kind, marker }]: a kind keeps what is written when its marker, a file or folder name such as a history folder, is present at the place or any ancestor up to the granted folder)."
   ],
   "worked_examples": [
     {
-      "title": "Check the places I let my AI write in keep a history on a sample input",
-      "ask": "Run tool:check-declared-places-keep-what-is-written-there.",
+      "title": "Check the places I let my AI write in keep a history on its own sample",
+      "ask": "Check that every place declared writable (on the promise that something keeps what is written there, such as a version history) really keeps it, and say which keep nothing",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -52,7 +52,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields passed, places_declared, examined_count, keeps_nothing_count, unresolved_count, examined, keeps_nothing, unresolved."
+      "given": "The input {\"declaration\":{\"rules\":{\"deeper\":{\"may_write_here\":[{\"path_contains\":\"kept\"}]}}},\"places_key\":\"may_write_here\",\"id_key\":\"path_contains\",\"bases\":[\"projects\"],\"retention_kinds\":[{\"kind\":\"history\",\"marker\":\".history\"}]}.",
+      "hands_back": "It answered {\"passed\":true,\"places_declared\":1,\"examined_count\":1,\"keeps_nothing_count\":0,\"unresolved_count\":0,\"examined\":[{\"place\":\"kept\",\"directory\":\"projects/kept\",\"kept\":[\"history\"],\"exemptFor\":null}],\"keeps_nothing\":[],\"unresolved\":[],\"remedy_hint\":null}."
     }
   ]
 }

@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:share-anything's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:share-anything with grant.\" Share anything of mine read-only, from one record or one piece of text to a whole list or any mix of records, with a person, an AI or anyone holding a link; show who has access; and stop it",
+  "drafted_from": "tool:share-anything's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Share anything of mine read-only, from one record or one piece of text to a whole list or any mix of records, with a person, an AI or anyone holding a link; show who has access; and stop it\", with {\"op\":\"share\",\"grant\":\"sharing:list:sample\",\"thing\":{\"list\":\"sample\"},\"with\":[\"sample-person\"],\"link\":true}. It runs tool:share-anything and answers {\"op\":\"share\",\"label\":\"list:sample\",\"grant\":\"sharing:list:sample\",\"title\":\"Sample list\",\"reach\":[{\"type\":\"list\",\"id\":\"list:sample\"},{\"type\":\"record:sample-row\"}],\"people\":[{\"principal\":\"sample-person\",\"key\":\"shr_dQ_-DfvL3dImPny61kxJRt6dMloLeHt3kdVc0VU4oJc\"}],\"link\":{\"key\":\"shr_1l0M_h8lVxP0kw1qWOe3o8NvYDzXv90R5jCKup-Tjzk\"},\"expires_at\":null,\"said\":\"Shared Sample list with sample-person. They can ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (@own-records, list, shared-text) through the records door.",
   "workflows": [],
   "tools": [
     "tool:share-anything"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:share-anything\", and give it grant.",
+    "1. Say to your AI: \"Share anything of mine read-only, from one record or one piece of text to a whole list or any mix of records, with a person, an AI or anyone holding a link; show who has access; and stop it\", and give it grant (Where the share is kept: sharing: plus the thing's label).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:share-anything and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.label contains \"list:sample\"."
+    "3. Read what comes back: op share (the default job): give grant (sharing: plus the thing's label; read-data/share-label.mjs grantOf makes it, and the answer of any earlier call names it), thing (one of { type, id }, { list } for a list and all its rows, { text, title?",
+    "4. It reads and writes only its own rows through the records door: @own-records (workspace:read, workspace:write); list (records:read); shared-text (records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Share anything on a sample input",
-      "ask": "Run tool:share-anything.",
+      "title": "Share anything on its own sample",
+      "ask": "Share anything of mine read-only, from one record or one piece of text to a whole list or any mix of records, with a person, an AI or anyone holding a link; show who has access; and stop it",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -39,7 +40,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.label contains \"list:sample\"."
+      "given": "The input {\"op\":\"share\",\"grant\":\"sharing:list:sample\",\"thing\":{\"list\":\"sample\"},\"with\":[\"sample-person\"],\"link\":true}, with 1 example row (list) already kept.",
+      "hands_back": "It answered {\"op\":\"share\",\"label\":\"list:sample\",\"grant\":\"sharing:list:sample\",\"title\":\"Sample list\",\"reach\":[{\"type\":\"list\",\"id\":\"list:sample\"},{\"type\":\"record:sample-row\"}],\"people\":[{\"principal\":\"sample-person\",\"key\":\"shr_dQ_-DfvL3dImPny61kxJRt6dMloLeHt3kdVc0VU4oJc\"}],\"link\":{\"key\":\"shr_1l0M_h8lVxP0kw1qWOe3o8NvYDzXv90R5jCKup-Tjzk\"},\"expires_at\":null,\"said\":\"Shared Sample list with sample-person. They can only view it, until you stop it. Made a link to Sample list. Anyone with it can only view it, until you stop it.\"}."
     }
   ]
 }

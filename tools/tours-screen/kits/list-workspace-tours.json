@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:list-workspace-tours's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:list-workspace-tours with nothing more.\" Show me every tour in my workspace and which ones I have finished",
+  "drafted_from": "tool:list-workspace-tours's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Show me every tour in my workspace and which ones I have finished\", with {}. It runs tool:list-workspace-tours and answers {\"tours\":[{\"tour_id\":\"sample-tour\",\"title\":\"Sample tour\",\"summary\":\"\",\"steps\":1,\"finished\":false,\"start_event\":{\"event_kind\":\"app-opened\",\"walkthrough_id\":\"sample-tour\"},\"changed_at\":null,\"own\":true}],\"said\":\"1 tour, 0 finished.\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (@own-records) through the records door.",
   "workflows": [],
   "tools": [
     "tool:list-workspace-tours"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:list-workspace-tours\", and give it nothing more.",
+    "1. Say to your AI: \"Show me every tour in my workspace and which ones I have finished\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-workspace-tours and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $ contains \"sample-tour\"."
+    "3. Read what comes back: Reads the tours your AIs wrote (guided-overlay::own-walkthroughs) and your tour progress, with the app's own tours when the caller passes them as tours, and answers each tour in its order: tour_id, title, summary, steps, finished, the event that starts it by name (start_event), when the change it shows landed (changed_at) and whether it is one of your own.",
+    "4. It reads and writes only its own rows through the records door: @own-records (workspace:read); @own-records (workspace:read); @own-records (workspace:read)."
   ],
   "worked_examples": [
     {
-      "title": "List the workspace tours on a sample input",
-      "ask": "Run tool:list-workspace-tours.",
+      "title": "List the workspace tours on its own sample",
+      "ask": "Show me every tour in my workspace and which ones I have finished",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -29,7 +30,8 @@
           }
         }
       },
-      "hands_back": "The answer's $ contains \"sample-tour\"."
+      "given": "The input {}.",
+      "hands_back": "It answered {\"tours\":[{\"tour_id\":\"sample-tour\",\"title\":\"Sample tour\",\"summary\":\"\",\"steps\":1,\"finished\":false,\"start_event\":{\"event_kind\":\"app-opened\",\"walkthrough_id\":\"sample-tour\"},\"changed_at\":null,\"own\":true}],\"said\":\"1 tour, 0 finished.\"}."
     }
   ]
 }

@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:attach_domain's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:attach_domain with installation, domain, account.\" Put a domain name I own in front of my published website",
+  "drafted_from": "tool:attach_domain's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Put a domain name I own in front of my published website\", with {\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"domain\":\"shop.example.com\",\"account\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"}. It runs tool:attach_domain and answers {\"address\":\"https://shop.example.com/\",\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"records\":[{\"type\":\"TXT\",\"name\":\"_trillion-verify.shop.example.com\",\"value\":\"trillion-account=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"},{\"type\":\"CNAME\",\"name\":\"shop.example.com\",\"value\":\"app.gettrillion.ai\"}],\"origins\":[{\"host\":\"shop.example.com\",\"address\":\"https://shop.example.com/\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows () through the records door.",
   "workflows": [],
   "tools": [
     "tool:attach_domain"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:attach_domain\", and give it installation, domain, account.",
+    "1. Say to your AI: \"Put a domain name I own in front of my published website\", and give it installation (The site's installation id, as publish_site answered it); domain; account.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:attach_domain and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields address, installation, records, origins, said."
+    "3. Read what comes back: Makes your own domain (domain, like shop.example.com) show the site (installation).",
+    "4. It reads and writes only its own rows through the records door: undefined (list_files, find_file, read_file, write_file_start, write_file_piece, write_file_finish)."
   ],
   "worked_examples": [
     {
-      "title": "Put my own domain on a site on a sample input",
-      "ask": "Run tool:attach_domain.",
+      "title": "Put my own domain on a site on its own sample",
+      "ask": "Put a domain name I own in front of my published website",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +34,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields address, installation, records, origins, said."
+      "given": "The input {\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"domain\":\"shop.example.com\",\"account\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"}.",
+      "hands_back": "It answered {\"address\":\"https://shop.example.com/\",\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"records\":[{\"type\":\"TXT\",\"name\":\"_trillion-verify.shop.example.com\",\"value\":\"trillion-account=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"},{\"type\":\"CNAME\",\"name\":\"shop.example.com\",\"value\":\"app.gettrillion.ai\"}],\"origins\":[{\"host\":\"shop.example.com\",\"address\":\"https://shop.example.com/\",\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}],\"said\":\"Add both DNS records at your domain's DNS host; the address answers once the TXT record is visible and a certificate is made for it.\"}."
     }
   ]
 }

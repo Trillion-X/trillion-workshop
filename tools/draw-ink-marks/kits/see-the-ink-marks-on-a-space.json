@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:see-the-ink-marks-on-a-space's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:see-the-ink-marks-on-a-space with operations.\" Work out which ink marks are showing on one page, picture or other space, after later marks hid, restyled, reordered, copied or merged earlier ones",
+  "drafted_from": "tool:see-the-ink-marks-on-a-space's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Work out which ink marks are showing on one page, picture or other space, after later marks hid, restyled, reordered, copied or merged earlier ones\", with {\"operations\":[{\"id\":\"one\",\"target\":{\"address\":\"poster\"},\"body\":{\"coordinate_sets\":[{\"points\":[{\"values\":[0,0]},{\"values\":[4,4]}]}]}},{\"id\":\"undo\",\"target\":{\"address\":\"poster\"},\"body\":{\"effects\":{\"hide_refs\":[\"one:set:0\"]}}}],\"target\":{\"address\":\"poster\"}}. It runs tool:see-the-ink-marks-on-a-space and answers {\"marks\":[],\"hidden_refs\":[\"one:set:0\"],\"empty_operations\":[\"undo\"]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:see-the-ink-marks-on-a-space"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:see-the-ink-marks-on-a-space\", and give it operations.",
+    "1. Say to your AI: \"Work out which ink marks are showing on one page, picture or other space, after later marks hid, restyled, reordered, copied or merged earlier ones\", and give it operations (The mark operation rows).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:see-the-ink-marks-on-a-space and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.hidden_refs[0] contains \"one:set:0\"."
+    "3. Read what comes back: Give the mark operations (every drawing step ever recorded, in any space), the mark styles they name and the space to look at."
   ],
   "worked_examples": [
     {
-      "title": "See the ink marks drawn on a page or picture on a sample input",
-      "ask": "Run tool:see-the-ink-marks-on-a-space.",
+      "title": "See the ink marks drawn on a page or picture on its own sample",
+      "ask": "Work out which ink marks are showing on one page, picture or other space, after later marks hid, restyled, reordered, copied or merged earlier ones",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -74,7 +74,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.hidden_refs[0] contains \"one:set:0\"."
+      "given": "The input {\"operations\":[{\"id\":\"one\",\"target\":{\"address\":\"poster\"},\"body\":{\"coordinate_sets\":[{\"points\":[{\"values\":[0,0]},{\"values\":[4,4]}]}]}},{\"id\":\"undo\",\"target\":{\"address\":\"poster\"},\"body\":{\"effects\":{\"hide_refs\":[\"one:set:0\"]}}}],\"target\":{\"address\":\"poster\"}}.",
+      "hands_back": "It answered {\"marks\":[],\"hidden_refs\":[\"one:set:0\"],\"empty_operations\":[\"undo\"]}."
     }
   ]
 }

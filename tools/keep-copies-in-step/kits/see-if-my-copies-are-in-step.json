@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:see-if-my-copies-are-in-step's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:see-if-my-copies-are-in-step with thing_type.\" Show me whether every copy of my things is in step, and which records two of my devices changed apart",
+  "drafted_from": "tool:see-if-my-copies-are-in-step's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Show me whether every copy of my things is in step, and which records two of my devices changed apart\", with {\"thing_type\":\"note\"}. It runs tool:see-if-my-copies-are-in-step and answers {\"devices\":[],\"versions\":[],\"other_kinds\":[]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (setting, kept-apart, [object Object]) through the records door.",
   "workflows": [],
   "tools": [
     "tool:see-if-my-copies-are-in-step"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:see-if-my-copies-are-in-step\", and give it thing_type.",
+    "1. Say to your AI: \"Show me whether every copy of my things is in step, and which records two of my devices changed apart\", and give it thing_type (The kind of record whose versions to read or settle (one kind per call; other_kinds names the rest)).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:see-if-my-copies-are-in-step and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $ contains \"other_kinds\"."
+    "3. Read what comes back: Reads your device rows (setting:catch_up_devices) and every record two copies changed apart (kept-apart records) of the kind you name as thing_type, and answers devices (each device's state, waiting changes and when it last caught up; a copy of your records you send in positions is shown once, as the device that named it or as a copy of its own) and versions (each record kept apart: the record as it is now first, then one side per other version, with the words of its keep button).",
+    "4. It reads and writes only its own rows through the records door: setting (records:read); kept-apart (records:list, records:read); [object Object] (records:read)."
   ],
   "worked_examples": [
     {
-      "title": "See if my copies are in step on a sample input",
-      "ask": "Run tool:see-if-my-copies-are-in-step.",
+      "title": "See if my copies are in step on its own sample",
+      "ask": "Show me whether every copy of my things is in step, and which records two of my devices changed apart",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +32,8 @@
           }
         }
       },
-      "hands_back": "The answer's $ contains \"other_kinds\"."
+      "given": "The input {\"thing_type\":\"note\"}.",
+      "hands_back": "It answered {\"devices\":[],\"versions\":[],\"other_kinds\":[]}."
     }
   ]
 }

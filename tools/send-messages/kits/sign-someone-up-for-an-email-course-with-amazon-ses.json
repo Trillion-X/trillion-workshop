@@ -1,23 +1,24 @@
 {
   "draft": true,
-  "drafted_from": "tool:sign-someone-up-for-an-email-course-with-amazon-ses's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:sign-someone-up-for-an-email-course-with-amazon-ses with email, consent, course, provider, region.\" Sign a person up for an email course after they agreed to it, keep their consent in my records, send the first lesson now and queue the others",
+  "drafted_from": "tool:sign-someone-up-for-an-email-course-with-amazon-ses's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Sign a person up for an email course after they agreed to it, keep their consent in my records, send the first lesson now and queue the others\", with {\"email\":\"reader@example.com\",\"consent\":true,\"course\":{\"id\":\"sample-course\",\"public_origin\":\"https://example.com/\",\"checkout_url\":\"https://example.com/#pricing\",\"from\":\"Coach <coach@example.com>\",\"mailing_address\":\"1 Example Street, Example City, CA 90000\",\"consent_text\":\"Send me three lessons by email.\",\"consent_version\":\"1\",\"lessons\":[{\"delay_hours\":0,\"subject\":\"First lesson\" .... It runs tool:sign-someone-up-for-an-email-course-with-amazon-ses and answers {\"status\":\"enrolled\",\"already_enrolled\":false}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (email-course-subscription, email-course-token, contact-point, email-lesson-due) through the records door.",
   "workflows": [],
   "tools": [
     "tool:sign-someone-up-for-an-email-course-with-amazon-ses",
     "tool:send-due-email-lessons-with-amazon-ses"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:sign-someone-up-for-an-email-course-with-amazon-ses\", and give it email, consent, course, provider, region.",
+    "1. Say to your AI: \"Sign a person up for an email course after they agreed to it, keep their consent in my records, send the first lesson now and queue the others\", and give it email; consent; course; provider; region.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:sign-someone-up-for-an-email-course-with-amazon-ses and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields status, already_enrolled."
+    "3. Read what comes back: Give email, consent (true only when the person agreed in the words of course.consent_text), course (id, public_origin as an https site root, checkout_url, from, mailing_address, consent_text, consent_version and 2 to 12 lessons { delay_hours, subject, article_url, text_lines, html_lines } where every lesson carries {{unsubscribeUrl}} and {{mailingAddress}} and the first has delay_hours 0), source (where they signed up, optional), provider (amazon-ses) and region (the SES region).",
+    "4. It reads and writes only its own rows through the records door: email-course-subscription (records:read, records:write); email-course-token (records:read, records:write); contact-point (records:read, records:write); email-lesson-due (records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Sign someone up for an email course (sends through Amazon SES) on a sample input",
-      "ask": "Run tool:sign-someone-up-for-an-email-course-with-amazon-ses.",
+      "title": "Sign someone up for an email course (sends through Amazon SES) on its own sample",
+      "ask": "Sign a person up for an email course after they agreed to it, keep their consent in my records, send the first lesson now and queue the others",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -75,7 +76,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields status, already_enrolled."
+      "given": "The input {\"email\":\"reader@example.com\",\"consent\":true,\"course\":{\"id\":\"sample-course\",\"public_origin\":\"https://example.com/\",\"checkout_url\":\"https://example.com/#pricing\",\"from\":\"Coach <coach@example.com>\",\"mailing_address\":\"1 Example Street, Example City, CA 90000\",\"consent_text\":\"Send me three lessons by email.\",\"consent_version\":\"1\",\"lessons\":[{\"delay_hours\":0,\"subject\":\"First lesson\" ..., the web answering from 1 recorded reply.",
+      "hands_back": "It answered {\"status\":\"enrolled\",\"already_enrolled\":false}, and kept contact-point:26df73437c27dec4843398862cd9e79bc048b7b47dcab5b6152f40c433f10f36, email-course.subscription::f346ee90cb4f7f015b98c1d469dfc90dfc7aaff6a88286cc01a04e8f9d684df1, email-course.token::3c8ff3b2218362cd0e05bd3caf492b3478c192bc3d11fcad3ec807a2136de0f3, email-course:ec889ac8ae5311ba1e9cb178d4ff829dcf7e17637ef14170f38f9f6acca4a983:1:0."
     }
   ]
 }

@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:capture-dedupe's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:capture-dedupe with nothing more.\" Say whether a captured text (screen words, a transcript) is the same as, or nearly the same as, one already seen, before it is kept or uploaded, and forget what was seen in a span when that span is erased",
+  "drafted_from": "tool:capture-dedupe's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Say whether a captured text (screen words, a transcript) is the same as, or nearly the same as, one already seen, before it is kept or uploaded, and forget what was seen in a span when that span is erased\", with {\"action\":\"seen\",\"text\":\"Quarterly plan for Example Co: review the notes from Ada Example before Friday.\",\"at\":\"2026-11-03T10:00:00Z\"}. It runs tool:capture-dedupe and answers {\"duplicate\":false,\"entries\":[{\"exact\":\"5e8b712f2f2403c8ca5cee9043373e34\",\"near\":\"d17f03c37b77414b\",\"at\":1793700000000}]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:capture-dedupe"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:capture-dedupe\", and give it nothing more.",
+    "1. Say to your AI: \"Say whether a captured text (screen words, a transcript) is the same as, or nearly the same as, one already seen, before it is kept or uploaded, and forget what was seen in a span when that span is erased\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:capture-dedupe and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields duplicate, of, forgotten, entries."
+    "3. Read what comes back: Give action seen with text (and at, an ISO time; now when left out), or action erase with from and to (ISO times)."
   ],
   "worked_examples": [
     {
-      "title": "Is this capture a repeat? on a sample input",
-      "ask": "Run tool:capture-dedupe.",
+      "title": "Is this capture a repeat? on its own sample",
+      "ask": "Say whether a captured text (screen words, a transcript) is the same as, or nearly the same as, one already seen, before it is kept or uploaded, and forget what was seen in a span when that span is erased",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +33,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields duplicate, of, forgotten, entries."
+      "given": "The input {\"action\":\"seen\",\"text\":\"Quarterly plan for Example Co: review the notes from Ada Example before Friday.\",\"at\":\"2026-11-03T10:00:00Z\"}.",
+      "hands_back": "It answered {\"duplicate\":false,\"entries\":[{\"exact\":\"5e8b712f2f2403c8ca5cee9043373e34\",\"near\":\"d17f03c37b77414b\",\"at\":1793700000000}]}."
     }
   ]
 }

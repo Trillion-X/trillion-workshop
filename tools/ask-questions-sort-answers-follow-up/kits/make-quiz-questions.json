@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:make-quiz-questions's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:make-quiz-questions with text.\" Make fill-in-the-blank quiz questions from a piece of text, such as notes, a lesson or an article",
+  "drafted_from": "tool:make-quiz-questions's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Make fill-in-the-blank quiz questions from a piece of text, such as notes, a lesson or an article\", with {\"text\":\"The Pacific Ocean is the largest and deepest ocean on Earth. Photosynthesis converts sunlight into chemical energy in plants.\"}. It runs tool:make-quiz-questions and answers {\"questions\":[{\"id\":\"q-0-18oeg30\",\"kind\":\"question\",\"questionId\":\"q-0-18oeg30\",\"questionTypeId\":\"text\",\"label\":\"The _____ Ocean is the largest and deepest ocean on Earth.\",\"required\":true,\"answer\":\"Pacific\",\"sourceRef\":\"\"},{\"id\":\"q-1-1vomqzw\",\"kind\":\"question\",\"questionId\":\"q-1-1vomqzw\",\"questionTypeId\":\"text\",\"label\":\"_____ converts sunlight into chemical energy in plants.\",\"required\":true ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:make-quiz-questions"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:make-quiz-questions\", and give it text.",
+    "1. Say to your AI: \"Make fill-in-the-blank quiz questions from a piece of text, such as notes, a lesson or an article\", and give it text (The words to make questions from).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:make-quiz-questions and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.questions[0].answer contains \"Pacific\"."
+    "3. Read what comes back: Splits the text into sentences and turns each into a question by blanking its most telling word, with the answer kept beside it; a sentence with no such word becomes a recall prompt."
   ],
   "worked_examples": [
     {
-      "title": "Make quiz questions from text on a sample input",
-      "ask": "Run tool:make-quiz-questions.",
+      "title": "Make quiz questions from text on its own sample",
+      "ask": "Make fill-in-the-blank quiz questions from a piece of text, such as notes, a lesson or an article",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +31,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.questions[0].answer contains \"Pacific\"."
+      "given": "The input {\"text\":\"The Pacific Ocean is the largest and deepest ocean on Earth. Photosynthesis converts sunlight into chemical energy in plants.\"}.",
+      "hands_back": "It answered {\"questions\":[{\"id\":\"q-0-18oeg30\",\"kind\":\"question\",\"questionId\":\"q-0-18oeg30\",\"questionTypeId\":\"text\",\"label\":\"The _____ Ocean is the largest and deepest ocean on Earth.\",\"required\":true,\"answer\":\"Pacific\",\"sourceRef\":\"\"},{\"id\":\"q-1-1vomqzw\",\"kind\":\"question\",\"questionId\":\"q-1-1vomqzw\",\"questionTypeId\":\"text\",\"label\":\"_____ converts sunlight into chemical energy in plants.\",\"required\":true,\"answer\":\"Photosynthesis\",\"sourceRef\":\"\"}]}."
     }
   ]
 }

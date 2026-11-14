@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:name-a-voice's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:name-a-voice with voice_id, person_name.\" Attach a person's name to one voice cluster after identifying that voice",
+  "drafted_from": "tool:name-a-voice's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Attach a person's name to one voice cluster after identifying that voice\", with {\"voice_id\":\"voice-1\",\"person_name\":\"Sam Example\",\"known_voices\":[{\"value\":{\"voice_id\":\"voice-1\"}}]}. It runs tool:name-a-voice and answers {\"binding\":{\"kind\":\"media-person-binding\",\"id\":\"voice-1\",\"voice_id\":\"voice-1\",\"person_name\":\"Sam Example\",\"named_at\":\"2026-11-14T00:50:30.608887+00:00\"},\"voice_id\":\"voice-1\",\"person_name\":\"Sam Example\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:name-a-voice"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:name-a-voice\", and give it voice_id, person_name.",
+    "1. Say to your AI: \"Attach a person's name to one voice cluster after identifying that voice\", and give it voice_id (A voice_id returned by Find recurring voices); person_name (The person you identified).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:name-a-voice and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields binding, voice_id, person_name."
+    "3. Read what comes back: Keeps your explicit person name for an existing voice cluster."
   ],
   "worked_examples": [
     {
-      "title": "Name a voice on a sample input",
-      "ask": "Run tool:name-a-voice.",
+      "title": "Name a voice on its own sample",
+      "ask": "Attach a person's name to one voice cluster after identifying that voice",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -39,7 +39,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields binding, voice_id, person_name."
+      "given": "The input {\"voice_id\":\"voice-1\",\"person_name\":\"Sam Example\",\"known_voices\":[{\"value\":{\"voice_id\":\"voice-1\"}}]}.",
+      "hands_back": "It answered {\"binding\":{\"kind\":\"media-person-binding\",\"id\":\"voice-1\",\"voice_id\":\"voice-1\",\"person_name\":\"Sam Example\",\"named_at\":\"2026-11-14T00:50:30.608887+00:00\"},\"voice_id\":\"voice-1\",\"person_name\":\"Sam Example\"}."
     }
   ]
 }

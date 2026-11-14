@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:install-the-built-receptionist's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:install-the-built-receptionist with host, source_root, commit.\" Install the receptionist I just built on my rented Linux server so it can run",
+  "drafted_from": "tool:install-the-built-receptionist's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Install the receptionist I just built on my rented Linux server so it can run\", with {\"host\":{\"address\":\"192.0.2.10\",\"ssh_port\":22,\"admin_user\":\"builder\",\"host_key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleExampleExampleExampleExampleExample\"},\"dry_run\":true,\"source_root\":\"/srv/receptionist/source\",\"commit\":\"0123456789abcdef0123456789abcdef01234567\",\"install_path\":\"/srv/receptionist/bin/trillion-mcp-receptionist\"}. It runs tool:install-the-built-receptionist; its answer contains \"chmod 0755\".",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:install-the-built-receptionist"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:install-the-built-receptionist\", and give it host, source_root, commit.",
+    "1. Say to your AI: \"Install the receptionist I just built on my rented Linux server so it can run\", and give it host (The rented Linux host the receptionist is built on.); source_root (The folder on the host that holds one folder per built commit.); commit (The commit the build answered.).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:install-the-built-receptionist and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.remote_command contains \"chmod 0755\"."
+    "3. Read what comes back: Checks that the receptionist built from the given commit is on the host, makes it runnable and, when install_path is given, puts a copy there in one rename."
   ],
   "worked_examples": [
     {
-      "title": "Install the built receptionist on a sample input",
-      "ask": "Run tool:install-the-built-receptionist.",
+      "title": "Install the built receptionist on its own sample",
+      "ask": "Install the receptionist I just built on my rented Linux server so it can run",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -40,6 +40,7 @@
           }
         }
       },
+      "given": "The input {\"host\":{\"address\":\"192.0.2.10\",\"ssh_port\":22,\"admin_user\":\"builder\",\"host_key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleExampleExampleExampleExampleExample\"},\"dry_run\":true,\"source_root\":\"/srv/receptionist/source\",\"commit\":\"0123456789abcdef0123456789abcdef01234567\",\"install_path\":\"/srv/receptionist/bin/trillion-mcp-receptionist\"}.",
       "hands_back": "The answer's $.remote_command contains \"chmod 0755\"."
     }
   ]

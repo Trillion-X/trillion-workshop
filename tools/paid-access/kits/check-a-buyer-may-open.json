@@ -1,23 +1,24 @@
 {
   "draft": true,
-  "drafted_from": "tool:check-a-buyer-may-open's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-a-buyer-may-open with subject, scope.\" Decide whether a buyer may open one gated thing (a page, a lesson, a publication) from the access it requires",
+  "drafted_from": "tool:check-a-buyer-may-open's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Decide whether a buyer may open one gated thing (a page, a lesson, a publication) from the access it requires\", with {\"subject\":\"buyer@example.com\",\"scope\":{\"schema\":\"addressed-expiring-value-scope/v1\",\"value_ref\":\"page:sample\",\"instance_ref\":\"page:sample:1\",\"required_access_refs\":[]}}. It runs tool:check-a-buyer-may-open and answers {\"authorized\":true}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (payment-event, record:commercial-offer, access-grant, access-effect-rule, effect-lifecycle) through the records door.",
   "workflows": [],
   "tools": [
     "tool:check-a-buyer-may-open",
     "tool:see-who-holds-paid-access"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-a-buyer-may-open\", and give it subject, scope.",
+    "1. Say to your AI: \"Decide whether a buyer may open one gated thing (a page, a lesson, a publication) from the access it requires\", and give it subject (The buyer, the way your access rules name a buyer); scope ({ schema, value_ref, instance_ref, required_access_refs }).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-buyer-may-open and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.authorized contains \"true\"."
+    "3. Read what comes back: Takes the scope the thing is gated by ({ schema: \"addressed-expiring-value-scope/v1\", value_ref, instance_ref, required_access_refs }) and the buyer.",
+    "4. It reads and writes only its own rows through the records door: payment-event (records:list); record:commercial-offer (records:list); access-grant (records:list); access-effect-rule (records:list); effect-lifecycle (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Check a buyer may open something on a sample input",
-      "ask": "Run tool:check-a-buyer-may-open.",
+      "title": "Check a buyer may open something on its own sample",
+      "ask": "Decide whether a buyer may open one gated thing (a page, a lesson, a publication) from the access it requires",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -38,7 +39,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.authorized contains \"true\"."
+      "given": "The input {\"subject\":\"buyer@example.com\",\"scope\":{\"schema\":\"addressed-expiring-value-scope/v1\",\"value_ref\":\"page:sample\",\"instance_ref\":\"page:sample:1\",\"required_access_refs\":[]}}.",
+      "hands_back": "It answered {\"authorized\":true}."
     }
   ]
 }

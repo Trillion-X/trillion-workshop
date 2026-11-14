@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:work-out-history-values's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:work-out-history-values with kept, fields, now_ms.\" Work out, from the values a field of a row has held over time, the value it held at a moment, the value before the current one, since when it holds it, how long it spent holding a value and whether it ever held one",
+  "drafted_from": "tool:work-out-history-values's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Work out, from the values a field of a row has held over time, the value it held at a moment, the value before the current one, since when it holds it, how long it spent holding a value and whether it ever held one\", with {\"now_ms\":1760832000000,\"kept\":{\"_history\":{\"stage\":{\"cut\":false,\"steps\":[{\"v\":\"Lead\",\"at\":\"2025-10-09T00:00:00.000Z\"},{\"v\":\"Won\",\"at\":\"2025-10-17T00:00:00.000Z\"}]}}},\"fields\":[{\"id\":\"was\",\"history\":{\"field\":\"stage\",\"op\":\"previous_value\"}}]}. It runs tool:work-out-history-values and answers {\"values\":{\"was\":\"Lead\"}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:work-out-history-values"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:work-out-history-values\", and give it kept, fields, now_ms.",
+    "1. Say to your AI: \"Work out, from the values a field of a row has held over time, the value it held at a moment, the value before the current one, since when it holds it, how long it spent holding a value and whether it ever held one\", and give it kept; fields; now_ms.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:work-out-history-values and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.values.was contains \"Lead\"."
+    "3. Read what comes back: Send kept (the row, with _history: { <field id>: { cut, steps: [{ v, at, by?, via?"
   ],
   "worked_examples": [
     {
-      "title": "Work out values from a field's history on a sample input",
-      "ask": "Run tool:work-out-history-values.",
+      "title": "Work out values from a field's history on its own sample",
+      "ask": "Work out, from the values a field of a row has held over time, the value it held at a moment, the value before the current one, since when it holds it, how long it spent holding a value and whether it ever held one",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -57,7 +57,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.values.was contains \"Lead\"."
+      "given": "The input {\"now_ms\":1760832000000,\"kept\":{\"_history\":{\"stage\":{\"cut\":false,\"steps\":[{\"v\":\"Lead\",\"at\":\"2025-10-09T00:00:00.000Z\"},{\"v\":\"Won\",\"at\":\"2025-10-17T00:00:00.000Z\"}]}}},\"fields\":[{\"id\":\"was\",\"history\":{\"field\":\"stage\",\"op\":\"previous_value\"}}]}.",
+      "hands_back": "It answered {\"values\":{\"was\":\"Lead\"}}."
     }
   ]
 }

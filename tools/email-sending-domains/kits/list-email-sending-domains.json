@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:list-email-sending-domains's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:list-email-sending-domains with nothing more.\" See which domains my email-sending account can send from and whether each is verified",
+  "drafted_from": "tool:list-email-sending-domains's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"See which domains my email-sending account can send from and whether each is verified\", with {}. It runs tool:list-email-sending-domains and answers {\"domains\":[{\"name\":\"example.com\",\"status\":\"verified\"},{\"name\":\"mail.example.test\",\"status\":\"pending\"}],\"count\":2}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:list-email-sending-domains"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:list-email-sending-domains\", and give it nothing more.",
+    "1. Say to your AI: \"See which domains my email-sending account can send from and whether each is verified\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-email-sending-domains and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields domains, count."
+    "3. Read what comes back: Reads the domains of the person's connected email-sending account (Resend) with the key they connected, and answers each domain's name and status and how many there are."
   ],
   "worked_examples": [
     {
-      "title": "List email sending domains on a sample input",
-      "ask": "Run tool:list-email-sending-domains.",
+      "title": "List email sending domains on its own sample",
+      "ask": "See which domains my email-sending account can send from and whether each is verified",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -29,7 +29,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields domains, count."
+      "given": "The input {}, the web answering from 1 recorded reply.",
+      "hands_back": "It answered {\"domains\":[{\"name\":\"example.com\",\"status\":\"verified\"},{\"name\":\"mail.example.test\",\"status\":\"pending\"}],\"count\":2}."
     }
   ]
 }

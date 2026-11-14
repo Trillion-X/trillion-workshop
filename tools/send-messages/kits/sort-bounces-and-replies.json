@@ -1,23 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:sort-bounces-and-replies's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:sort-bounces-and-replies with events.\" Sort the bounces, complaints, unsubscribes and replies that came back from emails I sent, and say which addresses never to send to again, which to retry and which people wrote back",
+  "drafted_from": "tool:sort-bounces-and-replies's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Sort the bounces, complaints, unsubscribes and replies that came back from emails I sent, and say which addresses never to send to again, which to retry and which people wrote back\", with {\"event_source\":\"mailbox-message\",\"events\":[{\"from\":\"owner@example.com\",\"kind\":\"reply\",\"subject\":\"Re: your note\",\"text\":\"Yes, call me Tuesday.\"}]}. It runs tool:sort-bounces-and-replies and answers {\"event_source\":\"mailbox-message\",\"outcomes\":[{\"recipient\":\"owner@example.com\",\"rule\":\"reply\",\"kind\":\"reply\",\"action\":\"stop-sequence\",\"says\":\"The person wrote back: stop the automatic messages and answer them yourself.\"}],\"suppress\":[],\"stop\":[\"owner@example.com\"],\"retry\":[],\"replies\":[\"owner@example.com\"],\"unmatched\":[],\"said\":\"1 sorted: 0 to suppress, 1 replied or stopped, 0 to retry; 0 ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:sort-bounces-and-replies",
     "tool:pace-sends-from-an-inbox"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:sort-bounces-and-replies\", and give it events.",
+    "1. Say to your AI: \"Sort the bounces, complaints, unsubscribes and replies that came back from emails I sent, and say which addresses never to send to again, which to retry and which people wrote back\", and give it events (The bounces, complaints, delivery notices and replies that came back, as the provider or mailbox gave them.).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:sort-bounces-and-replies and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.outcomes[0].action contains \"stop-sequence\"."
+    "3. Read what comes back: Give events as your provider or mailbox gave them and event_source (plain, resend-webhook, amazon-ses-notification or mailbox-message from read-data/inbox-pacing.json, or your own event_source_row naming where the recipient, type, status, subject, text and time sit)."
   ],
   "worked_examples": [
     {
-      "title": "Sort bounces and replies on a sample input",
-      "ask": "Run tool:sort-bounces-and-replies.",
+      "title": "Sort bounces and replies on its own sample",
+      "ask": "Sort the bounces, complaints, unsubscribes and replies that came back from emails I sent, and say which addresses never to send to again, which to retry and which people wrote back",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -40,7 +40,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.outcomes[0].action contains \"stop-sequence\"."
+      "given": "The input {\"event_source\":\"mailbox-message\",\"events\":[{\"from\":\"owner@example.com\",\"kind\":\"reply\",\"subject\":\"Re: your note\",\"text\":\"Yes, call me Tuesday.\"}]}.",
+      "hands_back": "It answered {\"event_source\":\"mailbox-message\",\"outcomes\":[{\"recipient\":\"owner@example.com\",\"rule\":\"reply\",\"kind\":\"reply\",\"action\":\"stop-sequence\",\"says\":\"The person wrote back: stop the automatic messages and answer them yourself.\"}],\"suppress\":[],\"stop\":[\"owner@example.com\"],\"retry\":[],\"replies\":[\"owner@example.com\"],\"unmatched\":[],\"said\":\"1 sorted: 0 to suppress, 1 replied or stopped, 0 to retry; 0 unmatched.\"}."
     }
   ]
 }

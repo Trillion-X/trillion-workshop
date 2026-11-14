@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:submit-form-answers's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:submit-form-answers with form_id, respondent_id, answers.\" Check a person's answers against a saved form and, when they are all valid, record them with the score and segment they earn and any follow-up the form hands to its owner",
+  "drafted_from": "tool:submit-form-answers's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Check a person's answers against a saved form and, when they are all valid, record them with the score and segment they earn and any follow-up the form hands to its owner\", with {\"form_id\":\"sample-intake\",\"respondent_id\":\"respondent-1\",\"answers\":{\"budget\":\"2000\"},\"answered_at\":\"2026-06-26T00:00:00Z\"}. It runs tool:submit-form-answers and answers {\"accepted\":true,\"decision\":{\"score\":0,\"breakdown\":{},\"byLabel\":{},\"segmentId\":null},\"follow_up\":null,\"written\":2,\"action_requests\":[],\"ignored\":[]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (question-sequence, score-rule, segment-rule, follow-up-sequence, answer-fact, segment-assignment, owner-action-request) through the records door.",
   "workflows": [],
   "tools": [
     "tool:submit-form-answers"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:submit-form-answers\", and give it form_id, respondent_id, answers.",
+    "1. Say to your AI: \"Check a person's answers against a saved form and, when they are all valid, record them with the score and segment they earn and any follow-up the form hands to its owner\", and give it form_id (The saved form to answer); respondent_id (Who is answering; answers of one respondent group together); answers (Each question's answer, keyed by questionId).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:submit-form-answers and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields accepted, first_invalid, questions, decision, follow_up, written, action_requests, ignored."
+    "3. Read what comes back: Give form_id, respondent_id and answers (questionId to value), and optionally submission_id (for a form answered again and again, so each time is kept) and answered_at.",
+    "4. It reads and writes only its own rows through the records door: question-sequence (records:read); score-rule (records:list); segment-rule (records:list); follow-up-sequence (records:list); answer-fact (records:write); segment-assignment (records:write); owner-action-request (records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Submit answers to a form on a sample input",
-      "ask": "Run tool:submit-form-answers.",
+      "title": "Submit answers to a form on its own sample",
+      "ask": "Check a person's answers against a saved form and, when they are all valid, record them with the score and segment they earn and any follow-up the form hands to its owner",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -36,7 +37,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields accepted, first_invalid, questions, decision, follow_up, written, action_requests, ignored."
+      "given": "The input {\"form_id\":\"sample-intake\",\"respondent_id\":\"respondent-1\",\"answers\":{\"budget\":\"2000\"},\"answered_at\":\"2026-06-26T00:00:00Z\"}, with 1 example row (question-sequence) already kept.",
+      "hands_back": "It answered {\"accepted\":true,\"decision\":{\"score\":0,\"breakdown\":{},\"byLabel\":{},\"segmentId\":null},\"follow_up\":null,\"written\":2,\"action_requests\":[],\"ignored\":[]}, and kept answer-fact:sample-intake:respondent-1:budget, segment-assignment:sample-intake:respondent-1."
     }
   ]
 }

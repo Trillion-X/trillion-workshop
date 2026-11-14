@@ -1,9 +1,9 @@
 {
   "draft": true,
-  "drafted_from": "tool:compose-a-writing-instruction's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:compose-a-writing-instruction with nothing more.\" Build the exact instruction to write something from a writing recipe and the person's material, before writing it",
+  "drafted_from": "tool:compose-a-writing-instruction's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Build the exact instruction to write something from a writing recipe and the person's material, before writing it\", with {\"recipe_id\":\"writing-recipe:action-items\",\"work_item\":{\"text\":\"Book the hall. Maybe think about snacks someday. Send the invites by Friday.\"}}. It runs tool:compose-a-writing-instruction and answers {\"recipe_id\":\"writing-recipe:action-items\",\"instruction_text\":\"Extract concrete action items from the following as a checklist. Start each with a verb, make each independently doable, and drop anything that is not actionable.\\n\\nBook the hall. Maybe think about snacks someday. Send the invites by Friday.\",\"input_refs\":[],\"output_kind\":\"note\",\"output_schema\":null,\"gate_policy\":null ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:compose-a-writing-instruction",
@@ -11,14 +11,14 @@
     "tool:list-writing-recipes"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:compose-a-writing-instruction\", and give it nothing more.",
+    "1. Say to your AI: \"Build the exact instruction to write something from a writing recipe and the person's material, before writing it\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:compose-a-writing-instruction and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.instruction_text contains \"Send the invites by Friday.\"."
+    "3. Read what comes back: Give recipe_id (from tool:list-writing-recipes) or your own recipe (instruction_plan.prompt_template: literal text, { block_ref }, { slot: work_item, path }, { slot: schema }, { slot: grounding, label } and conditional segments; optional output_contract, gate_policy, delivery_target, context_retrieval, work_item fields), work_item (the person's text and the answers the recipe asks for; missing answers take the recipe's defaults), grounding (source excerpts, each with its id) and blocks (your own instruction blocks, replacing kept ones of the same id)."
   ],
   "worked_examples": [
     {
-      "title": "Build the instruction to write from on a sample input",
-      "ask": "Run tool:compose-a-writing-instruction.",
+      "title": "Build the instruction to write from on its own sample",
+      "ask": "Build the exact instruction to write something from a writing recipe and the person's material, before writing it",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -36,7 +36,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.instruction_text contains \"Send the invites by Friday.\"."
+      "given": "The input {\"recipe_id\":\"writing-recipe:action-items\",\"work_item\":{\"text\":\"Book the hall. Maybe think about snacks someday. Send the invites by Friday.\"}}.",
+      "hands_back": "It answered {\"recipe_id\":\"writing-recipe:action-items\",\"instruction_text\":\"Extract concrete action items from the following as a checklist. Start each with a verb, make each independently doable, and drop anything that is not actionable.\\n\\nBook the hall. Maybe think about snacks someday. Send the invites by Friday.\",\"input_refs\":[],\"output_kind\":\"note\",\"output_schema\":null,\"gate_policy\":null,\"delivery_target\":null}."
     }
   ]
 }

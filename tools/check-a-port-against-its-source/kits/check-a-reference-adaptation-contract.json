@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:check-a-reference-adaptation-contract's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-a-reference-adaptation-contract with nothing more.\" Check a contract for work taken from a reference (a source ported, a behaviour ported, a visual replica, an inspiration, an anti-reference): the source and its identity, what must be preserved, and the proof (retained source lines, required mechanisms, measured pictures and pixel difference)",
+  "drafted_from": "tool:check-a-reference-adaptation-contract's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Check a contract for work taken from a reference (a source ported, a behaviour ported, a visual replica, an inspiration, an anti-reference): the source and its identity, what must be preserved, and the proof (retained source lines, required mechanisms, measured pictures and pixel difference)\", with {\"contract\":{\"schema\":\"reference-adaptation-contract/reference-grounded-adaptation\",\"id\":\"REF-SAMPLE-PORT\",\"status\":\"VERIFIED\",\"directive\":{\"thread_id\":\"sample\",\"message_multihash\":\"1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"quote\":\"port the exact same module\"},\"mode\":\"SOURCE_FIRST_PORT\",\"sources\":[{\"path\":\"source.mjs\" .... It runs tool:check-a-reference-adaptation-contract and answers {\"valid\":true,\"errors\":[],\"deferred\":[],\"id\":\"REF-SAMPLE-PORT\",\"mode\":\"SOURCE_FIRST_PORT\",\"status\":\"VERIFIED\",\"measurements\":{\"sourceMeaningfulLines\":20,\"retainedMeaningfulLines\":20,\"meaningfulLineRetention\":1}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:check-a-reference-adaptation-contract"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-a-reference-adaptation-contract\", and give it nothing more.",
+    "1. Say to your AI: \"Check a contract for work taken from a reference (a source ported, a behaviour ported, a visual replica, an inspiration, an anti-reference): the source and its identity, what must be preserved, and the proof (retained source lines, required mechanisms, measured pictures and pixel difference)\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-reference-adaptation-contract and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields valid, errors, id, mode, status, measurements."
+    "3. Read what comes back: Give contract (the contract itself) or contract_file (a path inside the folder the person granted for reading), stage (pre-edit before the work starts, completion, the default, when it is done) and optionally target (a path the contract must own)."
   ],
   "worked_examples": [
     {
-      "title": "Check my port or replica keeps its promises to its reference on a sample input",
-      "ask": "Run tool:check-a-reference-adaptation-contract.",
+      "title": "Check my port or replica keeps its promises to its reference on its own sample",
+      "ask": "Check a contract for work taken from a reference (a source ported, a behaviour ported, a visual replica, an inspiration, an anti-reference): the source and its identity, what must be preserved, and the proof (retained source lines, required mechanisms, measured pictures and pixel difference)",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -81,7 +81,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields valid, errors, id, mode, status, measurements."
+      "given": "The input {\"contract\":{\"schema\":\"reference-adaptation-contract/reference-grounded-adaptation\",\"id\":\"REF-SAMPLE-PORT\",\"status\":\"VERIFIED\",\"directive\":{\"thread_id\":\"sample\",\"message_multihash\":\"1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"quote\":\"port the exact same module\"},\"mode\":\"SOURCE_FIRST_PORT\",\"sources\":[{\"path\":\"source.mjs\" ....",
+      "hands_back": "It answered {\"valid\":true,\"errors\":[],\"deferred\":[],\"id\":\"REF-SAMPLE-PORT\",\"mode\":\"SOURCE_FIRST_PORT\",\"status\":\"VERIFIED\",\"measurements\":{\"sourceMeaningfulLines\":20,\"retainedMeaningfulLines\":20,\"meaningfulLineRetention\":1}}."
     }
   ]
 }

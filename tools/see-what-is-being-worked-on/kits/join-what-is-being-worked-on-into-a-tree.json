@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:join-what-is-being-worked-on-into-a-tree's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:join-what-is-being-worked-on-into-a-tree with answers.\" Join the goals, decisions, AIs, jobs, spaces, people, automations and tool runs my records already answered into one tree of what is being worked on and who is doing it, or one goal's branch of it",
+  "drafted_from": "tool:join-what-is-being-worked-on-into-a-tree's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Join the goals, decisions, AIs, jobs, spaces, people, automations and tool runs my records already answered into one tree of what is being worked on and who is doing it, or one goal's branch of it\", with {\"answers\":{\"goals\":{\"pursuits\":[{\"id\":\"g1\",\"title\":\"Open the bakery\",\"status\":\"active\"},{\"id\":\"g2\",\"title\":\"Find a shop\",\"parents\":[\"g1\"]}],\"summaries\":[{\"case_id\":\"c1\",\"goal\":\"Rent the corner shop\",\"decision\":\"Sign for one year\",\"pursuits\":[{\"id\":\"g2\"}],\"status\":\"decided\"}]},\"work\":{\"agents\":[{\"agent_id\":\"a1\",\"name\":\"Helper AI\"}],\"work\":[{\"handoff_id\":\"h1\",\"job\":\"Draft the lease questions\" .... It runs tool:join-what-is-being-worked-on-into-a-tree and answers {\"nodes\":[{\"id\":\"goal:g1\",\"source\":\"goal\",\"kind\":\"Goal\",\"icon\":\"Target\",\"title\":\"Open the bakery\",\"detail\":\"\",\"at\":\"\",\"status\":\"active\"},{\"id\":\"goal:g2\",\"source\":\"goal\",\"kind\":\"Goal\",\"icon\":\"Target\",\"title\":\"Find a shop\",\"detail\":\"\",\"at\":\"\"},{\"id\":\"decision:c1\",\"source\":\"decision\",\"kind\":\"Decision\",\"icon\":\"Compass\",\"title\":\"Rent the corner shop\",\"detail\":\"Sign for one year\",\"at\":\"\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:join-what-is-being-worked-on-into-a-tree"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:join-what-is-being-worked-on-into-a-tree\", and give it answers.",
+    "1. Say to your AI: \"Join the goals, decisions, AIs, jobs, spaces, people, automations and tool runs my records already answered into one tree of what is being worked on and who is doing it, or one goal's branch of it\", and give it answers.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:join-what-is-being-worked-on-into-a-tree and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields nodes, lines, counts."
+    "3. Read what comes back: Give answers: what each of the work map's reads answered, by name (goals: /work/api/decisions with pursuits and summaries, work: /work/api/ai-work with agents and work, spaces: /work/api/spaces, automations: /work/api/workflows, workshop: /work/api/workshop); a read left out adds no cards."
   ],
   "worked_examples": [
     {
-      "title": "Join what is being worked on into one tree on a sample input",
-      "ask": "Run tool:join-what-is-being-worked-on-into-a-tree.",
+      "title": "Join what is being worked on into one tree on its own sample",
+      "ask": "Join the goals, decisions, AIs, jobs, spaces, people, automations and tool runs my records already answered into one tree of what is being worked on and who is doing it, or one goal's branch of it",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -79,7 +79,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields nodes, lines, counts."
+      "given": "The input {\"answers\":{\"goals\":{\"pursuits\":[{\"id\":\"g1\",\"title\":\"Open the bakery\",\"status\":\"active\"},{\"id\":\"g2\",\"title\":\"Find a shop\",\"parents\":[\"g1\"]}],\"summaries\":[{\"case_id\":\"c1\",\"goal\":\"Rent the corner shop\",\"decision\":\"Sign for one year\",\"pursuits\":[{\"id\":\"g2\"}],\"status\":\"decided\"}]},\"work\":{\"agents\":[{\"agent_id\":\"a1\",\"name\":\"Helper AI\"}],\"work\":[{\"handoff_id\":\"h1\",\"job\":\"Draft the lease questions\" ....",
+      "hands_back": "It answered {\"nodes\":[{\"id\":\"goal:g1\",\"source\":\"goal\",\"kind\":\"Goal\",\"icon\":\"Target\",\"title\":\"Open the bakery\",\"detail\":\"\",\"at\":\"\",\"status\":\"active\"},{\"id\":\"goal:g2\",\"source\":\"goal\",\"kind\":\"Goal\",\"icon\":\"Target\",\"title\":\"Find a shop\",\"detail\":\"\",\"at\":\"\"},{\"id\":\"decision:c1\",\"source\":\"decision\",\"kind\":\"Decision\",\"icon\":\"Compass\",\"title\":\"Rent the corner shop\",\"detail\":\"Sign for one year\",\"at\":\"\",\"status\":\"decided\"},{\"id\":\"job:h1\",\"source\":\"job\",\"kind\":\"Job\",\"icon\":\"CircleDot\",\"title\":\"Draft the lease questions\",\"detail\":\"\",\"at\":\"\",\"status\":\"working\",\"who\":\"ai:a1\"}],\"lines\":[{\"id\":\"goal:g1␟goal:g2\",\"from\":\"goal:g1\",\"to\":\"goal:g2\"},{\"id\":\"goal:g2␟decision:c1\",\"from\":\"goal:g2\",\"to\":\"decision:c1\"} ...."
     }
   ]
 }

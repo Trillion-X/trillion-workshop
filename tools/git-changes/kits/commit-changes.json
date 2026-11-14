@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:commit-changes's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:commit-changes with folder, message.\" Commit what is chosen for the next commit in a project on the person's computer, with a message",
+  "drafted_from": "tool:commit-changes's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Commit what is chosen for the next commit in a project on the person's computer, with a message\", with {\"folder\":\"/projects/sample\",\"message\":\"Sample commit\"}. It runs tool:commit-changes and answers {\"folder\":\"/projects/sample\",\"branch\":\"main\",\"ahead\":1,\"behind\":0,\"changes\":[{\"file_path\":\"notes.txt\",\"bucket\":\"unstaged\",\"status\":\"M\"},{\"file_path\":\"scratch.txt\",\"bucket\":\"untracked\",\"status\":\"?\"}]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:commit-changes"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:commit-changes\", and give it folder, message.",
+    "1. Say to your AI: \"Commit what is chosen for the next commit in a project on the person's computer, with a message\", and give it folder; message.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:commit-changes and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields folder, branch, changes."
+    "3. Read what comes back: Give folder (the full path of the project folder the person has let this tool use) and message (what this commit says)."
   ],
   "worked_examples": [
     {
-      "title": "Commit the chosen changes on a sample input",
-      "ask": "Run tool:commit-changes.",
+      "title": "Commit the chosen changes on its own sample",
+      "ask": "Commit what is chosen for the next commit in a project on the person's computer, with a message",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,7 +32,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields folder, branch, changes."
+      "given": "The input {\"folder\":\"/projects/sample\",\"message\":\"Sample commit\"}.",
+      "hands_back": "It answered {\"folder\":\"/projects/sample\",\"branch\":\"main\",\"ahead\":1,\"behind\":0,\"changes\":[{\"file_path\":\"notes.txt\",\"bucket\":\"unstaged\",\"status\":\"M\"},{\"file_path\":\"scratch.txt\",\"bucket\":\"untracked\",\"status\":\"?\"}]}."
     }
   ]
 }

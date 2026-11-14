@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:sort-reservations-by-status's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:sort-reservations-by-status with nothing more.\" Group my reservations (tables, rooms, visits) by status, the ones that need me first",
+  "drafted_from": "tool:sort-reservations-by-status's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Group my reservations (tables, rooms, visits) by status, the ones that need me first\", with {\"reservations\":[{\"id\":\"reservation:one\",\"title\":\"Window table\",\"status\":\"requested\"},{\"id\":\"reservation:two\",\"title\":\"Back room\",\"status\":\"confirmed\"}],\"attention_order\":[\"requested\"]}. It runs tool:sort-reservations-by-status and answers {\"count\":2,\"groups\":[{\"status\":\"requested\",\"needs_attention\":true,\"reservations\":[{\"id\":\"reservation:one\",\"kind\":\"custom\",\"title\":\"Window table\",\"status\":\"requested\",\"taskRefs\":[],\"partyRefs\":[]}]},{\"status\":\"confirmed\",\"needs_attention\":false,\"reservations\":[{\"id\":\"reservation:two\",\"kind\":\"custom\",\"title\":\"Back room\",\"status\":\"confirmed\",\"taskRefs\":[],\"partyRefs\":[]}]}] ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (reservation) through the records door.",
   "workflows": [],
   "tools": [
     "tool:sort-reservations-by-status"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:sort-reservations-by-status\", and give it nothing more.",
+    "1. Say to your AI: \"Group my reservations (tables, rooms, visits) by status, the ones that need me first\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:sort-reservations-by-status and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.groups[0].status contains \"requested\"."
+    "3. Read what comes back: Groups reservations by status, with the statuses the person lists in attention_order first and in that order, then any other status in the order seen.",
+    "4. It reads and writes only its own rows through the records door: reservation (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Sort reservations by status on a sample input",
-      "ask": "Run tool:sort-reservations-by-status.",
+      "title": "Sort reservations by status on its own sample",
+      "ask": "Group my reservations (tables, rooms, visits) by status, the ones that need me first",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -45,7 +46,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.groups[0].status contains \"requested\"."
+      "given": "The input {\"reservations\":[{\"id\":\"reservation:one\",\"title\":\"Window table\",\"status\":\"requested\"},{\"id\":\"reservation:two\",\"title\":\"Back room\",\"status\":\"confirmed\"}],\"attention_order\":[\"requested\"]}.",
+      "hands_back": "It answered {\"count\":2,\"groups\":[{\"status\":\"requested\",\"needs_attention\":true,\"reservations\":[{\"id\":\"reservation:one\",\"kind\":\"custom\",\"title\":\"Window table\",\"status\":\"requested\",\"taskRefs\":[],\"partyRefs\":[]}]},{\"status\":\"confirmed\",\"needs_attention\":false,\"reservations\":[{\"id\":\"reservation:two\",\"kind\":\"custom\",\"title\":\"Back room\",\"status\":\"confirmed\",\"taskRefs\":[],\"partyRefs\":[]}]}],\"without_policy\":[\"reservation:one\",\"reservation:two\"]}."
     }
   ]
 }

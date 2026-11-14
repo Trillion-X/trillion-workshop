@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:pick-fired-rules's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:pick-fired-rules with signals, rules.\" Pick which of my progress rules fire for my current numbers and give the adjustment each carries",
+  "drafted_from": "tool:pick-fired-rules's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Pick which of my progress rules fire for my current numbers and give the adjustment each carries\", with {\"signals\":[{\"metricRef\":\"sell-through\",\"value\":0.7}],\"rules\":[{\"id\":\"rule:low\",\"metricRef\":\"sell-through\",\"band\":{\"max\":0.6},\"adjustment\":{\"bake\":-1}},{\"id\":\"rule:steady\",\"metricRef\":\"sell-through\",\"band\":{\"min\":0.6,\"max\":0.85},\"adjustment\":{\"bake\":0}},{\"id\":\"rule:high\",\"metricRef\":\"sell-through\",\"band\":{\"min\":0.85},\"adjustment\":{\"bake\":1}}]}. It runs tool:pick-fired-rules and answers {\"fired\":[{\"rule\":{\"id\":\"rule:steady\",\"metricRef\":\"sell-through\",\"band\":{\"min\":0.6,\"max\":0.85},\"adjustment\":{\"bake\":0}},\"metricValue\":0.7}],\"adjustments\":[{\"bake\":0}],\"matched\":true}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:pick-fired-rules"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:pick-fired-rules\", and give it signals, rules.",
+    "1. Say to your AI: \"Pick which of my progress rules fire for my current numbers and give the adjustment each carries\", and give it signals; rules.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:pick-fired-rules and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.fired[0].rule.id contains \"rule:steady\"."
+    "3. Read what comes back: Takes one value per metric (signals) and the person's rules."
   ],
   "worked_examples": [
     {
-      "title": "Pick the progress rules that fire on a sample input",
-      "ask": "Run tool:pick-fired-rules.",
+      "title": "Pick the progress rules that fire on its own sample",
+      "ask": "Pick which of my progress rules fire for my current numbers and give the adjustment each carries",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -69,7 +69,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.fired[0].rule.id contains \"rule:steady\"."
+      "given": "The input {\"signals\":[{\"metricRef\":\"sell-through\",\"value\":0.7}],\"rules\":[{\"id\":\"rule:low\",\"metricRef\":\"sell-through\",\"band\":{\"max\":0.6},\"adjustment\":{\"bake\":-1}},{\"id\":\"rule:steady\",\"metricRef\":\"sell-through\",\"band\":{\"min\":0.6,\"max\":0.85},\"adjustment\":{\"bake\":0}},{\"id\":\"rule:high\",\"metricRef\":\"sell-through\",\"band\":{\"min\":0.85},\"adjustment\":{\"bake\":1}}]}.",
+      "hands_back": "It answered {\"fired\":[{\"rule\":{\"id\":\"rule:steady\",\"metricRef\":\"sell-through\",\"band\":{\"min\":0.6,\"max\":0.85},\"adjustment\":{\"bake\":0}},\"metricValue\":0.7}],\"adjustments\":[{\"bake\":0}],\"matched\":true}."
     }
   ]
 }

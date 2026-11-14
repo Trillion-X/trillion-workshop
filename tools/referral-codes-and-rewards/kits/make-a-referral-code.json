@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:make-a-referral-code's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:make-a-referral-code with referrer, target.\" Make a referral code that earns what my referral reward rules give, and give back the event to save",
+  "drafted_from": "tool:make-a-referral-code's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Make a referral code that earns what my referral reward rules give, and give back the event to save\", with {\"referrer\":\"account:ada\",\"target\":{\"on\":\"product_id\",\"value\":\"loaf\"},\"code\":\"bread-7k3q\",\"occurred_at\":\"2026-01-01T00:00:00Z\"}. It runs tool:make-a-referral-code and answers {\"code\":\"BREAD-7K3Q\",\"event\":{\"kind\":\"referral_code_created\",\"subject\":\"account:ada\",\"material\":{\"event_type\":\"referral_code_created\",\"referral_code\":\"BREAD-7K3Q\",\"target\":{\"on\":\"product_id\",\"value\":\"loaf\"},\"occurred_at\":\"2026-01-01T00:00:00Z\"}}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:referral-reward-rule) through the records door.",
   "workflows": [],
   "tools": [
     "tool:make-a-referral-code"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:make-a-referral-code\", and give it referrer, target.",
+    "1. Say to your AI: \"Make a referral code that earns what my referral reward rules give, and give back the event to save\", and give it referrer (The account that shares the code); target (The sale attribute and the value a sale must have to earn this code).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:make-a-referral-code and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.code contains \"BREAD-7K3Q\"."
+    "3. Read what comes back: Makes a short readable code (letters and digits, no I, L, O or U, so it survives being read aloud) or checks the one you chose, and gives back the event that makes it live once the person saves it.",
+    "4. It reads and writes only its own rows through the records door: record:referral-reward-rule (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Make a referral code on a sample input",
-      "ask": "Run tool:make-a-referral-code.",
+      "title": "Make a referral code on its own sample",
+      "ask": "Make a referral code that earns what my referral reward rules give, and give back the event to save",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -37,7 +38,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.code contains \"BREAD-7K3Q\"."
+      "given": "The input {\"referrer\":\"account:ada\",\"target\":{\"on\":\"product_id\",\"value\":\"loaf\"},\"code\":\"bread-7k3q\",\"occurred_at\":\"2026-01-01T00:00:00Z\"}, with 1 example row (record:referral-reward-rule) already kept.",
+      "hands_back": "It answered {\"code\":\"BREAD-7K3Q\",\"event\":{\"kind\":\"referral_code_created\",\"subject\":\"account:ada\",\"material\":{\"event_type\":\"referral_code_created\",\"referral_code\":\"BREAD-7K3Q\",\"target\":{\"on\":\"product_id\",\"value\":\"loaf\"},\"occurred_at\":\"2026-01-01T00:00:00Z\"}}}."
     }
   ]
 }

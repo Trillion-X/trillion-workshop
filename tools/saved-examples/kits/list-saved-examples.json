@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:list-saved-examples's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:list-saved-examples with nothing more.\" List every example this person saved of posts, videos and pages that worked, newest first, each with its link, words, pictures and why it worked",
+  "drafted_from": "tool:list-saved-examples's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"List every example this person saved of posts, videos and pages that worked, newest first, each with its link, words, pictures and why it worked\", with {}. It runs tool:list-saved-examples and answers {\"examples\":[{\"id\":\"example:0123456789abcdef0123456789abcdef\",\"url\":\"https://example.com/posts/sample\",\"host\":\"example.com\",\"site\":\"Example\",\"title\":\"A sample post\",\"words\":\"Made-up words.\",\"pictures\":[],\"why_it_worked\":\"A made-up reason.\",\"collection\":null,\"added_from\":\"sample\",\"added_at\":\"2026-11-01T00:00:00.000Z\",\"updated_at\":\"2026-11-01T00:00:00.000Z\"}],\"count\":1}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (saved-example) through the records door.",
   "workflows": [],
   "tools": [
     "tool:list-saved-examples"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:list-saved-examples\", and give it nothing more.",
+    "1. Say to your AI: \"List every example this person saved of posts, videos and pages that worked, newest first, each with its link, words, pictures and why it worked\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-saved-examples and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields examples, count."
+    "3. Read what comes back: Returns examples (each { id, url, host, site, title, words, pictures, why_it_worked, collection, added_from, added_at, updated_at }, newest first) and count.",
+    "4. It reads and writes only its own rows through the records door: saved-example (records:list)."
   ],
   "worked_examples": [
     {
-      "title": "Saved examples on a sample input",
-      "ask": "Run tool:list-saved-examples.",
+      "title": "Saved examples on its own sample",
+      "ask": "List every example this person saved of posts, videos and pages that worked, newest first, each with its link, words, pictures and why it worked",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -29,7 +30,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields examples, count."
+      "given": "The input {}, with 1 example row (saved-example) already kept.",
+      "hands_back": "It answered {\"examples\":[{\"id\":\"example:0123456789abcdef0123456789abcdef\",\"url\":\"https://example.com/posts/sample\",\"host\":\"example.com\",\"site\":\"Example\",\"title\":\"A sample post\",\"words\":\"Made-up words.\",\"pictures\":[],\"why_it_worked\":\"A made-up reason.\",\"collection\":null,\"added_from\":\"sample\",\"added_at\":\"2026-11-01T00:00:00.000Z\",\"updated_at\":\"2026-11-01T00:00:00.000Z\"}],\"count\":1}."
     }
   ]
 }

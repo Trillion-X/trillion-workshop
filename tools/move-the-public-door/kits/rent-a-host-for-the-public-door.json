@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:rent-a-host-for-the-public-door's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:rent-a-host-for-the-public-door with provider, lease, name, lifetime.\" Rent one server for my public door from my hosting service, or adopt a box I already run, and keep its lease",
+  "drafted_from": "tool:rent-a-host-for-the-public-door's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Rent one server for my public door from my hosting service, or adopt a box I already run, and keep its lease\", with {\"provider\":\"hetzner\",\"lease\":\"host-lease-door-two\",\"name\":\"door-two\",\"public_key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMadeUpSampleKeyForTheDoorSampleOnly00000000 door@example.com\",\"lifetime\":\"service\"}. It runs tool:rent-a-host-for-the-public-door and answers {\"schema\":\"portable-host-lease/1\",\"provider\":\"hetzner\",\"name\":\"door-two\",\"serverType\":\"cpx21\",\"location\":\"ash\",\"image\":\"ubuntu-24.04\",\"lifetime\":\"service\",\"startedAt\":1794617431744,\"expiresAt\":null,\"state\":\"running\",\"serverId\":4711,\"sshKeyId\":2323,\"address\":\"198.51.100.24\"}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:service-connection, record:public-door-receipt) through the records door.",
   "workflows": [],
   "tools": [
     "tool:rent-a-host-for-the-public-door"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:rent-a-host-for-the-public-door\", and give it provider, lease, name, lifetime.",
+    "1. Say to your AI: \"Rent one server for my public door from my hosting service, or adopt a box I already run, and keep its lease\", and give it provider (The hosting row's id, as see-where-the-public-door-runs names it.); lease (The receipt name the lease is kept under.); name (The server's name and the label that marks it as this lease's.); lifetime.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:rent-a-host-for-the-public-door and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.address contains \"198.51.100.24\"."
+    "3. Read what comes back: Rents one server from the hosting row `provider` names in the person's Service connections list, through that row's own requests only, and keeps the lease under `lease` in their Public door receipts list: the provider, the server and SSH key identities, the address, size and place, and the cleanup deadline of a test host (within one day; a retained service has none).",
+    "4. It reads and writes only its own rows through the records door: record:service-connection (records:list); record:public-door-receipt (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Rent a host for the public door on a sample input",
-      "ask": "Run tool:rent-a-host-for-the-public-door.",
+      "title": "Rent a host for the public door on its own sample",
+      "ask": "Rent one server for my public door from my hosting service, or adopt a box I already run, and keep its lease",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -35,7 +36,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.address contains \"198.51.100.24\"."
+      "given": "The input {\"provider\":\"hetzner\",\"lease\":\"host-lease-door-two\",\"name\":\"door-two\",\"public_key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMadeUpSampleKeyForTheDoorSampleOnly00000000 door@example.com\",\"lifetime\":\"service\"}, with 1 example row (record:service-connection) already kept, the web answering from 3 recorded replies.",
+      "hands_back": "It answered {\"schema\":\"portable-host-lease/1\",\"provider\":\"hetzner\",\"name\":\"door-two\",\"serverType\":\"cpx21\",\"location\":\"ash\",\"image\":\"ubuntu-24.04\",\"lifetime\":\"service\",\"startedAt\":1794617431744,\"expiresAt\":null,\"state\":\"running\",\"serverId\":4711,\"sshKeyId\":2323,\"address\":\"198.51.100.24\"}, and kept record:public-door-receipt:host-lease-door-two."
     }
   ]
 }

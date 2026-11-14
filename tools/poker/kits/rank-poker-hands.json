@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:rank-poker-hands's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:rank-poker-hands with board, hands.\" Rank poker hands against a board of community cards and say which hand wins",
+  "drafted_from": "tool:rank-poker-hands's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Rank poker hands against a board of community cards and say which hand wins\", with {\"board\":[\"2S\",\"7D\",\"9C\",\"JS\",\"3H\"],\"hands\":[{\"id\":\"left\",\"cards\":[\"AH\",\"AC\"]},{\"id\":\"right\",\"cards\":[\"KH\",\"QC\"]}]}. It runs tool:rank-poker-hands and answers {\"ranking\":[{\"id\":\"left\",\"category\":\"pair\",\"bestFive\":[\"AH\",\"AC\",\"7D\",\"9C\",\"JS\"],\"place\":1},{\"id\":\"right\",\"category\":\"high card\",\"bestFive\":[\"KH\",\"QC\",\"7D\",\"9C\",\"JS\"],\"place\":2}],\"winners\":[\"left\"]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:rank-poker-hands"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:rank-poker-hands\", and give it board, hands.",
+    "1. Say to your AI: \"Rank poker hands against a board of community cards and say which hand wins\", and give it board (The community cards, for example [\"AS\",\"7D\",\"9C\"]); hands.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:rank-poker-hands and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.winners[0] contains \"left\"."
+    "3. Read what comes back: Give the community cards (none to five) and each player's own cards (up to two), every card as its rank then its suit: ranks 2 to 9, T, J, Q, K, A and suits S, H, D, C, for example AS or TD."
   ],
   "worked_examples": [
     {
-      "title": "Rank poker hands and name the winner on a sample input",
-      "ask": "Run tool:rank-poker-hands.",
+      "title": "Rank poker hands and name the winner on its own sample",
+      "ask": "Rank poker hands against a board of community cards and say which hand wins",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -53,7 +53,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.winners[0] contains \"left\"."
+      "given": "The input {\"board\":[\"2S\",\"7D\",\"9C\",\"JS\",\"3H\"],\"hands\":[{\"id\":\"left\",\"cards\":[\"AH\",\"AC\"]},{\"id\":\"right\",\"cards\":[\"KH\",\"QC\"]}]}.",
+      "hands_back": "It answered {\"ranking\":[{\"id\":\"left\",\"category\":\"pair\",\"bestFive\":[\"AH\",\"AC\",\"7D\",\"9C\",\"JS\"],\"place\":1},{\"id\":\"right\",\"category\":\"high card\",\"bestFive\":[\"KH\",\"QC\",\"7D\",\"9C\",\"JS\"],\"place\":2}],\"winners\":[\"left\"]}."
     }
   ]
 }

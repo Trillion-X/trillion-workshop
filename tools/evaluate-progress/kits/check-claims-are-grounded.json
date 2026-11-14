@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:check-claims-are-grounded's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-claims-are-grounded with claims, retrieved_source_ids.\" Check that each claim in an answer cites a source that was really read, and none cites one that was not",
+  "drafted_from": "tool:check-claims-are-grounded's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Check that each claim in an answer cites a source that was really read, and none cites one that was not\", with {\"claims\":[{\"text\":\"The shop opens at six.\",\"citations\":[{\"source_id\":\"opening-times\"}]}],\"retrieved_source_ids\":[\"opening-times\"]}. It runs tool:check-claims-are-grounded and answers {\"grounded\":true,\"grounded_ratio\":1,\"per_claim\":[{\"text\":\"The shop opens at six.\",\"grounded\":true,\"reason\":\"cited 1 retrieved source(s)\"}],\"ungrounded_claims\":[],\"fabricated_citations\":[]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:check-claims-are-grounded"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-claims-are-grounded\", and give it claims, retrieved_source_ids.",
+    "1. Say to your AI: \"Check that each claim in an answer cites a source that was really read, and none cites one that was not\", and give it claims; retrieved_source_ids.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-claims-are-grounded and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.per_claim[0].reason contains \"cited 1 retrieved source\"."
+    "3. Read what comes back: Takes the claims of an answer (each with citations naming a source id) and the ids of the sources that were really retrieved."
   ],
   "worked_examples": [
     {
-      "title": "Check claims cite sources that were read on a sample input",
-      "ask": "Run tool:check-claims-are-grounded.",
+      "title": "Check claims cite sources that were read on its own sample",
+      "ask": "Check that each claim in an answer cites a source that was really read, and none cites one that was not",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -43,7 +43,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.per_claim[0].reason contains \"cited 1 retrieved source\"."
+      "given": "The input {\"claims\":[{\"text\":\"The shop opens at six.\",\"citations\":[{\"source_id\":\"opening-times\"}]}],\"retrieved_source_ids\":[\"opening-times\"]}.",
+      "hands_back": "It answered {\"grounded\":true,\"grounded_ratio\":1,\"per_claim\":[{\"text\":\"The shop opens at six.\",\"grounded\":true,\"reason\":\"cited 1 retrieved source(s)\"}],\"ungrounded_claims\":[],\"fabricated_citations\":[]}."
     }
   ]
 }

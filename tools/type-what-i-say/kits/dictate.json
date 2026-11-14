@@ -1,9 +1,9 @@
 {
   "draft": true,
-  "drafted_from": "tool:dictate's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:dictate with nothing more.\" Turn dictated words into clean text for the app the person is in (spoken commands, the app's style, their dictionary and snippets), give the hearing prompt that biases recognition, learn from the person's edit, and keep their dictionary, snippets and dictation history",
+  "drafted_from": "tool:dictate's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Turn dictated words into clean text for the app the person is in (spoken commands, the app's style, their dictionary and snippets), give the hearing prompt that biases recognition, learn from the person's edit, and keep their dictionary, snippets and dictation history\", with {\"action\":\"clean\",\"text\":\"hello from ada example um period\"}. It runs tool:dictate and answers {\"text\":\"hello from ada example um period\",\"applied\":[\"spoken-commands\",\"style\",\"dictionary\",\"snippets\",\"trim\"],\"skipped\":[],\"entry_id\":\"dcc415cddba6c00d\",\"notes\":[]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:dictate",
@@ -11,14 +11,14 @@
     "tool:type-dictated-text"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:dictate\", and give it nothing more.",
+    "1. Say to your AI: \"Turn dictated words into clean text for the app the person is in (spoken commands, the app's style, their dictionary and snippets), give the hearing prompt that biases recognition, learn from the person's edit, and keep their dictionary, snippets and dictation history\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:dictate and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Turn dictated words into clean text for the app the person is in (spoken commands, the app's style, their dictionary and snippets), give the hearing prompt that biases recognition, learn from the person's edit, and keep their dictionary, snippets and dictation history"
+    "3. Read what comes back: Give action: clean (text, context, entry_id?; polish or command are asked of the model server on this computer (the dictation-polish job of tool:ask-a-model's models) and leave the text as it was when none answers), bias (context), learn (inserted, final, entry_id?), add (from and to, or kind: snippet with says and expands_to), list, edit (id and fields), delete (id), history, or erase (entry_id, or all)."
   ],
   "worked_examples": [
     {
-      "title": "Dictation text and dictionary on a sample input",
-      "ask": "Run tool:dictate.",
+      "title": "Dictation text and dictionary on its own sample",
+      "ask": "Turn dictated words into clean text for the app the person is in (spoken commands, the app's style, their dictionary and snippets), give the hearing prompt that biases recognition, learn from the person's edit, and keep their dictionary, snippets and dictation history",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -34,7 +34,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Turn dictated words into clean text for the app the person is in (spoken commands, the app's style, their dictionary and snippets), give the hearing prompt that biases recognition, learn from the person's edit, and keep their dictionary, snippets and dictation history"
+      "given": "The input {\"action\":\"clean\",\"text\":\"hello from ada example um period\"}.",
+      "hands_back": "It answered {\"text\":\"hello from ada example um period\",\"applied\":[\"spoken-commands\",\"style\",\"dictionary\",\"snippets\",\"trim\"],\"skipped\":[],\"entry_id\":\"dcc415cddba6c00d\",\"notes\":[]}."
     }
   ]
 }

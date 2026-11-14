@@ -1,23 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:check-copy's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-copy with nothing more.\" Check text, Markdown, pages, JSON, decks and picture readings against the rules you send, and the whole set against your required lines, audience, offers and counts, and say pass, fail, held or uncertain for each unit",
+  "drafted_from": "tool:check-copy's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Check text, Markdown, pages, JSON, decks and picture readings against the rules you send, and the whole set against your required lines, audience, offers and counts, and say pass, fail, held or uncertain for each unit\", with {\"rules\":[{\"id\":\"no-sparkle\",\"words\":[\"sparkle\"],\"says\":\"No sparkle.\"}],\"units\":[{\"kind\":\"page\",\"text\":\"Our sparkle is the best.\"}]}. It runs tool:check-copy and answers {\"status\":\"failed\",\"passed\":false,\"exit\":1,\"units\":1,\"failing\":1,\"held\":0,\"advisory\":0,\"problems\":[],\"results\":[{\"kind\":\"page\",\"text\":\"Our sparkle is the best.\",\"where\":\"unit\",\"facts\":{},\"applicable_rule_ids\":[\"no-sparkle\"],\"qualification\":\"word-rules-only\",\"breaks\":[{\"rule\":\"no-sparkle\",\"found\":\"sparkle\",\"says\":\"No sparkle.\"}],\"uncertain\":[],\"waived\":[],\"verdict\":\"fail\",\"advisory\":false}] ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:check-copy",
     "tool:judge-against-rules"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-copy\", and give it nothing more.",
+    "1. Say to your AI: \"Check text, Markdown, pages, JSON, decks and picture readings against the rules you send, and the whole set against your required lines, audience, offers and counts, and say pass, fail, held or uncertain for each unit\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-copy and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.status contains \"failed\"."
+    "3. Read what comes back: Give words as text, texts, Markdown, value (any JSON; fields names which keys hold words, or \"strings\" for every string), units, sources (JSON with its place), html (pages), decks (a rendered deck's HTML) or pictures with their readings."
   ],
   "worked_examples": [
     {
-      "title": "Check copy before a person reads it on a sample input",
-      "ask": "Run tool:check-copy.",
+      "title": "Check copy before a person reads it on its own sample",
+      "ask": "Check text, Markdown, pages, JSON, decks and picture readings against the rules you send, and the whole set against your required lines, audience, offers and counts, and say pass, fail, held or uncertain for each unit",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -46,7 +46,52 @@
           }
         }
       },
-      "hands_back": "The answer's $.status contains \"failed\"."
+      "given": "The input {\"rules\":[{\"id\":\"no-sparkle\",\"words\":[\"sparkle\"],\"says\":\"No sparkle.\"}],\"units\":[{\"kind\":\"page\",\"text\":\"Our sparkle is the best.\"}]}.",
+      "hands_back": "It answered {\"status\":\"failed\",\"passed\":false,\"exit\":1,\"units\":1,\"failing\":1,\"held\":0,\"advisory\":0,\"problems\":[],\"results\":[{\"kind\":\"page\",\"text\":\"Our sparkle is the best.\",\"where\":\"unit\",\"facts\":{},\"applicable_rule_ids\":[\"no-sparkle\"],\"qualification\":\"word-rules-only\",\"breaks\":[{\"rule\":\"no-sparkle\",\"found\":\"sparkle\",\"says\":\"No sparkle.\"}],\"uncertain\":[],\"waived\":[],\"verdict\":\"fail\",\"advisory\":false}],\"questions\":[],\"lines\":[\"1 units: 1 fail, 0 uncertain, 0 pass\",\"FAIL [page] unit\",\" no-sparkle: \\\"sparkle\\\". No sparkle.\"]}."
+    },
+    {
+      "title": "Check copy before a person reads it on its own sample",
+      "ask": "Check text, Markdown, pages, JSON, decks and picture readings against the rules you send, and the whole set against your required lines, audience, offers and counts, and say pass, fail, held or uncertain for each unit",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-copy",
+            "input": {
+              "rules": [
+                {
+                  "id": "no-sparkle",
+                  "words": [
+                    "sparkle"
+                  ],
+                  "says": "No sparkle."
+                }
+              ],
+              "units": [
+                {
+                  "kind": "page",
+                  "text": "Your files open in any app."
+                }
+              ],
+              "required": {
+                "locked_lines": [
+                  {
+                    "id": "line",
+                    "alternatives": [
+                      "Your files open in any app."
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "given": "The input {\"rules\":[{\"id\":\"no-sparkle\",\"words\":[\"sparkle\"],\"says\":\"No sparkle.\"}],\"units\":[{\"kind\":\"page\",\"text\":\"Your files open in any app.\"}],\"required\":{\"locked_lines\":[{\"id\":\"line\",\"alternatives\":[\"Your files open in any app.\"]}]}}.",
+      "hands_back": "It answered {\"status\":\"passed\",\"passed\":true,\"exit\":0,\"units\":2,\"failing\":0,\"held\":0,\"advisory\":0,\"problems\":[],\"results\":[{\"kind\":\"page\",\"text\":\"Your files open in any app.\",\"where\":\"unit\",\"facts\":{},\"applicable_rule_ids\":[\"no-sparkle\"],\"qualification\":\"word-rules-only\",\"breaks\":[],\"uncertain\":[],\"waived\":[],\"verdict\":\"pass\",\"advisory\":false},{\"kind\":\"whole-text\",\"text\":\"your files open in any app.\",\"where\":\"the whole set\",\"facts\":{},\"applicable_rule_ids\":[\"required:locked-line:line\"],\"qualification\":\"word-rules-only\",\"breaks\":[],\"uncertain\":[],\"waived\":[],\"verdict\":\"pass\",\"advisory\":false}],\"questions\":[],\"lines\":[\"2 units: 0 fail, 0 uncertain, 2 pass\"]}."
     }
   ]
 }

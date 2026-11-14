@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:check-a-bundle-against-package-boundaries's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-a-bundle-against-package-boundaries with metafile_file, packages_root, declaration.\" Stop a build that takes a file from a package that did not declare it public: read the bundler's own list of what went into the finished bundle and report every import that reaches into a package's private files",
+  "drafted_from": "tool:check-a-bundle-against-package-boundaries's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Stop a build that takes a file from a package that did not declare it public: read the bundler's own list of what went into the finished bundle and report every import that reaches into a package's private files\", with {\"metafile_file\":\"meta.json\",\"packages_root\":\"packages\",\"declaration\":{\"file\":\"public-files.json\",\"entries_at\":\"things\",\"kind_at\":\"payload.kind\",\"kind\":\"public-source\",\"path_at\":\"payload.source_path\"}}. It runs tool:check-a-bundle-against-package-boundaries and answers {\"ok\":true,\"edges_checked\":1,\"packages_reached\":[\"ledger\"],\"findings\":[]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:check-a-bundle-against-package-boundaries"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-a-bundle-against-package-boundaries\", and give it metafile_file, packages_root, declaration.",
+    "1. Say to your AI: \"Stop a build that takes a file from a package that did not declare it public: read the bundler's own list of what went into the finished bundle and report every import that reaches into a package's private files\", and give it metafile_file (A path inside the granted folder to the bundler's metafile (JSON)); packages_root (A path inside the granted folder to the folder whose sub-folders are packages); declaration.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-bundle-against-package-boundaries and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields ok, edges_checked, packages_reached, findings."
+    "3. Read what comes back: Give metafile_file (the bundler's metafile, esbuild's shape, a path inside the folder the person granted for reading), packages_root (the folder whose sub-folders are packages), declaration (how a package declares its public files: file, the name of the declaration file in each package folder; entries_at, the dotted path to the list in it; kind_at and kind, where each entry says what it is and the value that means public source; path_at, where it names the file or folder) and optionally bundle_root (what the metafile's relative paths are relative to; the granted folder when absent)."
   ],
   "worked_examples": [
     {
-      "title": "Check my app's bundle only uses what each package made public on a sample input",
-      "ask": "Run tool:check-a-bundle-against-package-boundaries.",
+      "title": "Check my app's bundle only uses what each package made public on its own sample",
+      "ask": "Stop a build that takes a file from a package that did not declare it public: read the bundler's own list of what went into the finished bundle and report every import that reaches into a package's private files",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -39,7 +39,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields ok, edges_checked, packages_reached, findings."
+      "given": "The input {\"metafile_file\":\"meta.json\",\"packages_root\":\"packages\",\"declaration\":{\"file\":\"public-files.json\",\"entries_at\":\"things\",\"kind_at\":\"payload.kind\",\"kind\":\"public-source\",\"path_at\":\"payload.source_path\"}}.",
+      "hands_back": "It answered {\"ok\":true,\"edges_checked\":1,\"packages_reached\":[\"ledger\"],\"findings\":[]}."
     }
   ]
 }

@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:settle-two-versions's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:settle-two-versions with id, keep, thing_type, request_key.\" Settle a record two of my devices changed apart: keep one version, keep both, or keep a merged one",
+  "drafted_from": "tool:settle-two-versions's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Settle a record two of my devices changed apart: keep one version, keep both, or keep a merged one\", with {\"id\":\"kept-apart:plan-7\",\"keep\":\"one\",\"side\":\"kept-1\",\"thing_type\":\"note\",\"request_key\":\"sample-settle\"}. It runs tool:settle-two-versions and answers {\"settled\":{\"id\":\"kept-apart:plan-7\",\"thing\":{\"kind\":\"note\",\"id\":\"plan-7\",\"title\":\"Launch plan\"},\"keep\":\"one\"},\"written\":[\"plan-7\",\"kept-apart:plan-7\"]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (kept-apart, [object Object]) through the records door.",
   "workflows": [],
   "tools": [
     "tool:settle-two-versions"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:settle-two-versions\", and give it id, keep, thing_type, request_key.",
+    "1. Say to your AI: \"Settle a record two of my devices changed apart: keep one version, keep both, or keep a merged one\", and give it id (The record kept apart, as the read names it); keep; thing_type (The kind of record whose versions to read or settle (one kind per call; other_kinds names the rest)); request_key (Names this change, so sending it again changes nothing twice).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:settle-two-versions and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $ contains \"kept-apart:plan-7\"."
+    "3. Read what comes back: Writes what you chose for one record kept apart (id, from see-if-my-copies-are-in-step): keep one (side, the id of the version to keep), both (each other version is kept as a record of its own, named after it with -kept- and a number that no record holds yet), or merged (value, the merged record).",
+    "4. It reads and writes only its own rows through the records door: kept-apart (records:read, records:write); [object Object] (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Settle two versions on a sample input",
-      "ask": "Run tool:settle-two-versions.",
+      "title": "Settle two versions on its own sample",
+      "ask": "Settle a record two of my devices changed apart: keep one version, keep both, or keep a merged one",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -35,7 +36,8 @@
           }
         }
       },
-      "hands_back": "The answer's $ contains \"kept-apart:plan-7\"."
+      "given": "The input {\"id\":\"kept-apart:plan-7\",\"keep\":\"one\",\"side\":\"kept-1\",\"thing_type\":\"note\",\"request_key\":\"sample-settle\"}, with 2 example rows (note, kept-apart) already kept.",
+      "hands_back": "It answered {\"settled\":{\"id\":\"kept-apart:plan-7\",\"thing\":{\"kind\":\"note\",\"id\":\"plan-7\",\"title\":\"Launch plan\"},\"keep\":\"one\"},\"written\":[\"plan-7\",\"kept-apart:plan-7\"]}."
     }
   ]
 }

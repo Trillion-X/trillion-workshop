@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:words-as-picture-vector's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:words-as-picture-vector with texts.\" Turn words into the vector a picture model (CLIP ViT-B-32, OpenAI weights) gives pictures that show them, to compare with picture vectors kept for recordings",
+  "drafted_from": "tool:words-as-picture-vector's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Turn words into the vector a picture model (CLIP ViT-B-32, OpenAI weights) gives pictures that show them, to compare with picture vectors kept for recordings\", with {\"texts\":[\"tennis\"]}. It runs tool:words-as-picture-vector and answers {\"model\":{\"name\":\"ViT-B-32\",\"pretrained\":\"stand-in\"},\"dims\":512,\"vectors\":[[0.04525600001215935,0.04373700171709061,0.043765000998973846,0.04495900124311447,0.04120900109410286,0.04317000135779381,0.0474729984998703,0.03850900009274483,0.03919399902224541,0.043046001344919205,0.03915800154209137,0.04380299896001816,0.0419280007481575,0.04898099973797798,0.047616999596357346,0.03730500116944313 ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:words-as-picture-vector"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:words-as-picture-vector\", and give it texts.",
+    "1. Say to your AI: \"Turn words into the vector a picture model (CLIP ViT-B-32, OpenAI weights) gives pictures that show them, to compare with picture vectors kept for recordings\", and give it texts.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:words-as-picture-vector and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.model.name contains \"ViT-B-32\"."
+    "3. Read what comes back: Encodes 1 to 64 short texts with the CLIP ViT-B-32 text model (OpenAI weights, ONNX export pinned by BLAKE3) and returns one unit-length 512-number vector per text, with the model named, so it is compared only with picture vectors made by the same model."
   ],
   "worked_examples": [
     {
-      "title": "Turn words into a picture vector on a sample input",
-      "ask": "Run tool:words-as-picture-vector.",
+      "title": "Turn words into a picture vector on its own sample",
+      "ask": "Turn words into the vector a picture model (CLIP ViT-B-32, OpenAI weights) gives pictures that show them, to compare with picture vectors kept for recordings",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +33,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.model.name contains \"ViT-B-32\"."
+      "given": "The input {\"texts\":[\"tennis\"]}.",
+      "hands_back": "It answered {\"model\":{\"name\":\"ViT-B-32\",\"pretrained\":\"stand-in\"},\"dims\":512,\"vectors\":[[0.04525600001215935,0.04373700171709061,0.043765000998973846,0.04495900124311447,0.04120900109410286,0.04317000135779381,0.0474729984998703,0.03850900009274483,0.03919399902224541,0.043046001344919205,0.03915800154209137,0.04380299896001816,0.0419280007481575,0.04898099973797798,0.047616999596357346,0.03730500116944313,0.04625000059604645,0.040119998157024384,0.04613000154495239,0.044592998921871185,0.0434969998896122,0.04510900005698204,0.044064000248909,0.0464170016348362,0.04690000042319298,0.04735200107097626,0.0419280007481575,0.042546000331640244,0.04483500123023987,0.04602000117301941,0.04733800143003464 ...."
     }
   ]
 }

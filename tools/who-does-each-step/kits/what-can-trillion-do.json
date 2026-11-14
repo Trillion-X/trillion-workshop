@@ -1,23 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:what-can-trillion-do's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:what-can-trillion-do with doers.\" List everything that can do a step for a person, with what each covers and what it costs, and the reasons a step may stay the person's",
+  "drafted_from": "tool:what-can-trillion-do's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"List everything that can do a step for a person, with what each covers and what it costs, and the reasons a step may stay the person's\", with {\"doers\":[{\"id\":\"sample-doer\",\"label\":\"Sample doer\",\"does\":[\"write a note\"],\"cost\":{\"usd\":0}}]}. It runs tool:what-can-trillion-do and answers {\"doers\":[{\"id\":\"sample-doer\",\"label\":\"Sample doer\",\"does\":[\"write a note\"],\"cost\":{\"usd\":0},\"spends\":false,\"reaches_others\":false}],\"only_a_person\":[]}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:what-can-trillion-do",
     "tool:who-does-each-step"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:what-can-trillion-do\", and give it doers.",
+    "1. Say to your AI: \"List everything that can do a step for a person, with what each covers and what it costs, and the reasons a step may stay the person's\", and give it doers.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:what-can-trillion-do and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.doers.0.id contains \"sample-doer\"."
+    "3. Read what comes back: Give doers (the caller's own list) and optionally only_a_person."
   ],
   "worked_examples": [
     {
-      "title": "List what can do steps on a sample input",
-      "ask": "Run tool:what-can-trillion-do.",
+      "title": "List what can do steps on its own sample",
+      "ask": "List everything that can do a step for a person, with what each covers and what it costs, and the reasons a step may stay the person's",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -43,7 +43,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.doers.0.id contains \"sample-doer\"."
+      "given": "The input {\"doers\":[{\"id\":\"sample-doer\",\"label\":\"Sample doer\",\"does\":[\"write a note\"],\"cost\":{\"usd\":0}}]}.",
+      "hands_back": "It answered {\"doers\":[{\"id\":\"sample-doer\",\"label\":\"Sample doer\",\"does\":[\"write a note\"],\"cost\":{\"usd\":0},\"spends\":false,\"reaches_others\":false}],\"only_a_person\":[]}."
     }
   ]
 }

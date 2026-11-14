@@ -1,23 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:make-a-sales-contract's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:make-a-sales-contract with contract.\" Make the terms of an accepted sales contract ready to give out: what the buyer must accept, the terms as rows, the request that turns them into a PDF, Word, spreadsheet, Markdown or text file, and a link the buyer opens to accept",
+  "drafted_from": "tool:make-a-sales-contract's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Make the terms of an accepted sales contract ready to give out: what the buyer must accept, the terms as rows, the request that turns them into a PDF, Word, spreadsheet, Markdown or text file, and a link the buyer opens to accept\", with {\"contract\":{\"id\":\"contract-1\",\"name\":\"Swim Coaching Agreement\",\"currency\":\"usd\",\"total_amount\":48000,\"rules\":[{\"type\":\"Commitment\",\"amount\":48000,\"recurrence\":\"one_time\"}]},\"formats\":[\"pdf\"]}. It runs tool:make-a-sales-contract and answers {\"acceptance_requirements\":[\"I understand the contract terms.\",\"I understand the payment obligation.\"],\"terms_rows\":[[\"Field\",\"Value\"],[\"Contract\",\"Swim Coaching Agreement\"],[\"Status\",\"draft\"],[\"Customer\",\"Prospect\"],[\"Primary offer\",\"Primary offer\"],[\"Total\",\"USD 480.00\"],[\"Currency\",\"USD\"],[\"Rule 1\",\"Commitment | USD 480.00 | one_time\"]],\"export_request\":{\"requestId\":\"approval_contract-1:files\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:make-a-sales-contract",
     "tool:export-a-document-to-a-file"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:make-a-sales-contract\", and give it contract.",
+    "1. Say to your AI: \"Make the terms of an accepted sales contract ready to give out: what the buyer must accept, the terms as rows, the request that turns them into a PDF, Word, spreadsheet, Markdown or text file, and a link the buyer opens to accept\", and give it contract.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:make-a-sales-contract and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.acceptance_requirements[1] contains \"payment obligation\"."
+    "3. Read what comes back: Give a contract (its name, currency, total in cents, customer, offer and a list of rules such as Commitment and GrantAccess) and which file forms you want (pdf, csv, xlsx, md, txt; all by default)."
   ],
   "worked_examples": [
     {
-      "title": "Make a sales contract's terms, export request and approval link on a sample input",
-      "ask": "Run tool:make-a-sales-contract.",
+      "title": "Make a sales contract's terms, export request and approval link on its own sample",
+      "ask": "Make the terms of an accepted sales contract ready to give out: what the buyer must accept, the terms as rows, the request that turns them into a PDF, Word, spreadsheet, Markdown or text file, and a link the buyer opens to accept",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -47,7 +47,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.acceptance_requirements[1] contains \"payment obligation\"."
+      "given": "The input {\"contract\":{\"id\":\"contract-1\",\"name\":\"Swim Coaching Agreement\",\"currency\":\"usd\",\"total_amount\":48000,\"rules\":[{\"type\":\"Commitment\",\"amount\":48000,\"recurrence\":\"one_time\"}]},\"formats\":[\"pdf\"]}.",
+      "hands_back": "It answered {\"acceptance_requirements\":[\"I understand the contract terms.\",\"I understand the payment obligation.\"],\"terms_rows\":[[\"Field\",\"Value\"],[\"Contract\",\"Swim Coaching Agreement\"],[\"Status\",\"draft\"],[\"Customer\",\"Prospect\"],[\"Primary offer\",\"Primary offer\"],[\"Total\",\"USD 480.00\"],[\"Currency\",\"USD\"],[\"Rule 1\",\"Commitment | USD 480.00 | one_time\"]],\"export_request\":{\"requestId\":\"approval_contract-1:files\",\"fileStem\":\"swim-coaching-agreement\",\"createdAt\":\"2026-11-14T00:50:27.197Z\",\"formats\":[\"pdf\"],\"document\":{\"title\":\"Swim Coaching Agreement\",\"blocks\":[{\"kind\":\"table\",\"title\":\"Contract terms\",\"columns\":[\"Field\",\"Value\"],\"rows\":[[\"Contract\",\"Swim Coaching Agreement\"],[\"Status\",\"draft\"],[\"Customer\" ...."
     }
   ]
 }

@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:find-the-ink-mark-to-erase's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:find-the-ink-mark-to-erase with operations, target, point, radius.\" Find which showing ink mark lies nearest a point, so it can be erased without changing any mark",
+  "drafted_from": "tool:find-the-ink-mark-to-erase's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Find which showing ink mark lies nearest a point, so it can be erased without changing any mark\", with {\"operations\":[{\"id\":\"one\",\"target\":{\"address\":\"poster\"},\"body\":{\"coordinate_sets\":[{\"points\":[{\"values\":[0,0]},{\"values\":[10,0]}]}]}}],\"target\":{\"address\":\"poster\"},\"point\":[5,1],\"radius\":2}. It runs tool:find-the-ink-mark-to-erase and answers {\"ref\":\"one:set:0\",\"effects\":{\"hide_refs\":[\"one:set:0\"]}}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:find-the-ink-mark-to-erase"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:find-the-ink-mark-to-erase\", and give it operations, target, point, radius.",
+    "1. Say to your AI: \"Find which showing ink mark lies nearest a point, so it can be erased without changing any mark\", and give it operations (The mark operation rows); target (The space the eraser is on: { address, frame?, range?, anchor?, reader_key?); point (Where the eraser touched, in the space's coordinates: [x, y] or { values: [x, y] }); radius (How near a mark must be, in the space's own units).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-the-ink-mark-to-erase and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.ref contains \"one:set:0\"."
+    "3. Read what comes back: Give the mark operations, their styles, the space and the point where the eraser touched, with a radius in the space's own units."
   ],
   "worked_examples": [
     {
-      "title": "Find the ink mark under an eraser on a sample input",
-      "ask": "Run tool:find-the-ink-mark-to-erase.",
+      "title": "Find the ink mark under an eraser on its own sample",
+      "ask": "Find which showing ink mark lies nearest a point, so it can be erased without changing any mark",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -66,7 +66,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.ref contains \"one:set:0\"."
+      "given": "The input {\"operations\":[{\"id\":\"one\",\"target\":{\"address\":\"poster\"},\"body\":{\"coordinate_sets\":[{\"points\":[{\"values\":[0,0]},{\"values\":[10,0]}]}]}}],\"target\":{\"address\":\"poster\"},\"point\":[5,1],\"radius\":2}.",
+      "hands_back": "It answered {\"ref\":\"one:set:0\",\"effects\":{\"hide_refs\":[\"one:set:0\"]}}."
     }
   ]
 }

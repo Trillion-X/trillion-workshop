@@ -1,22 +1,23 @@
 {
   "draft": true,
-  "drafted_from": "tool:forget-a-person-in-a-community's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:forget-a-person-in-a-community with community_id, person.\" Erase a person from a community's matching: what they told it, every match naming them, their asks, answers and jobs, and their place and scores on other members' shortlists and score jobs",
+  "drafted_from": "tool:forget-a-person-in-a-community's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Erase a person from a community's matching: what they told it, every match naming them, their asks, answers and jobs, and their place and scores on other members' shortlists and score jobs\", with {\"community_id\":\"sample-verify-community\",\"person\":\"sample-person\"}. It runs tool:forget-a-person-in-a-community and answers {\"ok\":false,\"error\":\"No community sample-verify-community keeps matching settings here.\",\"status\":404}",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (match-community, match-member, match-round, match-ask, match, match-answer, ai-job, group) through the records door.",
   "workflows": [],
   "tools": [
     "tool:forget-a-person-in-a-community"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:forget-a-person-in-a-community\", and give it community_id, person.",
+    "1. Say to your AI: \"Erase a person from a community's matching: what they told it, every match naming them, their asks, answers and jobs, and their place and scores on other members' shortlists and score jobs\", and give it community_id (The community whose matchmaker runs: its settings are the match-community record of this id.); person.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:forget-a-person-in-a-community and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.error contains \"No community sample-verify-community\"."
+    "3. Read what comes back: Removes the member record, every match naming the person with its one-to-one group, answers and jobs, their own asks and jobs, and takes them and the scores of them out of other members' asks and waiting score jobs.",
+    "4. It reads and writes only its own rows through the records door: match-community (records:read); match-member (records:read, records:list, records:write); match-round (records:read, records:list, records:write); match-ask (records:read, records:list, records:write); match (records:read, records:list, records:write); match-answer (records:read, records:list, records:write); ai-job (records:read, records:list, records:write); group (records:read, records:write)."
   ],
   "worked_examples": [
     {
-      "title": "Forget a person in a community's matchmaker on a sample input",
-      "ask": "Run tool:forget-a-person-in-a-community.",
+      "title": "Forget a person in a community's matchmaker on its own sample",
+      "ask": "Erase a person from a community's matching: what they told it, every match naming them, their asks, answers and jobs, and their place and scores on other members' shortlists and score jobs",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,7 +33,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.error contains \"No community sample-verify-community\"."
+      "given": "The input {\"community_id\":\"sample-verify-community\",\"person\":\"sample-person\"}.",
+      "hands_back": "It answered {\"ok\":false,\"error\":\"No community sample-verify-community keeps matching settings here.\",\"status\":404}."
     }
   ]
 }

@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:look-up-a-stripe-checkout's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:look-up-a-stripe-checkout with provider_session_id.\" Read a Stripe checkout and the subscription it made: whether it was paid, who by, the metadata set when it began and the real recurring amount",
+  "drafted_from": "tool:look-up-a-stripe-checkout's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Read a Stripe checkout and the subscription it made: whether it was paid, who by, the metadata set when it began and the real recurring amount\", with {\"provider_session_id\":\"cs_test_sample0001\"}. It runs tool:look-up-a-stripe-checkout and answers {\"provider_session_id\":\"cs_test_sample0001\",\"url\":\"\",\"status\":\"complete\",\"mode\":\"subscription\",\"amount_total\":1200,\"currency\":\"usd\",\"subscription\":\"sub_sample0001\",\"created\":1793750400,\"payment_status\":\"paid\",\"customer_email\":\"buyer@example.test\",\"offer_id\":\"offer:bread-box\",\"client_reference_id\":\"buyer-sample-1\",\"price_option_id\":\"price:box:monthly\",\"validated_amount_cents\":1200 ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:look-up-a-stripe-checkout"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:look-up-a-stripe-checkout\", and give it provider_session_id.",
+    "1. Say to your AI: \"Read a Stripe checkout and the subscription it made: whether it was paid, who by, the metadata set when it began and the real recurring amount\", and give it provider_session_id.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:look-up-a-stripe-checkout and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields provider_session_id, payment_status."
+    "3. Read what comes back: Give provider_session_id."
   ],
   "worked_examples": [
     {
-      "title": "Look up a Stripe checkout on a sample input",
-      "ask": "Run tool:look-up-a-stripe-checkout.",
+      "title": "Look up a Stripe checkout on its own sample",
+      "ask": "Read a Stripe checkout and the subscription it made: whether it was paid, who by, the metadata set when it began and the real recurring amount",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +31,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields provider_session_id, payment_status."
+      "given": "The input {\"provider_session_id\":\"cs_test_sample0001\"}, the web answering from 2 recorded replies.",
+      "hands_back": "It answered {\"provider_session_id\":\"cs_test_sample0001\",\"url\":\"\",\"status\":\"complete\",\"mode\":\"subscription\",\"amount_total\":1200,\"currency\":\"usd\",\"subscription\":\"sub_sample0001\",\"created\":1793750400,\"payment_status\":\"paid\",\"customer_email\":\"buyer@example.test\",\"offer_id\":\"offer:bread-box\",\"client_reference_id\":\"buyer-sample-1\",\"price_option_id\":\"price:box:monthly\",\"validated_amount_cents\":1200,\"initial_amount_cents\":null,\"cadence\":\"month\",\"metadata\":{\"offer_id\":\"offer:bread-box\",\"price_option_id\":\"price:box:monthly\",\"validated_amount_cents\":\"1200\",\"cadence\":\"month\"},\"recurring_amount_cents\":1200}."
     }
   ]
 }

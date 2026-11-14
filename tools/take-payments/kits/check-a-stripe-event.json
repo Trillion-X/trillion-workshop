@@ -1,22 +1,22 @@
 {
   "draft": true,
-  "drafted_from": "tool:check-a-stripe-event's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-a-stripe-event with payload, signature_header.\" Check a Stripe webhook before believing it (its age and its signature), and read it as a payment event to keep",
+  "drafted_from": "tool:check-a-stripe-event's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Check a Stripe webhook before believing it (its age and its signature), and read it as a payment event to keep\", with {\"payload\":\"{\\\"id\\\":\\\"evt_sample0001\\\",\\\"object\\\":\\\"event\\\",\\\"type\\\":\\\"checkout.session.completed\\\",\\\"created\\\":1793750400,\\\"data\\\":{\\\"object\\\":{\\\"id\\\":\\\"cs_test_sample0002\\\",\\\"object\\\":\\\"checkout.session\\\",\\\"amount_total\\\":2500,\\\"currency\\\":\\\"usd\\\",\\\"payment_status\\\":\\\"paid\\\",\\\"metadata\\\":{\\\"offer_id\\\":\\\"offer:sample-cake\\\"}}}}\",\"signature_header\":\"t=1793750400 .... It runs tool:check-a-stripe-event and answers {\"admitted\":true,\"event_kind\":\"payment.confirmed\",\"payment_event\":{\"kind\":\"payment-event\",\"id\":\"payment-event:evt_sample0001\",\"event_id\":\"evt_sample0001\",\"occurred_at\":\"2026-11-04T00:00:00.000Z\",\"event_kind\":\"payment.confirmed\",\"attributes\":{\"amount_due_today_cents\":2500,\"currency\":\"usd\",\"offer_id\":\"offer:sample-cake\",\"provider_object_ref\":\"cs_test_sample0002\",\"payment_status\":\"paid\" ...",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:check-a-stripe-event"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-a-stripe-event\", and give it payload, signature_header.",
+    "1. Say to your AI: \"Check a Stripe webhook before believing it (its age and its signature), and read it as a payment event to keep\", and give it payload; signature_header.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-stripe-event and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields admitted, reason, event_kind, payment_event."
+    "3. Read what comes back: Give the raw payload exactly as received and the Stripe-Signature header as signature_header."
   ],
   "worked_examples": [
     {
-      "title": "Check a Stripe event on a sample input",
-      "ask": "Run tool:check-a-stripe-event.",
+      "title": "Check a Stripe event on its own sample",
+      "ask": "Check a Stripe webhook before believing it (its age and its signature), and read it as a payment event to keep",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +33,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields admitted, reason, event_kind, payment_event."
+      "given": "The input {\"payload\":\"{\\\"id\\\":\\\"evt_sample0001\\\",\\\"object\\\":\\\"event\\\",\\\"type\\\":\\\"checkout.session.completed\\\",\\\"created\\\":1793750400,\\\"data\\\":{\\\"object\\\":{\\\"id\\\":\\\"cs_test_sample0002\\\",\\\"object\\\":\\\"checkout.session\\\",\\\"amount_total\\\":2500,\\\"currency\\\":\\\"usd\\\",\\\"payment_status\\\":\\\"paid\\\",\\\"metadata\\\":{\\\"offer_id\\\":\\\"offer:sample-cake\\\"}}}}\",\"signature_header\":\"t=1793750400 ....",
+      "hands_back": "It answered {\"admitted\":true,\"event_kind\":\"payment.confirmed\",\"payment_event\":{\"kind\":\"payment-event\",\"id\":\"payment-event:evt_sample0001\",\"event_id\":\"evt_sample0001\",\"occurred_at\":\"2026-11-04T00:00:00.000Z\",\"event_kind\":\"payment.confirmed\",\"attributes\":{\"amount_due_today_cents\":2500,\"currency\":\"usd\",\"offer_id\":\"offer:sample-cake\",\"provider_object_ref\":\"cs_test_sample0002\",\"payment_status\":\"paid\",\"completion_ref\":\"cs_test_sample0002\",\"provider_event_id\":\"evt_sample0001\"}}}."
     }
   ]
 }
