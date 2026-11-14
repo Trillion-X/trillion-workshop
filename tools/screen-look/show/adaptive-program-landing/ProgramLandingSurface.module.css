@@ -1,0 +1,70 @@
+.root {
+  --bf-red: #e8453c;
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.root :global(.bitfield-cta-button) {
+  --bf-cta-light: #3fbf8a;
+  --bf-cta-mid: #008652;
+  --bf-cta-deep: #006b41;
+  --bf-cta-shadow: 0, 107, 65;
+}
+
+.root .heroShell {
+  padding-left: 0;
+  padding-right: 0;
+  padding-top: 0;
+}
+
+.emailCourse {
+  align-items: center;
+  background: linear-gradient(145deg, #f5fbf7, #fff 66%);
+  border: 1px solid rgba(49, 92, 73, .2);
+  border-radius: 24px;
+  display: grid;
+  gap: clamp(28px, 5vw, 72px);
+  grid-template-columns: minmax(0, 1fr) minmax(290px, 410px);
+  margin: 0 auto;
+  max-width: 1120px;
+  padding: clamp(24px, 4vw, 56px);
+}
+
+.emailCourseCopy { color: #172c21; }
+.emailCourseCopy h2 { font-size: clamp(2rem, 3.5vw, 3.4rem); letter-spacing: -.035em; line-height: 1.12; margin: 8px 0 18px; }
+.emailCourseCopy p { font-size: 1.05rem; line-height: 1.65; margin: 0; }
+.emailCourseCopy ol { display: grid; gap: 10px; margin: 24px 0 0; padding-left: 24px; }
+.emailCourseCopy li { line-height: 1.5; padding-left: 5px; }
+.emailCourseEyebrow { color: #315c49; font-size: .75rem !important; font-weight: 800; letter-spacing: .11em; text-transform: uppercase; }
+.emailCourseFormCard { background: white; border: 1px solid rgba(49, 92, 73, .16); border-radius: 20px; box-shadow: 0 18px 50px rgba(15, 23, 42, .07); padding: clamp(20px, 3vw, 32px); }
+.emailCourseForm { display: grid; gap: 18px; }
+.emailCourseInput { background: #fff; border: 1px solid rgba(15, 23, 42, .3); border-radius: 10px; box-sizing: border-box; font-size: 1rem; height: 48px; padding: 10px 14px; width: 100%; }
+.emailCourseInput:focus-visible { outline: 2px solid #315c49; outline-offset: 2px; }
+.emailCourseConsent { align-items: flex-start; color: #334155; display: flex; font-size: .92rem; gap: 12px; line-height: 1.5; }
+.emailCourseConsent :global([role="checkbox"]) { align-items: center; background: #fff; border: 1.5px solid #315c49; border-radius: 4px; box-sizing: border-box; display: inline-flex; flex: 0 0 18px; height: 18px; justify-content: center; margin-top: 3px; width: 18px; }
+.emailCourseConsent :global([role="checkbox"][data-checked]) { background: #315c49; color: #fff; }
+.emailCourseConsent :global([role="checkbox"]:focus-visible) { outline: 2px solid #315c49; outline-offset: 3px; }
+.emailCourseConsent :global([data-slot="checkbox-indicator"]) { align-items: center; display: flex; height: 100%; justify-content: center; width: 100%; }
+.emailCourseConsent :global([data-slot="checkbox-indicator"][data-unchecked]) { display: none; }
+.emailCourseError { color: #991b1b; font-size: .9rem; margin: 0; }
+.emailCourseSuccess { color: #173f29; font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin: 0; }
+.emailCourseHoneypot { height: 0; opacity: 0; overflow: hidden; position: absolute; width: 0; }
+
+@media (max-width: 760px) {
+  .emailCourse { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .root {
+    overflow-x: hidden;
+  }
+
+  .root img,
+  .root video,
+  .root canvas,
+  .root svg {
+    height: auto;
+    max-width: 100%;
+  }
+}

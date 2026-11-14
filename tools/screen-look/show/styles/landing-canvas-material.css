@@ -1,0 +1,108 @@
+/* packages/screen-look/show/styles/landing-canvas-material.css
+ *
+ * The landing canvas: a warm off-white page, a film-grain layer over it, and a
+ * soft fade at the bottom of the viewport. One owner for every landing that
+ * wants this material; the Trillion site look imports it and a program landing
+ * loads it directly.
+ *
+ * Grain is blended with soft-light, which changes nothing over pure white, so
+ * the canvas color is part of the effect rather than decoration: a landing on a
+ * #fff page shows no grain at all. `--surface-base` falls back to the value the
+ * site tokens give it, so a page that does not load those tokens gets the same
+ * canvas instead of an invalid color and no background.
+ */
+
+/* ---------------------------------------------------------------------------
+ * LANDING FLAT SURFACE EXPERIMENT
+ *
+ * A reversible material switch for testing a canvas/grain-forward page language.
+ * The race cards intentionally keep their existing material so the grain layer
+ * can be judged independently.
+ * --------------------------------------------------------------------------- */
+
+[data-theme="paper"],
+[data-theme$="-light"] {
+  --landing-canvas-bg:
+    color-mix(in srgb, var(--surface-base, #f5f5f5) 92%, #fbfaf6 8%);
+}
+
+.landing-page {
+  background: var(--landing-canvas-bg);
+  isolation: isolate;
+  position: relative;
+}
+
+.landing-canvas-texture {
+  --landing-canvas-grain-blend: soft-light;
+  --landing-canvas-grain-opacity: 0.195;
+  --landing-canvas-text-tooth-opacity: 0;
+  contain: paint;
+  inset: 0;
+  isolation: isolate;
+  pointer-events: none;
+  position: fixed;
+  z-index: var(--landing-canvas-texture-z-index, 900);
+}
+
+.landing-canvas-texture::before,
+.landing-canvas-texture::after {
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.landing-canvas-texture::before {
+  background-image:
+    var(--landing-page-grain),
+    var(--landing-page-grain),
+    var(--landing-page-grain);
+  background-position: 0 0, 83px 41px, 151px 97px;
+  background-size: 128px 128px, 256px 256px, 96px 96px;
+  filter: contrast(235%) brightness(1) grayscale(1);
+  mix-blend-mode: var(--landing-canvas-grain-blend);
+  opacity: var(--landing-canvas-grain-opacity);
+  z-index: 2;
+}
+
+.landing-canvas-texture::after {
+  background-image: var(--landing-page-grain);
+  background-position: 37px 61px;
+  background-size: 112px 112px;
+  filter: contrast(260%) brightness(0.62) grayscale(1);
+  mix-blend-mode: normal;
+  opacity: var(--landing-canvas-text-tooth-opacity);
+  z-index: 3;
+}
+
+.landing-viewport-bottom-fade {
+  background:
+    linear-gradient(
+      180deg,
+      transparent 0%,
+      color-mix(in srgb, var(--surface-base, #f5f5f5) 16%, transparent) 46%,
+      color-mix(in srgb, var(--surface-base, #f5f5f5) 42%, transparent) 76%,
+      color-mix(in srgb, var(--surface-base, #f5f5f5) 66%, transparent) 100%
+    );
+  bottom: 0;
+  height: min(7vh, 58px);
+  left: 0;
+  pointer-events: none;
+  position: fixed;
+  right: 0;
+  z-index: var(--landing-viewport-bottom-fade-z-index, 40);
+}
+
+[data-theme="paper"] .landing-canvas-texture,
+[data-theme$="-light"] .landing-canvas-texture {
+  --landing-canvas-grain-blend: soft-light;
+  --landing-canvas-grain-opacity: 0.225;
+}
+
+[data-theme="midnight"] .landing-canvas-texture,
+[data-theme="abyss"] .landing-canvas-texture,
+[data-theme="monet"] .landing-canvas-texture {
+  --landing-canvas-grain-blend: soft-light;
+  --landing-canvas-grain-opacity: 0.15;
+  --landing-canvas-text-tooth-opacity: 0.045;
+}

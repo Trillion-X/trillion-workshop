@@ -1,0 +1,65 @@
+.root {
+  position: relative;
+  display: grid;
+  gap: 22px;
+  justify-items: center;
+  margin: 0 auto;
+  max-width: 920px;
+  padding: 26px 16px;
+  text-align: center;
+}
+
+.glow {
+  position: absolute;
+  inset: -6% 8% auto;
+  height: 320px;
+  background: radial-gradient(58% 62% at 50% 38%, rgba(0, 134, 82, 0.11), transparent 72%);
+  filter: blur(8px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.mark {
+  position: relative;
+  z-index: 1;
+  color: #008652;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 4.4rem;
+  font-weight: 700;
+  height: 2.2rem;
+  line-height: 0.62;
+}
+
+.quote {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  color: #0f172a;
+  font-size: clamp(1.5rem, 2.4vw + 0.9rem, 2.55rem);
+  font-weight: 640;
+  letter-spacing: -0.02em;
+  line-height: 1.28;
+}
+
+.caption {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 3px;
+}
+
+.name {
+  color: #0f172a;
+  font-size: 0.98rem;
+  font-weight: 770;
+}
+
+.role {
+  color: rgba(15, 23, 42, 0.55);
+  font-size: 0.86rem;
+}
+
+@media (max-width: 620px) {
+  .root { padding: 18px 8px; }
+  .glow { inset: -4% 0 auto; }
+}

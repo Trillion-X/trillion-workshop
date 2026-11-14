@@ -1,0 +1,182 @@
+#!/usr/bin/env node
+// The guarded front door for applying an already-authored current-state write
+// request to ONE selected running app.
+//
+// This deliberately does not extend `ask-the-running-app-what-it-can-do.mjs`.
+// That CLI is read-only. A current-state mutation is a different risk profile
+// and therefore has its own explicit `--apply` gate.
+//
+// The caller supplies only:
+//   1. one running app, preferably its exact owner status file (a stable app id
+//      remains valid when only one installation has that identity), and
+//   2. a JSON request using the generic label-addressed write-batch contract.
+//
+// No address, payload, package vocabulary, shell URL, or operation is embedded
+// here. Verification and expected-current filling remain the canonical writer's.
+
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+import {
+  startRunningAppSession,
+  runningAppTargetClient,
+} from "../read-data/find-the-running-app-and-send-requests-to-it.mjs";
+import { applyCurrentStateWrites } from "../read-data/apply-current-state-writes.mjs";
+
+function valuesFor(args, name) {
+  return args.flatMap((value, index) => value === name ? [args[index + 1]] : []);
+}
+
+export function selectedRunningAppFromArgs(args) {
+  // A hosted app is a running app. `startRunningAppSession` has always taken a
+  // `url`, and only this parser refused to pass one, so the single road to a
+  // remote engine was to reach past the owner. Worse, the two local selectors
+  // resolve against THIS machine, so aiming at a hosted app by habit silently
+  // writes to whichever local app has that identity. Naming the app in the
+  // same place for both is what makes the target reviewable.
+  const urls = valuesFor(args, "--url");
+  const appIds = valuesFor(args, "--app-id");
+  const statusFiles = valuesFor(args, "--status-file");
+  if (urls.length + appIds.length + statusFiles.length !== 1) {
+    throw new Error("select exactly one running app with --url, --app-id, or --status-file");
+  }
+  const given = urls.length === 1
+    ? { flag: "--url", value: urls[0] }
+    : appIds.length === 1
+      ? { flag: "--app-id", value: appIds[0] }
+      : { flag: "--status-file", value: statusFiles[0] };
+  if (given.value == null || String(given.value).trim().length === 0 || String(given.value).startsWith("--")) {
+    throw new Error(`${given.flag} needs a value`);
+  }
+  const selected = String(given.value).trim();
+  if (given.flag === "--url") {
+    if (!/^https?:\/\//i.test(selected)) {
+      throw new Error(`--url needs an http or https origin, got ${selected}`);
+    }
+    return { selector: { url: selected }, description: { url: selected } };
+  }
+  return given.flag === "--app-id"
+    ? { selector: { appId: selected }, description: { app_id: selected } }
+    : { selector: { statusFile: selected }, description: { status_file: selected } };
+}
+
+/**
+ * Every value given for `name`, in the order the caller wrote them.
+ *
+ * One request per invocation was the only shape, and it made "apply these
+ * states in turn" a thing a caller had to build outside the owner: a shell
+ * loop, a generated file per round, or a hundred invocations chained by hand.
+ * None of that is the caller's job, and the owner already knows how to apply
+ * one request correctly, which is the hard part.
+ */
+function optionValues(name) {
+  const values = [];
+  for (let index = 0; index < process.argv.length; index += 1) {
+    if (process.argv[index] !== name) continue;
+    const value = process.argv[index + 1];
+    if (value == null || value.trim().length === 0) throw new Error(`${name} needs a value`);
+    values.push(value.trim());
+  }
+  return values;
+}
+
+function positiveInteger(name, fallback) {
+  const index = process.argv.indexOf(name);
+  if (index < 0) return fallback;
+  const value = Number(process.argv[index + 1]);
+  if (!Number.isInteger(value) || value < 1) throw new Error(`${name} must be a whole number of at least 1`);
+  return value;
+}
+
+function usage() {
+  process.stderr.write(
+    "Usage: apply-current-state-writes-to-running-app.mjs (--app-id APP_ID | --status-file PATH) --request-file PATH [--request-file PATH...] [--rounds N] [--apply]\n" +
+    "Without --apply this is a dry run. With --apply it fills expected-current guards, writes, and verifies every address.\n" +
+    "Give --request-file more than once and the files are applied in rotation. --rounds N repeats that rotation N times,\n" +
+    "each round reading the live value again, so round N+1 supersedes what round N left. Rotating two files that differ is\n" +
+    "how a caller produces real supersession rather than an accepted-state no-op, which is what repeating ONE file gives.\n",
+  );
+}
+
+async function main() {
+  if (process.argv.includes("--help") || process.argv.includes("-h")) {
+    usage();
+    return;
+  }
+
+  const selectedApp = selectedRunningAppFromArgs(process.argv.slice(2));
+  const requestFiles = optionValues("--request-file");
+  // The request is a VALUE the caller already holds. Accepting only a path
+  // forced every caller to invent a file, and therefore to pick a directory,
+  // which turned a storage question into a policy question and produced
+  // exactly the workarounds any path restriction then has to fight. A caller
+  // that has the bytes should be able to hand them over.
+  const inlineRequests = optionValues("--request");
+  const rounds = positiveInteger("--rounds", 1);
+  const apply = process.argv.includes("--apply");
+  if (requestFiles.length === 0 && inlineRequests.length === 0) {
+    throw new Error("give the request with --request <json> or --request-file <path>");
+  }
+  const requests = [
+    ...inlineRequests.map((json, index) => {
+      try {
+        return JSON.parse(json);
+      } catch (error) {
+        throw new Error(`--request ${index + 1} is not valid JSON: ${error.message}`);
+      }
+    }),
+    ...requestFiles.map((file) => JSON.parse(readFileSync(file, "utf8"))),
+  ];
+  const session = await startRunningAppSession(selectedApp.selector);
+  const client = runningAppTargetClient(session);
+
+  // Rounds are sequential and each one re-reads the live value, because
+  // expected-current is what makes a write refuse rather than clobber. Sending
+  // them together would fill every guard from the same starting state and turn
+  // a chain of supersessions into a race between them.
+  const applications = [];
+  for (let round = 0; round < rounds; round += 1) {
+    for (const [index, request] of requests.entries()) {
+      const result = await applyCurrentStateWrites({
+        client,
+        request,
+        fillExpectedCurrent: true,
+        dryRun: !apply,
+      });
+      applications.push({ round, request_file: requestFiles[index], ...result });
+      if (apply && !result.ok) break;
+    }
+    if (apply && applications.at(-1)?.ok === false) break;
+  }
+
+  const last = applications.at(-1);
+  const ok = applications.every((application) => application.ok);
+  process.stdout.write(JSON.stringify({
+    ...selectedApp.description,
+    ok,
+    applications_requested: rounds * requests.length,
+    applications_run: applications.length,
+    writes_applied: applications.reduce((total, one) => total + (one.dryRun ? 0 : one.writeCount), 0),
+    ...(applications.length === 1
+      ? last
+      : {
+        first_cursor: applications[0]?.beforeCursor ?? null,
+        last_cursor: last?.afterCursor ?? null,
+        // The whole report would be thousands of lines for a long run, so the
+        // failures are named and the successes are counted. A run that went
+        // wrong shows exactly which application and why; a run that did not
+        // says so without burying it.
+        failures: applications.filter((application) => !application.ok),
+      }),
+  }, null, 2) + "\n");
+
+  if (apply && !ok) process.exitCode = 1;
+}
+
+if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url))) {
+  main().catch((error) => {
+    process.stderr.write(`${error.message}\n`);
+    process.exitCode = 1;
+  });
+}

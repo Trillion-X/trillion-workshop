@@ -1,0 +1,84 @@
+.panel {
+  background: #171717;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 22px;
+  box-shadow: 0 34px 75px -34px rgba(15, 23, 42, 0.65);
+  color: #f4f4f5;
+  display: grid;
+  gap: 30px;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  margin: 20px auto 0;
+  max-width: 1120px;
+  padding: 44px 42px;
+  width: 100%;
+}
+
+.outcomeColumn {
+  align-content: start;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  display: grid;
+  gap: 14px;
+  padding-right: 30px;
+}
+
+.eyebrow {
+  color: #6ee7b7;
+  font-size: 0.72rem;
+  font-weight: 780;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.outcome {
+  color: #fff;
+  font-size: clamp(1.6rem, 1.8vw + 0.9rem, 2.3rem);
+  font-weight: 680;
+  letter-spacing: -0.025em;
+  line-height: 1.16;
+  margin: 0;
+}
+
+.quoteColumn {
+  align-content: center;
+  display: grid;
+  gap: 16px;
+}
+
+.mark {
+  color: rgba(110, 231, 183, 0.7);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 3rem;
+  font-weight: 700;
+  height: 1.3rem;
+  line-height: 0.6;
+}
+
+.quote {
+  color: rgba(244, 244, 245, 0.92);
+  font-size: clamp(1.12rem, 0.7vw + 0.95rem, 1.4rem);
+  font-weight: 460;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.caption {
+  display: grid;
+  gap: 2px;
+  margin-top: 4px;
+}
+
+.name {
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 760;
+}
+
+.role {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.82rem;
+}
+
+@media (max-width: 860px) {
+  .panel { grid-template-columns: 1fr; gap: 22px; padding: 32px 24px; }
+  .outcomeColumn { border-right: 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-right: 0; padding-bottom: 22px; }
+}

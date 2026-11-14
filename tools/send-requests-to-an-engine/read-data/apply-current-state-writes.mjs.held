@@ -1,0 +1,237 @@
+import {
+  makeHashCodeHexFromBytes,
+  makeMultihashEncodedBytesFromCodeHex,
+} from '@bitfield/slot-protocol';
+
+const ENGINE_OPERATION_TARGET = 'engine.operation.label-addressed';
+const READ_CURRENT_OPERATION = 'engine.operation.read-current';
+const WRITE_BATCH_OPERATION = 'engine.operation.write-batch';
+const encoder = new TextEncoder();
+
+export async function applyCurrentStateWrites({
+  client,
+  request,
+  fillExpectedCurrent = false,
+  dryRun = false,
+}) {
+  const prepared = await prepareCurrentStateWriteRequest({
+    client,
+    request,
+    fillExpectedCurrent,
+  });
+  if (dryRun) {
+    return { ok: true, dryRun: true, writeCount: prepared.writes.length, request: prepared };
+  }
+
+  const beforeCursor = await readCurrentCursor(client, prepared.partition_label);
+  const writeReply = await invokeLabelAddressed(client, prepared);
+  const afterCursor = await readCurrentCursor(client, prepared.partition_label);
+  const verification = await verifyPreparedWrites(client, prepared.writes);
+  return {
+    ok: verification.every((item) => item.ok),
+    dryRun: false,
+    writeCount: prepared.writes.length,
+    writeReply,
+    beforeCursor,
+    afterCursor,
+    cursorAdvanced: afterCursor > beforeCursor,
+    verification,
+  };
+}
+
+export async function prepareCurrentStateWriteRequest({ client, request, fillExpectedCurrent = false }) {
+  const normalized = normalizeWriteBatchRequest(request);
+  const writes = [];
+  for (const write of normalized.writes) {
+    const shouldRead = fillExpectedCurrent
+      || write.expected_current === 'read-current'
+      || write.expected_current === true;
+    if (!shouldRead) {
+      writes.push(write);
+      continue;
+    }
+    const current = await readCurrent(client, write);
+    writes.push({
+      ...write,
+      expected_current: { payload_hash_base64: currentPayloadHashBase64(current) },
+    });
+  }
+  return { ...normalized, writes };
+}
+
+export function normalizeWriteBatchRequest(request) {
+  const object = Array.isArray(request)
+    ? { operation_label: WRITE_BATCH_OPERATION, writes: request }
+    : { ...request };
+  object.operation_label ??= WRITE_BATCH_OPERATION;
+  if (object.operation_label !== WRITE_BATCH_OPERATION) {
+    throw new Error(`operation_label must be ${WRITE_BATCH_OPERATION}`);
+  }
+  if (!Array.isArray(object.writes)) throw new Error('write-batch request requires writes array');
+  if (object.preconditions !== undefined && !Array.isArray(object.preconditions)) {
+    throw new Error('write-batch preconditions must be an array');
+  }
+  // A literal partition names whichever app happens to own that label, so
+  // defaulting to one points the request at an app the caller never selected.
+  // The engine refuses it outright ("names partition X, but this engine serves
+  // Y and owns no other. Omit the partition to read the serving app"), which is
+  // the good case; the bad case is a label that DOES resolve elsewhere and the
+  // write lands silently in the wrong app. Naming no partition is what makes
+  // the selected running app the target, which is the whole point of selecting
+  // one. Callers may still name a partition explicitly.
+  const named = object.partition_label ?? object.partitionLabel;
+  const partition = named == null ? null : nonEmptyString(named, 'partition_label');
+  return {
+    operation_label: WRITE_BATCH_OPERATION,
+    ...(partition == null ? {} : { partition_label: partition }),
+    ...(object.preconditions !== undefined ? { preconditions: object.preconditions } : {}),
+    writes: object.writes.map((write, index) => normalizeWrite(write, index, partition)),
+  };
+}
+
+function normalizeWrite(write, index, defaultPartition) {
+  if (!write || typeof write !== 'object' || Array.isArray(write)) {
+    throw new Error(`writes[${index}] must be an object`);
+  }
+  const namedPartition = write.partition_label ?? write.partitionLabel ?? defaultPartition;
+  const normalized = {
+    ...(namedPartition == null ? {} : {
+      partition_label: nonEmptyString(namedPartition, `writes[${index}].partition_label`),
+    }),
+    address_label: nonEmptyString(
+      write.address_label ?? write.addressLabel,
+      `writes[${index}].address_label`,
+    ),
+    path_labels: (write.path_labels ?? write.pathLabels ?? []).map((label, pathIndex) =>
+      nonEmptyString(label, `writes[${index}].path_labels[${pathIndex}]`)),
+  };
+  if (write.address_mode != null || write.addressMode != null) {
+    normalized.address_mode = nonEmptyString(
+      write.address_mode ?? write.addressMode,
+      `writes[${index}].address_mode`,
+    );
+  }
+
+  const payloadFields = ['payload', 'payload_text', 'payloadText', 'payload_base64', 'payloadBase64'];
+  const present = payloadFields.filter((field) => Object.hasOwn(write, field));
+  const removing = write.remove === true || write.retract === true;
+  if (removing && present.length > 0) throw new Error(`writes[${index}] cannot remove and provide payload`);
+  if (!removing && present.length !== 1) {
+    throw new Error(`writes[${index}] must provide exactly one payload field or remove=true`);
+  }
+  if (removing) normalized.remove = true;
+  else if (Object.hasOwn(write, 'payload')) normalized.payload = write.payload;
+  else if (Object.hasOwn(write, 'payload_text')) normalized.payload_text = String(write.payload_text);
+  else if (Object.hasOwn(write, 'payloadText')) normalized.payload_text = String(write.payloadText);
+  else if (Object.hasOwn(write, 'payload_base64')) {
+    normalized.payload_base64 = nonEmptyString(write.payload_base64, `writes[${index}].payload_base64`);
+  } else {
+    normalized.payload_base64 = nonEmptyString(write.payloadBase64, `writes[${index}].payloadBase64`);
+  }
+  if (Object.hasOwn(write, 'expected_current')) normalized.expected_current = write.expected_current;
+  if (Object.hasOwn(write, 'expectedCurrent')) normalized.expected_current = write.expectedCurrent;
+  return normalized;
+}
+
+export async function readCurrent(client, write) {
+  const request = {
+    operation_label: READ_CURRENT_OPERATION,
+    partition_label: write.partition_label,
+    address_label: write.address_label,
+  };
+  if (write.address_mode) request.address_mode = write.address_mode;
+  return invokeLabelAddressed(client, request);
+}
+
+async function readCurrentCursor(client, partitionLabel) {
+  const reply = await invokeLabelAddressed(client, {
+    operation_label: 'engine.operation.current-cursor',
+    partition_label: partitionLabel,
+  });
+  return Number(reply.cursor ?? 0);
+}
+
+async function verifyPreparedWrites(client, writes) {
+  const results = [];
+  for (const write of writes) {
+    const current = await readCurrent(client, write);
+    const expected = expectedPayload(write);
+    const ok = expected.kind === 'remove'
+      ? !current.found || current.payload_base64 == null
+      : current.found === true && currentMatches(current, expected);
+    results.push({
+      ok,
+      partition_label: write.partition_label,
+      address_label: write.address_label,
+      removed: expected.kind === 'remove',
+      found: current.found === true,
+      payloadBytes: current.payload_base64 ? bytesFromBase64(current.payload_base64).byteLength : 0,
+    });
+  }
+  return results;
+}
+
+function expectedPayload(write) {
+  if (write.remove === true) return { kind: 'remove' };
+  if (Object.hasOwn(write, 'payload')) return { kind: 'json', value: write.payload };
+  return { kind: 'bytes', bytes: payloadBytes(write) };
+}
+
+function currentMatches(current, expected) {
+  if (expected.kind === 'bytes') return current.payload_base64 === base64(expected.bytes);
+  return Object.hasOwn(current, 'payload') && canonicalJson(current.payload) === canonicalJson(expected.value);
+}
+
+function payloadBytes(write) {
+  if (Object.hasOwn(write, 'payload_base64')) return bytesFromBase64(write.payload_base64);
+  if (Object.hasOwn(write, 'payload_text')) return encoder.encode(write.payload_text);
+  if (Object.hasOwn(write, 'payload')) return encoder.encode(canonicalJson(write.payload));
+  throw new Error(`write ${write.address_label ?? '(unknown)'} has no payload`);
+}
+
+function currentPayloadHashBase64(current) {
+  if (!current?.found || current.payload_base64 == null) return null;
+  const codeHex = makeHashCodeHexFromBytes(bytesFromBase64(current.payload_base64));
+  return base64(makeMultihashEncodedBytesFromCodeHex(codeHex));
+}
+
+async function invokeLabelAddressed(client, request) {
+  const response = await client.postBytes(
+    ENGINE_OPERATION_TARGET,
+    encoder.encode(JSON.stringify(request)),
+    { headers: { 'Content-Type': 'application/json' } },
+  );
+  const text = await response.text();
+  if (!response.ok) {
+    throw new Error(`${request.operation_label} failed: http=${response.status} body=${text.slice(0, 500)}`);
+  }
+  try {
+    return JSON.parse(text);
+  } catch (error) {
+    throw new Error(`${request.operation_label} returned non-JSON body: ${error.message}: ${text.slice(0, 500)}`);
+  }
+}
+
+function canonicalJson(value) {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`;
+  if (value && typeof value === 'object') {
+    return `{${Object.keys(value).sort().map((key) =>
+      `${JSON.stringify(key)}:${canonicalJson(value[key])}`).join(',')}}`;
+  }
+  return JSON.stringify(value);
+}
+
+function bytesFromBase64(value) {
+  return new Uint8Array(Buffer.from(nonEmptyString(value, 'base64'), 'base64'));
+}
+
+function base64(bytes) {
+  return Buffer.from(bytes).toString('base64');
+}
+
+function nonEmptyString(value, label) {
+  if (typeof value !== 'string' || value.trim() === '') {
+    throw new Error(`${label} must be a non-empty string`);
+  }
+  return value.trim();
+}

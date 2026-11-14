@@ -1,0 +1,295 @@
+{
+  "about": "Files of the bitfield-packages screen-look package that tools/screen-look did not hold, moved here byte for byte from bitfield-packages (commit d926b7adb8ca24159ee64f47e7d9cae254f5b641), under their package paths. Files under from-bitfield-packages/show/ are the originals of CSS files this folder holds in a shorter form: both are kept until a person merges them; nothing there is wired. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes).",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "a-persons-first-name-made-up",
+      "find": "\\bBria[n]\\b",
+      "replace": "Alex",
+      "means": "A fixture or test label named a real person; a public tree holds made-up names only."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/screen-look/plans/2026-09-12-expansion-shared-source/reference/balsa/balsa-foundation.css",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/plans/2026-09-12-expansion-shared-source/reference/balsa/balsa-foundation.css",
+      "source_identity": "1f:d7a62b499e5e009f35022003396652ced8c5b7e782b9203221738ec0c7624e98",
+      "identity": "1f:d7a62b499e5e009f35022003396652ced8c5b7e782b9203221738ec0c7624e98"
+    },
+    {
+      "from": "packages/screen-look/plans/2026-09-12-expansion-shared-source/reference/balsa/balsa-theme.css",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/plans/2026-09-12-expansion-shared-source/reference/balsa/balsa-theme.css",
+      "source_identity": "1f:6d41ab40d057383648b9976806c2031f53728d14bf4c381d42e6a931e234d7e8",
+      "identity": "1f:6d41ab40d057383648b9976806c2031f53728d14bf4c381d42e6a931e234d7e8"
+    },
+    {
+      "from": "packages/screen-look/plans/2026-09-12-floating-workspace/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/plans/2026-09-12-floating-workspace/README.md",
+      "source_identity": "1f:552b32cb2190af915b6d4735bc2246fc2da2d97a108687f279d173ad445509af",
+      "identity": "1f:552b32cb2190af915b6d4735bc2246fc2da2d97a108687f279d173ad445509af"
+    },
+    {
+      "from": "packages/screen-look/read-data/resolve-render-descriptor.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/read-data/resolve-render-descriptor.ts",
+      "source_identity": "1f:e1cdb0d25a6f97d7033fc0489c3c4c889bb08328a0b8dc11c9081118088ceea8",
+      "identity": "1f:e1cdb0d25a6f97d7033fc0489c3c4c889bb08328a0b8dc11c9081118088ceea8"
+    },
+    {
+      "from": "packages/screen-look/reference-adaptation-contract.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/reference-adaptation-contract.json",
+      "source_identity": "1f:ab55eeac00143ef581f07d6b05dbd121fe3a4ace9c7b0e86f530393281f2e35c",
+      "identity": "1f:ab55eeac00143ef581f07d6b05dbd121fe3a4ace9c7b0e86f530393281f2e35c"
+    },
+    {
+      "from": "packages/screen-look/show-ios-jscore/mount-screen-look-jscore.js",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/show-ios-jscore/mount-screen-look-jscore.js",
+      "source_identity": "1f:15839da05ea5d67405996cca306529551b33ca3d5c81c434d5f171e612507b89",
+      "identity": "1f:15839da05ea5d67405996cca306529551b33ca3d5c81c434d5f171e612507b89"
+    },
+    {
+      "from": "packages/screen-look/show/adaptive-program-landing/ComparisonLibrarySection.module.css",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/show/adaptive-program-landing/ComparisonLibrarySection.module.css",
+      "source_identity": "1f:07d708d4dd9000190a88cca51db34d476f2b23dbf25c86d3cac571f65bf8df6c",
+      "identity": "1f:0b3909e3d4b3bf375af098a8a0e1a7c1128d3050da0c6bc301d013608d873ce7",
+      "calls": [
+        "a-persons-first-name-made-up"
+      ]
+    },
+    {
+      "from": "packages/screen-look/show/adaptive-program-landing/GuidedMediaOverlay.module.css",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/show/adaptive-program-landing/GuidedMediaOverlay.module.css",
+      "source_identity": "1f:0bf05e80e971d109c1c53158f3f446972caaeb4da8283e9c3fc3b3f9785abad4",
+      "identity": "1f:0bf05e80e971d109c1c53158f3f446972caaeb4da8283e9c3fc3b3f9785abad4"
+    },
+    {
+      "from": "packages/screen-look/show/adaptive-program-landing/ProgramCommunitySection.module.css",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/show/adaptive-program-landing/ProgramCommunitySection.module.css",
+      "source_identity": "1f:00cbe64d762713b53f9b5b95b83510233afeb6f3f64fd560fc70bfe000c498fc",
+      "identity": "1f:00cbe64d762713b53f9b5b95b83510233afeb6f3f64fd560fc70bfe000c498fc"
+    },
+    {
+      "from": "packages/screen-look/show/adaptive-program-landing/ProgramLandingSurface.module.css",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/show/adaptive-program-landing/ProgramLandingSurface.module.css",
+      "source_identity": "1f:31ea1858cad65f4ee278b0bbf52737b046c1d765be1ff832edeb90df4dbf7ec1",
+      "identity": "1f:31ea1858cad65f4ee278b0bbf52737b046c1d765be1ff832edeb90df4dbf7ec1"
+    },
+    {
+      "from": "packages/screen-look/show/adaptive-program-landing/ProgramNamedStrip.module.css",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/show/adaptive-program-landing/ProgramNamedStrip.module.css",
+      "source_identity": "1f:4c467d50bf02e69608b8196acd047ebeed27a8974a0985b658378bd4ebb53720",
+      "identity": "1f:4c467d50bf02e69608b8196acd047ebeed27a8974a0985b658378bd4ebb53720"
+    },
+    {
+      "from": "packages/screen-look/show/adaptive-program-landing/ProgramQuoteSpotlight.module.css",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/show/adaptive-program-landing/ProgramQuoteSpotlight.module.css",
+      "source_identity": "1f:ca7ff89c369a94dec3eb6cfd469e04035e6083adf241f201ad38fe27bea8cab0",
+      "identity": "1f:ca7ff89c369a94dec3eb6cfd469e04035e6083adf241f201ad38fe27bea8cab0"
+    },
+    {
+      "from": "packages/screen-look/show/adaptive-program-landing/ProgramResultsGrid.module.css",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/show/adaptive-program-landing/ProgramResultsGrid.module.css",
+      "source_identity": "1f:337ca141f55a44c48418c850f98febed325304e2109b0182b32fad4d97fbb360",
+      "identity": "1f:337ca141f55a44c48418c850f98febed325304e2109b0182b32fad4d97fbb360"
+    },
+    {
+      "from": "packages/screen-look/show/adaptive-program-landing/ProgramStatementSection.module.css",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/show/adaptive-program-landing/ProgramStatementSection.module.css",
+      "source_identity": "1f:87b02feff751f073052083fd2ec36cb7ca0a3f138a908347dc5d52091a1897fb",
+      "identity": "1f:87b02feff751f073052083fd2ec36cb7ca0a3f138a908347dc5d52091a1897fb"
+    },
+    {
+      "from": "packages/screen-look/show/adaptive-program-landing/ProgramStoryBlock.module.css",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/show/adaptive-program-landing/ProgramStoryBlock.module.css",
+      "source_identity": "1f:1ecdd44cff38f12748799f9cf9dfad754ec20a795555b32463990b25c0c763dd",
+      "identity": "1f:1ecdd44cff38f12748799f9cf9dfad754ec20a795555b32463990b25c0c763dd"
+    },
+    {
+      "from": "packages/screen-look/show/adaptive-program-landing/ProgramTestimonialMarquee.module.css",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/show/adaptive-program-landing/ProgramTestimonialMarquee.module.css",
+      "source_identity": "1f:29ed01fb97ff8d1263091a1f3e389b2f99ae9d0b5873ac20eb7c6b0ce819f80f",
+      "identity": "1f:29ed01fb97ff8d1263091a1f3e389b2f99ae9d0b5873ac20eb7c6b0ce819f80f"
+    },
+    {
+      "from": "packages/screen-look/show/continuous-outcome-demo.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/show/continuous-outcome-demo.ts",
+      "source_identity": "1f:2795f85c8b22525d710fde4eecfeb5740a81660fc917415521fbbf399abfc092",
+      "identity": "1f:2795f85c8b22525d710fde4eecfeb5740a81660fc917415521fbbf399abfc092"
+    },
+    {
+      "from": "packages/screen-look/show/editorial-link-card/EditorialLinkCard.module.css",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/show/editorial-link-card/EditorialLinkCard.module.css",
+      "source_identity": "1f:145da9a6950ef5692d51686275418f176d5fd0648baa0b9a4847a320afd6b2f3",
+      "identity": "1f:145da9a6950ef5692d51686275418f176d5fd0648baa0b9a4847a320afd6b2f3"
+    },
+    {
+      "from": "packages/screen-look/show/event-invitation/ScreenLookEventInvitation.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/show/event-invitation/ScreenLookEventInvitation.tsx.held",
+      "source_identity": "1f:fac0003fec7e609390f6171449d79fb3d1d6ce6f5a0ed580a9acc17185b62e65",
+      "identity": "1f:fac0003fec7e609390f6171449d79fb3d1d6ce6f5a0ed580a9acc17185b62e65",
+      "held": true
+    },
+    {
+      "from": "packages/screen-look/show/event-invitation/index.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/show/event-invitation/index.ts.held",
+      "source_identity": "1f:96ab20ea58fe8930c3fb4b9c3cdfe522e735635fc0bd504bec37ce236d81f33c",
+      "identity": "1f:96ab20ea58fe8930c3fb4b9c3cdfe522e735635fc0bd504bec37ce236d81f33c",
+      "held": true
+    },
+    {
+      "from": "packages/screen-look/show/kibo-copy.css",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/show/kibo-copy.css",
+      "source_identity": "1f:4406fd3a7581244b1ca0d76394e4290db847016f6c68a132b27774b9c194f393",
+      "identity": "1f:4406fd3a7581244b1ca0d76394e4290db847016f6c68a132b27774b9c194f393"
+    },
+    {
+      "from": "packages/screen-look/show/morphing-ribbon/ScreenLookMorphingRibbon.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/show/morphing-ribbon/ScreenLookMorphingRibbon.tsx.held",
+      "source_identity": "1f:165e9cd6bc4b5be536392ef04664cd45b8bdedb35144e24ce565a9bde78581e1",
+      "identity": "1f:165e9cd6bc4b5be536392ef04664cd45b8bdedb35144e24ce565a9bde78581e1",
+      "held": true
+    },
+    {
+      "from": "packages/screen-look/show/morphing-ribbon/index.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/show/morphing-ribbon/index.ts.held",
+      "source_identity": "1f:11ef6678a9261b461257be827f0f309530852bd06da72499256f97e08419c95d",
+      "identity": "1f:11ef6678a9261b461257be827f0f309530852bd06da72499256f97e08419c95d",
+      "held": true
+    },
+    {
+      "from": "packages/screen-look/show/public-editorial-page-style.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/show/public-editorial-page-style.mjs",
+      "source_identity": "1f:610088e0a470f05bf9853afaff7563b22389e1899b7ec6e7f65110202216ef1c",
+      "identity": "1f:610088e0a470f05bf9853afaff7563b22389e1899b7ec6e7f65110202216ef1c"
+    },
+    {
+      "from": "packages/screen-look/show/styles/bitfield-site-global-look.css",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/show/styles/bitfield-site-global-look.css",
+      "source_identity": "1f:fcdd68ff025f200e05607048dbf2d4ce3217c811e48ff9bf74ff656a3930e3c8",
+      "identity": "1f:fcdd68ff025f200e05607048dbf2d4ce3217c811e48ff9bf74ff656a3930e3c8"
+    },
+    {
+      "from": "packages/screen-look/show/styles/landing-canvas-material.css",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/show/styles/landing-canvas-material.css",
+      "source_identity": "1f:4b6659c477919a4bbb87e7fea6baa9528c98442e164ada75dc7ba5d8dc7de513",
+      "identity": "1f:4b6659c477919a4bbb87e7fea6baa9528c98442e164ada75dc7ba5d8dc7de513"
+    },
+    {
+      "from": "packages/screen-look/show/styles/portal-global-look-live-20260711.css",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/show/styles/portal-global-look-live-20260711.css",
+      "source_identity": "1f:b21d8f5f09524ffbbedc886c166a02c58a991d52373435c77f417e850e0ebc4a",
+      "identity": "1f:b21d8f5f09524ffbbedc886c166a02c58a991d52373435c77f417e850e0ebc4a"
+    },
+    {
+      "from": "packages/screen-look/show/tabbed-content.css",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/show/tabbed-content.css",
+      "source_identity": "1f:5a6ab3c41c2b687d04976a440a1e85d1e2af61255892f3a847989c553c31d2c5",
+      "identity": "1f:5a6ab3c41c2b687d04976a440a1e85d1e2af61255892f3a847989c553c31d2c5"
+    },
+    {
+      "from": "packages/screen-look/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/things-to-store-and-run.json",
+      "source_identity": "1f:d3e9dce45a20b84c498f6f10e257129096558f9ef55e74f5849e42b10c67a88a",
+      "identity": "1f:d3e9dce45a20b84c498f6f10e257129096558f9ef55e74f5849e42b10c67a88a"
+    },
+    {
+      "from": "packages/screen-look/show/media-review.css",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/from-bitfield-packages/show/media-review.css",
+      "source_identity": "1f:32f81f77f780e4a446e7e20d1f73b8e0b009e22704eed39eb66d91056daa9322",
+      "identity": "1f:32f81f77f780e4a446e7e20d1f73b8e0b009e22704eed39eb66d91056daa9322"
+    },
+    {
+      "from": "packages/screen-look/show/coss-workspace.css",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/from-bitfield-packages/show/coss-workspace.css",
+      "source_identity": "1f:fdcc67b388ff7cab00fbdc926e6a9437f96ef93dcb1705e60e21a6da6d3d949f",
+      "identity": "1f:fdcc67b388ff7cab00fbdc926e6a9437f96ef93dcb1705e60e21a6da6d3d949f"
+    },
+    {
+      "from": "packages/screen-look/show/candidate-field.css",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/from-bitfield-packages/show/candidate-field.css",
+      "source_identity": "1f:025cb99d6cf52fdba8b8376de398281bc60a00815f2724d8c713f13efd67620e",
+      "identity": "1f:025cb99d6cf52fdba8b8376de398281bc60a00815f2724d8c713f13efd67620e"
+    },
+    {
+      "from": "packages/screen-look/show/creative-workspace.css",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/from-bitfield-packages/show/creative-workspace.css",
+      "source_identity": "1f:00b734a26a9977112145da227949a4fa7c4f3e9ed1c16a1f5eb588d75c59bde7",
+      "identity": "1f:00b734a26a9977112145da227949a4fa7c4f3e9ed1c16a1f5eb588d75c59bde7"
+    },
+    {
+      "from": "packages/screen-look/show/notifications.css",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/from-bitfield-packages/show/notifications.css",
+      "source_identity": "1f:16415dd3d692ae61b46d7ef808d1314070bc952bd7c6629030f961d00181a821",
+      "identity": "1f:16415dd3d692ae61b46d7ef808d1314070bc952bd7c6629030f961d00181a821"
+    },
+    {
+      "from": "packages/screen-look/show/floating-workspace.css",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/from-bitfield-packages/show/floating-workspace.css",
+      "source_identity": "1f:a2e71af4ecaa7650bd95cb902ceb0a14587132059d372b1d17ed2c3affa5092f",
+      "identity": "1f:a2e71af4ecaa7650bd95cb902ceb0a14587132059d372b1d17ed2c3affa5092f"
+    },
+    {
+      "from": "packages/screen-look/show/app-navigation.css",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/from-bitfield-packages/show/app-navigation.css",
+      "source_identity": "1f:8640fda610f3279c299bcc0793a5aae47607f50d7411d51b37ce5292a8527145",
+      "identity": "1f:8640fda610f3279c299bcc0793a5aae47607f50d7411d51b37ce5292a8527145"
+    },
+    {
+      "from": "packages/screen-look/show/action-row.css",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/from-bitfield-packages/show/action-row.css",
+      "source_identity": "1f:ff792c406ba97ecf8b86f229f08894fc4db01de8c2866b8dbeff113305d8af9c",
+      "identity": "1f:ff792c406ba97ecf8b86f229f08894fc4db01de8c2866b8dbeff113305d8af9c"
+    },
+    {
+      "from": "packages/screen-look/show/ask-and-list.css",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/from-bitfield-packages/show/ask-and-list.css",
+      "source_identity": "1f:1aba0a1a807bd3f5caca8ad7070e8754ae04408c26c5dda959499058e3b5ac81",
+      "identity": "1f:1aba0a1a807bd3f5caca8ad7070e8754ae04408c26c5dda959499058e3b5ac81"
+    },
+    {
+      "from": "packages/screen-look/show/beautiful-ui-controls.css",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/screen-look/from-bitfield-packages/show/beautiful-ui-controls.css",
+      "source_identity": "1f:0a12ff3f10fe67a3a4ae252c59a012109a4febe1a1665f6d49e244b8378cb01a",
+      "identity": "1f:0a12ff3f10fe67a3a4ae252c59a012109a4febe1a1665f6d49e244b8378cb01a"
+    }
+  ]
+}

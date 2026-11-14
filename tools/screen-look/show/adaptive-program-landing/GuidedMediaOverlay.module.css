@@ -1,0 +1,370 @@
+/* Glass guidance overlay over configured media. */
+
+.surface {
+  --lc-green: #008652;
+  --lc-ink: #101814;
+  --lc-line: rgba(16, 24, 20, 0.12);
+  position: relative;
+  width: min(1100px, 100%);
+  margin: 16px auto 0;
+  border: 1px solid var(--lc-line);
+  border-radius: 24px;
+  overflow: hidden;
+  background: linear-gradient(155deg, #123024 0%, #0b120e 55%, #0a0f0c 100%);
+  box-shadow: 0 26px 80px rgba(18, 34, 25, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  color: #fff;
+  isolation: isolate;
+}
+.surface * { box-sizing: border-box; }
+
+.frame {
+  position: relative;
+  width: 100%;
+  min-height: clamp(430px, 47vw, 560px);
+  overflow: hidden;
+}
+
+.mediaStage {
+  inset: 0;
+  position: absolute;
+}
+
+.video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.96) contrast(1.05);
+  background: linear-gradient(180deg, #2f6a4d 0 49.4%, #285b41 49.4% 50.6%, #2f6a4d 50.6%);
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(3, 11, 7, 0.34), transparent 40%, rgba(3, 11, 7, 0.30)),
+    linear-gradient(180deg, rgba(3, 11, 7, 0.30) 0%, transparent 30%, transparent 58%, rgba(3, 11, 7, 0.62));
+}
+
+/* ---------- top-left LIVE HUD + success meter ---------- */
+.hud {
+  position: absolute;
+  z-index: 3;
+  left: clamp(14px, 2.4vw, 22px);
+  top: clamp(14px, 2.4vw, 22px);
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  width: min(300px, calc(100% - 28px));
+}
+.livePill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  align-self: flex-start;
+  padding: 6px 11px 6px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: rgba(8, 17, 12, 0.6);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.liveDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #ff5a4d;
+  box-shadow: 0 0 0 0 rgba(255, 90, 77, 0.55);
+  animation: lcLive 1.7s ease-out infinite;
+}
+.meter {
+  padding: 11px 13px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 15px;
+  background: rgba(8, 17, 12, 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.meterTop {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+.meterLabel {
+  font-size: 10.5px;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.62);
+}
+.meterValue {
+  font-size: 20px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.meterTrack {
+  position: relative;
+  height: 7px;
+  margin-top: 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  overflow: hidden;
+}
+/* the green band = the target zone the coach holds you inside */
+.meterBand {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 999px;
+  background: rgba(110, 231, 169, 0.28);
+}
+.meterFill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--lc-green), #34d17f);
+  box-shadow: 0 0 12px rgba(52, 209, 127, 0.5);
+  transition: width 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.meterCaption {
+  margin-top: 7px;
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.66);
+}
+
+/* ---------- floating glass chat panel ---------- */
+.chat {
+  position: absolute;
+  z-index: 4;
+  right: clamp(14px, 2.6vw, 26px);
+  bottom: clamp(14px, 2.6vw, 24px);
+  width: min(46%, 420px);
+  max-height: min(74%, 430px);
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  border-radius: 20px;
+  background: linear-gradient(150deg, rgba(8, 17, 12, 0.58), rgba(20, 39, 29, 0.34));
+  box-shadow: 0 26px 72px rgba(0, 0, 0, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.24), inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  overflow: hidden;
+}
+.chat::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.12), transparent 38%);
+  opacity: 0.7;
+}
+.chat > * { position: relative; }
+
+.chatHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 11px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+}
+.avatar {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: var(--lc-green);
+  box-shadow: 0 8px 20px rgba(0, 134, 82, 0.28);
+}
+.headName {
+  display: block;
+  font-size: 14.5px;
+  font-weight: 750;
+  line-height: 1.35;
+}
+.headStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+  font-size: 11.5px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.66);
+}
+.headStatus i {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #34d17f;
+  box-shadow: 0 0 0 0 rgba(52, 209, 127, 0.55);
+  animation: lcLive 1.7s ease-out infinite;
+}
+
+/* pinned "one thing to fix right now" */
+.pinned {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 9px;
+  align-items: start;
+  margin-top: 12px;
+  padding: 11px 12px;
+  border: 1px solid rgba(52, 209, 127, 0.42);
+  border-radius: 13px;
+  background: rgba(0, 134, 82, 0.2);
+}
+.pinnedIcon {
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: var(--lc-green);
+}
+.pinnedLabel {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 850;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #8ff0bd;
+}
+.pinnedText {
+  display: block;
+  margin-top: 3px;
+  font-size: 13.5px;
+  line-height: 1.4;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+
+.messages {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding-top: 12px;
+  overflow: auto;
+  scrollbar-width: none;
+}
+.messages::-webkit-scrollbar { display: none; }
+
+.bubble {
+  max-width: 92%;
+  padding: 10px 12px;
+  border-radius: 14px;
+  font-size: 13.5px;
+  line-height: 1.42;
+  overflow-wrap: anywhere;
+  animation: lcBubble 0.36s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.coach {
+  align-self: flex-start;
+  color: var(--lc-ink);
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-bottom-left-radius: 4px;
+}
+/* stat/difficulty bubble = the coach dialing the challenge */
+.stat {
+  align-self: flex-end;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #fff;
+  font-weight: 700;
+  background: linear-gradient(135deg, rgba(0, 134, 82, 0.94), rgba(30, 158, 104, 0.92));
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-bottom-right-radius: 4px;
+}
+.statIcon { flex: none; opacity: 0.92; }
+
+.typing {
+  align-self: flex-start;
+  display: inline-flex;
+  gap: 4px;
+  padding: 11px 13px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.88);
+}
+.typing i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(16, 24, 20, 0.42);
+  animation: lcTyping 1s infinite;
+}
+.typing i:nth-child(2) { animation-delay: 0.16s; }
+.typing i:nth-child(3) { animation-delay: 0.32s; }
+
+@keyframes lcLive {
+  0% { box-shadow: 0 0 0 0 rgba(255, 90, 77, 0.5); }
+  70%, 100% { box-shadow: 0 0 0 7px rgba(255, 90, 77, 0); }
+}
+@keyframes lcBubble { from { opacity: 0; transform: translateY(8px) scale(0.985); } }
+@keyframes lcTyping { 50% { transform: translateY(-3px); opacity: 0.9; } }
+
+/* ---------- responsive: stack the chat to the bottom band ---------- */
+@media (max-width: 760px) {
+  .surface { border-radius: 18px; }
+  .frame {
+    display: grid;
+    min-height: 0;
+    min-width: 0;
+  }
+  .mediaStage {
+    aspect-ratio: 16 / 10;
+    min-width: 0;
+    position: relative;
+    width: 100%;
+  }
+  .scrim {
+    background: linear-gradient(180deg, rgba(3, 11, 7, 0.28) 0%, transparent 46%);
+  }
+  .chat {
+    bottom: auto;
+    left: auto;
+    margin: 12px;
+    max-height: none;
+    position: relative;
+    right: auto;
+    width: auto;
+  }
+  .hud { left: 12px; top: 12px; }
+  .meter { max-width: 235px; }
+  .meterCaption { display: none; }
+  .messages { max-height: 220px; }
+}
+@media (max-width: 430px) {
+  .chat { padding: 13px; }
+  .bubble { font-size: 13px; }
+  .meterValue { font-size: 18px; }
+}
+
+/* ---------- reduced motion: everything static ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .surface *,
+  .liveDot,
+  .headStatus i,
+  .bubble,
+  .typing i,
+  .meterFill {
+    animation: none !important;
+    transition: none !important;
+  }
+}

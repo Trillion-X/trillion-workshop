@@ -1,0 +1,48 @@
+{
+  "schema": "ai-orchestra.reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-SCREEN-LOOK-CONSOLIDATION",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "For valuable work, inspect the actual behavior and integrate the final correct implementation into the default branch using ordinary commits.",
+    "message_sha256": "cce66acd2fc5f90f85208e7ee9d5c9099c91015cfed5263ff398626125969c38"
+  },
+  "mode": "BEHAVIORAL_PORT",
+  "sources": [
+    {
+      "path": "packages/screen-look/read-data/resolve-screen-look-palette.js",
+      "sha256": "4285465a47380f9d381f7148a8f3f2e6e59879d51cc1f2d25d61c9478a5baea2",
+      "ownership": "repository-owned"
+    }
+  ],
+  "targets": [
+    {
+      "path": "packages/screen-look/show/ChooseScreenLook.tsx"
+    },
+    {
+      "path": "packages/screen-look/show/CompactScreenLookThemeEditor.tsx"
+    }
+  ],
+  "preserve": [
+    "Authored CSS variables and semantic tokens use the same palette precedence in previews and applied themes.",
+    "Keep the current default theme and its display/inverse roles."
+  ],
+  "allowed_deltas": [
+    "Replace duplicate preview token readers with the existing palette resolver.",
+    "Retain the previously uncommitted Rillet theme as an optional DATA record."
+  ],
+  "banned_substitutions": [
+    "Do not replace the current default with a branch-era theme.",
+    "Do not deploy or alter the running app."
+  ],
+  "baseline": {
+    "copied_before_adaptation": false,
+    "note": "Consolidation of existing behavior, with no external visual reference or source-copy baseline."
+  },
+  "proof": {
+    "test_refs": [
+      "packages/screen-look/read-data/rillet-light-theme.test.ts",
+      "packages/screen-look/read-data/resolve-screen-look-palette.test.ts"
+    ],
+    "note": "All seven screen-look test files passed, 28 tests; no live app appearance claim."
+  }
+}

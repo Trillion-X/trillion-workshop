@@ -1,0 +1,128 @@
+{
+  "package": "send-requests-to-an-engine",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::send-requests-to-an-engine::checks",
+      "path": ["packages", "send-requests-to-an-engine", "checks"],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "tests/engine-connections.test.mjs",
+          "tests/find-the-running-app-and-send-requests-to-it.test.mjs",
+          "tests/serve-running-app-tools-over-mcp.test.mjs",
+          "tests/explain-a-missing-record-by-running-its-producer.test.mjs",
+          "tests/apply-current-state-writes.test.mjs"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::send-requests-to-an-engine::contract",
+      "path": ["packages", "send-requests-to-an-engine", "contract"],
+      "payload": {
+        "kind": "package-contract",
+        "package": "send-requests-to-an-engine",
+        "owns": [
+          "reading a caller-selected running-app owner file",
+          "establishing the /boot running-command-list basis",
+          "sending caller-selected Envelope target requests over HTTP",
+          "the CLI and MCP surfaces that list actions, find current records, execute one declared action, or apply and verify caller-authored current-state writes with a bounded default or caller-specified timeout"
+        ],
+        "does_not_own": [
+          "choosing an app or partition for a caller",
+          "workflow semantics, record domain meanings, credentials, or lifecycle",
+          "in-app runtime-kit request transport"
+        ],
+        "sharing_contract": "Consumers mount this stored-byte source beside their own process source. They never import this package source from another package."
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "find-and-send-node-source",
+      "source_path": "read-data/find-the-running-app-and-send-requests-to-it.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "apply-current-state-writes-node-source",
+      "source_path": "read-data/apply-current-state-writes.mjs"
+    },
+    {
+      "type": "record",
+      "address": "package::send-requests-to-an-engine::public-source::do-work",
+      "address_mode": "identity_text",
+      "path": ["packages", "send-requests-to-an-engine", "public-sources", "do-work"],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "do-work"
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "serve-running-app-tools-over-mcp-source",
+      "source_path": "do-work/serve-running-app-tools-over-mcp.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "engine-connections-data",
+      "source_path": "engine-connections.json"
+    },
+    {
+      "type": "record",
+      "address": "package::send-requests-to-an-engine::workflow-action::query-current-items",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record", "workflow-definition"],
+      "payload": {
+        "id": "action:query-current-items",
+        "kind": "action",
+        "name": "query-current-items",
+        "description": "Run one bounded declarative query through the existing find-current-items owner. The slot owns calibration, admission, cursor, limit, and result semantics; this action adds no enumeration or fallback. Empty owner output remains owner-calibrated evidence.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["query"],
+          "properties": {
+            "query": {"type": "object", "additionalProperties": true}
+          }
+        },
+        "steps": [
+          {
+            "id": "query",
+            "kind": "ask",
+            "config": {
+              "name": "slot::find-current-items",
+              "input": {
+                "$kind": "binding",
+                "select": {"from": "input", "path": "query"}
+              }
+            }
+          },
+          {
+            "id": "done",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {"from": "steps", "key": "query", "path": "output"}
+              }
+            }
+          }
+        ],
+        "edges": [{"from": "query", "to": "done", "kind": "on_result"}],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    }
+  ]
+}

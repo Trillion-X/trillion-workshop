@@ -1,0 +1,22 @@
+/* packages/screen-look/show/ask-and-list.css
+ *
+ * PURPOSE
+ *   Two page shapes used wherever a person adds things by typing and then
+ *   works through what they added:
+ *   - .ask-and-list: an ask bar above a list that takes the rest of the height.
+ *   - .reading-pair: a pane that reads one text under a quiet heading, used in
+ *     pairs side by side (what someone said beside the template made from it).
+ *   Colours, type and spacing come only from the shared tokens.
+ */
+.ask-and-list{display:flex;flex-direction:column;height:100%;min-height:0;gap:var(--t-spacing-3,12px);padding:var(--t-spacing-4,16px) var(--t-spacing-4,16px) 0;box-sizing:border-box}
+.ask-and-list-bar{flex:0 0 auto;max-width:880px;width:100%;margin:0 auto}
+.ask-and-list-note{flex:0 0 auto;max-width:880px;width:100%;margin:0 auto;color:var(--text-secondary,var(--muted-foreground));font-size:var(--font-size-body-sm,13px);line-height:1.5;min-height:1.5em}
+.ask-and-list-list{flex:1 1 auto;min-height:0}
+.reading-pair-page{display:flex;flex-direction:column;height:100%;min-height:0;gap:var(--t-spacing-3,12px);padding:var(--t-spacing-4,16px);box-sizing:border-box}
+.reading-pair-page > .reading-pair-top{flex:0 0 auto;display:flex;flex-direction:column;gap:var(--t-spacing-2,8px)}
+.reading-pair-page > .reading-pair-split{flex:1 1 auto;min-height:240px}
+.reading-pair-page > .reading-pair-compose{flex:0 0 auto}
+.reading-pair-title{margin:0;font-size:var(--font-size-heading-sm,18px);line-height:1.4;font-weight:550;letter-spacing:normal;color:var(--text-primary,var(--foreground))}
+.reading-pair{display:flex;flex-direction:column;height:100%;min-height:0}
+.reading-pair-heading{flex:0 0 auto;padding:var(--t-spacing-2,8px) var(--t-spacing-3,12px) var(--t-spacing-1,4px);font-size:var(--font-size-body-sm,13px);font-weight:550;color:var(--text-secondary,var(--muted-foreground))}
+.reading-pair-body{flex:1 1 auto;min-height:0;padding:0 var(--t-spacing-3,12px) var(--t-spacing-3,12px);white-space:pre-wrap;line-height:1.6}

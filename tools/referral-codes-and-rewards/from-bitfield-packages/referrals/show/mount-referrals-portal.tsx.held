@@ -1,0 +1,27 @@
+import React from 'react';
+import { ErrorBoundary } from '@/packages/ui/show/error-boundary';
+import { mountReactSurface } from '@/packages/ui/show/react-surface-mount';
+import { ReferralsPortalSurface } from './app-shell/ReferralsPortalSurface';
+
+type MountArgs = {
+  el: HTMLElement;
+  props?: {
+    surfaceInput?: {
+      referral_code_prefix?: unknown;
+    };
+  };
+};
+
+function ReferralsPortalRoot({ codePrefix }: { codePrefix: string }) {
+  return (
+    <ErrorBoundary zoneName="referrals-portal">
+      <ReferralsPortalSurface codePrefix={codePrefix} />
+    </ErrorBoundary>
+  );
+}
+
+export default function mount({ el, props }: MountArgs) {
+  const rawPrefix = props?.surfaceInput?.referral_code_prefix;
+  const codePrefix = typeof rawPrefix === 'string' && rawPrefix.trim() ? rawPrefix : 'REF';
+  return mountReactSurface(el, <ReferralsPortalRoot codePrefix={codePrefix} />);
+}

@@ -1131,7 +1131,7 @@
       "capability": "give out and claim referral codes and rewards",
       "owner": ["tools/referral-codes-and-rewards/"],
       "entry": "tools/referral-codes-and-rewards/tool-rows.json",
-      "evidence": "codes-and-rewards README.md:1 code, share, claim; referrals records codes given and received",
+      "evidence": "codes-and-rewards README.md:1 code, share, claim; referrals records codes given and received The bitfield-packages referrals portal panel, session reader and signed sender are carried unwired in from-bitfield-packages/referrals/ (moved-from.json there).",
       "source_still_in": {"repo_kind": "retired bitfield-packages repository", "paths": ["bitfield-packages/packages/referrals/"]}
     },
     {
@@ -1292,7 +1292,7 @@
       "capability": "plan the next training session and log workouts",
       "owner": ["tools/training-and-workouts/"],
       "entry": "tools/training-and-workouts/tool-rows.json",
-      "evidence": "training-plan: next session and progression; workout-log: workout log state; the original TypeScript of training-plan (read-data/training-plan.ts, derive-next-session.ts, select-adaptive-next-session.ts, apply-progression.ts, do-work/process-scripts/next-session-cli.ts) is carried byte for byte beside the .mjs translation, receipt in moved-from.json; its panel, mount and tests wait on calls rows",
+      "evidence": "training-plan: next session and progression; workout-log: workout log state; the original TypeScript of training-plan (read-data/training-plan.ts, derive-next-session.ts, select-adaptive-next-session.ts, apply-progression.ts, do-work/process-scripts/next-session-cli.ts) is carried byte for byte beside the .mjs translation, receipt in moved-from.json; its panel, mount and tests wait on calls rows The bitfield-packages workout-log capture descriptors, lenses, schema, TypeScript decoder and panel are carried unwired in from-bitfield-packages/workout-log/ (moved-from.json there).",
       "source_still_in": {"repo_kind": "retired bitfield-packages repository", "paths": ["bitfield-packages/packages/training-plan/", "bitfield-packages/packages/workout-log/"]}
     },
     {
@@ -1386,7 +1386,8 @@
       "capability": "form groups, tribes and matches among people",
       "owner": ["tools/form-groups-and-matches/"],
       "entry": "tools/form-groups-and-matches/tool-rows.json",
-      "evidence": "README.md:3 keeps groups, forms matches by grounded expected value with introductions that wait for every person's consent, and runs a community's matchmaker on its cadence (its round of that same job); ported from bitfield-packages/packages/interaction-program and group, and from the Trillion app's src/community-matching.mjs"
+      "evidence": "README.md:3 keeps groups, forms matches by grounded expected value with introductions that wait for every person's consent, and runs a community's matchmaker on its cadence (its round of that same job); ported from bitfield-packages/packages/interaction-program and group, and from the Trillion app's src/community-matching.mjs The bitfield-packages subject-participant package (the hosted join doorway: admission, revisions, receipts, signed owner event, surface) is carried unwired in from-bitfield-packages/subject-participant/ (moved-from.json there); wiring it is adapting it.",
+      "source_still_in": {"repo_kind": "retired bitfield-packages repository", "paths": ["bitfield-packages/packages/subject-participant/"]}
     },
     {
       "capability": "ask a live source and fall back to its last good answer",
@@ -1490,7 +1491,7 @@
       "capability": "research a creator or topic: gather its latest items and transcripts, and write a profile of it",
       "owner": ["tools/research-a-creator-or-topic/"],
       "entry": "tools/research-a-creator-or-topic/tool-rows.json",
-      "evidence": "research-workspace README.md:1 paste a source, gather its latest items, extract transcripts, synthesize a creator profile; tools/research-a-creator-or-topic/README.md: the same profile hand-off researches a prospect (a company or business to sell to) and tool:keep-a-prospect keeps its profile as one row of the prospect list, whose fields and statuses are data in do-work/prospect-list.json",
+      "evidence": "research-workspace README.md:1 paste a source, gather its latest items, extract transcripts, synthesize a creator profile; tools/research-a-creator-or-topic/README.md: the same profile hand-off researches a prospect (a company or business to sell to) and tool:keep-a-prospect keeps its profile as one row of the prospect list, whose fields and statuses are data in do-work/prospect-list.json The bitfield-packages profile-a-creator-or-topic data (the research-creator instruction, the profile envelope action, the input descriptor) is carried in from-bitfield-packages/profile-a-creator-or-topic/ (moved-from.json there).",
       "source_still_in": {"repo_kind": "retired bitfield-packages repository", "paths": ["bitfield-packages/packages/research-workspace/", "bitfield-packages/packages/profile-a-creator-or-topic/"]}
     },
     {
@@ -1635,14 +1636,15 @@
       "capability": "turn a look's colour, size and font tokens into concrete values and the stylesheet a document carries, with its font faces",
       "owner": ["tools/screen-looks/"],
       "entry": "tools/screen-looks/tool-rows.json",
-      "evidence": "README.md:3 a look is tokens; this resolves them into concrete colours and fonts and one stylesheet any page or slide can carry",
+      "evidence": "README.md:3 a look is tokens; this resolves them into concrete colours and fonts and one stylesheet any page or slide can carry The bitfield-packages screen-look package files this tool lacked (event invitation, morphing ribbon, adaptive program landing, editorial page and site looks, render descriptor resolver, iOS JSCore mount, look records, tests and plans) are carried in tools/screen-look/ and tools/screen-look/from-bitfield-packages/ (moved-from.json there).",
       "distinct_from": [
         {"job": "make a colour lookup table that turns log camera footage into display colour", "why": "that tool grades video colour; this one resolves a page look's colour and font tokens"},
 
         {"job": "make a site's web fonts smaller and prove its pages still look the same", "why": "that tool shrinks font files; this one names which faces and colours a look uses and writes them as a stylesheet"},
 
         {"job": "write documents and scenes as content records, and turn them into an outbound message body", "why": "that tool writes document content; this one writes the look a document wears"}
-      ]
+      ],
+      "source_still_in": {"repo_kind": "retired bitfield-packages repository", "paths": ["bitfield-packages/packages/screen-look/"]}
     },
     {
       "capability": "rank a person's records in the order they should review them, and keep their accept or pass as their stand",
@@ -1936,6 +1938,17 @@
           "why": "That owner turns Markdown into the document scene tree; this one decides what a clipboard paste is (insert, attachment, or markdown from another editor's HTML) before any document takes it."
         }
       ]
+    },
+    {
+      "capability": "ask a running app what it can do, find its records, read one record and run one declared action, over MCP or the command line, with a secret read from standard input",
+      "owner": ["tools/send-requests-to-an-engine/"],
+      "entry": "tools/send-requests-to-an-engine/part.json",
+      "evidence": "README.md:1 four tools (list_running_app_actions, find_running_app_records, call_running_app_action, read_running_app_record) as an MCP server and a command line; moved-from.json names the copy carried from bitfield-packages, whose source stays because the MCP server on this computer runs from it",
+      "distinct_from": [
+        {"job": "serve command-line MCP servers on the web and ask one once", "why": "that hosts any stdio MCP server; this is the one server that carries an AI session's request to a running app"},
+        {"job": "walk an app's journeys in a browser and read what a running app shows", "why": "that drives a browser over the screens; this calls the app's declared actions and reads its records"}
+      ],
+      "source_still_in": {"repo_kind": "retired bitfield-packages repository", "paths": ["bitfield-packages/packages/send-requests-to-an-engine/"]}
     }
   ]
 }

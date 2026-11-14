@@ -1,0 +1,10 @@
+.shared-tabbed-host { min-width: 0; min-height: 20rem; padding-block: 1rem; background: transparent; color: inherit; }
+.shared-tabbed-host .shared-tabbed-content { min-width: 0; }
+.shared-tabbed-host .shared-tabbed-navigation { background: transparent; max-width: 100%; min-width: 0; }
+.shared-tabbed-host [data-slot=tabs-list] { max-width: 100%; overflow-x: auto; justify-content: flex-start; flex-shrink: 0; margin-bottom: 1rem; }
+.shared-tabbed-host [data-slot=tabs-trigger] { min-height: 2.5rem; flex-shrink: 0; }
+.shared-tabbed-host [data-slot=tabs-content] { min-width: 0; }
+.shared-tabbed-host [data-slot=tabs-content][hidden] { display: none; }
+.shared-tabbed-host .pw-field { margin-bottom: 1.25rem; }
+.shared-tabbed-host textarea { min-height: 8rem; }
+@media (prefers-reduced-motion: reduce) { .shared-tabbed-host [data-slot=tabs-trigger] { transition: none; } }

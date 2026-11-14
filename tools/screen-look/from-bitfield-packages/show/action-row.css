@@ -1,0 +1,66 @@
+/* packages/screen-look/show/action-row.css
+ *
+ * The look of the shared action row (ui/show/action-row): one rounded track on
+ * a raised surface, every action the same weight, icon first, and the hovered
+ * or focused row opening every action's name at once. Anatomy from ExpandableTabs
+ * (21st.dev 1428) and beui's Expandable Action Bar (21st.dev 26780); detail
+ * headers checked against Magnific's clip detail and Higgsfield's asset panel
+ * on Mobbin.
+ *
+ * Geometry is concentric: track radius 16px = button radius 12px + 4px of
+ * track padding, so the inner corners sit parallel to the outer ones.
+ *
+ * Colours come from the page's own surface, line and text custom properties,
+ * so the row sits on any theme. Rules outrank the buttons' utility classes
+ * (which live in a cascade layer), so a row never shows a mix of filled and
+ * outlined buttons.
+ */
+.ui-action-row{
+  display:inline-flex;align-items:center;flex-wrap:nowrap;gap:2px;
+  box-sizing:border-box;max-width:100%;padding:4px;
+  border:1px solid color-mix(in srgb,var(--line,#e9e7e4) 85%,transparent);border-radius:16px;
+  background:color-mix(in srgb,var(--surface,#fff) 94%,transparent);
+  box-shadow:inset 0 1px 0 color-mix(in srgb,#fff 8%,transparent),0 12px 32px -14px #0007;
+  -webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);
+  overflow-x:auto;scrollbar-width:none;
+}
+.ui-action-row::-webkit-scrollbar{display:none}
+.ui-action-row[hidden]{display:none}
+.ui-action-row button:is([data-action-row-item],[data-slot=button],[data-slot=menu-trigger]){
+  display:inline-flex;align-items:center;justify-content:center;flex:none;gap:0;
+  height:32px;min-width:32px;padding:0 8px;margin:0;
+  border:0;border-radius:12px;background:transparent;box-shadow:none;
+  color:color-mix(in srgb,var(--text,currentColor) 78%,transparent);
+  font-size:13px;font-weight:550;line-height:1;white-space:nowrap;
+  transition:background-color .18s ease,color .18s ease,gap .32s cubic-bezier(.2,.8,.2,1),padding .32s cubic-bezier(.2,.8,.2,1);
+}
+.ui-action-row button:is([data-action-row-item],[data-slot=button],[data-slot=menu-trigger])::before,
+.ui-action-row button:is([data-action-row-item],[data-slot=button],[data-slot=menu-trigger])::after{display:none}
+.ui-action-row button:is([data-action-row-item],[data-slot=button],[data-slot=menu-trigger]):is(:hover,:focus-visible,[aria-expanded=true]):not(:disabled){
+  background:color-mix(in srgb,var(--text,#111) 11%,transparent);color:var(--text,currentColor);
+}
+.ui-action-row button:focus-visible{outline:2px solid color-mix(in srgb,var(--accent,#6aa6ff) 70%,transparent);outline-offset:1px}
+.ui-action-row button:disabled{opacity:.38;cursor:default}
+.ui-action-row button[hidden]{display:none}
+.ui-action-row .ui-action-row-icon{display:inline-grid;place-items:center;flex:none;width:16px;height:16px}
+.ui-action-row .ui-action-row-icon svg{width:16px;height:16px}
+.ui-action-row [data-action-row-item=words]{padding:0 12px}
+/* Labels open for the whole row at once while the pointer or focus is inside it (the beui Expandable Action Bar
+ * behaviour). Opening one action at a time shifted its neighbours sideways, so a pointer moving slowly from one
+ * action to the next landed on empty track or on the wrong action. Closing waits briefly, so crossing a gap or
+ * brushing the edge does not flicker the row. */
+.ui-action-row [data-action-row-item=icon] .ui-action-row-label{
+  display:inline-block;max-width:0;opacity:0;overflow:hidden;
+  transition:max-width .28s cubic-bezier(.2,.8,.2,1) .18s,opacity .16s ease .18s;
+}
+.ui-action-row [data-action-row-item=icon]{transition:background-color .18s ease,color .18s ease,gap .28s cubic-bezier(.2,.8,.2,1) .18s,padding .28s cubic-bezier(.2,.8,.2,1) .18s}
+.ui-action-row:is(:hover,:focus-within) [data-action-row-item=icon],.ui-action-row [data-action-row-item=icon][aria-expanded=true]{gap:6px;padding:0 11px 0 9px;transition-delay:0s}
+.ui-action-row:is(:hover,:focus-within) [data-action-row-item=icon] .ui-action-row-label,.ui-action-row [data-action-row-item=icon][aria-expanded=true] .ui-action-row-label{max-width:16rem;opacity:1;transition-delay:0s}
+/* Words that are not an action (a selection count) sit quietly at the start. */
+.ui-action-row>:is(span,small,p):not([data-shared-root]):not(:has(button)){padding:0 8px 0 6px;font-size:12px;font-weight:650;color:color-mix(in srgb,var(--text,currentColor) 60%,transparent);white-space:nowrap}
+.ui-action-row>span:has(button){display:inline-flex;align-items:center;gap:2px}
+@media (prefers-reduced-motion:reduce){
+  .ui-action-row button,.ui-action-row .ui-action-row-label{transition:none}
+}
+/* An empty message slot (a status line the page fills later) takes no room. */
+.ui-action-row>:empty:not(button){display:none}

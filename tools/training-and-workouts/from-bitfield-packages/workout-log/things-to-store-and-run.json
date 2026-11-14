@@ -1,0 +1,891 @@
+{
+  "package": "workout-log",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::workout-log::placeable-surface::workout-log",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "icon": "Activity",
+        "id": "workout-log.panel",
+        "kind": "placeable-surface",
+        "label": "Workout Log",
+        "material_target": "workout-log",
+        "order": 730,
+        "factflow_ref": "package::workout-log::factflow::surface",
+        "surface_id": "workout-log.panel",
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000000730:workout-log.panel",
+        "package_entry": {
+          "package_name": "workout-log",
+          "entry_name": "workout-log"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::workout-log::entry::workout-log",
+      "path": [
+        "packages",
+        "workout-log",
+        "entries",
+        "workout-log"
+      ],
+      "payload": {
+        "entry_name": "workout-log",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-workout-log.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-workout-log"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::workout-log::factflow::surface",
+      "path": [
+        "package-primitive",
+        "factflow"
+      ],
+      "payload": {
+        "kind": "bitfield-eeaf-factflow",
+        "version": 1,
+        "package": "workout-log",
+        "journal": {
+          "address_label": "workout-log.journal"
+        },
+        "fact_sources": [
+          {
+            "address": "package::workout-log::surface-state",
+            "role": "genesis fact source"
+          },
+          {
+            "address": "package::workout-log::entry::workout-log",
+            "role": "surface materialization source"
+          }
+        ],
+        "genesis": [
+          {
+            "address": "package::workout-log::surface-state",
+            "policy": "seed user-owned state when no newer journal facts exist"
+          }
+        ],
+        "blockers": [
+          {
+            "address": "package::workout-log::blocker::eeaf-live-writes",
+            "message": "UI actions must append intents through workflow or EEAF before projection refresh is accepted"
+          }
+        ],
+        "evidence": [
+          {
+            "address": "package::workout-log::proof::factflow",
+            "proves": [
+              "surface factflow declared",
+              "projection declared",
+              "materialization declared"
+            ]
+          }
+        ],
+        "interpreter_facts": {
+          "facts": [
+            {
+              "descriptor": "workout_entry"
+            },
+            {
+              "descriptor": "workout_set"
+            },
+            {
+              "descriptor": "readiness_signal"
+            },
+            {
+              "descriptor": "recovery_note"
+            }
+          ],
+          "intents": [
+            {
+              "descriptor": "log_workout",
+              "write_target": "slot::workflow"
+            },
+            {
+              "descriptor": "log_set",
+              "write_target": "slot::workflow"
+            },
+            {
+              "descriptor": "attach_signal",
+              "write_target": "slot::workflow"
+            },
+            {
+              "descriptor": "revise_workout",
+              "write_target": "slot::workflow"
+            }
+          ],
+          "effects": [
+            {
+              "descriptor": "write_workout_fact"
+            },
+            {
+              "descriptor": "append_workout_evidence"
+            },
+            {
+              "descriptor": "project_training_feedback"
+            }
+          ],
+          "validation": [
+            {
+              "descriptor": "workout-log.machine-readable-state",
+              "rule": "state facts must be JSON-compatible records"
+            }
+          ],
+          "permissions": [
+            {
+              "descriptor": "workout-log.user-owned-state",
+              "rule": "current workspace user may mutate own facts through declared intents"
+            }
+          ],
+          "projections": [
+            {
+              "address_label": "workout_log.recent_workouts"
+            },
+            {
+              "address_label": "workout_log.volume_rollup"
+            },
+            {
+              "address_label": "workout_log.readiness"
+            }
+          ],
+          "materializations": [
+            {
+              "input_name": "surface-state",
+              "address_label": "workout-log.surface-state",
+              "bytes_to_value": "json"
+            }
+          ]
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::workout-log::bitfield-input::surface-state",
+      "path": [
+        "package-primitive",
+        "factflow",
+        "materialization"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "surface-state",
+        "is_default": true,
+        "value_address_label": "workout-log.surface-state",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "workout-log.surface-state",
+      "path": [
+        "package-primitive",
+        "factflow",
+        "genesis"
+      ],
+      "payload_base64": "eyJzZXNzaW9ucyI6W10sInNldHMiOltdLCJyYXdBcnRpZmFjdHMiOltdLCJldmlkZW5jZUF0b21zIjpbXSwiY2FwdHVyZURlc2NyaXB0b3JzIjpbeyJpZCI6ImNhcHR1cmU6YW55dGhpbmciLCJsYWJlbCI6IkFueXRoaW5nIiwiaW50ZW50IjoicmF3X3dvcmtvdXRfZXZpZGVuY2UiLCJwcmlvcml0eSI6MTAsInByb21wdCI6eyJoZWFkbGluZSI6IlBhc3RlIHRoZSB3b3Jrb3V0LiIsInN1YmhlYWQiOiJPbmUgbm90ZSBpcyBlbm91Z2guIiwicHJpbWFyeUFjdGlvbkxhYmVsIjoiU2F2ZSB3b3Jrb3V0IiwiaW5wdXRNb2RlIjoidGV4dCJ9LCJhY2NlcHRlZERpbWVuc2lvbnMiOltdLCJkZWZhdWx0U291cmNlIjp7ImtpbmQiOiJtYW51YWxfcmF3X2NhcHR1cmUiLCJsYWJlbCI6Ik1hbnVhbCByYXcgY2FwdHVyZSJ9LCJwcmV2aW91c1ZhbHVlUXVlcnkiOnsic3ViamVjdEtpbmRzIjpbIm1vdmVtZW50X3Jlc3VsdCJdLCJkaW1lbnNpb25LZXlzIjpbInF1YW50aXR5LnJlcHMiLCJsb2FkLnBvdW5kcyJdfSwic3VibWl0QWN0aW9uIjoiYWN0aW9uOndvcmtvdXQtbG9nOndyaXRlIn0seyJpZCI6ImNhcHR1cmU6c2V0IiwibGFiZWwiOiJTZXQiLCJpbnRlbnQiOiJtb3ZlbWVudF9yZXN1bHQiLCJwcmlvcml0eSI6MjAsInByb21wdCI6eyJoZWFkbGluZSI6IkxvZyB0aGUgc2V0LiIsInN1YmhlYWQiOiJCaWcgdmFsdWVzIG9ubHkuIERldGFpbHMgc3RheSBvcHRpb25hbC4iLCJwcmltYXJ5QWN0aW9uTGFiZWwiOiJTYXZlIHNldCIsImlucHV0TW9kZSI6InN0cnVjdHVyZWQifSwiYWNjZXB0ZWREaW1lbnNpb25zIjpbeyJrZXkiOiJtb3ZlbWVudCIsImxhYmVsIjoiTW92ZW1lbnQiLCJpbnB1dEtpbmQiOiJ0ZXh0IiwicmVxdWlyZWQiOnRydWV9LHsia2V5IjoicXVhbnRpdHkucmVwcyIsImxhYmVsIjoiUmVwcyIsImlucHV0S2luZCI6Im51bWJlciIsInF1aWNrVmFsdWVzIjpbMyw1LDgsMTAsMTJdfSx7ImtleSI6ImxvYWQucG91bmRzIiwibGFiZWwiOiJMb2FkIiwiaW5wdXRLaW5kIjoibnVtYmVyIiwidW5pdE9wdGlvbnMiOlsibGIiXX0seyJrZXkiOiJlZmZvcnQucnBlIiwibGFiZWwiOiJSUEUiLCJpbnB1dEtpbmQiOiJudW1iZXIiLCJxdWlja1ZhbHVlcyI6WzYsNyw4LDldfV0sImRlZmF1bHRTb3VyY2UiOnsia2luZCI6Im1hbnVhbF9zdHJ1Y3R1cmVkX2NhcHR1cmUiLCJsYWJlbCI6Ik1hbnVhbCBzZXQgZW50cnkifSwiZ3JvdXBpbmciOnsiZ3JvdXBLaW5kIjoic2Vzc2lvbiIsIm9yZGVyRGltZW5zaW9uIjoic2VxdWVuY2UiLCJhbGxvd05lc3RlZCI6dHJ1ZX0sInByZXZpb3VzVmFsdWVRdWVyeSI6eyJzdWJqZWN0S2luZHMiOlsibW92ZW1lbnRfcmVzdWx0Il0sImRpbWVuc2lvbktleXMiOlsicXVhbnRpdHkucmVwcyIsImxvYWQucG91bmRzIl19LCJzdWJtaXRBY3Rpb24iOiJhY3Rpb246d29ya291dC1sb2c6d3JpdGUifSx7ImlkIjoiY2FwdHVyZTpzaWduYWwiLCJsYWJlbCI6IlNpZ25hbCIsImludGVudCI6InJlY292ZXJ5X3NpZ25hbCIsInByaW9yaXR5IjozMCwicHJvbXB0Ijp7ImhlYWRsaW5lIjoiTG9nIHRoZSBzaWduYWwuIiwic3ViaGVhZCI6IlJlY292ZXJ5LCByZWFkaW5lc3MsIHBhaW4sIHNsZWVwLCBtb29kLiIsInByaW1hcnlBY3Rpb25MYWJlbCI6IlNhdmUgc2lnbmFsIiwiaW5wdXRNb2RlIjoic3RydWN0dXJlZCJ9LCJhY2NlcHRlZERpbWVuc2lvbnMiOlt7ImtleSI6InNpZ25hbCIsImxhYmVsIjoiU2lnbmFsIiwiaW5wdXRLaW5kIjoidGV4dCIsInJlcXVpcmVkIjp0cnVlfSx7ImtleSI6InZhbHVlIiwibGFiZWwiOiJWYWx1ZSIsImlucHV0S2luZCI6InRleHQifV0sImRlZmF1bHRTb3VyY2UiOnsia2luZCI6Im1hbnVhbF9zaWduYWxfY2FwdHVyZSIsImxhYmVsIjoiTWFudWFsIHNpZ25hbCBlbnRyeSJ9LCJwcmV2aW91c1ZhbHVlUXVlcnkiOnsic3ViamVjdEtpbmRzIjpbInJlY292ZXJ5X3NpZ25hbCJdLCJkaW1lbnNpb25LZXlzIjpbInNpZ25hbCIsInZhbHVlIl19LCJzdWJtaXRBY3Rpb24iOiJhY3Rpb246d29ya291dC1sb2c6d3JpdGUifSx7ImlkIjoiY2FwdHVyZTptZWFzdXJlbWVudCIsImxhYmVsIjoiTWVhc3VyZSIsImludGVudCI6Im1ldHJpY19zYW1wbGUiLCJwcmlvcml0eSI6NDAsInByb21wdCI6eyJoZWFkbGluZSI6IkxvZyB0aGUgbWVhc3VyZS4iLCJzdWJoZWFkIjoiQm9keXdlaWdodCwgd2Fpc3QsIHN0ZXBzLCBzb3JlbmVzcywgYW55dGhpbmcgbnVtZXJpYyBvciB0ZXh0LiIsInByaW1hcnlBY3Rpb25MYWJlbCI6IlNhdmUgbWVhc3VyZSIsImlucHV0TW9kZSI6InN0cnVjdHVyZWQifSwiYWNjZXB0ZWREaW1lbnNpb25zIjpbeyJrZXkiOiJtZXRyaWMiLCJsYWJlbCI6Ik1ldHJpYyIsImlucHV0S2luZCI6InRleHQiLCJyZXF1aXJlZCI6dHJ1ZX0seyJrZXkiOiJ2YWx1ZSIsImxhYmVsIjoiVmFsdWUiLCJpbnB1dEtpbmQiOiJ0ZXh0IiwicmVxdWlyZWQiOnRydWV9LHsia2V5IjoidW5pdCIsImxhYmVsIjoiVW5pdCIsImlucHV0S2luZCI6InRleHQifV0sImRlZmF1bHRTb3VyY2UiOnsia2luZCI6Im1hbnVhbF9tZWFzdXJlbWVudF9jYXB0dXJlIiwibGFiZWwiOiJNYW51YWwgbWVhc3VyZW1lbnQgZW50cnkifSwicHJldmlvdXNWYWx1ZVF1ZXJ5Ijp7InN1YmplY3RLaW5kcyI6WyJtZXRyaWNfc2FtcGxlIl0sImRpbWVuc2lvbktleXMiOlsibWV0cmljIiwidmFsdWUiXX0sInN1Ym1pdEFjdGlvbiI6ImFjdGlvbjp3b3Jrb3V0LWxvZzp3cml0ZSJ9LHsiaWQiOiJjYXB0dXJlOnJldmlldy1jb3JyZWN0aW9uIiwibGFiZWwiOiJDb3JyZWN0aW9uIiwiaW50ZW50Ijoid29ya291dF9yZXZpZXdfZGVjaXNpb24iLCJwcmlvcml0eSI6NTAsInByb21wdCI6eyJoZWFkbGluZSI6IkZpeCBvbmUgdGhpbmcuIiwic3ViaGVhZCI6IkNvbmZpcm0sIGNvcnJlY3QsIHNwbGl0LCBtZXJnZSwgb3IgZGlzY2FyZCBieSB3cml0aW5nIGEgbGlua2VkIHJldmlldyBhdG9tLiIsInByaW1hcnlBY3Rpb25MYWJlbCI6IlNhdmUgY29ycmVjdGlvbiIsImlucHV0TW9kZSI6InN0cnVjdHVyZWQgdGV4dCJ9LCJhY2NlcHRlZERpbWVuc2lvbnMiOlt7ImtleSI6InJldmlldy5vcGVyYXRpb24iLCJsYWJlbCI6Ik9wZXJhdGlvbiIsImlucHV0S2luZCI6InRleHQiLCJyZXF1aXJlZCI6dHJ1ZSwicXVpY2tWYWx1ZXMiOlsiY29uZmlybSIsImNvcnJlY3QiLCJzcGxpdCIsIm1lcmdlIiwiZGlzY2FyZCJdfSx7ImtleSI6InJldmlldy50YXJnZXQiLCJsYWJlbCI6IlRhcmdldCBhdG9tIiwiaW5wdXRLaW5kIjoidGV4dCIsInJlcXVpcmVkIjp0cnVlfSx7ImtleSI6InJldmlldy5ub3RlIiwibGFiZWwiOiJOb3RlIiwiaW5wdXRLaW5kIjoidGV4dCJ9XSwiZGVmYXVsdFNvdXJjZSI6eyJraW5kIjoibWFudWFsX3JldmlldyIsImxhYmVsIjoiTWFudWFsIHJldmlldyJ9LCJwcmV2aW91c1ZhbHVlUXVlcnkiOnsic3ViamVjdEtpbmRzIjpbIndvcmtvdXRfcmV2aWV3X2RlY2lzaW9uIl0sImRpbWVuc2lvbktleXMiOlsicmV2aWV3Lm9wZXJhdGlvbiIsInJldmlldy50YXJnZXQiXX0sInN1Ym1pdEFjdGlvbiI6ImFjdGlvbjp3b3Jrb3V0LWxvZzp3cml0ZSJ9XSwicHJvamVjdGlvbkxlbnNlcyI6W3siaWQiOiJsZW5zOnByZXZpb3VzLXZhbHVlIiwibGFiZWwiOiJQcmV2aW91cyB2YWx1ZSIsImludGVudCI6InJlY2FsbCIsImF0b21RdWVyeSI6eyJzdWJqZWN0S2luZHMiOlsibW92ZW1lbnRfcmVzdWx0Il0sImRpbWVuc2lvbktleXMiOlsicXVhbnRpdHkucmVwcyIsImxvYWQucG91bmRzIl19LCJvdXRwdXQiOnsia2luZCI6InByZXZpb3VzLXZhbHVlIiwicHJpbWFyeU1ldHJpYyI6ImxhdGVzdCBjb21wYXJhYmxlIGV2aWRlbmNlIn0sInByb21pbmVuY2UiOiJhY3RpdmUtaGVscGVyIn0seyJpZCI6ImxlbnM6cHJvZ3Jlc3Mtc3VtbWFyeSIsImxhYmVsIjoiUHJvZ3Jlc3MiLCJpbnRlbnQiOiJwcm9ncmVzcyIsImF0b21RdWVyeSI6eyJzdWJqZWN0S2luZHMiOlsid29ya291dF9zZXNzaW9uIiwibW92ZW1lbnRfcmVzdWx0IiwicmVjb3Zlcnlfc2lnbmFsIl19LCJvdXRwdXQiOnsia2luZCI6InByb2dyZXNzLXN1bW1hcnkiLCJwcmltYXJ5TWV0cmljIjoiY29uZmlybWVkIGV2aWRlbmNlIn0sInByb21pbmVuY2UiOiJzZWNvbmRhcnktY2FyZCJ9LHsiaWQiOiJsZW5zOnJldmlldy1xdWV1ZSIsImxhYmVsIjoiUmV2aWV3IHF1ZXVlIiwiaW50ZW50IjoicmV2aWV3IiwiYXRvbVF1ZXJ5Ijp7fSwib3V0cHV0Ijp7ImtpbmQiOiJyZXZpZXctcXVldWUiLCJwcmltYXJ5TWV0cmljIjoicmV2aWV3IGl0ZW1zIn0sInByb21pbmVuY2UiOiJzZWNvbmRhcnktY2FyZCJ9LHsiaWQiOiJsZW5zOmV4cG9ydCIsImxhYmVsIjoiRXhwb3J0IHJvd3MiLCJpbnRlbnQiOiJleHBvcnQiLCJhdG9tUXVlcnkiOnt9LCJvdXRwdXQiOnsia2luZCI6ImV4cG9ydC1yb3dzIiwicHJpbWFyeU1ldHJpYyI6InJvd3MifSwicHJvbWluZW5jZSI6InByb29mIn0seyJpZCI6ImxlbnM6aGlzdG9yeS1zaGVsZiIsImxhYmVsIjoiSGlzdG9yeSBzaGVsZiIsImludGVudCI6Imhpc3RvcnkiLCJhdG9tUXVlcnkiOnt9LCJvdXRwdXQiOnsia2luZCI6Imhpc3Rvcnktc2hlbGYiLCJwcmltYXJ5TWV0cmljIjoicmVjZW50IGV2aWRlbmNlIn0sInByb21pbmVuY2UiOiJzZWNvbmRhcnktbGlzdCJ9XSwiYWN0aXZlQ2FwdHVyZSI6eyJtb2RlIjoiY2FwdHVyZSIsImRlc2NyaXB0b3JJZCI6ImNhcHR1cmU6YW55dGhpbmcifX0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::workout-log::capture-descriptor::anything",
+      "path": [
+        "package-primitive",
+        "capture-descriptor"
+      ],
+      "payload": {
+        "kind": "workout-capture-descriptor",
+        "version": 1,
+        "descriptor": {
+          "id": "capture:anything",
+          "label": "Anything",
+          "intent": "raw_workout_evidence",
+          "priority": 10,
+          "prompt": {
+            "headline": "Paste the workout.",
+            "subhead": "One note is enough.",
+            "primaryActionLabel": "Save workout",
+            "inputMode": "text"
+          },
+          "acceptedDimensions": [],
+          "defaultSource": {
+            "kind": "manual_raw_capture",
+            "label": "Manual raw capture"
+          },
+          "previousValueQuery": {
+            "subjectKinds": [
+              "movement_result"
+            ],
+            "dimensionKeys": [
+              "quantity.reps",
+              "load.pounds"
+            ]
+          },
+          "submitAction": "action:workout-log:write"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::workout-log::capture-descriptor::set",
+      "path": [
+        "package-primitive",
+        "capture-descriptor"
+      ],
+      "payload": {
+        "kind": "workout-capture-descriptor",
+        "version": 1,
+        "descriptor": {
+          "id": "capture:set",
+          "label": "Set",
+          "intent": "movement_result",
+          "priority": 20,
+          "prompt": {
+            "headline": "Log the set.",
+            "subhead": "Big values only. Details stay optional.",
+            "primaryActionLabel": "Save set",
+            "inputMode": "structured"
+          },
+          "acceptedDimensions": [
+            {
+              "key": "movement",
+              "label": "Movement",
+              "inputKind": "text",
+              "required": true
+            },
+            {
+              "key": "quantity.reps",
+              "label": "Reps",
+              "inputKind": "number",
+              "quickValues": [
+                3,
+                5,
+                8,
+                10,
+                12
+              ]
+            },
+            {
+              "key": "load.pounds",
+              "label": "Load",
+              "inputKind": "number",
+              "unitOptions": [
+                "lb"
+              ]
+            },
+            {
+              "key": "effort.rpe",
+              "label": "RPE",
+              "inputKind": "number",
+              "quickValues": [
+                6,
+                7,
+                8,
+                9
+              ]
+            }
+          ],
+          "defaultSource": {
+            "kind": "manual_structured_capture",
+            "label": "Manual set entry"
+          },
+          "grouping": {
+            "groupKind": "session",
+            "orderDimension": "sequence",
+            "allowNested": true
+          },
+          "previousValueQuery": {
+            "subjectKinds": [
+              "movement_result"
+            ],
+            "dimensionKeys": [
+              "quantity.reps",
+              "load.pounds"
+            ]
+          },
+          "submitAction": "action:workout-log:write"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::workout-log::capture-descriptor::signal",
+      "path": [
+        "package-primitive",
+        "capture-descriptor"
+      ],
+      "payload": {
+        "kind": "workout-capture-descriptor",
+        "version": 1,
+        "descriptor": {
+          "id": "capture:signal",
+          "label": "Signal",
+          "intent": "recovery_signal",
+          "priority": 30,
+          "prompt": {
+            "headline": "Log the signal.",
+            "subhead": "Recovery, readiness, pain, sleep, mood.",
+            "primaryActionLabel": "Save signal",
+            "inputMode": "structured"
+          },
+          "acceptedDimensions": [
+            {
+              "key": "signal",
+              "label": "Signal",
+              "inputKind": "text",
+              "required": true
+            },
+            {
+              "key": "value",
+              "label": "Value",
+              "inputKind": "text"
+            }
+          ],
+          "defaultSource": {
+            "kind": "manual_signal_capture",
+            "label": "Manual signal entry"
+          },
+          "previousValueQuery": {
+            "subjectKinds": [
+              "recovery_signal"
+            ],
+            "dimensionKeys": [
+              "signal",
+              "value"
+            ]
+          },
+          "submitAction": "action:workout-log:write"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::workout-log::capture-descriptor::measurement",
+      "path": [
+        "package-primitive",
+        "capture-descriptor"
+      ],
+      "payload": {
+        "kind": "workout-capture-descriptor",
+        "version": 1,
+        "descriptor": {
+          "id": "capture:measurement",
+          "label": "Measure",
+          "intent": "metric_sample",
+          "priority": 40,
+          "prompt": {
+            "headline": "Log the measure.",
+            "subhead": "Bodyweight, waist, steps, soreness, anything numeric or text.",
+            "primaryActionLabel": "Save measure",
+            "inputMode": "structured"
+          },
+          "acceptedDimensions": [
+            {
+              "key": "metric",
+              "label": "Metric",
+              "inputKind": "text",
+              "required": true
+            },
+            {
+              "key": "value",
+              "label": "Value",
+              "inputKind": "text",
+              "required": true
+            },
+            {
+              "key": "unit",
+              "label": "Unit",
+              "inputKind": "text"
+            }
+          ],
+          "defaultSource": {
+            "kind": "manual_measurement_capture",
+            "label": "Manual measurement entry"
+          },
+          "previousValueQuery": {
+            "subjectKinds": [
+              "metric_sample"
+            ],
+            "dimensionKeys": [
+              "metric",
+              "value"
+            ]
+          },
+          "submitAction": "action:workout-log:write"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::workout-log::capture-descriptor::review-correction",
+      "path": [
+        "package-primitive",
+        "capture-descriptor"
+      ],
+      "payload": {
+        "kind": "workout-capture-descriptor",
+        "version": 1,
+        "descriptor": {
+          "id": "capture:review-correction",
+          "label": "Fix",
+          "intent": "workout_review_decision",
+          "priority": 50,
+          "prompt": {
+            "headline": "Fix one thing.",
+            "subhead": "Use this only when a saved entry is wrong.",
+            "primaryActionLabel": "Save fix",
+            "inputMode": "structured text"
+          },
+          "acceptedDimensions": [
+            {
+              "key": "review.operation",
+              "label": "Operation",
+              "inputKind": "text",
+              "required": true,
+              "quickValues": [
+                "confirm",
+                "correct",
+                "split",
+                "merge",
+                "discard"
+              ]
+            },
+            {
+              "key": "review.target",
+              "label": "Saved entry",
+              "inputKind": "text",
+              "required": true
+            },
+            {
+              "key": "review.note",
+              "label": "Note",
+              "inputKind": "text"
+            }
+          ],
+          "defaultSource": {
+            "kind": "manual_review",
+            "label": "Manual review"
+          },
+          "previousValueQuery": {
+            "subjectKinds": [
+              "workout_review_decision"
+            ],
+            "dimensionKeys": [
+              "review.operation",
+              "review.target"
+            ]
+          },
+          "submitAction": "action:workout-log:write"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::workout-log::projection-lens::previous-value",
+      "path": [
+        "package-primitive",
+        "projection-lens"
+      ],
+      "payload": {
+        "kind": "workout-projection-lens",
+        "version": 1,
+        "lens": {
+          "id": "lens:previous-value",
+          "label": "Previous value",
+          "intent": "recall",
+          "atomQuery": {
+            "subjectKinds": [
+              "movement_result"
+            ],
+            "dimensionKeys": [
+              "quantity.reps",
+              "load.pounds"
+            ]
+          },
+          "output": {
+            "kind": "previous-value",
+            "primaryMetric": "last similar entry"
+          },
+          "prominence": "active-helper"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::workout-log::projection-lens::progress-summary",
+      "path": [
+        "package-primitive",
+        "projection-lens"
+      ],
+      "payload": {
+        "kind": "workout-projection-lens",
+        "version": 1,
+        "lens": {
+          "id": "lens:progress-summary",
+          "label": "Progress",
+          "intent": "progress",
+          "atomQuery": {
+            "subjectKinds": [
+              "workout_session",
+              "movement_result",
+              "recovery_signal"
+            ]
+          },
+          "output": {
+            "kind": "progress-summary",
+            "primaryMetric": "saved entries"
+          },
+          "prominence": "secondary-card"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::workout-log::projection-lens::review-queue",
+      "path": [
+        "package-primitive",
+        "projection-lens"
+      ],
+      "payload": {
+        "kind": "workout-projection-lens",
+        "version": 1,
+        "lens": {
+          "id": "lens:review-queue",
+          "label": "Check entries",
+          "intent": "review",
+          "atomQuery": {},
+          "output": {
+            "kind": "review-queue",
+            "primaryMetric": "to check"
+          },
+          "prominence": "secondary-card"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::workout-log::projection-lens::export",
+      "path": [
+        "package-primitive",
+        "projection-lens"
+      ],
+      "payload": {
+        "kind": "workout-projection-lens",
+        "version": 1,
+        "lens": {
+          "id": "lens:export",
+          "label": "Export",
+          "intent": "export",
+          "atomQuery": {},
+          "output": {
+            "kind": "export-rows",
+            "primaryMetric": "rows"
+          },
+          "prominence": "proof"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::workout-log::projection-lens::history-shelf",
+      "path": [
+        "package-primitive",
+        "projection-lens"
+      ],
+      "payload": {
+        "kind": "workout-projection-lens",
+        "version": 1,
+        "lens": {
+          "id": "lens:history-shelf",
+          "label": "History",
+          "intent": "history",
+          "atomQuery": {},
+          "output": {
+            "kind": "history-shelf",
+            "primaryMetric": "recent entries"
+          },
+          "prominence": "secondary-list"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::workout-log::primitive-contract",
+      "path": [
+        "package-primitive",
+        "contract"
+      ],
+      "payload": {
+        "kind": "bitfield-package-primitive-contract",
+        "version": 1,
+        "package": "workout-log",
+        "capability": "generic-workout-evidence-log",
+        "owns": [
+          "completed-session-records",
+          "movement-result-records",
+          "set-result-records",
+          "effort-and-recovery-signals",
+          "metric-sample-links",
+          "plan-session-completion-links",
+          "review-decision-atoms"
+        ],
+        "does_not_own": [
+          "planned-training-prescriptions",
+          "long-form-reflection-documents",
+          "task-scheduling",
+          "personal-program-details",
+          "package-set-identity"
+        ],
+        "reuse": {
+          "training-plan": "planned session references",
+          "journal": "narrative reflection refs",
+          "tasks": "follow-up and scheduled work",
+          "observability": "metric display surfaces",
+          "workflow": "record/update actions"
+        },
+        "new_slot": false,
+        "blocker": null
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::workout-log::schema",
+      "path": [
+        "package-primitive",
+        "schema"
+      ],
+      "payload": {
+        "kind": "workout-log-schema",
+        "version": 1,
+        "entities": {
+          "workout_session": {
+            "id": "text",
+            "planned_session_ref": "optional training-plan session ref",
+            "started_at": "iso8601_text",
+            "ended_at": "optional_iso8601_text",
+            "status": [
+              "completed",
+              "partial",
+              "skipped",
+              "modified",
+              "needs_review",
+              "unconfirmed"
+            ],
+            "journal_note_ref": "optional journal note ref"
+          },
+          "movement_result": {
+            "id": "text",
+            "session_id": "text",
+            "name": "text",
+            "category": "text",
+            "sequence": "integer"
+          },
+          "set_result": {
+            "id": "text",
+            "movement_result_id": "text",
+            "sequence": "integer",
+            "quantity": "structured_json",
+            "load": "structured_json",
+            "effort": "structured_json",
+            "rest": "structured_json"
+          },
+          "recovery_signal": {
+            "id": "text",
+            "session_id": "text",
+            "signal_type": "text",
+            "value": "structured_json"
+          },
+          "metric_sample_link": {
+            "id": "text",
+            "session_id": "text",
+            "metric_ref": "text",
+            "value": "structured_json"
+          },
+          "workout_evidence_atom": {
+            "id": "text",
+            "schema": "text",
+            "observed_at": "iso8601_text",
+            "source": "structured_json",
+            "subject": "structured_json",
+            "dimensions": "structured_json",
+            "links": "structured_json",
+            "confidence": "structured_json",
+            "raw_artifact_refs": "structured_json"
+          },
+          "workout_raw_artifact": {
+            "id": "text",
+            "kind": "text",
+            "captured_at": "iso8601_text",
+            "text": "optional_text",
+            "ref": "optional_text",
+            "source": "optional_text"
+          },
+          "workout_capture_descriptor": {
+            "id": "text",
+            "label": "text",
+            "intent": "text",
+            "prompt": "structured_json",
+            "accepted_dimensions": "structured_json",
+            "default_source": "structured_json",
+            "previous_value_query": "structured_json",
+            "submit_action": "workflow action ref"
+          },
+          "workout_projection_lens": {
+            "id": "text",
+            "label": "text",
+            "intent": "text",
+            "atom_query": "structured_json",
+            "output": "structured_json",
+            "prominence": "optional_text"
+          },
+          "workout_review_decision": {
+            "id": "text",
+            "operation": [
+              "confirm",
+              "correct",
+              "split",
+              "merge",
+              "discard"
+            ],
+            "target_atom_refs": "structured_json",
+            "note": "optional_text"
+          }
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::workout-log::workflow-action::workout-log-write",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:workout-log:write",
+        "kind": "action",
+        "name": "workout-log-write",
+        "description": "Write the workout-log package surface state from a package-owned workflow request.",
+        "input_schema": {
+          "type": "object",
+          "description": "Complete workout-log surface state replacement. Use package-owned state fields; do not send prose-only claims.",
+          "properties": {
+            "sessions": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "sets": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "rawArtifacts": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "evidenceRefs": {
+              "type": "array",
+              "description": "Opaque addressed evidence references retained without package interpretation.",
+              "items": {}
+            },
+            "evidenceAtoms": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "captureDescriptors": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "projectionLenses": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "activeCapture": {
+              "type": "object"
+            }
+          },
+          "additionalProperties": true
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": "workout-log.surface-state",
+                  "path": [
+                    "package-primitive",
+                    "factflow",
+                    "genesis"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": ""
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-workout-log",
+      "source_path": "built-stored-bytes/entry-bytes-workout-log",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-workout-log.source-closure.json"
+    }
+  ]
+}

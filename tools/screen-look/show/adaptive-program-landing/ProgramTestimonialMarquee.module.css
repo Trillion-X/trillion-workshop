@@ -1,0 +1,103 @@
+/* Appearance only.
+ *
+ * The moving parts — viewport, track, duplicated set, edge mask, keyframes and
+ * the reduced-motion stop — used to live here and now belong to the shared
+ * MarqueeRail in packages/ui. They left because they were MECHANISM, and this
+ * file is this page's LOOK. What stayed is what a designer would change: the
+ * card, the quote, the name under it, and the clip frame beside them.
+ *
+ * The `92s` that used to sit in the component beside these rules is gone for
+ * the same reason: a duration is not a speed. The rail is given pixels per
+ * second and measures its own width, so adding testimonials no longer changes
+ * how fast the row moves.
+ */
+
+.root {
+  display: grid;
+  gap: 12px;
+  margin: 28px calc(50% - 50vw) 30px;
+  width: 100vw;
+}
+
+.row {
+  min-width: 0;
+}
+
+/* Every card in a row is the SAME height. Without that, a clip's 16/9 frame
+ * sets the row height and every quote card stretches to match it, leaving a
+ * two-line quote floating above a tall empty card with its name at the bottom.
+ * A fixed height, a clamped quote and a name pinned under it keep the row a
+ * tidy band of equal tiles. */
+.card,
+.mediaCard {
+  align-self: flex-start;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 14px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 10px 28px -18px rgba(15, 23, 42, 0.35);
+  box-sizing: border-box;
+  height: var(--proof-card-height, 176px);
+  margin: 0;
+  overflow: hidden;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px 20px 16px;
+  width: clamp(260px, 24vw, 320px);
+}
+
+.quote {
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  color: #0f172a;
+  display: -webkit-box;
+  font-size: 0.93rem;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  line-height: 1.45;
+  margin: 0;
+  overflow: hidden;
+}
+
+.attribution {
+  color: rgba(15, 23, 42, 0.5);
+  font-size: 0.78rem;
+  font-weight: 650;
+  margin-top: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* A clip rides the same row as the quotes at the same height, so its width
+ * follows its 16/9 frame rather than the other way round. */
+.mediaCard {
+  aspect-ratio: 16 / 9;
+  background: #101714;
+}
+
+.media {
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .root {
+    margin: 24px 0 28px;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .root {
+    --proof-card-height: 164px;
+  }
+
+  .card {
+    width: min(78vw, 300px);
+  }
+}

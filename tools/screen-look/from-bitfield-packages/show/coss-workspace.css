@@ -1,0 +1,437 @@
+/* Preserve native visibility semantics when component display utilities apply. */
+.coss-ui [hidden]:not([hidden="until-found"]){display:none!important}
+@theme {
+  --color-background: #fff;
+  --color-foreground: #252525;
+  --color-popover: #fff;
+  --color-popover-foreground: #252525;
+  --color-card: #fff;
+  --color-card-foreground: #252525;
+  --color-accent-foreground: #252525;
+  --color-muted: #f6f6f5;
+  --color-muted-foreground: #777;
+  --color-input: #e4e4e2;
+  --color-primary: #292929;
+  --color-primary-foreground: #fff;
+  --color-secondary: #f2f2f1;
+  --color-secondary-foreground: #292929;
+  --color-accent: #f1f1ef;
+  --color-ring: #8d8d8d;
+  --color-destructive: #b42318;
+  --color-destructive-foreground: #b42318;
+  /* A quieter destructive tone for text and icons in menus: the warning without the alarm. */
+  --color-destructive-muted: color-mix(in oklab, var(--color-destructive) 58%, var(--color-muted-foreground));
+  --radius-lg: .5rem;
+  --radius-2xl: 1rem;
+  --font-heading: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+.coss-ui {font-family:var(--font-heading);font-size:14px;line-height:1.5;color:var(--color-foreground)}
+/* Coss upstream components (toast, table) paint from the bare shadcn names
+   --popover, --card and --background. This look owns the --color-* names, so
+   the bare names follow them here; left undefined, color-mix() over them is
+   invalid and a toast card paints with no background at all. */
+.coss-ui {--popover:var(--color-popover);--card:var(--color-card);--background:var(--color-background)}
+/* Defaults, never overrides: zero specificity like Coss's own base layer, so a
+   component's border utilities (border-transparent on ghost and link buttons,
+   border-0) win. At class specificity these repainted every ghost button and
+   filter-chip remove icon with a visible box. */
+:where(.coss-ui) *, :where(.coss-ui) *::before, :where(.coss-ui) *::after {box-sizing:border-box;border-color:var(--color-input)}
+:where(.coss-ui) [data-slot] {border-style:solid;border-width:0}
+:where(.coss-ui) :is([data-slot=dialog-popup],[data-slot=input-control],[data-slot=textarea-control],[data-slot=checkbox],[data-slot=button]) {border-width:1px}
+.coss-ui [data-slot=input] {background:transparent;color:inherit;font:inherit;border:0;transition:none}
+.coss-ui [data-slot=input-control]>[data-slot=input] {width:100%;max-width:none;min-width:0;flex:1;background:transparent}
+.coss-ui [data-slot=button] {font:inherit}
+.coss-account-profile{max-width:760px;padding:32px 28px;min-width:0}.coss-account-header{display:flex;align-items:center;gap:16px;padding-bottom:28px;border-bottom:1px solid var(--color-input)}.coss-account-header h2{margin:0;font-size:24px;line-height:1.2;font-weight:650;letter-spacing:-.02em}.coss-account-header p{margin:4px 0 0;color:var(--color-muted-foreground)}.coss-account-avatar{display:grid;place-items:center;flex:none;width:56px;height:56px;overflow:hidden;border-radius:50%;background:var(--color-accent);color:var(--color-accent-foreground);font-size:22px;font-weight:650}.coss-account-avatar img{width:100%;height:100%;object-fit:cover}.coss-account-fields{display:grid}.coss-account-field{display:grid;grid-template-columns:minmax(140px,200px) minmax(0,1fr);gap:16px;align-items:start;padding:20px 0;border-bottom:1px solid var(--color-input)}.coss-account-field>span{color:var(--color-muted-foreground)}.coss-account-field>strong{min-width:0;overflow-wrap:anywhere;font-weight:500;white-space:pre-wrap}@media(max-width:600px){.coss-account-profile{padding:24px 16px}.coss-account-field{grid-template-columns:1fr;gap:4px;padding:16px 0}}
+.coss-account-field [data-slot=input-control],.coss-account-field [data-slot=textarea-control]{width:100%}.coss-account-field small{display:block;margin-top:4px;color:var(--color-muted-foreground);font-size:12px;font-weight:400}.coss-account-save{display:flex;align-items:center;gap:12px;padding-top:24px}.coss-account-save>[role=status]{color:var(--color-muted-foreground)}
+.coss-publication-workspace{display:grid;gap:16px;min-width:0;padding:20px;border:1px solid var(--color-input);border-radius:var(--radius-2xl);background:var(--color-card)}
+.coss-publication-workspace-header{display:grid;gap:16px;min-width:0}
+.coss-publication-workspace-header h2{margin:0;font-size:18px;line-height:1.25;font-weight:650}.coss-publication-workspace-header p{margin:4px 0 0;color:var(--color-muted-foreground);font-size:13px}
+.coss-publication-destination-rail{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));align-items:start;gap:8px;max-height:320px;overflow:auto;min-width:0;padding:2px}.coss-publication-destination-group{min-width:0;border:1px solid var(--color-input);border-radius:12px;background:var(--color-background)}.coss-publication-destination-group-heading{display:flex;align-items:center;gap:8px;min-height:44px;padding:8px 12px;cursor:pointer;list-style:none}.coss-publication-destination-group-heading::-webkit-details-marker,.coss-publication-account-heading::-webkit-details-marker{display:none}.coss-publication-destination-group-heading strong{flex:1;min-width:0;font-size:13px;font-weight:650}.coss-publication-destination-group-heading small,.coss-publication-account-heading small{color:var(--color-muted-foreground);font-size:11px}.coss-publication-destination-group-heading>svg,.coss-publication-account-heading>svg{width:16px;height:16px;transition:transform .16s ease}.coss-publication-destination-group[open] .coss-publication-destination-group-heading>svg,.coss-publication-account[open] .coss-publication-account-heading>svg{transform:rotate(90deg)}.coss-publication-destination-group-heading:focus-visible,.coss-publication-account-heading:focus-visible{outline:2px solid var(--color-ring);outline-offset:-3px}.coss-publication-account-list{display:grid;gap:4px;padding:0 8px 8px}.coss-publication-account{min-width:0;border-top:1px solid var(--color-input)}.coss-publication-account-heading{display:flex;align-items:center;gap:8px;min-height:36px;padding:5px 4px;cursor:pointer;list-style:none}.coss-publication-account-heading span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;font-weight:550}.coss-publication-destination-choices{display:grid;gap:4px;padding:0 0 8px}.coss-ui .coss-publication-destination{display:grid;grid-template-columns:minmax(0,1fr) auto;justify-items:start;align-items:center;gap:0 8px;width:100%;height:auto;min-height:36px;padding:7px 10px;border-radius:8px;text-align:left;white-space:normal}.coss-publication-destination[aria-pressed=true]{border-color:var(--color-primary);background:var(--color-accent)}.coss-publication-destination-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}.coss-publication-destination-empty{margin:0;padding:12px;border:1px dashed var(--color-input);border-radius:10px;color:var(--color-muted-foreground);font-size:12px}
+.coss-publication-workspace-body{display:grid;grid-template-columns:minmax(148px,190px) minmax(0,1fr);gap:12px;align-items:start}.coss-publication-stage-rail{display:grid;gap:3px}.coss-ui .coss-publication-stage{height:auto;min-height:42px;justify-content:flex-start;padding:8px 10px;text-align:left;white-space:normal;border:0;box-shadow:none}.coss-publication-stage[aria-current=step]{background:var(--color-accent);font-weight:650}.coss-publication-stage small{display:block;margin-top:2px;color:var(--color-muted-foreground);font-size:11px;font-weight:400}.coss-publication-stage-content{min-width:0;padding:0}.coss-publication-stage-content>[data-slot=card-panel]{min-width:0;padding:16px}
+.coss-publication-action-rail{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding-top:2px;border-top:1px solid var(--color-input)}.coss-publication-action-rail>[data-slot=button]{margin-top:12px}
+.coss-publication-post-preview{width:min(100%,420px);overflow:hidden;border:1px solid var(--color-input);border-radius:var(--radius-xl);background:var(--color-background);color:var(--color-foreground)}
+.coss-publication-post-preview-header{display:flex;align-items:center;gap:10px;padding:12px 14px}.coss-publication-post-preview-header>div{min-width:0}.coss-publication-post-preview-header strong,.coss-publication-post-preview-header small{display:block;overflow-wrap:anywhere}.coss-publication-post-preview-header strong{font-size:13px;font-weight:650}.coss-publication-post-preview-header small{margin-top:2px;color:var(--color-muted-foreground);font-size:11px}
+.coss-publication-post-preview-media{display:block;width:100%;max-height:420px;aspect-ratio:4/5;object-fit:contain;background:var(--color-muted)}
+.coss-publication-post-preview-unavailable{display:grid;min-height:180px;place-content:center;justify-items:center;gap:8px;background:var(--color-muted);color:var(--color-muted-foreground);font-size:13px}.coss-publication-post-preview-unavailable svg{width:24px;height:24px}
+.coss-publication-post-preview-copy{display:grid;gap:8px;padding:12px 14px 14px}.coss-publication-post-preview-copy>strong{font-size:14px;font-weight:650}.coss-publication-post-preview-copy>p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;line-height:1.45}.coss-publication-post-preview-copy>p>span{display:block;margin-bottom:2px;color:var(--color-muted-foreground);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.coss-work-panel>[data-panel-body] {box-sizing:border-box;width:100%;min-width:0}
+.coss-text-reader{height:min(55vh,600px);min-width:0;color:var(--color-foreground)}
+.coss-text-reader-content{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.65;padding:16px;user-select:text}
+.coss-work-panel>[role=alert] {color:var(--color-destructive)}
+.coss-work-panel h3 {font-size:17px;font-weight:600;margin:16px 0 8px}
+.coss-work-panel .mw-file [data-read] {width:100%;text-align:left;padding:12px;border:0;border-radius:8px;background:transparent;color:inherit;font:inherit;cursor:pointer}
+.coss-work-panel .mw-file [aria-current=true] {background:var(--color-accent)}
+.coss-work-panel [data-read][data-slot=button] {display:block;white-space:normal;height:auto;min-height:56px;text-align:left;padding:10px 12px;box-shadow:none;border-color:transparent}
+.coss-work-panel [data-read] strong {display:block;overflow-wrap:anywhere;font-weight:500;line-height:1.45}
+.coss-work-panel [data-read] small {display:block;margin-top:4px;color:var(--color-muted-foreground);font-size:12px}
+.coss-work-panel [data-panel-body] button:not([data-slot]):not([data-shared-root] *) {background:var(--color-background);border:1px solid var(--color-input);border-radius:8px;padding:8px 12px;color:inherit;font:inherit;cursor:pointer}
+.coss-work-panel [data-panel-body] input:not([data-slot]):not([type=checkbox]):not([type=range]):not([data-shared-root] *),.coss-work-panel textarea:not([data-shared-root] *) {border:1px solid var(--color-input);border-radius:8px;background:var(--color-background);color:inherit;padding:10px 12px;font:inherit;min-width:0}
+.coss-work-panel textarea {width:100%;min-height:96px;resize:vertical}
+.coss-work-panel form label:has(>input,>select,>textarea,>.coss-select-host,>[data-slot=input-control]):not(.coss-choice):not(:has(>input[type=range])) {display:grid;gap:6px;margin:16px 0}
+.coss-work-panel form>p {color:var(--color-muted-foreground);line-height:1.6}
+.coss-work-panel form>button[type=submit] {background:var(--color-primary);color:var(--color-primary-foreground);margin-top:12px}
+.coss-ui[data-base-ui-portal] [data-slot=dialog-backdrop],.coss-ui[data-base-ui-portal] [data-slot=dialog-viewport]{z-index:100}
+.coss-choice-chips{min-width:0;margin:0;padding:0;border:0}.coss-choice-chips legend{margin:0 0 7px;padding:0;color:var(--color-muted-foreground);font-size:12px;font-weight:600}.coss-choice-chip-row{display:flex;min-width:0;gap:7px;overflow-x:auto;padding:1px 1px 4px;scrollbar-width:thin}.coss-choice-chip-row>[data-slot=button]{flex:none;border-radius:999px}.coss-choice-chip-row>[aria-pressed=true]{border-color:var(--color-primary);background:var(--color-primary);color:var(--color-primary-foreground)}
+/* Choice chips drawn as one segmented control: `mountChoiceChips({variant:"segmented"})`. */
+.coss-choice-chips[data-variant=segmented] legend{margin:0 0 6px}
+.coss-choice-chips[data-variant=segmented] .coss-choice-chip-row{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:2px;padding:2px;overflow:visible;border-radius:10px;background:color-mix(in srgb,var(--color-foreground) 6%,transparent)}
+.coss-choice-chips[data-variant=segmented] .coss-choice-chip-row>[data-slot=button]{height:30px;border-color:transparent;border-radius:8px;background:transparent;box-shadow:none;color:var(--color-muted-foreground);font-weight:550}
+.coss-choice-chips[data-variant=segmented] .coss-choice-chip-row>[data-slot=button]::before{display:none}
+.coss-choice-chips[data-variant=segmented] .coss-choice-chip-row>[aria-pressed=true]{border-color:transparent;background:var(--color-background);color:var(--color-foreground);box-shadow:0 1px 2px #0000001f,0 0 0 1px #0000000d}
+/* A record editor whose rows sit in the form itself, without card chrome: `mountRecordEditor({layout:"plain"})`. */
+.coss-record-editor-plain .coss-record-editor-row{border:0;border-radius:0;background:transparent;box-shadow:none}
+.coss-record-editor-plain .coss-record-editor-row::before,.coss-record-editor-plain .coss-record-editor-row>[data-slot=card-footer]{display:none}
+.coss-record-editor-plain .coss-record-editor-fields{padding:0}
+.coss-choices {padding:12px 0}
+.coss-choice-list-title {margin:0 0 8px;font-size:13px;font-weight:650;color:var(--color-foreground)}
+.coss-choice-rows {max-height:240px;overflow:auto;margin-top:8px}
+.coss-choice {display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:6px;cursor:pointer}
+.coss-choice:hover {background:var(--color-accent)}
+.coss-choice small {display:block;color:var(--color-muted-foreground);font-size:12px}
+.coss-choice[hidden] {display:none}
+.coss-record-field-count {justify-self:end;color:var(--color-muted-foreground);font-size:11px;line-height:1.2}
+.mw-post-destination {margin-top:18px;padding-top:2px;border-top:1px solid var(--color-input)}
+.mw-post-destination>h3 {margin:12px 0 8px;font-size:14px}
+.mw-post-connection {display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px;padding:10px 12px;border:1px solid var(--color-input);border-radius:10px;background:color-mix(in srgb,var(--color-muted) 45%,transparent)}
+.mw-post-connection>p {margin:0;color:var(--color-muted-foreground);font-size:12px;line-height:1.4}
+.coss-native-value {position:absolute!important;inline-size:1px!important;block-size:1px!important;clip-path:inset(50%)!important;overflow:hidden!important;white-space:nowrap!important;padding:0!important;border:0!important}
+.coss-select-host {display:block;min-width:0;width:100%}
+.coss-ui [data-slot=select-trigger] {border-width:1px;font:inherit;min-width:0;width:100%;cursor:pointer}
+.coss-ui [data-slot=select-popup],.coss-ui [data-slot=menu-popup] {font-size:14px}
+.coss-ui [data-slot=select-popup] {max-width:min(420px,calc(100vw - 24px))}
+.coss-ui [data-slot=menu-popup] {max-width:min(280px,calc(100vw - 24px))}
+.coss-ui [data-slot=menu-popup] {box-sizing:border-box;width:max-content;min-width:0;border-width:1px;border-color:var(--color-input);border-radius:var(--radius-lg,12px);box-shadow:0 12px 36px color-mix(in srgb,var(--color-foreground) 18%,transparent)}
+.coss-ui [data-slot=menu-popup]>div {padding:4px}
+.coss-ui [data-slot=menu-item] {min-height:30px;padding:4px 8px;font-size:13px;line-height:1.35}
+/* The shared action menu, and every other floating menu and popover surface,
+   live in floating-menus.css: one anatomy for all of them. */
+/* Stacking comes from the shared layer scale (ui LAYER_ORDER.pictureInPicture), set on the host by mountFloatingPanel. */
+.coss-ui.coss-floating-panel {display:flex;flex-direction:column;box-sizing:border-box;width:100%;height:100%;overflow:hidden;border:1px solid var(--color-input);border-radius:var(--radius-lg,12px);background:var(--color-popover);color:var(--color-popover-foreground,var(--color-foreground));font-size:13px;box-shadow:0 12px 36px color-mix(in srgb,var(--color-foreground) 18%,transparent)}
+/* The whole strip is the grab area (no grip mark in the middle); its actions and close sit at the right, drawn with a light stroke. */
+.coss-ui .coss-floating-panel-grab {display:flex;flex:none;align-items:center;justify-content:flex-end;position:relative;min-height:32px;padding:2px 4px;cursor:grab;touch-action:none;color:var(--color-muted-foreground)}
+.coss-ui .coss-floating-panel-grab:active {cursor:grabbing}
+.coss-ui .coss-floating-panel-grab-actions {display:flex;align-items:center;gap:2px;cursor:default}
+.coss-ui .coss-floating-panel-grab-actions svg {stroke-width:1.5}
+.coss-ui .coss-floating-panel-scroll {flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain}
+.coss-ui .coss-floating-panel-content {padding:2px 16px 14px}
+.coss-ui .coss-floating-panel-content>:is([role=status],[role=alert]) {margin:8px 0 0;font-size:12px}
+.coss-ui .coss-floating-panel-content>:is([role=status],[role=alert]):empty {display:none}
+.coss-ui .coss-floating-panel-header {display:grid;gap:4px;margin:2px 0 14px}
+.coss-ui .coss-floating-panel-title {margin:0;font-size:17px;font-weight:600;line-height:1.3;color:var(--color-foreground)}
+.coss-ui .coss-floating-panel-description {margin:0;font-size:13px;line-height:1.5;color:var(--color-muted-foreground)}
+/* Choice chips that wrap onto more lines instead of scrolling sideways, so no choice is ever cut off. */
+.coss-choice-chips[data-wrap] .coss-choice-chip-row {flex-wrap:wrap;overflow:visible;padding-bottom:1px}
+/* Composer: a creation form in clear sections, an even grid of fields, and a sticky footer holding the primary action.
+   Anatomy: Runway and Higgsfield creation rails, Gemini Notebook "Customize" panel (inspiration only). */
+.coss-composer {display:grid;min-width:0}
+.coss-composer-section {display:grid;gap:14px;min-width:0;padding:16px 0;border-top:1px solid color-mix(in srgb,var(--color-foreground) 9%,transparent)}
+.coss-composer-section:first-child {padding-top:0;border-top:0}
+.coss-composer-section>h3 {margin:0;font-size:13px;font-weight:600;line-height:1.3;color:var(--color-foreground)}
+.coss-composer-fields {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));align-items:end;gap:12px 14px;min-width:0}
+.coss-work-panel .coss-composer label:has(>input,>select,>textarea,>.coss-select-host,>[data-slot=input-control]):not(.coss-choice) {display:grid;gap:6px;margin:0;min-width:0;color:var(--color-muted-foreground);font-size:12px;font-weight:600}
+.coss-composer .coss-choice-chips legend {font-size:12px}
+.coss-composer-direction textarea,.coss-composer-direction [data-slot=textarea-control] {width:100%;min-height:88px;border-radius:12px}
+.coss-composer [data-slot=accordion-trigger] {color:var(--color-foreground);font-size:13px;font-weight:600;opacity:1}
+.coss-composer-footer {position:sticky;bottom:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px -16px -14px;padding:12px 16px;border-top:1px solid color-mix(in srgb,var(--color-foreground) 9%,transparent);background:var(--color-popover)}
+.coss-composer-summary {min-width:0;overflow:hidden;color:var(--color-muted-foreground);font-size:12px;line-height:1.4;text-overflow:ellipsis;white-space:nowrap}
+.coss-composer-footer>[type=submit] {flex:none;height:36px;padding:0 22px;border-radius:10px;font-size:14px;font-weight:600}
+.coss-ui [data-slot=select-list] {max-height:min(320px,var(--available-height));border:1px solid var(--color-input);border-radius:8px}
+.coss-ui [data-slot=select-item] {white-space:normal;line-height:1.5}
+.coss-ui [data-slot=select-item] svg {width:16px;height:16px}
+.coss-action-menu {position:relative;display:inline-flex}
+.coss-projects {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:12px;width:100%}
+.coss-ui .coss-project-card {display:flex;flex-direction:row;align-items:center;gap:12px;min-width:0;width:100%;padding:14px 16px;border:1px solid var(--color-input);text-align:left;cursor:pointer;font:inherit}
+.coss-ui .coss-project-card:hover {background:var(--color-accent)}
+.coss-ui .coss-project-card:focus-visible {outline:2px solid var(--color-ring);outline-offset:3px}
+.coss-project-avatar {width:36px!important;height:36px!important;border-radius:10px!important}
+.coss-project-avatar [data-slot=avatar-fallback] {border-radius:10px;color:var(--color-foreground)}
+.coss-project-name {flex:1;min-width:0;overflow-wrap:anywhere;font-weight:500;line-height:1.45}
+.coss-ui .coss-media-card {position:relative;background:transparent;border:0;box-shadow:none;border-radius:12px;overflow:visible}
+.coss-media-card::before {display:none}
+.coss-ui .coss-media-open {display:flex;flex-direction:column;align-items:stretch;width:100%;height:auto;padding:0;border:0;background:transparent;white-space:normal;text-align:left;box-shadow:none}
+.coss-media-poster {display:grid;place-items:center;width:100%;aspect-ratio:16/9;background:var(--color-muted);border-radius:12px;overflow:hidden;color:var(--color-muted-foreground)}
+.coss-media-poster img {display:block;width:100%;height:100%;object-fit:cover}
+.coss-ui .coss-media-card[data-layout=list] .coss-media-open {display:grid;grid-template-columns:64px minmax(0,1fr);column-gap:10px;row-gap:1px;align-items:center}
+.coss-media-card[data-layout=list] .coss-media-poster {grid-row:1/span 2;width:64px;height:40px;aspect-ratio:auto;border-radius:6px}
+.coss-media-card[data-layout=list] strong {grid-column:2;align-self:end;margin:0;min-width:0;font-size:12px;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.coss-media-card[data-layout=list] small {grid-column:2;align-self:start;color:var(--color-muted-foreground);font-size:11px;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.coss-media-card[data-layout=list] .coss-media-open:not(:has(small)) strong {grid-row:1/span 2;align-self:center}
+.coss-ui .coss-media-card[data-layout=list] .coss-media-open[data-no-poster]{grid-template-columns:minmax(0,1fr);padding-left:36px;min-height:52px}
+.coss-media-card[data-layout=list] .coss-media-open[data-no-poster] :is(strong,small){grid-column:1}
+.coss-ui .coss-media-select {position:absolute;top:10px;left:10px;z-index:2;width:18px;height:18px;opacity:0;visibility:hidden;cursor:pointer;transition:opacity 100ms ease,visibility 0s linear 220ms}
+.coss-media-card:hover .coss-media-select,.coss-media-card:focus-within .coss-media-select,.coss-media-card[data-selected] .coss-media-select,.mw-selecting .coss-media-select {opacity:1;visibility:visible;transition-delay:0s}
+.coss-media-card[data-selected] .coss-media-poster {outline:2px solid var(--color-primary);outline-offset:3px}
+.coss-media-metadata{display:flex;flex-wrap:wrap;align-items:center;gap:8px;min-width:0}.coss-media-card>.coss-media-metadata{position:static;display:flex;gap:5px;max-width:100%;margin-top:8px;pointer-events:auto}.coss-ui .coss-media-metadata-chip{pointer-events:auto;justify-content:flex-start;width:max-content;max-width:100%;min-width:0;overflow:hidden;box-shadow:none}.coss-media-metadata-label{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.coss-media-metadata-color{display:inline-block;flex:none;width:7px;height:7px;border-radius:50%}.coss-ui .coss-media-metadata-more{pointer-events:auto;min-width:30px;padding-inline:7px}
+.coss-media-metadata-heading{margin-right:6px;color:var(--color-muted-foreground);font-size:12px}
+.coss-ui .coss-media-card-menu{position:absolute;z-index:4;top:8px;right:8px;width:26px;height:26px;padding:0;border-radius:50%;opacity:0;background:color-mix(in srgb,var(--color-background) 90%,transparent);box-shadow:0 2px 8px #0003;cursor:pointer}.coss-media-card:hover .coss-media-card-menu,.coss-media-card:focus-within .coss-media-card-menu{opacity:1}
+.coss-media-card[data-layout=list] :is(.coss-media-metadata,.coss-media-card-menu){display:none}
+.coss-action-prompt{position:fixed;right:24px;bottom:22px;z-index:45;display:flex;flex-direction:row;align-items:center;gap:4px;box-sizing:border-box;max-width:min(520px,calc(100vw - 48px));padding:8px;overflow:hidden}.coss-action-prompt-handle{flex:none;cursor:grab;touch-action:none}.coss-action-prompt-handle:active{cursor:grabbing}.coss-action-prompt-open{display:flex;justify-content:flex-start;flex:0 1 180px;min-width:0;height:auto;min-height:34px;padding:4px 8px;text-align:left}.coss-action-prompt-mark{display:grid;place-items:center;flex:none}.coss-action-prompt-mark svg{width:16px;height:16px}.coss-action-prompt-copy{display:grid;min-width:0}.coss-action-prompt-copy small{color:var(--color-muted-foreground);font-size:10px;line-height:1.15}.coss-action-prompt-copy strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;line-height:1.35}.coss-action-prompt-actions{display:flex;flex:0 1 auto;gap:4px;min-width:0;overflow:hidden}.coss-action-prompt-actions>button{flex:0 1 auto;justify-content:flex-start;min-width:48px;max-width:190px;overflow:hidden}.coss-action-prompt-label{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.coss-action-prompt-more,.coss-action-prompt-collapse{flex:none}.coss-action-prompt[data-collapsed]{right:18px;bottom:18px;width:auto;padding:5px;border-radius:50%}.coss-action-prompt[data-collapsed]>:not(.coss-action-prompt-collapse){display:none}.coss-action-prompt[data-collapsed] .coss-action-prompt-collapse{border-radius:50%}body:has(.coss-bulk-dock:not([hidden])) .coss-action-prompt:not([data-moved]){bottom:132px}.tr-chat-open .coss-action-prompt{display:none}
+@media(max-width:700px){.coss-action-prompt{right:12px;bottom:12px;max-width:calc(100vw - 24px)}.coss-action-prompt-actions>button:nth-child(n+2){display:none}.coss-action-prompt-open{flex-basis:150px}}
+.coss-ui .mw-selection {background:var(--color-background);color:var(--color-foreground);border-color:var(--color-input);box-shadow:0 8px 24px #00000012}
+.coss-ui .mw-library-bar [data-slot=input-control] {flex:1;min-width:140px}
+.coss-ui .mw-library-bar input {border:0;padding-inline:calc(var(--spacing, .25rem) * 3)}
+.coss-status-strip{display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-height:44px;margin:-8px 0 16px;padding:8px 12px;border:1px solid var(--color-input);border-radius:12px;background:color-mix(in srgb,var(--color-muted) 58%,transparent)}
+.coss-status-strip>[data-status-copy]{display:grid;gap:2px;flex:1 1 260px;min-width:0}
+.coss-status-strip strong{font-size:13px;font-weight:650;color:var(--color-foreground)}
+.coss-status-strip small{font-size:12px;line-height:1.4;color:var(--color-muted-foreground)}
+.coss-status-strip>[data-status-actions]{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.mw-library>.coss-status-strip{min-height:0;margin:0;padding:4px 0;border:0;border-radius:0;background:transparent;gap:8px}
+.mw-library>.coss-status-strip>[data-status-copy]{display:flex;align-items:baseline;gap:8px;flex-basis:180px}
+.mw-library>.coss-status-strip strong{font-size:12px;font-weight:500;color:var(--color-muted-foreground)}
+.mw-library>.coss-status-strip small{display:none}
+.coss-ui [data-slot=table-row] {border-bottom:1px solid var(--color-input)}
+.coss-ui [data-slot=table-cell] {white-space:normal;line-height:1.5}
+.coss-ui [data-slot=table-head] {background:var(--color-muted)}
+.source-owned-actions[hidden] {display:none!important}
+.coss-native-checkbox {position:relative;display:inline-flex;flex:none;width:20px;height:20px;vertical-align:middle;border-radius:4px}
+.coss-native-checkbox>input[type=checkbox] {position:absolute!important;inset:0!important;z-index:2;width:100%!important;height:100%!important;margin:0!important;opacity:0!important;cursor:pointer}
+.coss-checkbox-face {display:flex;pointer-events:none}
+.coss-native-checkbox:focus-within {outline:2px solid var(--color-ring);outline-offset:3px}
+.coss-chat-activity {display:flex;align-items:center;gap:9px;color:var(--color-muted-foreground);font-size:13px}
+.coss-chat-activity svg {width:15px;height:15px}
+.tr-overview .tr-project-grid:not([hidden]) {display:block!important;overflow:visible!important}
+.tr-overview>[data-home-composer] {margin-bottom:16px}
+.coss-navigation {display:flex;flex-direction:column;gap:4px}
+.coss-ui .coss-navigation-item {display:flex;width:100%;height:auto;min-height:44px;justify-content:flex-start;gap:10px;padding:8px 10px;white-space:normal;text-align:left;border:0;box-shadow:none;line-height:1.45}
+.coss-navigation-item [data-slot=avatar] {width:26px;height:26px;font-size:11px;border-radius:8px}
+.coss-navigation-item [data-slot=avatar-fallback] {border-radius:8px}
+.coss-navigation-item[aria-current=page] {background:var(--color-accent);font-weight:600}
+.coss-ui .coss-navigation-item:not([aria-current=page]) {background:transparent}
+.pw-project-context {margin-top:16px}
+.pw-project-context:empty {display:none}
+[data-project-primary] {display:flex;align-items:center;gap:8px}
+.pw-linked-clips {margin-top:28px;border-top:1px solid var(--color-input)}
+.pw-linked-clips .pw-row-title {overflow-wrap:anywhere}
+.coss-ui [data-slot=checkbox] {width:18px;height:18px;padding:0}
+.coss-ui [data-slot=checkbox-indicator] svg {width:14px;height:14px}
+[data-theme=dark] .coss-ui {--color-background:#222;--color-foreground:#eee;--color-popover:#222;--color-popover-foreground:#eee;--color-card:#222;--color-card-foreground:#eee;--color-input:#414141;--color-primary:#eee;--color-primary-foreground:#222;--color-secondary:#333;--color-secondary-foreground:#eee;--color-accent:#333;--color-accent-foreground:#eee;--color-muted:#303030;--color-muted-foreground:#aaa}
+.coss-record-table [data-slot=table-cell]{vertical-align:top;white-space:normal}
+.coss-record-table-value{min-width:120px;max-width:340px;max-height:180px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6}
+.coss-record-table-value>button{height:auto;text-align:left;white-space:normal;justify-content:flex-start;padding:0;font-weight:600}
+.coss-record-table-detail{margin-top:6px;color:var(--color-muted-foreground);font-size:12px}
+.coss-record-table-actions{display:flex;flex-wrap:wrap;gap:4px;min-width:140px}
+.coss-grouped-media{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:16px;padding:16px}
+.coss-media-group-title{grid-column:1/-1;margin:0;color:var(--color-muted-foreground);font-size:14px;font-weight:600}
+@media(hover:none){}
+@media(max-width:700px){.coss-work-panel [data-list]{max-height:180px;overflow:auto}.coss-publication-workspace{padding:14px}.coss-publication-workspace-header{display:grid}.coss-publication-destination-rail{justify-content:flex-start}.coss-publication-workspace-body{grid-template-columns:1fr}.coss-publication-stage-rail{display:flex;overflow:auto;padding-bottom:2px}.coss-ui .coss-publication-stage{flex:0 0 auto;min-height:36px}.coss-publication-stage small{display:none}.coss-publication-action-rail{justify-content:stretch}.coss-publication-action-rail>[data-slot=button]{flex:1}}
+@media(prefers-reduced-motion:reduce){.coss-ui *{transition:none!important;animation:none!important}}
+.coss-ui .coss-media-actions{display:flex;flex-wrap:wrap;gap:8px;padding:8px 0 12px;margin-top:auto}
+.coss-ui .coss-media-actions>button{max-width:100%;height:auto;min-height:32px;white-space:normal;overflow-wrap:anywhere}
+.coss-ui .coss-media-open:disabled{opacity:1;cursor:default}
+.coss-navigation-detail{display:block;font-size:12px;font-weight:400;line-height:1.5;color:var(--color-muted-foreground);white-space:normal}
+
+/* Dense folder tree composed from the shared Coss controls. Product data and
+   requests stay with the consuming app; this package owns reusable appearance. */
+.coss-project-tree{display:grid;gap:8px;min-width:0;width:100%}
+.coss-project-tree-tools{display:flex;align-items:center;gap:8px;min-width:0}
+.coss-project-tree-search{position:relative;display:flex;flex:1;min-width:0;align-items:center}
+.coss-project-tree-search>svg{position:absolute;left:9px;z-index:1;width:15px;height:15px;color:var(--color-muted-foreground);pointer-events:none}
+.coss-project-tree-search [data-slot=input]{width:100%;min-width:0;padding-left:30px}
+.coss-project-tree-rows{max-height:min(48vh,420px);overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;padding:2px 0}
+.coss-project-tree-row{--tree-depth:0;display:grid;grid-template-columns:26px 20px minmax(0,1fr) 28px;align-items:center;gap:5px;min-width:0;min-height:34px;padding:1px 2px 1px calc(var(--tree-depth) * 18px);border-radius:7px;color:var(--color-foreground);outline:none}
+.coss-project-tree-row:hover,.coss-project-tree-row[aria-selected=true]{background:var(--color-accent)}
+.coss-project-tree-row:focus-visible{box-shadow:inset 0 0 0 2px var(--color-ring)}
+.coss-ui .coss-project-tree-disclosure{width:26px;height:28px;min-width:26px;padding:0;border:0;box-shadow:none;background:transparent}
+.coss-ui span.coss-project-tree-disclosure{display:block}
+.coss-ui .coss-project-tree-name{display:flex;justify-content:flex-start;gap:8px;min-width:0;width:100%;height:32px;padding:3px 5px;border:0;background:transparent;box-shadow:none;text-align:left}
+.coss-project-tree-name>svg{width:16px;height:16px;color:var(--color-muted-foreground)}
+.coss-project-tree-name>span{display:block;min-width:0;overflow:hidden}
+.coss-project-tree-name strong{display:block;overflow:hidden;text-overflow:ellipsis;font-size:13px;font-weight:520;line-height:18px;white-space:nowrap}
+.coss-project-tree-name small{display:block;overflow:hidden;text-overflow:ellipsis;color:var(--color-muted-foreground);font-size:11px;line-height:14px;white-space:nowrap}
+.coss-ui .coss-project-tree-add{opacity:0;border:0;background:transparent;box-shadow:none}
+.coss-project-tree-row:is(:hover,:focus-within,[aria-selected=true]) .coss-project-tree-add{opacity:1}
+.coss-project-tree-create{--tree-depth:0;display:grid;grid-template-columns:minmax(0,1fr) auto 28px;align-items:center;gap:6px;min-width:0;padding:4px 2px 4px calc(31px + var(--tree-depth) * 18px)}
+.coss-project-tree-create [data-slot=input]{min-width:0;height:32px}
+.coss-project-tree-details{--tree-depth:0;display:grid;gap:8px;min-width:0;margin:4px 2px 8px calc(31px + var(--tree-depth) * 18px);padding:10px;border-radius:9px;background:var(--color-muted)}
+.coss-project-tree-details>label{display:grid;gap:4px;color:var(--color-muted-foreground);font-size:12px}.coss-project-tree-details textarea{min-height:74px;resize:vertical}.coss-project-tree-details>div{display:flex;gap:6px;justify-content:flex-end}
+.coss-project-tree-empty,.coss-project-tree-error{margin:8px;color:var(--color-muted-foreground);font-size:13px}
+.coss-project-tree-error{color:var(--color-destructive)}
+.coss-project-tree-icon{display:inline-grid;place-items:center;flex:none;width:20px;height:20px;border-radius:6px;background:var(--color-accent);color:var(--color-accent-foreground);font-size:12px;font-weight:700;line-height:1}
+.coss-project-tree-thumb{flex:none;width:34px;height:22px;border-radius:5px;object-fit:cover;background:var(--color-muted)}
+.coss-project-tree-picker{position:relative;min-width:0}.coss-project-tree-picker>button{justify-content:flex-start;width:100%;overflow:hidden;text-overflow:ellipsis}.coss-project-tree-popover{position:absolute;z-index:80;top:calc(100% + 6px);left:0;width:min(420px,calc(100vw - 32px));padding:10px;border:1px solid var(--color-border);border-radius:12px;background:var(--color-background);box-shadow:0 18px 50px rgb(0 0 0/.18)}
+.coss-project-tree-mode,.coss-project-tree-confirm{--tree-depth:0;display:flex;align-items:center;gap:6px;min-width:0;padding:5px 6px 5px calc(31px + var(--tree-depth) * 18px);border-radius:8px;background:var(--color-accent);font-size:12px;color:var(--color-muted-foreground)}
+.coss-project-tree-mode>span,.coss-project-tree-confirm>span{flex:1;min-width:0}.coss-project-tree-mode strong{color:var(--color-foreground)}
+@media(max-width:420px){.coss-project-tree-tools{align-items:stretch}.coss-project-tree-tools>button{width:34px;padding:0}.coss-project-tree-tools>button svg{margin:0}.coss-project-tree-new-label{display:none}.coss-project-tree-row{padding-left:calc(var(--tree-depth) * 14px)}}
+@media(prefers-reduced-motion:reduce){.coss-project-tree *{scroll-behavior:auto!important;transition:none!important}}
+.coss-action-cards{display:grid;gap:12px;margin-top:16px}
+.coss-ui .coss-action-card{padding:16px;gap:12px}
+.coss-action-card p{margin:0;overflow-wrap:anywhere}
+.coss-action-card small{color:var(--color-muted-foreground)}
+.coss-action-card [role=group]{display:flex;gap:8px;flex-wrap:wrap}
+/* Hidden secondary actions stay targetable: the pointer that would press one is
+   already hovering its row, which reveals it, so pointer-events:none only broke
+   hit-testing (a card intercepting its own button). */
+.coss-action-card [role=group],.coss-record-table-actions,.coss-media-card .coss-media-actions,.coss-media-card-menu,.coss-media-preview-action{opacity:0;visibility:hidden;transition:opacity 100ms ease,visibility 0s linear 220ms}
+.coss-action-card:is(:hover,:focus-within,[data-selected]) [role=group],.coss-record-table [data-slot=table-row]:is(:hover,:focus-within,[data-selected]) .coss-record-table-actions,.coss-media-card:is(:hover,:focus-within,[data-selected]) .coss-media-actions,.coss-media-card:is(:hover,:focus-within,[data-selected]) :is(.coss-media-card-menu,.coss-media-preview-action){opacity:1;visibility:visible;transition-delay:0s}
+@media(hover:none){.coss-action-card [role=group],.coss-record-table-actions,.coss-media-card .coss-media-actions{opacity:1;visibility:visible;transition:none}}
+@media(hover:none){.coss-ui .coss-media-select,.coss-ui .coss-media-card :is(.coss-media-card-menu,.coss-media-preview-action,.coss-media-actions){opacity:1;visibility:visible;transition:none}}
+@media(prefers-reduced-motion:reduce){.coss-action-card [role=group],.coss-record-table-actions,.coss-media-card .coss-media-actions{transition:none}}
+.coss-action-card .coss-action-loading{align-self:center;color:var(--color-muted-foreground);font-size:.8125rem}
+.coss-ui .record-views-gallery-card{background:transparent;border-color:transparent}
+.coss-ui .record-views-gallery-card:hover,.coss-ui .record-views-gallery-card:focus-within{background:var(--t-background-transparent-light);border-color:var(--t-border-color-medium)}
+.coss-ui .record-views-gallery,
+.coss-ui .record-views-gallery-sections{background:transparent}
+.coss-ui .record-views-gallery-card{border-radius:10px}
+/* A gallery card's corner controls (select and the record's menu): one size, one inset from each corner,
+   one surface, so both sit on the same line whatever is under them. References: Perplexity artifacts grid
+   (https://mobbin.com/screens/21fafb5b-83c9-4e3d-aee6-68e720e20915), Google Photos selection corners. */
+.coss-ui{--record-card-control-size:24px;--record-card-control-inset:8px;--record-card-control-radius:6px;--record-card-control-surface:color-mix(in srgb,var(--color-background) 72%,transparent);--record-card-control-border:color-mix(in srgb,var(--color-foreground) 18%,transparent)}
+.coss-ui .record-view-thumbnail{border-radius:8px;background:transparent}
+.coss-ui .record-views-gallery-card .record-views-card-corner{visibility:hidden;transition:opacity 100ms ease,visibility 0s linear 220ms}
+.coss-ui .record-views-gallery-card:is(:hover,:focus-within,[data-selected='true']) .record-views-card-corner{visibility:visible;transition-delay:0s}
+.coss-ui .record-views-gallery-card .record-views-card-corner :is([data-slot='checkbox'],[data-slot='button'],[data-slot='menu-trigger']){cursor:pointer}
+@media(hover:none){.coss-ui .record-views-gallery-card .record-views-card-corner{opacity:1;visibility:visible;transition:none}}
+.coss-ui .record-views-title{gap:8px;align-items:center}
+.coss-ui .record-views-count{font-size:12px;line-height:16px;font-weight:500;font-variant-numeric:tabular-nums;color:var(--t-font-color-tertiary)}
+.coss-ui .record-views-board-column article{background:transparent;border-color:transparent}
+.coss-ui .record-views-board-column article:hover,.coss-ui .record-views-board-column article:focus-within{background:var(--t-background-transparent-light);border-color:var(--t-border-color-medium)}
+.coss-ui .record-view-tag-wrap{display:inline-flex;align-items:center;gap:0;max-width:100%;vertical-align:middle}
+.coss-ui .record-view-tag{color:var(--t-font-color-secondary);background:var(--t-background-transparent-light);border-color:var(--t-border-color-medium)}
+.coss-ui [data-slot=table] .record-view-tag{color:color-mix(in srgb,var(--t-font-color-primary) 65%,var(--t-font-color-secondary));background:transparent;border:0;padding:0 2px;font-weight:500}
+.coss-ui [data-slot=table] .record-view-tag[data-filterable=true]:is(:hover,:focus-visible){color:var(--t-font-color-primary);text-decoration:underline;text-underline-offset:2px}
+.coss-ui .record-view-tag[data-filterable="true"]{cursor:pointer}
+.coss-ui .record-view-tag-count{max-width:0;overflow:hidden;opacity:0;transition:max-width 140ms ease,opacity 140ms ease;padding-inline:0;color:var(--t-font-color-tertiary);font-size:.72em;white-space:nowrap}
+.coss-ui .record-view-tag-wrap:hover .record-view-tag-count,.coss-ui .record-view-tag-wrap:focus-within .record-view-tag-count{max-width:5rem;opacity:1;padding-inline:.35rem}
+.coss-ui .record-view-tag-wrap[data-active="true"] .record-view-tag{box-shadow:0 0 0 1px currentColor}
+@media(prefers-reduced-motion:reduce){.coss-ui .record-view-tag-count{transition:none}}
+.mw-clip-surface .coss-action-cards{gap:0;margin-top:12px}
+.mw-clip-surface .coss-ui .coss-action-card{background:transparent;border:0;border-bottom:1px solid var(--t-border-color-medium);border-radius:0;box-shadow:none;padding:12px 0}
+.mw-clip-surface .coss-media-metadata{padding:12px 0;border-bottom:1px solid var(--t-border-color-medium);row-gap:8px}
+.mw-clip-surface .coss-action-card>p,.mw-clip-surface .coss-media-metadata-heading{margin:0 0 8px;color:var(--color-foreground);font-size:16px;font-weight:600;line-height:1.35}
+.mw-clip-surface .coss-action-card>small{display:block;color:var(--color-foreground);font-size:15px;line-height:1.55;white-space:pre-wrap}
+.mw-clip-surface .coss-media-metadata-heading{flex:0 0 100%;margin-bottom:0}
+.pw-settings-projects{display:grid;grid-template-columns:minmax(220px,300px) minmax(0,1fr);column-gap:24px;align-content:start;padding:24px;min-width:0;overflow:auto}
+.pw-settings-projects>h1,.pw-settings-projects>p,.pw-settings-projects>.pw-settings-actions{grid-column:1/-1}
+.pw-settings-projects>h1{margin:0;font-size:24px;line-height:1.2}.pw-settings-projects>p{margin:6px 0 20px;color:var(--color-muted-foreground)}
+.pw-settings-actions{display:flex;gap:8px;margin-bottom:20px}
+.pw-settings-actions>button,.pw-settings-detail>button{min-height:36px;padding:8px 12px;border:1px solid var(--color-input);border-radius:8px;background:var(--color-background);color:var(--color-foreground);font:inherit;font-weight:600;cursor:pointer}
+.pw-settings-actions>.pw-primary{background:var(--color-primary);border-color:var(--color-primary);color:var(--color-primary-foreground)}
+.pw-settings-actions>button:hover,.pw-settings-detail>button:hover{filter:brightness(1.12)}
+.pw-settings-actions>button:focus-visible,.pw-settings-detail>button:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px}
+.pw-settings-actions>button:disabled{opacity:.5;cursor:default}
+.pw-settings-tree,.pw-settings-detail{min-width:0;padding-top:16px;border-top:1px solid var(--color-input)}
+.pw-settings-detail h2{margin:0 0 18px;font-size:20px}.pw-settings-detail dl{display:grid;grid-template-columns:minmax(120px,180px) minmax(0,1fr);margin:0}.pw-settings-detail dt,.pw-settings-detail dd{margin:0;padding:12px 0;border-bottom:1px solid var(--color-input)}.pw-settings-detail dt{color:var(--color-muted-foreground)}.pw-settings-detail dd{overflow-wrap:anywhere}.pw-settings-detail>button{margin-top:20px}
+@media(max-width:700px){.pw-settings-projects{grid-template-columns:1fr;padding:16px}.pw-settings-detail{margin-top:20px}}
+
+/* Keep platform, account, and format levels visually distinct in dense pickers. */
+.coss-publication-destination-rail{grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))}
+.coss-publication-destination-group{overflow:hidden}
+.coss-publication-destination-group-heading{background:color-mix(in srgb,var(--color-muted) 72%,var(--color-background))}
+.coss-publication-destination-group-heading:hover,.coss-publication-account-heading:hover{background:var(--color-accent)}
+.coss-publication-destination-group-heading small,.coss-publication-account-heading small{display:grid;place-items:center;min-width:22px;height:20px;padding:0 6px;border:1px solid var(--color-input);border-radius:999px;background:var(--color-background);line-height:1}
+.coss-publication-destination-group[open]>.coss-publication-destination-group-heading{border-bottom:1px solid var(--color-input);border-radius:11px 11px 0 0}
+.coss-publication-account-list{gap:6px;padding:8px}
+.coss-publication-account{overflow:hidden;border:1px solid var(--color-input);border-radius:9px;background:color-mix(in srgb,var(--color-muted) 38%,var(--color-background))}
+.coss-publication-account-heading{padding:5px 8px}
+.coss-publication-account[open]>.coss-publication-account-heading{border-bottom:1px solid var(--color-input);background:color-mix(in srgb,var(--color-muted) 72%,var(--color-background))}
+.coss-publication-destination-choices{padding:6px 6px 8px}
+.coss-ui .coss-publication-destination[aria-pressed=true]{box-shadow:0 0 0 1px var(--color-primary) inset}
+.coss-ui .coss-publication-destination.is-unavailable{border-style:dashed;opacity:.82}
+.coss-publication-destination-status{grid-column:1/-1;color:var(--color-muted-foreground);font-size:11px}
+@media(max-width:700px){.coss-publication-destination-rail{grid-template-columns:minmax(0,1fr);max-height:min(38dvh,320px)}}
+@media(prefers-reduced-motion:reduce){.coss-publication-destination-group-heading>svg,.coss-publication-account-heading>svg{transition:none}}
+
+/* Openable text and marks. One token decides the hover colour of every link-like
+   thing (record titles, platform and account marks, the open arrow), so a
+   screen look changes them together. */
+:root{--link-hover-color:var(--accent-primary)}
+.coss-ui .record-views-open-link{text-decoration:underline;text-decoration-color:var(--t-border-color-medium,currentColor);text-underline-offset:3px;text-decoration-thickness:1px}
+.coss-ui .record-views-open-link:hover,.coss-ui .record-views-open-link:focus-visible{color:var(--link-hover-color);text-decoration-color:currentColor}
+.linked-identity{border-radius:999px}
+.linked-identity-face{width:22px;height:22px;font-size:10px;font-weight:600;transition:transform .15s ease,box-shadow .15s ease}
+.linked-identity-face[data-mark="provider"]{background:transparent}
+.linked-identity-fallback{background:var(--t-background-transparent-light,transparent);color:inherit}
+.linked-identity:hover .linked-identity-face,.linked-identity:focus-visible .linked-identity-face{transform:translateY(-1px);box-shadow:0 0 0 2px var(--link-hover-color)}
+.linked-identity-open-cue{width:12px;height:12px;color:var(--link-hover-color)}
+.coss-ui .record-views-caller-view{min-width:0}
+
+/* What kind of thing a record is. The tone keys come from
+   record-kind-appearance.json; each is one hue, drawn softly: tinted text and
+   icon over a faint wash of the same hue, so the kind reads at a glance without
+   competing with the title. A new tone is one line here. */
+:root{--record-kind-blue:#6b9cf2;--record-kind-green:#4fbf8a;--record-kind-purple:#a98bf2;--record-kind-yellow:#e2b340;--record-kind-turquoise:#3fc1b0;--record-kind-grey:#9aa0a6;--record-kind-red:#e8736b;--record-kind-orange:#ec9a4c;--record-kind-pink:#e27bb4}
+.record-kind-mark{--record-kind:var(--record-kind-grey);display:inline-flex;align-items:center;gap:4px;flex-shrink:0;white-space:nowrap;font-weight:500;color:color-mix(in oklab,var(--record-kind) 70%,var(--text-primary,currentColor));background:color-mix(in oklab,var(--record-kind) 13%,transparent);border-color:color-mix(in oklab,var(--record-kind) 32%,transparent)}
+.record-kind-mark-icon{width:12px;height:12px;flex-shrink:0;color:var(--record-kind)}
+.record-kind-mark[data-compact]{padding-inline:4px}
+.record-kind-mark[data-tone="blue"]{--record-kind:var(--record-kind-blue)}
+.record-kind-mark[data-tone="green"]{--record-kind:var(--record-kind-green)}
+.record-kind-mark[data-tone="purple"]{--record-kind:var(--record-kind-purple)}
+.record-kind-mark[data-tone="yellow"]{--record-kind:var(--record-kind-yellow)}
+.record-kind-mark[data-tone="turquoise"]{--record-kind:var(--record-kind-turquoise)}
+.record-kind-mark[data-tone="red"]{--record-kind:var(--record-kind-red)}
+.record-kind-mark[data-tone="orange"]{--record-kind:var(--record-kind-orange)}
+.record-kind-mark[data-tone="pink"]{--record-kind:var(--record-kind-pink)}
+.coss-project-tree-name .record-kind-mark{margin-left:auto}
+/* Lifecycle rules (ui/show/lifecycle-rules): a duration radiogroup, and rule
+ * cards that read as When … Then … sentences. */
+.lifecycle-duration{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.lifecycle-duration>[role=radio][aria-checked=true]{border-color:var(--color-primary);background:var(--color-primary);color:var(--color-primary-foreground)}
+.lifecycle-duration-custom{display:inline-flex;align-items:center;gap:6px;color:var(--color-muted-foreground);font-size:12px}
+.lifecycle-duration-custom [data-slot=input-control],.lifecycle-duration-custom [data-slot=input]{width:76px}
+.lifecycle-duration-custom[data-selected=true] [data-slot=input]{border-color:var(--color-primary)}
+.lifecycle-rules{display:grid;gap:18px;min-width:min(640px,100%)}
+.lifecycle-rules-section{display:grid;gap:10px}
+.lifecycle-rules-section h3{margin:0;font-size:13px;font-weight:600;color:var(--color-foreground)}
+.lifecycle-rules-section h3 small{margin-left:6px;font-weight:400;color:var(--color-muted-foreground)}
+.lifecycle-suggestions{display:flex;flex-wrap:wrap;gap:6px}
+.lifecycle-suggestion{display:inline-flex;align-items:center;gap:2px;padding:0 2px 0 9px;border:1px solid var(--color-border);border-radius:999px;font-size:12px;color:var(--color-muted-foreground)}
+.lifecycle-rule{display:grid;gap:10px;padding:12px;border:1px solid var(--color-border);border-radius:10px;background:color-mix(in srgb,var(--color-card,var(--color-background)) 92%,transparent)}
+.lifecycle-rule[data-enabled=false]{opacity:.6}
+.lifecycle-rule>header{display:flex;align-items:center;gap:8px}
+.lifecycle-rule>header [data-slot=input-control],.lifecycle-rule>header [data-slot=input]{flex:1}
+.lifecycle-rule-toggle{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--color-muted-foreground)}
+.lifecycle-rule-clause{display:grid;grid-template-columns:44px 1fr;gap:8px;align-items:start}
+.lifecycle-rule-word{padding-top:7px;font-size:12px;font-weight:600;color:var(--color-muted-foreground)}
+.lifecycle-rule-conditions,.lifecycle-rule-outcome{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:0}
+.lifecycle-rule-condition{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.lifecycle-rule-condition [data-slot=select-trigger]{width:auto;min-width:120px}
+.lifecycle-rule-outcome [data-slot=select-trigger]{width:auto;min-width:140px}
+.lifecycle-rule-since{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--color-muted-foreground)}
+.lifecycle-rules-error{margin:0;color:var(--color-destructive-foreground)}
+.lifecycle-rules-footer{display:flex;justify-content:flex-end;gap:8px}
+
+/* Settings sections of connections (Vercel sign-in methods, Linear connected
+   workspaces, 21st.dev Integrations 02): a card with a heading, a quiet
+   summary meter, and one row per service with its mark, name, formats, state
+   and one action. States share the record-kind tone hues. */
+.connection-section{border:1px solid var(--color-input);border-radius:12px;background:var(--color-card,transparent);overflow:hidden}
+.connection-section+.connection-section{margin-top:20px}
+.connection-section-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:18px 20px 14px}
+.connection-section-heading h2{margin:0;font-size:15px;font-weight:600}
+.connection-section-heading p{margin:4px 0 0;max-width:560px;color:var(--color-muted-foreground);font-size:13px;line-height:1.45}
+.connection-section-summary{display:grid;gap:6px;justify-items:end;flex-shrink:0;color:var(--color-muted-foreground);font-size:12px;white-space:nowrap}
+.connection-section-meter{width:120px;height:4px;border:0;border-radius:999px;background:color-mix(in oklab,currentColor 14%,transparent)}
+.connection-section-meter::-webkit-meter-bar{background:color-mix(in oklab,currentColor 14%,transparent);border:0;border-radius:999px;height:4px}
+.connection-section-meter::-webkit-meter-optimum-value,.connection-section-meter::-webkit-meter-suboptimum-value,.connection-section-meter::-webkit-meter-even-less-good-value{background:var(--record-kind-green);border-radius:999px}
+.connection-section-rows{list-style:none;margin:0;padding:0;border-top:1px solid var(--color-input)}
+.connection-section-row{display:grid;grid-template-columns:32px minmax(0,1fr) auto auto;align-items:center;gap:12px;padding:12px 20px}
+.connection-section-row+.connection-section-row{border-top:1px solid var(--color-input)}
+.connection-section-mark{display:inline-flex;width:32px;height:32px;align-items:center;justify-content:center;border-radius:8px;background:color-mix(in oklab,currentColor 6%,transparent)}
+.connection-section-copy{display:grid;gap:2px;min-width:0}
+.connection-section-copy strong{font-size:14px;font-weight:500}
+.connection-section-copy small{color:var(--color-muted-foreground);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.connection-section-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.connection-section-state{--record-kind:var(--record-kind-grey);gap:6px;color:color-mix(in oklab,var(--record-kind) 72%,var(--color-foreground,currentColor));background:color-mix(in oklab,var(--record-kind) 12%,transparent);border-color:color-mix(in oklab,var(--record-kind) 30%,transparent)}
+.connection-section-state::before{content:"";width:6px;height:6px;border-radius:999px;background:var(--record-kind)}
+.connection-section-state[data-tone="green"]{--record-kind:var(--record-kind-green)}
+.connection-section-state[data-tone="yellow"]{--record-kind:var(--record-kind-yellow)}
+.connection-section-state[data-tone="red"]{--record-kind:var(--record-kind-red)}
+.connection-section-state[data-tone="blue"]{--record-kind:var(--record-kind-blue)}
+.connection-section-action[data-tone="danger"]{color:var(--record-kind-red)}
+@container (max-width: 560px){.connection-section-row{grid-template-columns:32px minmax(0,1fr) auto}.connection-section-action{grid-column:2/-1;justify-self:start}.connection-section-header{flex-direction:column}.connection-section-summary{justify-items:start}}
+
+/* The profile reads as one settings card with its save action in a footer. */
+.coss-account-profile{max-width:720px}.coss-account-header{border-bottom:0;padding-bottom:20px}
+.coss-account-fields{border:1px solid var(--color-input);border-radius:12px;background:var(--color-card,transparent);overflow:hidden}
+.coss-account-fields>.coss-account-field{padding:16px 20px;margin:0;border-bottom:0}
+.coss-account-fields>.coss-account-field+.coss-account-field{border-top:1px solid var(--color-input)}
+.coss-account-save{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-direction:row-reverse;padding:12px 20px;border-top:1px solid var(--color-input);background:color-mix(in oklab,currentColor 3%,transparent);margin:0}
+
+/* A record's state (Waiting, Transcribing, Done, Failed): a quiet outline chip
+   with a coloured dot, sharing the record-kind tone hues. */
+.record-state-mark{--record-kind:var(--record-kind-grey);gap:6px;white-space:nowrap;font-weight:500;color:color-mix(in oklab,var(--record-kind) 72%,var(--color-foreground,currentColor));background:color-mix(in oklab,var(--record-kind) 10%,transparent);border-color:color-mix(in oklab,var(--record-kind) 28%,transparent)}
+.record-state-mark::before{content:"";flex:none;width:6px;height:6px;border-radius:999px;background:var(--record-kind)}
+.record-state-mark[data-tone="green"]{--record-kind:var(--record-kind-green)}
+.record-state-mark[data-tone="yellow"]{--record-kind:var(--record-kind-yellow)}
+.record-state-mark[data-tone="red"]{--record-kind:var(--record-kind-red)}
+.record-state-mark[data-tone="blue"]{--record-kind:var(--record-kind-blue)}

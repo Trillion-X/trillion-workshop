@@ -1,0 +1,76 @@
+/* Shared compact workspace roles. BeautifulUI SidebarNav/SelectionActions anatomy;
+   existing ui Button primary/secondary/ghost sizing. MIT notice beside this file. */
+:root{--control-height:34px;--control-radius:8px;--workspace-gap:24px}
+.ui-workspace .tr-project-card .tr-project-icon,.ui-workspace .pw-card .tr-project-icon{display:grid!important;place-items:center;width:42px;height:42px;flex:none;border-radius:12px;background:color-mix(in srgb,var(--identity-color) 12%,var(--surface));color:var(--identity-color);font-size:21px;font-weight:550}
+.ui-workspace .tr-project-grid{grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.ui-workspace .tr-project-card{position:relative;gap:14px;min-height:80px!important;padding:16px!important;border-color:transparent;background:var(--surface-soft)}
+.ui-workspace .tr-project-card strong{white-space:normal;line-height:1.4;font-size:14px!important}
+.ui-workspace .pw-appearance{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}
+.ui-workspace .tr-home-prompts{display:none}
+.ui-workspace .tr-overview{max-width:1400px;margin-inline:auto!important}
+.ui-workspace .mw-dialog:has(.expansion-player){width:min(1200px,calc(100vw - 48px));max-width:none}
+.ui-workspace{font-size:13px;line-height:1.5}
+.ui-workspace button,.ui-workspace input,.ui-workspace select,.ui-workspace textarea{font-family:inherit;font-size:13px}
+.ui-workspace .action,.ui-workspace .mw-library-bar button{min-height:var(--control-height);height:auto;padding:8px 12px;border:0;border-radius:var(--control-radius);background:transparent;color:var(--muted);font-weight:500;box-shadow:none}
+.ui-workspace .action:hover,.ui-workspace .mw-library-bar button:hover{background:var(--surface-soft);color:var(--text)}
+.ui-workspace .pw-primary{background:var(--text)!important;color:var(--surface)!important}
+.ui-workspace .page-header{padding:0 0 16px;margin-bottom:0;border-bottom:0;align-items:center}
+.ui-workspace .page-title{font-size:20px;line-height:1.4;font-weight:600;letter-spacing:normal}
+.ui-workspace .pw-layout{grid-template-columns:minmax(240px,300px) minmax(0,1fr);gap:28px;margin-top:24px}
+.ui-workspace [data-project-tree-nav]{position:sticky;top:18px;align-self:start;min-width:0;max-height:calc(100vh - 40px);overflow:auto}
+.ui-workspace .pw-sidebar{padding:4px 16px 0 0}
+.ui-workspace .pw-nav{display:flex;align-items:center;gap:10px;min-height:38px;padding:8px 10px;border-radius:8px;margin:0 0 4px}
+.ui-workspace .pw-nav strong{font-size:12px;font-weight:500;overflow-wrap:anywhere}
+.ui-workspace .pw-nav[aria-current=true]{background:var(--surface-soft);color:var(--text)}
+.ui-workspace .pw-nav::before{content:'';width:7px;height:7px;flex:none;border:1px solid var(--muted);border-radius:2px;opacity:.6}
+.ui-workspace .pw-nav[aria-current=true]::before{background:var(--accent);border-color:var(--accent);opacity:1}
+.ui-workspace .tr-overview{padding:0!important;max-width:none}
+.ui-workspace .tr-home-prompts{gap:8px;margin:0 0 24px}.ui-workspace .tr-home-prompts button{font-size:12px;font-weight:400;text-align:left}
+.ui-workspace .tr-shelf{margin-top:26px!important}.ui-workspace .tr-shelf>header{margin-bottom:12px!important;min-height:34px}.ui-workspace .tr-shelf h3{font-size:14px;font-weight:600}
+.ui-workspace .mw-library-bar{display:flex;align-items:center;gap:8px;margin-bottom:16px;padding:4px 0;border:0}
+/* Placed in the shared record-views toolbar, the bar is one item of that row and adds no spacing of its own. */
+.ui-workspace .mw-library-bar input{height:34px;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);max-width:320px;flex:1;min-width:80px;font-size:12px}
+.ui-workspace .mw-grid{gap:18px;grid-template-columns:repeat(auto-fill,minmax(min(210px,100%),1fr))}
+.ui-workspace .mw-card{border-radius:12px;box-shadow:none}.ui-workspace .mw-card strong{font-size:12px;font-weight:500;line-height:1.5;margin-top:8px}
+.ui-workspace .mw-selection{position:relative;inset:auto;z-index:90;width:fit-content;max-width:100%;height:auto;display:flex;align-items:center;flex-wrap:wrap;gap:12px;padding:8px 12px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 32px #0002;margin:0 0 16px}
+.ui-workspace .mw-selection[hidden]{display:none}.ui-workspace .mw-selection [data-count]{font-size:12px;padding:0 8px;white-space:nowrap}
+.ui-workspace .pw-project-details{margin-top:24px;font-size:12px}.ui-workspace .pw-project-details>summary{cursor:pointer;color:var(--muted);padding:10px 0}.ui-workspace .pw-project-details[open]>summary{margin-bottom:16px}
+.ui-action-menu{position:relative;display:inline-block;font-size:12px}.ui-action-menu summary{list-style:none;cursor:pointer;padding:8px 12px;border-radius:8px;color:var(--muted);user-select:none}.ui-action-menu summary::-webkit-details-marker{display:none}.ui-action-menu summary:hover,.ui-action-menu[open]>summary{background:var(--surface-soft);color:var(--text)}
+.ui-menu-items{position:absolute;right:0;top:calc(100% + 8px);min-width:210px;max-width:calc(100vw - 40px);z-index:120;padding:6px;background:var(--surface);color:var(--text);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 40px #0002}
+.ui-action-menu:not([open])>.ui-menu-items{display:none}.ui-menu-items button,.ui-workspace .ui-menu-items .action{display:block;width:100%;text-align:left;background:transparent;border:0;border-radius:6px;padding:9px 10px;font-size:12px;color:var(--text);cursor:pointer;white-space:nowrap}.ui-menu-items button:hover{background:var(--surface-soft)}
+.mw-selection .ui-menu-items{top:auto;bottom:calc(100% + 12px)}
+.ui-workspace :focus-visible,.ui-action-menu :focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.ui-workspace .tr-project-card{min-height:54px;padding:12px;border-radius:10px;box-shadow:none}.ui-workspace .tr-project-card strong{font-size:12px;font-weight:500}
+.ui-workspace .pw-dialog{border-radius:14px;padding:24px}.ui-workspace .pw-dialog h2{font-size:18px}.ui-workspace .pw-field{font-size:12px;font-weight:500}.ui-workspace .pw-field input,.ui-workspace .pw-field select{border-color:var(--line);height:36px;border-radius:8px;background:var(--surface-soft);font-size:13px}.ui-workspace .pw-dialog .action{font-size:12px}
+@media(max-width:850px){.ui-workspace .pw-layout{grid-template-columns:minmax(0,1fr);gap:18px}.ui-workspace .pw-sidebar{display:flex;min-width:0;overflow:auto;flex-wrap:nowrap;border-right:0;padding:0 0 8px}.ui-workspace .pw-nav{flex:none;width:auto;min-width:0}.ui-workspace #pw-content{min-width:0}.ui-workspace .mw-selection{gap:4px}.ui-workspace .mw-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.ui-workspace .mw-library-bar{flex-wrap:wrap}}
+@media(prefers-reduced-motion:reduce){.ui-workspace *{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+.ui-workspace .tr-overview .tr-project-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));overflow:visible}
+.ui-workspace .tr-overview .tr-project-grid[hidden]{display:none}
+.ui-workspace .tr-project-card{flex:auto;min-width:0}
+.ui-workspace .tr-ideas-disclosure{margin-top:24px;color:var(--muted);font-size:13px}
+.ui-workspace .tr-ideas-disclosure>summary{cursor:pointer;width:max-content;padding:8px 0}
+.ui-workspace .tr-home-prompts:has(button):is(:focus-within),.ui-workspace .tr-real-compose:focus-within+.tr-home-prompts{display:flex}
+.ui-workspace .tr-context-settings{display:block;margin-left:auto;margin-bottom:8px}
+.ui-workspace .mw-draft-preview{position:relative;width:100%;padding:0;border:0;background:#151515;border-radius:12px;overflow:hidden;cursor:pointer}
+.ui-workspace .mw-draft-preview video{width:100%;display:block}
+.ui-workspace .mw-draft-preview img{width:100%;display:block;aspect-ratio:16/9;object-fit:cover}
+.ui-workspace .mw-draft-preview span{position:absolute;inset:0;display:grid;place-items:center;color:white;text-shadow:0 1px 8px #000;font-size:25px}
+@media(max-width:540px){.ui-workspace .mw-grid{grid-template-columns:minmax(0,1fr)}}
+.mw-range{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:10px 0}
+.mw-range>label,.mw-range>div{flex-basis:100%;min-width:0}
+.mw-range>div{display:flex;flex-wrap:wrap;gap:12px}
+.mw-range>div[hidden]{display:none}
+.mw-range input{max-width:100%}
+.coss-action-card p,.coss-action-card small{white-space:pre-wrap;overflow-wrap:anywhere}
+.coss-record-editor,.coss-record-editor-fields{display:grid;gap:12px;min-width:0}
+.coss-record-editor-row label{display:grid;gap:6px;min-width:0}
+.coss-record-editor-row>button{justify-self:start}
+.coss-record-editor-row>[data-slot=card-footer]{flex-wrap:wrap;gap:8px}
+.coss-record-editor-grid .coss-record-editor-fields{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px 12px}
+.coss-record-editor-grid .coss-record-field-wide{grid-column:1/-1}
+.coss-record-field-value{display:block;padding:10px 12px;border:1px solid var(--color-border);border-radius:10px;background:color-mix(in srgb,var(--color-muted) 55%,transparent);font-size:15px;font-weight:600;overflow-wrap:anywhere}
+@media(max-width:700px){.coss-record-editor-grid .coss-record-editor-fields{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.ui-workspace .source-comparison-workspace{display:grid;grid-template-columns:minmax(260px,1fr) minmax(0,2fr);gap:24px;align-items:start}
+.ui-workspace .source-comparison-workspace>.mw-draft-shelf{grid-column:2;grid-row:1;min-width:0}
+.ui-workspace .source-comparison-workspace>[data-home-composer]{grid-column:1;grid-row:1;position:sticky;top:24px;min-width:0;margin:0}
+@media(max-width:850px){.ui-workspace .source-comparison-workspace{display:flex;flex-direction:column}.ui-workspace .source-comparison-workspace>[data-home-composer]{position:static;width:100%;order:-1}.ui-workspace .source-comparison-workspace>.mw-draft-shelf{width:100%}}

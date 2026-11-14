@@ -1,0 +1,132 @@
+/* Shared notification appearance: stacked toasts, live progress and the
+   notification center panel (an ordinary screen, and its compact hover preview). Structure and behaviour live in packages/ui/show/notifications
+   and packages/ui/show/coss/ui/toast.tsx; this file only decides how they look.
+ Tones are named by UI notification data; add a tone here, never a kind.
+   Anatomy references: 21st.dev #2527 (progress ring glyph), #28243 (tone accent,
+   inline Undo), #27135 and #8245 (All/Unread, grouped rows);
+   Mobbin Dropbox/Supabase upload trays, Linear inbox, GitHub notifications,
+   an activity feed grouped by date (full list: ui/show/notifications/README.md). */
+
+:root{
+  --notification-tone-blue:#6aa8ff;--notification-tone-green:#4fcf94;--notification-tone-red:#ff6b6b;
+  --notification-tone-yellow:#f2c14e;--notification-tone-purple:#b08cff;--notification-tone-neutral:#a3a9b1;
+  --notification-spring:cubic-bezier(.22,1.28,.36,1);--notification-ease:cubic-bezier(.22,1,.36,1);
+}
+[data-tone="blue"]{--notification-tone:var(--notification-tone-blue)}
+[data-tone="green"]{--notification-tone:var(--notification-tone-green)}
+[data-tone="red"]{--notification-tone:var(--notification-tone-red)}
+[data-tone="yellow"]{--notification-tone:var(--notification-tone-yellow)}
+[data-tone="purple"]{--notification-tone:var(--notification-tone-purple)}
+[data-tone="neutral"]{--notification-tone:var(--notification-tone-neutral)}
+
+/* Integrate the source viewport with app dialogs and device safe areas. The
+   stack sits above floating panels and picture-in-picture (layer-order 9998)
+   and below dialogs (10000). */
+.coss-ui [data-slot="toast-viewport"]{z-index:var(--layer-notification,9999);--toast-inset:max(16px,env(safe-area-inset-bottom));pointer-events:none}
+/* Bottom notifications share the floating-control safe area. The UI owner
+   measures docked controls; keep the toast viewport above that reserved band. */
+.coss-ui [data-slot="toast-viewport"][data-position*="bottom"]{bottom:calc(var(--toast-inset) + var(--floating-occlusion-bottom,0px))}
+.coss-ui [data-slot="toast-viewport"]>div{pointer-events:auto}
+.coss-ui [data-slot="toast-title"]{overflow-wrap:anywhere;font-size:inherit;line-height:inherit;margin:0}
+
+/* Card */
+/* Opaque on the screen-look surface token; cards behind the front one darken
+   slightly so the stack reads as depth, never as see-through. */
+.notification-root{overflow:hidden;border-radius:14px!important;
+  background:color-mix(in srgb,var(--surface,var(--color-popover,#13151a)) calc(100% - 4%*min(var(--toast-index,0),3)),#000)!important;
+  color:var(--text,var(--color-foreground,#eee));border-color:color-mix(in srgb,var(--color-foreground,#eee) 10%,transparent)!important;
+  box-shadow:0 1px 0 color-mix(in srgb,#fff 5%,transparent) inset,0 12px 32px -12px rgb(0 0 0/.55),0 2px 6px -2px rgb(0 0 0/.35)!important}
+.notification-root[data-expanded]{background:var(--surface,var(--color-popover,#13151a))!important}
+.notification-root::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background:radial-gradient(120% 90% at 0% 0%,color-mix(in srgb,var(--notification-tone) 14%,transparent),transparent 55%)}
+.notification-card{position:relative;z-index:1;display:grid;grid-template-columns:36px minmax(0,1fr) 22px;gap:12px;align-items:start;padding:12px 12px 12px 12px;font-size:13px;line-height:1.4}
+.notification-body{min-width:0;display:flex;flex-direction:column;gap:2px}
+.notification-title{font-weight:600;color:var(--color-foreground,#eee);letter-spacing:-.005em;margin:0}
+.notification-detail{margin:0;color:var(--color-muted-foreground,#aaa);font-size:12.5px;overflow-wrap:anywhere}
+
+/* Glyph: tone tile, icon pops in on every change of icon, ring shows progress */
+.notification-glyph{position:relative;display:grid;place-items:center;width:36px;height:36px;border-radius:999px;
+  color:var(--notification-tone);background:color-mix(in srgb,var(--notification-tone) 16%,transparent);
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--notification-tone) 26%,transparent) inset}
+.notification-glyph-icon{width:18px;height:18px;animation:notification-icon-in .5s var(--notification-spring) both}
+.notification-glyph[data-spin] .notification-glyph-icon{animation:notification-spin 1s linear infinite}
+.notification-glyph[data-running]{box-shadow:none}
+.notification-ring{position:absolute;inset:-3px;width:42px;height:42px;transform:rotate(-90deg);overflow:visible}
+.notification-ring circle{fill:none;stroke-width:2.5}
+.notification-ring-track{stroke:color-mix(in srgb,var(--notification-tone) 18%,transparent)}
+.notification-ring-value{stroke:var(--notification-tone);stroke-linecap:round;transition:stroke-dashoffset .45s var(--notification-ease)}
+.notification-glyph[data-progress="indeterminate"] .notification-ring{animation:notification-ring-spin 1.1s linear infinite}
+
+/* Progress bar with a travelling sheen while bytes move */
+.notification-progress{margin-top:8px;display:flex;flex-direction:column;gap:5px}
+/* Determinate bar: an inset track and a solid fill in the kind's tone whose
+   width IS the percentage (21st.dev #23549 "Progress Bar" by ddoemonn: inset
+   track, solid fill with a hairline top highlight). The activity sheen lives
+   inside the fill and is clipped by it, so nothing ever shows past the fill. */
+.notification-progress-track{position:relative;height:6px;padding:1px;box-sizing:content-box;border-radius:999px;overflow:hidden;
+  background:color-mix(in srgb,var(--color-foreground,#eee) 10%,var(--surface,#13151a));box-shadow:inset 0 1px 2px rgb(0 0 0/.35)}
+.notification-progress-fill{position:relative;display:block;height:100%;width:calc(var(--notification-progress,0)*100%);border-radius:inherit;overflow:hidden;
+  background:var(--notification-tone);box-shadow:inset 0 1px 0 rgb(255 255 255/.28);transition:width .45s var(--notification-ease)}
+.notification-progress-fill::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgb(255 255 255/.16),transparent);
+  transform:translateX(-100%);animation:notification-sheen 2.4s ease-in-out infinite}
+.notification-progress-track[data-indeterminate] .notification-progress-fill{width:38%;animation:notification-indeterminate 1.3s var(--notification-ease) infinite}
+.notification-progress-meta{display:flex;justify-content:space-between;gap:8px;font-size:11.5px;color:var(--color-muted-foreground,#aaa);font-variant-numeric:tabular-nums}
+.notification-progress-percent{color:var(--color-foreground,#eee);font-weight:600}
+
+.notification-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+
+/* Dismiss: quiet until the card is hovered or focused; always there on touch */
+.notification-dismiss{display:grid;place-items:center;width:22px;height:22px;border-radius:999px;border:0;padding:0;cursor:pointer;
+  color:var(--color-muted-foreground,#aaa);background:transparent;opacity:0;transition:opacity .15s,background-color .15s,color .15s}
+.notification-dismiss svg{width:13px;height:13px}
+.notification-root:hover .notification-dismiss,.notification-root:focus-within .notification-dismiss,.notification-dismiss:focus-visible{opacity:1}
+.notification-dismiss:hover{background:color-mix(in srgb,var(--color-foreground,#eee) 12%,transparent);color:var(--color-foreground,#eee)}
+@media (pointer:coarse){.notification-dismiss{opacity:1}}
+
+/* Notification center: the body of an ordinary screen (a floating window or a
+   tab) and, compact, the live feed of a navigation hover preview. It fills the
+   frame it is placed in; the frame (window, tab, preview card) draws the edge.
+   Every notification surface is opaque on the screen-look surface token. */
+.notification-center{box-sizing:border-box;width:100%;height:100%;min-height:0;display:flex;flex-direction:column;overflow:hidden;
+  background:var(--surface,var(--color-popover,#13151a));color:var(--text,var(--color-foreground,#eee))}
+.notification-center-host{height:100%;min-height:0}
+.notification-center-count{margin:0;padding:10px 16px 0;font-size:12px;font-weight:600;color:var(--notification-tone-blue)}
+.notification-center[data-compact] .notification-center-row{padding:8px 10px 8px 16px}
+.notification-center-header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 12px 6px 16px}
+.notification-center-title{margin:0;font-size:15px;font-weight:650;letter-spacing:-.01em}
+.notification-center-header-actions{display:flex;align-items:center;gap:6px}
+.notification-center-filters{padding:4px 12px 10px;border-bottom:1px solid var(--line,color-mix(in srgb,var(--color-foreground,#eee) 8%,transparent))}
+.notification-center-scroll{overflow-y:auto;overscroll-behavior:contain;padding-bottom:8px}
+.notification-center-group-label{position:sticky;top:0;z-index:1;display:flex;align-items:center;gap:7px;margin:0;padding:10px 16px 6px;
+  font-size:11px;font-weight:650;letter-spacing:.04em;text-transform:uppercase;color:var(--muted,var(--color-muted-foreground,#9298a6));background:var(--surface,var(--color-popover,#13151a))}
+.notification-center-list{list-style:none;display:grid;gap:8px;margin:0;padding:0 10px}
+.notification-center-row{position:relative;display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:12px;padding:10px 10px 10px 16px;border-radius:12px;cursor:default;transition:background-color .15s}
+.notification-center-row{grid-template-columns:28px minmax(0,1fr) auto;gap:10px;padding:12px}
+.notification-center-row .notification-glyph{width:28px;height:28px}
+.notification-center-row .notification-glyph-icon{width:15px;height:15px}
+.notification-center-row .notification-ring{inset:-3px;width:34px;height:34px}
+.notification-center-row-actions{gap:4px}
+.notification-center-row:hover,.notification-center-row:focus-within{background:var(--surface-soft,color-mix(in srgb,var(--color-foreground,#eee) 5%,transparent))}
+.notification-center-row[data-running]{background:color-mix(in srgb,var(--notification-tone) 7%,var(--surface,#13151a))}
+.notification-center-unread{position:absolute;left:5px;top:24px;width:6px;height:6px;border-radius:999px;background:transparent;transition:background-color .2s}
+.notification-center-row[data-unread] .notification-center-unread{background:var(--notification-tone-blue)}
+.notification-center-row:not([data-unread]) .notification-title{font-weight:500;color:var(--muted,var(--color-muted-foreground,#aaa))}
+.notification-center-heading{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.notification-center-time{flex:none;font-size:11.5px;color:var(--faint,var(--color-muted-foreground,#888));font-variant-numeric:tabular-nums}
+.notification-center-row-actions{display:flex;gap:2px;align-self:start;opacity:0;transition:opacity .15s}
+.notification-center-row:hover .notification-center-row-actions,.notification-center-row:focus-within .notification-center-row-actions{opacity:1}
+@media (pointer:coarse){.notification-center-row-actions{opacity:1}}
+.notification-center-empty{display:flex;flex-direction:column;align-items:center;gap:6px;padding:44px 24px 40px;text-align:center}
+.notification-center-empty-mark{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:var(--surface-soft,color-mix(in srgb,var(--color-foreground,#eee) 6%,transparent));color:var(--muted,#9298a6)}
+.notification-center-empty-mark svg{width:18px;height:18px}
+.notification-center-empty-title{margin:0;font-size:13.5px;font-weight:600}
+.notification-center-empty-detail{margin:0;max-width:280px;font-size:12.5px;color:var(--muted,var(--color-muted-foreground,#9298a6))}
+
+@keyframes notification-icon-in{0%{transform:scale(.4) rotate(-12deg);opacity:0}100%{transform:none;opacity:1}}
+@keyframes notification-spin{to{transform:rotate(360deg)}}
+@keyframes notification-ring-spin{to{transform:rotate(270deg)}}
+@keyframes notification-sheen{0%{transform:translateX(-100%)}70%,100%{transform:translateX(100%)}}
+@keyframes notification-indeterminate{0%{transform:translateX(-100%)}100%{transform:translateX(270%)}}
+@media(prefers-reduced-motion:reduce){
+  .coss-ui [data-slot="toast-viewport"] *,.notification-center,.notification-center *{transition:none!important;animation:none!important}
+}

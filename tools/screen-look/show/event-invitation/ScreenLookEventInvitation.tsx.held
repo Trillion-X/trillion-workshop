@@ -1,0 +1,136 @@
+import React from 'react';
+import {
+  EventInvitation,
+  type EventInvitationProps,
+} from '@/packages/ui/show/event-invitation';
+
+export type ScreenLookEventInvitationProps = EventInvitationProps;
+
+const EVENT_INVITATION_SCREEN_LOOK_CSS = `
+.event-invitation {
+  display: grid;
+  grid-template-columns: minmax(0, .88fr) minmax(420px, 1.12fr);
+  gap: clamp(54px, 7vw, 118px);
+  align-items: center;
+  min-height: calc(100svh - 250px);
+  color: var(--inverse-text-primary, #fff);
+}
+.event-invitation__copy { position: relative; z-index: 2; }
+.event-invitation__eyebrow {
+  margin: 0 0 22px;
+  font: 500 var(--font-size-overline, .72rem)/1.3 var(--font-primary, system-ui, sans-serif);
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--inverse-text-tertiary, rgba(255, 255, 255, .58));
+}
+.event-invitation__title {
+  max-width: 11ch;
+  margin: 0;
+  font: 400 clamp(4rem, 6.4vw, 7.2rem)/.94 var(--font-display, Georgia, serif);
+  letter-spacing: 0;
+  text-wrap: balance;
+}
+.event-invitation__summary {
+  max-width: 47ch;
+  margin: 34px 0 0;
+  font: 400 clamp(1.05rem, 1.35vw, 1.25rem)/1.55 var(--font-primary, system-ui, sans-serif);
+  color: var(--inverse-text-secondary, rgba(255, 255, 255, .72));
+}
+.event-invitation__facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 42px 0 0;
+  border-block: 1px solid var(--inverse-border-primary, rgba(255, 255, 255, .24));
+}
+.event-invitation__fact { padding: 18px 18px 20px 0; }
+.event-invitation__fact + .event-invitation__fact {
+  padding-left: 18px;
+  border-left: 1px solid var(--inverse-border-secondary, rgba(255, 255, 255, .16));
+}
+.event-invitation__fact dt {
+  margin: 0 0 8px;
+  font: 500 var(--font-size-micro, .66rem)/1.2 var(--font-primary, system-ui, sans-serif);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--inverse-text-muted, rgba(255, 255, 255, .46));
+}
+.event-invitation__fact dd {
+  margin: 0;
+  font: 400 .9rem/1.4 var(--font-primary, system-ui, sans-serif);
+  color: var(--inverse-text-strong, rgba(255, 255, 255, .92));
+}
+.event-invitation__assurance {
+  max-width: 54ch;
+  margin: 20px 0 0;
+  font: 400 var(--font-size-body-xs, .82rem)/1.5 var(--font-primary, system-ui, sans-serif);
+  color: var(--inverse-text-tertiary, rgba(255, 255, 255, .58));
+}
+.event-invitation__action {
+  min-height: 48px;
+  margin-top: 28px;
+  padding: 0 24px;
+  border: 1px solid var(--inverse-action-bg, #fff);
+  border-radius: var(--radius-pill, 999px);
+  font: 500 var(--font-size-body-xs, .82rem)/1 var(--font-primary, system-ui, sans-serif);
+  color: var(--inverse-action-text, #090909);
+  background: var(--inverse-action-bg, #fff);
+  white-space: nowrap;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform .18s ease, background-color .18s ease, color .18s ease;
+}
+.event-invitation__action:hover {
+  transform: translateY(-2px);
+  background: var(--inverse-action-bg-hover, #dededb);
+}
+.event-invitation__action:focus-visible {
+  outline: 2px solid var(--inverse-text-primary, #fff);
+  outline-offset: 5px;
+}
+.event-invitation__tilt { width: 100%; }
+.event-invitation__media {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border: 1px solid var(--inverse-border-primary, rgba(255, 255, 255, .4));
+  border-radius: var(--radius-card, 0);
+  background: var(--inverse-surface, #111);
+  box-shadow: var(--inverse-shadow-prominent, 0 38px 100px rgba(0, 0, 0, .48));
+}
+@media (max-width: 980px) {
+  .event-invitation { grid-template-columns: 1fr; min-height: 0; }
+  .event-invitation__copy { max-width: 760px; }
+  .event-invitation__title { max-width: 12ch; }
+  .event-invitation__tilt { width: min(100%, 720px); }
+}
+@media (max-width: 620px) {
+  .event-invitation { gap: 48px; }
+  .event-invitation__title { font-size: clamp(3.5rem, 15vw, 5rem); }
+  .event-invitation__facts { grid-template-columns: 1fr; }
+  .event-invitation__fact { padding: 15px 0; }
+  .event-invitation__fact + .event-invitation__fact {
+    padding-left: 0;
+    border-left: 0;
+    border-top: 1px solid var(--inverse-border-secondary, rgba(255, 255, 255, .16));
+  }
+  .event-invitation__action { width: 100%; }
+  .event-invitation__media { aspect-ratio: 3 / 4; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .event-invitation__action { transition: none; }
+  .event-invitation__action:hover { transform: none; }
+}
+`;
+
+/**
+ * The shared event-invitation structure with screen-look-owned visual roles.
+ * Callers still own every fact, word, image, and action.
+ */
+export function ScreenLookEventInvitation(props: ScreenLookEventInvitationProps) {
+  return (
+    <>
+      <style data-screen-look-styles="event-invitation">{EVENT_INVITATION_SCREEN_LOOK_CSS}</style>
+      <EventInvitation {...props} />
+    </>
+  );
+}

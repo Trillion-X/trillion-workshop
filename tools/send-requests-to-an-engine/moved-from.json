@@ -1,0 +1,136 @@
+{
+  "about": "The bitfield-packages send-requests-to-an-engine package, carried as a copy byte for byte from bitfield-packages (commit d926b7adb8ca24159ee64f47e7d9cae254f5b641), under its package layout. The source stays where it is: the live MCP server on this computer runs from it. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes).",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/send-requests-to-an-engine/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/send-requests-to-an-engine/README.md",
+      "source_identity": "1f:dde721d065dae32b6be8935fac3763f9cb3c3f4dc976a7d85127510f63712ae2",
+      "identity": "1f:dde721d065dae32b6be8935fac3763f9cb3c3f4dc976a7d85127510f63712ae2"
+    },
+    {
+      "from": "packages/send-requests-to-an-engine/capability-map.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/send-requests-to-an-engine/capability-map.md",
+      "source_identity": "1f:4b4d9695c16691ea1aad15f6cd6886690c8e5299a02d7148b0133c3b9aa102e5",
+      "identity": "1f:4b4d9695c16691ea1aad15f6cd6886690c8e5299a02d7148b0133c3b9aa102e5"
+    },
+    {
+      "from": "packages/send-requests-to-an-engine/do-work/apply-current-state-writes-to-running-app.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/send-requests-to-an-engine/do-work/apply-current-state-writes-to-running-app.mjs.held",
+      "source_identity": "1f:0e2f9eeb16d6cf51a2f86562efdc714ac615b957e0ea3c20e7997970046ed523",
+      "identity": "1f:0e2f9eeb16d6cf51a2f86562efdc714ac615b957e0ea3c20e7997970046ed523",
+      "held": true
+    },
+    {
+      "from": "packages/send-requests-to-an-engine/do-work/ask-the-running-app-what-it-can-do.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/send-requests-to-an-engine/do-work/ask-the-running-app-what-it-can-do.mjs",
+      "source_identity": "1f:0e56423595d4cf27ddf0e53c81ae609678bebeba366198c36f56a891e7f80f95",
+      "identity": "1f:0e56423595d4cf27ddf0e53c81ae609678bebeba366198c36f56a891e7f80f95"
+    },
+    {
+      "from": "packages/send-requests-to-an-engine/do-work/explain-a-missing-record-by-running-its-producer.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/send-requests-to-an-engine/do-work/explain-a-missing-record-by-running-its-producer.mjs",
+      "source_identity": "1f:d46039d243aa82320c71ebf5f4d6cf3c4292d83a8735dec97d47123f2e326370",
+      "identity": "1f:d46039d243aa82320c71ebf5f4d6cf3c4292d83a8735dec97d47123f2e326370"
+    },
+    {
+      "from": "packages/send-requests-to-an-engine/do-work/send-one-request-with-one-field-read-from-standard-input.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/send-requests-to-an-engine/do-work/send-one-request-with-one-field-read-from-standard-input.mjs",
+      "source_identity": "1f:9c14d951f245fb2b120f41280a6924364504f820d699797027f95686b1f949b5",
+      "identity": "1f:9c14d951f245fb2b120f41280a6924364504f820d699797027f95686b1f949b5"
+    },
+    {
+      "from": "packages/send-requests-to-an-engine/do-work/serve-running-app-tools-over-mcp.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/send-requests-to-an-engine/do-work/serve-running-app-tools-over-mcp.mjs",
+      "source_identity": "1f:1de17afececd3aa0590ac347a2fcd2021281635811cb6580c8b49de64b199a56",
+      "identity": "1f:1de17afececd3aa0590ac347a2fcd2021281635811cb6580c8b49de64b199a56"
+    },
+    {
+      "from": "packages/send-requests-to-an-engine/engine-connections.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/send-requests-to-an-engine/engine-connections.json",
+      "source_identity": "1f:151dd877bdc52e003104646aa82bca90b9ffb466d9869c95e1d873f14ada94b3",
+      "identity": "1f:151dd877bdc52e003104646aa82bca90b9ffb466d9869c95e1d873f14ada94b3"
+    },
+    {
+      "from": "packages/send-requests-to-an-engine/hook-enforcement-learnings.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/send-requests-to-an-engine/hook-enforcement-learnings.md",
+      "source_identity": "1f:6efb9b2a689b2221f4cc5d45788c52c39f6af21a46e909ddbb09e1d63ffe4238",
+      "identity": "1f:6efb9b2a689b2221f4cc5d45788c52c39f6af21a46e909ddbb09e1d63ffe4238"
+    },
+    {
+      "from": "packages/send-requests-to-an-engine/how-to-use.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/send-requests-to-an-engine/how-to-use.md",
+      "source_identity": "1f:25815e5e08643fc3d23a033ca50c7314acefd7c53caf75897ebc6dc962572a82",
+      "identity": "1f:25815e5e08643fc3d23a033ca50c7314acefd7c53caf75897ebc6dc962572a82"
+    },
+    {
+      "from": "packages/send-requests-to-an-engine/package.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/send-requests-to-an-engine/package.json",
+      "source_identity": "1f:fbfd2a5735cdfb14b7f2fef86836fb088f6368ffbfcd4dd2ebe24e5cb8b50c21",
+      "identity": "1f:fbfd2a5735cdfb14b7f2fef86836fb088f6368ffbfcd4dd2ebe24e5cb8b50c21"
+    },
+    {
+      "from": "packages/send-requests-to-an-engine/read-data/apply-current-state-writes.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/send-requests-to-an-engine/read-data/apply-current-state-writes.mjs.held",
+      "source_identity": "1f:43eb0939b434e3e645cde342fc47ff9bf8fd7d49932381ee2977c45b0d42a02e",
+      "identity": "1f:43eb0939b434e3e645cde342fc47ff9bf8fd7d49932381ee2977c45b0d42a02e",
+      "held": true
+    },
+    {
+      "from": "packages/send-requests-to-an-engine/read-data/find-the-running-app-and-send-requests-to-it.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/send-requests-to-an-engine/read-data/find-the-running-app-and-send-requests-to-it.mjs",
+      "source_identity": "1f:9f514003109213deb0ae76ddff465ca433cf274ee17cc5f5d2166cc12788e81c",
+      "identity": "1f:9f514003109213deb0ae76ddff465ca433cf274ee17cc5f5d2166cc12788e81c"
+    },
+    {
+      "from": "packages/send-requests-to-an-engine/read-data/resolve-execute-definition-input.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/send-requests-to-an-engine/read-data/resolve-execute-definition-input.mjs",
+      "source_identity": "1f:1f10fb05d6b21838a22c29c12741c487a4f470de931b1938c5e8393a969f007c",
+      "identity": "1f:1f10fb05d6b21838a22c29c12741c487a4f470de931b1938c5e8393a969f007c"
+    },
+    {
+      "from": "packages/send-requests-to-an-engine/tests/explain-a-missing-record-by-running-its-producer.test.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/send-requests-to-an-engine/tests/explain-a-missing-record-by-running-its-producer.test.mjs",
+      "source_identity": "1f:1ab645563780dce9773c48ce1f583b685c42770af60a188a8dbf01ac631bc2bd",
+      "identity": "1f:1ab645563780dce9773c48ce1f583b685c42770af60a188a8dbf01ac631bc2bd"
+    },
+    {
+      "from": "packages/send-requests-to-an-engine/tests/find-the-running-app-and-send-requests-to-it.test.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/send-requests-to-an-engine/tests/find-the-running-app-and-send-requests-to-it.test.mjs",
+      "source_identity": "1f:aca1fade43b4b82b92dbf881b359708119b256cdae47b8029bac42dda92753fd",
+      "identity": "1f:aca1fade43b4b82b92dbf881b359708119b256cdae47b8029bac42dda92753fd"
+    },
+    {
+      "from": "packages/send-requests-to-an-engine/tests/serve-running-app-tools-over-mcp.test.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/send-requests-to-an-engine/tests/serve-running-app-tools-over-mcp.test.mjs",
+      "source_identity": "1f:ce76d5ed648d03d99a577911157960ab9259d331d1f2cd630849d98e336f95c3",
+      "identity": "1f:ce76d5ed648d03d99a577911157960ab9259d331d1f2cd630849d98e336f95c3"
+    },
+    {
+      "from": "packages/send-requests-to-an-engine/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/send-requests-to-an-engine/things-to-store-and-run.json",
+      "source_identity": "1f:f2919cde8e455b5bde2ca4d7c8cd6996b65d6820ef498a87504ac9765bfd79b6",
+      "identity": "1f:f2919cde8e455b5bde2ca4d7c8cd6996b65d6820ef498a87504ac9765bfd79b6"
+    }
+  ]
+}

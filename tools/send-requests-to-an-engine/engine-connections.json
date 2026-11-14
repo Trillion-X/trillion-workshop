@@ -1,0 +1,15 @@
+{
+  "schema": "send-requests-to-an-engine/engine-connections",
+  "connections": [
+    {
+      "id": "hosted-community",
+      "url": "https://community.bitfield.so",
+      "description": "Hosted community and checkout engine; connection discovery grants no permission to change public or financial state"
+    },
+    {
+      "id": "bitfield-package-store",
+      "url": "https://bitfield-package-store.fly.dev",
+      "description": "Public Bitfield package-store engine"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "name": "send-requests-to-an-engine",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Find a selected running Bitfield app and send Envelope target requests to it.",
+  "exports": {
+    ".": "./read-data/find-the-running-app-and-send-requests-to-it.mjs",
+    "./session": "./read-data/find-the-running-app-and-send-requests-to-it.mjs"
+  }
+}

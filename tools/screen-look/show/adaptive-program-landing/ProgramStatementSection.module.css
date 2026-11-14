@@ -1,0 +1,25 @@
+.bridgeMoment {
+  align-items: center;
+  box-sizing: border-box;
+  display: grid;
+  justify-items: center;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: clamp(72px, 12vh, 150px) clamp(18px, 5vw, 72px);
+  position: relative;
+  width: 100%;
+}
+
+.bridgeInner {
+  margin: 0 auto;
+  max-width: 1040px;
+  overflow: visible;
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .bridgeMoment {
+    min-height: 100dvh;
+    padding-inline: 20px;
+  }
+}

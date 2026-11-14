@@ -1,0 +1,6 @@
+/* Kibo SnippetCopyButton appearance, adapted to the shared workspace tokens.
+   Keep feedback accessible without adding another persistent visible label. */
+.kibo-copy-control {display:inline-flex;align-items:center;position:relative}
+.kibo-copy-feedback[role=status] {position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.kibo-copy-feedback[role=alert] {font-size:12px;line-height:1.5;color:var(--color-destructive);max-width:28em;margin-inline-start:8px}
+@media (prefers-reduced-motion:reduce) {.kibo-copy-control * {transition:none!important}}
