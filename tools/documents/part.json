@@ -1,0 +1,23 @@
+{
+  "imported_by": [
+    "Trillion-X/trillion-apps"
+  ],
+  "public": [
+    "do-work/imported-document.mjs",
+    "do-work/page-operation-writes.mjs",
+    "index.ts",
+    "read-data/collaboration-view.ts",
+    "read-data/cursor-commands.ts",
+    "read-data/cursor-nav.ts",
+    "read-data/document-value.ts",
+    "read-data/documents.ts",
+    "read-data/editing-rules.json",
+    "read-data/inline-chip-dom.ts",
+    "read-data/match-block-shortcut.ts",
+    "read-data/normalize-authored-document.ts",
+    "read-data/page-references.ts",
+    "read-data/selection-ops.ts",
+    "read-data/what-enter-does-in-this-block.ts",
+    "show/documents-page-sidebar.ts"
+  ]
+}

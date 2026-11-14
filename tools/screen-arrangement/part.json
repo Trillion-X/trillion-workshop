@@ -1,0 +1,22 @@
+{
+  "imported_by": [
+    "Trillion-X/trillion-apps"
+  ],
+  "public": [
+    "do-work/read-canonical-artifact-object-url.ts",
+    "read-data/arrangement-words.json",
+    "show/ArrangedContents.tsx",
+    "show/EmbeddedScreenArrangement.tsx",
+    "show/FloatingPanel.tsx",
+    "show/PaneSizeSettings.tsx",
+    "show/SplitTreeArranger.tsx",
+    "show/arrangement-lock.tsx",
+    "show/arrangement-map-actions.ts",
+    "show/behind-the-panes.tsx",
+    "show/mount-floating-panel.tsx",
+    "show/mount-screen-arrangement.tsx",
+    "show/split-tree-constraints.ts",
+    "show/surface-placement.ts",
+    "show/visual-layer-subject-resolver.ts"
+  ]
+}

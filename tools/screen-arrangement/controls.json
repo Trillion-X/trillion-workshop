@@ -1,0 +1,26 @@
+{
+  "_what": "The controls screen arrangement draws that a show rule can hide (subject `control`, parts/ui/show/show-rules show-of.ts controlShown): its chrome zones (every zone is `arrangement.<zone>`, read-data/region-chrome.ts zoneControl) and an empty pane's sections (`arrangement.empty.<part>`, show/EmptyContainer.tsx shows). A rule on `arrangement.header` hides the pane's whole tab bar, the sidebar frame it is (show/ContainerHeader.tsx); a rule on `arrangement.empty` an empty pane's every section; a rule on `arrangement.zoom` every way to zoom the panes (the arrangement then draws at its normal size, and a pinch or ctrl/⌘ with the wheel over it does nothing, the page's own zoom included).",
+  "controls": [
+    { "id": "arrangement.focus", "label": "Focus mode (one pane over everything)", "drawn_at": "show/LayoutEngine.tsx FocusOverlay and focus requests, show/ContainerHeader.tsx Maximize row, show/OverlayArranger.tsx peeks" },
+    { "id": "open.picture-in-picture", "label": "Picture in picture (a pane floating over the screen)", "drawn_at": "read-data/placement-choices.ts overlay row, show/ContainerHeader.tsx Float over the screen row, show/open-placeable-surface.ts open_placement, media-playback's own picture in picture" },
+    { "id": "arrangement.header.tabs", "label": "A pane's tabs: the tab-bar sidebar in the pane (more than one tab, where the tabs sit, popping them out)", "drawn_at": "show/ContainerHeader.tsx SidebarFrame sections, Tabs row (zone header.tabs, and header.tabs.<capability> for its own controls)" },
+    { "id": "arrangement.header.tabs.position", "label": "Where a pane's tabs sit", "drawn_at": "show/ContainerHeader.tsx Where the tabs sit (zone header.tabs.position)" },
+    { "id": "arrangement.header.tabs.row-preview", "label": "A pane tab's preview card", "drawn_at": "parts/sidebar show/SidebarContent.tsx TabRow" },
+    { "id": "arrangement.header.nav", "label": "A pane's back and forward", "drawn_at": "show/ContainerHeader.tsx navArrows (zone header.nav)" },
+    { "id": "arrangement.header.actions", "label": "A pane's ⋯ menu (it can open the whole sidebar inside the pane: Open something here)", "drawn_at": "show/ContainerHeader.tsx moreControl (zone header.actions)" },
+    { "id": "arrangement.header.new-tab", "label": "A pane's new tab", "drawn_at": "show/ContainerHeader.tsx (zone header.new-tab)" },
+    { "id": "arrangement.split", "label": "Splitting a pane", "drawn_at": "show/ContainerHeader.tsx (zone split)" },
+    { "id": "arrangement.layouts", "label": "Saved layouts", "drawn_at": "show/LayoutPicker.tsx, show/ArrangementNavigator.tsx" },
+    { "id": "arrangement.navigation", "label": "The pane map", "drawn_at": "show/ArrangementNavigator.tsx" },
+    { "id": "arrangement.zoom.pinch", "label": "Zooming the panes in and out with a pinch or ctrl/⌘ and the scroll wheel", "drawn_at": "show/canvas-gestures.ts onWheel (ctrl or cmd) and onTouchStart/onTouchMove (two fingers), show/SplitTreeArranger.tsx zoomShown" },
+    { "id": "arrangement.zoom.map", "label": "Zooming the panes in and out with the scroll wheel over the pane map", "drawn_at": "show/ArrangementNavigator.tsx map onWheel, show/SplitTreeArranger.tsx zoomShown" },
+    { "id": "arrangement.empty.heading", "label": "An empty pane's heading", "drawn_at": "show/EmptyContainer.tsx shows('heading')" },
+    { "id": "arrangement.empty.search", "label": "An empty pane's search", "drawn_at": "show/EmptyContainer.tsx shows('search')" },
+    { "id": "arrangement.empty.layouts", "label": "An empty pane's layouts", "drawn_at": "show/EmptyContainer.tsx shows('layouts')" },
+    { "id": "arrangement.empty.folders", "label": "An empty pane's lists", "drawn_at": "show/EmptyContainer.tsx shows('folders')" },
+    { "id": "arrangement.empty.folders.create", "label": "Making a list in an empty pane", "drawn_at": "show/EmptyContainer.tsx shows('folders.create')" },
+    { "id": "arrangement.empty.everything", "label": "Everything an empty pane can open", "drawn_at": "show/EmptyContainer.tsx shows('everything')" },
+    { "id": "arrangement.empty.kept", "label": "The screens an empty pane keeps at its foot", "drawn_at": "show/EmptyContainer.tsx shows('kept')" },
+    { "id": "arrangement.empty.start", "label": "An empty pane's start screen", "drawn_at": "show/EmptyContainer.tsx shows('start')" }
+  ]
+}

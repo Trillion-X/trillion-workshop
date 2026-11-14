@@ -1,0 +1,27 @@
+{
+  "imported_by": [
+    "Trillion-X/trillion-apps"
+  ],
+  "public": [
+    "do-work/meeting-application-recording.ts",
+    "do-work/native-meeting-activity.ts",
+    "do-work/recording-meeting-context-update.ts",
+    "do-work/rolling-segments.mjs",
+    "do-work/send-while-recording.ts",
+    "read-data/capture-policy.ts",
+    "read-data/capture-preflight.json",
+    "read-data/capture-preflight.mjs",
+    "read-data/capture-sources.json",
+    "read-data/recording-widgets.json",
+    "show/RecordingPill.tsx",
+    "show/adaptation-ladder.json",
+    "show/adaptation-ladder.ts",
+    "show/live-audio-stream.json",
+    "show/live-audio-stream.ts",
+    "show/live-recording.ts",
+    "show/record-in-the-browser.ts",
+    "show/recording-notices.ts",
+    "tests/recording-condition-formula.test.mjs",
+    "things-to-store-and-run.json"
+  ]
+}
