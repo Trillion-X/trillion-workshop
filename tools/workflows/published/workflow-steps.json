@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflow-steps:public",
   "list": "workflow-steps",
-  "blake3": "de40eecf56f29d4a6826019e7293415b8ea3892bfcec27852045ad397bc360a4",
+  "blake3": "21d387beb4316316d29f78d2858ab7632237f419e32baaf507508a7d7d9ade4d",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -121,6 +121,16 @@
    "id": "part_of",
    "kind": "tags",
    "label": "Part of"
+  },
+  {
+   "id": "agents",
+   "kind": "number",
+   "label": "Agents (how many AIs run this step; 1 when empty)"
+  },
+  {
+   "id": "lanes",
+   "kind": "long-text",
+   "label": "Lane ids (JSON list, one per agent)"
   }
  ],
  "rows": [

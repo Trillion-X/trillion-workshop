@@ -1,0 +1,42 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:hand-to-an-agent with the job: turn my voice note from this morning into an outline with a hook and three points.\" It hands that job, with every detail of what arrived, to one of your AIs; the AI that takes it does the job and what it did is kept as the result. Your account's starting rules also start it for you whenever a message arrives.",
+  "lists": [],
+  "no_lists_because": "The item reads and writes no list: its one step hands the job to an AI, and the job and its result are kept on the run itself.",
+  "workflows": [
+    "workflow:hand-to-an-agent"
+  ],
+  "tools": [
+    "tool:start-a-recipe-run"
+  ],
+  "instructions": [
+    "1. Say to your AI what you want done with what arrived, in plain words (the job), and name the AI if one should take it (to_agent); leave it out for whichever of your AIs takes it first.",
+    "2. The AI starts workflow:hand-to-an-agent with that job; its one step, handle, waits for an AI to take the job.",
+    "3. Read the run: its handle step holds what the AI that took it did. A message that arrives starts the same workflow by itself through the starting rule starting:arrivals."
+  ],
+  "worked_examples": [
+    {
+      "title": "A voice note becomes an outline",
+      "ask": "Hand my voice note from this morning to my AI: turn it into an outline with a hook and three points.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:hand-to-an-agent",
+              "job": "Turn this voice note into an outline with a hook and three points",
+              "said": "Outline from this morning's voice note"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:hand-to-an-agent",
+      "step": "handle",
+      "given": "The job in plain words and what arrived (the voice note's id and words).",
+      "hands_back": "Step handle answers with what the AI that took the job did: here, the outline with its hook and three points."
+    }
+  ]
+}

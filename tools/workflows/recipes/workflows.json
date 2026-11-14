@@ -11306,6 +11306,131 @@
     {
       "payload": {
         "kind": "workflow-recipe",
+        "id": "workflow:hand-to-an-agent",
+        "label": "Hand it to one of your AIs",
+        "job": "Hand something that just arrived or was asked for (a note, a voice memo, an email, a message, a comment, a button pressed in the app) to one of the person's AIs, with the job in plain words and every detail of what arrived; the AI named in to_agent takes it, or whichever takes it first when none is named, and what that AI did is kept as the result. One item (once_per) is handed off once, however many rules or runs hand it.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "job"
+          ],
+          "properties": {
+            "job": {
+              "type": "string",
+              "minLength": 3,
+              "description": "What the AI should do with what arrived, in plain words"
+            },
+            "arrived": {
+              "type": "object",
+              "description": "Every detail of what arrived: where from, when, who, the ids to read it by"
+            },
+            "to_agent": {
+              "type": "string",
+              "description": "The agent_id of the one AI that should take it; leave it out for whichever of the person's AIs takes it first"
+            },
+            "said": {
+              "type": "string",
+              "description": "The work as the person sees it on their notifications and AI work, in their own words or a plain title; never a tool name or instructions to an AI"
+            },
+            "once_per": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The identity of the one item this is about (a message id, an event id): everything handed off for the same item is one job, whichever rule or run hands it"
+            },
+            "case_id": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The decision the AI works this through, when the item has one"
+            },
+            "priority": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 9,
+              "description": "How soon it is taken, 0 to 9, higher first: what the person said themselves goes ahead of information that arrived for them"
+            }
+          }
+        },
+        "definition": {
+          "steps": [
+            {
+              "id": "handle",
+              "kind": "ask",
+              "config": {
+                "name": "agent:",
+                "input": {
+                  "do": {
+                    "$kind": "binding",
+                    "values": [
+                      "input",
+                      "job"
+                    ]
+                  },
+                  "said": {
+                    "$kind": "binding",
+                    "values": [
+                      "input",
+                      "said"
+                    ]
+                  },
+                  "arrived": {
+                    "$kind": "binding",
+                    "values": [
+                      "input",
+                      "arrived"
+                    ]
+                  },
+                  "to_agent": {
+                    "$kind": "binding",
+                    "values": [
+                      "input",
+                      "to_agent"
+                    ]
+                  },
+                  "once_per": {
+                    "$kind": "binding",
+                    "values": [
+                      "input",
+                      "once_per"
+                    ]
+                  },
+                  "case_id": {
+                    "$kind": "binding",
+                    "values": [
+                      "input",
+                      "case_id"
+                    ]
+                  },
+                  "priority": {
+                    "$kind": "binding",
+                    "values": [
+                      "input",
+                      "priority"
+                    ]
+                  }
+                },
+                "context": {
+                  "title": "Handle what arrived",
+                  "submit": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          ],
+          "edges": []
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "workflow-recipe",
         "id": "workflow:hire-help-for-a-step",
         "label": "Hire help for a step",
         "job": "Hire a person nearby (TaskRabbit and services like it, or an employee by email) to do a step that needs someone physically there, after one tap with the price, then make sure they did it",
