@@ -62,3 +62,12 @@ test('every email box shows the placeholder old Trillion showed (src/pages.mjs:2
     }
   }
 });
+
+test('/sign-in/key answers a page whose key button makes the signed-in person a key through Better Auth and shows it once', () => {
+  const page = pageAnswer('/sign-in/key')?.body.toString();
+  assert.match(page ?? '', /<button class="page-action" type="button" data-key /);
+  assert.match(page ?? '', /name="made-key" readonly hidden/);
+  const client = readFileSync(new URL('../pages/sign-in-client.mjs', import.meta.url), 'utf8');
+  assert.match(client, /fetch\('\/api\/auth\/api-key\/create'/);
+  assert.match(readFileSync(new URL('../pages/assets/sign-in.js', import.meta.url), 'utf8'), /api-key\/create/, 'the bundle is built from the client');
+});

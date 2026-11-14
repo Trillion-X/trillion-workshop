@@ -102,6 +102,27 @@ async function passkey(button) {
   }
 }
 
+// The key button (/sign-in/key): makes the signed-in person an API key with Better Auth's own api-key/create, shows it once
+// and copies it. Its account and scopes are set by the server (auth.mjs), never by this page. Not signed in: sign in first.
+async function makeKey(button) {
+  const name = document.querySelector('[name="key-name"]')?.value?.trim() || undefined;
+  const answer = await fetch('/api/auth/api-key/create', { method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ name }) });
+  if (answer.status === 401) return location.assign(`/sign-in?next=${encodeURIComponent(location.pathname)}`);
+  const made = await answer.json().catch(() => null);
+  if (!answer.ok || !made?.key) return refusal({ status: answer.status }, button.dataset.failed ?? words.failed);
+  const box = document.querySelector('[name="made-key"]');
+  if (box) { box.value = made.key; box.hidden = false; box.select(); }
+  await navigator.clipboard?.writeText(made.key).catch(() => {});
+  return status(words.key_made);
+}
+
+document.addEventListener('click', event => {
+  const button = event.target.closest('button[data-key]');
+  if (!button) return;
+  event.preventDefault();
+  makeKey(button).catch(() => status(button.dataset.failed ?? words.failed));
+});
+
 document.addEventListener('submit', event => {
   const form = event.target.closest('form');
   if (!form) return;

@@ -1,8 +1,9 @@
 {
-  "_what": "The words the sign-in pages' script may show, taken from the sign-in words the pages were drawn with (sign_in_words: failed, unavailable; ways: not_sent, too_many, names_refused.email).",
+  "_what": "The words the sign-in pages' script may show, taken from the sign-in words the pages were drawn with (sign_in_words: failed, unavailable; ways: not_sent, too_many, names_refused.email); key_made is the key page's own.",
   "failed": "That did not work. Try again.",
   "unavailable": "Sign-in is unavailable right now. Try again in a moment.",
   "not_sent": "The code could not be sent just now, so none is on its way. Try again in a minute.",
   "too_many": "Too many tries. Wait a few minutes, then try again.",
-  "email_needed": "Type the email address you sign in with."
+  "email_needed": "Type the email address you sign in with.",
+  "key_made": "Your key is made and copied. Keep it now: it is shown only once."
 }
