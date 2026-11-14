@@ -219,6 +219,18 @@ test('a sweep reads only the sessions changed within its window, and keeps each 
   assert.deepEqual([whole.sources[0].files_found, whole.sources[0].messages_added], [2, 2]);
 });
 
+// A grant of only the AI apps' session folders, not the whole home: the run is handed one of them and told the home they
+// are under, so the apps' roots are found where their rows say; a home the granted folder is not inside is refused.
+test('a run granted only a session folder reads the apps under the home it names, and refuses a home outside the grant', async t => {
+  const { home } = makeHome();
+  const { fake, context } = await doorFor();
+  t.after(async () => { rmSync(home, { recursive: true, force: true }); await fake.close(); });
+  const granted = join(home, '.claude/projects');
+  const run = await resumeConversationImports({ input: { sources: ['claude-code-sessions'], home }, folder: granted }, context);
+  assert.deepEqual(run.sources.map(source => [source.source, source.files_found, source.messages_added]), [['claude-code-sessions', 1, 2]]);
+  await assert.rejects(resumeConversationImports({ input: { home: join(home, 'Downloads') }, folder: granted }, context), /home must be a folder the granted folder is inside/);
+});
+
 test('a door that answers 503 midway stops the run where it was kept, and a resume finishes with nothing kept twice', async t => {
   const { home } = makeHome();
   const clean = await doorFor();

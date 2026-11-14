@@ -24,7 +24,7 @@
 // into a local AI app's session is copied the way old Trillion's recorder kept it (/messages/<conversation>/<message>-<n>).
 import { spawn } from 'node:child_process';
 import { closeSync, openSync, readFileSync, readSync, readdirSync, realpathSync, statSync } from 'node:fs';
-import { basename, dirname, extname, join, relative, resolve, sep } from 'node:path';
+import { basename, dirname, extname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { conversationFrom } from './chat-archives.mjs';
 import { messages } from '../../keep-and-wake-ai-sessions-on-this-computer/src/messages.mjs';
@@ -498,9 +498,16 @@ const cursorId = (source, file) => `${CURSOR_TYPE}:${source}${file === undefined
 const globPattern = name => new RegExp(`^${name.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*')}$`);
 
 /** The granted folder, read as the person's home; refuses a path that leaves it. */
-function homeOf(folder) {
+// The home the run reads under: the granted folder itself, or `home` from the input when the person granted only some
+// folders inside it (the AI apps' session folders, one each) instead of the whole home. A `home` the granted folder is
+// not inside is refused; either way a read reaches only what the person granted, which the computer's containment holds.
+function homeOf(folder, home) {
   if (typeof folder !== 'string' || !folder) throw new Error('This run was not handed the folder the person granted (read-a-folder). Grant the home folder, where the exports and the AI apps\' sessions are.');
-  return realpathSync(folder);
+  const granted = realpathSync(folder);
+  if (home === undefined) return granted;
+  const real = typeof home === 'string' && isAbsolute(home) ? realpathSync(home) : null;
+  if (!real || !(granted === real || granted.startsWith(real + sep))) throw new Error('home must be a folder the granted folder is inside.');
+  return real;
 }
 function inside(home, path) {
   let real;
@@ -852,7 +859,7 @@ const knownSource = id => {
 /** tool:list-the-conversation-sources-on-this-computer */
 export async function listConversationSourcesHere(request) {
   const { input, folder } = requestOf(request);
-  const home = homeOf(folder);
+  const home = homeOf(folder, input.home);
   const found = sourcesFoundIn(home, { more_places: input.more_places ?? [] });
   return { sources: found.map(({ source, files }) => ({ source: source.id, label: source.label, app: source.app, kind: source.kind, files: files.length,
     bytes: files.reduce((sum, file) => sum + file.bytes, 0), found: files.slice(0, Math.min(Number(input.most_files) || 20, 500)).map(file => file.file) })) };
@@ -862,7 +869,7 @@ export async function listConversationSourcesHere(request) {
 export async function importConversationsFrom(request, context = {}) {
   const { input, folder } = requestOf(request);
   const source = knownSource(input.source);
-  const home = homeOf(folder);
+  const home = homeOf(folder, input.home);
   let [{ files }] = sourcesFoundIn(home, { only: [source.id], more_places: input.more_places ?? [], changed_since_ms: changedSinceOf(input, context) });
   if (Array.isArray(input.files) && input.files.length) {
     files = input.files.map(file => {
@@ -881,7 +888,7 @@ export async function importConversationsFrom(request, context = {}) {
 /** tool:resume-importing-my-conversations: every source found here (or the ones named), each from its cursor. */
 export async function resumeConversationImports(request, context = {}) {
   const { input, folder } = requestOf(request);
-  const home = homeOf(folder);
+  const home = homeOf(folder, input.home);
   const only = Array.isArray(input.sources) && input.sources.length ? input.sources.map(id => knownSource(id).id) : undefined;
   const door = patientDoor(context.door, { wait: context.wait, rules: rulesOf(context) });
   const options = runOptions(input, context);

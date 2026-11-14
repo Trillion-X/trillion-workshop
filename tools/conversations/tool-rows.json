@@ -1171,6 +1171,11 @@
               "additionalProperties": { "type": "string", "minLength": 1 },
               "description": "Where a message's file is when it is not beside the export: { attachment id (file-XXXX): a path in the granted folder }"
             },
+            "home": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The home folder the AI apps' session folders are under, when the grant holds only those folders instead of the whole home; the granted folder must be inside it, and a read still reaches only what was granted"
+            },
             "changed_within_days": {
               "type": "number",
               "exclusiveMinimum": 0,
@@ -1540,6 +1545,11 @@
                   }
                 }
               }
+            },
+            "home": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The home folder the AI apps' session folders are under, when the grant holds only those folders instead of the whole home; the granted folder must be inside it, and a read still reaches only what was granted"
             },
             "changed_within_days": {
               "type": "number",
