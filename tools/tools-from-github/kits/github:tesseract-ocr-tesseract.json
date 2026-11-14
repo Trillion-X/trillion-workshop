@@ -1,35 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:github:tesseract-ocr-tesseract's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:github:tesseract-ocr-tesseract with nothing more.\" Read the text in an image or a scan (OCR)",
+  "drafted_from": "tool:github:tesseract-ocr-tesseract's row in tools/tools-from-github/tool-rows.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic names filled in. What it prints or writes is read from the tool's documented behavior; the folder test test/index-github-tools.test.mjs only checks the row, never runs tesseract.",
+  "start_here": "Say to your AI: \"Use tesseract on my computer to read the text in an image or a scan (OCR): the file is receipt.png.\" It reads the row, installs tesseract if it is missing, runs it on that one file and shows you what it made.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: tesseract is a program that runs on the person's own computer and works on the one file or address it is handed.",
   "workflows": [],
   "tools": [
     "tool:github:tesseract-ocr-tesseract"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:github:tesseract-ocr-tesseract\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:github:tesseract-ocr-tesseract and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Read the text in an image or a scan (OCR)"
+    "1. Say to your AI: \"Use tesseract on receipt.png\". It reads the row with run_resource_operation at @workshop-tools, method tools:list, input {tool: \"tool:github:tesseract-ocr-tesseract\"}.",
+    "2. It checks that nothing else is on your computer, and if tesseract is missing it runs the get_it steps: git clone https://github.com/tesseract-ocr/tesseract.git ; brew install tesseract (macOS), or apt install tesseract-ocr (Linux).",
+    "3. It runs the row's command with your file in place of {input} and where the result goes in place of {output}: tesseract receipt.png receipt",
+    "4. Read what it shows you and open the result. Trillion runs none of this; it all happens on your own computer."
   ],
   "worked_examples": [
     {
-      "title": "tesseract (open source, runs on your computer) on a sample input",
-      "ask": "Run tool:github:tesseract-ocr-tesseract.",
+      "title": "tesseract on a photo of a paper receipt from a bakery",
+      "ask": "Use tesseract on receipt.png.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:github:tesseract-ocr-tesseract",
-            "input": {}
+            "tool": "tool:github:tesseract-ocr-tesseract"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Read the text in an image or a scan (OCR)"
+      "given": "Read from tools/tools-from-github/tool-rows.json: tool:github:tesseract-ocr-tesseract runs on your computer, so after tools:list the AI runs, in the folder it got tesseract in, the command line: tesseract receipt.png receipt  (synthetic input: a photo of a paper receipt from a bakery).",
+      "hands_back": "tesseract prints nothing and writes receipt.txt (it adds the .txt itself): the lines of text it read from the photo, for example \"Sam's Bakery / 2 loaves 8.00 / Total 8.00\"."
     }
   ]
 }

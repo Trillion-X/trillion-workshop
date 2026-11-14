@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:put-it-where-it-belongs's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:put-it-where-it-belongs.\" Check where a part of a system lives (a file, a folder, a setting, a feature, a tool) against the job it does, move it to the owner that should hold that job, and remove it from the old place, because where something already is never shows it belongs there.",
+  "drafted_from": "workflow row in tools/workflows/recipes/workflows.json (input_schema and the job, owner and move steps and their submit shapes); read from the row's words, no test runs it",
+  "start_here": "Say to your AI: \"Run workflow:put-it-where-it-belongs for the part: the file pricing-table.json that lives inside the checkout page folder but is also read by the invoice emails.\"",
   "lists": [],
   "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
@@ -9,14 +8,15 @@
   ],
   "tools": [],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:put-it-where-it-belongs\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:put-it-where-it-belongs) and works through its steps in order: job, owner, move.",
-    "3. Read what each step hands back; the last step is move."
+    "1. Name the part to check: a file, folder, feature, setting or tool (at least 3 characters).",
+    "2. Say \"Run workflow:put-it-where-it-belongs\" with part set to it. The AI starts it with tool:start-a-recipe-run and works the steps job, owner, move.",
+    "3. At job, read the plain-words job (without saying where it lives now) and who needs it; at owner, read which place should hold that job and why each other place is wrong.",
+    "4. At move, the part goes to its owner, everything that used the old place is updated, the old copy is deleted with no pointer left, and the proof it works from the new place is given."
   ],
   "worked_examples": [
     {
-      "title": "Put it where it belongs, not where it is from its first step",
-      "ask": "Run workflow:put-it-where-it-belongs.",
+      "title": "A shared price file moves out of one page folder",
+      "ask": "Check where pricing-table.json belongs.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,15 +27,15 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:put-it-where-it-belongs",
-              "part": "<part: The part to check: a file, folder, feature, setting or tool>"
+              "part": "pricing-table.json in the checkout page folder"
             }
           }
         }
       },
       "workflow": "workflow:put-it-where-it-belongs",
       "step": "job",
-      "hands_back": "Step job answers with job, needed_by.",
-      "given": "The person gives: part (shown as <name> in the input)."
+      "given": "Read from tools/workflows/recipes/workflows.json (step job): the step says what the part does and who needs it without saying where it lives now.",
+      "hands_back": "{\"job\":\"Holds the price of each plan so every screen and email shows the same price.\",\"needed_by\":[\"the checkout page\",\"the invoice emails\",\"the pricing page\"]}"
     }
   ]
 }

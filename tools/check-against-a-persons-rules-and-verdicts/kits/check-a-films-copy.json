@@ -1,0 +1,328 @@
+{
+  "drafted_from": "tool:check-a-films-copy's row in tools/check-against-a-persons-rules-and-verdicts/tool-rows.json (its verify sample run), do-work/check-a-films-copy.mjs and test/check-a-films-copy.test.mjs; the answer was observed by running checkAFilmsCopy on the sample's rows in an in-memory records door",
+  "start_here": "Say to your AI: \"Check every line of my film's SCRIPT.md against my made-up-base rules, using my made-up film readers setting.\" It reads your settings row and rules, reads each line of the script, and says pass, fail or uncertain for each with the rule it broke.",
+  "lists": [
+    {
+      "list": "list:checks",
+      "label": "Checks (the rules and branches you keep)",
+      "row_type": "record:check",
+      "holds": "One node of your rule tree: a branch (a kind of thing you make) or a check (words, a pattern or a question that fails or holds a thing made), each naming the node it is part of.",
+      "fields": [
+        {
+          "id": "id",
+          "kind": "text",
+          "label": "Rule",
+          "alike": [
+            "rule id",
+            "name",
+            "code"
+          ]
+        },
+        {
+          "id": "kind",
+          "kind": "text",
+          "label": "Kind",
+          "alike": [
+            "type",
+            "row type"
+          ]
+        },
+        {
+          "id": "part_of",
+          "kind": "link",
+          "label": "Part of",
+          "alike": [
+            "parent",
+            "belongs to",
+            "group"
+          ]
+        },
+        {
+          "id": "says",
+          "kind": "long-text",
+          "label": "Says",
+          "alike": [
+            "message",
+            "explanation",
+            "what to tell the writer"
+          ]
+        },
+        {
+          "id": "words",
+          "kind": "tags",
+          "label": "Words",
+          "alike": [
+            "banned words",
+            "forbidden words",
+            "blocklist"
+          ]
+        },
+        {
+          "id": "kinds",
+          "kind": "tags",
+          "label": "Kinds",
+          "alike": [
+            "applies to",
+            "used on",
+            "formats"
+          ]
+        },
+        {
+          "id": "on",
+          "kind": "choice",
+          "label": "On",
+          "alike": [
+            "enabled",
+            "active",
+            "switch"
+          ]
+        },
+        {
+          "id": "pattern",
+          "kind": "text",
+          "label": "Pattern",
+          "alike": [
+            "regex",
+            "regular expression",
+            "match"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "made-up-base",
+          "values": {
+            "id": "made-up-base",
+            "kind": "branch",
+            "says": "A made-up base",
+            "on": "On"
+          }
+        },
+        {
+          "id": "no-sparkle",
+          "values": {
+            "id": "no-sparkle",
+            "kind": "check",
+            "part_of": "made-up-base",
+            "words": [
+              "sparkle"
+            ],
+            "says": "No sparkle.",
+            "on": "On"
+          }
+        },
+        {
+          "id": "no-glitter",
+          "values": {
+            "id": "no-glitter",
+            "kind": "check",
+            "part_of": "made-up-base",
+            "words": [
+              "glitter"
+            ],
+            "kinds": [
+              "voiceover"
+            ],
+            "says": "No glitter in a spoken line.",
+            "on": "On"
+          }
+        }
+      ],
+      "alike": [
+        "a style guide kept as a spreadsheet",
+        "a banned-words list in a notes app",
+        "the rule file of a writing linter"
+      ]
+    },
+    {
+      "list": "list:settings",
+      "label": "Settings (one row per tool and scope)",
+      "row_type": "record:setting",
+      "holds": "The values one Workshop tool reads at run time for one person, film or piece, kept as JSON text.",
+      "fields": [
+        {
+          "id": "name",
+          "kind": "text",
+          "label": "Setting",
+          "alike": [
+            "name",
+            "title"
+          ]
+        },
+        {
+          "id": "tool",
+          "kind": "text",
+          "label": "Tool",
+          "alike": [
+            "used by",
+            "which tool"
+          ]
+        },
+        {
+          "id": "scope_kind",
+          "kind": "text",
+          "label": "For a",
+          "alike": [
+            "scope",
+            "applies to a"
+          ]
+        },
+        {
+          "id": "scope_id",
+          "kind": "text",
+          "label": "For",
+          "alike": [
+            "scope name",
+            "which one"
+          ]
+        },
+        {
+          "id": "settings",
+          "kind": "long-text",
+          "label": "Settings (JSON)",
+          "alike": [
+            "config",
+            "values",
+            "json"
+          ]
+        },
+        {
+          "id": "from",
+          "kind": "text",
+          "label": "From",
+          "alike": [
+            "source",
+            "came from"
+          ]
+        },
+        {
+          "id": "status",
+          "kind": "text",
+          "label": "Status",
+          "alike": [
+            "state",
+            "active"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "made-up-film-readers",
+          "values": {
+            "name": "Made-up film readers",
+            "tool": "tool:check-a-films-copy",
+            "scope_kind": "person",
+            "scope_id": "made-up",
+            "settings": "{\"readers\": {\"table_first_header_in\": [\"#\"], \"table_skip_if_header_has\": [], \"files\": {\"*\": {\"line\": {\"kind\": \"voiceover\"}}}, \"fenced_blocks\": {}, \"blockquotes\": \"description\", \"skip_sections\": [], \"cell_drop_if\": [\"^$\"], \"cell_strip\": [], \"cell_split\": [], \"split_parts_kind\": \"label\", \"cell_join\": []}}",
+            "status": "active"
+          }
+        },
+        {
+          "id": "made-up-titles-readers",
+          "values": {
+            "name": "Made-up titles and lines readers",
+            "tool": "tool:check-a-films-copy",
+            "scope_kind": "person",
+            "scope_id": "made-up-two",
+            "settings": "{\"readers\": {\"table_first_header_in\": [\"#\"], \"table_skip_if_header_has\": [\"views\"], \"files\": {\"TITLES.md\": {\"title\": {\"kind\": \"title\"}}, \"*\": {\"line\": {\"kind\": \"voiceover\"}}}, \"fenced_blocks\": {}, \"blockquotes\": \"description\", \"skip_sections\": [\"Credits\"], \"cell_drop_if\": [\"^$\", \"^-$\"], \"cell_strip\": [], \"cell_split\": [], \"split_parts_kind\": \"label\", \"cell_join\": []}}",
+            "from": "made-up@0",
+            "status": "active"
+          }
+        }
+      ],
+      "alike": [
+        "an app's settings table",
+        "a config file kept in a spreadsheet",
+        "key-value settings in a notes app"
+      ]
+    }
+  ],
+  "workflows": [],
+  "tools": [
+    "tool:check-a-films-copy",
+    "tool:check-against-a-persons-rules-and-verdicts",
+    "tool:pour-example-rows-into-my-list"
+  ],
+  "instructions": [
+    "1. Pour the example rows into your own lists (see pour for list:checks), or make list:checks and list:settings from them. Keep the settings row under the record id record:setting:check-against-a-persons-rules-and-verdicts~person~made-up (the tool is allowed to read only record ids that start with record:setting:check-against-a-persons-rules-and-verdicts~).",
+    "2. Read your film's copy files into text: for a script table, the name SCRIPT.md and its Markdown text.",
+    "3. Say \"Check my film's script against made-up-base.\" The AI calls tools:run at @workshop-tools with tool tool:check-a-films-copy and { branch, settings_record, files: [{ name, text }] }. It reads only; nothing is written.",
+    "4. Read status and exit_code (0 passed, 1 failed, 2 unqualified, 3 uncertain), then results line by line (text, kind, where, verdict, breaks) and lines. Fix each failing line and run it again; send any questions it lists back in answers."
+  ],
+  "worked_examples": [
+    {
+      "title": "A two-line script, one line breaks the no-sparkle rule",
+      "ask": "Check my film's script against made-up-base.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-a-films-copy",
+            "input": {
+              "branch": "made-up-base",
+              "settings_record": "record:setting:check-against-a-persons-rules-and-verdicts~person~made-up",
+              "files": [
+                {
+                  "name": "SCRIPT.md",
+                  "text": "| # | line |\n|---|---|\n| 1 | A sparkle line. |\n| 2 | A plain line. |\n"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "given": "From tools/check-against-a-persons-rules-and-verdicts/tool-rows.json (the verify sample run of tool:check-a-films-copy), run through checkAFilmsCopy in an in-memory records door: list:checks holds the branch made-up-base and the rule no-sparkle part_of it, and the settings row record:setting:check-against-a-persons-rules-and-verdicts~person~made-up holds the made-up film readers (table whose first header is #, every file read as voiceover lines).",
+      "hands_back": "{\"schema\": \"copy-check-report-v1\", \"branch\": \"made-up-base\", \"lineage\": [\"made-up-base\"], \"status\": \"failed\", \"passed\": false, \"coverage\": {\"extracted_units\": 2, \"unique_units\": 2, \"evaluated_units\": 2, \"files\": [{\"path\": \"SCRIPT.md\", \"reader\": \"film\", \"recognized_units\": 2, \"status\": \"extracted\"}]}, \"results\": [{\"text\": \"A sparkle line.\", \"kind\": \"voiceover\", \"where\": \"SCRIPT.md:3\", \"verdict\": \"fail\", \"breaks\": [{\"rule\": \"no-sparkle\", \"found\": \"sparkle\", \"says\": \"No sparkle.\"}]}, {\"text\": \"A plain line.\", \"kind\": \"voiceover\", \"where\": \"SCRIPT.md:4\", \"verdict\": \"pass\", \"breaks\": []}], \"lines\": [\"copy check (Workshop judge-words, the person's rules): 2 lines: 1 fail, 0 uncertain, 1 pass\", \"branch made-up-base (made-up-base)\", \"\", \"FAIL [voiceover] SCRIPT.md:3\", \"  \\\"A sparkle line.\\\"\", \"  no-sparkle: \\\"sparkle\\\". No sparkle.\"], \"exit_code\": 1} (the full report also carries the BLAKE3 identities of the file, reader settings, rules and checker, rows_used, read_by_a_model, questions and escalated, all empty or counts here)"
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for your writing rules and its fields. The tool matches each kit field to one of yours (by the map you give, the same id, the same label, or a name in alike), refuses when fewer than 80% match, and otherwise answers the records:write that adds the example rows to your list, leaving your own rows untouched.",
+    "example": {
+      "kit_list": "list:checks",
+      "into": {
+        "list": "list:writing-rules",
+        "row_type": "record:writing-rule",
+        "fields": [
+          {
+            "id": "rule_id",
+            "label": "Rule"
+          },
+          {
+            "id": "type",
+            "label": "Kind"
+          },
+          {
+            "id": "parent",
+            "label": "Part of"
+          },
+          {
+            "id": "message",
+            "label": "Message"
+          },
+          {
+            "id": "banned_words",
+            "label": "Banned words"
+          },
+          {
+            "id": "applies_to",
+            "label": "Applies to"
+          },
+          {
+            "id": "enabled",
+            "label": "Enabled"
+          },
+          {
+            "id": "regex",
+            "label": "Regex"
+          }
+        ]
+      },
+      "field_map": {}
+    }
+  }
+}

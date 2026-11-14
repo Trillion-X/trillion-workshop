@@ -1,35 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:make-a-frame-contact-sheet-of-a-video-section's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:make-a-frame-contact-sheet-of-a-video-section with nothing more.\" Take a short part of a video, from a link or a file, and lay out one frame every few seconds on a single picture so I can see what happens in it",
+  "drafted_from": "tool:make-a-frame-contact-sheet-of-a-video-section row in tool-rows.json, do-work/make_contact_sheet.py and test/make-contact-sheet.test.mjs",
+  "start_here": "Say to your AI: \"Show me what happens from second 10 to second 50 of https://video.example/watch/abc as one picture, a frame every 4 seconds, and put it in the folder work/sheets.\" It runs the command on your computer and opens the sheet it makes.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list: it makes a clip, a sheet and a log in the folder you give it and keeps no rows.",
   "workflows": [],
   "tools": [
     "tool:make-a-frame-contact-sheet-of-a-video-section"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:make-a-frame-contact-sheet-of-a-video-section\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:make-a-frame-contact-sheet-of-a-video-section and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Take a short part of a video, from a link or a file, and lay out one frame every few seconds on a single picture so I can see what happens in it"
+    "1. Install what it needs once: clone the Workshop repository and brew install ffmpeg yt-dlp (yt-dlp only for a link).",
+    "2. Say which video (a link yt-dlp can read, or a file on your computer) and which part, start and end in seconds at most 300 apart; give a short name for the files and a folder.",
+    "3. Your AI reads the row with tools:list and runs `python3 trillion-workshop/tools/make-a-frame-contact-sheet-of-a-video-section/do-work/make_contact_sheet.py --source '<link or file>' --name <name> --start <s> --end <e> --folder <folder>`, adding --step N and --cols N to change the spacing and row width.",
+    "4. Read the last line: {\"result\": {\"sheet\", \"clip\", \"log\", \"columns\", \"rows\"}} names the picture to open and look at before describing the section; {\"result\": {\"error\", \"log\", \"log_tail\"}} with exit 1 shows which program failed and the log's last lines."
   ],
   "worked_examples": [
     {
-      "title": "Make one picture of the frames of a short part of a video (runs on your computer) on a sample input",
-      "ask": "Run tool:make-a-frame-contact-sheet-of-a-video-section.",
+      "title": "Forty seconds of a linked video, a frame every four seconds",
+      "ask": "Show me what happens from 10 to 50 seconds of https://video.example/watch/abc as one picture.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:make-a-frame-contact-sheet-of-a-video-section",
-            "input": {}
+            "tool": "tool:make-a-frame-contact-sheet-of-a-video-section"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Take a short part of a video, from a link or a file, and lay out one frame every few seconds on a single picture so I can see what happens in it"
+      "given": "From tools/make-a-frame-contact-sheet-of-a-video-section/test/make-contact-sheet.test.mjs (yt-dlp and ffmpeg stood in for): the command line is `python3 trillion-workshop/tools/make-a-frame-contact-sheet-of-a-video-section/do-work/make_contact_sheet.py --source 'https://video.example/watch/abc' --name abc --start 10 --end 50 --folder work/sheets`. yt-dlp fetches only *10-50 at 360p or less into work/sheets/clips/abc-10-50.webm, then ffmpeg tiles fps=1/4, 320 pixels wide, 4 columns by 3 rows.",
+      "hands_back": "The last line printed is {\"result\": {\"sheet\": \"work/sheets/frames/abc-10-50-sheet.jpg\", \"clip\": \"work/sheets/clips/abc-10-50.webm\", \"log\": \"work/sheets/frames/abc-10-50.log\", \"columns\": 4, \"rows\": 3}} and the exit status is 0. Run again, the clip already in clips/ is used and yt-dlp is not called. With --end 301 it answers {\"result\": {\"error\": \"start and end must satisfy 0 <= start < end and cover at most 300 s\"}} with exit 2."
     }
   ]
 }

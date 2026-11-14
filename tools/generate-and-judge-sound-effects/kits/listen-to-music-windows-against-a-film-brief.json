@@ -1,39 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:listen-to-music-windows-against-a-film-brief's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:listen-to-music-windows-against-a-film-brief with brief, out.\" Judge each music excerpt by ear against my film's section words and a reference stem",
+  "drafted_from": "tool:listen-to-music-windows-against-a-film-brief row in tools/generate-and-judge-sound-effects/tool-rows.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
+  "start_here": "Say to your AI: \"Listen to the music excerpts in /work/music/out against the sections of my film brief and a reference stem.\" It runs the listener and reads each excerpt's mood match per section.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads BRIEF.json and the excerpts the window finder wrote on this computer and writes listen.json beside them.",
   "workflows": [],
   "tools": [
-    "tool:listen-to-music-windows-against-a-film-brief"
+    "tool:listen-to-music-windows-against-a-film-brief",
+    "tool:find-music-windows-that-follow-a-loudness-arc"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:listen-to-music-windows-against-a-film-brief\", and give it brief, out.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:listen-to-music-windows-against-a-film-brief and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Judge each music excerpt by ear against my film's section words and a reference stem"
+    "1. Run tool:find-music-windows-that-follow-a-loudness-arc first, so /work/music/out/music/windows.json and its excerpts exist.",
+    "2. Add to brief.json the film's sections [{name, start, end, query}], alts (opposite moods) and reference {stem, sections [[start, end], ...]}.",
+    "3. Say \"Listen to the music windows\". The AI reads the row with tools:list and runs: EARSHOT_THREADS=3 <earshot python> -I tools/generate-and-judge-sound-effects/do-work/listen_to_music_windows.py /work/music/brief.json /work/music/out",
+    "4. Read the last line, then open out/music/listen.json: per excerpt the per-section mood z, mean mood z, typicality against the reference, realness and top describe tags; the reference stem is cut into ref-sections/."
   ],
   "worked_examples": [
     {
-      "title": "Listen to music excerpts against my film's sections (runs on your computer) on a sample input",
-      "ask": "Run tool:listen-to-music-windows-against-a-film-brief.",
+      "title": "The excerpt at 19 s is judged against the section \"calm low pad\"",
+      "ask": "Judge my music excerpts against my film's section words.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:listen-to-music-windows-against-a-film-brief",
-            "input": {
-              "brief": "<brief: BRIEF.json: {sections, alts, reference: {stem, sections}}>",
-              "out": "<out: find_music_windows' folder>"
-            }
+            "tool": "tool:listen-to-music-windows-against-a-film-brief"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Judge each music excerpt by ear against my film's section words and a reference stem",
-      "given": "The person gives: brief, out (shown as <name> in the input)."
+      "given": "From tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (test_the_window_that_follows_the_arc_wins_and_is_listened_to, stand-in earshot): brief.json adds sections [{\"name\": \"open\", \"start\": 0, \"end\": 5, \"query\": \"calm low pad\"}], alts [\"rock\"] and reference {\"stem\": \"/work/music/track.wav\", \"sections\": [[0, 5], [5, 10]]}; the excerpt is {track}@{19}.wav (the track name, @ and the start second, as find_music_windows.py names it). Command: EARSHOT_THREADS=3 python -I tools/generate-and-judge-sound-effects/do-work/listen_to_music_windows.py /work/music/brief.json /work/music/out",
+      "hands_back": "Last line: {\"result\": {\"listen\": \"/work/music/out/music/listen.json\"}}. listen.json[0] is track@19 with sections {\"open\": {\"query\": \"calm low pad\", \"z\": 2.86}}, mood_z_mean 2.86, typicality {\"typical_z\": 0.0}, realness_verdict \"unsure\", describe_summary \"a tone near 220 Hz\", lufs -18.4; ref-sections/ holds reference-section1_0-5.wav and reference-section2_5-10.wav."
     }
   ]
 }

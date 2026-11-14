@@ -1,38 +1,38 @@
 {
-  "draft": true,
-  "drafted_from": "tool:install-an-engine-builder's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:install-an-engine-builder with request_file.\" Set up a machine that publishes a signed engine release on every merge, so a fix reaches every account without an app install",
+  "drafted_from": "tools/publish-an-engine-release/tool-rows.json (tool:install-an-engine-builder), do-work/install-a-builder.mjs, read-data/settings.json, test/publish-an-engine-release.test.mjs",
+  "start_here": "Say to your AI: \"Install an engine builder on my Linux machine at 192.0.2.50, named releases.example.com, publishing pushes to main of github.com/owner/engine.\" It runs install with the repository token and push secret from my vault and tells you the public key and the webhook to add.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads one request file, sets up the machine over SSH and answers the builder's public key and webhook.",
   "workflows": [],
   "tools": [
-    "tool:install-an-engine-builder"
+    "tool:install-an-engine-builder",
+    "tool:publish-an-engine-release",
+    "tool:read-an-engine-builder"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:install-an-engine-builder\", and give it request_file.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:install-an-engine-builder and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields public_key, key_made, deploy_key, feed_url, receiver_active, darwin, feed_status, webhook."
+    "1. Point the builder's public name (for example releases.example.com) at a Debian 12 or Ubuntu 24.04 machine you can reach over SSH as root, and make a known_hosts file for it.",
+    "2. Write request.json: builder {address, host_name}, ssh {known_hosts, identity_file?}, repository {url, branch}, and optionally keep_releases, darwin {targets, team_id, sdk}, product_client {repository}.",
+    "3. From the Workshop checkout, run: node tools/publish-an-engine-release/do-work/install-a-builder.mjs install request.json, with the repository token (read access) on descriptor 3 and the push secret on descriptor 4, both read from your vault, never in argv or a file.",
+    "4. Read the JSON line it prints: public_key (put it in each place's release_feed.public_keys), deploy_key (for a repository over SSH, add it as a read-only deploy key), feed_url, receiver_active, feed_status and webhook.",
+    "5. Add the webhook to the repository yourself: the url it names, content type application/json, the push event, with the same secret. Then run tool:read-an-engine-builder to see pushes arrive."
   ],
   "worked_examples": [
     {
-      "title": "Install an engine builder on a sample input",
-      "ask": "Run tool:install-an-engine-builder.",
+      "title": "Install a builder for a repository reached over HTTPS",
+      "ask": "Install an engine builder on 192.0.2.50 for github.com/owner/engine, branch main.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:install-an-engine-builder",
-            "input": {
-              "request_file": "<request_file: A request JSON: builder { address, host_name }, ssh { known_hosts, identity_file?>"
-            }
+            "tool": "tool:install-an-engine-builder"
           }
         }
       },
-      "hands_back": "An answer with the fields public_key, key_made, deploy_key, feed_url, receiver_active, darwin, feed_status, webhook.",
-      "given": "The person gives: request_file (shown as <name> in the input)."
+      "given": "From tools/publish-an-engine-release/test/publish-an-engine-release.test.mjs (the install test, with the SSH commands stood in): request.json is {\"builder\":{\"address\":\"192.0.2.50\",\"host_name\":\"releases.example.com\"},\"ssh\":{\"known_hosts\":\"/work/known_hosts\"},\"repository\":{\"url\":\"https://github.com/owner/engine.git\",\"branch\":\"main\"}}; the AI runs: node tools/publish-an-engine-release/do-work/install-a-builder.mjs install request.json  (token on descriptor 3, push secret on descriptor 4). The builder makes its signing key (the test stands in the public key as 64 times the letter a).",
+      "hands_back": "{\"public_key\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"key_made\":true,\"deploy_key\":null,\"feed_url\":\"https://releases.example.com/engine-releases/feed.json\",\"receiver_active\":true,\"feed_status\":200,\"webhook\":{\"url\":\"https://releases.example.com/engine-release-push\",\"content_type\":\"application/json\",\"events\":[\"push\"]},\"entries_url\":\"https://releases.example.com/engine-release-entry\",\"accept_entries_from\":[]}. With no push secret on descriptor 4 it refuses: \"Descriptor 4 holds no push secret: hand the webhook secret from the person's vault on descriptor 4 ...\"."
     }
   ]
 }

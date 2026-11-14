@@ -1,22 +1,23 @@
 {
-  "draft": true,
-  "drafted_from": "tool:measure-page-citation-coverage's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:measure-page-citation-coverage with pages, engines.\" Compare every planned page × question × answer engine cell against recorded answer observations, keeping exact page citations, unavailable answers and unasked cells distinct",
+  "drafted_from": "tools/workflows/tool-rows.json row, do-work/measure-citation-coverage.mjs, read-data/citation-coverage.mjs and test/citation-coverage.test.mjs",
+  "start_here": "Say to your AI: \"Run tool:measure-page-citation-coverage for https://example.com/a on engine-one and engine-two with these recorded answers, and tell me which cells cited the page.\" It builds the full page by question by engine grid and counts only exact page citations.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads the plan and the recorded answers handed in the call and answers the counts and cells straight back.",
   "workflows": [],
   "tools": [
     "tool:measure-page-citation-coverage"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:measure-page-citation-coverage\", and give it pages, engines.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:measure-page-citation-coverage and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields planned, measured, cited, not_cited, unknown, citation_rate, cells."
+    "1. Write your plan: each page url (add canonical_url and verified_redirects only if you checked them), the questions, and the answer engines.",
+    "2. Write one observation per cell you already asked: page_url, question, engine, status (observed, unavailable or not-run), and for observed ones the answer and a citations array. Leave unasked cells out.",
+    "3. Say \"Run tool:measure-page-citation-coverage\" with that plan and those observations; the AI sends it with tools:run at @workshop-tools.",
+    "4. Read what comes back: cited and not_cited count only observed answers, unknown counts unavailable and unasked cells, citation_rate is cited over measured (null when nothing was measured), and cells lists every cell with its citation as true, false or null.",
+    "5. Ask the missing engines again for the cells marked not-run or unavailable, add those observations, and run it again."
   ],
   "worked_examples": [
     {
-      "title": "Measure exact page citations across planned questions and answer engines on a sample input",
-      "ask": "Run tool:measure-page-citation-coverage.",
+      "title": "One page, two questions, two engines: one cited, one not, two unknown",
+      "ask": "Run tool:measure-page-citation-coverage for https://example.com/a on engine-one and engine-two with these recorded answers.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -28,18 +29,67 @@
             "input": {
               "pages": [
                 {
-                  "url": "<url: string>"
+                  "url": "https://example.com/a",
+                  "canonical_url": "https://example.com/articles/a",
+                  "verified_redirects": [
+                    "https://old.example.com/a"
+                  ]
                 }
               ],
+              "questions": [
+                "What is A?",
+                "How does A work?"
+              ],
               "engines": [
-                "<engines>"
+                "engine-one",
+                "engine-two"
+              ],
+              "observations": [
+                {
+                  "page_url": "https://example.com/a",
+                  "question": "What is A?",
+                  "engine": "engine-one",
+                  "status": "observed",
+                  "observed_at": "2026-10-31T18:00:00-06:00",
+                  "locale": "en-US",
+                  "mode": "web",
+                  "source": "browser-read",
+                  "answer": "A is useful.",
+                  "citations": [
+                    "https://example.com/articles/a#details"
+                  ]
+                },
+                {
+                  "page_url": "https://example.com/a",
+                  "question": "What is A?",
+                  "engine": "engine-two",
+                  "status": "observed",
+                  "observed_at": "2026-10-31T18:01:00-06:00",
+                  "locale": "en-US",
+                  "mode": "web",
+                  "source": "browser-read",
+                  "answer": "No link cited.",
+                  "citations": [
+                    "https://example.com/another-page"
+                  ]
+                },
+                {
+                  "page_url": "https://example.com/a",
+                  "question": "How does A work?",
+                  "engine": "engine-one",
+                  "status": "unavailable",
+                  "reason": "Sign-in required",
+                  "locale": "en-US",
+                  "mode": "web",
+                  "source": "browser-read"
+                }
               ]
             }
           }
         }
       },
-      "hands_back": "An answer with the fields planned, measured, cited, not_cited, unknown, citation_rate, cells.",
-      "given": "The person gives: url, engines (shown as <name> in the input)."
+      "given": "From tools/workflows/test/citation-coverage.test.mjs: the page https://example.com/a has canonical https://example.com/articles/a and a verified redirect from https://old.example.com/a. engine-one cited https://example.com/articles/a#details for \"What is A?\"; engine-two cited only https://example.com/another-page; engine-one was unavailable (Sign-in required) for \"How does A work?\"; engine-two was never asked that.",
+      "hands_back": "planned {pages 1, questions 2, engines 2, cells 4}, measured 2, cited 1, not_cited 1, unknown 2, citation_rate 0.5. Cells in order: (What is A?, engine-one) status observed, citation true, citations [https://example.com/articles/a#details]; (What is A?, engine-two) observed, citation false; (How does A work?, engine-one) unavailable, citation null, reason \"Sign-in required\"; (How does A work?, engine-two) not-run, citation null. Each cell_id is the JSON array [page_url, question, engine]."
     }
   ]
 }

@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:method-contact-reality's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:method-contact-reality.\" Hold any decision, design or test to contact with reality: assume no limit before investigating it, say what is being optimized before choosing any dimension, describe what happens before naming it, keep your opinion out of the person's words, reconcile disagreeing answers, test against real outcomes with predictions written first and counted in tiers, fold what is learned into the person's life automatically, run the platform's own copy from the marketplace, and improve the method itself every run.",
+  "drafted_from": "workflow:method-contact-reality's row in tools/workflows/recipes/workflows.json (its input schema, steps and submit shapes)",
+  "start_here": "Say to your AI: \"Run workflow:method-contact-reality on this request: let customers pre-order bread online for pickup at a small bakery.\" It walks the eight checks (alignment, question, root, rule-out, combine, automate, production, proof) and hands back an answer and per-check answers for each.",
   "lists": [],
   "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
@@ -14,14 +13,15 @@
   ],
   "tools": [],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:method-contact-reality\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-contact-reality) and works through its steps in order: alignment, question, root, rule-out, combine, automate, production, proof.",
-    "3. Read what each step hands back; the last step is proof."
+    "1. Write the request in your own plain words, for example \"Let customers pre-order bread online for pickup at a small bakery\".",
+    "2. Say \"Run workflow:method-contact-reality\" with that request; the AI starts it with tool:start-a-recipe-run and works the steps in order: alignment, question, root, rule-out, combine, automate, production, proof.",
+    "3. For each step the AI answers the step question about your request and each named check, with at least 40 characters for the answer and 20 for each check.",
+    "4. Read the proof step last: it names what shows success, what shows failure, the independent check and its date."
   ],
   "worked_examples": [
     {
-      "title": "Make contact with reality from its first step",
-      "ask": "Run workflow:method-contact-reality.",
+      "title": "Question the assumed limits on a bakery pre-order idea",
+      "ask": "Run method-contact-reality on: let customers pre-order bread online for pickup at a small bakery.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,15 +32,15 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:method-contact-reality",
-              "request": "<request: What you are deciding, designing or building, in plain words>"
+              "request": "Let customers pre-order bread online for pickup at a small bakery"
             }
           }
         }
       },
       "workflow": "workflow:method-contact-reality",
-      "step": "alignment",
-      "hands_back": "Step alignment answers with answer, checks.",
-      "given": "The person gives: request (shown as <name> in the input)."
+      "step": "question",
+      "given": "Read from tools/workflows/recipes/workflows.json: step question asks which demands the decision works under, and its one check question-no-assumed-limits asks which assumed limits are observed, inferred, inherited or imagined.",
+      "hands_back": "{\"answer\":\"Demands: (1) orders close the night before, set by the owner, kept because the ovens are loaded at 4 AM; (2) payment online, set by the owner, dropped because pay-at-pickup also gets the loaves reserved; (3) a fixed menu of 6 breads, set by the baker, kept.\",\"checks\":{\"question-no-assumed-limits\":\"Assumed limit \\\"people will not order ahead\\\" is imagined: no one has asked; 12 of the last 20 walk-ins asked if they could reserve. Assumed limit \\\"the oven holds 60 loaves\\\" is observed. Drop the first, keep the second.\"}}"
     }
   ]
 }

@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:retention-and-referral's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:retention-and-referral.\" Find buyers who went quiet, follow them up with the existing follow-up workflow, make and count referral codes, apply the person's reward rule, withdraw abused codes, and ask consenting buyers for a testimonial.",
+  "drafted_from": "tools/workflows/recipes/workflows.json (the workflow:retention-and-referral row: steps apply-the-reward-rule, record-the-stage and their submit shapes); no test names it",
+  "start_here": "Say to your AI: \"Run workflow:retention-and-referral for my bakery: Sam asked for a referral code, and my reward is a free loaf for every 3 friends who buy.\"",
   "lists": [
     {
       "list": "list:business-setup-checklist",
@@ -59,25 +58,25 @@
       ],
       "example_rows": [
         {
-          "id": "replies",
+          "id": "retention-and-referral",
           "values": {
-            "stage": "replies",
-            "label": "Comments and messages",
+            "stage": "retention-and-referral",
+            "label": "Retention and referral",
             "status": "Gap",
-            "steps_status": "{\"read-facts\":\"Done\",\"pull-messages\":\"Done\",\"read-reply-templates\":\"Done\",\"pick-a-template\":\"Done\",\"fill-the-replies\":\"Done\",\"check-the-replies\":\"Done\",\"hand-the-replies-to-the-person\":\"Gap\"}",
+            "steps_status": "{\"read-facts\":\"Done\",\"find-buyers-who-went-quiet\":\"Done\",\"follow-up-the-quiet-buyers\":\"Done\",\"make-a-referral-code\":\"Done\",\"count-referrals\":\"Done\",\"apply-the-reward-rule\":\"Done\",\"withdraw-a-code-on-abuse\":\"Not applicable\",\"ask-for-a-testimonial\":\"Gap\"}",
             "gaps": [
-              "record:setup-gap:hand-the-replies-to-the-person-1"
+              "record:setup-gap:ask-for-a-testimonial-1"
             ],
             "updated_at": "2026-11-13"
           }
         },
         {
-          "id": "social-posting",
+          "id": "community",
           "values": {
-            "stage": "social-posting",
-            "label": "Posting on social channels",
+            "stage": "community",
+            "label": "Community",
             "status": "Not done",
-            "steps_status": "",
+            "steps_status": "{}",
             "gaps": [],
             "updated_at": "2026-11-13"
           }
@@ -143,24 +142,24 @@
       ],
       "example_rows": [
         {
-          "id": "hand-the-replies-to-the-person-1",
+          "id": "ask-for-a-testimonial-1",
           "values": {
-            "stage": "replies",
-            "step": "hand-the-replies-to-the-person",
-            "undecided": "No live tool sends an Instagram direct-message reply.",
-            "chosen": "Handed 3 checked replies to the person to send by hand.",
-            "evidence": "The live catalog has no send tool for Instagram direct messages.",
+            "stage": "retention-and-referral",
+            "step": "ask-for-a-testimonial",
+            "undecided": "No live tool stores testimonials, so a buyer's reply has no home of its own.",
+            "chosen": "Sent the ask only to a buyer who agreed, and kept the reply in that buyer's customer record.",
+            "evidence": "The retention-and-referral row says testimonials are not stored by any live tool.",
             "status": "open"
           }
         },
         {
-          "id": "pull-messages-1",
+          "id": "apply-the-reward-rule-1",
           "values": {
-            "stage": "replies",
-            "step": "pull-messages",
-            "undecided": "Instagram sign-in expired.",
-            "chosen": "Submitted status needs_login and pulled nothing.",
-            "evidence": "tool:pull-my-instagram-messages answered needs_login.",
+            "stage": "retention-and-referral",
+            "step": "apply-the-reward-rule",
+            "undecided": "facts.referral_reward was empty, so no reward words existed.",
+            "chosen": "Submitted a blocker and wrote no reward row; the owner writes the reward in the facts row.",
+            "evidence": "records:read on record:business-setup:facts showed referral_reward empty.",
             "status": "open"
           }
         }
@@ -172,7 +171,6 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
     "workflow:retention-and-referral",
     "workflow:follow-up-with-people-who-engaged",
@@ -187,14 +185,15 @@
     "tool:work-out-referral-codes"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:retention-and-referral\".",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:retention-and-referral) and works through its steps in order: read-facts, find-buyers-who-went-quiet, follow-up-the-quiet-buyers, make-a-referral-code, count-referrals, apply-the-reward-rule, withdraw-a-code-on-abuse, ask-for-a-testimonial, record-the-stage.",
-    "3. Read what each step hands back; the last step is record-the-stage."
+    "1. Pour the two example setup-checklist rows into the checklist you already keep (see pour), or make list:business-setup-checklist and list:business-setup-gaps from them.",
+    "2. Make sure the facts row record:business-setup:facts exists (workflow:set-up-a-business-on-trillion writes it) and holds referral_reward in your own words, for example \"A free loaf for every 3 friends who buy\".",
+    "3. Say \"Run workflow:retention-and-referral\". It finds buyers quiet for more than 14 days, runs workflow:follow-up-with-people-who-engaged for them, makes and counts referral codes, writes a reward row only from your reward words, withdraws a code you name, and asks for a testimonial only after consent.",
+    "4. Read the last step: record-the-stage writes record:setup-stage:retention-and-referral and one record:setup-gap row for each thing no live tool did (testimonial storage is one)."
   ],
   "worked_examples": [
     {
-      "title": "Retention and referral from its first step",
-      "ask": "Run workflow:retention-and-referral.",
+      "title": "A buyer earns a reward under the owner's own reward words",
+      "ask": "Sam referred friends; apply my reward rule for Sam today.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -210,8 +209,31 @@
         }
       },
       "workflow": "workflow:retention-and-referral",
-      "step": "read-facts",
-      "hands_back": "Step read-facts answers with facts."
+      "step": "apply-the-reward-rule",
+      "given": "Read from the workflow:retention-and-referral row (tools/workflows/recipes/workflows.json), step apply-the-reward-rule: facts.referral_reward is \"A free loaf for every 3 friends who buy\", count-referrals answered referrals 4 and rewards_due 1 for the buyer account acct-sam, and today is 2026-11-13.",
+      "hands_back": "{\"reward_row\":\"record:reward:acct-sam-2026-11-13\"}: the step wrote that row at @own-records with {\"account\":\"acct-sam\",\"reward\":\"A free loaf for every 3 friends who buy\",\"due\":1,\"status\":\"due\"} and read it back with records:read."
+    },
+    {
+      "title": "No reward words yet: the stage stops instead of inventing one",
+      "ask": "Apply my reward rule for Sam today.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:retention-and-referral"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:retention-and-referral",
+      "step": "apply-the-reward-rule",
+      "given": "Read from the same step: facts.referral_reward is empty. The step says no reward is invented and the person writes it in the facts row.",
+      "hands_back": "A blocker for this step (\"referral_reward is empty in record:business-setup:facts\") and no record:reward row written; record-the-stage then marks the stage Gap and writes record:setup-gap:apply-the-reward-rule-1."
     }
   ],
   "pour": {

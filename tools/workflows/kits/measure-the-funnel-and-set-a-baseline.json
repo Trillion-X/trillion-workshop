@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:measure-the-funnel-and-set-a-baseline's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:measure-the-funnel-and-set-a-baseline.\" Draft the funnel stages, count visits and sales at each, break them down by source, and write a dated baseline row for later comparison.",
+  "drafted_from": "workflow:measure-the-funnel-and-set-a-baseline's row in tools/workflows/recipes/workflows.json (steps and submit shapes); values worked out from the step text",
+  "start_here": "Say to your AI: \"Run workflow:measure-the-funnel-and-set-a-baseline for my bakery pre-order site, before the first sale, and save the baseline.\"",
   "lists": [
     {
       "list": "list:business-setup-checklist",
@@ -183,14 +182,18 @@
     "tool:measure-funnel-stages"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:measure-the-funnel-and-set-a-baseline\".",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:measure-the-funnel-and-set-a-baseline) and works through its steps in order: read-facts, draft-the-funnel, measure-stages, break-down-by-source, write-the-baseline, record-the-stage.",
-    "3. Read what each step hands back; the last step is record-the-stage."
+    "1. Run workflow:set-up-a-business-on-trillion first if record:business-setup:facts does not exist yet; this workflow reads that row.",
+    "2. Say \"Run workflow:measure-the-funnel-and-set-a-baseline\"; it uses the four default stages: visit, checkout, paid, opened.",
+    "3. Read the counts per stage and the breakdown by source each step hands back; a stage with no records counts as zero.",
+    "4. The baseline lands in record:business-setup:baseline and is read back; compare later runs to it."
   ],
   "worked_examples": [
     {
-      "title": "Measure the funnel and set a baseline from its first step",
-      "ask": "Run workflow:measure-the-funnel-and-set-a-baseline.",
+      "title": "Count each funnel stage for a bakery site",
+      "ask": "Measure my bakery funnel and set the baseline.",
+      "step": "measure-stages",
+      "given": "Read from the measure-stages step in tools/workflows/recipes/workflows.json: tool:measure-funnel-stages is given one record per visit or sale, stage_ids [\"visit\",\"checkout\",\"paid\",\"opened\"] and amount_field amount_cents. Example records: 40 visits, 6 checkouts, 2 sales of 1200 cents each, 2 first-file opens.",
+      "hands_back": "{\"counts\":[{\"stage\":\"visit\",\"count\":40},{\"stage\":\"checkout\",\"count\":6},{\"stage\":\"paid\",\"count\":2,\"amount_cents\":2400},{\"stage\":\"opened\",\"count\":2}]}",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -205,9 +208,7 @@
           }
         }
       },
-      "workflow": "workflow:measure-the-funnel-and-set-a-baseline",
-      "step": "read-facts",
-      "hands_back": "Step read-facts answers with facts."
+      "workflow": "workflow:measure-the-funnel-and-set-a-baseline"
     }
   ],
   "pour": {

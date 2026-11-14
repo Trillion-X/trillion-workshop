@@ -1,41 +1,43 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:keep-what-you-find-in-lists's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:keep-what-you-find-in-lists.\" Before looking anything up about the people, customers or things a person works with, read what their records already keep; then keep every fact you find (an email, a role, who someone is linked to) as rows of the person's lists, linked to each other, so it is never found again from scratch.",
-  "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
-  "workflows": [
-    "workflow:keep-what-you-find-in-lists"
-  ],
-  "tools": [],
-  "instructions": [
-    "1. Say to your AI: \"Run workflow:keep-what-you-find-in-lists\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:keep-what-you-find-in-lists) and works through its steps in order: read, find, keep.",
-    "3. Read what each step hands back; the last step is keep."
-  ],
-  "worked_examples": [
-    {
-      "title": "Keep what you find in the person's lists from its first step",
-      "ask": "Run workflow:keep-what-you-find-in-lists.",
-      "mcp": {
-        "server": "trillion",
-        "tool": "run_resource_operation",
-        "input": {
-          "address": "@workshop-tools",
-          "method": "tools:run",
-          "input": {
-            "tool": "tool:start-a-recipe-run",
-            "input": {
-              "row": "workflow:keep-what-you-find-in-lists",
-              "need": "<need: What you need to know, such as the emails of the founding members>"
-            }
-          }
-        }
-      },
-      "workflow": "workflow:keep-what-you-find-in-lists",
-      "step": "read",
-      "hands_back": "Step read answers with searched, found.",
-      "given": "The person gives: need (shown as <name> in the input)."
+ "start_here": "Say to your AI: \"Run workflow:keep-what-you-find-in-lists: I need the emails of the founding members of the bakery club, and keep whatever you find in my lists.\"",
+ "lists": [],
+ "no_lists_because": "It keeps no list of its own: it writes into whichever of the person's lists the facts belong to, making the list or a field first when one is missing.",
+ "workflows": [
+  "workflow:keep-what-you-find-in-lists"
+ ],
+ "tools": [
+  "tool:start-a-recipe-run"
+ ],
+ "instructions": [
+  "1. Say what you need to know in one sentence (need), for example the emails of the founding members.",
+  "2. Say \"Run workflow:keep-what-you-find-in-lists\". It searches your messages, notes, lists and connected accounts first and says what each answered.",
+  "3. Only for what is still missing does it look elsewhere, naming where each fact came from.",
+  "4. It keeps each fact as a row of the right list, linking rows instead of copying values, reads the list back and tells you the lists and row count."
+ ],
+ "worked_examples": [
+  {
+   "title": "Their own records are read before anything is looked up",
+   "ask": "Find the emails of the founding members of the bakery club.",
+   "mcp": {
+    "server": "trillion",
+    "tool": "run_resource_operation",
+    "input": {
+     "address": "@workshop-tools",
+     "method": "tools:run",
+     "input": {
+      "tool": "tool:start-a-recipe-run",
+      "input": {
+       "row": "workflow:keep-what-you-find-in-lists",
+       "need": "The emails of the founding members of the bakery club"
+      }
+     }
     }
-  ]
+   },
+   "workflow": "workflow:keep-what-you-find-in-lists",
+   "step": "read",
+   "given": "Read from the read step in tools/workflows/recipes/workflows.json: the person's messages hold one email from Sam (sam@example.com) and nothing for Alex.",
+   "hands_back": "{\"searched\": [\"messages mentioning bakery club\", \"list of club members\"], \"found\": [{\"fact\": \"Sam is a founding member, email sam@example.com\", \"from\": \"message from Sam on 2026-10-02\"}]}"
+  }
+ ],
+ "drafted_from": "tools/workflows/recipes/workflows.json row of workflow:keep-what-you-find-in-lists (input schema, steps and submit shapes)"
 }

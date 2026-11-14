@@ -1,35 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:generate-speech's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:generate-speech with nothing more.\" Turn text into spoken audio, in the voice and with the voice program or service I choose, and keep the audio",
+  "drafted_from": "tools/generate-speech/tool-rows.json (tool:generate-speech), do-work/generate_speech.py, read-data/speech_records.py, test/generate-speech.test.mjs",
+  "start_here": "Say to your AI: \"Make speech of 'Fresh bread at seven.' with the voice program on this computer and keep the audio in a new folder.\" It writes the request file, runs generate_speech.py on your computer and tells you where the WAV file is.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads one request file you write, runs the voice program you name and keeps the audio files in a folder you give.",
   "workflows": [],
   "tools": [
     "tool:generate-speech"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:generate-speech\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:generate-speech and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Turn text into spoken audio, in the voice and with the voice program or service I choose, and keep the audio"
+    "1. Pick the program that makes your speech: a hosted service's caller (name the environment variables it reads for its key, never the key) or the voice program already on your computer, local_voice_provider.py (say or espeak-ng).",
+    "2. The AI writes request.json: {request_id, text, voice_profile_ref, provider: {argv: [..., \"{request}\", \"{output}\"], env_names, timeout_seconds}, options: {voice, language}, requested_at}.",
+    "3. It reads the tool row with tools:list {tool: \"tool:generate-speech\"} and runs its command on your computer: python3 trillion-workshop/tools/generate-speech/do-work/generate_speech.py --request request.json --out speech-folder.",
+    "4. Read the last line it prints, {\"result\": ...}: exit 0 with a speech-generation.result naming each audio file, or exit 2 with a speech-generation.error whose code (speech_provider_missing, speech_generation_empty_text, speech_provider_failed, ...) says what to change. Nothing is made up when it fails."
   ],
   "worked_examples": [
     {
-      "title": "Make speech from text with a provider command (runs on your computer) on a sample input",
-      "ask": "Run tool:generate-speech.",
+      "title": "Speak one sentence with the local voice program",
+      "ask": "Make speech of \"Fresh bread at seven.\" with the voice program on this computer.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:generate-speech",
-            "input": {}
+            "tool": "tool:generate-speech"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Turn text into spoken audio, in the voice and with the voice program or service I choose, and keep the audio"
+      "given": "From tools/generate-speech/test/generate-speech.test.mjs (the first test, with a stand-in say program that writes half a second of silence as a WAV). The AI then runs: python3 trillion-workshop/tools/generate-speech/do-work/generate_speech.py --request request.json --out speech, where request.json is {\"request_id\":\"req 1\",\"text\":\"Fresh bread at seven.\",\"voice_profile_ref\":\"voice:warm\",\"requested_at\":\"2030-01-01T00:00:00Z\",\"options\":{\"voice\":\"Maple\",\"language\":\"en\"},\"provider\":{\"argv\":[\"python3\",\"trillion-workshop/tools/generate-speech/do-work/local_voice_provider.py\",\"--request-json\",\"{request}\",\"--output-json\",\"{output}\"]}}.",
+      "hands_back": "{\"result\":{\"kind\":\"speech-generation.result\",\"request_id\":\"req 1\",\"voice_profile_ref\":\"voice:warm\",\"provider_ref\":\"local-voice:say\",\"language\":\"en\",\"format\":\"audio/wav\",\"duration_ms\":500,\"output_artifact_refs\":[{\"media_type\":\"audio/wav\",\"role\":\"speech-audio\",\"path\":\"req_1-1.wav\",\"byte_length\":22094}],\"src\":\"req_1-1.wav\",\"completed_at\":\"2030-01-01T00:00:00Z\"}} with exit 0, and speech/req_1-1.wav a real WAV (starts with RIFF). Without a provider the last line is a speech-generation.error with code speech_provider_missing and exit 2."
     }
   ]
 }

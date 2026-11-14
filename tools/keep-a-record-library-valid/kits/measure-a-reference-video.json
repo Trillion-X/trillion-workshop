@@ -1,40 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:measure-a-reference-video's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:measure-a-reference-video with video, out, programs.\" Measure a video I want to learn from: its probe, a frame a second, the first five seconds closely, where it cuts, how it moves and what is heard, as files I can review",
+  "start_here": "Say to your AI: \"Measure the reference video ref/launch-teaser.mp4 into a new folder ref/measured with my hf-media, motion tools and earshot Python.\" It runs tool:measure-a-reference-video.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of yours: it writes review files for one video into a new folder you name.",
   "workflows": [],
   "tools": [
     "tool:measure-a-reference-video"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:measure-a-reference-video\", and give it video, out, programs.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:measure-a-reference-video and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Measure a video I want to learn from: its probe, a frame a second, the first five seconds closely, where it cuts, how it moves and what is heard, as files I can review"
+    "1. Pick the video and a new, empty output folder. Find where hf-media, the motion tools folder (it holds motion-rhythm.mjs) and a Python with earshot are installed; never guess a folder.",
+    "2. Say to your AI: \"Measure this reference video\". It reads the row with tools:list and runs python3 -I tools/keep-a-record-library-valid/do-work/keep_a_record_library.py measure-reference ref/launch-teaser.mp4 ref/measured --hf-media <path to hf-media> --motion-tools <folder> --earshot-python <python>",
+    "3. Every program is checked first; a missing one exits 2 with a line such as \"measure: give --hf-media, the installed hf-media executable\" and nothing is measured.",
+    "4. Read the last JSON line: {\"measured\": true, \"video\", \"out\", \"duration_s\", \"files\"} or {\"measured\": false, \"failed\": ...} (exit 1; the .err files in the folder say why).",
+    "5. This is evidence still to be reviewed: open the sheets and pages before describing the video. A film over 120 seconds gets small labelled review pages (review-pages) instead of one contact sheet."
   ],
   "worked_examples": [
     {
-      "title": "Measure a reference video into frame sheets, a cut scan, its motion rhythm and a sound timeline (runs on your computer) on a sample input",
-      "ask": "Run tool:measure-a-reference-video.",
+      "title": "A 12.4 second reference video measured",
+      "ask": "Measure ref/launch-teaser.mp4 so I can learn from it.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:measure-a-reference-video",
-            "input": {
-              "video": "<video: The video file, put where {video} is in the command>",
-              "out": "<out: A new, empty output folder, put where {out} is in the command>",
-              "programs": "<programs: --hf-media P --motion-tools DIR --earshot-python P [--ffprobe P] [--node P] [--pages-python P] [--earshot-threads N], put where {programs} is in the command>"
-            }
+            "tool": "tool:measure-a-reference-video"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Measure a video I want to learn from: its probe, a frame a second, the first five seconds closely, where it cuts, how it moves and what is heard, as files I can review",
-      "given": "The person gives: video, out, programs (shown as <name> in the input)."
+      "given": "Read from tools/keep-a-record-library-valid/do-work/measure-reference.sh (it needs hf-media, so it was not run here; its refusal for a missing hf-media was run and printed \"measure: give --hf-media, the installed hf-media executable\" with exit 2): python3 -I tools/keep-a-record-library-valid/do-work/keep_a_record_library.py measure-reference ref/launch-teaser.mp4 ref/measured --hf-media <path to hf-media> --motion-tools <folder holding motion-rhythm.mjs> --earshot-python <python with earshot> on a made-up 12.4 second video.",
+      "hands_back": "Exit 0 and the last line: {\"measured\": true, \"video\": \"ref/launch-teaser.mp4\", \"out\": \"ref/measured\", \"duration_s\": 12.4, \"files\": [\"earshot-timeline.txt\", \"probe.json\", \"rhythm.json\", \"scan\", \"scan.json\", \"sheet-1fps\", \"sheet-hook\"]} (the files are sorted; a video over 120 seconds also lists review-pages and review-pages.json). On a failed step: {\"measured\": false, \"video\": ..., \"out\": ..., \"duration_s\": 12.4, \"failed\": \"hf-media evidence (see sheet.err, scan.err)\"} with exit 1."
     }
-  ]
+  ],
+  "drafted_from": "tool:measure-a-reference-video's row in tools/keep-a-record-library-valid/tool-rows.json, do-work/keep_a_record_library.py and read-data/*.py, and the fixtures and tests in tools/keep-a-record-library-valid/test/; the worked run was executed here on the made-up greenhouse fixtures"
 }

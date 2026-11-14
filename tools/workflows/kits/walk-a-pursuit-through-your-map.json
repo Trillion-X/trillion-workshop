@@ -1,22 +1,129 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:walk-a-pursuit-through-your-map's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:walk-a-pursuit-through-your-map.\" Place one pursuit on the person's own map of their life: which areas of that map it serves or lives along the way, each with evidence in the person's own words, then keep those areas on the pursuit so every reader sees them.",
-  "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "start_here": "Say to your AI: \"Run workflow:walk-a-pursuit-through-your-map for the pursuit 'Grow beans' (pursuit:grow-beans): place it on every area of my map with my own words as evidence and keep the areas on the pursuit.\"",
+  "lists": [
+    {
+      "list": "list:your-map",
+      "label": "Your map",
+      "row_type": "record:your-map",
+      "holds": "The parts of your life your pursuits are placed on: each area, what it is part of and what it means, in your own words.",
+      "fields": [
+        {
+          "id": "area",
+          "kind": "text",
+          "label": "Area",
+          "alike": [
+            "name",
+            "part of life",
+            "category"
+          ]
+        },
+        {
+          "id": "part_of",
+          "kind": "link",
+          "label": "Part of",
+          "alike": [
+            "parent",
+            "group"
+          ]
+        },
+        {
+          "id": "means",
+          "kind": "long-text",
+          "label": "What it means",
+          "alike": [
+            "description",
+            "meaning",
+            "notes"
+          ]
+        },
+        {
+          "id": "sides",
+          "kind": "text",
+          "label": "Both sides",
+          "alike": [
+            "poles",
+            "spectrum"
+          ]
+        },
+        {
+          "id": "optional",
+          "kind": "choice",
+          "label": "Optional",
+          "alike": [
+            "skippable",
+            "nice to have"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "garden",
+          "values": {
+            "area": "Garden",
+            "means": "everything that grows",
+            "optional": "No"
+          }
+        },
+        {
+          "id": "beds",
+          "values": {
+            "area": "Beds",
+            "part_of": [
+              "garden"
+            ],
+            "means": "what is planted",
+            "sides": "sun / shade",
+            "optional": "No"
+          }
+        },
+        {
+          "id": "paths",
+          "values": {
+            "area": "Paths",
+            "part_of": [
+              "garden"
+            ],
+            "means": "how you walk through",
+            "optional": "Yes"
+          }
+        },
+        {
+          "id": "compost",
+          "values": {
+            "area": "Compost",
+            "part_of": [
+              "garden"
+            ],
+            "means": "what feeds the soil",
+            "optional": "No"
+          }
+        }
+      ],
+      "alike": [
+        "a wheel-of-life spreadsheet",
+        "a notes page of life areas",
+        "the areas in a goal-tracking app"
+      ]
+    }
+  ],
   "workflows": [
     "workflow:walk-a-pursuit-through-your-map"
   ],
-  "tools": [],
+  "tools": [
+    "tool:start-a-recipe-run",
+    "tool:pour-example-rows-into-my-list"
+  ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:walk-a-pursuit-through-your-map\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:walk-a-pursuit-through-your-map) and works through its steps in order: read, place, keep.",
-    "3. Read what each step hands back; the last step is keep."
+    "1. Pour the example map areas into the map list you already keep (see pour), or make list:your-map from them; your own areas, in your own words, work better than the examples.",
+    "2. Have the pursuit as a row (pursuit:<id>) or know its title.",
+    "3. Say \"Run workflow:walk-a-pursuit-through-your-map\" with pursuit (its id or title, at least 3 characters).",
+    "4. Step read lists the map areas and what you said and did about the pursuit; step place says for every area whether the pursuit serves or lives it (in_it true or false) with your own words as evidence, never to fill the map.",
+    "5. Step keep writes the pursuit again with its areas set to the ones placed in_it and reads the map again; the areas no pursuit touches show as missing."
   ],
   "worked_examples": [
     {
-      "title": "Walk a pursuit through your map from its first step",
-      "ask": "Run workflow:walk-a-pursuit-through-your-map.",
+      "title": "Grow beans lands on Beds only; Paths and Compost are left empty",
+      "ask": "Place my Grow beans pursuit on my map.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,15 +134,50 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:walk-a-pursuit-through-your-map",
-              "pursuit": "<pursuit: The pursuit's id, or its title>"
+              "pursuit": "pursuit:grow-beans"
             }
           }
         }
       },
       "workflow": "workflow:walk-a-pursuit-through-your-map",
-      "step": "read",
-      "hands_back": "Step read answers with pursuit_id, map_areas, read.",
-      "given": "The person gives: pursuit (shown as <name> in the input)."
+      "step": "keep",
+      "given": "From tools/place-pursuits-on-a-life-map/test/place-pursuits-on-a-life-map.test.mjs: the map has areas garden, beds, paths and compost; the pursuit Grow beans names the areas beds and nowhere, and the kept areas are only [\"beds\"] (an id that is not on the map is dropped, a repeated one is kept once). In that test Walk daily is placed on paths, so compost is the one non-optional leaf nothing tends.",
+      "hands_back": "{\"pursuit_id\":\"pursuit:grow-beans\",\"areas\":[\"beds\"]}. Reading the map again shows Beds with the pursuit Grow beans and Compost as an area nothing you do tends."
     }
-  ]
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "example": {
+      "kit_list": "list:your-map",
+      "into": {
+        "list": "list:my-life-areas",
+        "row_type": "record:life-area",
+        "fields": [
+          {
+            "id": "name",
+            "label": "Name"
+          },
+          {
+            "id": "parent",
+            "label": "Parent"
+          },
+          {
+            "id": "description",
+            "label": "Description"
+          },
+          {
+            "id": "poles",
+            "label": "Poles"
+          },
+          {
+            "id": "skippable",
+            "label": "Skippable"
+          }
+        ]
+      }
+    }
+  },
+  "drafted_from": "workflow:walk-a-pursuit-through-your-map row, list:your-map definition and tools/place-pursuits-on-a-life-map/test/place-pursuits-on-a-life-map.test.mjs"
 }

@@ -1,24 +1,24 @@
 {
-  "draft": true,
-  "drafted_from": "tool:trade-a-threads-sign-in-code-for-its-short-token's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:trade-a-threads-sign-in-code-for-its-short-token with connection, code, redirect_uri.\" Trade the code Threads' sign-in page handed back for the connection's short-lived token, kept sealed in the vault",
+  "drafted_from": "tool:trade-a-threads-sign-in-code-for-its-short-token's row in tools/connect-a-service-and-seal-its-key/tool-rows.json (job, description, input_schema, invoke) and the folder's test/connect-by-signing-in.test.mjs, whose stand-in answers give the reply and the held word",
+  "start_here": "Say to your AI: \"Trade a Threads sign-in code for its short token for the new connection service_connection:threads:4e9b1f27 with the code made-up-code-4f9a2c.\" It runs tool:trade-a-threads-sign-in-code-for-its-short-token and tells you the tokens are kept in the vault without showing any of them.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it sends one request to Threads for the connection it is handed and keeps the tokens in the vault as that connection's fields.",
   "workflows": [],
   "tools": [
     "tool:trade-a-threads-sign-in-code-for-its-short-token",
-    "tool:connect-an-account-by-signing-in-to-the-service",
-    "tool:trade-a-short-threads-token-for-a-long-one"
+    "tool:trade-a-short-threads-token-for-a-long-one",
+    "tool:connect-an-account-by-signing-in-to-the-service"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:trade-a-threads-sign-in-code-for-its-short-token\", and give it connection, code, redirect_uri.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:trade-a-threads-sign-in-code-for-its-short-token and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $ holds the result: Trade the code Threads' sign-in page handed back for the connection's short-lived token, kept sealed in the vault"
+    "1. Do not run this by hand: tool:connect-an-account-by-signing-in-to-the-service runs it for you at the sign-in callback, after you open the sign-in address it gave you. Start that tool first (its kit shows the call) and keep the connection_id it answers: service_connection:threads:4e9b1f27 is the shape.",
+    "2. To run this step alone, the AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:trade-a-threads-sign-in-code-for-its-short-token and the input the worked example shows (the connection by its handle only, the code the service handed back, the callback address the sign-in was started with).",
+    "3. Read what comes back: the service's reply with every kept token already replaced by the word [held]. The short-lived token now sits in the vault as the connection's short_lived_access_token field.",
+    "4. A refusal (a used-up code, a wrong callback address) is shown as the service's own error; nothing is kept, so start the sign-in again for a new link."
   ],
   "worked_examples": [
     {
-      "title": "Trade a Threads sign-in code for its short-lived token on a sample input",
-      "ask": "Run tool:trade-a-threads-sign-in-code-for-its-short-token.",
+      "title": "Trade a Threads sign-in code for its short token for a made-up connection",
+      "ask": "Trade a Threads sign-in code for its short token for service_connection:threads:4e9b1f27.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -29,16 +29,16 @@
             "tool": "tool:trade-a-threads-sign-in-code-for-its-short-token",
             "input": {
               "connection": {
-                "connection_id": "<connection_id: The new connection the sign-in fills: service_connection:<vendor>:<account>, made by tool:connect-an-account-by-signing-in-to-the-service when the sign-in started>"
+                "connection_id": "service_connection:threads:4e9b1f27"
               },
-              "code": "<code: The code the service handed back to the sign-in callback>",
-              "redirect_uri": "<redirect_uri: The callback address the sign-in was started with>"
+              "code": "made-up-code-4f9a2c",
+              "redirect_uri": "https://app.gettrillion.ai/work/api/connect/callback"
             }
           }
         }
       },
-      "hands_back": "The answer's $ holds the result: Trade the code Threads' sign-in page handed back for the connection's short-lived token, kept sealed in the vault",
-      "given": "The person gives: connection_id, code, redirect_uri (shown as <name> in the input)."
+      "given": "From tools/connect-a-service-and-seal-its-key/test/connect-by-signing-in.test.mjs (its stand-in for this tool's answer, made up the way the engine answers: every token is already the held word \"[held]\", because reply_holds_values keeps each token in the vault before the reply is read): the code and callback address go to graph.threads.net/oauth/access_token.. Input: {\"connection\":{\"connection_id\":\"service_connection:threads:4e9b1f27\"},\"code\":\"made-up-code-4f9a2c\",\"redirect_uri\":\"https://app.gettrillion.ai/work/api/connect/callback\"}.",
+      "hands_back": "{\"access_token\":\"[held]\",\"user_id\":17800000000000002}. The short-lived token now sits in the vault as the connection's short_lived_access_token field."
     }
   ]
 }

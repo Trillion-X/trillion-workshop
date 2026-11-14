@@ -1,41 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:recognise-a-repeat's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:recognise-a-repeat with memory_file, rubric_id, excerpt, keep_characters.\" When something is flagged again, file it under the earlier flag it repeats, or as a new kind, and say how many times and in how many sessions it has come up",
+  "drafted_from": "tool:recognise-a-repeat row in tools/ask-a-small-model-for-a-verdict/tool-rows.json, its code in tools/ask-a-small-model-for-a-verdict/do-work/ and tools/ask-a-small-model-for-a-verdict/test/tool.test.mjs; the answers were produced by running the tool against a stand-in model server",
+  "start_here": "Say to your AI: \"File this flagged note under claims-done and tell me if I have seen it before: 'the sourdough order is ready, trust me, nothing was counted', from Monday's session.\" It files the text and reports how many times it came up.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it keeps the flagged shapes in a memory file on this computer that you name.",
   "workflows": [],
   "tools": [
     "tool:recognise-a-repeat"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:recognise-a-repeat\", and give it memory_file, rubric_id, excerpt, keep_characters.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:recognise-a-repeat and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields shape, times, sessions, first_seen, repeat."
+    "1. Choose a memory file (/work/judge/shapes.json) and your two numbers: keep_characters (how much of a text to keep) and plainly_the_same_at (0 to 1, the word overlap at which two texts are the same).",
+    "2. Write /work/judge/request.json: {\"memory_file\", \"rubric_id\", \"excerpt\", \"session\", \"keep_characters\", \"plainly_the_same_at\"}. Add providers (and pass_when_share_correct, same_at_least) to let a model decide near matches.",
+    "3. Say \"Note this repeat\". The AI reads the row with tools:list and runs: node tools/ask-a-small-model-for-a-verdict/do-work/ask-a-small-model.mjs note-repeat < /work/judge/request.json.",
+    "4. Read result: shape (its id), times, sessions, first_seen and repeat (true when it was seen before)."
   ],
   "worked_examples": [
     {
-      "title": "Count how often the same kind of thing has been flagged, even in different words (runs on your computer) on a sample input",
-      "ask": "Run tool:recognise-a-repeat.",
+      "title": "The same note on Monday and Tuesday counts as a repeat of one shape",
+      "ask": "Have I seen this flagged note before?",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:recognise-a-repeat",
-            "input": {
-              "memory_file": "<memory_file: string>",
-              "rubric_id": "<rubric_id: string>",
-              "excerpt": "<excerpt: string>",
-              "keep_characters": "<keep_characters: How many characters of a new flagged text to store>"
-            }
+            "tool": "tool:recognise-a-repeat"
           }
         }
       },
-      "hands_back": "An answer with the fields shape, times, sessions, first_seen, repeat.",
-      "given": "The person gives: memory_file, rubric_id, excerpt, keep_characters (shown as <name> in the input)."
+      "given": "From tools/ask-a-small-model-for-a-verdict/test/tool.test.mjs (test \"note-repeat: the same text again is counted as a repeat...\"), run for real with memory_file /work/judge/shapes.json, rubric_id \"claims-done\", excerpt \"the sourdough order is ready, trust me, nothing was counted\", keep_characters 600, plainly_the_same_at 0.8, session \"monday\", then again with session \"tuesday\", then with excerpt \"oven temperature never written down\". Command: node tools/ask-a-small-model-for-a-verdict/do-work/ask-a-small-model.mjs note-repeat < /work/judge/request.json",
+      "hands_back": "First: {\"result\": {\"shape\": \"claims-done-1\", \"times\": 1, \"sessions\": 1, \"first_seen\": \"2026-11-14T01:28:09.900Z\", \"repeat\": false}}. Second (Tuesday): {\"result\": {\"shape\": \"claims-done-1\", \"times\": 2, \"sessions\": 2, \"first_seen\": \"2026-11-14T01:28:09.900Z\", \"repeat\": true}}. Third (different text, no session): {\"result\": {\"shape\": \"claims-done-2\", \"times\": 1, \"sessions\": 0, \"repeat\": false}}."
     }
   ]
 }

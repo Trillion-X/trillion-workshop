@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:research-brief-and-study's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:research-brief-and-study.\" Keep a person current on one of their goals or any subject they care about: their own AI researches it from public sources (articles, videos, social posts, papers, their own notes), writes a short briefing in which every claim names the exact source it rests on, asks the person a few questions they answer from memory, and, only if they approve the exact words, shares one insight with its sources in their community so anyone, or anyone's AI, can check it.",
+  "drafted_from": "workflow row in tools/workflows/recipes/workflows.json (input_schema and the research, briefing, study, insight, share steps with their submit shapes); read from the row's words, no test runs it",
+  "start_here": "Say to your AI: \"Run workflow:research-brief-and-study on the subject: how small bakeries get repeat customers, for pursuit:example-bakery; write me a briefing, quiz me, and share nothing until I approve the words.\"",
   "lists": [],
   "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
@@ -11,14 +10,16 @@
     "tool:read-public-web-page"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:research-brief-and-study\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:research-brief-and-study) and works through its steps in order: research, briefing, study, insight, share.",
-    "3. Read what each step hands back; the last step is share."
+    "1. Pick the subject in plain words (a goal's title, a topic, a person or a place); add pursuit_id when it serves one of your goals, space_id for the community where an approved insight may go, and since_briefing (like /Briefings/<subject>/2026-11-06.md) to get only what changed.",
+    "2. Say \"Run workflow:research-brief-and-study\". The AI starts it with tool:start-a-recipe-run and works the steps research, briefing, study, insight, share.",
+    "3. At research, at least 5 sources actually read come back, each with its address, kind, title, an exact quote and when it was read; sources it could not read are listed as unread, never guessed.",
+    "4. Read the briefing saved at /Briefings/<subject>/<today>.md, then answer the 3 to 5 questions from memory in your own words; an unanswered question is kept and asked again in the next briefing.",
+    "5. Say whether the one insight holds; only if you approve its exact words is it shared in your community or published as a public page."
   ],
   "worked_examples": [
     {
-      "title": "Research, brief and study from its first step",
-      "ask": "Run workflow:research-brief-and-study.",
+      "title": "Five sources read, each with an exact quote",
+      "ask": "Research how small bakeries get repeat customers and brief me.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -29,15 +30,16 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:research-brief-and-study",
-              "subject": "<subject: What to research: a goal's title, a topic, a person or a place, in plain words>"
+              "subject": "How small bakeries get repeat customers",
+              "pursuit_id": "pursuit:example-bakery"
             }
           }
         }
       },
       "workflow": "workflow:research-brief-and-study",
       "step": "research",
-      "hands_back": "Step research answers with sources.",
-      "given": "The person gives: subject (shown as <name> in the input)."
+      "given": "Read from tools/workflows/recipes/workflows.json (step research): at least 5 sources the AI actually read; tool:read-public-web-page reads a public page it cannot open itself; each source carries url, kind, title, an exact quote of 20 or more characters and read_at.",
+      "hands_back": "{\"sources\":[{\"url\":\"https://example.com/loyalty-cards\",\"kind\":\"an article\",\"title\":\"Why punch cards still work\",\"quote\":\"Shops that stamped the first visit saw returns double within a month.\",\"read_at\":\"2026-11-13T09:15:00-06:00\"}, ... 4 more, each with its own url, kind, title, quote and read_at],\"unread\":[{\"url\":\"https://example.com/paywalled-study\",\"why\":\"paywall, only the first paragraph was shown\"}]}"
     }
   ]
 }

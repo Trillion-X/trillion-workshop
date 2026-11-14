@@ -1,48 +1,50 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:grow-on-reddit-without-selling-first's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:grow-on-reddit-without-selling-first.\" Warm up a Reddit account before the first post: choose 5 subreddits by which ones Google ranks for the person's keywords, read and record every subreddit's rules, reach at least 10 karma, then spend 3 days leaving one useful comment a day in each of the 5 subreddits (15 comments, no self-promotion), and only then write and publish a post.",
-  "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
-  "workflows": [
-    "workflow:grow-on-reddit-without-selling-first"
-  ],
-  "tools": [
-    "tool:read-a-page-in-my-browser",
-    "tool:tell-the-person"
-  ],
-  "instructions": [
-    "1. Say to your AI: \"Run workflow:grow-on-reddit-without-selling-first\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:grow-on-reddit-without-selling-first) and works through its steps in order: account, search, pick, rules, karma, day-1-comments, day-2-comments, day-3-comments, tally, reread-rules, draft-post, approve-post, post-it.",
-    "3. Read what each step hands back; the last step is post-it."
-  ],
-  "worked_examples": [
-    {
-      "title": "Grow on Reddit without selling for the first 3 days from its first step",
-      "ask": "Run workflow:grow-on-reddit-without-selling-first.",
-      "mcp": {
-        "server": "trillion",
-        "tool": "run_resource_operation",
-        "input": {
-          "address": "@workshop-tools",
-          "method": "tools:run",
-          "input": {
-            "tool": "tool:start-a-recipe-run",
-            "input": {
-              "row": "workflow:grow-on-reddit-without-selling-first",
-              "product": "<product: The person's product, in one plain sentence: what it is and who it is for>",
-              "keywords": [
-                "<keywords: string>"
-              ],
-              "reddit_username": "<reddit_username: The person's Reddit username, without u/ in front>"
-            }
-          }
-        }
-      },
-      "workflow": "workflow:grow-on-reddit-without-selling-first",
-      "step": "account",
-      "hands_back": "Step account answers with profile_url, username_seen, karma.",
-      "given": "The person gives: product, keywords, reddit_username (shown as <name> in the input)."
+ "start_here": "Say to your AI: \"Run workflow:grow-on-reddit-without-selling-first: my product is a scheduling app for small bakeries, my keywords are \\\"bakery order software\\\" and \\\"pre-order cake tracking\\\", and my Reddit username is sam_bakes_example.\"",
+ "lists": [],
+ "no_lists_because": "It keeps no list of its own: each step hands back one answer kept on the run record, and every comment and post goes out only after the person approves the exact words.",
+ "workflows": [
+  "workflow:grow-on-reddit-without-selling-first"
+ ],
+ "tools": [
+  "tool:start-a-recipe-run",
+  "tool:read-a-page-in-my-browser",
+  "tool:tell-the-person"
+ ],
+ "instructions": [
+  "1. Gather three inputs: product (one plain sentence), keywords (the phrases buyers type into Google) and reddit_username (without u/). Sign in to Reddit in your own browser.",
+  "2. Say \"Run workflow:grow-on-reddit-without-selling-first\" with them. The AI reads your profile, searches Google for site:reddit.com plus each keyword and picks the 5 subreddits shown for the most keywords.",
+  "3. Read the rules it records for each subreddit, then approve each daily comment in your own words; it drafts, you send, and it checks the comment is live. Days 1, 2 and 3 each need a new calendar day.",
+  "4. After the tally shows 15 live comments, name the subreddit to post in, approve the exact post, paste it on Reddit yourself and let the AI confirm it is live."
+ ],
+ "worked_examples": [
+  {
+   "title": "Day one reads the account first",
+   "ask": "Warm up my Reddit account before I post.",
+   "mcp": {
+    "server": "trillion",
+    "tool": "run_resource_operation",
+    "input": {
+     "address": "@workshop-tools",
+     "method": "tools:run",
+     "input": {
+      "tool": "tool:start-a-recipe-run",
+      "input": {
+       "row": "workflow:grow-on-reddit-without-selling-first",
+       "product": "A scheduling app for small bakeries",
+       "keywords": [
+        "bakery order software",
+        "pre-order cake tracking"
+       ],
+       "reddit_username": "sam_bakes_example"
+      }
+     }
     }
-  ]
+   },
+   "workflow": "workflow:grow-on-reddit-without-selling-first",
+   "step": "account",
+   "given": "Read from the account step in tools/workflows/recipes/workflows.json: the AI calls tool:read-a-page-in-my-browser with {\"url\":\"https://www.reddit.com/user/sam_bakes_example/\"}; the page shows the name sam_bakes_example and 3 karma.",
+   "hands_back": "{\"profile_url\": \"https://www.reddit.com/user/sam_bakes_example/\", \"username_seen\": \"sam_bakes_example\", \"karma\": 3}"
+  }
+ ],
+ "drafted_from": "tools/workflows/recipes/workflows.json row of workflow:grow-on-reddit-without-selling-first (input schema, steps and submit shapes)"
 }

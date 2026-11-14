@@ -1,22 +1,23 @@
 {
-  "draft": true,
-  "drafted_from": "tool:search-internet-archive's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:search-internet-archive with query.\" Search Internet Archive for books, articles, audio, concerts, films, images and other primary sources, with license and collection filters and source provenance for any objective",
+  "drafted_from": "tools/internet-archive/records.json and tool-rows.json (tool:search-internet-archive: its url, query template, input schema and verify check); no test file exists, and no live call was made",
+  "start_here": "Say to your AI: \"Search the Internet Archive for films about tennis, five results, and keep each item identifier and what its rights say.\" It runs the search and lists the identifiers with their metadata.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It sends one search to the public Archive and hands back results; it reads and keeps no list of yours.",
   "workflows": [],
   "tools": [
-    "tool:search-internet-archive"
+    "tool:search-internet-archive",
+    "tool:read-internet-archive-item"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:search-internet-archive\", and give it query.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:search-internet-archive and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields responseHeader, response."
+    "1. Write the Archive query, for example title:tennis AND mediatype:movies; filter by collection or licenseurl when the use needs it.",
+    "2. Say \"Search the Internet Archive for title:tennis AND mediatype:movies, 5 rows\". The AI calls tools:run for tool:search-internet-archive with query and rows (rows 1 to 50, default 25; page from 1).",
+    "3. Read response.docs: each has identifier plus title, creator, date, mediatype, collection, licenseurl and rights where indexed. response.numFound is the total. Items flagged access-restricted are always left out.",
+    "4. Keep the identifier as provenance and run tool:read-internet-archive-item on a promising one. A license URL is evidence to inspect, not permission to reuse."
   ],
   "worked_examples": [
     {
-      "title": "Search Internet Archive on a sample input",
-      "ask": "Run tool:search-internet-archive.",
+      "title": "Five tennis films, with the query echoed back",
+      "ask": "Search the Internet Archive for films about tennis, five results.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,13 +27,14 @@
           "input": {
             "tool": "tool:search-internet-archive",
             "input": {
-              "query": "<query: Internet Archive Advanced Search query>"
+              "query": "title:tennis AND mediatype:movies",
+              "rows": 5
             }
           }
         }
       },
-      "hands_back": "An answer with the fields responseHeader, response.",
-      "given": "The person gives: query (shown as <name> in the input)."
+      "given": "Read from tools/internet-archive/records.json, not run live: a GET to https://archive.org/advancedsearch.php with q = \"(title:tennis AND mediatype:movies) AND NOT access-restricted-item:true\", rows 5, page 1 (the default), output json and the fields identifier, title, creator, date, year, description, mediatype, collection, licenseurl, rights, access-restricted-item, publicdate.",
+      "hands_back": "The Archive's JSON unchanged ($ is the result): responseHeader.params.q is \"(title:tennis AND mediatype:movies) AND NOT access-restricted-item:true\" (the tool's own verify check compares it to the input query), response.start is 0, response.docs holds at most 5 objects each with an identifier string, and response.numFound is the live count (it changes as the Archive changes)."
     }
   ]
 }

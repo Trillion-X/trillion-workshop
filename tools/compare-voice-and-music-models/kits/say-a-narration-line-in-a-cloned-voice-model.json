@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "tool:say-a-narration-line-in-a-cloned-voice-model's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:say-a-narration-line-in-a-cloned-voice-model with line, engine, out.\" Try a voice-cloning model on my narration line: keep the best of a few takes of each sentence",
+  "drafted_from": "tool row in tools/compare-voice-and-music-models/tool-rows.json, do-work/say_a_line_in_a_cloned_voice.py and tools/compare-voice-and-music-models/test/test_voice_ab.py",
+  "start_here": "Say to your AI: \"Try the qwen3 voice-cloning model on my narration line in line.json, cloned from ref.wav and ref.txt, keeping the best of 3 tries per sentence.\"",
   "lists": [
     {
       "list": "list:settings",
@@ -77,27 +76,27 @@
       ],
       "example_rows": [
         {
-          "id": "caption-style",
+          "id": "person-sample-person",
           "values": {
-            "name": "Caption style",
-            "tool": "tool:example-captioner",
+            "name": "compare-voice-and-music-models defaults",
+            "tool": "tool:compare-voice-and-music-models",
             "scope_kind": "person",
-            "scope_id": "example-person",
-            "settings": "{\"style\":\"plain\",\"size\":\"large\"}",
+            "scope_id": "sample-person",
+            "settings": "{\"clone_takes\":7}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         },
         {
-          "id": "quiet-hours",
+          "id": "film-sample-film",
           "values": {
-            "name": "Quiet hours",
-            "tool": "tool:example-notifier",
-            "scope_kind": "account",
-            "scope_id": "whole-account",
-            "settings": "{\"from\":\"22:00\",\"to\":\"07:00\"}",
+            "name": "compare-voice-and-music-models for one film",
+            "tool": "tool:compare-voice-and-music-models",
+            "scope_kind": "film",
+            "scope_id": "sample-film",
+            "settings": "{\"clone_takes\":5,\"master_command\":\"\",\"takes\":[{\"engine\":\"pocket\",\"maker\":\"clone\",\"name\":\"B pocket\",\"work\":\"pocket\"},{\"maker\":\"kokoro\",\"name\":\"A kokoro\",\"voice\":\"af_heart\",\"work\":\"synthetic-601f4f805f94\"}]}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         }
       ],
@@ -108,38 +107,38 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
-    "tool:say-a-narration-line-in-a-cloned-voice-model"
+    "tool:say-a-narration-line-in-a-cloned-voice-model",
+    "tool:read-a-tool-setting",
+    "tool:measure-narration-takes",
+    "tool:make-and-measure-every-voice-take-of-a-line",
+    "tool:say-a-narration-line-in-a-kokoro-voice",
+    "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:say-a-narration-line-in-a-cloned-voice-model\", and give it line, engine, out.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:say-a-narration-line-in-a-cloned-voice-model and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Try a voice-cloning model on my narration line: keep the best of a few takes of each sentence"
+    "1. Check ref.wav is your own voice or one you have consent to clone; put its exact words in ref.txt (qwen3 needs them).",
+    "2. Pour the example settings rows into your list:settings (see pour) if you want your own takes, models and reference. If you keep a list:settings row for this folder (record:setting:compare-voice-and-music-models~film~<film>) your AI reads it with tool:read-a-tool-setting, saves it to a file and adds --settings-record that file --film <film>; its values go over the defaults.",
+    "3. Say the line in start_here. Your AI reads the row with tools:list {tool: \"tool:say-a-narration-line-in-a-cloned-voice-model\"}, installs mlx-audio, mlx-whisper, numpy and soundfile if missing and runs the command in given.",
+    "4. Read the last line: {\"result\": {take, engine, model, sample_rate, units, word_errors}}. Tell the person the licence: Pocket TTS is CC-BY-4.0 (credit Kyutai); Chatterbox output carries an inaudible watermark."
   ],
   "worked_examples": [
     {
-      "title": "Say one narration line in a voice-cloning model, best of N per sentence (runs on your Mac) on a sample input",
-      "ask": "Run tool:say-a-narration-line-in-a-cloned-voice-model.",
+      "title": "Each unit made 3 times, the one whisper heard best kept",
+      "ask": "Try the qwen3 clone on my narration line.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:say-a-narration-line-in-a-cloned-voice-model",
-            "input": {
-              "line": "<line: The narration line as JSON (units, pause_after, inner_most, script; hear_prompt, voice_reference and vowel_check for the measure), put where {line} is in the command>",
-              "engine": "<engine: qwen3, chatterbox, pocket, or an engine of the settings' clone_engines, put where {engine} is>",
-              "out": "<out: The WAV to write, put where {out} is>"
-            }
+            "tool": "tool:say-a-narration-line-in-a-cloned-voice-model"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Try a voice-cloning model on my narration line: keep the best of a few takes of each sentence",
-      "given": "The person gives: line, engine, out (shown as <name> in the input)."
+      "given": "Read from tools/compare-voice-and-music-models/do-work/say_a_line_in_a_cloned_voice.py; best-of-N is tested in tools/compare-voice-and-music-models/test/test_voice_ab.py (Clone): for unit 1 three tries heard as \"Close.\", \"Clothes.\", \"Close.\" have errors [0, 1, 0] and kept_errors 0; the one with the fewest word errors wins, then the length nearest the median. line.json = {\"script\":\"Close. The kettle is on... and the toast is burning. Aren't you, Morwenna?\",\"units\":[\"Close.\",\"The kettle is on... and the toast is burning.\",\"Aren't you, [Morwenna](/mɔːwˈɛnə/)?\"],\"pause_after\":[0.65,0.4,0.0],\"inner_most\":0.45,\"hear_prompt\":\"Morwenna.\",\"voice_reference\":\"reference-take.wav\",\"vowel_check\":{\"word\":\"close\"}}. Run: python3 -I tools/compare-voice-and-music-models/do-work/say_a_line_in_a_cloned_voice.py line.json qwen3 take-qwen3.wav --ref ref.wav --takes 3",
+      "hands_back": "{\"result\":{\"take\":\"take-qwen3.wav\",\"engine\":\"qwen3\",\"model\":\"mlx-community/Qwen3-TTS-12Hz-1.7B-Base-bf16\",\"sample_rate\":<the model's rate>,\"units\":\"take-qwen3.units.json\",\"word_errors\":<sum of the kept units' errors>}}: take-qwen3.units.json holds, per unit, what each of the 3 tries was heard as, all_errors (unit 1: [0,1,0]) and kept_errors. With an unknown engine: {\"error\":\"nope is not an engine here: use one of chatterbox, pocket, qwen3, or add it to clone_engines\"}; qwen3 with no ref.txt: {\"error\":\"qwen3 needs the exact words of the reference: pass --ref-text, a file of them (ref.txt is not there)\"}."
     }
   ],
   "pour": {
@@ -149,39 +148,40 @@
     "example": {
       "kit_list": "list:settings",
       "into": {
-        "list": "list:my-settings",
-        "row_type": "record:setting",
+        "list": "list:my-tool-options",
+        "row_type": "record:tool-option",
         "fields": [
           {
-            "id": "name",
-            "label": "Setting"
+            "id": "title",
+            "label": "Title"
           },
           {
-            "id": "tool",
-            "label": "Tool"
+            "id": "owner",
+            "label": "Owner"
           },
           {
-            "id": "scope_kind",
-            "label": "For a"
+            "id": "scope",
+            "label": "Scope"
           },
           {
-            "id": "scope_id",
-            "label": "For"
+            "id": "target",
+            "label": "Target"
           },
           {
-            "id": "settings",
-            "label": "Settings (JSON)"
+            "id": "config",
+            "label": "Config"
           },
           {
-            "id": "from",
-            "label": "From"
+            "id": "source",
+            "label": "Source"
           },
           {
-            "id": "status",
-            "label": "Status"
+            "id": "state",
+            "label": "State"
           }
         ]
-      }
+      },
+      "field_map": {}
     }
   }
 }

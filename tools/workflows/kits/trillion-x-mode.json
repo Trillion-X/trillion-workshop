@@ -1,9 +1,7 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:trillion-x-mode's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:trillion-x-mode.\" Apply the full execution standard to an authorized objective, with checked evidence, scope and reusable mechanisms.",
+  "start_here": "Say to your AI: \"Run workflow:trillion-x-mode. Request: let customers cancel a subscription from the order page. Scope: the bakery site's order page only. Constraints: no change to prices, no emails to customers. Authorized actions: edit the order page and read the payment dashboard.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: each step's answer carries its own evidence and requirement records, and any nested run is a recipe run of the workflow it names.",
   "workflows": [
     "workflow:trillion-x-mode",
     "workflow:combine-several-ai-answers",
@@ -18,14 +16,16 @@
     "tool:start-a-recipe-run"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:trillion-x-mode\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:trillion-x-mode) and works through its steps in order: scope, reuse, design, action-lifecycle-inventory, build, proof, action-lifecycle-proof, release, learn.",
-    "3. Read what each step hands back; the last step is learn."
+    "1. Write the request (up to 30000 characters), its scope (a clear boundary, up to 5000 characters), the constraints (each a plain sentence, up to 100) and the authorized actions (each a plain sentence, up to 100); source_id is optional.",
+    "2. Say \"Run workflow:trillion-x-mode\" with request, scope, constraints and authorized_actions. The mode grants no extra access, spending, publication, deployment or authority over another person: only what you list is authorized.",
+    "3. Step scope answers with a summary, the evidence it read (id, source, observed) and seven requirements: outcome, raw-material, authority, reality, possibility-space, what-is-optimized and untainted, each completed with what happened and the evidence ids it rests on.",
+    "4. Steps reuse, design, action-lifecycle-inventory, build, proof and action-lifecycle-proof reuse existing work, choose the generic shape, account for create, read, edit and delete and the other actions, build the change and prove each required action through its real entry point (success, refusal and recovery).",
+    "5. Steps release and learn verify the authorized delivery and keep the lesson; a required step that is blocked stays open with its exact gap and is never submitted as completed."
   ],
   "worked_examples": [
     {
-      "title": "Trillion X mode from its first step",
-      "ask": "Run workflow:trillion-x-mode.",
+      "title": "Scope turns a cancel request into a named outcome with authority and limits",
+      "ask": "Let customers cancel a subscription from the order page, order page only, no price or email changes.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -36,18 +36,25 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:trillion-x-mode",
-              "request": "<request: string>",
-              "scope": "<scope: string>",
-              "constraints": [],
-              "authorized_actions": []
+              "request": "Let customers cancel a subscription from the order page.",
+              "scope": "The bakery site's order page only.",
+              "constraints": [
+                "No change to prices.",
+                "No emails to customers."
+              ],
+              "authorized_actions": [
+                "Edit the order page.",
+                "Read the payment dashboard."
+              ]
             }
           }
         }
       },
       "workflow": "workflow:trillion-x-mode",
       "step": "scope",
-      "hands_back": "Step scope answers with summary, evidence, requirements.",
-      "given": "The person gives: request, scope (shown as <name> in the input)."
+      "given": "Read from the scope step of workflow:trillion-x-mode in tools/workflows/recipes/workflows.json (its submit shape: summary, evidence, and the seven requirements each with state completed, what_happened of at least 12 characters and evidence_refs).",
+      "hands_back": "{\"summary\":\"A customer can cancel their own subscription from the order page, and nothing else on the site changes.\",\"evidence\":[{\"id\":\"e1\",\"source\":\"the request as the person wrote it\",\"observed\":\"Customers cannot cancel a subscription from the order page and must email the shop.\"},{\"id\":\"e2\",\"source\":\"the scope and constraints given\",\"observed\":\"Scope is the order page only; prices and customer emails must not change.\"},{\"id\":\"e3\",\"source\":\"the order page as it renders today\",\"observed\":\"The page lists each order with a receipt link and no cancel action.\"}],\"requirements\":{\"outcome\":{\"state\":\"completed\",\"what_happened\":\"The outcome is a Cancel button on each subscription order that ends renewals; ready enough when a test customer cancels and the dashboard shows no next charge.\",\"evidence_refs\":[\"e1\",\"e3\"]},\"raw-material\":{\"state\":\"completed\",\"what_happened\":\"The request is treated as raw material: the only number in it is none, and the pursuit it serves is keeping customers who want to leave on good terms.\",\"evidence_refs\":[\"e1\"]},\"authority\":{\"state\":\"completed\",\"what_happened\":\"Authorized: edit the order page and read the payment dashboard. Excluded: price changes and emails to customers.\",\"evidence_refs\":[\"e2\"]},\"reality\":{\"state\":\"completed\",\"what_happened\":\"Observed: the order page has a receipt link per order and no cancel action; the payment dashboard shows which orders renew.\",\"evidence_refs\":[\"e3\"]},\"possibility-space\":{\"state\":\"completed\",\"what_happened\":\"Inherited belief that cancelling needs an email to the shop: marked inherited, shown false by a button that calls the same cancel the shop uses.\",\"evidence_refs\":[\"e1\"]},\"what-is-optimized\":{\"state\":\"completed\",\"what_happened\":\"Optimized for the customer finishing a cancellation without asking anyone, not for fewer cancellations.\",\"evidence_refs\":[\"e1\"]},\"untainted\":{\"state\":\"completed\",\"what_happened\":\"The customer-facing words stay the person's own; the AI's reading of the request is marked as its own.\",\"evidence_refs\":[\"e1\",\"e2\"]}}}"
     }
-  ]
+  ],
+  "drafted_from": "workflow:trillion-x-mode row (input_schema; steps scope to learn; the scope step submit shape)"
 }

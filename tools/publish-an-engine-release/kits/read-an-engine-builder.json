@@ -1,38 +1,37 @@
 {
-  "draft": true,
-  "drafted_from": "tool:read-an-engine-builder's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-an-engine-builder with request_file.\" See whether the engine builder is receiving pushes and which release it published last",
+  "drafted_from": "tools/publish-an-engine-release/tool-rows.json (tool:read-an-engine-builder), do-work/install-a-builder.mjs (builderStatus), do-work/receive-pushes.mjs (last-run.json)",
+  "start_here": "Say to your AI: \"Is my engine builder at releases.example.com receiving pushes, and which release did it publish last?\" It runs status with the same request.json install used and reads back the receiver, the feed and the last run.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads the builder's receiver, feed folder and last-run file over SSH and answers one status.",
   "workflows": [],
   "tools": [
-    "tool:read-an-engine-builder"
+    "tool:read-an-engine-builder",
+    "tool:install-an-engine-builder",
+    "tool:publish-an-engine-release"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-an-engine-builder\", and give it request_file.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-an-engine-builder and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields receiver_active, public_key, releases_held, newest, last_run, feed_status."
+    "1. Use the request.json install was given (builder address and host_name, ssh known_hosts, repository). No credential is needed; it reaches the builder over SSH only.",
+    "2. The AI reads the row with tools:list {tool: \"tool:read-an-engine-builder\"} and runs, from the Workshop checkout: node tools/publish-an-engine-release/do-work/install-a-builder.mjs status request.json",
+    "3. Read the JSON line: receiver_active, public_key, releases_held (entries in feed.json, at most 32), newest (the newest commit, sequence, target and urgent flag for each target), last_run and feed_status (the HTTP status of the feed at its public address).",
+    "4. A last_run whose error says a commit is older than the feed's newest is expected and harmless; any other error in last_run says what to fix, and a receiver_active false means the service must be restarted."
   ],
   "worked_examples": [
     {
-      "title": "Read an engine builder on a sample input",
-      "ask": "Run tool:read-an-engine-builder.",
+      "title": "A builder that has published one commit",
+      "ask": "Is my engine builder receiving pushes, and which release did it publish last?",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:read-an-engine-builder",
-            "input": {
-              "request_file": "<request_file: The request install was given>"
-            }
+            "tool": "tool:read-an-engine-builder"
           }
         }
       },
-      "hands_back": "An answer with the fields receiver_active, public_key, releases_held, newest, last_run, feed_status.",
-      "given": "The person gives: request_file (shown as <name> in the input)."
+      "given": "Read from tools/publish-an-engine-release/do-work/install-a-builder.mjs (builderStatus) and do-work/receive-pushes.mjs (runPublish) for the builder installed from {\"builder\":{\"address\":\"192.0.2.50\",\"host_name\":\"releases.example.com\"},\"ssh\":{\"known_hosts\":\"/work/known_hosts\"},\"repository\":{\"url\":\"https://github.com/owner/engine.git\",\"branch\":\"main\"}} after one push of a commit made at second 1800000003: the AI runs node tools/publish-an-engine-release/do-work/install-a-builder.mjs status request.json. The builder answers systemctl is-active with active, its feed.json holds the entry for that commit, last-run.json holds the run, and the feed answers HTTP 200.",
+      "hands_back": "{\"receiver_active\":true,\"public_key\":\"<64 hex of the builder's key>\",\"releases_held\":1,\"newest\":[{\"commit\":\"<the 40-hex commit>\",\"sequence\":1800000003,\"target\":\"x86_64-unknown-linux-gnu\",\"urgent\":false}],\"last_run\":{\"commit\":\"<the 40-hex commit>\",\"started_at\":\"<time>\",\"finished_at\":\"<time>\",\"exit\":0,\"release\":{\"commit\":\"<the 40-hex commit>\",\"sequence\":1800000003,\"target\":\"x86_64-unknown-linux-gnu\",\"already_published\":false}},\"last_entries\":[],\"feed_status\":200} (last_run.release is the full answer publish printed)."
     }
   ]
 }

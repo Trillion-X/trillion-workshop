@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:make-a-brand-book-and-decks's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:make-a-brand-book-and-decks.\" Make a brand book that shows every settled brand decision with its source, a pitch deck and a sales deck in that brand, and a copy of each deck for each buyer where only the buyer's own facts change, every claim and price read from the person's own records",
+  "drafted_from": "workflow:make-a-brand-book-and-decks's row in tools/workflows/recipes/workflows.json (input schema, steps) and tools/brand-kit/test/resolve-a-brand.test.mjs for the brand step's answer",
+  "start_here": "Say to your AI: \"Run workflow:make-a-brand-book-and-decks for Harbour using my brand list list:brand-assets, my look look:harbour-look, the claims in list:verified-claims and the price in record:price:harbour, with a sales deck copy for Example Bakery Co and Sam's Cafe, written into the folder harbour-decks.\"",
   "lists": [],
   "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
@@ -16,14 +15,15 @@
     "tool:turn-frames-into-slides"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:make-a-brand-book-and-decks\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:make-a-brand-book-and-decks) and works through its steps in order: brand, look, decisions, claims, brand-book, decks, per-buyer, check-public-copy, approve.",
-    "3. Read what each step hands back; the last step is approve."
+    "1. Have your brand rows ready in one list (one row with role selection naming the family in use, and a row per logo variant with its family, role, format, background and url), your look's tokens and font files, a list of verified claims with their sources, and the price in a record.",
+    "2. Say \"Run workflow:make-a-brand-book-and-decks\" with brand_list, look, faces, claims, price, buyers (each a record id), out (a folder) and copy_check (the command that checks public copy, with {out} where the folder goes); decisions is optional.",
+    "3. The AI works brand, look, decisions, claims, brand-book, decks, per-buyer, check-public-copy and approve in order. It stops and asks when no brand row has role selection, when a font file is missing, or when the copy check exits with anything but 0.",
+    "4. Look at every picture it shows (the brand book, the pitch deck, the sales deck, each buyer's copy) with each claim's source, and say whether you approve each exactly as shown. Nothing is sent to a buyer in this workflow."
   ],
   "worked_examples": [
     {
-      "title": "Make a brand book and decks from its first step",
-      "ask": "Run workflow:make-a-brand-book-and-decks.",
+      "title": "The brand step picks the black wordmark for a light page and the white one for a dark page",
+      "ask": "Make the Harbour brand book and decks and a sales deck copy for two buyers.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -34,27 +34,27 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:make-a-brand-book-and-decks",
-              "brand_list": "<brand_list: The id of the person's brand list (one row per logo variant and one selection row)>",
-              "look": "<look: The look the brand wears: its record id, or a file holding the look record>",
+              "brand_list": "list:brand-assets",
+              "look": "look:harbour-look",
               "faces": [
-                {
-                  "family": "<family: string>",
-                  "file": "<file: string>"
-                }
+                "Harbour Sans"
               ],
-              "claims": "<claims: Where the person's verified claims are kept (a list or a file): each claim's exact words, its source and whether it is verified>",
-              "price": "<price: The record or file that holds the price the decks quote>",
-              "buyers": [],
-              "out": "<out: The folder on the person's computer the PDFs and pictures go into>",
-              "copy_check": "<copy_check: The person's own command that checks the public words of a folder of documents and exits 0 only when they pass, with {out} where the folder goes>"
+              "claims": "list:verified-claims",
+              "price": "record:price:harbour",
+              "buyers": [
+                "record:buyer:example-bakery-co",
+                "record:buyer:sams-cafe"
+              ],
+              "out": "harbour-decks",
+              "copy_check": "node check-public-copy.mjs {out}"
             }
           }
         }
       },
       "workflow": "workflow:make-a-brand-book-and-decks",
       "step": "brand",
-      "hands_back": "Step brand answers with family, light, dark, missing.",
-      "given": "The person gives: brand_list, look, family, file, claims, price, out, copy_check (shown as <name> in the input)."
+      "given": "From tools/brand-kit/test/resolve-a-brand.test.mjs: the brand list has a selection row for family \"original\" and the variants wordmark svg black on transparent, wordmark svg white on transparent, mark svg black on white and mark svg white on black (all under https://assets.example.test/brand/), plus one png wordmark of another family (\"autumn\"). The step runs tool:resolve-a-brand with tone light, then tone dark.",
+      "hands_back": "{\"family\":\"original\",\"light\":{\"wordmark_svg\":\"https://assets.example.test/brand/original-wordmark-black.svg\",\"mark_svg\":\"https://assets.example.test/brand/original-mark-black-white.svg\"},\"dark\":{\"wordmark_svg\":\"https://assets.example.test/brand/original-wordmark-white.svg\",\"mark_svg\":\"https://assets.example.test/brand/original-mark-white-black.svg\"},\"missing\":[\"wordmark_png\",\"mark_png\"]}. The \"autumn\" family is never drawn, because the selection row names \"original\"."
     }
   ]
 }

@@ -1,0 +1,36 @@
+{
+  "drafted_from": "tool:say-why-a-technique-works row, do-work/say-why-a-technique-works.mjs and test/say-why-tool.test.mjs; the answer was observed by running sayWhyATechniqueWorks with the test's scripted writer and hand-made vectors, not a live model",
+  "start_here": "Say to your AI: \"Describe my kept technique called Mirror figure by why it works, in the shared vocabulary, using my local Ollama chat and embedding models, and save the fields back on its record.\" It writes the request, runs the tool and saves what comes back.",
+  "lists": [],
+  "no_lists_because": "It takes your technique rows and vocabulary in its request and answers rows and a grown vocabulary for you to save; it keeps no list of its own.",
+  "workflows": [],
+  "tools": [
+    "tool:say-why-a-technique-works",
+    "tool:cross-techniques-with-a-goal"
+  ],
+  "instructions": [
+    "1. Write the request file: {rows: [{id, name, description}], vocabulary (the one the last call returned, or leave it out to start one), models: {writing: {url, model}, meaning: {url, model, dims, forms}}}.",
+    "2. Read the tool with tools:list {tool: \"tool:say-why-a-technique-works\"}, then from the root of the Workshop checkout run its command with the request file as input and read the last line.",
+    "3. Save each returned row's mechanism, operates_on, needs, produces, from_medium and proposed onto your technique record, and keep the returned vocabulary in place of the old one.",
+    "4. Read admitted (each term is \"new\", an alias of an existing term or judged) and unread (rows it could not read), then run tool:cross-techniques-with-a-goal with the rows."
+  ],
+  "worked_examples": [
+    {
+      "title": "One mirror figure technique gets its crossing fields",
+      "ask": "Say why my Mirror figure technique works.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:list",
+          "input": {
+            "tool": "tool:say-why-a-technique-works"
+          }
+        }
+      },
+      "given": "From tools/cross-techniques-with-a-goal/test/say-why-tool.test.mjs (first test): the request holds rows [{id: \"fixture-row\", name: \"Mirror figure\", description: \"A figure the viewer reads as themselves.\"}], an empty vocabulary with mechanism and property sections (reuse_at 0.9, new_below 0.5, no terms) and the two models. The test's scripted writer proposes mechanism \"fixture-mirror\", property \"fixture-self-relevance\", need \"a reader who has the problem\", produces \"the reader feels addressed\", medium \"fixture medium\". I ran it with the test's scripted writer and vectors, so the values are observed from that.",
+      "hands_back": "{\"result\": {\"rows\": [{\"id\": \"fixture-row\", \"mechanism\": [\"fixture-mirror\"], \"operates_on\": [\"fixture-self-relevance\"], \"needs\": [{\"says\": \"a reader who has the problem\", \"property\": \"fixture-self-relevance\"}], \"produces\": [\"the reader feels addressed\"], \"from_medium\": \"fixture medium\", \"proposed\": {the writer's own answer}}], \"vocabulary\": {mechanism terms: [\"fixture-mirror\"], property terms: [\"fixture-self-relevance\"]}, \"admitted\": [{\"term\": \"fixture-mirror\", \"how\": \"new\", \"vocabulary\": \"mechanism\", \"row\": \"fixture-row\"}, {\"term\": \"fixture-self-relevance\", \"how\": \"new\", \"vocabulary\": \"property\", \"row\": \"fixture-row\"}], \"unread\": []}}"
+    }
+  ]
+}

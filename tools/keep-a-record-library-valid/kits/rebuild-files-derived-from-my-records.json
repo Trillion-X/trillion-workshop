@@ -1,40 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:rebuild-files-derived-from-my-records's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:rebuild-files-derived-from-my-records with library, schema, command.\" Rebuild the files that are computed from my source record files, or tell me which of them are out of date, without changing anything",
+  "start_here": "Say to your AI: \"Tell me which derived files in my garden library are stale, and rebuild them if they are.\" It runs tool:rebuild-files-derived-from-my-records with rebuild-data --check first.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of yours: the builders and the files they write are named by the schema file of your own record library.",
   "workflows": [],
   "tools": [
-    "tool:rebuild-files-derived-from-my-records"
+    "tool:rebuild-files-derived-from-my-records",
+    "tool:check-a-record-library"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:rebuild-files-derived-from-my-records\", and give it library, schema, command.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:rebuild-files-derived-from-my-records and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Rebuild the files that are computed from my source record files, or tell me which of them are out of date, without changing anything"
+    "1. Have a library whose schema has a builders section: each row names a source file, a kind (markdown-rows, cross-cards, folder-table, sqlite-rows or json-to-tsv), and the derived file it writes.",
+    "2. Say to your AI: \"Which derived files are stale?\". It reads the row with tools:list and runs python3 -I tools/keep-a-record-library-valid/do-work/keep_a_record_library.py --library <library> --schema <schema> rebuild-data --check . Nothing is written; exit 1 means at least one file is stale.",
+    "3. Read stale and current. Tell the person which files are out of date and why (their source changed or the file does not exist yet).",
+    "4. Only when the person wants the files updated, run rebuild-data (or rebuild-data --out FOLDER to write somewhere else), then rebuild-data --check again: stale should be empty."
   ],
   "worked_examples": [
     {
-      "title": "Rebuild the files derived from my records, or list which are stale (runs on your computer) on a sample input",
-      "ask": "Run tool:rebuild-files-derived-from-my-records.",
+      "title": "Two derived files missing, rebuilt, then one goes stale when its source changes",
+      "ask": "Which derived files in my garden library are stale?",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:rebuild-files-derived-from-my-records",
-            "input": {
-              "library": "<library: The folder the library's files are relative to, put where {library} is in the command>",
-              "schema": "<schema: The schema file on the person's computer, put where {schema} is in the command>",
-              "command": "<command: Either `rebuild-data --check` to list stale files, or `rebuild-data [--out FOLDER]` to write them>"
-            }
+            "tool": "tool:rebuild-files-derived-from-my-records"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Rebuild the files that are computed from my source record files, or tell me which of them are out of date, without changing anything",
-      "given": "The person gives: library, schema, command (shown as <name> in the input)."
+      "given": "Read from tools/keep-a-record-library-valid/read-data/derived_data.py and run for real on a made-up library \"garden\" (plants.md with Basil, Mint and Carrot rows; tasks.json with 2 tasks; schema.json with a markdown-rows builder plants -> derived/plants.json and a json-to-tsv builder tasks -> derived/tasks.tsv; the builders come from test/test_derived_data.py): python3 -I tools/keep-a-record-library-valid/do-work/keep_a_record_library.py --library garden --schema garden/schema.json rebuild-data --check",
+      "hands_back": "Exit 1: {\"stale\": [\"derived/plants.json\", \"derived/tasks.tsv\"], \"current\": [], \"not_checked\": [], \"all_passed\": false}. After rebuild-data: {\"written\": \"<the garden folder>\", \"files\": {\"derived/plants.json\": 543, \"derived/tasks.tsv\": 35}, \"not_written\": []}; derived/plants.json holds count 3 and P-01 Basil (Herbs, tags sun and warm), and derived/tasks.tsv is \"title<TAB>who\", \"water<TAB>Ana\", \"weed<TAB>anyone\". The next --check exits 0 with stale []. After a Thyme row is added to plants.md, --check exits 1 again with stale [\"derived/plants.json\"] and current [\"derived/tasks.tsv\"]."
     }
-  ]
+  ],
+  "drafted_from": "tool:rebuild-files-derived-from-my-records's row in tools/keep-a-record-library-valid/tool-rows.json, do-work/keep_a_record_library.py and read-data/*.py, and the fixtures and tests in tools/keep-a-record-library-valid/test/; the worked run was executed here on the made-up greenhouse fixtures"
 }

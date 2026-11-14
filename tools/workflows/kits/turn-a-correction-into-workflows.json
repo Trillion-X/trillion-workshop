@@ -1,22 +1,25 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:turn-a-correction-into-workflows's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:turn-a-correction-into-workflows.\" When the person corrects how you worked, name each thing you did wrong in their words, find what made you do it, apply the fix to every part of the work it touches, and keep each fix as a workflow on the marketplace (improving the one that already does that job, or saving a variation that names where it came from), so no AI on any account repeats it.",
+  "start_here": "Say to your AI: \"Run workflow:turn-a-correction-into-workflows with my correction: 'You wrote the reply in a hurry and never checked it against my saved replies, and you left the price out of every one.'\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps each fix as a workflow row in the workflow recipes and publishes it to the marketplace, not as rows of a list of the person's.",
   "workflows": [
-    "workflow:turn-a-correction-into-workflows"
+    "workflow:turn-a-correction-into-workflows",
+    "workflow:bring-in-my-processes"
   ],
-  "tools": [],
+  "tools": [
+    "tool:start-a-recipe-run"
+  ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:turn-a-correction-into-workflows\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:turn-a-correction-into-workflows) and works through its steps in order: name, cause, apply, keep.",
-    "3. Read what each step hands back; the last step is keep."
+    "1. Copy your correction exactly as you wrote or said it (at least 10 characters); do not tidy it, the steps quote your own words.",
+    "2. Say \"Run workflow:turn-a-correction-into-workflows\" with that correction as the correction input.",
+    "3. Step name splits it into each separate thing done wrong, quoting your words; step cause names the habit, missing instruction, missing check or missing tool behind each (a one-off slip is not a cause).",
+    "4. Step apply fixes the piece in front of you and every other part of the same work it touches, saying what changed and where.",
+    "5. Step keep searches the workflow recipes for one that already does that job and improves it (when it is yours), saves a variation naming where it came from (when it is someone else's) or saves a new one, and publishes it when nothing in it is private; read the workflow ids it hands back."
   ],
   "worked_examples": [
     {
-      "title": "Turn a correction into workflows from its first step",
-      "ask": "Run workflow:turn-a-correction-into-workflows.",
+      "title": "One correction is split into two things done wrong",
+      "ask": "Here is my correction: you wrote the reply in a hurry and never checked it against my saved replies, and you left the price out of every one.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,15 +30,16 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:turn-a-correction-into-workflows",
-              "correction": "<correction: The person's words, exactly as they wrote or said them>"
+              "correction": "You wrote the reply in a hurry and never checked it against my saved replies, and you left the price out of every one."
             }
           }
         }
       },
       "workflow": "workflow:turn-a-correction-into-workflows",
       "step": "name",
-      "hands_back": "Step name answers with wrongs.",
-      "given": "The person gives: correction (shown as <name> in the input)."
+      "given": "Read from the name step of workflow:turn-a-correction-into-workflows in tools/workflows/recipes/workflows.json: the step splits the correction into each separate thing that went wrong and quotes the person's words for each (wrongs need an id, their_words of at least 5 and what_i_did of at least 10 characters).",
+      "hands_back": "{\"wrongs\":[{\"id\":\"unchecked-reply\",\"their_words\":\"never checked it against my saved replies\",\"what_i_did\":\"Wrote the reply from scratch and handed it over without reading the saved replies list.\"},{\"id\":\"price-left-out\",\"their_words\":\"you left the price out of every one\",\"what_i_did\":\"Left the price out of each reply even where the saved reply for that question includes it.\"}]}"
     }
-  ]
+  ],
+  "drafted_from": "workflow:turn-a-correction-into-workflows row (input_schema and steps name, cause, apply, keep)"
 }

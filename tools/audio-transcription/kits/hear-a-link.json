@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:hear-a-link's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:hear-a-link with url.\" Get the words said in a video or recording at a link, from its captions or heard on my own computer",
+  "drafted_from": "tools/audio-transcription/tool-rows.json, read-data/hear-here.mjs, test/hear-a-link.test.mjs",
+  "start_here": "Say to your AI: \"Get the words said in the video at https://videos.example.com/watch?v=sample, from its captions if it has them.\" It runs tool:hear-a-link and hands back the title, the text and timed segments.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of its own: it reads one link and answers its words; any heard sound is kept as a file, not a list row.",
   "workflows": [],
   "tools": [
     "tool:hear-a-link"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:hear-a-link\", and give it url.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:hear-a-link and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields url, title, duration_seconds, text, segments, language, heard_whole, source."
+    "1. Install a link reader such as yt-dlp on your computer; for pages with no captions also keep whisper-cli, ffmpeg and a ggml Whisper model file.",
+    "2. Say \"Get the words of the video at <link>\", and give the link as url (add model_path for a page that has no captions).",
+    "3. The AI runs tool:hear-a-link with {url}; the page's own captions win, otherwise its sound is fetched and heard here and kept in /Heard links unless keep_sound is false.",
+    "4. Read what comes back: url, title, duration_seconds, text, segments, language, source (captions or heard). A link with no words fails and says why."
   ],
   "worked_examples": [
     {
-      "title": "Hear the words of a video or recording at a link on a sample input",
-      "ask": "Run tool:hear-a-link.",
+      "title": "A link with captions is answered from its captions without hearing the sound",
+      "ask": "Get the words said in the video at https://videos.example.com/watch?v=sample.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,7 +31,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields url, title, duration_seconds, text, segments, language, heard_whole, source."
+      "given": "From the sample-run in tools/audio-transcription/tool-rows.json and tools/audio-transcription/test/hear-a-link.test.mjs (a page with captions answers its captions without fetching the sound): the stand-in link reader reports title Sample garden talk, duration 12.5 and writes a two-cue captions.en.vtt. The answer was worked out from read-data/hear-here.mjs (hearALink, captionWords), not run here.",
+      "hands_back": "{\"url\":\"https://videos.example.com/watch?v=sample\",\"title\":\"Sample garden talk\",\"duration_seconds\":12.5,\"text\":\"Welcome to the sample garden talk. Today we plant tomatoes.\",\"segments\":[{\"start\":0,\"end\":2.5,\"text\":\"Welcome to the sample garden talk.\"},{\"start\":2.5,\"end\":5,\"text\":\"Today we plant tomatoes.\"}],\"language\":\"en\",\"heard_whole\":true,\"source\":\"captions\",\"produced_by\":\"captions on the page, read on this computer\"}"
     }
   ]
 }

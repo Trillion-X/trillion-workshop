@@ -2,7 +2,6 @@
  "about": "The Workshop items that shipped before every item carried its kit (L082, tools/workflows/kit-template.json), as of the date below. test-helpers/every-item-kit.mjs refuses any other item with no kit, refuses an id here that now has a kit or is gone, and the hooks refuse a commit or push that adds an id here: this list only shrinks. Give an item its kit file (<item folder>/kits/<id without its prefix>.json), then take its id out.",
  "dated": "2026-11-13",
  "workflows": [
-  "workflow:grow-the-one-tree",
   "workflow:plan-a-launch-as-a-content-campaign",
   "workflow:read-the-week-and-make-more-of-what-won",
   "workflow:run-a-slideshow-page-that-sells-a-small-digital-product",
@@ -10,39 +9,10 @@
   "workflow:turn-something-shared-into-what-you-can-use"
  ],
  "tools": [
-  "tool:answer-a-checks-questions-with-a-model-on-this-computer",
-  "tool:calibrate-a-checks-questions-on-lines-i-ruled-on",
   "tool:fill-a-scripts-blanks-with-small-local-models",
-  "tool:check-against-a-persons-rules-and-verdicts",
-  "tool:check-a-films-copy",
-  "tool:connect-an-account-by-signing-in-to-the-service",
-  "tool:import-my-conversations-from-a-source",
-  "tool:resume-importing-my-conversations",
-  "tool:cross-techniques-with-a-goal",
-  "tool:say-why-a-technique-works",
-  "tool:export-a-markdown-book-to-word",
-  "tool:ask-people-for-words",
-  "tool:keep-the-words-a-person-gave",
-  "tool:approve-words-to-show",
   "tool:read-words-that-may-show",
-  "tool:say-with-a-voice-model",
-  "tool:voices",
-  "tool:answer-the-calendar-page-route",
-  "tool:render-an-edit",
-  "tool:export-editor-timeline",
-  "tool:place-pursuits-on-a-life-map",
-  "tool:answer-the-configurations-page",
-  "tool:see-a-pursuit-through-the-lens",
   "tool:read-business",
-  "tool:look",
-  "tool:get-started",
-  "tool:business",
   "tool:send-each-post-at-its-time",
-  "tool:total-a-list-or-view",
-  "tool:prepare-ad-conversions",
-  "tool:watch-my-sources",
-  "tool:keep-rulings-on-lines",
-  "tool:make-examples-from-rulings",
-  "tool:count-real-rulings"
+  "tool:prepare-ad-conversions"
  ]
 }

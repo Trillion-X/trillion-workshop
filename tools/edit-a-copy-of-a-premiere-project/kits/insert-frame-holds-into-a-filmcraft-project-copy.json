@@ -1,42 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:insert-frame-holds-into-a-filmcraft-project-copy's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:insert-frame-holds-into-a-filmcraft-project-copy with project, output, shots, out, shot_ids.\" Make a new copy of my FilmCraft project with each rendered correction put in at its freeze frame: a frame hold of the same clip, the overlay on the third video track, the voice and the music and sound effects on the second and third audio tracks",
+  "drafted_from": "tool:insert-frame-holds-into-a-filmcraft-project-copy row, do-work/filmcraft_insert_frame_holds.py and test/test_filmcraft_insert.py (test_the_command_writes_a_new_project_and_prints_one_answer); the answer was observed by running the command on the test's made-up project and ffmpeg-made correction files",
+  "start_here": "Say to your AI: \"Make a copy of my FilmCraft project film/in.fcproj as film/new.fcproj with my rendered correction s1 inserted as a frame hold, using the shots in film/shots and the renders in film/out.\" It runs the tool and tells you where the hold landed.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It reads a FilmCraft project file, shot files and rendered media files and writes a new project file; it names no list of yours.",
   "workflows": [],
   "tools": [
-    "tool:insert-frame-holds-into-a-filmcraft-project-copy"
+    "tool:insert-frame-holds-into-a-filmcraft-project-copy",
+    "tool:edit-a-copy-of-a-premiere-project"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:insert-frame-holds-into-a-filmcraft-project-copy\", and give it project, output, shots, out, shot_ids.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:insert-frame-holds-into-a-filmcraft-project-copy and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Make a new copy of my FilmCraft project with each rendered correction put in at its freeze frame: a frame hold of the same clip, the overlay on the third video track, the voice and the music and sound effects on the second and third audio tracks"
+    "1. Put each shot's file in a folder (film/shots/s1.json holds {\"plate\": {\"source\": \"<the plate's media path in the project>\", \"frame\": 48}}) and its three renders in film/out/s1/: s1-overlay-prores4444.mov, s1-narrator.wav and s1-sfx-music.wav.",
+    "2. Read the tool with tools:list {tool: \"tool:insert-frame-holds-into-a-filmcraft-project-copy\"}, then from the root of the Workshop checkout run its command with the project, a NEW output file, --shots, --out and the shot ids in order.",
+    "3. Read the last line: {\"result\": {\"output\", \"inserts\": [{\"shot\", \"frames\", \"seconds\", \"at_seconds\", \"hold_frame\"}]}} or {\"error\": ...}, which says what to change (a missing shot file, a missing render, a plate not in the project or a frame no clip holds).",
+    "4. Open the new project in FilmCraft; the input project is never written."
   ],
   "worked_examples": [
     {
-      "title": "Insert my rendered corrections into a copy of my FilmCraft project as editable clips (runs on your computer) on a sample input",
-      "ask": "Run tool:insert-frame-holds-into-a-filmcraft-project-copy.",
+      "title": "One correction becomes a half-second frame hold at 2 seconds",
+      "ask": "Insert my rendered correction s1 into a copy of my FilmCraft project.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:insert-frame-holds-into-a-filmcraft-project-copy",
-            "input": {
-              "project": "<project: The input .fcproj, put where {project} is in the command>",
-              "output": "<output: The new .fcproj to write, put where {output} is>",
-              "shots": "<shots: The folder of <shot id>.json files, put where {shots} is>",
-              "out": "<out: The folder holding <shot id>/<shot id>-overlay-prores4444.mov, <shot id>-narrator.wav and <shot id>-sfx-music.wav, put where {out} is>",
-              "shot_ids": []
-            }
+            "tool": "tool:insert-frame-holds-into-a-filmcraft-project-copy"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Make a new copy of my FilmCraft project with each rendered correction put in at its freeze frame: a frame hold of the same clip, the overlay on the third video track, the voice and the music and sound effects on the second and third audio tracks",
-      "given": "The person gives: project, output, shots, out (shown as <name> in the input)."
+      "given": "From tools/edit-a-copy-of-a-premiere-project/test/test_filmcraft_insert.py: the AI runs `python3 -I tools/edit-a-copy-of-a-premiere-project/do-work/filmcraft_insert_frame_holds.py film/in.fcproj film/new.fcproj --shots film/shots --out film/out s1`. The project is one 24 fps sequence with one 10 s clip of /made-up/plate.mp4 and its adjustment layer; film/shots/s1.json is {\"id\": \"s1\", \"plate\": {\"source\": \"/made-up/plate.mp4\", \"frame\": 48}}; film/out/s1/ holds a 12-frame ProRes 4444 overlay and two 0.5 s wav files. I ran this exact command, so the answer is observed.",
+      "hands_back": "The first line printed is \"s1: inserted 12 frames (0.500 s) at 2.000 s, hold = source frame 48\", and the last line is {\"result\": {\"output\": \"film/new.fcproj\", \"inserts\": [{\"shot\": \"s1\", \"frames\": 12, \"seconds\": 0.5, \"at_seconds\": 2.0, \"hold_frame\": 48}]}}. In film/new.fcproj the sequence is named \"Main + corrections\", the first video track holds the clip to frame 48, a 12-frame hold of frame 48, then the rest moved 12 frames later; the overlay is on video track 3 and the voice and music files on audio tracks 2 and 3."
     }
   ]
 }

@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:reach-local-businesses-by-zip-code's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:reach-local-businesses-by-zip-code.\" Find the local businesses of one kind in a zip code from the person's map data connection, score them on what their reviews say (complaints about slow quotes, a spike in new reviews in the last 90 days), write to the addresses the person keeps (by default their gmail or info@ address) from a separate sending identity with one local detail in the first line, send on Saturday, then call the same list, with replies, bounces and calls recorded and the two openings compared.",
+  "drafted_from": "workflow row in tools/workflows/recipes/workflows.json, the shipped rule row local-businesses-by-place in tools/workflows/read-data/candidate-rules.json and tools/workflows/test/outreach-recipes.test.mjs",
+  "start_here": "Say to your AI: \"Run workflow:reach-local-businesses-by-zip-code for roofers in zip code 00000, sending from hello@example.com (my main domain is example.com) in America/Chicago, SES region us-east-1, under product-roof-quotes, using the businesses my maps connection gives.\"",
   "lists": [],
   "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
@@ -25,14 +24,16 @@
     "tool:write-a-message-body-from-a-document"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:reach-local-businesses-by-zip-code\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:reach-local-businesses-by-zip-code) and works through its steps in order: identity, find, addresses, local-detail, versions, style, write, judge, pace, send, outcomes, record, call, call-outcomes, compare.",
-    "3. Read what each step hands back; the last step is compare."
+    "1. Set up a separate sending address on a domain that is not your main one (like hello@example.com, verified in your Amazon SES region) and take the businesses for the zip code and kind from your map data connection as items, each with its reviews.",
+    "2. Say \"Run workflow:reach-local-businesses-by-zip-code\" with zip_code, category, items, from, main_domain, time_zone, product_id and region. The AI starts it with tool:start-a-recipe-run and works the steps identity, find, addresses, local-detail, versions, style, write, judge, pace, send, outcomes, record, call, call-outcomes, compare.",
+    "3. At identity the sending domain must be verified and differ from your main domain, else it stops and tells you.",
+    "4. At find, each business is scored by its reviews (slow-quote complaints weight 3, a spike of new reviews weight 2, 5 or more reviews in 90 days weight 1); only businesses with at least one signal stay, and only addresses matching your patterns (by default a gmail.com or info@ address) are written to.",
+    "5. Approve the emails (a local detail in the first line, two openings compared); they go out on Saturday from the separate address, then the same list is called; the compare step says which opening drew more replies."
   ],
   "worked_examples": [
     {
-      "title": "Reach local businesses by zip code from its first step",
-      "ask": "Run workflow:reach-local-businesses-by-zip-code.",
+      "title": "A roofer with 3 slow-quote reviews and a spike of new reviews scores 5",
+      "ask": "Find roofers in my zip code whose reviews show they need help.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -43,22 +44,45 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:reach-local-businesses-by-zip-code",
-              "zip_code": "<zip_code: The zip or postal code to look in>",
-              "category": "<category: The kind of business, as the map data names it>",
-              "items": [],
-              "from": "<from: The separate sending identity: an address on a domain that is not the person's main domain>",
-              "main_domain": "<main_domain: The person's main domain, which outreach never sends from>",
-              "time_zone": "<time_zone: The businesses' IANA time zone; Saturday and the calling hours are read in it>",
-              "product_id": "<product_id: string>",
-              "region": "<region: The Amazon SES region the sending identity is verified in>"
+              "zip_code": "00000",
+              "category": "roofer",
+              "items": [
+                {
+                  "name": "Example Roofing",
+                  "email": "info@example.com",
+                  "reviews": [
+                    {
+                      "text": "Was slow to quote, waited for a quote two weeks",
+                      "date": "2026-10-20"
+                    },
+                    {
+                      "text": "Never sent a quote",
+                      "date": "2026-09-30"
+                    },
+                    {
+                      "text": "The quote took forever",
+                      "date": "2026-05-02"
+                    },
+                    {
+                      "text": "Fine work",
+                      "date": "2026-04-10"
+                    }
+                  ]
+                }
+              ],
+              "from": "hello@example.com",
+              "main_domain": "example.com",
+              "time_zone": "America/Chicago",
+              "product_id": "product-roof-quotes",
+              "region": "us-east-1"
             }
           }
         }
       },
       "workflow": "workflow:reach-local-businesses-by-zip-code",
-      "step": "identity",
-      "hands_back": "Step identity answers with tool, sending_domain, verified, separate_from_main.",
-      "given": "The person gives: zip_code, category, from, main_domain, time_zone, product_id, region (shown as <name> in the input)."
+      "step": "find",
+      "given": "From tools/workflows/test/outreach-recipes.test.mjs: a business whose numbers are slow_quote_reviews 3, recent_reviews 2 and recent_review_share 0.5, scored with the shipped row local-businesses-by-place, matches slow-quotes (3 is at least 2, weight 3) and review-spike (0.5 is at least 0.4, weight 2) but not new-reviews (2 is under 5), so its score is 5 and it is kept.",
+      "hands_back": "{\"tool\":\"tool:classify-a-record\",\"zip_code\":\"00000\",\"from_domain\":\"mail.example.com\",\"source\":\"local-businesses-by-place\",\"prospects\":[{\"key\":\"example-roofing\",\"name\":\"Example Roofing\",\"email\":\"info@example.com\",\"signals\":[\"slow-quotes\",\"review-spike\"],\"score\":5}]}"
     }
   ]
 }

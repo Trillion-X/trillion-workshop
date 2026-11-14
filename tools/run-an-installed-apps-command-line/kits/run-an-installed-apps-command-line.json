@@ -1,39 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:run-an-installed-apps-command-line's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:run-an-installed-apps-command-line with app, entry.\" Run the command-line tool that came inside an app I installed, without installing it again",
+  "drafted_from": "tool:run-an-installed-apps-command-line row in tool-rows.json, do-work/run-installed-cli and test/run-installed-cli.test.mjs",
+  "start_here": "Say to your AI: \"Run the command line inside my installed Zorblet app with render --out clip.mp4; the entry is Contents/Resources/app.asar.unpacked/node_modules/zorblet/bin/zorblet.mjs.\" It runs the app's own program on your computer and reports what it printed and its exit code.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list: it launches the command-line entry an installed app keeps inside itself and passes the app's own output and exit code back.",
   "workflows": [],
   "tools": [
     "tool:run-an-installed-apps-command-line"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:run-an-installed-apps-command-line\", and give it app, entry.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:run-an-installed-apps-command-line and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Run the command-line tool that came inside an app I installed, without installing it again"
+    "1. Find where the app is installed (for example /Applications/Zorblet.app) and look inside it for its command-line entry; for an Electron app it is usually under Contents/Resources/app.asar.unpacked/node_modules/<name>/bin/.",
+    "2. Say \"Run the command line of <app>\" with the app, the entry and the app's own arguments; your AI reads the row with tools:list and runs `sh tools/run-an-installed-apps-command-line/do-work/run-installed-cli <app> <entry> <arguments>` from the Workshop checkout, each argument quoted as one word.",
+    "3. Read what the app printed and its exit code: a .mjs, .cjs or .js entry runs under node, any other entry runs as itself, and every argument is passed through unchanged.",
+    "4. Exit code 2 with {\"error\": \"what to pass\"} on standard error means the app or entry is missing or the entry is not a program; pass what it asks for and run it again."
   ],
   "worked_examples": [
     {
-      "title": "Run the command line an installed app keeps inside itself (runs on your computer) on a sample input",
-      "ask": "Run tool:run-an-installed-apps-command-line.",
+      "title": "A made-up app's JavaScript entry gets its arguments exactly",
+      "ask": "Run the command line inside my Zorblet app: render --out \"a file with spaces.mp4\".",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:run-an-installed-apps-command-line",
-            "input": {
-              "app": "<app: Where the app is installed, put where {app} is in the command (e.g>",
-              "entry": "<entry: The command-line entry's path inside the app, put where {entry} is in the command (e.g>"
-            }
+            "tool": "tool:run-an-installed-apps-command-line"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Run the command-line tool that came inside an app I installed, without installing it again",
-      "given": "The person gives: app, entry (shown as <name> in the input)."
+      "given": "From tools/run-an-installed-apps-command-line/test/run-installed-cli.test.mjs: the app is Zorblet.app, whose entry Contents/Resources/app.asar.unpacked/node_modules/zorblet/bin/zorblet.mjs prints the JSON of its arguments. The command line is `sh tools/run-an-installed-apps-command-line/do-work/run-installed-cli Zorblet.app Contents/Resources/app.asar.unpacked/node_modules/zorblet/bin/zorblet.mjs render --out 'a file with spaces.mp4' ''`.",
+      "hands_back": "Standard output {\"argv\":[\"render\",\"--out\",\"a file with spaces.mp4\",\"\"]} and exit code 0: node ran the entry and every argument arrived as one word, the empty one too. With the environment ZORBLET_EXIT=7 the exit code is 7; for an entry that is not a program (notes.txt) it exits 2 and prints {\"error\": \"... is not executable: pass the app's command-line program, or a .mjs, .cjs or .js entry\"} on standard error."
     }
   ]
 }

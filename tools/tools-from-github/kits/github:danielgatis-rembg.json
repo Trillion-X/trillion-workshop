@@ -1,35 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:github:danielgatis-rembg's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:github:danielgatis-rembg with nothing more.\" Remove the background from an image to make a cutout with a transparent background",
+  "drafted_from": "tool:github:danielgatis-rembg's row in tools/tools-from-github/tool-rows.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic names filled in. What it prints or writes is read from the tool's documented behavior; the folder test test/index-github-tools.test.mjs only checks the row, never runs rembg.",
+  "start_here": "Say to your AI: \"Use rembg on my computer to remove the background from an image to make a cutout with a transparent background: the file is loaf.jpg.\" It reads the row, installs rembg if it is missing, runs it on that one file and shows you what it made.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: rembg is a program that runs on the person's own computer and works on the one file or address it is handed.",
   "workflows": [],
   "tools": [
     "tool:github:danielgatis-rembg"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:github:danielgatis-rembg\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:github:danielgatis-rembg and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Remove the background from an image to make a cutout with a transparent background"
+    "1. Say to your AI: \"Use rembg on loaf.jpg\". It reads the row with run_resource_operation at @workshop-tools, method tools:list, input {tool: \"tool:github:danielgatis-rembg\"}.",
+    "2. It checks that python are on your computer, and if rembg is missing it runs the get_it steps: git clone https://github.com/danielgatis/rembg.git ; pip install \"rembg[cpu,cli]\".",
+    "3. It runs the row's command with your file in place of {input} and where the result goes in place of {output}: rembg i loaf.jpg loaf-cutout.png",
+    "4. Read what it shows you and open the result. Trillion runs none of this; it all happens on your own computer."
   ],
   "worked_examples": [
     {
-      "title": "rembg (open source, runs on your computer) on a sample input",
-      "ask": "Run tool:github:danielgatis-rembg.",
+      "title": "rembg on a product photo of a loaf of bread on a kitchen table",
+      "ask": "Use rembg on loaf.jpg.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:github:danielgatis-rembg",
-            "input": {}
+            "tool": "tool:github:danielgatis-rembg"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Remove the background from an image to make a cutout with a transparent background"
+      "given": "Read from tools/tools-from-github/tool-rows.json: tool:github:danielgatis-rembg runs on your computer, so after tools:list the AI runs, in the folder it got rembg in, the command line: rembg i loaf.jpg loaf-cutout.png  (synthetic input: a product photo of a loaf of bread on a kitchen table).",
+      "hands_back": "rembg prints nothing and writes loaf-cutout.png: the same loaf with the table and kitchen removed, on a transparent background."
     }
   ]
 }

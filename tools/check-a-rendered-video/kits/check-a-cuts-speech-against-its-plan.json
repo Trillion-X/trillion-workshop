@@ -1,42 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:check-a-cuts-speech-against-its-plan's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-a-cuts-speech-against-its-plan with input, timeline, output, kinds.\" Listen to the cut you made from my plan: how loud it is, where it goes silent too long, whether every line I planned is heard and starts and ends where it should, and show me a few frames",
+  "drafted_from": "tool row in tools/check-a-rendered-video/tool-rows.json, do-work/check_cut_speech.py and test/test_plan_and_cut_speech.py (CutSpeech), which I ran with the test's tone-word stand-in speech reader",
+  "start_here": "Say to your AI: \"Listen to my cut /work/cut.mp4 against its timeline /work/timeline.json for the ask and reply lines, and show me the first ask, the middle reply and the last reply.\" It reads the tool's row and runs check_cut_speech.py on your computer.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of its own: it reads the plans, recordings and settings file it is given on the person's computer and writes one report file.",
   "workflows": [],
   "tools": [
     "tool:check-a-cuts-speech-against-its-plan",
     "tool:assemble-a-plan-into-a-cut"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-a-cuts-speech-against-its-plan\", and give it input, timeline, output, kinds.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-cuts-speech-against-its-plan and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Listen to the cut you made from my plan: how loud it is, where it goes silent too long, whether every line I planned is heard and starts and ends where it should, and show me a few frames"
+    "1. Make the cut with tool:assemble-a-plan-into-a-cut so you have the cut video and its timeline.json (each segment's kind, text, start and length).",
+    "2. Choose which spoken kinds to read (for example ask,reply) and which frames to see (kind:first, kind:middle or kind:last).",
+    "3. The AI reads the row with tools:list {tool: tool:check-a-cuts-speech-against-its-plan} and runs its `run` command with --cut, --timeline, --work, --kinds and --frames; a speech reader is mlx-whisper on Apple silicon or a command given with --reader.",
+    "4. Read the last line {\"result\": {report, lufs, silences, to_check, frames, listened_by}}: tell the person the loudness, each long silence, each segment to check with the words missing or heard at its ends, and show the frames. When listened_by is null say plainly that nobody has listened to this cut yet; never set it yourself."
   ],
   "worked_examples": [
     {
-      "title": "Hear a made cut against its plan: loudness, long silences and every spoken line (runs on your computer) on a sample input",
-      "ask": "Run tool:check-a-cuts-speech-against-its-plan.",
+      "title": "A reply that runs into the next word",
+      "ask": "Listen to my cut against its timeline and show me the frames.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:check-a-cuts-speech-against-its-plan",
-            "input": {
-              "input": "<input: The made cut, put where {input} is>",
-              "timeline": "<timeline: Its timeline.json, put where {timeline} is>",
-              "output": "<output: The folder the frames and the report (verify.json) go to, put where {output} is>",
-              "kinds": "<kinds: Comma list of the spoken segment kinds to read, put where {kinds} is>"
-            }
+            "tool": "tool:check-a-cuts-speech-against-its-plan"
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Listen to the cut you made from my plan: how loud it is, where it goes silent too long, whether every line I planned is heard and starts and ends where it should, and show me a few frames",
-      "given": "The person gives: input, timeline, output, kinds (shown as <name> in the input)."
+      "given": "From tools/check-a-rendered-video/test/test_plan_and_cut_speech.py (test_a_reply_that_runs_into_the_next_word_is_listed_with_the_frames_and_silence), which I ran. The cut is a 320x180 test picture with the eight tone words alpha to hotel; the timeline has an ask \"Alpha bravo?\" (0.0, 1.3 s), a reply \"Charlie, delta echo.\" (1.3, 1.8 s), a reply \"Foxtrot golf.\" (3.1, 1.8 s) and a card (4.9, 0.5 s). Command: python3 tools/check-a-rendered-video/do-work/check_cut_speech.py --cut /work/cut.mp4 --timeline /work/timeline.json --work /work/one --kinds ask,reply --frames ask:first,reply:middle,reply:last (the test adds --always-show ask and its stand-in reader). It exits 2.",
+      "hands_back": "{\"result\": {\"report\": \"/work/one/verify.json\", \"lufs\": -15.6, \"silences\": [1.813208], \"to_check\": [2], \"frames\": [\"/work/one/frame1.jpg\", \"/work/one/frame2.jpg\", \"/work/one/frame3.jpg\"], \"listened_by\": null}} Above it: \"cut.mp4 LUFS -15.6 silences over 1 s: [1.813208]\", \"reply seg 2 100%   HEARD ENDS ['foxtrot', 'golf', 'hotel']\" and \"listened_by null: nobody has listened to this cut end to end\". verify.json also holds each segment's share heard, words missing and what was heard (segment 2: foxtrot golf hotel, end_off true), and frames.jpg lays the frames side by side."
     }
   ]
 }

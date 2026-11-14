@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:method-build-the-real-thing's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:method-build-the-real-thing.\" Build a capability as the real running product people can reach and use, with a generic mechanism (no person, product or vendor in it, every open set a row of data), what it makes possible for free built in the same change, and proof from the running product.",
+  "drafted_from": "workflow:method-build-the-real-thing's row in tools/workflows/recipes/workflows.json (the outcome step's do text, submit shape and its check outcome-example-is-a-probe); no test names it",
+  "start_here": "Say to your AI: \"Run workflow:method-build-the-real-thing for the request: let a bakery owner offer a pre-order box that customers pay for online.\" It answers eight questions, each with its check, and ends with proof from the running product.",
   "lists": [],
   "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
@@ -9,14 +8,15 @@
   ],
   "tools": [],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:method-build-the-real-thing\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-build-the-real-thing) and works through its steps in order: outcome, delete, rule-out, owner, combine, smallest-change, risk, production, proof.",
-    "3. Read what each step hands back; the last step is proof."
+    "1. Say \"Run workflow:method-build-the-real-thing\" with request set to the capability you want built as a real running product.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-build-the-real-thing, input {request}) and works through its steps in order: outcome, delete, rule-out, owner, combine, smallest-change, risk, production, proof.",
+    "3. Each step takes {answer, checks}: the answer is at least 40 characters about this request only, and every named check gets its own answer of at least 20 characters.",
+    "4. Read the proof step last: it names what shows success, what shows failure, how it is checked independently, and the date."
   ],
   "worked_examples": [
     {
-      "title": "Build the real thing people use, not a demo from its first step",
-      "ask": "Run workflow:method-build-the-real-thing.",
+      "title": "Name the change for a pre-order box",
+      "ask": "Run workflow:method-build-the-real-thing for the request: let a bakery owner offer a pre-order box that customers pay for online.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,15 +27,15 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:method-build-the-real-thing",
-              "request": "<request: What you are deciding, designing or building, in plain words>"
+              "request": "Let a bakery owner offer a pre-order box that customers pay for online."
             }
           }
         }
       },
       "workflow": "workflow:method-build-the-real-thing",
       "step": "outcome",
-      "hands_back": "Step outcome answers with answer, checks.",
-      "given": "The person gives: request (shown as <name> in the input)."
+      "given": "Read from tools/workflows/recipes/workflows.json (workflow:method-build-the-real-thing, step outcome): the step asks who or what is in which state now and which state it should be in, plus the check outcome-example-is-a-probe.",
+      "hands_back": "{\"answer\":\"Today a customer of the bakery cannot reserve a weekend box: they phone and the owner writes it on paper. It should be: the customer picks a box on the site, pays, and the owner sees a row for it. Facts: the site has no order form and the owner keeps a paper list.\",\"checks\":{\"outcome-example-is-a-probe\":\"The bakery box is one case of any small shop selling a limited item ahead of time; a class booking or a farm-share would work through the same order rows with no change to the mechanism.\"}}"
     }
   ]
 }

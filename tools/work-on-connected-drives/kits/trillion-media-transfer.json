@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:trillion-media-transfer's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:trillion-media-transfer with sources, destinations.\" Copy or move files and folders to one or more folders on drives connected to this person's computer, as a long job that can be paused and stopped",
+  "drafted_from": "tool row in tools/work-on-connected-drives/tool-rows.json, code in read-data/drives.mjs and read-data/file-transfer.mjs, test/drives.test.mjs",
+  "start_here": "Say to your AI: \"Check what copying /Volumes/Card/DCIM to /Volumes/Backup/Footage would do, change nothing.\" It runs tool:trillion-media-transfer with check true and tells you whether the copy is ready; then say \"Do it\" and it starts the copy.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It copies or moves the files and folders it is given between connected drives and keeps no list of its own.",
   "workflows": [],
   "tools": [
     "tool:trillion-media-transfer"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:trillion-media-transfer\", and give it sources, destinations.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:trillion-media-transfer and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Copy or move files and folders to one or more folders on drives connected to this person's computer, as a long job that can be paused and stopped"
+    "1. Connect the drives, then note the full paths: what to copy (files or folders, for example /Volumes/Card/DCIM) and the folder on a connected drive it goes to (for example /Volumes/Backup/Footage).",
+    "2. Run it first with check true: tools:run tool:trillion-media-transfer with {\"sources\":[\"/Volumes/Card/DCIM\"],\"destinations\":[\"/Volumes/Backup/Footage\"],\"mode\":\"copy\",\"check\":true}. It changes nothing and answers ready true with the real paths, or an error saying what to change.",
+    "3. Run it again without check (or with check false) to start the job. It copies, checks each copy by its BLAKE3 content identity and only then names it; a name already taken gets the next free one (clip 2.mov). A move sends the source to the Trash only after every copy was checked.",
+    "4. The job runs in the background and can be paused or stopped; follow it with tool:trillion-media-work and change it with tool:trillion-media-work-control."
   ],
   "worked_examples": [
     {
-      "title": "Copy or move files between drives on a sample input",
-      "ask": "Run tool:trillion-media-transfer.",
+      "title": "Check a copy of a card to a backup drive without changing anything",
+      "ask": "Check what copying my card's DCIM folder to the Backup drive's Footage folder would do, change nothing.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,17 +27,19 @@
             "tool": "tool:trillion-media-transfer",
             "input": {
               "sources": [
-                "<sources: string>"
+                "/Volumes/Card/DCIM"
               ],
               "destinations": [
-                "<destinations: string>"
-              ]
+                "/Volumes/Backup/Footage"
+              ],
+              "mode": "copy",
+              "check": true
             }
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Copy or move files and folders to one or more folders on drives connected to this person's computer, as a long job that can be paused and stopped",
-      "given": "The person gives: sources, destinations (shown as <name> in the input)."
+      "given": "Read from tools/work-on-connected-drives/read-data/drives.mjs (transfer) and read-data/file-transfer.mjs (preview, validate); test/drives.test.mjs runs the real copy on pretend drives. I could not run it here: it needs a Mac with drives mounted under /Volumes. Synthetic setup: drives Card and Backup are connected, /Volumes/Card/DCIM is a folder and /Volumes/Backup/Footage is a folder.",
+      "hands_back": "The answer's result is {\"ready\":true,\"sources\":[\"/Volumes/Card/DCIM\"],\"destinations\":[\"/Volumes/Backup/Footage\"],\"mode\":\"copy\"} and nothing on either drive changed. With check left out the same input starts the job and answers {\"id\":\"<a new job id>\", ...the worker's progress}."
     }
   ]
 }

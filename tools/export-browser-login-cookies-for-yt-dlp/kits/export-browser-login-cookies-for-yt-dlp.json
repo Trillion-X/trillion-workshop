@@ -1,40 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:export-browser-login-cookies-for-yt-dlp's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:export-browser-login-cookies-for-yt-dlp with browser, profile, output.\" Let yt-dlp download as me: export my browser's YouTube login to a cookies file",
+  "drafted_from": "tools/export-browser-login-cookies-for-yt-dlp/tool-rows.json, do-work/export_cookies.py and test/test_export_cookies.py (made-up encrypted profile)",
+  "start_here": "Say to your AI: \"Export my Arc browser's YouTube login from Profile 1 to ~/private/cookies.txt so yt-dlp can download as me.\" It reads the tool row, asks you before touching your login, and has you run the one command in your own Terminal.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads one browser profile's cookie database and writes a cookies.txt file.",
   "workflows": [],
   "tools": [
     "tool:export-browser-login-cookies-for-yt-dlp"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:export-browser-login-cookies-for-yt-dlp\", and give it browser, profile, output.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:export-browser-login-cookies-for-yt-dlp and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Let yt-dlp download as me: export my browser's YouTube login to a cookies file"
+    "1. Check you are signed in to YouTube in the browser profile you will name (browser arc, brave, chrome, chromium, edge or vivaldi; profile Default, Profile 1 ...).",
+    "2. Install the package once: python3 -m pip install -U cryptography. Say \"Export my browser's YouTube login for yt-dlp\"; your AI reads the row with tools:list.",
+    "3. Run the command it gives you in your own Terminal and choose Always Allow when macOS asks for the browser's Safe Storage key.",
+    "4. Read the last line: {\"result\": {out, cookies, domains, browser, profile}} names the file and its count, {\"error\": ...} says what to change. Then pass the file to yt-dlp with --cookies. The file is your login: keep it private and never share or commit it."
   ],
   "worked_examples": [
     {
-      "title": "Give yt-dlp my browser's YouTube login (runs on your Mac) on a sample input",
-      "ask": "Run tool:export-browser-login-cookies-for-yt-dlp.",
+      "title": "Export YouTube and Google cookies from Arc Profile 1",
+      "ask": "Give yt-dlp my Arc browser's YouTube login.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:export-browser-login-cookies-for-yt-dlp",
-            "input": {
-              "browser": "arc",
-              "profile": "<profile: The profile's folder name under the browser's user data (Default, or Profile 1, Profile 2 ...), put where {profile} is in the command>",
-              "output": "<output: The cookies.txt to write, put where {output} is in the command; keep it outside any shared or synced folder>"
-            }
+            "tool": "tool:export-browser-login-cookies-for-yt-dlp"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Let yt-dlp download as me: export my browser's YouTube login to a cookies file",
-      "given": "The person gives: profile, output (shown as <name> in the input)."
+      "given": "From tools/export-browser-login-cookies-for-yt-dlp/test/test_export_cookies.py (a made-up profile holding 3 youtube.com and google.com cookies and 1 example.org cookie) and do-work/export_cookies.py. After tools:list the AI gives you: python3 -I tools/export-browser-login-cookies-for-yt-dlp/do-work/export_cookies.py --browser arc --profile \"Profile 1\" --out ~/private/cookies.txt. Your profile is assumed to hold 3 youtube.com and google.com cookies.",
+      "hands_back": "The last line printed is {\"result\": {\"out\": \"~/private/cookies.txt\", \"cookies\": 3, \"domains\": [\"youtube.com\", \"google.com\"], \"browser\": \"arc\", \"profile\": \"Profile 1\"}}. cookies.txt starts with the line # Netscape HTTP Cookie File, then one tab-separated line per cookie (e.g. .youtube.com, TRUE, /, TRUE, the expiry, TOKA, its decrypted value), and is readable by its owner only (mode 600); the example.org cookie is not written."
     }
   ]
 }

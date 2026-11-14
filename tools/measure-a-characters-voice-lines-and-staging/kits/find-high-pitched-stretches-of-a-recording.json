@@ -1,39 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:find-high-pitched-stretches-of-a-recording's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:find-high-pitched-stretches-of-a-recording with audio, out_dir.\" Find where a recording has speech in a high pitch band, as a first look for a character voiced well above the rest of the cast",
+  "drafted_from": "tool:find-high-pitched-stretches-of-a-recording's row in tools/measure-a-characters-voice-lines-and-staging/tool-rows.json, its script in tools/measure-a-characters-voice-lines-and-staging/do-work/ and the tests in tools/measure-a-characters-voice-lines-and-staging/test/",
+  "start_here": "Say to your AI: \"Find the stretches of recordings/vid-a.wav spoken between 200 and 600 Hz and write them to the pitch folder.\" It runs tool:find-high-pitched-stretches-of-a-recording on your computer.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of its own: it reads one settings row of yours (record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>) or the settings you pass, and works on files in the show's folder.",
   "workflows": [],
   "tools": [
-    "tool:find-high-pitched-stretches-of-a-recording"
+    "tool:find-high-pitched-stretches-of-a-recording",
+    "tool:find-when-a-character-speaks"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:find-high-pitched-stretches-of-a-recording\", and give it audio, out_dir.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-high-pitched-stretches-of-a-recording and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Find where a recording has speech in a high pitch band, as a first look for a character voiced well above the rest of the cast"
+    "1. Clone the repository https://github.com/Trillion-X/trillion-workshop and check the needs listed on the row (python 3 and its libraries, ffmpeg where named).",
+    "2. Your AI reads the row with run_resource_operation at @workshop-tools, method tools:list and input {\"tool\":\"tool:find-high-pitched-stretches-of-a-recording\"}, saves your settings row (records:read record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>) to a file and puts it in the request as settings_record, or passes settings.",
+    "3. It runs: python3 -I trillion-workshop/tools/measure-a-characters-voice-lines-and-staging/do-work/find_voice_by_pitch.py < REQUEST.json. REQUEST.json holds audio (one recording), out_dir and your band as settings or settings_record.",
+    "4. Run show/show_runs.py <out_dir>/<id>.json <captions.json3> to see each run with its caption words, then say which runs are the character; pitch alone also catches every other high voice, so use tool:find-when-a-character-speaks to tell them apart."
   ],
   "worked_examples": [
     {
-      "title": "Find the stretches of a recording spoken in a character's high pitch band (runs on your computer) on a sample input",
-      "ask": "Run tool:find-high-pitched-stretches-of-a-recording.",
+      "title": "Two high-pitched runs in one recording",
+      "ask": "Find the high-pitched stretches in vid-a.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:find-high-pitched-stretches-of-a-recording",
-            "input": {
-              "audio": "<audio: string>",
-              "out_dir": "<out_dir: string>"
-            }
+            "tool": "tool:find-high-pitched-stretches-of-a-recording"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Find where a recording has speech in a high pitch band, as a first look for a character voiced well above the rest of the cast",
-      "given": "The person gives: audio, out_dir (shown as <name> in the input)."
+      "given": "Read from tools/measure-a-characters-voice-lines-and-staging/do-work/find_voice_by_pitch.py (no test runs it: it needs librosa and ffmpeg). The AI reads the row with tools:list, then runs python3 -I trillion-workshop/tools/measure-a-characters-voice-lines-and-staging/do-work/find_voice_by_pitch.py < REQUEST.json with REQUEST.json = {\"audio\": \"recordings/vid-a.wav\", \"out_dir\": \"pitch\", \"settings\": {\"pitch_run_band_low_hz\": 200.0, \"pitch_run_band_high_hz\": 600.0}}; the recording's voiced pitch holds two runs of at least 0.5 s in 200-600 Hz, 8.5-10.0 s and 30.0-35.0 s.",
+      "hands_back": "{\"result\": {\"id\": \"vid-a\", \"json\": \"pitch/vid-a.json\", \"hi_s\": 6.5, \"runs\": 2}}; pitch/vid-a.json lists the two runs (start, end, f0_median, hi_share) and pitch/vid-a.f0.npy holds the pitch of each voiced frame."
     }
   ]
 }

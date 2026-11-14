@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:post-on-social-channels-on-a-schedule's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:post-on-social-channels-on-a-schedule.\" Write a week of posts for each channel the business uses, have the person approve them, set each to go at its time, and read the results after a week.",
+  "drafted_from": "workflow row in tools/workflows/recipes/workflows.json (steps, submit shapes), the shipped list rows in tools/workflows/kit-lists.json and the lists' own definitions; values synthetic",
+  "start_here": "Say to your AI: \"Run workflow:post-on-social-channels-on-a-schedule for Sunrise Bakery: one post a day on Instagram and X for the next 7 days, in my voice, and wait for my yes before anything is set to go.\"",
   "lists": [
     {
       "list": "list:business-setup-checklist",
@@ -290,14 +289,16 @@
     "tool:set-a-post-to-go-at-its-time"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:post-on-social-channels-on-a-schedule\".",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:post-on-social-channels-on-a-schedule) and works through its steps in order: read-facts, write-the-batch, check-the-batch-words, draft-the-posts, approve-the-batch, set-the-posts-to-go, confirm-the-at-its-time-send, read-results, record-the-stage.",
-    "3. Read what each step hands back; the last step is record-the-stage."
+    "1. Make sure the facts row record:business-setup:facts exists (workflow:set-up-a-business-on-trillion writes it) with channels, posts_per_day (1 to 5) and owner_name; pour the example word checks into your own rules list (see pour) or make list:word-checks from them.",
+    "2. Say \"Run workflow:post-on-social-channels-on-a-schedule\". The AI starts it with tool:start-a-recipe-run and works the steps in order: read-facts, write-the-batch, check-the-batch-words, draft-the-posts, approve-the-batch, set-the-posts-to-go, confirm-the-at-its-time-send, read-results, record-the-stage.",
+    "3. Read the batch it shows you (one line per post: channel, time, caption) and answer \"approve all\" or name the post ids to change; only your reply approves a post.",
+    "4. Check the answer of set-the-posts-to-go: a post listed under not_ready names what its place is missing; fix it and run that step again.",
+    "5. After a week the read-results step gives each post its visits and conversions; the record-the-stage step ticks social-posting on list:business-setup-checklist and lists open gaps on list:business-setup-gaps."
   ],
   "worked_examples": [
     {
-      "title": "Post on social channels on a schedule from its first step",
-      "ask": "Run workflow:post-on-social-channels-on-a-schedule.",
+      "title": "The week is written: one post a day on two channels",
+      "ask": "Write my social posts for the next 7 days.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -313,8 +314,9 @@
         }
       },
       "workflow": "workflow:post-on-social-channels-on-a-schedule",
-      "step": "read-facts",
-      "hands_back": "Step read-facts answers with facts."
+      "step": "write-the-batch",
+      "given": "Read from tools/workflows/recipes/workflows.json (step write-the-batch): the facts row holds channels [\"instagram\",\"x\"] and posts_per_day 1, so the batch has 7 days x 1 post x 2 channels = 14 posts, ids post-<day>-<slot>-<channel>, no caption repeated.",
+      "hands_back": "{\"posts\":[{\"id\":\"post-1-1-instagram\",\"channel\":\"instagram\",\"caption\":\"Fresh sourdough is out at 7. Come early, the first loaf is on us.\",\"scheduled_for\":\"2026-11-14T08:00:00-06:00\",\"time_zone\":\"America/Chicago\"},{\"id\":\"post-1-1-x\",\"channel\":\"x\",\"caption\":\"Day one: sourdough at 7, cinnamon rolls at 9. Which one do you want?\",\"scheduled_for\":\"2026-11-14T08:00:00-06:00\",\"time_zone\":\"America/Chicago\"}, ... through post-7-1-x], 14 posts in all}"
     }
   ],
   "pour": {

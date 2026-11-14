@@ -1,22 +1,24 @@
 {
-  "draft": true,
-  "drafted_from": "tool:google-account-list_send_as's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:google-account-list_send_as with connection.\" Read Gmail SendAs identities and signatures.",
+  "drafted_from": "tool:google-account-list_send_as's own row in tools/read-and-write-gmail/tool-rows.json (invoke method, url, body_template, input and output schema); Gmail response values worked out from that row for the synthetic input",
+  "start_here": "Say to your AI: \"List the addresses I can send from and their signatures. Use my Google account connection service_connection:google-account:sam-bakery.\" It runs tool:google-account-list_send_as as that account and hands back the Gmail answer.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it calls Gmail for one Google account the connection names and answers what Gmail returns.",
   "workflows": [],
   "tools": [
-    "tool:google-account-list_send_as"
+    "tool:google-account-list_send_as",
+    "tool:google-account-update_send_as_signature",
+    "tool:google-account-clear_primary_signature"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:google-account-list_send_as\", and give it connection.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:google-account-list_send_as and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields sendAs."
+    "1. Connect a Google account in your Workshop connections and note its handle, like service_connection:google-account:sam-bakery.",
+    "2. Say to your AI: \"List the addresses I can send from and their signatures.\" and let it call run_resource_operation at @workshop-tools with method tools:run, tool tool:google-account-list_send_as, and the input {\"connection\":{\"connection_id\":\"service_connection:google-account:sam-bakery\"}}.",
+    "3. Read what comes back: the request goes as GET  the Gmail me-mailbox base (gmail.googleapis.com, v1)/settings/sendAs.",
+    "4. Pick the single row whose isPrimary is true; aliases are outside the signature tools."
   ],
   "worked_examples": [
     {
-      "title": "Read sending addresses and signatures on a sample input",
-      "ask": "Run tool:google-account-list_send_as.",
+      "title": "List my send-as addresses and signatures on a sample input",
+      "ask": "List the addresses I can send from and their signatures.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,14 +29,14 @@
             "tool": "tool:google-account-list_send_as",
             "input": {
               "connection": {
-                "connection_id": "<connection_id: The Google account to use: service_connection:google-account or service_connection:google-account:<account>, as the person's connections list it>"
+                "connection_id": "service_connection:google-account:sam-bakery"
               }
             }
           }
         }
       },
-      "hands_back": "An answer with the fields sendAs.",
-      "given": "The person gives: connection_id (shown as <name> in the input)."
+      "given": "read from tools/read-and-write-gmail/tool-rows.json (its invoke url, method and body_template) and checked against tools/read-and-write-gmail/test/rows.test.mjs. Sam's account has the primary address sam@example.com and the alias orders@example.com. The call it makes: GET the Gmail me-mailbox base (gmail.googleapis.com, v1)/settings/sendAs.",
+      "hands_back": "Gmail answers {\"sendAs\":[{\"sendAsEmail\":\"sam@example.com\",\"isPrimary\":true,\"signature\":\"<div>Sam</div>\"},{\"sendAsEmail\":\"orders@example.com\",\"isPrimary\":false,\"signature\":\"\"}]}. The row with isPrimary true is the one update_send_as_signature and clear_primary_signature take."
     }
   ]
 }

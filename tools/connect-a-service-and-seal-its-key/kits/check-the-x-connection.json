@@ -1,22 +1,23 @@
 {
-  "draft": true,
-  "drafted_from": "tool:check-the-x-connection's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-the-x-connection with account_id.\" Check that the person's X connection still reaches its account, and say which account it is",
+  "drafted_from": "tool:check-the-x-connection's row in tools/connect-a-service-and-seal-its-key/tool-rows.json (job, description: the X \"who am I\" call returns data.id and data.username) and sign-in-settings.json (the connect tool runs it as the x verify step); the folder test has no stand-in for X's answer, so the reply is the shape the row's description gives, with made-up values",
+  "start_here": "Say to your AI: \"Check that my X connection service_connection:x:sams_bakery still works and tell me which account it is.\" It runs tool:check-the-x-connection and names the X account the sign-in reaches, changing nothing.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it asks X one read-only question for the connection it is handed and answers X's reply.",
   "workflows": [],
   "tools": [
-    "tool:check-the-x-connection"
+    "tool:check-the-x-connection",
+    "tool:connect-an-account-by-signing-in-to-the-service"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-the-x-connection\", and give it account_id.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-the-x-connection and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $ holds the result: Check that the person's X connection still reaches its account, and say which account it is"
+    "1. Connect X first if you have not: tool:connect-an-account-by-signing-in-to-the-service with service x gives the connection id (service_connection:x or service_connection:x:<account>).",
+    "2. Say to your AI: \"Check my X connection <that id>\". It calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-the-x-connection and {account_id: <that id>}.",
+    "3. Read what comes back: data.id and data.username of the X account the sign-in reaches. The access token is placed from the vault as the request leaves and is never shown.",
+    "4. If X refuses (an expired or revoked sign-in), connect X again; this tool changes nothing either way."
   ],
   "worked_examples": [
     {
-      "title": "Check the X connection on a sample input",
-      "ask": "Run tool:check-the-x-connection.",
+      "title": "Check a made-up X connection",
+      "ask": "Check that my X connection service_connection:x:sams_bakery still works.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -25,14 +26,12 @@
           "method": "tools:run",
           "input": {
             "tool": "tool:check-the-x-connection",
-            "input": {
-              "account_id": "<account_id: One of the person's X accounts: service_connection:x or service_connection:x:<account>>"
-            }
+            "input": { "account_id": "service_connection:x:sams_bakery" }
           }
         }
       },
-      "hands_back": "The answer's $ holds the result: Check that the person's X connection still reaches its account, and say which account it is",
-      "given": "The person gives: account_id (shown as <name> in the input)."
+      "given": "Read from tools/connect-a-service-and-seal-its-key/tool-rows.json: the row sends the X \"who am I\" request (api.x.com version 2, users, me) with the connection's held access token and answers X's reply as it is (result_selector $). Input: {\"account_id\":\"service_connection:x:sams_bakery\"}; the account is made up.",
+      "hands_back": "{\"data\":{\"id\":\"2244994945\",\"name\":\"Sam's Bakery\",\"username\":\"sams_bakery\"}}: the connection still reaches the X account sams_bakery. A refused answer would mean connect X again."
     }
   ]
 }

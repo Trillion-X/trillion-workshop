@@ -1,39 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:write-a-message-body-from-a-document's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:write-a-message-body-from-a-document with request, output.\" Turn a document I wrote (headings, paragraphs, images, a quoted reply) into the HTML and plain-text body of a message, ready to send",
+  "drafted_from": "tool:write-a-message-body-from-a-document row in tools/send-messages/tool-rows.json, do-work/composition_mail_serializer.py and test/test_composition_mail_serializer.py",
+  "start_here": "Say to your AI: \"Turn my draft update, a heading, two paragraphs and a chart picture, into an HTML and plain-text message body I can send.\" It writes a request file from the document, runs the serializer on your computer and hands you body_html, body_text and the pictures to attach.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list: it reads one request file holding a document and writes one result file, with no provider and no stored rows.",
   "workflows": [],
   "tools": [
     "tool:write-a-message-body-from-a-document"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:write-a-message-body-from-a-document\", and give it request, output.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:write-a-message-body-from-a-document and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Turn a document I wrote (headings, paragraphs, images, a quoted reply) into the HTML and plain-text body of a message, ready to send"
+    "1. Write the request file {document_nodes: [{id, kind, props, children, visible}] (or one root node), options?} from the document you wrote: headings, paragraphs, images, and blocks marked props.quote for a quoted reply.",
+    "2. Say \"Turn this document into a message body\"; your AI reads the row with tools:list and runs `python3 -I tools/send-messages/do-work/composition_mail_serializer.py request.json body.json` from the Workshop checkout.",
+    "3. Read the one summary line (the HTML and text sizes, the number of parts and of degraded blocks) and the output file {body_html, body_text, inline_refs, degraded}; hand body_html and body_text to the sending tool as html and text, and the inline_refs as the pictures to attach.",
+    "4. Tell the person about every entry in degraded (a block kind it did not know, shown as its text); map your own block kinds with options.kind_renderers (paragraph, heading1 to heading3 or media); hidden blocks are skipped."
   ],
   "worked_examples": [
     {
-      "title": "Turn a document into a message body (runs on your computer) on a sample input",
-      "ask": "Run tool:write-a-message-body-from-a-document.",
+      "title": "A heading, a paragraph with symbols, a picture and a closing line",
+      "ask": "Turn my update draft into a message body.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:write-a-message-body-from-a-document",
-            "input": {
-              "request": "<request: Path of the request JSON file>",
-              "output": "<output: Path to write the result JSON to>"
-            }
+            "tool": "tool:write-a-message-body-from-a-document"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Turn a document I wrote (headings, paragraphs, images, a quoted reply) into the HTML and plain-text body of a message, ready to send",
-      "given": "The person gives: request, output (shown as <name> in the input)."
+      "given": "From tools/send-messages/test/test_composition_mail_serializer.py (test_fixture_document_exact_output): the command line is `python3 -I tools/send-messages/do-work/composition_mail_serializer.py request.json body.json`, and request.json holds document_nodes [{id h, kind Heading1, props.text \"Update\"}, {kind Text, props.text \"Hello <world> & co\"}, {id img, kind Image, props {fetch_ref \"cas:abc\", mime \"image/png\", text \"chart\"}}, {kind Text, props.text \"Bye\"}].",
+      "hands_back": "The summary line [composition-mail-serializer] html=94B text=35B parts=1 degraded=0, and body.json holds body_html \"<h1>Update</h1><p>Hello &lt;world&gt; &amp; co</p><img src=\\\"cid:part-1\\\" alt=\\\"chart\\\"><p>Bye</p>\", body_text \"Update\\nHello <world> & co\\nchart\\nBye\", inline_refs [{cid: \"part-1\", fetch_ref: \"cas:abc\", mime: \"image/png\"}] and degraded []. A block of an unknown kind such as FancyWidget with label \"click me\" becomes <p>click me</p> and is listed in degraded."
     }
   ]
 }

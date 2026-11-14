@@ -1,22 +1,23 @@
 {
-  "draft": true,
-  "drafted_from": "tool:google-account-search_mail's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:google-account-search_mail with connection, query.\" Find Gmail messages matching a search, written as in Gmail's own search box (from:, to:, subject:, after:)",
+  "drafted_from": "tool:google-account-search_mail's own row in tools/read-and-write-gmail/tool-rows.json (invoke method, url, body_template, input and output schema); Gmail response values worked out from that row for the synthetic input",
+  "start_here": "Say to your AI: \"Find mail from alex@example.com about the order. Use my Google account connection service_connection:google-account:sam-bakery.\" It runs tool:google-account-search_mail as that account and hands back the Gmail answer.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it calls Gmail for one Google account the connection names and answers what Gmail returns.",
   "workflows": [],
   "tools": [
-    "tool:google-account-search_mail"
+    "tool:google-account-search_mail",
+    "tool:google-account-read_mail_headers"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:google-account-search_mail\", and give it connection, query.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:google-account-search_mail and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields messages, resultSizeEstimate, nextPageToken."
+    "1. Connect a Google account in your Workshop connections and note its handle, like service_connection:google-account:sam-bakery.",
+    "2. Say to your AI: \"Find mail from alex@example.com about the order.\" and let it call run_resource_operation at @workshop-tools with method tools:run, tool tool:google-account-search_mail, and the input {\"connection\":{\"connection_id\":\"service_connection:google-account:sam-bakery\"},\"query\":\"from:alex@example.com subject:order\"}.",
+    "3. Read what comes back: the request goes as GET  the Gmail me-mailbox base (gmail.googleapis.com, v1)/messages?q=from%3Aalex%40example.com%20subject%3Aorder&maxResults=50&includeSpamTrash=true.",
+    "4. When nextPageToken comes back, run again with page_token set to it. Each id goes to read_mail_headers or read_a_mail."
   ],
   "worked_examples": [
     {
-      "title": "Search email on a sample input",
-      "ask": "Run tool:google-account-search_mail.",
+      "title": "Search Gmail like its search box on a sample input",
+      "ask": "Find mail from alex@example.com about the order.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,15 +28,15 @@
             "tool": "tool:google-account-search_mail",
             "input": {
               "connection": {
-                "connection_id": "<connection_id: The Google account to use: service_connection:google-account or service_connection:google-account:<account>, as the person's connections list it>"
+                "connection_id": "service_connection:google-account:sam-bakery"
               },
-              "query": "<query: The search, as typed in Gmail's search box, like from:alex to:sam>"
+              "query": "from:alex@example.com subject:order"
             }
           }
         }
       },
-      "hands_back": "An answer with the fields messages, resultSizeEstimate, nextPageToken.",
-      "given": "The person gives: connection_id, query (shown as <name> in the input)."
+      "given": "read from tools/read-and-write-gmail/tool-rows.json (its invoke url, method and body_template) and checked against tools/read-and-write-gmail/test/rows.test.mjs. Two messages match in the mailbox. The call it makes: GET the Gmail me-mailbox base (gmail.googleapis.com, v1)/messages?q=from%3Aalex%40example.com%20subject%3Aorder&maxResults=50&includeSpamTrash=true.",
+      "hands_back": "Gmail answers {\"messages\":[{\"id\":\"18c1a2b3d4e5f888\",\"threadId\":\"18c1a2b3d4e5f601\"},{\"id\":\"18c1a2b3d4e5f801\",\"threadId\":\"18c1a2b3d4e5f600\"}],\"resultSizeEstimate\":2}. Trash and spam are included in the results."
     }
   ]
 }

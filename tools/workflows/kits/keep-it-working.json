@@ -1,48 +1,53 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:keep-it-working's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:keep-it-working.\" Preserve a verified customer result over time by detecting meaningful change, repairing regressions and continuing within bounded resources.",
-  "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
-  "workflows": [
-    "workflow:keep-it-working",
-    "workflow:trillion-x-mode",
-    "workflow:turn-something-shared-into-what-you-can-use"
-  ],
-  "tools": [
-    "tool:start-a-recipe-run"
-  ],
-  "instructions": [
-    "1. Say to your AI: \"Run workflow:keep-it-working\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:keep-it-working) and works through its steps in order: health, change, restore.",
-    "3. Read what each step hands back; the last step is restore."
-  ],
-  "worked_examples": [
-    {
-      "title": "Keep It Working Mode from its first step",
-      "ask": "Run workflow:keep-it-working.",
-      "mcp": {
-        "server": "trillion",
-        "tool": "run_resource_operation",
-        "input": {
-          "address": "@workshop-tools",
-          "method": "tools:run",
-          "input": {
-            "tool": "tool:start-a-recipe-run",
-            "input": {
-              "row": "workflow:keep-it-working",
-              "request": "<request: string>",
-              "scope": "<scope: string>",
-              "constraints": [],
-              "authorized_actions": []
-            }
-          }
-        }
-      },
-      "workflow": "workflow:keep-it-working",
-      "step": "health",
-      "hands_back": "Step health answers with summary, evidence, requirements.",
-      "given": "The person gives: request, scope (shown as <name> in the input)."
+ "start_here": "Say to your AI: \"Run workflow:keep-it-working so my bakery order page keeps taking orders: request is that orders keep arriving, scope is the page at https://bakery.example.com/order and its order inbox, constraints are no more than 50 checks a day, authorized actions are reading the inbox and restarting the order form.\"",
+ "lists": [],
+ "no_lists_because": "It keeps no list of its own: its three steps hand back one evidence-backed answer each, kept on the run record.",
+ "workflows": [
+  "workflow:keep-it-working",
+  "workflow:turn-something-shared-into-what-you-can-use",
+  "workflow:trillion-x-mode"
+ ],
+ "tools": [
+  "tool:start-a-recipe-run"
+ ],
+ "instructions": [
+  "1. Write the request (what must keep working), the scope, the constraints (limits on checks, cost and time) and authorized_actions (what the AI may repair); all four are required.",
+  "2. Say \"Run workflow:keep-it-working\" with them. Answer step health first: the outcome contract (what works today, how fresh it must be, what failure looks like) and the resource bounds.",
+  "3. Come back to step change only when something meaningful changed (a new event or fresh evidence); the AI does not poll or repeat an unchanged failed attempt.",
+  "4. After a repair, answer step restore with proof that the outcome works again, with evidence ids for each claim.",
+  "5. Read each answer: unknown state is never reported as healthy; a blocked requirement stays open with its gap."
+ ],
+ "worked_examples": [
+  {
+   "title": "Health of a bakery order page",
+   "ask": "Run workflow:keep-it-working so my bakery order page keeps taking orders.",
+   "mcp": {
+    "server": "trillion",
+    "tool": "run_resource_operation",
+    "input": {
+     "address": "@workshop-tools",
+     "method": "tools:run",
+     "input": {
+      "tool": "tool:start-a-recipe-run",
+      "input": {
+       "row": "workflow:keep-it-working",
+       "request": "Orders from the order page keep arriving in the order inbox.",
+       "scope": "The page at https://bakery.example.com/order and its order inbox",
+       "constraints": [
+        "No more than 50 checks a day"
+       ],
+       "authorized_actions": [
+        "Read the inbox",
+        "Restart the order form"
+       ]
+      }
+     }
     }
-  ]
+   },
+   "workflow": "workflow:keep-it-working",
+   "step": "health",
+   "given": "Read from the row of workflow:keep-it-working in tools/workflows/recipes/workflows.json: the health step asks for the outcome contract, the resource bounds and the capability review. The inbox last received an order 40 minutes ago.",
+   "hands_back": "{\"summary\":\"Orders arrive; the contract is one order or fewer than 2 hours of silence in opening hours, checked at most 50 times a day.\",\"evidence\":[{\"id\":\"e1\",\"source\":\"the order inbox\",\"observed\":\"Newest order arrived 40 minutes ago\"},{\"id\":\"e2\",\"source\":\"the owner limits of the check tool\",\"observed\":\"At most 50 checks a day and one at a time\"}],\"requirements\":{\"outcome-contract\":{\"state\":\"completed\",\"what_happened\":\"Outcome: orders reach the inbox. Fresh means under 2 hours during opening hours; failure signal is a silence longer than that.\",\"evidence_refs\":[\"e1\"]},\"resource-bounds\":{\"state\":\"completed\",\"what_happened\":\"Fifty checks a day, one at a time, cancelled when the page is down; an unreachable inbox is reported unknown, never empty.\",\"evidence_refs\":[\"e2\"]},\"capability-review-health\":{\"state\":\"completed\",\"what_happened\":\"Found an existing event-based monitor in the Marketplace rather than building a poller; REA, 21st.dev and Mobbin reviewed and not needed.\",\"evidence_refs\":[\"e2\"]}}}"
+  }
+ ]
 }

@@ -1,23 +1,24 @@
 {
-  "draft": true,
-  "drafted_from": "tool:seed-a-servers-receptionist's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:seed-a-servers-receptionist with hostname, address, ssh_port, admin_user, knownHost, host.\" Put the newest signed-feed release of the receptionist on my public server, so it starts with no build made by hand",
+  "drafted_from": "tool:seed-a-servers-receptionist's row in tools/renew-a-tls-certificate/tool-rows.json, do-work/renew-a-tls-certificate.mjs, do-work/tls-host-owner.py and the tests in test/",
+  "start_here": "Say to your AI: \"Seed the receptionist on my server at 192.0.2.34 with the newest release its feed names for x86_64 Linux.\" It runs tool:seed-a-servers-receptionist and answers where it placed the program.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of its own: it takes one server's facts as its input and answers what that server's certificate owner reports.",
   "workflows": [],
   "tools": [
     "tool:seed-a-servers-receptionist",
-    "tool:write-a-public-hosts-paths"
+    "tool:write-a-public-hosts-paths",
+    "tool:set-up-a-servers-tls-owner"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:seed-a-servers-receptionist\", and give it hostname, address, ssh_port, admin_user, knownHost, host.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:seed-a-servers-receptionist and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields seeded, commit, sequence, binary."
+    "1. Gather the server's facts: its public name, IPv4 address, SSH port, the administrator you sign in as, its pinned key (\"<address> ssh-ed25519 <key>\") and its layout (host: owner path, state folder, downloads folder, ingress, receptionist). The README in tools/renew-a-tls-certificate/ shows a made-up one.",
+    "2. Say to your AI the sentence in start_here. It calls run_resource_operation at @workshop-tools with method tools:run, tool tool:seed-a-servers-receptionist and that input (the worked example shows one). The door mounts your server administration key for the run; you paste no key.",
+    "3. Read what comes back: {\"seeded\": true, \"commit\", \"sequence\", \"binary\"}; pass binary as receptionistBinary to tool:write-a-public-hosts-paths. An {\"error\": ...} or a thrown message names what to change (for example the layout or the pinned key was refused).",
+    "4. host.receptionist.releases is required (folder, program, feed urls over https and 64-hex public keys, target, body_max_bytes); a host with none answers \"This host follows no release feed\"."
   ],
   "worked_examples": [
     {
-      "title": "Seed a server's receptionist from its release feed on a sample input",
-      "ask": "Run tool:seed-a-servers-receptionist.",
+      "title": "Seed from a feed with three entries",
+      "ask": "Seed the receptionist.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,18 +28,68 @@
           "input": {
             "tool": "tool:seed-a-servers-receptionist",
             "input": {
-              "hostname": "<hostname: string>",
-              "address": "<address: string>",
-              "ssh_port": "<ssh_port: The server's SSH port (22 for a pinned key written as \"<address> ssh-ed25519 <key>\")>",
-              "admin_user": "<admin_user: The administrator the run signs in as>",
-              "knownHost": "<knownHost: string>",
-              "host": {}
+              "hostname": "app.example.com",
+              "address": "192.0.2.34",
+              "ssh_port": 22,
+              "admin_user": "admin",
+              "knownHost": "192.0.2.34 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleExampleExampleExampleExample0",
+              "host": {
+                "owner": "/usr/local/lib/example/tls-host-owner.py",
+                "state": "/etc/example-public-tls",
+                "downloads": "/var/lib/public-downloads",
+                "ingress": {
+                  "service": "example-public-tls",
+                  "pid_file": "/run/example-public-tls.pid",
+                  "error_log": "/var/log/nginx/example-error.log"
+                },
+                "receptionist": {
+                  "service": "example-receptionist",
+                  "account": "example-mcp",
+                  "binary_pattern": "/opt/example/source/[a-f0-9]{40}/target/release/example-receptionist",
+                  "listen": "127.0.0.1:9443",
+                  "paths": [
+                    "/mcp",
+                    "/mcp/resource-connection",
+                    "/.well-known/oauth-protected-resource/mcp",
+                    "/.well-known/oauth-protected-resource"
+                  ],
+                  "environment": {
+                    "EXAMPLE_LISTEN": "{listen}",
+                    "EXAMPLE_ORIGIN": "https://{hostname}"
+                  },
+                  "releases": {
+                    "folder": "/var/lib/example/releases",
+                    "program": "example-forwarder",
+                    "feed": {
+                      "urls": [
+                        "https://releases.example.com/forwarder-feed.json"
+                      ],
+                      "public_keys": [
+                        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                      ]
+                    },
+                    "target": "x86_64-unknown-linux-gnu",
+                    "body_max_bytes": 268435456,
+                    "retire": {
+                      "folder": "/opt/example/source",
+                      "name": "[a-f0-9]{40}"
+                    }
+                  }
+                },
+                "site": {
+                  "hostname": "example.org",
+                  "paths": [
+                    "/privacy",
+                    "/terms"
+                  ]
+                }
+              }
             }
           }
         }
       },
-      "hands_back": "An answer with the fields seeded, commit, sequence, binary.",
-      "given": "The person gives: hostname, address, ssh_port, admin_user, knownHost (shown as <name> in the input)."
+      "given": "From tools/renew-a-tls-certificate/test/tls-host-owner.test.py (a seed is the newest release for the target with the program alone at its root): the feed names sequence 3 (commit e x40) and sequence 9 (commit d x40) for x86_64-unknown-linux-gnu and sequence 99 for aarch64; the newest of this target wins.",
+      "hands_back": "{\"seeded\":true,\"commit\":\"dddddddddddddddddddddddddddddddddddddddd\",\"sequence\":9,\"binary\":\"/var/lib/example/releases/example-forwarder/seed/example-forwarder\"}"
     }
   ]
 }

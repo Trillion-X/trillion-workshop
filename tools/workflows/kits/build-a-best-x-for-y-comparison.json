@@ -1,30 +1,31 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:build-a-best-x-for-y-comparison's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:build-a-best-x-for-y-comparison.\" For one category (X) and one buyer (Y) the person names: find the vendors buyers and answer engines weigh; choose only metrics a vendor can prove at a public address and read every value with its address and date; score the vendors with a vendor proof row of rules (tools/workflows/read-data/candidate-rules.json, classified by tool:classify-a-record), where a metric with no proof never counts; write a page whose quotable answer, structured comparison table (each cell linked to its proof), method and FAQ are in the served HTML with ItemList and FAQPage data, so answer engines can quote and cite it; keep sponsored placement in its own labelled block that never changes a score or a rank; publish only what the person approved, check it the way answer engines read it, hand it to workflow:keep-pages-cited-by-answer-engines and recheck the proof on a schedule.",
+  "drafted_from": "workflow:build-a-best-x-for-y-comparison's row in tools/workflows/recipes/workflows.json (its input schema, steps and submit shapes)",
+  "start_here": "Say to your AI: \"Run workflow:build-a-best-x-for-y-comparison for bakery point-of-sale software for a one-shop bakery with 3 staff, publishing at https://example.com/best, checked against my writing rules.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "The page, its proofs and scores are written to the person's own site and the step answers, not to a list.",
   "workflows": [
     "workflow:build-a-best-x-for-y-comparison",
     "workflow:keep-pages-cited-by-answer-engines"
   ],
   "tools": [
-    "tool:check-a-page-for-search-and-answer-engines",
-    "tool:check-against-a-persons-rules-and-verdicts",
+    "tool:start-a-recipe-run",
+    "tool:read-public-web-page",
     "tool:classify-a-record",
     "tool:prepare-public-content-for-discovery",
-    "tool:read-public-web-page",
-    "tool:start-a-recipe-run"
+    "tool:check-a-page-for-search-and-answer-engines",
+    "tool:check-against-a-persons-rules-and-verdicts"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:build-a-best-x-for-y-comparison\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:build-a-best-x-for-y-comparison) and works through its steps in order: scope, metrics, gather-proof, score, page, publish, keep-cited.",
-    "3. Read what each step hands back; the last step is keep-cited."
+    "1. Choose X (the category in buyers' words) and Y (the buyer), the address where you publish, one answer engine search address with {question} in it, and the id of your writing rules.",
+    "2. Say \"Run workflow:build-a-best-x-for-y-comparison\" with those values; add vendors you know and any sponsors with their disclosure words.",
+    "3. The AI works scope, metrics, gather-proof, score, page, publish and keep-cited: vendors named by answer engines, only metrics a vendor can prove at a public address, each value read with its address and date, scores from tool:classify-a-record, then the page.",
+    "4. Approve the page exactly as shown before it is published; sponsored placement stays in its own labelled block and never changes a score.",
+    "5. Read the keep-cited answer for the workflow it handed the page to and the date every proof is read again."
   ],
   "worked_examples": [
     {
-      "title": "Build a 'best X for Y' comparison that answer engines cite from its first step",
-      "ask": "Run workflow:build-a-best-x-for-y-comparison.",
+      "title": "Three vendors are scored from three provable metrics",
+      "ask": "Rank bakery point-of-sale software for a one-shop bakery.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -35,21 +36,22 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:build-a-best-x-for-y-comparison",
-              "category": "<category: X: the kind of product compared, in buyers' words>",
-              "buyer": "<buyer: Y: who the comparison is for, in their own words (a team size, a trade, a need)>",
-              "site": "<site: Where the person publishes the comparison: their site's address or the id of their public collection>",
+              "category": "bakery point-of-sale software",
+              "buyer": "a one-shop bakery with 3 staff",
+              "site": "https://example.com/best",
               "answer_engines": [
-                "<answer_engines: string>"
+                "https://example.com/ask?q={question}"
               ],
-              "rules": "<rules: The id of the person's writing rules every word is checked against>"
+              "rules": "rules:example-writing",
+              "recheck_days": 30
             }
           }
         }
       },
       "workflow": "workflow:build-a-best-x-for-y-comparison",
-      "step": "scope",
-      "hands_back": "Step scope answers with questions, vendors, left_out.",
-      "given": "The person gives: category, buyer, site, answer_engines, rules (shown as <name> in the input)."
+      "step": "score",
+      "given": "The metrics step kept three signals with weights: uptime-public 3 (a public status page), price-public 2 (a public price page) and customer-stories 2 (named stories). The gather-proof step found Ovenly POS proves all three, CrumbDesk proves uptime-public and price-public, LoafLedger proves only price-public. A vendor's score is the weights of the signals that fired, and ties go by name; read from the score step of the workflow row.",
+      "hands_back": "The submit shape of step score: {\"ranked\":[{\"key\":\"ovenly-pos\",\"name\":\"Ovenly POS\",\"score\":7,\"rank\":1,\"signals\":[\"uptime-public\",\"price-public\",\"customer-stories\"]},{\"key\":\"crumbdesk\",\"name\":\"CrumbDesk\",\"score\":5,\"rank\":2,\"signals\":[\"uptime-public\",\"price-public\"]},{\"key\":\"loafledger\",\"name\":\"LoafLedger\",\"score\":2,\"rank\":3,\"signals\":[\"price-public\"]}],\"skipped\":[]}"
     }
   ]
 }

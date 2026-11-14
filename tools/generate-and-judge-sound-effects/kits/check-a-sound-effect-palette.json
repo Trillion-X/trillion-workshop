@@ -1,40 +1,37 @@
 {
-  "draft": true,
-  "drafted_from": "tool:check-a-sound-effect-palette's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-a-sound-effect-palette with palette, folder, manifest.\" Check that every sound in my palette has the right format, length, quiet edges and an allowed licence",
+  "drafted_from": "tool:check-a-sound-effect-palette row in tools/generate-and-judge-sound-effects/tool-rows.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
+  "start_here": "Say to your AI: \"Check my palette folder /work/sfx/palette against PALETTE.json and the licence manifest, and check the music bed is at least 2 seconds.\" It runs the checker and reads which sounds failed.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads PALETTE.json, the fetcher's manifest.json and the rendered WAV files on this computer and prints a pass or fail.",
   "workflows": [],
   "tools": [
-    "tool:check-a-sound-effect-palette"
+    "tool:check-a-sound-effect-palette",
+    "tool:fetch-free-sound-effects-with-their-licences",
+    "tool:make-a-sound-effect-palette"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-a-sound-effect-palette\", and give it palette, folder, manifest.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-sound-effect-palette and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Check that every sound in my palette has the right format, length, quiet edges and an allowed licence"
+    "1. Have the rendered palette folder (one <name>.wav per sound), its PALETTE.json and the fetcher's manifest.json (from tool:fetch-free-sound-effects-with-their-licences).",
+    "2. Say \"Check my palette\". The AI reads the row with tools:list and runs: python3 -I tools/generate-and-judge-sound-effects/do-work/check_sound_palette.py /work/sfx/PALETTE.json /work/sfx/palette /work/sfx/manifest.json 2 /work/sfx/bed.wav (the 2 and the music files are optional).",
+    "3. Read one line per sound (rate, channels, peak, samples, OK or FAIL and what failed), then the last line: result.passed and result.failed. Exit code 1 means something failed.",
+    "4. Fix what failed (re-render with tool:make-a-sound-effect-palette, or replace an unlicensed sound) and run it again."
   ],
   "worked_examples": [
     {
-      "title": "Check a sound-effect palette against its spec and licences (runs on your computer) on a sample input",
-      "ask": "Run tool:check-a-sound-effect-palette.",
+      "title": "A palette of one sound and a 2.2 s music bed passes",
+      "ask": "Check my palette and my music bed.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:check-a-sound-effect-palette",
-            "input": {
-              "palette": "<palette: PALETTE.json>",
-              "folder": "<folder: The palette folder>",
-              "manifest": "<manifest: The fetcher's manifest.json>"
-            }
+            "tool": "tool:check-a-sound-effect-palette"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Check that every sound in my palette has the right format, length, quiet edges and an allowed licence",
-      "given": "The person gives: palette, folder, manifest (shown as <name> in the input)."
+      "given": "From tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (test_made_palette_passes_its_check_and_an_unlicensed_or_short_one_fails), run for real: PALETTE.json (rate 48000, channels 2, peak_dbfs -6.0, sound hit with trim [0.05, 0.65], manifest key lib-1); manifest.json {\"lib-1\": {\"file\": \"x.wav\"}}; bed.wav a 2.2 s 48 kHz stereo tone. Command: python3 -I tools/generate-and-judge-sound-effects/do-work/check_sound_palette.py /work/sfx/PALETTE.json /work/sfx/palette /work/sfx/manifest.json 2 /work/sfx/bed.wav",
+      "hands_back": "It prints \"hit                48000 Hz x2 peak -6.00 dBFS 28800 samples OK\", then \"/work/sfx/bed.wav: 48000 Hz x2 2.20 s OK\", and its last line is {\"result\": {\"passed\": true, \"failed\": []}}. With 5 as the least seconds it exits 1 with {\"failed\": [\"/work/sfx/bed.wav\"]}; with a manifest entry {\"file\": null, \"blocked\": \"not CC0\"} it exits 1 with {\"failed\": [\"licensed\"]}."
     }
   ]
 }

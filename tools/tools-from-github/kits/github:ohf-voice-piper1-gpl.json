@@ -1,35 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:github:ohf-voice-piper1-gpl's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:github:ohf-voice-piper1-gpl with nothing more.\" Turn text into natural speech on your own computer, offline",
+  "drafted_from": "tool:github:ohf-voice-piper1-gpl's row in tools/tools-from-github/tool-rows.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic names filled in. What it prints or writes is read from the tool's documented behavior; the folder test test/index-github-tools.test.mjs only checks the row, never runs piper1-gpl.",
+  "start_here": "Say to your AI: \"Use piper1-gpl on my computer to turn text into natural speech on your own computer: the file is Welcome to our bakery. We open at seven..\" It reads the row, installs piper1-gpl if it is missing, runs it on that one file and shows you what it made.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: piper1-gpl is a program that runs on the person's own computer and works on the one file or address it is handed.",
   "workflows": [],
   "tools": [
     "tool:github:ohf-voice-piper1-gpl"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:github:ohf-voice-piper1-gpl\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:github:ohf-voice-piper1-gpl and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Turn text into natural speech on your own computer, offline"
+    "1. Say to your AI: \"Use piper1-gpl on Welcome to our bakery. We open at seven.\". It reads the row with run_resource_operation at @workshop-tools, method tools:list, input {tool: \"tool:github:ohf-voice-piper1-gpl\"}.",
+    "2. It checks that python are on your computer, and if piper1-gpl is missing it runs the get_it steps: git clone https://github.com/OHF-Voice/piper1-gpl.git ; pip install piper-tts ; python3 -m piper.download_voices en_US-lessac-medium.",
+    "3. It runs the row's command with your file in place of {input} and where the result goes in place of {output}: python3 -m piper -m en_US-lessac-medium -f welcome.wav -- 'Welcome to our bakery. We open at seven.'",
+    "4. Read what it shows you and open the result. Trillion runs none of this; it all happens on your own computer."
   ],
   "worked_examples": [
     {
-      "title": "piper1-gpl (open source, runs on your computer) on a sample input",
-      "ask": "Run tool:github:ohf-voice-piper1-gpl.",
+      "title": "piper1-gpl on a short sentence to speak",
+      "ask": "Use piper1-gpl on Welcome to our bakery. We open at seven..",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:github:ohf-voice-piper1-gpl",
-            "input": {}
+            "tool": "tool:github:ohf-voice-piper1-gpl"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Turn text into natural speech on your own computer, offline"
+      "given": "Read from tools/tools-from-github/tool-rows.json: tool:github:ohf-voice-piper1-gpl runs on your computer, so after tools:list the AI runs, in the folder it got piper1-gpl in, the command line: python3 -m piper -m en_US-lessac-medium -f welcome.wav -- 'Welcome to our bakery. We open at seven.'  (synthetic input: a short sentence to speak).",
+      "hands_back": "piper prints nothing important and writes welcome.wav: the sentence \"Welcome to our bakery. We open at seven.\" spoken in the en_US-lessac-medium voice."
     }
   ]
 }

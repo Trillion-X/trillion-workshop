@@ -1,39 +1,45 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:learn-the-person's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:learn-the-person.\" Build or refresh this person's private, editable profile from their own account.",
-  "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
-  "workflows": [
-    "workflow:learn-the-person"
-  ],
-  "tools": [],
-  "instructions": [
-    "1. Say to your AI: \"Run workflow:learn-the-person\".",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:learn-the-person) and works through its steps in order: read, find, keep, ask.",
-    "3. Read what each step hands back; the last step is ask."
-  ],
-  "worked_examples": [
-    {
-      "title": "Learn about this person from its first step",
-      "ask": "Run workflow:learn-the-person.",
-      "mcp": {
-        "server": "trillion",
-        "tool": "run_resource_operation",
-        "input": {
-          "address": "@workshop-tools",
-          "method": "tools:run",
-          "input": {
-            "tool": "tool:start-a-recipe-run",
-            "input": {
-              "row": "workflow:learn-the-person"
-            }
-          }
-        }
-      },
-      "workflow": "workflow:learn-the-person",
-      "step": "read",
-      "hands_back": "Step read answers with identity, identity_source, existing_lists, sources_checked."
+ "start_here": "Say to your AI: \"Run workflow:learn-the-person for my account: my name is Sam Example, supplied by me in this chat, and start with my work.\"",
+ "lists": [],
+ "no_lists_because": "It keeps no list named in its row: it reuses the person's own About me list when one exists, or makes one private list, and keeps the facts there.",
+ "workflows": [
+  "workflow:learn-the-person"
+ ],
+ "tools": [
+  "tool:start-a-recipe-run"
+ ],
+ "instructions": [
+  "1. Optionally give name, name_source (who supplied the name and where) and focus; without a stated source a name is not used as proof.",
+  "2. Say \"Run workflow:learn-the-person\". It reads this account's identity, lists, messages, files and connected sources before changing anything.",
+  "3. It keeps each source-backed fact as a row with its exact quote in a private list, never overwriting what you confirmed, and keeps conflicts as separate rows.",
+  "4. Answer its questions one at a time about conflicts or gaps; your words are kept as person-confirmed and read back."
+ ],
+ "worked_examples": [
+  {
+   "title": "Read the account before changing anything",
+   "ask": "Learn about me from my own account.",
+   "mcp": {
+    "server": "trillion",
+    "tool": "run_resource_operation",
+    "input": {
+     "address": "@workshop-tools",
+     "method": "tools:run",
+     "input": {
+      "tool": "tool:start-a-recipe-run",
+      "input": {
+       "row": "workflow:learn-the-person",
+       "name": "Sam Example",
+       "name_source": "Sam typed it in this chat",
+       "focus": "work"
+      }
+     }
     }
-  ]
+   },
+   "workflow": "workflow:learn-the-person",
+   "step": "read",
+   "given": "Read from the read step in tools/workflows/recipes/workflows.json: the account shows no About me list yet and one connected mailbox; the name comes only from what Sam typed.",
+   "hands_back": "{\"identity\": \"Sam Example\", \"identity_source\": \"Sam typed it in this chat\", \"existing_lists\": [], \"sources_checked\": [\"account identity\", \"personal lists\", \"messages\", \"connected mailbox\"]}"
+  }
+ ],
+ "drafted_from": "tools/workflows/recipes/workflows.json row of workflow:learn-the-person (input schema, steps and submit shapes)"
 }

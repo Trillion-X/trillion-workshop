@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:read-app-distribution's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-app-distribution with source_id, bundle_identifier.\" Check with Apple which TestFlight and App Store routes a released app can be installed from right now, without changing anything",
+  "drafted_from": "tool:read-app-distribution's row in tools/app-release-access/tool-rows.json, read-data/app-distribution.mjs and distribution.mjs, and test/app-distribution.test.mjs",
+  "start_here": "Say to your AI: \"Read which TestFlight routes the app com.example.sample can be installed from right now on release source native-ios, counting only my TestFlight group Members.\" It reads App Store Connect with the release owner's held key and hands back the short-lived public observation.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps and reads no list of yours: it takes the app and groups as input and answers one observation without saving it.",
   "workflows": [],
   "tools": [
     "tool:read-app-distribution"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-app-distribution\", and give it source_id, bundle_identifier.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-app-distribution and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields source_id, observation, published."
+    "1. Make sure the release owner's App Store Connect team key is held as app-store-connect-key (key_id, issuer_id, private_key); the tool reads it on a private pipe and never answers it.",
+    "2. Say to your AI: \"Read the TestFlight routes of com.example.sample on native-ios for the group Members.\" The AI calls tools:run at @workshop-tools with tool tool:read-app-distribution and source_id, bundle_identifier and testflight_groups. Leave publish out: publish true is refused.",
+    "3. Read the observation: source_id, checked_at, expires_at (at most 300 seconds after checked_at) and routes. Each route has state, distribution_state, eligibility_state, reason and, only when ready, an action link on testflight.apple.com or apps.apple.com. Check again after expires_at.",
+    "4. A source_id that is not native-ios, a missing bundle_identifier, a tester_email or other extra input, or an app Apple does not resolve to exactly one record is refused with a plain error before or after one Apple read; nothing changes at Apple."
   ],
   "worked_examples": [
     {
-      "title": "Read an app's TestFlight availability on a sample input",
-      "ask": "Run tool:read-app-distribution.",
+      "title": "One app, one group, a public link that is not yet checked against a device",
+      "ask": "Read the TestFlight routes of com.example.sample for the group Members.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -28,12 +28,13 @@
             "input": {
               "source_id": "native-ios",
               "bundle_identifier": "com.example.sample",
-              "testflight_groups": []
+              "testflight_groups": ["Members"]
             }
           }
         }
       },
-      "hands_back": "An answer with the fields source_id, observation, published."
+      "given": "From tools/app-release-access/test/app-distribution.test.mjs (the read answers the safe observation of the one app named): Apple lists one app with bundleId com.example.sample and id app-one; the TestFlight read at 2026-10-08T06:00:00Z reports one public-link route for group g1 and build old, with a tester_email that must not escape.",
+      "hands_back": "{\"source_id\":\"native-ios\",\"observation\":{\"source_id\":\"native-ios\",\"checked_at\":\"2026-10-08T06:00:00.000Z\",\"expires_at\":\"2026-10-08T06:05:00.000Z\",\"routes\":[{\"id\":\"testflight-public:g1:old\",\"state\":\"unknown\",\"distribution_state\":\"ready\",\"eligibility_state\":\"unknown\",\"reason\":\"The device has not been checked.\",\"channel\":\"public_link\",\"check\":{\"href\":\"https://testflight.apple.com/join/AbC123\"},\"build_id\":\"old\",\"group_id\":\"g1\",\"expires_at\":\"2026-10-08T06:05:00.000Z\",\"eligibility_requirements\":{\"known\":true,\"scope\":\"minimum_os_and_public_recruitment\",\"alternatives\":[{\"device_family\":null,\"minimum_os\":\"18.0\",\"maximum_os\":null}]}}]},\"published\":null} (no tester email, no action link because the route is not ready)"
     }
   ]
 }

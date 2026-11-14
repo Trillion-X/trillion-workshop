@@ -1,39 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:check-quotes-against-their-source-bytes's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-quotes-against-their-source-bytes with bindings, report.\" Check that every quote I took from a source file is still the exact text at the byte range I recorded, in a file whose BLAKE3 is the one I pinned, and find which words of a text are the source's own literal words",
+  "drafted_from": "tools/pin-files-by-content/tool-rows.json (tool:check-quotes-against-their-source-bytes), do-work/verify-source-spans.mjs, test/verify-source-spans.test.mjs; the example was run on synthetic files",
+  "start_here": "Say to your AI: \"Check that each quote in my bindings.json is still the exact text at its byte range in menu.txt, and write the report to a new file.\" It runs verify-source-spans.mjs and names every quote position that failed.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads one bindings manifest and the source files it names, and writes one new report file.",
   "workflows": [],
   "tools": [
     "tool:check-quotes-against-their-source-bytes"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-quotes-against-their-source-bytes\", and give it bindings, report.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-quotes-against-their-source-bytes and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Check that every quote I took from a source file is still the exact text at the byte range I recorded, in a file whose BLAKE3 is the one I pinned, and find which words of a text are the source's own literal words"
+    "1. Clone the Workshop repository and run npm install (the tool needs @noble/hashes).",
+    "2. Write the bindings manifest {schema: \"synthetic-d245bc86d584\", sources: [{id, path (absolute), blake3}], quotes: [{id, source_id, text, byte_start, byte_end}]} from your sources and quotes: the BLAKE3 each source had when you quoted it and the UTF-8 byte range of each quote.",
+    "3. The AI reads the row with tools:list {tool: \"tool:check-quotes-against-their-source-bytes\"} and runs: node tools/pin-files-by-content/do-work/verify-source-spans.mjs --data bindings.json --out report.json. The report file must not exist yet; it is never replaced.",
+    "4. Read the line it prints ({status, sources, quotes, failures}); exit 0 is passed, 1 failed, 2 invalid or unreadable. The report lists each failure by kind and zero-based position, such as quote_literal_mismatch with literal_present_elsewhere.",
+    "5. A pass says only that the bytes match: it does not say who said it or what it means."
   ],
   "worked_examples": [
     {
-      "title": "Check that quoted words are the exact bytes of their source files on a sample input",
-      "ask": "Run tool:check-quotes-against-their-source-bytes.",
+      "title": "One quote matches its bytes and one does not",
+      "ask": "Check the two quotes in bindings.json against menu.txt.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:check-quotes-against-their-source-bytes",
-            "input": {
-              "bindings": "<bindings: The bindings manifest: {schema: 'synthetic-d245bc86d584', sources: [{id, path (absolute), blake3}], quotes: [{id, source_id, text, byte_start, byte_end}]}>",
-              "report": "<report: A new file for the readback; the command refuses to replace one that exists>"
-            }
+            "tool": "tool:check-quotes-against-their-source-bytes"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Check that every quote I took from a source file is still the exact text at the byte range I recorded, in a file whose BLAKE3 is the one I pinned, and find which words of a text are the source's own literal words",
-      "given": "The person gives: bindings, report (shown as <name> in the input)."
+      "given": "Read from tools/pin-files-by-content/do-work/verify-source-spans.mjs and run on synthetic files: /work/menu.txt holds the 37 bytes \"Fresh bread at seven. Closed Mondays.\" with BLAKE3 a86fa0567017461a7b411ef1be3202179c06d1a4b08b6146cca59eb2b8651741. bindings.json has one source (id menu) and two quotes on bytes 22 to 37: q1 with text \"Closed Mondays.\" and q2 with text \"Closed Sundays.\". The AI runs: node tools/pin-files-by-content/do-work/verify-source-spans.mjs --data bindings.json --out report.json",
+      "hands_back": "{\"status\":\"failed\",\"sources\":1,\"quotes\":2,\"failures\":1} with exit 1. report.json holds quotes[0].passed true and quotes[1].passed false, and failures [{\"kind\":\"quote_literal_mismatch\",\"quote_index\":1,\"literal_present_elsewhere\":false}]; it names positions only, never paths, ids or text. The source row shows hash_matches true and bytes 37."
     }
   ]
 }

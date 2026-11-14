@@ -1,35 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:render-a-pointillist-target-animation's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:render-a-pointillist-target-animation with nothing more.\" Turn a film script into one compact file of its pictures and timeline at a frame rate, for a viewer that works out the frames itself",
+  "drafted_from": "tools/pointillist-film/tool-rows.json (tool:render-a-pointillist-target-animation), examples/encode_target_animation.rs, test/pointillist-film.test.mjs; the example was run here with cargo",
+  "start_here": "Say to your AI: \"Pack my two-cell film at 4 frames a second into one target-animation file, animation.pfat.\" It runs encode_target_animation on your computer and tells you where the file is.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads one animation request file and writes one packed animation file.",
   "workflows": [],
   "tools": [
-    "tool:render-a-pointillist-target-animation"
+    "tool:render-a-pointillist-target-animation",
+    "tool:render-a-pointillist-frame"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:render-a-pointillist-target-animation\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:render-a-pointillist-target-animation and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Turn a film script into one compact file of its pictures and timeline at a frame rate, for a viewer that works out the frames itself"
+    "1. Install rust (cargo) and clone the Workshop repository. The first run builds the program (about a minute; a few seconds once built).",
+    "2. Write animation.json: {config, script, frame_rate}, with config and script as for a single frame.",
+    "3. The AI reads the row with tools:list {tool: \"tool:render-a-pointillist-target-animation\"} and runs: cargo run --release --quiet --manifest-path trillion-workshop/tools/pointillist-film/Cargo.toml --target-dir /tmp/pointillist-film-build --example encode_target_animation -- animation.json animation.pfat",
+    "4. Nothing prints on success: the answer is animation.pfat, which begins PFAT and holds the target pictures and the timeline with the frame rate, for a viewer that works the frames out itself. The same request always gives the same bytes."
   ],
   "worked_examples": [
     {
-      "title": "Pack a square-grid pointillist film as one target-animation file (runs on your computer) on a sample input",
-      "ask": "Run tool:render-a-pointillist-target-animation.",
+      "title": "A two-cell film packed at 4 frames a second",
+      "ask": "Pack my two-cell film at 4 frames a second into animation.pfat.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:render-a-pointillist-target-animation",
-            "input": {}
+            "tool": "tool:render-a-pointillist-target-animation"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Turn a film script into one compact file of its pictures and timeline at a frame rate, for a viewer that works out the frames itself"
+      "given": "From tools/pointillist-film/test/pointillist-film.test.mjs (the target animation test) and run here with cargo: animation.json holds config and script for a two-cell film (grid 2 columns by 1 row, gap 0.1; limits max 8 columns, 8 rows, 64 cells, 4 targets, 4096 frame bytes; style opacity 0 to 1, scale 0 to 4; target 0 is a red cell and a blue cell, target 1 is a green cell and a yellow cell; one segment from 0 s for 2 s that weights target 0 by the constant 1 and target 1 by the input time) and frame_rate 4. The AI runs: cargo run --release --quiet --manifest-path trillion-workshop/tools/pointillist-film/Cargo.toml --target-dir /tmp/pointillist-film-build --example encode_target_animation -- animation.json animation.pfat",
+      "hands_back": "Nothing on standard output and exit 0; animation.pfat is 60 bytes and its first four bytes read PFAT (the two target pictures, the one segment and the frame rate 4 follow in the fixed layout)."
     }
   ]
 }

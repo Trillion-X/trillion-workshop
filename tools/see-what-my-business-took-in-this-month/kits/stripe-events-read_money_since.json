@@ -1,23 +1,23 @@
 {
-  "draft": true,
-  "drafted_from": "tool:stripe-events-read_money_since's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:stripe-events-read_money_since with since.\" List the money that moved on this Stripe account since a moment, newest first, at most 100 entries",
+  "drafted_from": "tools/see-what-my-business-took-in-this-month/tool-rows.json (tool:stripe-events-read_money_since, an http row) and the tests in test/business-screen.test.mjs that exercise it; not run against Stripe: the answer is read from the row's request template and the test's Stripe answer",
+  "start_here": "Say to your AI: \"List the money that moved on my Stripe account since October 1, 2026, newest first, at most 100 entries.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it asks your own Stripe connection for the balance transactions since a moment and answers them unchanged.",
   "workflows": [],
   "tools": [
     "tool:stripe-events-read_money_since",
     "tool:read-business"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:stripe-events-read_money_since\", and give it since.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:stripe-events-read_money_since and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields data, has_more."
+    "1. Connect Stripe in Connections so the door holds your secret key; the key is sent only to api.stripe.com and never shown.",
+    "2. Say \"List the money that moved on my Stripe account since October 1, 2026\". The AI runs tool:stripe-events-read_money_since with since set to seconds since 1970 UTC (1790812800 for that moment).",
+    "3. Read the answer: data (Stripe's balance transactions, newest first, each with amount, fee, net, currency and reporting_category in the currency's smallest unit) and has_more (true when there were more than 100).",
+    "4. To see the sums per currency for the month, run tool:read-business instead, which calls this tool for you."
   ],
   "worked_examples": [
     {
-      "title": "Read the money on my Stripe account since a moment on a sample input",
-      "ask": "Run tool:stripe-events-read_money_since.",
+      "title": "Five Stripe entries since the 1st of October 2026",
+      "ask": "List the money that moved on my Stripe account since October 1, 2026, newest first.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,13 +27,13 @@
           "input": {
             "tool": "tool:stripe-events-read_money_since",
             "input": {
-              "since": "<since: The moment to list from, in seconds since 1970 (UTC)>"
+              "since": 1790812800
             }
           }
         }
       },
-      "hands_back": "An answer with the fields data, has_more.",
-      "given": "The person gives: since (shown as <name> in the input)."
+      "given": "From the row's request GET https://api.stripe.com/v1/balance_transactions?limit=100&created[gte]=1790812800 (the 1st of October 2026 UTC) with Authorization: Bearer <your key>, and the Stripe answer the test in test/business-screen.test.mjs gives for it (not a live Stripe call).",
+      "hands_back": "{\"object\":\"list\",\"has_more\":false,\"data\":[{\"object\":\"balance_transaction\",\"amount\":10000,\"fee\":320,\"net\":9680,\"currency\":\"usd\",\"reporting_category\":\"charge\",\"type\":\"charge\"},{\"object\":\"balance_transaction\",\"amount\":5050,\"fee\":176,\"net\":4874,\"currency\":\"usd\",\"reporting_category\":\"charge\",\"type\":\"charge\"},{\"object\":\"balance_transaction\",\"amount\":-2000,\"fee\":0,\"net\":-2000,\"currency\":\"usd\",\"reporting_category\":\"refund\",\"type\":\"refund\"},{\"object\":\"balance_transaction\",\"amount\":-8000,\"fee\":0,\"net\":-8000,\"currency\":\"usd\",\"reporting_category\":\"payout\",\"type\":\"payout\"},{\"object\":\"balance_transaction\",\"amount\":3000,\"fee\":120,\"net\":2880,\"currency\":\"eur\",\"reporting_category\":\"charge\",\"type\":\"charge\"}]} (amounts in the currency's smallest unit; a 200-299 answer is a success)."
     }
   ]
 }

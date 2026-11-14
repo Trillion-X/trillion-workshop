@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "tool:make-a-fresh-viewer-review-pack-of-a-preview's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:make-a-fresh-viewer-review-pack-of-a-preview with request.\" Make the contact sheets and the timed transcript a fresh viewer reviews a preview from",
+  "drafted_from": "tool:make-a-fresh-viewer-review-pack-of-a-preview's row, do-work/review_pack.py and test/test_filmcraft_preview.py",
+  "start_here": "Say to your AI: \"Make the review pack for option x00-r8-2 of my film in /films/made-up-film: contact sheets and a timed transcript of its working preview.\" It runs review_pack.py and hands the pack folder to the fresh-viewer review.",
   "lists": [
     {
       "list": "list:settings",
@@ -108,38 +107,36 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
-    "tool:make-a-fresh-viewer-review-pack-of-a-preview",
     "tool:check-a-rendered-video",
-    "tool:make-a-contact-sheet-of-pictures-or-video-frames"
+    "tool:make-a-contact-sheet-of-pictures-or-video-frames",
+    "tool:make-a-fresh-viewer-review-pack-of-a-preview",
+    "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:make-a-fresh-viewer-review-pack-of-a-preview\", and give it request.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:make-a-fresh-viewer-review-pack-of-a-preview and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields result, error."
+    "1. Pour the two example setting rows into your own settings list (see pour); preview.review_pack in the film's row sets every_s, per_sheet, width, model and language.",
+    "2. Have the option's working preview in work-round-<n>/working/ (or name another file as video).",
+    "3. Say what you said in start_here. Your AI reads the row with tools:list and runs `python3 tools/put-picked-options-into-a-filmcraft-project/do-work/review_pack.py /films/made-up-film/request.json`.",
+    "4. Read the last JSON line: the sheets, the tile count and the transcript line count. Hand the pack folder to tool:check-a-rendered-video's fresh-viewer review without summarizing the preview yourself."
   ],
   "worked_examples": [
     {
-      "title": "Make a fresh-viewer review pack of a preview: contact sheets and a transcript (runs on your computer) on a sample input",
-      "ask": "Run tool:make-a-fresh-viewer-review-pack-of-a-preview.",
+      "title": "A 13.5 second working preview becomes two contact sheets and a three-line transcript",
+      "ask": "Make the fresh-viewer review pack for option x00-r8-2.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:make-a-fresh-viewer-review-pack-of-a-preview",
-            "input": {
-              "request": "<request: A JSON file on the person's computer holding the request, put where {request} is in the command>"
-            }
+            "tool": "tool:make-a-fresh-viewer-review-pack-of-a-preview"
           }
         }
       },
-      "hands_back": "An answer with the fields result, error.",
-      "given": "The person gives: request (shown as <name> in the input)."
+      "given": "From tools/put-picked-options-into-a-filmcraft-project/test/test_filmcraft_preview.py (the_review_pack_has_sheets_and_a_transcript), run for real with ffmpeg, Pillow and the test's stand-in Whisper (test/stand_in_whisper). work-round-8/working/x00-r8-2.mp4 is a 13.5 second 320x180 test pattern with a sine tone. The AI runs `python3 tools/put-picked-options-into-a-filmcraft-project/do-work/review_pack.py /films/made-up-film/request.json` with request.json = {\"film\":\"/films/made-up-film\",\"option\":\"x00-r8-2\",\"settings\":{...}}. The stand-in Whisper's words are made up; a real run hears the real preview.",
+      "hands_back": "{\"result\":{\"pack\":\"/films/made-up-film/cuts/options-one/work-round-8/review-pack/x00-r8-2\",\"sheets\":[\".../sheet-01.jpg\",\".../sheet-02.jpg\"],\"tiles\":14,\"lines\":3,\"scratch\":\"/films/made-up-film/cuts/options-one/work-round-8/working/rp-<random>\"}} and transcript.txt holds \"00:00 Made up words.\", \"00:01 A question?\" and \"00:02 No end\", one per line. With video set to /made/up.mp4 it answers an error that says there is no preview at that path."
     }
   ],
   "pour": {

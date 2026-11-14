@@ -1,39 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:listen-to-sound-effects-and-find-clean-trims's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:listen-to-sound-effects-and-find-clean-trims with categories, out.\" Rank my sound-effect folders against a description and find the cleanest trim of the best ones",
+  "drafted_from": "tool:listen-to-sound-effects-and-find-clean-trims row in tools/generate-and-judge-sound-effects/tool-rows.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
+  "start_here": "Say to your AI: \"Rank my hits folder against the description a low hit and find the cleanest trim of the best one.\" It writes CATEGORIES.json for the hit category, runs the listener and reads back the trim it found.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads CATEGORIES.json and sound files on this computer and merges its findings into an OUT.json file.",
   "workflows": [],
   "tools": [
     "tool:listen-to-sound-effects-and-find-clean-trims"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:listen-to-sound-effects-and-find-clean-trims\", and give it categories, out.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:listen-to-sound-effects-and-find-clean-trims and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Rank my sound-effect folders against a description and find the cleanest trim of the best ones"
+    "1. Put the sound files of each category in a folder, for example /work/sfx/hits/a.wav and /work/sfx/hits/b.wav.",
+    "2. Write /work/sfx/categories.json: {\"hit\": {\"folder\": \"/work/sfx/hits\", \"query\": \"a low hit\", \"kind\": \"event\", \"top\": 1, \"alts\": [\"a door\"]}}.",
+    "3. Say \"Listen to my sounds\". The AI reads the row with tools:list and runs: EARSHOT_THREADS=3 <earshot python> -I tools/generate-and-judge-sound-effects/do-work/listen_to_sound_effects.py /work/sfx/categories.json /work/sfx/listen.json (add category names after it to do only those).",
+    "4. Read the last line, then open listen.json: each category lists its top candidates with trim [start, end], head_db, tail_db (at most -30), match z, describe, realness and measures."
   ],
   "worked_examples": [
     {
-      "title": "Rank sound effects in folders by ear and find each one's cleanest trim (runs on your computer) on a sample input",
-      "ask": "Run tool:listen-to-sound-effects-and-find-clean-trims.",
+      "title": "A low tone and a high tone ranked for \"a low hit\"; the low one is trimmed clean",
+      "ask": "Rank my hits folder for \"a low hit\" and find the cleanest trim of the best one.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:listen-to-sound-effects-and-find-clean-trims",
-            "input": {
-              "categories": "<categories: CATEGORIES.json>",
-              "out": "<out: OUT.json, merged into>"
-            }
+            "tool": "tool:listen-to-sound-effects-and-find-clean-trims"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Rank my sound-effect folders against a description and find the cleanest trim of the best ones",
-      "given": "The person gives: categories, out (shown as <name> in the input)."
+      "given": "From tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (test_rank_then_whole_listening, stand-in earshot): /work/sfx/hits/a.wav is a 0.5 s 200 Hz tone with 0.1 s of silence either side, b.wav a 2000 Hz tone; categories.json is {\"hit\": {\"folder\": \"/work/sfx/hits\", \"query\": \"a low hit\", \"kind\": \"event\", \"top\": 1, \"alts\": [\"a door\"]}}. Command: EARSHOT_THREADS=3 python -I tools/generate-and-judge-sound-effects/do-work/listen_to_sound_effects.py /work/sfx/categories.json /work/sfx/listen.json",
+      "hands_back": "Last line: {\"result\": {\"out\": \"/work/sfx/listen.json\", \"categories\": 1}}. listen.json: hit has rank_summary \"2 ranked\" and one candidate, /work/sfx/hits/a.wav (rank_z 3.0), with trim [0.09, 0.615], head_db -240.0, tail_db -240.0 (a clean edge, at most -30), match_z 3.0, describe \"a tone near 200 Hz\", duration 0.525."
     }
   ]
 }

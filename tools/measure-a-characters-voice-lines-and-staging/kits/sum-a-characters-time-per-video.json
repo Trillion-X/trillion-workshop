@@ -1,22 +1,24 @@
 {
-  "draft": true,
-  "drafted_from": "tool:sum-a-characters-time-per-video's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:sum-a-characters-time-per-video with data_folder.\" Sum how much a character speaks in each video of a show, in the opening, the body and the close, and see how that goes with how the videos did",
+  "drafted_from": "tool:sum-a-characters-time-per-video's row in tools/measure-a-characters-voice-lines-and-staging/tool-rows.json, its script in tools/measure-a-characters-voice-lines-and-staging/do-work/ and the tests in tools/measure-a-characters-voice-lines-and-staging/test/",
+  "start_here": "Say to your AI: \"Sum the parrot's time in each episode against how the videos did, with the first 20 seconds and the last 10 counted on their own.\" It runs tool:sum-a-characters-time-per-video and writes character-per-video.tsv.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of its own: it reads one settings row of yours (record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>) or the settings you pass, and works on files in the show's folder.",
   "workflows": [],
   "tools": [
-    "tool:sum-a-characters-time-per-video"
+    "tool:sum-a-characters-time-per-video",
+    "tool:catalog-a-channels-videos-by-format",
+    "tool:find-when-a-character-speaks"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:sum-a-characters-time-per-video\", and give it data_folder.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:sum-a-characters-time-per-video and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Sum how much a character speaks in each video of a show, in the opening, the body and the close, and see how that goes with how the videos did"
+    "1. Make the show's folder and the YouTube library folder the run may change, and have the catalog.tsv and voice/<id>.turns.json for the videos. Put the keys the row needs (opening_seconds, closing_seconds, stripped_ids, compare_from_month, compare_to_month, lowest_from_year) in your settings row or pass them as settings.",
+    "2. Say the sentence in start_here to your AI. It calls run_resource_operation at @workshop-tools with method tools:run, tool tool:sum-a-characters-time-per-video and the input in the worked example; the door asks for the granted folder.",
+    "3. Read the last line it prints, {\"result\": ...}, or {\"error\": ...} saying what to fix (a missing settings key is named).",
+    "4. Read the tables printed by year and the table character-per-video.tsv; the comparison of the stripped episodes needs at least one stripped id with turns."
   ],
   "worked_examples": [
     {
-      "title": "Sum a character's time in each video and set it against the video's views (runs on your computer) on a sample input",
-      "ask": "Run tool:sum-a-characters-time-per-video.",
+      "title": "One scored episode of two",
+      "ask": "How much does the parrot talk per episode?",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -41,7 +43,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Sum how much a character speaks in each video of a show, in the opening, the body and the close, and see how that goes with how the videos did"
+      "given": "From the sample run in tools/measure-a-characters-voice-lines-and-staging/tool-rows.json and PerVideoTest in tools/measure-a-characters-voice-lines-and-staging/test/test_measures.py: the catalog holds vid-a (1000 views, x_baseline 1.5) and vid-c (stripped); only vid-a has a turns file, with three turns [10,12], [15,17] and [40,42] in 100.0 s.",
+      "hands_back": "{\"result\": {\"table\": \"{grant:change-a-folder}/show/character-per-video.tsv\", \"scored\": 1, \"episodes\": 1, \"stripped_median\": null, \"full_median\": 1.5}}; the vid-a row is turns 3, character_s 6.0, share 0.06, open_s 4.0, outro_s 0, body_exchanges 1, ex_per_10min 8.57, stripped False; with no year holding six videos the thirds print low 0 | mid 0 | high 0."
     }
   ]
 }

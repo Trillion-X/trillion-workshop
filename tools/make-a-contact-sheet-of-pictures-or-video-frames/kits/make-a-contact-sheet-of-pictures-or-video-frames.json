@@ -1,38 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:make-a-contact-sheet-of-pictures-or-video-frames's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:make-a-contact-sheet-of-pictures-or-video-frames with request.\" Lay my pictures, or frames of my video at chosen times or at a steady rate, out as one labelled sheet so I can choose or check them by eye",
+  "drafted_from": "tool:make-a-contact-sheet-of-pictures-or-video-frames row in tool-rows.json, do-work/make_contact_sheet.py and test/test_make_contact_sheet.py",
+  "start_here": "Say to your AI: \"Lay out the four cake photos in pictures/ as one contact sheet, three to a row, each 300 pixels wide with its name under it, and save it as sheet.jpg.\" It writes a request file, runs make_contact_sheet.py on your computer and tells you the sheet it made.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list: it reads one JSON request file and writes sheet pictures, keeping nothing between runs.",
   "workflows": [],
   "tools": [
     "tool:make-a-contact-sheet-of-pictures-or-video-frames"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:make-a-contact-sheet-of-pictures-or-video-frames\", and give it request.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:make-a-contact-sheet-of-pictures-or-video-frames and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields result, error."
+    "1. Install what it needs once: clone the Workshop repository, run python3 -m pip install -U pillow, and brew install ffmpeg only if you want a sheet of video frames.",
+    "2. Say what you want laid out; your AI reads the row with tools:list and writes a JSON request file with kind (pictures, frames-at-times or frames-at-a-rate), out and the fields that kind takes.",
+    "3. It runs `python3 tools/make-a-contact-sheet-of-pictures-or-video-frames/do-work/make_contact_sheet.py request.json` from the Workshop checkout and reads the last line.",
+    "4. {\"result\": {\"sheets\": [...], \"tiles\": n}} names the sheet files and how many pictures or frames are on them; {\"error\": \"...\"} says what to change in the request. Open the sheet to choose or check by eye."
   ],
   "worked_examples": [
     {
-      "title": "Make a contact sheet of pictures or video frames (runs on your computer) on a sample input",
-      "ask": "Run tool:make-a-contact-sheet-of-pictures-or-video-frames.",
+      "title": "Four photos in a grid of three, names below",
+      "ask": "Make a contact sheet of my four cake photos, three to a row.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:make-a-contact-sheet-of-pictures-or-video-frames",
-            "input": {
-              "request": "<request: A JSON file on the person's computer holding the request, put where {request} is in the command>"
-            }
+            "tool": "tool:make-a-contact-sheet-of-pictures-or-video-frames"
           }
         }
       },
-      "hands_back": "An answer with the fields result, error.",
-      "given": "The person gives: request (shown as <name> in the input)."
+      "given": "From tools/make-a-contact-sheet-of-pictures-or-video-frames/test/test_make_contact_sheet.py (test_grid_size_and_cells_with_label_below): the AI reads the row, then runs `python3 tools/make-a-contact-sheet-of-pictures-or-video-frames/do-work/make_contact_sheet.py request.json` where request.json is {\"kind\": \"pictures\", \"out\": \"sheet.jpg\", \"columns\": 3, \"cell_width\": 300, \"pictures\": [{\"path\": \"pictures/cake0.png\", \"label\": \"n0\"}, {\"path\": \"pictures/cake1.png\", \"label\": \"n1\"}, {\"path\": \"pictures/cake2.png\", \"label\": \"n2\"}, {\"path\": \"pictures/cake3.png\", \"label\": \"n3\"}]}; the pictures are 800x450, 600x800, 800x300 and 640x360.",
+      "hands_back": "The last line printed is {\"result\": {\"sheets\": [\"sheet.jpg\"], \"tiles\": 4}}. The sheet is 924 pixels wide and 394 tall: three cells of 300 plus 6 padding each, two rows of 168 picture height plus a 14 pixel label strip plus 12, plus 6; the 600x800 picture is cut to its middle so it fills its cell. With an empty pictures list the last line is {\"error\": \"... at least one picture ...\"} and the exit status is 1."
     }
   ]
 }

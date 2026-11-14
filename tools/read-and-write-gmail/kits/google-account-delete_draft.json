@@ -1,22 +1,23 @@
 {
-  "draft": true,
-  "drafted_from": "tool:google-account-delete_draft's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:google-account-delete_draft with connection, draft_id.\" Delete one Gmail draft permanently.",
+  "drafted_from": "tool:google-account-delete_draft's own row in tools/read-and-write-gmail/tool-rows.json (invoke method, url, body_template, input and output schema); Gmail response values worked out from that row for the synthetic input",
+  "start_here": "Say to your AI: \"Delete my draft r-7301442210 for good. Use my Google account connection service_connection:google-account:sam-bakery.\" It runs tool:google-account-delete_draft as that account and hands back the Gmail answer.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it calls Gmail for one Google account the connection names and answers what Gmail returns.",
   "workflows": [],
   "tools": [
-    "tool:google-account-delete_draft"
+    "tool:google-account-delete_draft",
+    "tool:google-account-list_drafts"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:google-account-delete_draft\", and give it connection, draft_id.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:google-account-delete_draft and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $ holds the result: Delete one Gmail draft permanently."
+    "1. Connect a Google account in your Workshop connections and note its handle, like service_connection:google-account:sam-bakery.",
+    "2. Say to your AI: \"Delete my draft r-7301442210 for good.\" and let it call run_resource_operation at @workshop-tools with method tools:run, tool tool:google-account-delete_draft, and the input {\"connection\":{\"connection_id\":\"service_connection:google-account:sam-bakery\"},\"draft_id\":\"r-7301442210\"}.",
+    "3. Read what comes back: the request goes as DELETE  the Gmail me-mailbox base (gmail.googleapis.com, v1)/drafts/r-7301442210.",
+    "4. Run tool:google-account-list_drafts to get the id; deleting a draft cannot be undone."
   ],
   "worked_examples": [
     {
-      "title": "Delete email draft on a sample input",
-      "ask": "Run tool:google-account-delete_draft.",
+      "title": "Delete a Gmail draft on a sample input",
+      "ask": "Delete my draft r-7301442210 for good.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,15 +28,15 @@
             "tool": "tool:google-account-delete_draft",
             "input": {
               "connection": {
-                "connection_id": "<connection_id: The Google account to use: service_connection:google-account or service_connection:google-account:<account>, as the person's connections list it>"
+                "connection_id": "service_connection:google-account:sam-bakery"
               },
-              "draft_id": "<draft_id: string>"
+              "draft_id": "r-7301442210"
             }
           }
         }
       },
-      "hands_back": "The answer's $ holds the result: Delete one Gmail draft permanently.",
-      "given": "The person gives: connection_id, draft_id (shown as <name> in the input)."
+      "given": "read from tools/read-and-write-gmail/tool-rows.json (its invoke url, method and body_template) and checked against tools/read-and-write-gmail/test/rows.test.mjs. A saved draft with id r-7301442210, as list_drafts gives it. The call it makes: DELETE the Gmail me-mailbox base (gmail.googleapis.com, v1)/drafts/r-7301442210.",
+      "hands_back": "Gmail answers with an empty body (the output has no fields), and the draft no longer appears in list_drafts. Deleting is permanent."
     }
   ]
 }

@@ -1,0 +1,622 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:grow-the-one-tree with the seed 'New staff learn our order sheet faster from filled-in rows than from the how-to', owner task list record:calendar-task-list:example and pursuit pursuit:example-content, visibility public.\"",
+  "lists": [
+    {
+      "list": "list:tree-branches",
+      "label": "Tree branches",
+      "row_type": "record:tree-branches",
+      "holds": "Every branch of the one tree as a row: which workflow it runs, when it fires, how many agents, whether its work is public or internal by default. Adding a branch is adding a row.",
+      "fields": [
+        {
+          "id": "branch",
+          "kind": "text",
+          "label": "Branch",
+          "alike": [
+            "name",
+            "path"
+          ]
+        },
+        {
+          "id": "workflow",
+          "kind": "text",
+          "label": "Workflow",
+          "alike": [
+            "playbook",
+            "process",
+            "recipe"
+          ]
+        },
+        {
+          "id": "fires_when",
+          "kind": "long-text",
+          "label": "Fires when",
+          "alike": [
+            "trigger",
+            "when"
+          ]
+        },
+        {
+          "id": "agents",
+          "kind": "number",
+          "label": "Agents",
+          "alike": [
+            "workers",
+            "parallel runs"
+          ]
+        },
+        {
+          "id": "visibility_default",
+          "kind": "choice",
+          "label": "Visibility",
+          "alike": [
+            "public or internal",
+            "audience"
+          ]
+        },
+        {
+          "id": "state",
+          "kind": "choice",
+          "label": "State",
+          "alike": [
+            "status",
+            "on/off"
+          ]
+        },
+        {
+          "id": "evidence",
+          "kind": "long-text",
+          "label": "Evidence",
+          "alike": [
+            "why",
+            "notes"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "turn-what-you-said-into-content",
+          "values": {
+            "agents": 1,
+            "branch": "Turn what was said into content",
+            "evidence": "Default branch of workflow:grow-the-one-tree, 2026-11-12.",
+            "fires_when": "the seed is the person's own words",
+            "state": "On",
+            "visibility_default": "public",
+            "workflow": "workflow:turn-what-you-said-into-content"
+          }
+        },
+        {
+          "id": "research-what-everyone-says",
+          "values": {
+            "agents": 1,
+            "branch": "Research what everyone says",
+            "evidence": "Default branch of workflow:grow-the-one-tree, 2026-11-12.",
+            "fires_when": "a seed makes a claim or names a subject",
+            "state": "On",
+            "visibility_default": "internal",
+            "workflow": "workflow:research-what-everyone-says"
+          }
+        },
+        {
+          "id": "real-life-cases",
+          "values": {
+            "agents": 1,
+            "branch": "Find real situations and the friction in them",
+            "evidence": "Existing mode workflow chosen as a branch of workflow:grow-the-one-tree, 2026-11-12; the row points at the workflow id, it is no second registry.",
+            "fires_when": "at the start of a pursuit and when new evidence arrives",
+            "state": "On",
+            "visibility_default": "internal",
+            "workflow": "workflow:real-life-cases"
+          }
+        },
+        {
+          "id": "read-the-week",
+          "values": {
+            "agents": 1,
+            "branch": "Read the week and make more of what won",
+            "evidence": "Default branch of workflow:grow-the-one-tree, 2026-11-12.",
+            "fires_when": "weekly, once pieces are published",
+            "state": "On",
+            "visibility_default": "internal",
+            "workflow": "workflow:read-the-week-and-make-more-of-what-won"
+          }
+        }
+      ],
+      "alike": [
+        "a list of standard operating procedures with their triggers",
+        "a Zapier or Make list of automations",
+        "a team playbook index"
+      ]
+    },
+    {
+      "list": "list:tree-outputs",
+      "label": "Tree outputs",
+      "row_type": "record:tree-outputs",
+      "holds": "References only, one row per output of the one tree: the id of the row that holds it, the branch that made it, the seed, and the branches that reuse it. The output itself stays in its own list; nothing is copied here.",
+      "fields": [
+        {
+          "id": "output_ref",
+          "kind": "text",
+          "label": "Output row",
+          "alike": [
+            "item",
+            "reference",
+            "link"
+          ]
+        },
+        {
+          "id": "made_by_branch",
+          "kind": "text",
+          "label": "Made by branch",
+          "alike": [
+            "made by",
+            "source"
+          ]
+        },
+        {
+          "id": "seed",
+          "kind": "text",
+          "label": "Seed (root task)",
+          "alike": [
+            "root",
+            "origin"
+          ]
+        },
+        {
+          "id": "reused_by",
+          "kind": "tags",
+          "label": "Reused by",
+          "alike": [
+            "used by",
+            "reused in"
+          ]
+        },
+        {
+          "id": "visibility",
+          "kind": "choice",
+          "label": "Visibility",
+          "alike": [
+            "audience"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "rows-not-instructions-thread",
+          "values": {
+            "output_ref": "record:content-pieces:rows-not-instructions-thread",
+            "made_by_branch": "record:tree-branches:turn-what-you-said-into-content",
+            "seed": "record:calendar-task:tree-hand-people-the-rows",
+            "reused_by": [
+              "record:tree-branches:research-what-everyone-says"
+            ],
+            "visibility": "public"
+          }
+        },
+        {
+          "id": "rows-claim-sources",
+          "values": {
+            "output_ref": "record:findings:rows-beat-instructions-sources",
+            "made_by_branch": "record:tree-branches:research-what-everyone-says",
+            "seed": "record:calendar-task:tree-hand-people-the-rows",
+            "reused_by": [],
+            "visibility": "internal"
+          }
+        }
+      ],
+      "alike": [
+        "a content repurposing tracker",
+        "an asset register",
+        "a \"where is this used\" column in a content calendar"
+      ]
+    },
+    {
+      "list": "list:content-pillars",
+      "label": "Content pillars",
+      "row_type": "record:content-pillars",
+      "holds": "What each pursuit's content is for: the few kinds of piece every video, post and picture must serve, with what the viewer gets and how often.",
+      "fields": [
+        {
+          "id": "pillar",
+          "kind": "text",
+          "label": "Pillar",
+          "alike": [
+            "theme",
+            "topic",
+            "category"
+          ]
+        },
+        {
+          "id": "pursuit",
+          "kind": "text",
+          "label": "Pursuit",
+          "alike": [
+            "brand",
+            "niche"
+          ]
+        },
+        {
+          "id": "viewer_gets",
+          "kind": "long-text",
+          "label": "What the viewer gets",
+          "alike": [
+            "value",
+            "promise"
+          ]
+        },
+        {
+          "id": "per_week",
+          "kind": "number",
+          "label": "Pieces a week",
+          "alike": [
+            "frequency",
+            "cadence"
+          ]
+        },
+        {
+          "id": "never",
+          "kind": "long-text",
+          "label": "Never",
+          "alike": [
+            "avoid",
+            "off limits"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "start-from-rows",
+          "values": {
+            "pillar": "Start from rows, not instructions",
+            "pursuit": "Small bakery owners",
+            "viewer_gets": "A filled-in example they can copy into their own order sheet today.",
+            "per_week": 2,
+            "never": "A how-to with no filled-in example."
+          }
+        },
+        {
+          "id": "behind-the-counter",
+          "values": {
+            "pillar": "Behind the counter",
+            "pursuit": "Small bakery owners",
+            "viewer_gets": "What a real Saturday morning rush looks like, minute by minute.",
+            "per_week": 1,
+            "never": "Staged shots of an empty shop."
+          }
+        }
+      ],
+      "alike": [
+        "a content strategy doc",
+        "a Notion page of content themes",
+        "a brand messaging sheet"
+      ]
+    },
+    {
+      "list": "list:content-formats",
+      "label": "Content formats",
+      "row_type": "record:content-formats",
+      "holds": "How each kind of piece is built (hook, beats, shots, text, sound, call to action), what it needs and the checks it must pass.",
+      "fields": [
+        {
+          "id": "format",
+          "kind": "text",
+          "label": "Format",
+          "alike": [
+            "type",
+            "template"
+          ]
+        },
+        {
+          "id": "serves",
+          "kind": "link",
+          "label": "Serves pillars",
+          "alike": [
+            "pillars"
+          ]
+        },
+        {
+          "id": "how_built",
+          "kind": "long-text",
+          "label": "How it is built",
+          "alike": [
+            "structure",
+            "beats"
+          ]
+        },
+        {
+          "id": "length",
+          "kind": "text",
+          "label": "Length",
+          "alike": [
+            "duration"
+          ]
+        },
+        {
+          "id": "checks",
+          "kind": "long-text",
+          "label": "Checks before it goes out",
+          "alike": [
+            "checklist",
+            "QA"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "thirty-second-answer",
+          "values": {
+            "format": "Thirty-second answer to a comment",
+            "serves": "record:content-pillars:start-from-rows",
+            "how_built": "Hook reads the comment aloud; one beat shows the filled-in example; close names where to get it.",
+            "length": "25 to 35 seconds",
+            "checks": "The comment is shown word for word; captions on; vertical 9:16."
+          }
+        },
+        {
+          "id": "saturday-timelapse",
+          "values": {
+            "format": "Saturday rush timelapse",
+            "serves": "record:content-pillars:behind-the-counter",
+            "how_built": "Open on the first customer; timelapse to the last tray; end on the count of loaves sold.",
+            "length": "45 seconds",
+            "checks": "No customer face without consent; the count matches the till."
+          }
+        }
+      ],
+      "alike": [
+        "a swipe file of post templates",
+        "a video format library",
+        "a Canva templates folder"
+      ]
+    },
+    {
+      "list": "list:content-pieces",
+      "label": "Content pieces",
+      "row_type": "record:content-pieces",
+      "holds": "Every piece to make for a pursuit: when it goes out, which pillar and format it serves and why, who does the next step, the script and the draft.",
+      "fields": [
+        {
+          "id": "piece",
+          "kind": "text",
+          "label": "Piece",
+          "alike": [
+            "title",
+            "post",
+            "headline"
+          ]
+        },
+        {
+          "id": "goes_out",
+          "kind": "date",
+          "label": "Goes out",
+          "alike": [
+            "publish date",
+            "scheduled"
+          ]
+        },
+        {
+          "id": "pursuit",
+          "kind": "text",
+          "label": "Pursuit",
+          "alike": [
+            "brand",
+            "niche"
+          ]
+        },
+        {
+          "id": "pillar",
+          "kind": "link",
+          "label": "Pillar",
+          "alike": [
+            "theme",
+            "category"
+          ]
+        },
+        {
+          "id": "kind",
+          "kind": "choice",
+          "label": "Kind",
+          "alike": [
+            "type",
+            "medium"
+          ]
+        },
+        {
+          "id": "why",
+          "kind": "long-text",
+          "label": "Why make it",
+          "alike": [
+            "goal",
+            "reason"
+          ]
+        },
+        {
+          "id": "state",
+          "kind": "choice",
+          "label": "State",
+          "alike": [
+            "status",
+            "stage"
+          ]
+        },
+        {
+          "id": "who",
+          "kind": "tags",
+          "label": "Who does the next step",
+          "alike": [
+            "owner",
+            "assignee"
+          ]
+        },
+        {
+          "id": "script",
+          "kind": "long-text",
+          "label": "Script",
+          "alike": [
+            "copy",
+            "caption",
+            "words"
+          ]
+        },
+        {
+          "id": "came_from",
+          "kind": "text",
+          "label": "Came from",
+          "alike": [
+            "source",
+            "origin"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "rows-not-instructions-thread",
+          "values": {
+            "piece": "Stop writing instructions. Hand people the rows.",
+            "goes_out": "2026-11-20",
+            "pursuit": "Small bakery owners",
+            "pillar": "record:content-pillars:start-from-rows",
+            "kind": "Writing",
+            "why": "The seed says new staff learn the order sheet faster from filled-in rows.",
+            "state": "Needs you to approve",
+            "who": [
+              "owner"
+            ],
+            "script": "Nobody reads the how-to. Everyone copies the filled-in order sheet. So ship the filled-in sheet.",
+            "came_from": "record:calendar-task:tree-hand-people-the-rows"
+          }
+        },
+        {
+          "id": "answer-how-do-you-train-staff",
+          "values": {
+            "piece": "How we train a new baker in one morning",
+            "goes_out": "2026-11-22",
+            "pursuit": "Small bakery owners",
+            "pillar": "record:content-pillars:start-from-rows",
+            "kind": "Video",
+            "why": "A commenter asked how a new baker learns the morning bake in one shift.",
+            "state": "Being made",
+            "who": [
+              "AI"
+            ],
+            "script": "You asked how a new baker learns the bake in a morning. We hand them yesterday's finished sheet, not a manual.",
+            "came_from": "record:comment-leads:post-123-1"
+          }
+        }
+      ],
+      "alike": [
+        "a content calendar",
+        "an editorial board in Airtable or Trello",
+        "a Notion content database"
+      ]
+    }
+  ],
+  "workflows": [
+    "workflow:grow-the-one-tree",
+    "workflow:answer-commenters-with-videos",
+    "workflow:answer-comments-and-messages",
+    "workflow:keep-a-changelog-from-what-shipped",
+    "workflow:make-one-piece-of-content-from-audience-to-publish",
+    "workflow:make-the-piece-without-waiting-for-the-person",
+    "workflow:personalized-reach-out",
+    "workflow:read-the-week-and-make-more-of-what-won"
+  ],
+  "tools": [
+    "tool:start-a-recipe-run",
+    "tool:pour-example-rows-into-my-list",
+    "tool:check-a-post",
+    "tool:check-a-reference-adaptation-contract",
+    "tool:draft-a-post",
+    "tool:filter-rows-by-rules",
+    "tool:find-repeated-voice-edits",
+    "tool:keep-a-voice-edit",
+    "tool:read-experiment-results",
+    "tool:read-voice",
+    "tool:save-voice",
+    "tool:see-how-each-post-did",
+    "tool:watch-my-sources"
+  ],
+  "instructions": [
+    "1. Pour the example tree-branches rows into the list you keep your processes and their triggers in (see pour), or make list:tree-branches from them: each row names a workflow and when it fires.",
+    "2. Pour or make list:content-pillars, list:content-formats and list:content-pieces from their example rows, and make list:tree-outputs empty; the run writes it.",
+    "3. Say \"Run workflow:grow-the-one-tree\" with the seed (its words and where it came from), owner.task_list, owner.pursuit and visibility; the AI starts it with tool:start-a-recipe-run (row workflow:grow-the-one-tree).",
+    "4. Read the choose-branches answer: the parts the seed was split into and, for each, the branch rows that fire. Turn a branch Off in its row if it should not run for seeds like this.",
+    "5. Each output lands once in its owner list with a tree-outputs row naming the branch that made it; later branches read tree-outputs before they make anything.",
+    "6. Open the root task in the Calendar tasks table: the show step says which root task to open and how many children are Done."
+  ],
+  "worked_examples": [
+    {
+      "title": "One seed fires two branches",
+      "ask": "Grow the tree from this: new staff learn our order sheet faster from filled-in rows than from the how-to.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:grow-the-one-tree",
+              "seed": {
+                "words": "New staff learn our order sheet faster from filled-in rows than from the how-to.",
+                "came_from": "voice note, 2026-11-12"
+              },
+              "owner": {
+                "task_list": "record:calendar-task-list:example",
+                "pursuit": "pursuit:example-content"
+              },
+              "visibility": "public"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:grow-the-one-tree",
+      "step": "choose-branches",
+      "given": "list:tree-branches holds the four example rows (turn-what-you-said-into-content fires when the seed is the person's own words; research-what-everyone-says fires when a seed makes a claim).",
+      "hands_back": "Parts: one claim (\"filled-in rows teach faster than a how-to\") and material for content (the person's own words). Branches that fire: record:tree-branches:turn-what-you-said-into-content (agents 1, public) and record:tree-branches:research-what-everyone-says (agents 1, internal). The root task record:calendar-task:tree-hand-people-the-rows gets two child tasks, one per branch."
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "example": {
+      "kit_list": "list:tree-branches",
+      "into": {
+        "list": "list:my-procedures",
+        "row_type": "record:procedure",
+        "fields": [
+          {
+            "id": "name",
+            "label": "Name"
+          },
+          {
+            "id": "playbook",
+            "label": "Playbook"
+          },
+          {
+            "id": "trigger",
+            "label": "Trigger"
+          },
+          {
+            "id": "workers",
+            "label": "Workers"
+          },
+          {
+            "id": "audience",
+            "label": "Audience"
+          },
+          {
+            "id": "status",
+            "label": "Status"
+          },
+          {
+            "id": "notes",
+            "label": "Notes"
+          }
+        ]
+      }
+    }
+  }
+}

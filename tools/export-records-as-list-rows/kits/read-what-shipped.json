@@ -1,40 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:read-what-shipped's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-what-shipped with settings, repository, staged.\" Read a person's release mark or commit branch, stage each new entry once with its source identity, and let their mapping make list rows",
+  "drafted_from": "tool:read-what-shipped row (tools/export-records-as-list-rows/tool-rows.json), do-work/read_what_shipped.py, read-data/what_shipped.py and test/test_what_shipped.py; the answers are what the script printed on a made-up git repository with fixed commit dates",
+  "start_here": "Say to your AI: \"Read what my shop repository shipped since the last time and stage the new release in staged-releases.json, then tell me the newest entry.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of its own: it only stages each new release or commit as an entry in a file, which your mapping later turns into rows.",
   "workflows": [],
   "tools": [
-    "tool:read-what-shipped"
+    "tool:read-what-shipped",
+    "tool:export-records-as-list-rows"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-what-shipped\", and give it settings, repository, staged.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-what-shipped and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Read a person's release mark or commit branch, stage each new entry once with its source identity, and let their mapping make list rows"
+    "1. Write ship-settings.json with mark (a git ref such as {\"ref\":\"refs/heads/main\"}, or a command that prints JSON), most_subjects and an optional id_prefix; add each \"commit\" and after to make every commit an entry.",
+    "2. Say \"Read what shipped\"; your AI reads the row with tools:list and runs its command from the Workshop checkout with {settings}, {repository} and {staged}.",
+    "3. Read releases (entries held), added (the newest entry added, or null when nothing was new) and added_count; run it again after more commits to add only the new ones.",
+    "4. Turn the staged file into list rows with your mapping and tool:export-records-as-list-rows."
   ],
   "worked_examples": [
     {
-      "title": "Note new releases or commits from a repository (runs on your computer) on a sample input",
-      "ask": "Run tool:read-what-shipped.",
+      "title": "The newest release of a shop repository is staged once",
+      "ask": "Read what my shop repository shipped and stage it.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:read-what-shipped",
-            "input": {
-              "settings": "<settings: The settings file (mark, fields, most_subjects, and optionally each, after and skip_subjects), put where {settings} is in the command>",
-              "repository": "<repository: The repository folder, put where {repository} is in the command>",
-              "staged": "<staged: The staged file of releases, put where {staged} is in the command>"
-            }
+            "tool": "tool:read-what-shipped"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Read a person's release mark or commit branch, stage each new entry once with its source identity, and let their mapping make list rows",
-      "given": "The person gives: settings, repository, staged (shown as <name> in the input)."
+      "given": "Read from a real run of do-work/read_what_shipped.py on a made-up repository with three commits on main (Rye on Sundays, Lemon tarts, A second van; the newest is 885c1b54cfb387771ff0dad0188b59437168fc02 dated 2026-03-03T08:00:00Z). The AI runs: python3 -I tools/export-records-as-list-rows/do-work/read_what_shipped.py --settings ship-settings.json --repository shop --staged staged-releases.json. ship-settings.json is {\"mark\":{\"ref\":\"refs/heads/main\"},\"most_subjects\":5,\"id_prefix\":\"shop-\"}. With no earlier release the entry holds the released commit's own subject alone.",
+      "hands_back": "{\"releases\": 1, \"added\": \"885c1b54cfb3\", \"added_count\": 1}, exit 0. staged-releases.json holds one release: {\"id\": \"shop-885c1b54cfb3\", \"name\": \"885c1b54cfb3\", \"commit\": \"885c1b54cfb387771ff0dad0188b59437168fc02\", \"at\": \"2026-03-03T08:00:00Z\", \"previous\": null, \"subjects\": [\"A second van\"]}. After one more commit (Pie on Fridays) the same command prints {\"releases\": 2, \"added\": \"565087d14d42\", \"added_count\": 1}."
     }
   ]
 }

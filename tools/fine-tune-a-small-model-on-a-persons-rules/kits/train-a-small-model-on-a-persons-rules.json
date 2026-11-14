@@ -1,13 +1,44 @@
 {
-  "draft": true,
-  "drafted_from": "tool:train-a-small-model-on-a-persons-rules's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:train-a-small-model-on-a-persons-rules with base_model, train_file, out.\" Train a small local model to judge lines by my rules",
+  "drafted_from": "tool row in tools/fine-tune-a-small-model-on-a-persons-rules/tool-rows.json, do-work/train_an_adapter.py and test/test_fine_tune.py (model_runs_refuse_a_folder_that_is_not_a_decider); the refusal was run here, a real run needs torch and a decider model and is not run",
+  "start_here": "Say to your AI: \"Train an adapter on /work/out/train.jsonl with my decider model /work/models/decider-2b, my frame, rank 8, one epoch and a 30 minute budget, saved to /work/adapter.\" It writes a request file and runs train_an_adapter.py on your computer.",
+  "tools": [
+    "tool:train-a-small-model-on-a-persons-rules",
+    "tool:build-training-rows-from-a-persons-rules",
+    "tool:read-a-tool-setting",
+    "tool:score-held-out-lines-with-a-small-model",
+    "tool:pour-example-rows-into-my-list"
+  ],
+  "instructions": [
+    "1. Pour the two example rows into your own settings list (see pour), or make list:settings from them, then put your own seed, test share, set names and numbers in the build, train and score objects: every law, line, set name and number is yours, none is built in.",
+    "2. Build train.jsonl first with tool:build-training-rows-from-a-persons-rules. Ask the person for the time budget (a run can take most of an hour) and for the frame: the context each line is put in, holding {text}, exactly as their gate asks it.",
+    "3. The AI writes the request (base_model, frame, train_file, out, rank, epochs, lr, batch, budget_minutes, seed, lora_targets, optionally device, nice, threads) and runs python3 -I tools/fine-tune-a-small-model-on-a-persons-rules/do-work/train_an_adapter.py <request file>. The run uses low priority and few CPU threads, projects its total time after 20 steps and stops when the projection passes the budget.",
+    "4. Read the last line: {\"result\": {adapter, base, rank, alpha, targets, epochs, lr, batch, rows, minutes, final_loss, frame}} or {\"error\": ...}. Then measure it with tool:score-held-out-lines-with-a-small-model, with and without the adapter."
+  ],
+  "worked_examples": [
+    {
+      "title": "A folder that is not a decider model is refused before any training",
+      "ask": "Train an adapter on my train.jsonl with the model folder /work/models.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:list",
+          "input": {
+            "tool": "tool:train-a-small-model-on-a-persons-rules"
+          }
+        }
+      },
+      "given": "From tools/fine-tune-a-small-model-on-a-persons-rules/test/test_fine_tune.py (test_model_runs_refuse_a_folder_that_is_not_a_decider), which I ran. Request: {\"base_model\": \"/work/models\", \"frame\": \"{text}\", \"train_file\": \"/work/train.jsonl\", \"out\": \"/work/adapter\", \"rank\": 8, \"epochs\": 1, \"lr\": 0.0001, \"batch\": 8, \"budget_minutes\": 1, \"seed\": 1, \"lora_targets\": [\"q_proj\"]} where /work/models is an empty folder and train.jsonl is empty. Command: python3 -I tools/fine-tune-a-small-model-on-a-persons-rules/do-work/train_an_adapter.py /work/request.json. It exits 2.",
+      "hands_back": "{\"error\": \"/work/models is not a decider model folder: it needs decider/ and decider_config.json\"} Nothing is trained. With a real decider folder (decider-2b, for example) the run ends with {\"result\": {\"adapter\": ..., \"minutes\": ..., \"final_loss\": ...}} and train-info.json beside the adapter; a request with no out says \"out is required: the folder the adapter is saved to\"."
+    }
+  ],
   "lists": [
     {
       "list": "list:settings",
       "label": "Settings",
       "row_type": "record:setting",
-      "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON.",
+      "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON. For the fine-tune tools the row id is record:setting:fine-tune-a-small-model-on-a-persons-rules~<scope_kind>~<scope_id> and its settings hold a build, a train and a score object that fill every request key the request leaves out.",
       "fields": [
         {
           "id": "name",
@@ -77,27 +108,27 @@
       ],
       "example_rows": [
         {
-          "id": "caption-style",
+          "id": "account-my-rules",
           "values": {
-            "name": "Caption style",
-            "tool": "tool:example-captioner",
-            "scope_kind": "person",
-            "scope_id": "example-person",
-            "settings": "{\"style\":\"plain\",\"size\":\"large\"}",
+            "name": "Fine-tune settings for my writing rules",
+            "tool": "tool:build-training-rows-from-a-persons-rules",
+            "scope_kind": "account",
+            "scope_id": "my-rules",
+            "settings": "{\"build\":{\"seed\":7,\"test_share\":0.5,\"good_sets\":[\"good-set\",\"spoken\"],\"fail_set\":\"bad-set\",\"pass_set\":\"good-set\",\"per_law\":{\"spoken_goods\":2,\"other_goods\":1,\"short_goods\":1}},\"train\":{\"rank\":8,\"epochs\":1,\"batch\":8},\"score\":{\"batch\":4,\"pass_set\":\"good-set\"}}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         },
         {
-          "id": "quiet-hours",
+          "id": "account-second-rules",
           "values": {
-            "name": "Quiet hours",
-            "tool": "tool:example-notifier",
+            "name": "Fine-tune settings for a second rule set",
+            "tool": "tool:train-a-small-model-on-a-persons-rules",
             "scope_kind": "account",
-            "scope_id": "whole-account",
-            "settings": "{\"from\":\"22:00\",\"to\":\"07:00\"}",
+            "scope_id": "second-rules",
+            "settings": "{\"build\":{\"seed\":11,\"test_share\":0.4,\"good_sets\":[\"good-set\"],\"fail_set\":\"bad-set\",\"pass_set\":\"good-set\"},\"train\":{\"rank\":16,\"epochs\":2,\"batch\":8,\"budget_minutes\":30}}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         }
       ],
@@ -108,43 +139,7 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
-  "tools": [
-    "tool:train-a-small-model-on-a-persons-rules",
-    "tool:build-training-rows-from-a-persons-rules",
-    "tool:read-a-tool-setting",
-    "tool:score-held-out-lines-with-a-small-model"
-  ],
-  "instructions": [
-    "1. Say to your AI: \"Run tool:train-a-small-model-on-a-persons-rules\", and give it base_model, train_file, out.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:train-a-small-model-on-a-persons-rules and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Train a small local model to judge lines by my rules"
-  ],
-  "worked_examples": [
-    {
-      "title": "Teach a small decider model my rules by training a LoRA adapter (runs on your Mac or GPU) on a sample input",
-      "ask": "Run tool:train-a-small-model-on-a-persons-rules.",
-      "mcp": {
-        "server": "trillion",
-        "tool": "run_resource_operation",
-        "input": {
-          "address": "@workshop-tools",
-          "method": "tools:run",
-          "input": {
-            "tool": "tool:train-a-small-model-on-a-persons-rules",
-            "input": {
-              "base_model": "<base_model: The decider model folder>",
-              "train_file": "<train_file: train.jsonl from tool:build-training-rows-from-a-persons-rules>",
-              "out": "<out: The folder the adapter is saved to; the log is written beside it>"
-            }
-          }
-        }
-      },
-      "hands_back": "The result the item's own job names: Train a small local model to judge lines by my rules",
-      "given": "The person gives: base_model, train_file, out (shown as <name> in the input)."
-    }
-  ],
   "pour": {
     "tool": "tool:pour-example-rows-into-my-list",
     "least_coverage": 0.8,
@@ -184,7 +179,8 @@
             "label": "Status"
           }
         ]
-      }
+      },
+      "field_map": {}
     }
   }
 }

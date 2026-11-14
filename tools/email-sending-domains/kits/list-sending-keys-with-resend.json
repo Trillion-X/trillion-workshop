@@ -1,22 +1,21 @@
 {
-  "draft": true,
-  "drafted_from": "tool:list-sending-keys-with-resend's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:list-sending-keys-with-resend with nothing more.\" See the keys my email-sending account has: each one's id, name and when it was made",
+  "start_here": "Say to your AI: \"List the sending keys on my Resend account with their names and dates.\" It runs tool:list-sending-keys-with-resend, which shows ids and names, never a key.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of yours: it reads the keys your email-sending account has and writes nothing.",
   "workflows": [],
   "tools": [
     "tool:list-sending-keys-with-resend"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:list-sending-keys-with-resend\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-sending-keys-with-resend and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields data."
+    "1. Connect your Resend account once so your key is held under the name resend-api-key; the key is never typed into the request.",
+    "2. Say to your AI: \"List my Resend keys\". It calls tools:run with tool tool:list-sending-keys-with-resend and an empty input {}.",
+    "3. Read data: each key's id, name and created_at. A key itself is never shown (Resend shows it once, when made).",
+    "4. To turn one off, give its id to tool:remove-a-sending-key-with-resend."
   ],
   "worked_examples": [
     {
-      "title": "List sending keys with Resend on a sample input",
-      "ask": "Run tool:list-sending-keys-with-resend.",
+      "title": "Two keys on the account",
+      "ask": "List the sending keys on my Resend account.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -29,7 +28,9 @@
           }
         }
       },
-      "hands_back": "An answer with the fields data."
+      "given": "Read from tools/email-sending-domains/tool-rows.json: the row sends GET https://api.resend.com/api-keys with your key in the Authorization header and returns Resend's reply unchanged (result_selector \"$\"); data items carry id, name, created_at per its output_schema. Ids and dates are synthetic.",
+      "hands_back": "{\"data\":[{\"id\":\"0f1e2d3c-4b5a-4968-8776-a5b4c3d2e1f0\",\"name\":\"Bakery newsletter\",\"created_at\":\"2026-11-02 09:15:00.000000+00\"},{\"id\":\"9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d\",\"name\":\"Bakery receipts\",\"created_at\":\"2026-10-20 14:30:00.000000+00\"}]}"
     }
-  ]
+  ],
+  "drafted_from": "tools/email-sending-domains/tool-rows.json (its row), test/list-email-sending-domains.test.mjs"
 }

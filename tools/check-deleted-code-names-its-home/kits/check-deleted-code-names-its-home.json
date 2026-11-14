@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:check-deleted-code-names-its-home's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-deleted-code-names-its-home with range.\" Check a span of commits in a checkout: every source or test file they delete names its new home (a moved-from receipt) or the decision that retired it",
+  "drafted_from": "tools/check-deleted-code-names-its-home/tool-rows.json, do-work/check-deleted-code-names-its-home.mjs, read-data/rules.json and test/check-row.test.mjs",
+  "start_here": "Say to your AI: \"Check that the source files my last commit deleted from my trillion checkout say where they went: range HEAD~1..HEAD.\" It runs tool:check-deleted-code-names-its-home on the folder you grant and tells you, per deleted file, its new home or why it was retired.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It reads commits and moved-from.json receipts in your checkouts and keeps no list of its own.",
   "workflows": [],
   "tools": [
     "tool:check-deleted-code-names-its-home"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-deleted-code-names-its-home\", and give it range.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-deleted-code-names-its-home and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields valid, judged, errors, unread."
+    "1. Grant the checkout to read (a repository named trillion, trillion-rust, trillion-workshop or trillion-apps); put the other checkouts in folders of those names beside it so their receipts can be read.",
+    "2. Say \"Check what my last commit deleted\" and give range as <from>..<to>, for example HEAD~1..HEAD (add repository when the folder is named otherwise).",
+    "3. Read what comes back: valid is true when every deleted source or test file has a moved-from.json receipt or a retirement row with a decision; errors names each file that has neither; unread names any repository with no checkout beside yours.",
+    "4. For each error, move the file with a moved-from.json receipt in its new home, or add a row to retired-paths.json whose decision holds by, words and source; then run the check again."
   ],
   "worked_examples": [
     {
-      "title": "Check that the code my commits delete names where it went on a sample input",
-      "ask": "Run tool:check-deleted-code-names-its-home.",
+      "title": "A deleted file whose receipt sits in the workshop checkout",
+      "ask": "Check that the file my last commit deleted from trillion says where it went.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,13 +26,14 @@
           "input": {
             "tool": "tool:check-deleted-code-names-its-home",
             "input": {
-              "range": "<range: Two commits of the granted checkout, <from>..<to>>"
+              "range": "HEAD~1..HEAD",
+              "repository": "trillion"
             }
           }
         }
       },
-      "hands_back": "An answer with the fields valid, judged, errors, unread.",
-      "given": "The person gives: range (shown as <name> in the input)."
+      "given": "Read from tools/check-deleted-code-names-its-home/do-work/check-deleted-code-names-its-home.mjs and test/check-row.test.mjs (the Trillion-X/trillion receipt case). The granted checkout /work/trillion has one commit that deleted src/a.mjs. Beside it, /work/trillion-workshop holds tools/x/moved-from.json = {\"source\":\"Trillion-X/trillion\",\"files\":[{\"from\":\"src/a.mjs\",\"to\":\"tools/x/src/a.mjs\"}]}. There is no checkout beside it for trillion-rust or trillion-apps.",
+      "hands_back": "{\"result\":{\"valid\":true,\"judged\":[{\"path\":\"src/a.mjs\",\"home\":{\"repository\":\"trillion-workshop\",\"path\":\"tools/x/src/a.mjs\",\"receipt\":\"tools/x/moved-from.json\"},\"how\":\"moved-from receipt\"}],\"errors\":[],\"unread\":[\"trillion-rust: no checkout at /work/trillion-rust\",\"trillion-apps: no checkout at /work/trillion-apps\"]}}"
     }
   ]
 }

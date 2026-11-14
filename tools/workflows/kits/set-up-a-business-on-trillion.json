@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:set-up-a-business-on-trillion's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:set-up-a-business-on-trillion.\" Set up a business to run entirely on Trillion, top, middle and bottom of the funnel and after the sale, from one facts row and one checklist, with each stage's own recipe, and close the gaps each run finds.",
+  "drafted_from": "tools/workflows/recipes/workflows.json (the workflow:set-up-a-business-on-trillion row: input_schema, steps write-the-business-facts and make-the-checklist with their stage keys); no test names it",
+  "start_here": "Say to your AI: \"Run workflow:set-up-a-business-on-trillion for Sunrise Bakery: I am Sam, I sell a weekend bread box for $49 once, I post to Instagram and YouTube twice a day, in USD.\"",
   "lists": [
     {
       "list": "list:business-setup-checklist",
@@ -59,15 +58,13 @@
       ],
       "example_rows": [
         {
-          "id": "replies",
+          "id": "accounts",
           "values": {
-            "stage": "replies",
-            "label": "Comments and messages",
-            "status": "Gap",
-            "steps_status": "{\"read-facts\":\"Done\",\"pull-messages\":\"Done\",\"read-reply-templates\":\"Done\",\"pick-a-template\":\"Done\",\"fill-the-replies\":\"Done\",\"check-the-replies\":\"Done\",\"hand-the-replies-to-the-person\":\"Gap\"}",
-            "gaps": [
-              "record:setup-gap:hand-the-replies-to-the-person-1"
-            ],
+            "stage": "accounts",
+            "label": "Accounts and connections",
+            "status": "Not done",
+            "steps_status": "",
+            "gaps": [],
             "updated_at": "2026-11-13"
           }
         },
@@ -75,7 +72,7 @@
           "id": "social-posting",
           "values": {
             "stage": "social-posting",
-            "label": "Posting on social channels",
+            "label": "Social posting",
             "status": "Not done",
             "steps_status": "",
             "gaps": [],
@@ -143,24 +140,24 @@
       ],
       "example_rows": [
         {
-          "id": "hand-the-replies-to-the-person-1",
+          "id": "check-youtube-1",
           "values": {
-            "stage": "replies",
-            "step": "hand-the-replies-to-the-person",
-            "undecided": "No live tool sends an Instagram direct-message reply.",
-            "chosen": "Handed 3 checked replies to the person to send by hand.",
-            "evidence": "The live catalog has no send tool for Instagram direct messages.",
+            "stage": "accounts",
+            "step": "check-youtube",
+            "undecided": "No tool in the live catalog checks the YouTube connection.",
+            "chosen": "Submitted connected false and told the owner to reconnect the channel in the app's connections list.",
+            "evidence": "The setup-a-business row lists \"YouTube connection check\" among the tools the live catalog lacks.",
             "status": "open"
           }
         },
         {
-          "id": "pull-messages-1",
+          "id": "apply-the-reward-rule-1",
           "values": {
-            "stage": "replies",
-            "step": "pull-messages",
-            "undecided": "Instagram sign-in expired.",
-            "chosen": "Submitted status needs_login and pulled nothing.",
-            "evidence": "tool:pull-my-instagram-messages answered needs_login.",
+            "stage": "retention-and-referral",
+            "step": "apply-the-reward-rule",
+            "undecided": "No live tool stores referral rewards.",
+            "chosen": "Wrote the reward as a record:reward row in the owner's own records.",
+            "evidence": "The setup-a-business row lists \"referral reward store\" among the tools the live catalog lacks.",
             "status": "open"
           }
         }
@@ -172,7 +169,6 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
     "workflow:set-up-a-business-on-trillion",
     "workflow:answer-comments-and-messages",
@@ -202,14 +198,15 @@
     "tool:start-a-recipe-run"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:set-up-a-business-on-trillion\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:set-up-a-business-on-trillion) and works through its steps in order: write-the-business-facts, name-the-life-areas, set-the-daily-minimum, set-the-contact-rules, carry-results-outward, make-the-checklist, check-tools-live, run-accounts, run-social-posting, run-replies, run-short-videos, run-articles, run-search-engines, record-search-engines, gather-buyer-words, run-landing-page, run-price-tests, record-price-tests, run-funnel-and-baseline, run-brand-and-emails, run-payments, run-paid-access, record-paid-access, run-course, run-community, run-member-billing, run-onboarding, run-retention-and-referral, run-legal-and-support, run-payment-recovery, run-launch-proof, close-the-gaps, record-the-buyer-fit-gap, read-the-checklist.",
-    "3. Read what each step hands back; the last step is read-the-checklist."
+    "1. Pour the two example checklist rows into the checklist you already keep (see pour), or let the workflow make list:business-setup-checklist and list:business-setup-gaps itself.",
+    "2. Say \"Run workflow:set-up-a-business-on-trillion\" with business_name, owner_name, owner_email, first_offer_name, first_offer_price_text, channels, posts_per_day (1 to 5) and currency; it asks for any of these you leave out and never invents one.",
+    "3. It writes your answers once to record:business-setup:facts, then makes one checklist row for each of 20 stages (accounts to launch-proof) and runs each stage's own workflow, ticking its row.",
+    "4. Read the checklist and the gap list: every row says Done, Not done, Gap, Blocked or Not applicable, and each gap names what no live tool did. Run it again to close the gaps."
   ],
   "worked_examples": [
     {
-      "title": "Set up a business to run entirely on Trillion from its first step",
-      "ask": "Run workflow:set-up-a-business-on-trillion.",
+      "title": "The business facts are written once",
+      "ask": "Set up Sunrise Bakery on Trillion.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -220,24 +217,58 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:set-up-a-business-on-trillion",
-              "business_name": "<business_name: The business's public name, in the person's words>",
-              "owner_name": "<owner_name: The person who owns the business and approves its posts>",
-              "owner_email": "<owner_email: The owner's own email address, used for tests>",
-              "first_offer_name": "<first_offer_name: The first thing the business sells>",
-              "first_offer_price_text": "<first_offer_price_text: The first offer's price in the person's words, for example '$49 once'>",
+              "business_name": "Sunrise Bakery",
+              "owner_name": "Sam",
+              "owner_email": "sam@example.com",
+              "first_offer_name": "Weekend bread box",
+              "first_offer_price_text": "$49 once",
               "channels": [
-                "instagram"
+                "instagram",
+                "youtube"
               ],
-              "posts_per_day": "<posts_per_day: How many posts a day, from 1 to 5>",
-              "currency": "<currency: Three-letter currency code, for example USD>"
+              "posts_per_day": 2,
+              "currency": "USD"
             }
           }
         }
       },
       "workflow": "workflow:set-up-a-business-on-trillion",
       "step": "write-the-business-facts",
-      "hands_back": "Step write-the-business-facts answers with facts_written, fields_missing.",
-      "given": "The person gives: business_name, owner_name, owner_email, first_offer_name, first_offer_price_text, posts_per_day, currency (shown as <name> in the input)."
+      "given": "Read from the step in tools/workflows/recipes/workflows.json: the person gave all 8 required fields, so none is asked for. The step writes record:business-setup:facts at @own-records with business_name \"Sunrise Bakery\", owner_name \"Sam\", owner_email \"sam@example.com\", first_offer_name \"Weekend bread box\", first_offer_price_text \"$49 once\", channels [\"instagram\",\"youtube\"], posts_per_day 2 and currency \"USD\", then reads it back to confirm each field.",
+      "hands_back": "{\"facts_written\":true,\"fields_missing\":[]}"
+    },
+    {
+      "title": "The checklist gets one row per stage",
+      "ask": "Make my business checklist.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:set-up-a-business-on-trillion",
+              "business_name": "Sunrise Bakery",
+              "owner_name": "Sam",
+              "owner_email": "sam@example.com",
+              "first_offer_name": "Weekend bread box",
+              "first_offer_price_text": "$49 once",
+              "channels": [
+                "instagram",
+                "youtube"
+              ],
+              "posts_per_day": 2,
+              "currency": "USD"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:set-up-a-business-on-trillion",
+      "step": "make-the-checklist",
+      "given": "Read from the step: list:business-setup-checklist is not there yet, so it is written with fields stage, label, status, steps_status, gaps and updated_at; then one row record:setup-stage:<key> is written for each of the 20 stage keys (accounts, social-posting, replies, short-videos, articles, search-engines, landing-page, price-tests, funnel-and-baseline, brand-and-emails, payments, paid-access, course, community, member-billing, onboarding, retention-and-referral, legal-and-support, payment-recovery, launch-proof), each with status \"Not done\"; list:business-setup-gaps is made the same way.",
+      "hands_back": "{\"stage_rows\":20,\"gap_list_made\":true}"
     }
   ],
   "pour": {

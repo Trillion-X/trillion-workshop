@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:recover-failed-payments-and-win-back's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:recover-failed-payments-and-win-back.\" List failed payments from the last 7 days, email each buyer once in the person's words, record that the retry schedule is set in Stripe, and send one win-back email to each buyer who ended 14 or more days ago.",
+  "drafted_from": "workflow row in tools/workflows/recipes/workflows.json (steps, submit shapes), the shipped list rows in tools/workflows/kit-lists.json; values synthetic",
+  "start_here": "Say to your AI: \"Run workflow:recover-failed-payments-and-win-back for Sunrise Bakery: email each buyer whose payment failed in the last 7 days once, and send one win-back to each buyer who ended 14 or more days ago.\"",
   "lists": [
     {
       "list": "list:business-setup-checklist",
@@ -183,14 +182,16 @@
     "tool:stripe-events-read_money_since"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:recover-failed-payments-and-win-back\".",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:recover-failed-payments-and-win-back) and works through its steps in order: read-facts, list-failed-payments, send-the-payment-failed-email, record-the-retry-setting-gap, list-churned-for-win-back, send-the-win-back-email, record-the-stage.",
-    "3. Read what each step hands back; the last step is record-the-stage."
+    "1. Make sure record:business-setup:facts exists and that Stripe and email sending (Resend) are connected; make list:business-setup-checklist and list:business-setup-gaps from the example rows (see pour) if you keep none.",
+    "2. Say \"Run workflow:recover-failed-payments-and-win-back\". The AI starts it with tool:start-a-recipe-run and works the steps in order: read-facts, list-failed-payments, send-the-payment-failed-email, record-the-retry-setting-gap, list-churned-for-win-back, send-the-win-back-email, record-the-stage.",
+    "3. Give your own words for the payment-failed email and the win-back (one offer you already sell); the AI checks them with tool:check-copy before it sends.",
+    "4. Read the counts: sent and skipped_same_invoice for failed payments (the invoice id is the idempotency key, so a rerun never emails an invoice twice) and sent for win-backs.",
+    "5. Set the retry schedule in your Stripe dashboard yourself: no Trillion tool sets it, so the workflow records it as a gap on list:business-setup-gaps."
   ],
   "worked_examples": [
     {
-      "title": "Recover failed payments and win back churned buyers from its first step",
-      "ask": "Run workflow:recover-failed-payments-and-win-back.",
+      "title": "Two failed payments in the last 7 days",
+      "ask": "Which payments failed this week, and email those buyers.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -206,8 +207,9 @@
         }
       },
       "workflow": "workflow:recover-failed-payments-and-win-back",
-      "step": "read-facts",
-      "hands_back": "Step read-facts answers with facts."
+      "step": "list-failed-payments",
+      "given": "Read from tools/workflows/recipes/workflows.json (step list-failed-payments): the step calls stripe-events-read_money_since with {\"since\": <unix seconds 7 days ago>} and keeps only failed-payment events, each with customer email, invoice id and amount.",
+      "hands_back": "{\"failed\":[{\"invoice_id\":\"in_EXAMPLE001\",\"email\":\"buyer1@example.com\",\"amount_cents\":4900},{\"invoice_id\":\"in_EXAMPLE002\",\"email\":\"buyer2@example.com\",\"amount_cents\":4900}]}"
     }
   ],
   "pour": {

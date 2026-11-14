@@ -1,23 +1,24 @@
 {
-  "draft": true,
-  "drafted_from": "tool:send-a-reply-on-instagram's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:send-a-reply-on-instagram with account_id, decision.\" Send one chosen automatic reply to one Instagram message or comment, once, while its place's window, if it sets one, is still open",
+  "drafted_from": "tools/reply-by-keyword-rule/tool-rows.json (tool:send-a-reply-on-instagram), do-work/send-a-reply.mjs, read-data/reply-places.json, test/decide-and-send.test.mjs; the example was run on the test fixture with a stand-in network",
+  "start_here": "Say to your AI: \"Send the Instagram reply that tool:decide-the-replies chose for the message that asked the price from my Instagram account.\" It runs tool:send-a-reply-on-instagram with account_id and that one decision and tells you whether it was sent.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes one decision and keeps only its own reply-kept record for that decision, so a reply is sent once.",
   "workflows": [],
   "tools": [
     "tool:send-a-reply-on-instagram",
-    "tool:decide-the-replies"
+    "tool:decide-the-replies",
+    "tool:send-a-reply-on-youtube"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:send-a-reply-on-instagram\", and give it account_id, decision.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:send-a-reply-on-instagram and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields status, key."
+    "1. Connect your Instagram account first; its connection is named service_connection:instagram or service_connection:instagram:<name>.",
+    "2. Run tool:decide-the-replies for the place and keep only a decision whose action is send; this tool refuses any other.",
+    "3. Say \"Send that reply\": the AI runs tool:send-a-reply-on-instagram at @workshop-tools with {account_id, decision}. It posts publicly on your account, so run it only for replies your rules chose.",
+    "4. Read status: sent (with key and message_id), already-sent (that key has a record and nothing is sent again), refused (with reason: window-closed, host-not-allowed or unknown-kind), failed (with what the place said) or not-known (no answer came back; look on the place yourself, it is never retried)."
   ],
   "worked_examples": [
     {
-      "title": "Send a reply on Instagram on a sample input",
-      "ask": "Run tool:send-a-reply-on-instagram.",
+      "title": "Send the price reply to a direct message, once",
+      "ask": "Send the reply my rules chose for the price message.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,14 +28,28 @@
           "input": {
             "tool": "tool:send-a-reply-on-instagram",
             "input": {
-              "account_id": "<account_id: One of the person's Instagram accounts, service_connection:instagram or service_connection:instagram:<account>>",
-              "decision": {}
+              "account_id": "service_connection:instagram:one",
+              "decision": {
+                "place": "reply-place:instagram",
+                "kind": "dm",
+                "thread_id": "thread-1",
+                "message_id": "msg-1",
+                "created_time": "2026-11-12T11:55:00.000Z",
+                "window_ms": 86400000,
+                "recipient": {
+                  "id": "them"
+                },
+                "key": "msg-1:rule:prices",
+                "rule_id": "rule:prices",
+                "action": "send",
+                "reply_text": "Hi, the price list is here."
+              }
             }
           }
         }
       },
-      "hands_back": "An answer with the fields status, key.",
-      "given": "The person gives: account_id (shown as <name> in the input)."
+      "given": "From tools/reply-by-keyword-rule/test/decide-and-send.test.mjs (the \"posts once inside the window\" test, run here with a stand-in network that answers {\"recipient_id\":\"them\",\"message_id\":\"mid-1\"}): the decision is the one tool:decide-the-replies chose for msg-1 (5 minutes old, inside the 24 hour window). The request goes to https://graph.instagram.com/v21.0/me/messages with {\"recipient\":{\"id\":\"them\"},\"message\":{\"text\":\"Hi, the price list is here.\"}}.",
+      "hands_back": "{\"status\":\"sent\",\"key\":\"msg-1:rule:prices\",\"message_id\":\"mid-1\"}; the kept record then reads {state: \"sent\", message_id: \"mid-1\"}, and running it again answers {\"status\":\"already-sent\",\"key\":\"msg-1:rule:prices\"} without a request. The same decision with created_time 25 hours before now answers {\"status\":\"refused\",\"reason\":\"window-closed\",\"key\":...} and nothing is sent or kept."
     }
   ]
 }

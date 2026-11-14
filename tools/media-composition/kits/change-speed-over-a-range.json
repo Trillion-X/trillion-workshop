@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:change-speed-over-a-range's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:change-speed-over-a-range with video, from, to, speed.\" Play part of a video in slow motion or sped up, such as the moment of contact at half speed, and optionally keep only a window around it",
+  "drafted_from": "tool:change-speed-over-a-range's own row in tools/media-composition/tool-rows.json, tools/media-composition/do-work/change-speed-over-a-range.mjs, and the script run on a synthetic 7 second clip",
+  "start_here": "Say to your AI: \"Play seconds 2 to 4 of my video at half speed and keep everything else.\" It runs tool:change-speed-over-a-range and saves the new video in your files.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It makes a new video in your files from the video you name and keeps no list of its own.",
   "workflows": [],
   "tools": [
     "tool:change-speed-over-a-range"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:change-speed-over-a-range\", and give it video, from, to, speed.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:change-speed-over-a-range and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields result, files."
+    "1. Find your video's identity in your files, and the time in seconds of the moment to slow (tool:find-action-moments finds one).",
+    "2. Say \"Slow seconds 2 to 4 to half speed\" with from, to and speed (0.1 to 10; 0.5 is half speed, 2 is double). Add keep_from and keep_to to keep only a window around it.",
+    "3. The AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:change-speed-over-a-range. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
+    "4. Read result.duration_seconds (it grows when you slow a stretch) and files.video, the new video in your files."
   ],
   "worked_examples": [
     {
-      "title": "Change speed over part of a video on a sample input",
-      "ask": "Run tool:change-speed-over-a-range.",
+      "title": "Two seconds at half speed",
+      "ask": "Play seconds 2 to 4 of my video at half speed.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,16 +26,16 @@
           "input": {
             "tool": "tool:change-speed-over-a-range",
             "input": {
-              "video": "<video: The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it>",
-              "from": "<from: Start of the stretch to change>",
-              "to": "<to: End of the stretch to change>",
-              "speed": "<speed: 0.5 is half speed, 2 is double>"
+              "video": "1f:7320b49113520185e2ad8938759857db29ec6b0ed6a30cd1a2cfc05c68d932c6",
+              "from": 2,
+              "to": 4,
+              "speed": 0.5
             }
           }
         }
       },
-      "hands_back": "An answer with the fields result, files.",
-      "given": "The person gives: video, from, to, speed (shown as <name> in the input)."
+      "given": "read from tools/media-composition/do-work/change-speed-over-a-range.mjs and run on a 7 second clip: 2 s normal, 2 s at half speed (4 s), 3 s normal is 9 seconds in three segments",
+      "hands_back": "{\"result\":{\"expected_duration_seconds\":9,\"duration_seconds\":9.027,\"width\":320,\"height\":180,\"has_audio\":true,\"bytes\":136286,\"segments\":3},\"files\":{\"video\":{\"identity\":\"1f:39945838e56ff2cce76c2baafd56fee791e844224ed3f4c324fa0612a6340895\",\"bytes\":136286,\"media_type\":\"video/mp4\",\"name\":\"speed-changed.mp4\"}}}"
     }
   ]
 }

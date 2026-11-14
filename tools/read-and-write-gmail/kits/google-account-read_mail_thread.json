@@ -1,22 +1,23 @@
 {
-  "draft": true,
-  "drafted_from": "tool:google-account-read_mail_thread's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:google-account-read_mail_thread with connection, thread_id.\" Read the list of one Gmail conversation in order: each message's id, labels, preview line and time, and its sender, recipients, subject and message id.",
+  "drafted_from": "tool:google-account-read_mail_thread's own row in tools/read-and-write-gmail/tool-rows.json (invoke method, url, body_template, input and output schema); Gmail response values worked out from that row for the synthetic input",
+  "start_here": "Say to your AI: \"List the messages of conversation 18c1a2b3d4e5f601 in order. Use my Google account connection service_connection:google-account:sam-bakery.\" It runs tool:google-account-read_mail_thread as that account and hands back the Gmail answer.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it calls Gmail for one Google account the connection names and answers what Gmail returns.",
   "workflows": [],
   "tools": [
-    "tool:google-account-read_mail_thread"
+    "tool:google-account-read_mail_thread",
+    "tool:google-account-read_a_mail"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:google-account-read_mail_thread\", and give it connection, thread_id.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:google-account-read_mail_thread and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields id, messages."
+    "1. Connect a Google account in your Workshop connections and note its handle, like service_connection:google-account:sam-bakery.",
+    "2. Say to your AI: \"List the messages of conversation 18c1a2b3d4e5f601 in order.\" and let it call run_resource_operation at @workshop-tools with method tools:run, tool tool:google-account-read_mail_thread, and the input {\"connection\":{\"connection_id\":\"service_connection:google-account:sam-bakery\"},\"thread_id\":\"18c1a2b3d4e5f601\"}.",
+    "3. Read what comes back: the request goes as GET  the Gmail me-mailbox base (gmail.googleapis.com, v1)/threads/18c1a2b3d4e5f601?format=metadata with the headers From, To, Cc, Subject, Date and Message-ID.",
+    "4. Read one message in full with tool:google-account-read_a_mail."
   ],
   "worked_examples": [
     {
-      "title": "Read email conversation on a sample input",
-      "ask": "Run tool:google-account-read_mail_thread.",
+      "title": "Read the message list of one Gmail conversation on a sample input",
+      "ask": "List the messages of conversation 18c1a2b3d4e5f601 in order.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,15 +28,15 @@
             "tool": "tool:google-account-read_mail_thread",
             "input": {
               "connection": {
-                "connection_id": "<connection_id: The Google account to use: service_connection:google-account or service_connection:google-account:<account>, as the person's connections list it>"
+                "connection_id": "service_connection:google-account:sam-bakery"
               },
-              "thread_id": "<thread_id: string>"
+              "thread_id": "18c1a2b3d4e5f601"
             }
           }
         }
       },
-      "hands_back": "An answer with the fields id, messages.",
-      "given": "The person gives: connection_id, thread_id (shown as <name> in the input)."
+      "given": "read from tools/read-and-write-gmail/tool-rows.json (its invoke url, method and body_template) and checked against tools/read-and-write-gmail/test/rows.test.mjs. A conversation with two messages, one from Sam and one reply from Alex. The call it makes: GET the Gmail me-mailbox base (gmail.googleapis.com, v1)/threads/18c1a2b3d4e5f601?format=metadata with the headers From, To, Cc, Subject, Date and Message-ID.",
+      "hands_back": "Gmail answers id \"18c1a2b3d4e5f601\" and messages: [{\"id\":\"18c1a2b3d4e5f601\",\"labelIds\":[\"SENT\"],\"snippet\":\"Your bakery order is ready at 3 PM.\",\"internalDate\":\"1794686400000\"},{\"id\":\"18c1a2b3d4e5f888\",\"labelIds\":[\"INBOX\",\"UNREAD\"],\"snippet\":\"Thanks, I will be there.\"}], each with its From, To, Subject, Date and Message-ID headers. No message words come back."
     }
   ]
 }

@@ -1,22 +1,24 @@
 {
-  "draft": true,
-  "drafted_from": "tool:count-a-shows-running-jokes-in-its-captions's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:count-a-shows-running-jokes-in-its-captions with data_folder, youtube_folder.\" Count how often a show's running jokes, lore names and rituals come up across all its captions, when each first and last appeared, with one example",
+  "drafted_from": "tool:count-a-shows-running-jokes-in-its-captions's row in tools/measure-a-characters-voice-lines-and-staging/tool-rows.json, its script in tools/measure-a-characters-voice-lines-and-staging/do-work/ and the tests in tools/measure-a-characters-voice-lines-and-staging/test/",
+  "start_here": "Say to your AI: \"Count my show's running jokes, crackers and storms, across the captions of every catalogued video.\" It runs tool:count-a-shows-running-jokes-in-its-captions with the terms in my settings row.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of its own: it reads one settings row of yours (record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>) or the settings you pass, and works on files in the show's folder.",
   "workflows": [],
   "tools": [
-    "tool:count-a-shows-running-jokes-in-its-captions"
+    "tool:count-a-shows-running-jokes-in-its-captions",
+    "tool:catalog-a-channels-videos-by-format",
+    "tool:collect-the-comments-that-name-a-character"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:count-a-shows-running-jokes-in-its-captions\", and give it data_folder, youtube_folder.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:count-a-shows-running-jokes-in-its-captions and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Count how often a show's running jokes, lore names and rituals come up across all its captions, when each first and last appeared, with one example"
+    "1. Make the show's folder and the YouTube library folder the run may change, and have the catalog.tsv and the captions/<id>.en.json3 files, and the terms setting ({term: regular expression}) in your settings row. Put the keys the row needs (terms) in your settings row or pass them as settings.",
+    "2. Say the sentence in start_here to your AI. It calls run_resource_operation at @workshop-tools with method tools:run, tool tool:count-a-shows-running-jokes-in-its-captions and the input in the worked example; the door asks for the granted folder.",
+    "3. Read the last line it prints, {\"result\": ...}, or {\"error\": ...} saying what to fix (a missing settings key is named).",
+    "4. Read lore-terms.tsv: per term the mentions, videos, first and last date and a middle example; a rule the word judge cannot compile is refused with its reason."
   ],
   "worked_examples": [
     {
-      "title": "Count a show's running jokes, lore names and rituals across its captions (runs on your computer) on a sample input",
-      "ask": "Run tool:count-a-shows-running-jokes-in-its-captions.",
+      "title": "Two terms in one captioned episode",
+      "ask": "How often do the crackers and storms come up?",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -45,7 +47,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Count how often a show's running jokes, lore names and rituals come up across all its captions, when each first and last appeared, with one example"
+      "given": "From the sample run in tools/measure-a-characters-voice-lines-and-staging/tool-rows.json and WordRulesTest in tools/measure-a-characters-voice-lines-and-staging/test/test_word_rules.py: the settings row holds terms cracker = \"crackers?\" and storm = \"\\\\bstorm\\\\b(?! drain)\"; vid-a's captions are \"a storm comes\" (1 s), \"CRACKERS!\" (4 s) and \"storm drain talk\" (7 s).",
+      "hands_back": "{\"result\": {\"table\": \"{grant:change-a-folder}/show/lore-terms.tsv\", \"caption_files\": 1, \"terms\": 2}}; lore-terms.tsv has cracker 1 mention in 1 video (20300105, example vid-a at 4 s) and storm 1 mention (example at 1 s): \"storm drain\" is not counted."
     }
   ]
 }

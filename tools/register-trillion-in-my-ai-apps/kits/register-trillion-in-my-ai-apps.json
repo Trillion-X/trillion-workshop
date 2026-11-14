@@ -1,39 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:register-trillion-in-my-ai-apps's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:register-trillion-in-my-ai-apps with action, clients.\" Add Trillion's MCP server entry to the config file of each AI app I name, preview exactly what changes first, or take the entry out again",
+  "drafted_from": "tool:register-trillion-in-my-ai-apps row in tool-rows.json, read-data/mcp-registration.json, do-work/register-in-ai-apps.mjs and test/mcp-registration.test.mjs",
+  "start_here": "Say to your AI: \"Preview adding Trillion to my Cursor MCP settings, show me exactly what would change, and register it once I approve.\" It runs the preview first, shows the before and after lines, then registers with the review hash you approved.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list: it reads and edits the MCP config file of each AI app you name on your own computer.",
   "workflows": [],
   "tools": [
     "tool:register-trillion-in-my-ai-apps"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:register-trillion-in-my-ai-apps\", and give it action, clients.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:register-trillion-in-my-ai-apps and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields schema, action, review_hash, results, refused."
+    "1. Name the AI apps by id (claude-code, codex, gemini-cli, cursor); an app not on this computer answers not_installed and nothing is created for it.",
+    "2. Say \"Preview adding Trillion to <apps>\"; your AI reads the row with tools:list and runs `node tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs --action mcp-preview --client cursor` from the Workshop checkout (after npm install once); nothing is written.",
+    "3. Read each result's now (absent, registered, outdated, custom, blocked or not_installed) and its exact before and after lines; approve, then run --action mcp-register --client <ids> --reviewed <review_hash>; if a file changed since the preview every write is refused.",
+    "4. Registering keeps every other key in the file, backs the file up beside it, and reads it back; an entry named trillion that is yours (custom) is never changed or removed. Each result names the sign-in still to do in that app; use --action mcp-unregister to take the entry out again."
   ],
   "worked_examples": [
     {
-      "title": "Put Trillion in my AI apps' MCP settings, or take it out (runs on your computer) on a sample input",
-      "ask": "Run tool:register-trillion-in-my-ai-apps.",
+      "title": "Preview, register and take out Trillion in Cursor",
+      "ask": "Add Trillion to my Cursor MCP settings, showing me what changes first.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:register-trillion-in-my-ai-apps",
-            "input": {
-              "action": "mcp-inspect",
-              "clients": "<clients: The AI app ids separated by commas (claude-code, codex, gemini-cli, cursor), put where {clients} is>"
-            }
+            "tool": "tool:register-trillion-in-my-ai-apps"
           }
         }
       },
-      "hands_back": "An answer with the fields schema, action, review_hash, results, refused.",
-      "given": "The person gives: clients (shown as <name> in the input)."
+      "given": "From tools/register-trillion-in-my-ai-apps/test/mcp-registration.test.mjs (the last test runs the command on a pretend home that holds only a .cursor folder): the commands are `node tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs --action mcp-preview --client cursor`, then --action mcp-register --client cursor --reviewed <the review_hash from the preview>, then --action mcp-unregister --client cursor. Read from the same test: Cursor's file is .cursor/mcp.json and its entry is {url: \"https://app.gettrillion.ai/mcp\"}.",
+      "hands_back": "The preview answers {schema, action: \"mcp-preview\", review_hash, results: [{client: \"cursor\", now: \"absent\", ...the file's before/after lines}]} and writes nothing. The register answers results[0].result \"registered\" with the backup path and the sign-in still to do, and .cursor/mcp.json then holds {\"mcpServers\": {\"trillion\": {\"url\": \"https://app.gettrillion.ai/mcp\"}}}, any other server in the file kept. Running register again answers already_registered; unregister answers removed and then already_absent. If the file holds a trillion entry pointing somewhere else (a proxy of yours) the result is custom and the file is left as it is."
     }
   ]
 }

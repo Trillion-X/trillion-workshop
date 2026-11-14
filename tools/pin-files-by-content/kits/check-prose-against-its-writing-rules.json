@@ -1,40 +1,37 @@
 {
-  "draft": true,
-  "drafted_from": "tool:check-prose-against-its-writing-rules's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-prose-against-its-writing-rules with document, profile, report.\" Check a piece of prose against the wording I rejected, the text that must stay as it is, the sections it must have in order, and the reviews and source evidence it needs, before I call it current",
+  "drafted_from": "tools/pin-files-by-content/tool-rows.json (tool:check-prose-against-its-writing-rules), do-work/verify-writing-profile.mjs, test/verify-writing-profile.test.mjs; the example was run on synthetic files",
+  "start_here": "Say to your AI: \"Check post.md against my writing profile and my review file, and tell me each finding by kind and position.\" It runs verify-writing-profile.mjs and reports checks_satisfied, review_required or known_failure.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads one prose file, your writing profile and an optional review file, and writes one new report file.",
   "workflows": [],
   "tools": [
-    "tool:check-prose-against-its-writing-rules"
+    "tool:check-prose-against-its-writing-rules",
+    "tool:check-quotes-against-their-source-bytes"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-prose-against-its-writing-rules\", and give it document, profile, report.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-prose-against-its-writing-rules and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Check a piece of prose against the wording I rejected, the text that must stay as it is, the sections it must have in order, and the reviews and source evidence it needs, before I call it current"
+    "1. Clone the Workshop repository and run npm install (the tool needs @noble/hashes).",
+    "2. Write your own writing profile (schema writing-profile-v1, document_role current_prose): the rejected wordings with their authority, the protected literals that must stay as they are, and any required section order. Never let the AI invent rules for you.",
+    "3. If you have reviews, give the review manifest (schema writing-review-v1) bound to the document's BLAKE3 and each paragraph's BLAKE3; leave --reviews out when there is none.",
+    "4. The AI reads the row with tools:list {tool: \"tool:check-prose-against-its-writing-rules\"} and runs: node tools/pin-files-by-content/do-work/verify-writing-profile.mjs --document post.md --profile profile.json --reviews reviews.json --out report.json (a new file).",
+    "5. Read {status, findings}: exit 0 checks_satisfied, 1 review_required or known_failure, 2 invalid. Zero findings is not approval of the writing."
   ],
   "worked_examples": [
     {
-      "title": "Check prose against its writing rules and its review evidence on a sample input",
-      "ask": "Run tool:check-prose-against-its-writing-rules.",
+      "title": "A rejected phrase in a reviewed post",
+      "ask": "Check post.md against my writing profile.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:check-prose-against-its-writing-rules",
-            "input": {
-              "document": "<document: The prose file (UTF-8 Markdown or text)>",
-              "profile": "<profile: The writing profile JSON (schema writing-profile-v1), the person's own rules>",
-              "report": "<report: A new file for the report; an existing one is never replaced>"
-            }
+            "tool": "tool:check-prose-against-its-writing-rules"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Check a piece of prose against the wording I rejected, the text that must stay as it is, the sections it must have in order, and the reviews and source evidence it needs, before I call it current",
-      "given": "The person gives: document, profile, report (shown as <name> in the input)."
+      "given": "Read from tools/pin-files-by-content/do-work/verify-writing-profile.mjs and run on synthetic files: post.md is \"# Opening hours\", a paragraph \"We open at seven: every day.\" plus \"Our bread is fresh.\", and a paragraph \"We are a world-class bakery.\"; profile.json rejects the text \"world-class\" (authority author_confirmed) and protects the literal \"We open at seven: every day.\"; reviews.json holds a retain review for each of the 3 paragraphs bound to their BLAKE3. The AI runs: node tools/pin-files-by-content/do-work/verify-writing-profile.mjs --document post.md --profile profile.json --reviews reviews.json --out report.json",
+      "hands_back": "{\"status\":\"known_failure\",\"findings\":1} with exit 1. report.json holds status known_failure, blocks 3, current_block_reviews 3 and findings [{\"kind\":\"known_rejection\",\"rule_index\":0}]. With the rejected word removed and no --reviews it prints {\"status\":\"review_required\",\"findings\":3} (three unreviewed_current_block findings, block_index 0 to 2)."
     }
   ]
 }

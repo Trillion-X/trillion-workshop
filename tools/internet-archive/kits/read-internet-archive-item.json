@@ -1,22 +1,23 @@
 {
-  "draft": true,
-  "drafted_from": "tool:read-internet-archive-item's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-internet-archive-item with identifier.\" Inspect one Internet Archive item's original metadata, license, rights, collection and available file listing before deciding whether it fits an objective",
+  "drafted_from": "tools/internet-archive/records.json and tool-rows.json (tool:read-internet-archive-item: its url, input pattern and verify check); no test file exists, and no live call was made",
+  "start_here": "Say to your AI: \"Read the Internet Archive item with identifier example-tennis-film-1952 and tell me its creator, collection, license and rights before I decide to use it.\" It reads the item metadata without downloading any media.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It looks up one public Archive item by identifier and keeps no list of yours.",
   "workflows": [],
   "tools": [
-    "tool:read-internet-archive-item"
+    "tool:read-internet-archive-item",
+    "tool:search-internet-archive"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-internet-archive-item\", and give it identifier.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-internet-archive-item and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields metadata, files."
+    "1. Get an item identifier from tool:search-internet-archive or from an archive.org/details/<identifier> address; send only the identifier, never a URL or path.",
+    "2. Say \"Read the Internet Archive item <identifier>\". The AI calls tools:run for tool:read-internet-archive-item with {\"identifier\": \"<identifier>\"}.",
+    "3. Read metadata (identifier, creator, date, collection, licenseurl, rights when present) and files (the file listing). No media bytes are downloaded.",
+    "4. Record the identifier and https://archive.org/details/<identifier> as provenance; missing or unclear rights stay unknown and need your own check."
   ],
   "worked_examples": [
     {
-      "title": "Read Internet Archive item metadata on a sample input",
-      "ask": "Run tool:read-internet-archive-item.",
+      "title": "Read one item by identifier",
+      "ask": "Read the Internet Archive item example-tennis-film-1952.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,13 +27,13 @@
           "input": {
             "tool": "tool:read-internet-archive-item",
             "input": {
-              "identifier": "<identifier: The identifier returned by Archive Search or present in an archive.org/details/<identifier> item URL>"
+              "identifier": "example-tennis-film-1952"
             }
           }
         }
       },
-      "hands_back": "An answer with the fields metadata, files.",
-      "given": "The person gives: identifier (shown as <name> in the input)."
+      "given": "Read from tools/internet-archive/records.json, not run live: a GET to https://archive.org/metadata/example-tennis-film-1952. The identifier is made up for this example; use one a search returned. It matches the input pattern ^[A-Za-z0-9][A-Za-z0-9._-]{0,99}$.",
+      "hands_back": "The Archive's JSON unchanged ($ is the result): metadata.identifier is \"example-tennis-film-1952\" (the tool's verify check compares it to the input), metadata also holds the item's creator, date, collection, licenseurl and rights where it has them, and files is an array of file objects. For an identifier the Archive does not hold it answers an empty object."
     }
   ]
 }

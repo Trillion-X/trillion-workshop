@@ -1,9 +1,7 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:validate-and-launch-a-subscription-app's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:validate-and-launch-a-subscription-app.\" Take a consumer app idea from a painful daily problem to a live subscription app: confirm that apps in the category already earn and that creators already post about the problem (stop if not), record the top 3 competitors' onboarding beats, paywall, price and growth channels from the person's own screenshots, write an onboarding that follows the winning order of beats in original words and design, end it with a paywall that states price, trial and cancellation plainly, publish a store page whose subtitle says what the app does, then run five growth channels (creators paid per post, influencers on a capped cost per 1,000 views, faceless slideshows, founder-made posts, paid ads after organic winners) with disclosures, and review installs, trials, paid users and revenue every week.",
+  "start_here": "Say to your AI: \"Run workflow:validate-and-launch-a-subscription-app: the problem is 'I never know if I drank enough water today', the audience is office workers, the category is Health & Fitness, the store is app-store, and the competitors I know are Example Water Tracker and Example Hydrate.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "Its competitor notes, onboarding screens, paywall and weekly numbers are handed back in each step's answer and the person's own store and payment dashboards hold the data, so it keeps no list.",
   "workflows": [
     "workflow:validate-and-launch-a-subscription-app",
     "workflow:run-a-slideshow-page-that-sells-a-small-digital-product"
@@ -17,17 +15,20 @@
     "tool:read-public-web-page",
     "tool:tell-the-person",
     "tool:work-out-unit-economics",
-    "tool:write-legal-documents"
+    "tool:write-legal-documents",
+    "tool:start-a-recipe-run"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:validate-and-launch-a-subscription-app\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:validate-and-launch-a-subscription-app) and works through its steps in order: money-proof, teardown, onboarding, paywall, store-page, approve-and-submit, channels, weekly.",
-    "3. Read what each step hands back; the last step is weekly."
+    "1. Write the painful daily problem in one sentence as the people who have it would say it, who has it, the store category (for example Health & Fitness), the store to launch in first (app-store or google-play) and any competitor apps you know, up to five.",
+    "2. Say \"Run workflow:validate-and-launch-a-subscription-app\" with problem, audience, category, store and competitors. Step money-proof checks that apps in the category already earn and that creators already post about the problem, and stops when they do not.",
+    "3. Install the top three competitor apps, go through each onboarding to the paywall without paying and send the screenshots, one folder per app; step teardown records their beats, paywall and growth channels from your screenshots.",
+    "4. Steps onboarding, paywall and store-page write original words in the winning order of beats, an honest paywall (price, trial, first charge date, cancellation, Restore Purchases, a visible close) and a store page; approve them exactly as shown in step approve-and-submit and submit from your own developer account.",
+    "5. Steps channels and weekly plan the five growth channels and, every Monday, hand back installs, trials, paid users and revenue by channel with keep, change or stop for each; a number no dashboard gave is null and listed in no_data."
   ],
   "worked_examples": [
     {
-      "title": "Validate and launch a subscription app from its first step",
-      "ask": "Run workflow:validate-and-launch-a-subscription-app.",
+      "title": "A Monday read: two paid users, one refund, one channel kept and one without data",
+      "ask": "It is Monday: read the week for my hydration app.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -38,18 +39,23 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:validate-and-launch-a-subscription-app",
-              "problem": "<problem: The painful problem the app solves, in one sentence, as the people who have it would say it>",
-              "audience": "<audience: Who has the problem every day>",
-              "category": "<category: The store category the app would sit in, for example Health & Fitness or Food & Drink>",
-              "store": "app-store"
+              "problem": "I never know if I drank enough water today",
+              "audience": "office workers",
+              "category": "Health & Fitness",
+              "store": "app-store",
+              "competitors": [
+                "Example Water Tracker",
+                "Example Hydrate"
+              ]
             }
           }
         }
       },
       "workflow": "workflow:validate-and-launch-a-subscription-app",
-      "step": "money-proof",
-      "hands_back": "Step money-proof answers with apps, creator_posts, validated, reason, no_data.",
-      "given": "The person gives: problem, audience, category (shown as <name> in the input)."
+      "step": "weekly",
+      "given": "From tools/revenue-ledger/do-work/add-up-revenue.mjs (the sample in tools/revenue-ledger/kits/add-up-revenue.json): the week's payments are charge.succeeded 5000 (monthly), charge.succeeded 12000 (yearly) and charge.refunded 2000, and tool:add-up-revenue answers gross_cents 17000, refunds_cents 2000, net_cents 15000, payments_read 3. The person's dashboards give the creators channel 120 installs, 9 trials and 2 paid users; they gave nothing for paid ads.",
+      "hands_back": "{\"week_of\":\"2026-11-09\",\"channels\":[{\"channel\":\"creators\",\"installs\":120,\"trials\":9,\"paid\":2,\"decision\":\"keep\"},{\"channel\":\"paid-ads\",\"installs\":null,\"trials\":null,\"paid\":null,\"decision\":\"stop\"}],\"no_data\":[\"paid-ads installs, trials and paid starts\"]}. Net revenue for the week is 15000 cents."
     }
-  ]
+  ],
+  "drafted_from": "workflow:validate-and-launch-a-subscription-app row (input_schema and steps money-proof to weekly) and tools/revenue-ledger/do-work/add-up-revenue.mjs"
 }

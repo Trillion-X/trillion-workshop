@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:make-one-piece-of-content-from-audience-to-publish's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:make-one-piece-of-content-from-audience-to-publish.\" Make one piece of content (a video, a talk, a carousel, a post or an article) the way a careful studio would, in this order and never skipping ahead to the edit: read the person's own records, their purpose record first; describe any library row that has no crossing fields yet; find what the audience is really asking, in their own words and with where they said it, and whether they would want this; cross ALL of the person's technique, principle and format rows with that goal to get cited ideas; find what the person has already said or written that answers it; choose a format by that material and by measured references; write packages (title, cover, opening) with at least 3 hook variants to test against each other, and show them to people from the audience before making anything; build the script from those filmed points first; check every word against the person's rules and verdicts; write a shoot sheet for only what is still missing; after the person films, grade the sound, colour and cut the piece through the Workshop's tools; run every check before the person sees anything; publish; and read the numbers back to learn.",
+  "drafted_from": "workflow:make-one-piece-of-content-from-audience-to-publish's row in tools/workflows/recipes/workflows.json (steps and submit shapes); values worked out from the step text",
+  "start_here": "Say to your AI: \"Run workflow:make-one-piece-of-content-from-audience-to-publish with my purpose record, the goal 'show a new baker how to learn the morning bake in one shift', for a YouTube Short, using my own records.\"",
   "lists": [],
   "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
@@ -52,14 +51,19 @@
     "tool:transcribe-audio-and-repair-whisper-loops"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:make-one-piece-of-content-from-audience-to-publish\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:make-one-piece-of-content-from-audience-to-publish) and works through its steps in order: read-records, describe-library, audience, idea, filmed-points, format, titles-and-hooks, pretest, script, check-words, shoot-sheet, film, sound, edit, checks, person-sees, publish, learn.",
-    "3. Read what each step hands back; the last step is learn."
+    "1. Have your purpose record (your statement and the tests it names), your technique, principle and format rows, and your footage indexes in your own lists.",
+    "2. Say \"Run workflow:make-one-piece-of-content-from-audience-to-publish\" with purpose, goal, destinations and records.",
+    "3. Work through the steps in order (read-records, audience, idea, filmed-points, format, titles-and-hooks, pretest, script); never skip ahead to the edit.",
+    "4. At check-words fix every failing line, then film the shoot sheet, and approve the cut when the person-sees step shows it.",
+    "5. After publish, read the numbers at 1, 7 and 28 days in the learn step."
   ],
   "worked_examples": [
     {
-      "title": "Make one piece of content from audience to publish from its first step",
-      "ask": "Run workflow:make-one-piece-of-content-from-audience-to-publish.",
+      "title": "A title and a script line are checked against the person's rules",
+      "ask": "Check every word of my Short against my rules.",
+      "step": "check-words",
+      "given": "Read from the check-words step in tools/workflows/recipes/workflows.json: a title (title-1) and a script line (beat-2) are sent to tool:check-against-a-persons-rules-and-verdicts; beat-2 says \"You will never fail again\", which the person's rule bans as a promise it cannot keep.",
+      "hands_back": "{\"checked\":[{\"id\":\"title-1\",\"kind\":\"title\",\"status\":\"passed\"},{\"id\":\"beat-2\",\"kind\":\"script line\",\"status\":\"passed\"}],\"rewrites\":[{\"id\":\"beat-2\",\"before\":\"You will never fail again\",\"after\":\"Most new bakers get the bake right by the second morning\",\"rule\":\"no promise the material cannot keep\"}]}",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -70,30 +74,20 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:make-one-piece-of-content-from-audience-to-publish",
-              "purpose": "<purpose: The id of the person's own purpose record: their mission statement, kept verbatim in their words, and the tests that statement names, each a question a piece must answer (for example what it questions, what it tests and where it could be wrong, what others can use from it)>",
-              "goal": "<goal: The goal of the piece, in the person's words>",
+              "purpose": "record:purposes:small-bakery-teaching",
+              "goal": "show a new baker how to learn the morning bake in one shift",
               "destinations": [
-                {
-                  "platform": "<platform: string>",
-                  "account": "<account: The person's own account on that platform>"
-                }
+                "youtube-short"
               ],
               "records": {
-                "library_kinds": [
-                  "<library_kinds: string>"
-                ],
-                "audience_kinds": [
-                  "<audience_kinds: string>"
-                ]
+                "library": "list:library",
+                "audience": "list:audience-questions"
               }
             }
           }
         }
       },
-      "workflow": "workflow:make-one-piece-of-content-from-audience-to-publish",
-      "step": "read-records",
-      "hands_back": "Step read-records answers with purpose, library_rows, audience_records, footage_indexes, stances_read, missing.",
-      "given": "The person gives: purpose, goal, platform, account, library_kinds, audience_kinds (shown as <name> in the input)."
+      "workflow": "workflow:make-one-piece-of-content-from-audience-to-publish"
     }
   ]
 }

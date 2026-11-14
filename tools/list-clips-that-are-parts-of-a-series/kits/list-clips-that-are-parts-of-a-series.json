@@ -1,38 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:list-clips-that-are-parts-of-a-series's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:list-clips-that-are-parts-of-a-series with moments.\" Find my clips that are part 1, part 2, part 3 of a series, from what is said in them",
+  "drafted_from": "tool:list-clips-that-are-parts-of-a-series row in tool-rows.json, do-work/series_parts.py and test/test_series_parts.py",
+  "start_here": "Say to your AI: \"Find my clips that say they are part one, part two or part three of a series: read the moments files a.jsonl and b.jsonl and list them in order.\" It runs series_parts.py on your computer and shows the clips grouped by series.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads the moments files it is given and prints tab-separated lines and one result line.",
   "workflows": [],
   "tools": [
     "tool:list-clips-that-are-parts-of-a-series"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:list-clips-that-are-parts-of-a-series\", and give it moments.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-clips-that-are-parts-of-a-series and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Find my clips that are part 1, part 2, part 3 of a series, from what is said in them"
+    "1. Have one or more moments files (JSON Lines, one row per spoken moment with id as <clip>#<n>, text, the clip's identity or name, path and source); cut your transcripts into moments first if you only have transcripts.",
+    "2. Say \"Find my clips that are parts of a series\" and name the moments files; your AI reads the row with tools:list and runs its command on your computer from the Workshop checkout, adding --out parts.tsv when the list is long.",
+    "3. Read the last line: {\"result\": {\"clips\", \"series_parts\", \"within\", \"out\"}} says how many clips were read and how many name a part; {\"error\": \"what to change\"} says what to fix.",
+    "4. Group the lines by series in part order to see which parts you have and which are missing; widen the window with --within 600 if a clip names its part late."
   ],
   "worked_examples": [
     {
-      "title": "List the clips that say they are part of a series (runs on your computer) on a sample input",
-      "ask": "Run tool:list-clips-that-are-parts-of-a-series.",
+      "title": "Three clips name a part and one does not",
+      "ask": "Find my clips that are parts of a series in a.jsonl and b.jsonl.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:list-clips-that-are-parts-of-a-series",
-            "input": {
-              "moments": "<moments: One or more moments files (JSON Lines), put where {moments} is in the command>"
-            }
+            "tool": "tool:list-clips-that-are-parts-of-a-series"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Find my clips that are part 1, part 2, part 3 of a series, from what is said in them",
-      "given": "The person gives: moments (shown as <name> in the input)."
+      "given": "From tools/list-clips-that-are-parts-of-a-series/test/test_series_parts.py: the command line is `python3 -I tools/list-clips-that-are-parts-of-a-series/do-work/series_parts.py a.jsonl b.jsonl`. a.jsonl holds six clips' moments (zeb#2 \"and that is how the lantern got its glow.\", zeb#1 \"Okay this is part three of the lantern saga\", alder#1 \"Part 12. We open the copper box today.\", mire#1 a walk by the pond, fennel#1 with \"part two\" after 300 characters, quell#1 \"partly cloudy, the parts 5 arrived, the department 4 called\"; clip paths /clips/<name>.mov, source cam-a). b.jsonl adds alder#2 \"Then we close it.\" and loose#1 \"PART ONE: the beginning\" with source_file /other/loose.mp4.",
+      "hands_back": "Three tab-separated lines ordered by path: \"alder.mov, /clips/alder.mov, cam-a, part 12, Part 12. We open the copper box today. Then we close it.\"; \"zeb.mov, /clips/zeb.mov, cam-a, part three, Okay this is part three of the lantern saga and that is how the lantern got its glow.\"; \"loose.mp4, /other/loose.mp4, (empty source), part ONE, PART ONE: the beginning\". Last line: {\"result\": {\"clips\": 6, \"series_parts\": 3, \"within\": 300, \"out\": null}}. fennel, mire and quell are not listed."
     }
   ]
 }

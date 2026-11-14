@@ -1,43 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:answer-questions-about-a-state's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:answer-questions-about-a-state with state, questions, endpoint, model, timeout_seconds.\" Ask a model several questions about one piece of state at once and get one answer for each, in the type I asked for, or a refusal if any is missing or the wrong type",
+  "drafted_from": "tool:answer-questions-about-a-state row in tools/ask-a-small-model-for-a-verdict/tool-rows.json, its code in tools/ask-a-small-model-for-a-verdict/do-work/ and tools/ask-a-small-model-for-a-verdict/test/answer-state-questions.test.mjs and tool.test.mjs; the answers were produced by running the tool against a stand-in model server",
+  "start_here": "Say to your AI: \"Answer these three questions about the state {customer: table 4} with my local chat model: is the order late, which loaf, how rushed.\" It sends them in one request and reports each answer under its question.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it sends one state and its typed questions to a model server on this computer and prints the answers.",
   "workflows": [],
   "tools": [
     "tool:answer-questions-about-a-state",
     "tool:ask-a-small-model-for-a-verdict"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:answer-questions-about-a-state\", and give it state, questions, endpoint, model, timeout_seconds.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:answer-questions-about-a-state and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields model, answers."
+    "1. Write the questions as an object by id: {type: \"noul\" (a number 0 to 1) | \"choice\" (with criteria naming the options) | \"score\" (a number), instructions}.",
+    "2. Write /work/judge/request.json: {\"state\": <anything>, \"questions\": {...}, \"endpoint\": <model server address>, \"model\": <chat model name>, \"timeout_seconds\": 30}.",
+    "3. Say \"Answer these questions about the state\". The AI reads the row with tools:list and runs: node tools/ask-a-small-model-for-a-verdict/do-work/ask-a-small-model.mjs answer-state-questions < /work/judge/request.json.",
+    "4. Read result.answers: each question id with an answer in its type. A reply that leaves a question out or answers in the wrong type is refused with the question named."
   ],
   "worked_examples": [
     {
-      "title": "Answer several typed questions about one thing in one request (runs on your computer) on a sample input",
-      "ask": "Run tool:answer-questions-about-a-state.",
+      "title": "Three typed questions about a bakery order in one request",
+      "ask": "Answer these questions about the order for table 4.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:answer-questions-about-a-state",
-            "input": {
-              "state": "<state: What the questions are about>",
-              "questions": {},
-              "endpoint": "<endpoint: Where the model server is, for example the address Ollama listens on>",
-              "model": "<model: string>",
-              "timeout_seconds": "<timeout_seconds: How many seconds the model server may take; a value that is not a number above zero is refused>"
-            }
+            "tool": "tool:answer-questions-about-a-state"
           }
         }
       },
-      "hands_back": "An answer with the fields model, answers.",
-      "given": "The person gives: state, endpoint, model, timeout_seconds (shown as <name> in the input)."
+      "given": "From tools/ask-a-small-model-for-a-verdict/test/tool.test.mjs (test \"answer-state-questions: every question comes back in its type...\"), run for real against a stand-in chat server that replies {\"urgent\": 0.9, \"kind\": \"rye\", \"rush\": 3}: request {\"state\": {\"customer\": \"table 4\"}, \"questions\": {\"urgent\": {\"type\": \"noul\", \"instructions\": \"Is the order late?\"}, \"kind\": {\"type\": \"choice\", \"instructions\": \"Which loaf?\", \"criteria\": {\"rye\": \"dark\", \"white\": \"light\"}}, \"rush\": {\"type\": \"score\", \"instructions\": \"How rushed, 0 to 5?\"}}, \"endpoint\": \"http://127.0.0.1:11434\", \"model\": \"stand-in\", \"timeout_seconds\": 30}. Command: node tools/ask-a-small-model-for-a-verdict/do-work/ask-a-small-model.mjs answer-state-questions < /work/judge/request.json",
+      "hands_back": "Last line: {\"result\": {\"model\": \"stand-in\", \"answers\": {\"urgent\": 0.9, \"kind\": \"rye\", \"rush\": 3}}}. If the reply left out rush the answer is {\"error\": \"... answer to question rush is missing ...\"}; if urgent came back as 7 it is refused as \"question urgent is not a number from 0 to 1\"."
     }
   ]
 }

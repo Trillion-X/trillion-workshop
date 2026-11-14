@@ -1,40 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:keep-a-held-value-by-name's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:keep-a-held-value-by-name with arguments.\" Keep one secret value (a key, a token) under a name in my own Trillion vault, or remove the value held under a name, so my tools and AIs can use it by name without ever seeing it",
+  "drafted_from": "tool:keep-a-held-value-by-name's row in tool-rows.json, do-work/keep-a-held-value.mjs and test/keep-a-held-value.test.mjs",
+  "start_here": "Say to your AI: \"Keep my new example-service API token in my vault under the name example-service-token, and read the token from my clipboard so it never appears in the chat.\" It runs the script on your computer with the name as the argument and the token on stdin, and tells you only the name and accepted.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it writes or removes one named value in your vault through the door and answers only the name and what happened.",
   "workflows": [],
   "tools": [
     "tool:keep-a-held-value-by-name"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:keep-a-held-value-by-name\", and give it arguments.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:keep-a-held-value-by-name and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields name, accepted, removed, queued, issuer_status."
+    "1. Pick a one-word name for the secret (a service connection's own names are refused by the door) and be signed in on this computer (trillion login, or the Mac app's key).",
+    "2. To keep a value, say \"Keep my token under the name example-service-token\". Your AI reads the row with tools:list {tool: \"tool:keep-a-held-value-by-name\"} and runs node tools/keep-a-held-value-by-name/do-work/keep-a-held-value.mjs example-service-token with the value piped on stdin, never as an argument.",
+    "3. Read the last line: {\"name\": \"example-service-token\", \"accepted\": true}. The value is never in the answer.",
+    "4. To remove a value, say \"Remove example-service-token from my vault; I revoked it at the service\". It runs the script with --remove example-service-token --issuer-status revoked (or unknown) and reads no stdin. Removing does not revoke the secret at its issuer."
   ],
   "worked_examples": [
     {
-      "title": "Keep a held value by name in my vault on a sample input",
-      "ask": "Run tool:keep-a-held-value-by-name.",
+      "title": "Remove a held value you already revoked at its service",
+      "ask": "Remove synthetic-old-key from my vault; I revoked it at the service already.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:keep-a-held-value-by-name",
-            "input": {
-              "arguments": [
-                "<arguments: The held value's name, one word; or --remove, the name, --issuer-status, then revoked or unknown>"
-              ]
-            }
+            "tool": "tool:keep-a-held-value-by-name"
           }
         }
       },
-      "hands_back": "An answer with the fields name, accepted, removed, queued, issuer_status.",
-      "given": "The person gives: arguments (shown as <name> in the input)."
+      "given": "From tools/keep-a-held-value-by-name/test/keep-a-held-value.test.mjs (the removal case, with a stub door): the command node tools/keep-a-held-value-by-name/do-work/keep-a-held-value.mjs --remove synthetic-old-key --issuer-status revoked sends held-values:remove to @held-values with the input {name: \"synthetic-old-key\"} and a door that answers {removed: true}. For keeping a value the same script is run as node tools/keep-a-held-value-by-name/do-work/keep-a-held-value.mjs engine-release-push with the value synthetic-value-7f3a on stdin; the test's stub door answers {accepted: true} and the script prints {\"name\":\"engine-release-push\",\"accepted\":true}.",
+      "hands_back": "The last line printed is {\"name\":\"synthetic-old-key\",\"removed\":true,\"issuer_status\":\"revoked\"}. When no value was held under that name it prints removed false; away from the writer it prints {\"name\":\"synthetic-old-key\",\"queued\":true,\"issuer_status\":\"revoked\"}; without --issuer-status revoked or unknown it refuses before calling the door."
     }
   ]
 }

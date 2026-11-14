@@ -1,35 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:generate-images's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:generate-images with nothing more.\" Make a picture from a description in words, with the image model or program I choose, and keep the picture",
+  "drafted_from": "tool:generate-images's row in tool-rows.json, do-work/generate_images.py, do-work/placeholder_image_provider.py, read-data/image_records.py and test/generate-images.test.mjs",
+  "start_here": "Say to your AI: \"Make a picture of a red door with generate-images, using the placeholder provider first to check the chain, and keep it in a new folder called images.\" It writes the request file, runs the script on your computer and tells you where the picture is.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads one request file and writes the images it gets back into a folder.",
   "workflows": [],
   "tools": [
     "tool:generate-images"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:generate-images\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:generate-images and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Make a picture from a description in words, with the image model or program I choose, and keep the picture"
+    "1. Decide which program makes your images (a hosted model's caller or a local model's program) and which environment variables it reads for its key; put the names, never the key, in provider.env_names. To check the chain first, use the placeholder provider that ships with the tool.",
+    "2. Write a request file: {\"request_id\": \"req 1\", \"prompt\": \"a red door\", \"requested_at\": \"2030-01-01T00:00:00Z\", \"provider\": {\"argv\": [\"python3\", \"trillion-workshop/tools/generate-images/do-work/placeholder_image_provider.py\", \"--request-json\", \"{request}\", \"--output-json\", \"{output}\"]}}.",
+    "3. Say \"Make an image with generate-images\". Your AI reads the row with tools:list {tool: \"tool:generate-images\"} and runs python3 trillion-workshop/tools/generate-images/do-work/generate_images.py --request request.json --out images.",
+    "4. Read the last line it prints: {\"result\": ...} with kind image-generation.result names each image by path (a file in the folder) or url; kind image-generation.error gives a code and message (exit 2) and nothing is made up. Then swap the placeholder argv for your real provider's."
   ],
   "worked_examples": [
     {
-      "title": "Make images from a prompt with a provider command (runs on your computer) on a sample input",
-      "ask": "Run tool:generate-images.",
+      "title": "One placeholder picture for \"a red door\"",
+      "ask": "Make a picture of a red door and keep it in the images folder.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:generate-images",
-            "input": {}
+            "tool": "tool:generate-images"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Make a picture from a description in words, with the image model or program I choose, and keep the picture"
+      "given": "From tools/generate-images/test/generate-images.test.mjs (the placeholder case), checked by running it here: the command python3 trillion-workshop/tools/generate-images/do-work/generate_images.py --request request.json --out images, where request.json holds request_id \"req 1\", prompt \"a red door\", requested_at \"2030-01-01T00:00:00Z\" and the placeholder provider argv from the instructions.",
+      "hands_back": "The last line printed is {\"result\": {\"kind\": \"image-generation.result\", \"request_id\": \"req 1\", \"prompt\": \"a red door\", \"provider_ref\": \"placeholder-image-provider\", \"format\": \"image/png\", \"output_artifact_refs\": [{\"media_type\": \"image/png\", \"byte_length\": 569, \"path\": \"req_1-1.png\"}], \"src\": \"req_1-1.png\", \"completed_at\": \"<the time the provider finished>\"}} and exit status 0. The file images/req_1-1.png is a 569-byte solid-colour PNG; the same prompt always gives the same picture. With no provider in the request it prints image-generation.error code image_provider_missing instead and exits 2."
     }
   ]
 }

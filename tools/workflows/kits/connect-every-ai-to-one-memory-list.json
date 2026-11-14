@@ -1,27 +1,119 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:connect-every-ai-to-one-memory-list's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:connect-every-ai-to-one-memory-list.\" Make one list in the person's account the original of every AI's memories: any AI on a computer, in a web chat, on a phone or in a service writes a memory there and reads it back, and a folder on the person's computer holds a copy for apps that read only files.",
-  "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "drafted_from": "workflow:connect-every-ai-to-one-memory-list's row in tools/workflows/recipes/workflows.json (its input schema, steps and submit shapes)",
+  "start_here": "Say to your AI: \"Run workflow:connect-every-ai-to-one-memory-list with list_id ai-memories, copy folder /memories, for claude-code and claude-web.\"",
+  "lists": [
+    {
+      "list": "list:ai-memories",
+      "label": "AI memories",
+      "row_type": "record:agent-memory",
+      "holds": "One thing one AI remembers: its name, who wrote it, what it is about, its text and when it changed.",
+      "fields": [
+        {
+          "id": "note_name",
+          "kind": "text",
+          "label": "Memory",
+          "alike": [
+            "name",
+            "title"
+          ]
+        },
+        {
+          "id": "note_by",
+          "kind": "text",
+          "label": "Written by",
+          "alike": [
+            "author",
+            "ai"
+          ]
+        },
+        {
+          "id": "note_description",
+          "kind": "long-text",
+          "label": "About",
+          "alike": [
+            "description",
+            "summary"
+          ]
+        },
+        {
+          "id": "note_type",
+          "kind": "text",
+          "label": "Kind",
+          "alike": [
+            "type"
+          ]
+        },
+        {
+          "id": "document_text",
+          "kind": "long-text",
+          "label": "Text",
+          "alike": [
+            "body",
+            "content"
+          ]
+        },
+        {
+          "id": "file_mtime",
+          "kind": "text",
+          "label": "Changed",
+          "alike": [
+            "modified",
+            "updated"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "prefers-short-answers",
+          "values": {
+            "note_name": "Prefers short answers",
+            "note_by": "claude-code",
+            "note_description": "How the person likes replies.",
+            "note_type": "feedback",
+            "document_text": "Lead with the outcome in one sentence, then only the facts that matter.",
+            "file_mtime": "2026-11-12 18:04"
+          }
+        },
+        {
+          "id": "bakery-opens-at-six",
+          "values": {
+            "note_name": "Bakery opens at six",
+            "note_by": "claude-web",
+            "note_description": "The shop's opening hour.",
+            "note_type": "fact",
+            "document_text": "Sunrise Bakery opens at 6 AM Monday to Saturday.",
+            "file_mtime": "2026-11-12 18:10"
+          }
+        }
+      ],
+      "alike": [
+        "a notes app folder",
+        "an AI memory file per assistant",
+        "a shared notes spreadsheet"
+      ]
+    }
+  ],
   "workflows": [
     "workflow:connect-every-ai-to-one-memory-list",
     "workflow:set-up-your-checks"
   ],
   "tools": [
+    "tool:start-a-recipe-run",
+    "tool:read-documents-as-list-rows",
     "tool:change-a-document-row",
     "tool:check-against-a-persons-rules-and-verdicts",
-    "tool:read-documents-as-list-rows"
+    "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:connect-every-ai-to-one-memory-list\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:connect-every-ai-to-one-memory-list) and works through its steps in order: the-list, computer-door, harness-hooks, web-chats, phones, services, copies, proof.",
-    "3. Read what each step hands back; the last step is proof."
+    "1. Pour the example memories into the list where you keep AI memories (see pour), or let the first step make list:ai-memories.",
+    "2. Say \"Run workflow:connect-every-ai-to-one-memory-list\" with list_id, copy_root, copy_folder, public_door, local_door and the ais to connect.",
+    "3. The AI works the-list, computer-door, harness-hooks, web-chats, phones, services, copies and proof: one list is the original, a folder on your computer is its copy, each AI that writes files gets a hook, and web chats connect through the public door with sign-in.",
+    "4. Read the proof step: a memory one AI wrote must be read by another, appear in the folder, and a change in the file must reach the list; the test memory is then removed."
   ],
   "worked_examples": [
     {
-      "title": "Connect every AI to one memory list from its first step",
-      "ask": "Run workflow:connect-every-ai-to-one-memory-list.",
+      "title": "A memory written in a web chat is read by the computer AI",
+      "ask": "Prove my AIs share one memory list.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,22 +124,62 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:connect-every-ai-to-one-memory-list",
-              "list_id": "<list_id: The id of the memory list, lowercase words and dashes, for example ai-memories>",
-              "copy_root": "<copy_root: The full absolute path of a folder on the person's computer that holds the copy folder, for example the notes folder in their home folder, written out in full>",
-              "copy_folder": "<copy_folder: The copy folder under copy_root, starting with /, for example /memories>",
-              "public_door": "<public_door: The account's public MCP address that web and phone apps connect to, as the account's own connect screen shows it, ending in /mcp>",
-              "local_door": "<local_door: The address of the account's door on the person's own computer, ending in /mcp, for example http://127.0.0.1:8788/mcp>",
+              "list_id": "ai-memories",
+              "copy_root": "/srv/example-notes",
+              "copy_folder": "/memories",
+              "public_door": "https://example.com/mcp",
+              "local_door": "http://127.0.0.1:8788/mcp",
               "ais": [
-                "<ais: string>"
+                "claude-code",
+                "claude-web"
               ]
             }
           }
         }
       },
       "workflow": "workflow:connect-every-ai-to-one-memory-list",
-      "step": "the-list",
-      "hands_back": "Step the-list answers with list_id, row_type, original, read_back.",
-      "given": "The person gives: list_id, copy_root, copy_folder, public_door, local_door, ais (shown as <name> in the input)."
+      "step": "proof",
+      "given": "claude-web writes the memory \"memory list check\" (document.text \"TEST: written by claude-web at 18:20; remove after the check\"); claude-code reads it with records:list; the full sync puts it in the file /srv/example-notes/memories/claude-web/memory-list-check.md; one word is changed in that file and reaches the row; the row is then removed. Read from the proof step of the workflow row.",
+      "hands_back": "The submit shape of step proof: {\"writer\":\"claude-web\",\"reader\":\"claude-code\",\"both\":[\"claude-web\",\"claude-code\"],\"file\":\"/srv/example-notes/memories/claude-web/memory-list-check.md\",\"file_matched\":true,\"change_reached_list\":true,\"removed\":true}"
     }
-  ]
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "example": {
+      "kit_list": "list:ai-memories",
+      "into": {
+        "list": "list:my-ai-memories",
+        "row_type": "record:my-agent-memory",
+        "fields": [
+          {
+            "id": "my_note_name",
+            "label": "Memory"
+          },
+          {
+            "id": "my_note_by",
+            "label": "Written by"
+          },
+          {
+            "id": "my_note_description",
+            "label": "About"
+          },
+          {
+            "id": "my_note_type",
+            "label": "Kind"
+          },
+          {
+            "id": "my_document_text",
+            "label": "Text"
+          },
+          {
+            "id": "my_file_mtime",
+            "label": "Changed"
+          }
+        ]
+      },
+      "field_map": {}
+    }
+  }
 }

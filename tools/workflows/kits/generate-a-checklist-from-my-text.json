@@ -1,39 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:generate-a-checklist-from-my-text's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:generate-a-checklist-from-my-text with library, schema.\" Keep one written checklist of mine as the only source, generate the checklist document from it, tell me when the file on disk no longer matches my text, and find the mistakes a hand edit or a typo would make",
+  "drafted_from": "tool:generate-a-checklist-from-my-text row (tools/workflows/tool-rows.json), tools/workflows/do-work/checklist_gate.py, and tools/workflows/test/test_checklist_gate.py (test_check_passes_until_the_text_changes), run on its made-up bakery library",
+  "start_here": "Say to your AI: \"I changed one row of my written checklist in ./bakery-library/checklist-source.md. Run tool:generate-a-checklist-from-my-text with --check against ./bakery-library/schema.json, and if the file differs, write it and check it for problems.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It reads a checklist you wrote as a text file and writes one generated checklist file beside it, so it reads and writes no list.",
   "workflows": [],
   "tools": [
     "tool:generate-a-checklist-from-my-text"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:generate-a-checklist-from-my-text\", and give it library, schema.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:generate-a-checklist-from-my-text and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Keep one written checklist of mine as the only source, generate the checklist document from it, tell me when the file on disk no longer matches my text, and find the mistakes a hand edit or a typo would make"
+    "1. Keep your checklist as one text file (one section per stage, one table row per check, notes that annotate a check) and a schema file whose checklist_source part holds the regular expressions that say how your text is laid out; the text is the only source.",
+    "2. Say to your AI: \"Run tool:generate-a-checklist-from-my-text\". It reads the row with tools:list {\"tool\":\"tool:generate-a-checklist-from-my-text\"}, then runs its command from the root of your Workshop checkout: python3 tools/workflows/do-work/checklist_gate.py --library <your library folder> --schema <your schema file> checklist <mode>.",
+    "3. After you edit the text, run it with --check. Exit 0 and {\"all_passed\": true} means the file on disk matches your text; exit 1 says in words which checks differ.",
+    "4. When it differs, run it with --write to regenerate the file ({\"written\", \"checks\", \"must\"}), then with --problems, which finds repeated ids, a required flag that is not true or false, a per-item check with no rule, a phase that names no check and counts that do not add up.",
+    "5. Never edit the generated file by hand; change your text and run it again. Exit 2 means your text or schema could not be read, and the error names what to fix."
   ],
   "worked_examples": [
     {
-      "title": "Turn my written checklist into the checklist file the gate reads, and check that file (runs on your computer) on a sample input",
-      "ask": "Run tool:generate-a-checklist-from-my-text.",
+      "title": "One changed row is found, written, and the file checks clean",
+      "ask": "I changed one row in my written checklist. Does the checklist file still match it?",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:generate-a-checklist-from-my-text",
-            "input": {
-              "library": "<library: The folder the schema's files are relative to, put where {library} is in the command>",
-              "schema": "<schema: The schema file on the person's computer (its checklist_source part is described in the README), put where {schema} is in the command>"
-            }
+            "tool": "tool:generate-a-checklist-from-my-text"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Keep one written checklist of mine as the only source, generate the checklist document from it, tell me when the file on disk no longer matches my text, and find the mistakes a hand edit or a typo would make",
-      "given": "The person gives: library, schema (shown as <name> in the input)."
+      "given": "From tools/workflows/test/test_checklist_gate.py (test_check_passes_until_the_text_changes) on its made-up bakery library, run for real: after `checklist --write` the library holds 12 checks, 9 of them required. In ./bakery-library/checklist-source.md the row \"| B2.2 | [ ] Sold out by close | all | Count the shelf | habit | no |\" is changed to end with \"| yes |\". The command the person's AI runs is: python3 tools/workflows/do-work/checklist_gate.py --library ./bakery-library --schema ./bakery-library/schema.json checklist --check",
+      "hands_back": "Exit status 1 and the last JSON line {\"all_passed\": false, \"difference\": \"./bakery-library/checklist.json is not what checklist-source.md generates. Only in the generated file: []; only in checklist-source.md: []; differing: ['B2.2']. Edit checklist-source.md and regenerate.\"}. Running the same command with --write then answers {\"written\": \"./bakery-library/checklist.json\", \"checks\": 12, \"must\": 10}, and with --problems answers {\"all_passed\": true, \"problems\": []}."
     }
   ]
 }

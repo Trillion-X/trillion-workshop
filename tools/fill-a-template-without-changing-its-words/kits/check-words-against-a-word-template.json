@@ -1,13 +1,11 @@
 {
-  "draft": true,
-  "drafted_from": "tool:check-words-against-a-word-template's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-words-against-a-word-template with template, target, report.\" Tell me which words of the original a rewrite deleted, replaced or added, and whether the slots were filled from real sources",
+  "start_here": "Say to your AI: \"Check bakery/rewrite.md against bakery/TEMPLATE.json and tell me which fixed words I changed.\" It runs tool:check-words-against-a-word-template and writes bakery/report2.json.",
   "lists": [
     {
       "list": "list:settings",
       "label": "Settings",
       "row_type": "record:setting",
-      "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON.",
+      "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON. For this folder the account row holds your own dimensions registry.",
       "fields": [
         {
           "id": "name",
@@ -71,81 +69,79 @@
           "label": "Status",
           "alike": [
             "state",
-            "on or off"
+            "active"
           ]
         }
       ],
       "example_rows": [
         {
-          "id": "caption-style",
+          "id": "tasting-note-registry",
           "values": {
-            "name": "Caption style",
-            "tool": "tool:example-captioner",
-            "scope_kind": "person",
-            "scope_id": "example-person",
-            "settings": "{\"style\":\"plain\",\"size\":\"large\"}",
+            "name": "Tasting-note registry",
+            "tool": "tool:make-a-word-template",
+            "scope_kind": "account",
+            "scope_id": "main",
+            "settings": "{\"registry\":{\"dimensions\":[{\"id\":\"taste.note\",\"name\":\"tasting note\",\"media\":[\"podcast\"],\"region\":\"speech\",\"value_kind\":\"category\",\"measure\":[{\"method\":\"a taster writes it down\"}],\"drift\":{\"threshold\":1.0}}]}}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         },
         {
-          "id": "quiet-hours",
+          "id": "open-line-candidates",
           "values": {
-            "name": "Quiet hours",
-            "tool": "tool:example-notifier",
-            "scope_kind": "account",
-            "scope_id": "whole-account",
-            "settings": "{\"from\":\"22:00\",\"to\":\"07:00\"}",
+            "name": "Open line candidates",
+            "tool": "tool:make-spoken-line-candidates-one-slot-at-a-time",
+            "scope_kind": "piece",
+            "scope_id": "open-line",
+            "settings": "{\"id_prefix\":\"open-\",\"script_path\":\"scripts/{id}.txt\"}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         }
       ],
       "alike": [
-        "an app's settings screen",
-        "a config file per tool",
-        "a spreadsheet of options"
+        "a config sheet or settings spreadsheet",
+        "an app's preferences list",
+        "a notes page of defaults per project"
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
-    "tool:check-words-against-a-word-template"
+    "tool:check-words-against-a-word-template",
+    "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-words-against-a-word-template\", and give it template, target, report.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-words-against-a-word-template and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Tell me which words of the original a rewrite deleted, replaced or added, and whether the slots were filled from real sources"
+    "1. Have a template (tool:make-a-word-template) and the script to judge: a markdown file with a fenced dim:speech.word block (what tool:fill-a-word-template writes), or plain text, or a piece JSON.",
+    "2. Say to your AI: \"Check bakery/rewrite.md against bakery/TEMPLATE.json\". It reads the row with tools:list and runs python3 -I tools/fill-a-template-without-changing-its-words/do-work/drift.py bakery/TEMPLATE.json bakery/rewrite.md --check --json bakery/report2.json",
+    "3. Read the verdict first (CHECK: PASS or FAIL), then each fixed word deleted, replaced or added with its line, and each slot that is empty, unsourced or still holds the original's value.",
+    "4. Exit 1 means a dimension missed its threshold: that is a finding, not a failure to run. Fix the rewrite, or pass a deliberate change back in an exceptions file with a reason (--exceptions FILE).",
+    "5. After a pass, move events tied to the words with tool:re-time-events-tied-to-words.",
+    "6. Optional: if you keep your own dimensions registry as a row of list:settings, read that row with records:read, write it to a file and add --settings-record FILE to the command."
   ],
   "worked_examples": [
     {
-      "title": "Check that a rewrite kept the template's words (runs on your computer) on a sample input",
-      "ask": "Run tool:check-words-against-a-word-template.",
+      "title": "A rewrite that changed \"before\" to \"after\" and used an unsourced 52",
+      "ask": "Check my rewrite against the template.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:check-words-against-a-word-template",
-            "input": {
-              "template": "<template: The template JSON, put where {template} is in the command>",
-              "target": "<target: The script (.md or .txt) or piece JSON to judge, put where {target} is in the command>",
-              "report": "<report: Where to write the report JSON, put where {report} is in the command>"
-            }
+            "tool": "tool:check-words-against-a-word-template"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Tell me which words of the original a rewrite deleted, replaced or added, and whether the slots were filled from real sources",
-      "given": "The person gives: template, target, report (shown as <name> in the input)."
+      "given": "Read from tools/fill-a-template-without-changing-its-words/do-work/drift.py and run for real with the bakery template and bakery/rewrite.md, which holds \"Sam baked 52 loaves after dawn and sold them all.\" in a dim:speech.word block: python3 -I tools/fill-a-template-without-changing-its-words/do-work/drift.py bakery/TEMPLATE.json bakery/rewrite.md --check --json bakery/report2.json",
+      "hands_back": "Exit 1 and the report: KEEP preserved: 88.9% (8 of 9 KEEP values); CHECK: FAIL - speech.word: 88.9% of KEEP preserved, needs 100%; 1 slot fill(s) without a valid source. EVERY KEEP CHANGE (1): speech.word speech.word:L1 replaced: 'before' -> 'after'. Annotated line: Sam baked [-40-]{+52+} loaves [-before-]{+after+} dawn and sold them all. Slot auto-number-w2 is unsourced. Run on the filled script instead and it exits 0 with CHECK: PASS at 100.0% (9/9)."
     }
   ],
   "pour": {
     "tool": "tool:pour-example-rows-into-my-list",
     "least_coverage": 0.8,
-    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "how": "Name the list you already keep for tool settings and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and list:settings as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
     "example": {
       "kit_list": "list:settings",
       "into": {
@@ -181,7 +177,9 @@
             "label": "Status"
           }
         ]
-      }
+      },
+      "field_map": {}
     }
-  }
+  },
+  "drafted_from": "tool:check-words-against-a-word-template's row in tools/fill-a-template-without-changing-its-words/tool-rows.json, do-work/*.py and the tests in tools/fill-a-template-without-changing-its-words/test/; the worked run was executed on made-up bakery words"
 }

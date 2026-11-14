@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:check-an-app's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-an-app with app.\" Read how an installed macOS app is hardened, from its files and the system's codesign without launching it, and say in words what falls short: Electron fuses left weak, a missing hardened runtime, forbidden entitlements, an integrity hash nothing enforces",
+  "drafted_from": "tools/check-how-an-installed-app-is-hardened/tool-rows.json (its sample run), read-data/app-hardening.mjs, read-data/app-hardening.json and test/app-hardening.test.mjs; the sample bundle was run here on 2026-11-13",
+  "start_here": "Say to your AI: \"Check how the app at /Applications/Sample.app is hardened, without launching it, and tell me what falls short.\" It runs tool:check-an-app on the folder you granted for reading.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It reads one app bundle and the system's codesign output and keeps no list of its own.",
   "workflows": [],
   "tools": [
     "tool:check-an-app"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-an-app\", and give it app.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-an-app and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields app, findings, ok."
+    "1. Grant the folder that holds the app (for example /Applications) for reading.",
+    "2. Say \"Check how /Applications/Sample.app is hardened\" and give app as the full path of the bundle inside that folder.",
+    "3. Read what comes back: ok is true only when findings is empty; each finding has a kind (no_app, unsigned, not_hardened, entitlement, no_sentinel, unknown_version, fuse, integrity_not_enforced) and its words in said.",
+    "4. For a fuse or entitlement finding, tell the app's maker or rebuild the app with that fuse set as the finding's said line asks; a thing that could not be read is a finding, never a pass."
   ],
   "worked_examples": [
     {
-      "title": "Check how an installed app is hardened on a sample input",
-      "ask": "Run tool:check-an-app.",
+      "title": "An app bundle with only an Info.plist is reported unsigned",
+      "ask": "Check how /Applications/Sample.app is hardened.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,12 +26,13 @@
           "input": {
             "tool": "tool:check-an-app",
             "input": {
-              "app": "{grant:read-a-folder}/Applications/Sample.app"
+              "app": "/Applications/Sample.app"
             }
           }
         }
       },
-      "hands_back": "An answer with the fields app, findings, ok."
+      "given": "Observed on 2026-11-13: the sample run of tools/check-an-app's own row (a bundle holding only Contents/Info.plist with CFBundleName Sample) run through run-an-export.mjs and the audit function in tools/check-how-an-installed-app-is-hardened/read-data/app-hardening.mjs, with the real /usr/bin/codesign. codesign reports no signature, so the check stops at that finding; there is no Electron framework to read fuses from.",
+      "hands_back": "{\"result\":{\"app\":\"/Applications/Sample.app\",\"findings\":[{\"kind\":\"unsigned\",\"said\":\"Sample.app is not signed.\"}],\"ok\":false}}"
     }
   ]
 }

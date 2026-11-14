@@ -1,43 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:project-a-packaging-ledger-into-template-source's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:project-a-packaging-ledger-into-template-source with root, ledger, source_key, output_html, output_spec.\" Make one channel's titles, thumbnail words, descriptions and hooks from my packaging ledger into a source I can build a word-for-word template from",
+  "drafted_from": "tool row in tools/keep-a-video-packaging-ledger/tool-rows.json, do-work/project_packaging_ledger.py and the fixture of test/test_channel_intake_append_new.py (run to observe)",
+  "start_here": "Say to your AI: \"Make the ch-example-videos rows of my packaging ledger into a source I can build a word-for-word template from, as out/SOURCE.html and out/SPEC.json.\" It reads the tool's row and runs project_packaging_ledger.py on your computer.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no Trillion list: the ledger is a JSON Lines file in the person's own working folder, one row per video, and the tool reads and writes files there.",
   "workflows": [],
   "tools": [
     "tool:project-a-packaging-ledger-into-template-source",
     "tool:make-a-word-template"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:project-a-packaging-ledger-into-template-source\", and give it root, ledger, source_key, output_html, output_spec.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:project-a-packaging-ledger-into-template-source and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Make one channel's titles, thumbnail words, descriptions and hooks from my packaging ledger into a source I can build a word-for-word template from"
+    "1. Have a packaging ledger with rows under one source key (tool:add-reviewed-videos-to-a-packaging-ledger makes them).",
+    "2. Say which source key and where to write the HTML source and the spec. The AI reads the row with tools:list {tool: tool:project-a-packaging-ledger-into-template-source} and runs its `run` command; to refresh only some videos add --previous-html and one --replace-video-id per video.",
+    "3. Read the last JSON line: source_key, videos, records, output_html, output_spec.",
+    "4. Build the template from the spec with tool:make-a-word-template, then check it with tool:check-a-compiled-packaging-template-against-the-ledger."
   ],
   "worked_examples": [
     {
-      "title": "Turn one channel's rows of my packaging ledger into source DATA a word template can read (runs on your computer) on a sample input",
-      "ask": "Run tool:project-a-packaging-ledger-into-template-source.",
+      "title": "Project two videos into template source",
+      "ask": "Make the ch-example-videos rows of my packaging ledger into a source I can build a template from.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:project-a-packaging-ledger-into-template-source",
-            "input": {
-              "root": "<root: The folder every other path is relative to (the person's own working folder that holds the ledger, captions, metadata, thumbnails and review notes), put where {root} is in the command>",
-              "ledger": "<ledger: The packaging ledger: a JSON Lines file, one row per video (video_id, source_key, channel, titles, thumbnail identity and review, caption file references, hook evidence locators), put where {ledger} is in the command>",
-              "source_key": "<source_key: The source key: the name the person gives one channel or playlist batch in the ledger, put where {source_key} is in the command>",
-              "output_html": "<output_html: Where to write the HTML source DATA, put where {output_html} is in the command>",
-              "output_spec": "<output_spec: Where to write the word-template spec, put where {output_spec} is in the command>"
-            }
+            "tool": "tool:project-a-packaging-ledger-into-template-source"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Make one channel's titles, thumbnail words, descriptions and hooks from my packaging ledger into a source I can build a word-for-word template from",
-      "given": "The person gives: root, ledger, source_key, output_html, output_spec (shown as <name> in the input)."
+      "given": "I ran project_packaging_ledger.py on a ledger holding the two rows the fixture of tools/keep-a-video-packaging-ledger/test/test_channel_intake_append_new.py adds (new-video-1 and new-video-2). Command: python3 -I tools/keep-a-video-packaging-ledger/do-work/project_packaging_ledger.py --root /work/example-channel --ledger /work/example-channel/NEW.jsonl --source-key ch-example-videos --output-html /work/example-channel/out/SOURCE.html --output-spec /work/example-channel/out/SPEC.json.",
+      "hands_back": "{\"source_key\": \"ch-example-videos\", \"videos\": 2, \"records\": 16, \"output_html\": \"/work/example-channel/out/SOURCE.html\", \"output_spec\": \"/work/example-channel/out/SPEC.json\"} SPEC.json has schema word-template-spec@1, piece id youtube-source:ch-example-videos and an html_json_records source pointing at SOURCE.html script id packaging; SOURCE.html holds one inert application/json block of the 16 records, a unit per video (video-new-video-1, video-new-video-2) with caption source references that carry file identity and event range but no caption text."
     }
   ]
 }

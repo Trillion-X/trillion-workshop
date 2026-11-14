@@ -1,7 +1,5 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:take-payments-with-stripe's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:take-payments-with-stripe.\" Create the payment links from the person's offers, prove one purchase in Stripe test mode, find the completed checkout, reconcile the money, and handle an offer that pays another seller.",
+  "start_here": "Say to your AI: \"Run workflow:take-payments-with-stripe for Sam's bakery: make the payment links for the Member (40 a month) and Session (600 one time) offers, send buyers back to https://app.example/, then prove one test purchase and reconcile the week.\"",
   "lists": [
     {
       "list": "list:business-setup-checklist",
@@ -59,23 +57,21 @@
       ],
       "example_rows": [
         {
-          "id": "replies",
+          "id": "payments",
           "values": {
-            "stage": "replies",
-            "label": "Comments and messages",
-            "status": "Gap",
-            "steps_status": "{\"read-facts\":\"Done\",\"pull-messages\":\"Done\",\"read-reply-templates\":\"Done\",\"pick-a-template\":\"Done\",\"fill-the-replies\":\"Done\",\"check-the-replies\":\"Done\",\"hand-the-replies-to-the-person\":\"Gap\"}",
-            "gaps": [
-              "record:setup-gap:hand-the-replies-to-the-person-1"
-            ],
+            "stage": "payments",
+            "label": "Payments",
+            "status": "Done",
+            "steps_status": "{\"read-facts\":\"Done\",\"set-up-payment-links\":\"Done\",\"prove-a-test-purchase\":\"Done\",\"find-the-completed-checkout\":\"Done\",\"reconcile-the-money\":\"Done\",\"pay-a-third-seller\":\"Not applicable\"}",
+            "gaps": [],
             "updated_at": "2026-11-13"
           }
         },
         {
-          "id": "social-posting",
+          "id": "replies",
           "values": {
-            "stage": "social-posting",
-            "label": "Posting on social channels",
+            "stage": "replies",
+            "label": "Comments and messages",
             "status": "Not done",
             "steps_status": "",
             "gaps": [],
@@ -143,24 +139,24 @@
       ],
       "example_rows": [
         {
-          "id": "hand-the-replies-to-the-person-1",
+          "id": "find-the-completed-checkout-1",
           "values": {
-            "stage": "replies",
-            "step": "hand-the-replies-to-the-person",
-            "undecided": "No live tool sends an Instagram direct-message reply.",
-            "chosen": "Handed 3 checked replies to the person to send by hand.",
-            "evidence": "The live catalog has no send tool for Instagram direct messages.",
+            "stage": "payments",
+            "step": "find-the-completed-checkout",
+            "undecided": "No completed checkout was found after the test time.",
+            "chosen": "Submitted checkouts empty with the reason and left the stage Not done.",
+            "evidence": "tool:find-a-completed-stripe-checkout answered no checkout after created_after_unix 1763000000.",
             "status": "open"
           }
         },
         {
-          "id": "pull-messages-1",
+          "id": "reconcile-the-money-1",
           "values": {
-            "stage": "replies",
-            "step": "pull-messages",
-            "undecided": "Instagram sign-in expired.",
-            "chosen": "Submitted status needs_login and pulled nothing.",
-            "evidence": "tool:pull-my-instagram-messages answered needs_login.",
+            "stage": "payments",
+            "step": "reconcile-the-money",
+            "undecided": "The 7-day money total is 40.00 but the checkouts found add to 0.",
+            "chosen": "Wrote the difference as a gap and did not claim the stage Done.",
+            "evidence": "tool:stripe-events-read_money_since since 1762400000 listed one 4000-cent event.",
             "status": "open"
           }
         }
@@ -181,17 +177,21 @@
     "tool:find-a-completed-stripe-checkout",
     "tool:set-up-stripe-payment-links",
     "tool:start-a-stripe-checkout-that-pays-someone-else",
-    "tool:stripe-events-read_money_since"
+    "tool:stripe-events-read_money_since",
+    "tool:start-a-recipe-run",
+    "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:take-payments-with-stripe\".",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:take-payments-with-stripe) and works through its steps in order: read-facts, set-up-payment-links, prove-a-test-purchase, find-the-completed-checkout, reconcile-the-money, pay-a-third-seller, record-the-stage.",
-    "3. Read what each step hands back; the last step is record-the-stage."
+    "1. Run workflow:set-up-a-business-on-trillion first (or make record:business-setup:facts with business_name, owner_name, seller_return_url and channels); this workflow stops with \"facts row missing\" without it.",
+    "2. Make sure the offers are rows of type record:offer in your records with price options in whole cents (for example Member 4000 cents a month, Session 60000 cents one time).",
+    "3. Say \"Run workflow:take-payments-with-stripe\". Step set-up-payment-links makes one payment link per price option (a free offer gets none) and is safe to run again: it finds the links it made.",
+    "4. Open one link in Stripe test mode and pay with Stripe's published test card, then tell your AI the test purchase was made; it finds the completed checkout and compares the last 7 days of money events to the checkouts.",
+    "5. If an offer pays another seller (facts.payee_account_ref), step pay-a-third-seller starts that checkout; otherwise it answers Not applicable. The last step ticks the payments row in list:business-setup-checklist and writes any gap to list:business-setup-gaps."
   ],
   "worked_examples": [
     {
-      "title": "Take payments with Stripe from its first step",
-      "ask": "Run workflow:take-payments-with-stripe.",
+      "title": "Two offers become two payment links, the member link returning to its own page",
+      "ask": "Make payment links for the Member and Session offers.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -207,8 +207,9 @@
         }
       },
       "workflow": "workflow:take-payments-with-stripe",
-      "step": "read-facts",
-      "hands_back": "Step read-facts answers with facts."
+      "step": "set-up-payment-links",
+      "given": "From tools/take-payments/test/ensure-offer-payment-links.test.mjs (\"every priced option gets a link carrying its offer and option, and free offers get none\"): owner bakery-a, after_payment_url https://app.example/, offers Free (no price options), Member (offer:member, price:member-monthly, 4000 cents usd, subscription every month, post-purchase page /account?paid=1) and Session (offer:session, price:session, 60000 cents usd, one time).",
+      "hands_back": "links [\"offer:member / price:member-monthly\", \"offer:session / price:session\"] (one link each, none for the Free offer): the Member link returns buyers to https://app.example/account?paid=1 and collects a card even on a trial, the Session link returns to https://app.example/ and creates a customer; each link carries metadata owner bakery-a, its offer_id and price_option_id. Running the step again finds the same links and makes no new ones; retired []."
     }
   ],
   "pour": {
@@ -248,5 +249,6 @@
         ]
       }
     }
-  }
+  },
+  "drafted_from": "workflow:take-payments-with-stripe row (steps read-facts to record-the-stage) and tools/take-payments/test/ensure-offer-payment-links.test.mjs"
 }

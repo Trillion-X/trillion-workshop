@@ -1,22 +1,24 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:method-name-things-by-what-they-do's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:method-name-things-by-what-they-do.\" Name every part, field, screen and message by what it does for the person, in plain words a newcomer understands, so each name can be pointed at in the real result.",
+  "drafted_from": "workflow:method-name-things-by-what-they-do's row in tools/workflows/recipes/workflows.json (its job, input schema and the step named in the worked example)",
+  "start_here": "Say to your AI: \"Run workflow:method-name-things-by-what-they-do on: name the screens and messages of a bakery's pre-order page.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It is a way of thinking a request through, answered in words step by step, and it reads and writes no list.",
   "workflows": [
     "workflow:method-name-things-by-what-they-do"
   ],
-  "tools": [],
+  "tools": [
+    "tool:start-a-recipe-run"
+  ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:method-name-things-by-what-they-do\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-name-things-by-what-they-do) and works through its steps in order: naming.",
-    "3. Read what each step hands back; the last step is naming."
+    "1. Say what you are naming in one plain sentence, for example \"name the screens and messages of a bakery's pre-order page\", and say \"Run workflow:method-name-things-by-what-they-do\" with it as request.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-name-things-by-what-they-do) and answers its one step, naming, with ten checks (finger-point test, job names, plain cause in errors, no insider words and the rest).",
+    "3. Point at each name in the real result and say what concrete thing it shows; replace every name that needs explaining.",
+    "4. Read what naming hands back: the names, the plain wording each replaced and every promise matched to what exists today."
   ],
   "worked_examples": [
     {
-      "title": "Name things by what they do from its first step",
-      "ask": "Run workflow:method-name-things-by-what-they-do.",
+      "title": "Name a pre-order page by what each part does",
+      "ask": "Run workflow:method-name-things-by-what-they-do: name the screens and messages of a bakery's pre-order page.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,15 +29,15 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:method-name-things-by-what-they-do",
-              "request": "<request: What you are deciding, designing or building, in plain words>"
+              "request": "Name the screens and messages of a bakery's pre-order page"
             }
           }
         }
       },
       "workflow": "workflow:method-name-things-by-what-they-do",
       "step": "naming",
-      "hands_back": "Step naming answers with answer, checks.",
-      "given": "The person gives: request (shown as <name> in the input)."
+      "given": "Read from tools/workflows/recipes/workflows.json, step naming: its submit shape is answer and checks with ten checks (naming-finger-point-test through naming-promise-matches-reality). The request is the one in the input above.",
+      "hands_back": "{\"answer\":\"Screen \\\"Pick up on\\\" (was \\\"Fulfilment\\\"), button \\\"Reserve my loaf\\\" (was \\\"Submit\\\"), error \\\"That pickup time is full, pick another\\\" (was \\\"Processing failure\\\"), list \\\"Your reservations\\\" (was \\\"Orders v2\\\").\",\"checks\":{\"naming-finger-point-test\":\"Three new readers each pointed to the same button for \\\"Reserve my loaf\\\" and the same date picker for \\\"Pick up on\\\".\",\"naming-name-the-job\":\"Every label says what happens: \\\"Reserve my loaf\\\", \\\"Your reservations\\\"; the category word \\\"Fulfilment\\\" is gone.\",\"naming-sentence-over-vague-word\":\"The pickup field is \\\"Day and time you will collect it\\\", a sentence, because \\\"Slot\\\" lost its meaning.\",\"naming-state-the-actual-cause\":\"The full-day error says \\\"That pickup time is full, pick another\\\", not \\\"Processing failure\\\".\",\"naming-translate-insider-terms\":\"The word \\\"SKU\\\" became \\\"item\\\" and \\\"cutoff window\\\" became \\\"last time to change your order\\\".\",\"naming-meaning-not-sequence-number\":\"\\\"Orders v2\\\" is now \\\"Your reservations\\\"; \\\"New basket\\\" is \\\"Basket for groups\\\".\",\"naming-claims-literally-true\":\"\\\"Unlimited changes\\\" was removed; it says \\\"Change your order until 6 pm the day before\\\", which is what the page does.\",\"naming-fix-where-you-are\":\"Only the pre-order page names were changed; the admin screen names were left for their own change.\",\"naming-examples-not-owner-names\":\"The shared date picker is named \\\"Day picker\\\", with the bakery pickup as one use of it.\",\"naming-promise-matches-reality\":\"The \\\"Reply within an hour\\\" promise was checked against the inbox and changed to \\\"Reply the same day\\\".\"}}"
     }
   ]
 }

@@ -1,37 +1,37 @@
 {
-  "draft": true,
-  "drafted_from": "tool:read-back-repaired-speech's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-back-repaired-speech with nothing more.\" Read back every span in a graded folder with a speech transcriber and count the words that differ from what should be said",
+  "drafted_from": "tools/grade-and-repair-speech-audio/tool-rows.json (tool:read-back-repaired-speech), do-work/check_speech_by_reading.py and reading.py, grade_and_repair_speech.py (write_result); no test runs the read-back (it needs whisper weights)",
+  "start_here": "Say to your AI: \"Read back every span in /Work/demo/out with whisper using my settings in /Work/settings.json and tell me which ones say the wrong words.\" It runs tool:read-back-repaired-speech on your computer and lists every span under the bar.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of yours: it reads the folder a grade wrote and writes work/verify.json into it.",
   "workflows": [],
   "tools": [
     "tool:read-back-repaired-speech",
-    "tool:clone-speech-that-repair-could-not-fix",
-    "tool:grade-and-repair-speech-audio"
+    "tool:grade-and-repair-speech-audio",
+    "tool:clone-speech-that-repair-could-not-fix"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-back-repaired-speech\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-back-repaired-speech and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Read back every span in a graded folder with a speech transcriber and count the words that differ from what should be said"
+    "1. Run tool:grade-and-repair-speech-audio (and, if used, tool:clone-speech-that-repair-could-not-fix) so the output folder holds grades.json, audio/ and work/state.json.",
+    "2. Use the same settings file the grade was made with (it names read_model, language and spoken_forms); install mlx-whisper. English speech only.",
+    "3. Say \"Read back the repaired speech\". Your AI reads the row with tools:list and runs its run command with your settings and the output folder.",
+    "4. Read the last JSON line ({result:{verify,files,failing}}) and work/verify.json: for each failing span, what was heard against what should be said. Zero errors against either the original read or the text passes a kept or remastered span; a cloned span must have zero against the text."
   ],
   "worked_examples": [
     {
-      "title": "Check by listening that every cleaned-up or re-voiced span still says the right words (runs on your computer) on a sample input",
-      "ask": "Run tool:read-back-repaired-speech.",
+      "title": "A grade-only folder: the kept span passes, the two with no audio fail",
+      "ask": "Read back the repaired speech and tell me which spans fail.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:read-back-repaired-speech",
-            "input": {}
+            "tool": "tool:read-back-repaired-speech"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Read back every span in a graded folder with a speech transcriber and count the words that differ from what should be said"
+      "given": "Worked out from do-work/check_speech_by_reading.py, not run here (whisper weights are not available). The output folder is the one the real `grade` stage made from the test fixture: clean_0.40_5.00 was kept as it is and has audio, noisy_0.40_5.00 and clipped_0.40_5.00 were graded remaster but the `grade` stage did not remaster them, so they have no audio file. ASSUMPTION, not observed: whisper reads the kept span as its own text, \"alpha bravo charlie delta echo\", in both reads. The AI reads the row with this tools:list call, then runs: python3 trillion-workshop/tools/grade-and-repair-speech-audio/do-work/check_speech_by_reading.py --settings /Work/settings.json --out /Work/demo/out.",
+      "hands_back": "It prints \"clean_0.40_5.00 as-is vs_original 0 vs_transcript 0 PASS\", then \"3 files, 2 failing the bar:\" followed by the lines \"  noisy_0.40_5.00\" and \"  clipped_0.40_5.00\" (each has the error \"no audio file: grade is clone and no take passed\" in verify.json), and the last line {\"result\": {\"verify\": \"/Work/demo/out/work/verify.json\", \"files\": 3, \"failing\": [\"noisy_0.40_5.00\", \"clipped_0.40_5.00\"]}}."
     }
   ]
 }

@@ -1,0 +1,314 @@
+{
+  "drafted_from": "tool:check-against-a-persons-rules-and-verdicts's row in tools/check-against-a-persons-rules-and-verdicts/tool-rows.json (its verify sample runs), do-work/check-against-their-rules-and-verdicts.mjs, do-work/check-a-branch.mjs and test/branch.test.mjs; the answer was observed by running check-a-branch.mjs on the sample's rows in an in-memory records door",
+  "start_here": "Say to your AI: \"Check the title 'A sparkle of zorblax' against my made-up-post branch of rules and tell me pass, fail or uncertain, with why.\" It reads your branch's rows from list:checks and says which rules the title breaks.",
+  "lists": [
+    {
+      "list": "list:checks",
+      "label": "Checks (the rules and branches you keep)",
+      "row_type": "record:check",
+      "holds": "One node of your rule tree: a branch (a kind of thing you make) or a check (words, a pattern or a question that fails or holds a thing made), each naming the node it is part of.",
+      "fields": [
+        {
+          "id": "id",
+          "kind": "text",
+          "label": "Rule",
+          "alike": [
+            "rule id",
+            "name",
+            "code"
+          ]
+        },
+        {
+          "id": "kind",
+          "kind": "text",
+          "label": "Kind",
+          "alike": [
+            "type",
+            "row type"
+          ]
+        },
+        {
+          "id": "part_of",
+          "kind": "link",
+          "label": "Part of",
+          "alike": [
+            "parent",
+            "belongs to",
+            "group"
+          ]
+        },
+        {
+          "id": "says",
+          "kind": "long-text",
+          "label": "Says",
+          "alike": [
+            "message",
+            "explanation",
+            "what to tell the writer"
+          ]
+        },
+        {
+          "id": "words",
+          "kind": "tags",
+          "label": "Words",
+          "alike": [
+            "banned words",
+            "forbidden words",
+            "blocklist"
+          ]
+        },
+        {
+          "id": "kinds",
+          "kind": "tags",
+          "label": "Kinds",
+          "alike": [
+            "applies to",
+            "used on",
+            "formats"
+          ]
+        },
+        {
+          "id": "on",
+          "kind": "choice",
+          "label": "On",
+          "alike": [
+            "enabled",
+            "active",
+            "switch"
+          ]
+        },
+        {
+          "id": "pattern",
+          "kind": "text",
+          "label": "Pattern",
+          "alike": [
+            "regex",
+            "regular expression",
+            "match"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "made-up-base",
+          "values": {
+            "id": "made-up-base",
+            "kind": "branch",
+            "says": "Any made-up thing",
+            "on": "On"
+          }
+        },
+        {
+          "id": "made-up-post",
+          "values": {
+            "id": "made-up-post",
+            "kind": "branch",
+            "part_of": "made-up-base",
+            "says": "A made-up post",
+            "on": "On"
+          }
+        },
+        {
+          "id": "no-sparkle",
+          "values": {
+            "id": "no-sparkle",
+            "kind": "check",
+            "part_of": "made-up-base",
+            "words": [
+              "sparkle"
+            ],
+            "says": "No sparkle.",
+            "on": "On"
+          }
+        },
+        {
+          "id": "no-zorblax",
+          "values": {
+            "id": "no-zorblax",
+            "kind": "check",
+            "part_of": "made-up-post",
+            "kinds": [
+              "title"
+            ],
+            "words": [
+              "zorblax"
+            ],
+            "says": "Never zorblax.",
+            "on": "On"
+          }
+        }
+      ],
+      "alike": [
+        "a style guide kept as a spreadsheet",
+        "a banned-words list in a notes app",
+        "the rule file of a writing linter"
+      ]
+    }
+  ],
+  "workflows": [],
+  "tools": [
+    "tool:check-against-a-persons-rules-and-verdicts",
+    "tool:judge-against-rules",
+    "tool:read-where-you-stand",
+    "tool:pour-example-rows-into-my-list"
+  ],
+  "instructions": [
+    "1. Pour the four example rows into your own writing-rules list (see pour), or make list:checks from them: a branch made-up-base, a branch made-up-post that is part of it, and one word rule on each.",
+    "2. Say \"Check this title against my made-up-post branch.\" The AI calls tools:run at @workshop-tools with tool tool:check-against-a-persons-rules-and-verdicts and { branch, units: [{ kind, text }] }. Give branch or rules, never both.",
+    "3. Read status (passed, failed, uncertain, unqualified or no-applicable-rule), results (each unit with its breaks, rule and the words found) and lines (the same in one readable block). A rule row with no test but a question comes back in questions: answer it and send the answers back in answers.",
+    "4. With no list, send rules directly (judge-words rows) and, to honour verdicts you already gave, verdict_rules and stands as tool:read-where-you-stand gives them: a stand of disagree on an exact line fails it first."
+  ],
+  "worked_examples": [
+    {
+      "title": "A title that breaks a rule of its branch and a rule of the branch above",
+      "ask": "Check the title 'A sparkle of zorblax' against my made-up-post branch.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-against-a-persons-rules-and-verdicts",
+            "input": {
+              "branch": "made-up-post",
+              "units": [
+                {
+                  "text": "A sparkle of zorblax",
+                  "kind": "title"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "given": "From tools/check-against-a-persons-rules-and-verdicts/tool-rows.json (the second verify sample run) and do-work/check-a-branch.mjs, run in an in-memory records door: your list:checks holds the four example rows above (record:check:made-up-base, record:check:made-up-post, record:check:no-sparkle, record:check:no-zorblax), and made-up-post carries judge_settings (fold lowercase and collapse_space, stage default final, stance_rule their-stance, novel rule novel, agree_clears none).",
+      "hands_back": "{\"status\":\"failed\",\"passed\":false,\"results\":[{\"text\":\"A sparkle of zorblax\",\"kind\":\"title\",\"applicable_rule_ids\":[\"no-sparkle\"],\"qualification\":\"word-rules-only\",\"breaks\":[{\"rule\":\"no-sparkle\",\"found\":\"sparkle\",\"says\":\"No sparkle.\"},{\"rule\":\"no-zorblax\",\"found\":\"zorblax\",\"says\":\"Never zorblax.\"}],\"uncertain\":[],\"waived\":[],\"verdict\":\"fail\",\"advisory\":false}],\"questions\":[],\"lines\":[\"1 units: 1 fail, 0 uncertain, 0 pass\",\"FAIL [title]\",\"  no-sparkle: \\\"sparkle\\\". No sparkle.\",\"  no-zorblax: \\\"zorblax\\\". Never zorblax.\"],\"branch\":\"made-up-post\",\"lineage\":[\"made-up-post\",\"made-up-base\"],\"rows_used\":{\"branches\":{\"made-up-post\":1,\"made-up-base\":2},\"lists\":{},\"skipped\":{\"branch\":1,\"step\":0,\"off\":0,\"no_test\":0}},\"read_by_a_model\":{\"rows\":[],\"more\":0,\"settings_from\":null}} (also questions_page and ask_all, both empty)"
+    },
+    {
+      "title": "Your own verdict on an exact title decides before the word rules",
+      "ask": "Check the titles 'Zorblax rising' and 'A sparkle of calm' with the rule no-sparkle and my verdict on the first.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-against-a-persons-rules-and-verdicts",
+            "input": {
+              "rules": [
+                {
+                  "id": "no-sparkle",
+                  "words": [
+                    "sparkle"
+                  ],
+                  "says": "No sparkle."
+                }
+              ],
+              "verdict_rules": {
+                "fold": {
+                  "lowercase": true,
+                  "collapse_space": true,
+                  "strip_trailing": "[.!?]+"
+                },
+                "stage": {
+                  "default": "final"
+                },
+                "stance_rule": "their-stance",
+                "novel": {
+                  "rule": "novel",
+                  "says": "Nothing of theirs judges this."
+                },
+                "agree_clears": {
+                  "rules": []
+                },
+                "rows": [
+                  {
+                    "id": "no-zorblax",
+                    "kinds": [
+                      "title"
+                    ],
+                    "words": [
+                      "zorblax"
+                    ],
+                    "says": "Never zorblax."
+                  }
+                ]
+              },
+              "stands": [
+                {
+                  "kind": "title",
+                  "artifact": "1f:51988b9dacb1a1b6cb7ff6d83665b2e5ab85919fdc9e0041b6d15d2157828366",
+                  "text": "Zorblax rising",
+                  "stance": "disagree",
+                  "why": "not a word I use",
+                  "at": "2026-01-01T00:00:00Z"
+                }
+              ],
+              "units": [
+                {
+                  "text": "Zorblax rising",
+                  "kind": "title"
+                },
+                {
+                  "text": "A sparkle of calm",
+                  "kind": "title"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "given": "Read from do-work/check-against-their-rules-and-verdicts.mjs and observed by running it on this input (the first verify sample plus a second unit): the rules path reads no list; the stand of disagree on the exact title 'Zorblax rising' fails it as rule their-stance before any word rule is read.",
+      "hands_back": "{\"status\":\"failed\",\"passed\":false,\"results\":[{\"text\":\"Zorblax rising\",\"kind\":\"title\",\"verdict\":\"fail\",\"breaks\":[{\"rule\":\"their-stance\",\"found\":\"Zorblax rising\",\"says\":\"They disagreed: \\\"not a word I use\\\" (1f:51988b9dacb1a1b6cb7ff6d83665b2e5ab85919fdc9e0041b6d15d2157828366, 2026-01-01T00:00:00Z).\"}]},{\"text\":\"A sparkle of calm\",\"kind\":\"title\",\"verdict\":\"fail\",\"breaks\":[{\"rule\":\"no-sparkle\",\"found\":\"sparkle\",\"says\":\"No sparkle.\"}]}],\"lines\":[\"2 units: 2 fail, 0 uncertain, 0 pass\",\"FAIL [title]\",\"  their-stance: \\\"Zorblax rising\\\". They disagreed: \\\"not a word I use\\\" (1f:51988b9dacb1a1b6cb7ff6d83665b2e5ab85919fdc9e0041b6d15d2157828366, 2026-01-01T00:00:00Z).\",\"FAIL [title]\",\"  no-sparkle: \\\"sparkle\\\". No sparkle.\"]} (each result also carries applicable_rule_ids [\\\"no-sparkle\\\"], qualification word-rules-only, uncertain [], waived [] and advisory false)"
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for your writing rules and its fields. The tool matches each kit field to one of yours (by the map you give, the same id, the same label, or a name in alike), refuses when fewer than 80% match, and otherwise answers the records:write that adds the example rows to your list, leaving your own rows untouched.",
+    "example": {
+      "kit_list": "list:checks",
+      "into": {
+        "list": "list:writing-rules",
+        "row_type": "record:writing-rule",
+        "fields": [
+          {
+            "id": "rule_id",
+            "label": "Rule"
+          },
+          {
+            "id": "type",
+            "label": "Kind"
+          },
+          {
+            "id": "parent",
+            "label": "Part of"
+          },
+          {
+            "id": "message",
+            "label": "Message"
+          },
+          {
+            "id": "banned_words",
+            "label": "Banned words"
+          },
+          {
+            "id": "applies_to",
+            "label": "Applies to"
+          },
+          {
+            "id": "enabled",
+            "label": "Enabled"
+          },
+          {
+            "id": "regex",
+            "label": "Regex"
+          }
+        ]
+      },
+      "field_map": {}
+    }
+  }
+}

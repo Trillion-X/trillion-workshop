@@ -1,13 +1,44 @@
 {
-  "draft": true,
-  "drafted_from": "tool:score-held-out-lines-with-a-small-model's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:score-held-out-lines-with-a-small-model with name, items_file, out_dir.\" Check how well my trained model catches lines that break each of my rules",
+  "drafted_from": "tool row in tools/fine-tune-a-small-model-on-a-persons-rules/tool-rows.json, do-work/score_held_out_lines.py and test/test_fine_tune.py (ScoreAgain.test_reports_again_from_kept_scores), which I ran; a scoring run with a model needs torch and a decider and is not run",
+  "start_here": "Say to your AI: \"Report again on the held-out lines of /work/out/items.json from my earlier scores in /work/kept.json, as run 'again', for set good-set.\" It writes a request file and runs score_held_out_lines.py on your computer; with a model it scores with and without your adapter.",
+  "tools": [
+    "tool:score-held-out-lines-with-a-small-model",
+    "tool:build-training-rows-from-a-persons-rules",
+    "tool:fit-pass-and-fail-lines",
+    "tool:read-a-tool-setting",
+    "tool:pour-example-rows-into-my-list"
+  ],
+  "instructions": [
+    "1. Pour the two example rows into your own settings list (see pour), or make list:settings from them, then put your own seed, test share, set names and numbers in the build, train and score objects: every law, line, set name and number is yours, none is built in.",
+    "2. Build items.json with tool:build-training-rows-from-a-persons-rules (and train an adapter if you want the after-training numbers).",
+    "3. Score once without the adapter and once with it, on the same items file: the AI writes the request (name, items_file, out_dir, pass_set, held_out, base_model, frame, and adapter for the second run) and runs python3 -I tools/fine-tune-a-small-model-on-a-persons-rules/do-work/score_held_out_lines.py <request file>. With scores_from it reports again from kept scores without a model.",
+    "4. Read the last line {\"result\": {results_file, asks, seconds, laws: {<law>: {n_bad, n_good, auc, recall_at_2pct}}}} and tell the person the before and after per rule; a rule with few bad test lines is not measured, say so. Fit the lines a gate uses with tool:fit-pass-and-fail-lines."
+  ],
+  "worked_examples": [
+    {
+      "title": "Report again from kept scores without a model",
+      "ask": "Report again on the held-out lines from my earlier scores.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:list",
+          "input": {
+            "tool": "tool:score-held-out-lines-with-a-small-model"
+          }
+        }
+      },
+      "given": "From tools/fine-tune-a-small-model-on-a-persons-rules/test/test_fine_tune.py (test_reports_again_from_kept_scores), which I ran on the items file of the build example (13 items, 7 of them test lines). kept.json holds adapter \"an-adapter\" and, for both laws, a score of 0.5 for each of the 7 test lines, 0.7 for the never-trained line \"Herewith the parcel.\" and 0.2 for the held-out card. Request: {\"name\": \"again\", \"items_file\": \"/work/out/items.json\", \"out_dir\": \"/work\", \"pass_set\": \"good-set\", \"held_out\": [{\"text\": \"The held-out card.\", \"kind\": \"card\", \"breaks\": [], \"unsure\": []}], \"scores_from\": \"/work/kept.json\"}. Command: python3 -I tools/fine-tune-a-small-model-on-a-persons-rules/do-work/score_held_out_lines.py /work/request.json.",
+      "hands_back": "Summary lines \"again: 18 asks in 0 s\", \"  plain-words              n_bad   0\", \"  said-aloud               n_bad   0\", then {\"result\": {\"results_file\": \"/work/again.json\", \"asks\": 18, \"seconds\": 0.0, \"laws\": {\"plain-words\": {\"n_bad\": 0, \"n_good\": 7}, \"said-aloud\": {\"n_bad\": 0, \"n_good\": 7}}}}. again.json keeps adapter an-adapter and, per law, the never-trained line's p_fail 0.7 and a top_good list of lines that scored 0.5; with no bad test lines there is no AUC to report, so the laws are not measured. With held_out left empty it refuses and says how to score them again."
+    }
+  ],
   "lists": [
     {
       "list": "list:settings",
       "label": "Settings",
       "row_type": "record:setting",
-      "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON.",
+      "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON. For the fine-tune tools the row id is record:setting:fine-tune-a-small-model-on-a-persons-rules~<scope_kind>~<scope_id> and its settings hold a build, a train and a score object that fill every request key the request leaves out.",
       "fields": [
         {
           "id": "name",
@@ -77,27 +108,27 @@
       ],
       "example_rows": [
         {
-          "id": "caption-style",
+          "id": "account-my-rules",
           "values": {
-            "name": "Caption style",
-            "tool": "tool:example-captioner",
-            "scope_kind": "person",
-            "scope_id": "example-person",
-            "settings": "{\"style\":\"plain\",\"size\":\"large\"}",
+            "name": "Fine-tune settings for my writing rules",
+            "tool": "tool:build-training-rows-from-a-persons-rules",
+            "scope_kind": "account",
+            "scope_id": "my-rules",
+            "settings": "{\"build\":{\"seed\":7,\"test_share\":0.5,\"good_sets\":[\"good-set\",\"spoken\"],\"fail_set\":\"bad-set\",\"pass_set\":\"good-set\",\"per_law\":{\"spoken_goods\":2,\"other_goods\":1,\"short_goods\":1}},\"train\":{\"rank\":8,\"epochs\":1,\"batch\":8},\"score\":{\"batch\":4,\"pass_set\":\"good-set\"}}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         },
         {
-          "id": "quiet-hours",
+          "id": "account-second-rules",
           "values": {
-            "name": "Quiet hours",
-            "tool": "tool:example-notifier",
+            "name": "Fine-tune settings for a second rule set",
+            "tool": "tool:train-a-small-model-on-a-persons-rules",
             "scope_kind": "account",
-            "scope_id": "whole-account",
-            "settings": "{\"from\":\"22:00\",\"to\":\"07:00\"}",
+            "scope_id": "second-rules",
+            "settings": "{\"build\":{\"seed\":11,\"test_share\":0.4,\"good_sets\":[\"good-set\"],\"fail_set\":\"bad-set\",\"pass_set\":\"good-set\"},\"train\":{\"rank\":16,\"epochs\":2,\"batch\":8,\"budget_minutes\":30}}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         }
       ],
@@ -108,43 +139,7 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
-  "tools": [
-    "tool:score-held-out-lines-with-a-small-model",
-    "tool:build-training-rows-from-a-persons-rules",
-    "tool:fit-pass-and-fail-lines",
-    "tool:read-a-tool-setting"
-  ],
-  "instructions": [
-    "1. Say to your AI: \"Run tool:score-held-out-lines-with-a-small-model\", and give it name, items_file, out_dir.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:score-held-out-lines-with-a-small-model and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Check how well my trained model catches lines that break each of my rules"
-  ],
-  "worked_examples": [
-    {
-      "title": "Measure how well a small model judges my rules on lines it never trained on (runs on your computer) on a sample input",
-      "ask": "Run tool:score-held-out-lines-with-a-small-model.",
-      "mcp": {
-        "server": "trillion",
-        "tool": "run_resource_operation",
-        "input": {
-          "address": "@workshop-tools",
-          "method": "tools:run",
-          "input": {
-            "tool": "tool:score-held-out-lines-with-a-small-model",
-            "input": {
-              "name": "<name: The run's name; results go to <out_dir>/<name>.json>",
-              "items_file": "<items_file: items.json from tool:build-training-rows-from-a-persons-rules>",
-              "out_dir": "<out_dir: string>"
-            }
-          }
-        }
-      },
-      "hands_back": "The result the item's own job names: Check how well my trained model catches lines that break each of my rules",
-      "given": "The person gives: name, items_file, out_dir (shown as <name> in the input)."
-    }
-  ],
   "pour": {
     "tool": "tool:pour-example-rows-into-my-list",
     "least_coverage": 0.8,
@@ -184,7 +179,8 @@
             "label": "Status"
           }
         ]
-      }
+      },
+      "field_map": {}
     }
   }
 }

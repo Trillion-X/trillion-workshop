@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:find-scene-changes's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:find-scene-changes with video.\" Find the times where a video cuts from one shot to another",
+  "drafted_from": "tool:find-scene-changes's own row in tools/media-composition/tool-rows.json, tools/media-composition/do-work/detect-scenes.mjs, and the script run on a synthetic 7 second clip (3 s red, 2 s blue, 2 s green)",
+  "start_here": "Say to your AI: \"Find where my video cuts from one shot to another.\" It runs tool:find-scene-changes and hands back the time in seconds of every cut.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It reads one video you name by its file identity and answers from that video alone, so it keeps no list of its own.",
   "workflows": [],
   "tools": [
     "tool:find-scene-changes"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:find-scene-changes\", and give it video.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-scene-changes and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields result."
+    "1. Find your video's identity in your files: 1f: then 64 hex.",
+    "2. Say \"Find the scene changes in this video\" with that identity. Add threshold (0.01 to 1, default 0.3): a higher threshold finds fewer, harder cuts.",
+    "3. The AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:find-scene-changes. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
+    "4. Read result.cuts (seconds, the very first frame is never counted) and result.count. Cut the video at those times, or raise the threshold if there are too many."
   ],
   "worked_examples": [
     {
-      "title": "Find scene changes in a video on a sample input",
-      "ask": "Run tool:find-scene-changes.",
+      "title": "Two cuts in a three-shot clip",
+      "ask": "Find the cuts in my video.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,13 +26,34 @@
           "input": {
             "tool": "tool:find-scene-changes",
             "input": {
-              "video": "<video: The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it>"
+              "video": "1f:7320b49113520185e2ad8938759857db29ec6b0ed6a30cd1a2cfc05c68d932c6"
             }
           }
         }
       },
-      "hands_back": "An answer with the fields result.",
-      "given": "The person gives: video (shown as <name> in the input)."
+      "given": "read from tools/media-composition/do-work/detect-scenes.mjs and run on a 7 second clip that is red for 3 seconds, blue for 2 and green for 2",
+      "hands_back": "{\"result\":{\"cuts\":[3,5],\"threshold\":0.3,\"count\":2}}"
+    },
+    {
+      "title": "A very high threshold finds none",
+      "ask": "Only find the hardest cuts, threshold 0.9.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:find-scene-changes",
+            "input": {
+              "video": "1f:7320b49113520185e2ad8938759857db29ec6b0ed6a30cd1a2cfc05c68d932c6",
+              "threshold": 0.9
+            }
+          }
+        }
+      },
+      "given": "read from tools/media-composition/do-work/detect-scenes.mjs, same clip; no frame differs from the one before by more than 0.9",
+      "hands_back": "{\"result\":{\"cuts\":[],\"threshold\":0.9,\"count\":0}}"
     }
   ]
 }

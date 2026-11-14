@@ -1,40 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:search-everything-with-one-question's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:search-everything-with-one-question with client, input.\" Search everything I keep with one question: every list and record, and my files by name, best match first",
+  "drafted_from": "tool:search-everything-with-one-question row in tools/search-everything-with-one-question/tool-rows.json, do-work/search-everything.mjs, test/search-everything.test.mjs and the sample run of the container row that calls the same searchEverything function",
+  "start_here": "Say to your AI: \"Search everything I keep for merlinfalcon: every list, record and my file names, best match first, and tell me where each hit is.\" It writes a one-line input file, runs the search through your own Trillion MCP client and answers from each hit's said and address.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list: it asks every kind of record and the file names the same question through your records door and answers one merged ranking.",
   "workflows": [],
   "tools": [
     "tool:search-everything-with-one-question",
     "tool:search-everything-in-a-small-container"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:search-everything-with-one-question\", and give it client, input.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:search-everything-with-one-question and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Search everything I keep with one question: every list and record, and my files by name, best match first"
+    "1. Have your Trillion MCP client set up on this computer and write client.json with argv (the command that starts it on standard input and output), resource \"@own-records\" and files_resource \"@namespace\"; it holds no credential, the client signs in itself.",
+    "2. Say what you want to find; your AI writes input.json {question (at most 500 characters), type? to keep only one kind of record and leave the files out, limit? 1 to 200, 60 when left out}.",
+    "3. It runs `node trillion-workshop/tools/records-door/do-work/run-with-stdio-mcp.mjs client.json trillion-workshop/tools/search-everything-with-one-question/do-work/search-everything.mjs searchEverything input.json` and you read the last JSON line: result {question, terms, results, unavailable, pending}.",
+    "4. Answer from each result's said and cite it by its address (records:read for a record, find_file for a file); open a hit by calling its address. unavailable names a place that could not answer and why, pending one still working: ask again in a few seconds."
   ],
   "worked_examples": [
     {
-      "title": "Search everything I keep with one question (runs on your computer) on a sample input",
-      "ask": "Run tool:search-everything-with-one-question.",
+      "title": "One word found in three kinds of record and one file name",
+      "ask": "Search everything I keep for merlinfalcon.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:search-everything-with-one-question",
-            "input": {
-              "client": "<client: The client file on the person's computer, put where {client} is in the command: { argv: the command that starts their Trillion MCP client on standard input and output, resource: \"@own-records\", files_resource: \"@namespace\", timeout_ms?>",
-              "input": "<input: A JSON file holding { question, type?, limit?>"
-            }
+            "tool": "tool:search-everything-with-one-question"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Search everything I keep with one question: every list and record, and my files by name, best match first",
-      "given": "The person gives: client, input (shown as <name> in the input)."
+      "given": "From tools/search-everything-with-one-question/test/search-everything.test.mjs (the sample the container version of this search runs; both call searchEverything): input.json is {\"question\": \"merlinfalcon\"}; the account holds a sample-contacts row c1 (\"met the merlinfalcon keeper\"), a sample-invoices row i1 (\"merlinfalcon feed, 3 bags\"), a sample-places row p1 (\"merlinfalcon aviary\"), another place p2 that does not hold the word, and the files /Notes/merlinfalcon care.txt and /Notes/other.txt. The command is `node trillion-workshop/tools/records-door/do-work/run-with-stdio-mcp.mjs client.json trillion-workshop/tools/search-everything-with-one-question/do-work/search-everything.mjs searchEverything input.json`.",
+      "hands_back": "The last line is {result: {question: \"merlinfalcon\", terms: [\"merlinfalcon\"], results: [...], unavailable: [], pending: []}, started_at, finished_at}. results are, in order, record:c1, record:i1, record:p1 (each found_in [\"written\"], the first first in its own lane with score 0.01639, each with address {resource: \"@own-records\", operation: \"records:read\", input: {id, type}}) and then file:/Notes/merlinfalcon care.txt (found_in [\"name\"], address {resource: \"@namespace\", operation: \"find_file\"}). The other place and other.txt are not listed. If the files may not be searched they appear under unavailable and the records still answer."
     }
   ]
 }

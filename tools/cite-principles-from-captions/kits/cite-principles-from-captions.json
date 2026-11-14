@@ -1,13 +1,12 @@
 {
-  "draft": true,
-  "drafted_from": "tool:cite-principles-from-captions's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:cite-principles-from-captions with nothing more.\" Collect the principles that creators and teachers state or show in their videos, with the exact words and the second they say them, prove every quote is really in the captions, and rank each principle by how many independent channels back it and how well their videos did",
+  "drafted_from": "tools/cite-principles-from-captions/tool-rows.json, do-work/cite_principles.py, read-data/captions.py, ../settings/read-data/settings.mjs, the list definition list:settings (read only) and test/cite-principles.test.mjs; the corpus and find commands were run here on 2026-11-13 on the test's own made-up fixture (test/make_fixture.py)",
+  "start_here": "Say to your AI: \"Build a corpus from my folder of captions at ./captions, with my views table ./views.tsv, and prove this quote is really said in video vidA1: The secret is patience.\" It runs the tool's corpus and find commands on your computer.",
   "lists": [
     {
       "list": "list:settings",
       "label": "Settings",
       "row_type": "record:setting",
-      "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON.",
+      "holds": "One row per tool and scope with the values the tool reads at run time: what the principles are about, caps, lanes, merge groups and the index template.",
       "fields": [
         {
           "id": "name",
@@ -15,8 +14,7 @@
           "label": "Setting",
           "alike": [
             "title",
-            "key",
-            "label"
+            "preference name"
           ]
         },
         {
@@ -24,8 +22,8 @@
           "kind": "text",
           "label": "Tool",
           "alike": [
-            "tool id",
-            "owner"
+            "app",
+            "feature"
           ]
         },
         {
@@ -33,8 +31,8 @@
           "kind": "text",
           "label": "For a",
           "alike": [
-            "scope",
-            "applies to"
+            "applies to",
+            "scope"
           ]
         },
         {
@@ -42,8 +40,8 @@
           "kind": "text",
           "label": "For",
           "alike": [
-            "scope id",
-            "target"
+            "scope name",
+            "applies to name"
           ]
         },
         {
@@ -51,7 +49,7 @@
           "kind": "long-text",
           "label": "Settings (JSON)",
           "alike": [
-            "values",
+            "value",
             "config",
             "options"
           ]
@@ -62,7 +60,7 @@
           "label": "From",
           "alike": [
             "source",
-            "origin"
+            "set by"
           ]
         },
         {
@@ -70,82 +68,100 @@
           "kind": "text",
           "label": "Status",
           "alike": [
-            "state",
-            "on or off"
+            "state"
           ]
         }
       ],
       "example_rows": [
         {
-          "id": "caption-style",
+          "id": "garden-account",
           "values": {
-            "name": "Caption style",
-            "tool": "tool:example-captioner",
-            "scope_kind": "person",
-            "scope_id": "example-person",
-            "settings": "{\"style\":\"plain\",\"size\":\"large\"}",
-            "from": "the person",
-            "status": "on"
+            "name": "Garden principles",
+            "tool": "cite-principles-from-captions",
+            "scope_kind": "account",
+            "scope_id": "main",
+            "settings": "{\"terms\":{\"topic\":\"garden|soil|water|seed|plant\",\"title\":\"garden|soil\",\"advice\":[\"you have to\",\"the secret\",\"always\",\"never\"]}}",
+            "from": "written by hand",
+            "status": "active"
           }
         },
         {
-          "id": "quiet-hours",
+          "id": "spring-beds-film",
           "values": {
-            "name": "Quiet hours",
-            "tool": "tool:example-notifier",
-            "scope_kind": "account",
-            "scope_id": "whole-account",
-            "settings": "{\"from\":\"22:00\",\"to\":\"07:00\"}",
-            "from": "the person",
-            "status": "on"
+            "name": "Spring beds film",
+            "tool": "cite-principles-from-captions",
+            "scope_kind": "film",
+            "scope_id": "spring-beds",
+            "settings": "{\"terms\":{\"topic\":\"bed|compost|mulch\",\"title\":\"beds\",\"advice\":[\"you need to\",\"the key\"]},\"caps\":{\"Channel Beta\":3}}",
+            "from": "written by hand",
+            "status": "active"
           }
         }
       ],
       "alike": [
-        "an app's settings screen",
-        "a config file per tool",
-        "a spreadsheet of options"
+        "a preferences sheet per project",
+        "a config table in a spreadsheet",
+        "notes of each project's settings"
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
-    "tool:cite-principles-from-captions"
+    "tool:cite-principles-from-captions",
+    "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:cite-principles-from-captions\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:cite-principles-from-captions and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Collect the principles that creators and teachers state or show in their videos, with the exact words and the second they say them, prove every quote is really in the captions, and rank each principle by how many independent channels back it and how well their videos did"
+    "1. Save each video's captions and details into one folder with yt-dlp (--write-subs --write-auto-subs --write-info-json --skip-download): <id>.en.json3 and <id>.info.json per video. Optionally keep a views.tsv with columns channel, kind and views.",
+    "2. Say \"Build a corpus from ./captions\". The AI reads the row with tools:list and runs python3 trillion-workshop/tools/cite-principles-from-captions/do-work/cite_principles.py corpus --captions ./captions --views-table ./views.tsv --out ./work/corpus.jsonl.",
+    "3. Tell your AI what the principles should be about. It keeps that as a terms file or as your list:settings row (pour the two example rows, see pour), then runs candidates, reads the passages and writes working rows with exact quotes.",
+    "4. Run verify on the rows and fix every BAD, TOFF or MISSING line (find gives the second a quote is said at), then run registry for the ranked principles and index for the page.",
+    "5. Read how many principles there are, the strongest by evidence and any only one channel backs."
   ],
   "worked_examples": [
     {
-      "title": "Keep principles from captioned videos, each backed by a quote checked word for word (runs on your computer) on a sample input",
-      "ask": "Run tool:cite-principles-from-captions.",
+      "title": "Build the corpus from five captioned videos",
+      "ask": "Build a corpus from my folder of captions at ./captions with my views table ./views.tsv.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:cite-principles-from-captions",
-            "input": {}
+            "tool": "tool:cite-principles-from-captions"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Collect the principles that creators and teachers state or show in their videos, with the exact words and the second they say them, prove every quote is really in the captions, and rank each principle by how many independent channels back it and how well their videos did"
+      "given": "From tools/cite-principles-from-captions/test/cite-principles.test.mjs (corpus test) and run here on the test's fixture: after tools:list gives the row, the AI runs `python3 trillion-workshop/tools/cite-principles-from-captions/do-work/cite_principles.py corpus --captions ./captions --views-table ./views.tsv --out ./work/corpus.jsonl`. The folder holds 5 videos with captions (3 from Channel Alpha, 2 from Channel Beta) and one video with an info file but no captions.",
+      "hands_back": "Prints \"5 videos with captions; 1 without\", then the last line {\"result\": {\"videos\": 5, \"without_captions\": 1, \"corpus\": \"./work/corpus.jsonl\"}}. In the corpus the first Channel Alpha video, vidA1, has median 550 and xmed 1.82 (it did 1.82 times its channel's usual)."
+    },
+    {
+      "title": "Find the second a quote is said at",
+      "ask": "At what second does vidA1 say \"The secret is patience\"?",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:list",
+          "input": {
+            "tool": "tool:cite-principles-from-captions"
+          }
+        }
+      },
+      "given": "From the same test (find test) and run here: `python3 trillion-workshop/tools/cite-principles-from-captions/do-work/cite_principles.py find --corpus ./work/corpus.jsonl --video vidA1 --quote 'The SECRET is patience'`. The quote is matched ignoring case, spacing and curly apostrophes.",
+      "hands_back": "Prints 10, then the last line {\"result\": {\"video\": \"vidA1\", \"second\": 10, \"found\": true}}. A quote not in the captions prints NOTFOUND and exits 1; a video with no captions prints NOVIDEO and exits 2."
     }
   ],
   "pour": {
     "tool": "tool:pour-example-rows-into-my-list",
     "least_coverage": 0.8,
-    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "how": "Name the list where you already keep per-project settings and its fields. The tool matches each kit field to one of yours (by the map you give, the same id, the same label, or a name in alike), refuses when fewer than least_coverage match, and otherwise answers the records:write that adds the example rows to your list, leaving your own rows untouched.",
     "example": {
       "kit_list": "list:settings",
       "into": {
-        "list": "list:my-settings",
-        "row_type": "record:setting",
+        "list": "list:project-preferences",
+        "row_type": "record:project-preference",
         "fields": [
           {
             "id": "name",
@@ -176,7 +192,8 @@
             "label": "Status"
           }
         ]
-      }
+      },
+      "field_map": {}
     }
   }
 }

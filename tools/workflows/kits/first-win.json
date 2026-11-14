@@ -1,48 +1,54 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:first-win's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:first-win.\" Help an intended customer reach one meaningful, independently verified first result with the least avoidable effort.",
-  "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
-  "workflows": [
-    "workflow:first-win",
-    "workflow:trillion-x-mode",
-    "workflow:turn-something-shared-into-what-you-can-use"
-  ],
-  "tools": [
-    "tool:start-a-recipe-run"
-  ],
-  "instructions": [
-    "1. Say to your AI: \"Run workflow:first-win\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:first-win) and works through its steps in order: goal, path, result.",
-    "3. Read what each step hands back; the last step is result."
-  ],
-  "worked_examples": [
-    {
-      "title": "First Win Mode from its first step",
-      "ask": "Run workflow:first-win.",
-      "mcp": {
-        "server": "trillion",
-        "tool": "run_resource_operation",
-        "input": {
-          "address": "@workshop-tools",
-          "method": "tools:run",
-          "input": {
-            "tool": "tool:start-a-recipe-run",
-            "input": {
-              "row": "workflow:first-win",
-              "request": "<request: string>",
-              "scope": "<scope: string>",
-              "constraints": [],
-              "authorized_actions": []
-            }
-          }
-        }
-      },
-      "workflow": "workflow:first-win",
-      "step": "goal",
-      "hands_back": "Step goal answers with summary, evidence, requirements.",
-      "given": "The person gives: request, scope (shown as <name> in the input)."
+ "start_here": "Say to your AI: \"Run workflow:first-win so a new customer of my bakery order page gets their first order placed: request is that a first-time visitor places one order without help, scope is the page at https://bakery.example.com/order, constraints are no emails to real customers, authorized actions are reading the page and testing sign-in with a test account.\"",
+ "lists": [],
+ "no_lists_because": "It keeps no list of its own: its three steps hand back one evidence-backed answer each, kept on the run record.",
+ "workflows": [
+  "workflow:first-win",
+  "workflow:turn-something-shared-into-what-you-can-use",
+  "workflow:trillion-x-mode"
+ ],
+ "tools": [
+  "tool:start-a-recipe-run"
+ ],
+ "instructions": [
+  "1. Write the request (the one first result the customer should reach), the scope, the constraints and authorized_actions; all four are required, source_id is optional.",
+  "2. Say \"Run workflow:first-win\" with them. Answer step goal first: the customer baseline (what the customer can do today, with evidence) and the capability review.",
+  "3. Answer step path: remove the first blocker on the real entry path (sign-in, setup, payment) and record what you changed.",
+  "4. Answer step result: use the real interface as a new customer, then compare the persisted result with the baseline; a success message alone is not proof.",
+  "5. A blocked requirement stays open with its exact gap; never submit invented completion."
+ ],
+ "worked_examples": [
+  {
+   "title": "Baseline of a bakery order page",
+   "ask": "Run First Win Mode so a first-time visitor can place one order on my bakery order page.",
+   "mcp": {
+    "server": "trillion",
+    "tool": "run_resource_operation",
+    "input": {
+     "address": "@workshop-tools",
+     "method": "tools:run",
+     "input": {
+      "tool": "tool:start-a-recipe-run",
+      "input": {
+       "row": "workflow:first-win",
+       "request": "A first-time visitor places one order on the bakery order page without help.",
+       "scope": "The page at https://bakery.example.com/order",
+       "constraints": [
+        "No emails to real customers"
+       ],
+       "authorized_actions": [
+        "Read the page",
+        "Sign in with a test account"
+       ]
+      }
+     }
     }
-  ]
+   },
+   "workflow": "workflow:first-win",
+   "step": "goal",
+   "given": "Read from the row of workflow:first-win in tools/workflows/recipes/workflows.json: step goal needs requirements customer-baseline and capability-review-goal, each with state completed, what_happened (12 or more characters) and evidence_refs naming evidence ids. A test visitor reached the order form but the Place order button stayed greyed out until a phone number was typed.",
+   "hands_back": "{\"summary\":\"A first-time visitor reaches the form but cannot place an order without guessing that a phone number is required.\",\"evidence\":[{\"id\":\"e1\",\"source\":\"a test visit to https://bakery.example.com/order\",\"observed\":\"Place order stays disabled until the phone field holds 10 digits; no message says so\"},{\"id\":\"e2\",\"source\":\"the Marketplace search for a form-check tool\",\"observed\":\"One existing page-check tool found; REA, 21st.dev and Mobbin reviewed, none needed\"}],\"requirements\":{\"customer-baseline\":{\"state\":\"completed\",\"what_happened\":\"Baseline: a new visitor cannot place an order without help; the phone rule is hidden.\",\"evidence_refs\":[\"e1\"]},\"capability-review-goal\":{\"state\":\"completed\",\"what_happened\":\"Reviewed the Marketplace and the must-review set; reused the page-check tool, built nothing new.\",\"evidence_refs\":[\"e2\"]}}}"
+  }
+ ],
+ "drafted_from": "workflow:first-win's row in tools/workflows/recipes/workflows.json (input schema, steps and submit shapes); no test names it"
 }

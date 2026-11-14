@@ -1,9 +1,7 @@
 {
-  "draft": true,
-  "drafted_from": "tool:read-a-treg-endpoint-and-its-price's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-a-treg-endpoint-and-its-price with endpoint.\" Read one paid endpoint in full before calling it: its price, the inputs it takes, how it is called, and the other providers that do the same job",
+  "start_here": "Say to your AI: \"Read the treg endpoint dataforseo.web.backlinks.summary and tell me its price and inputs before we call it.\" It runs tool:read-a-treg-endpoint-and-its-price; nothing is spent.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of yours: it reads one endpoint of treg's public catalog by its id and spends nothing.",
   "workflows": [],
   "tools": [
     "tool:read-a-treg-endpoint-and-its-price",
@@ -11,14 +9,16 @@
     "tool:search-the-treg-catalog"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-a-treg-endpoint-and-its-price\", and give it endpoint.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-a-treg-endpoint-and-its-price and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields endpoint, siblings, routing."
+    "1. Get an endpoint id from tool:search-the-treg-catalog (for example dataforseo.web.backlinks.summary).",
+    "2. Say to your AI: \"Read the treg endpoint <id> and tell me its price\". It calls tools:run with tool tool:read-a-treg-endpoint-and-its-price and {\"endpoint\": \"<id>\"}.",
+    "3. Read endpoint.method, endpoint.input (which fields are required), endpoint.cost, endpoint.observed and siblings (other providers of the same job). Say the price to the person.",
+    "4. An unknown id answers 404 with near misses in detail.did_you_mean; use one of those.",
+    "5. Call it with tool:call-a-treg-endpoint, giving a max_cost_usd the price fits."
   ],
   "worked_examples": [
     {
-      "title": "Read a treg endpoint and its price on a sample input",
-      "ask": "Run tool:read-a-treg-endpoint-and-its-price.",
+      "title": "Read one endpoint before paying for it",
+      "ask": "Read the treg endpoint dataforseo.web.backlinks.summary and tell me its price.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -28,13 +28,14 @@
           "input": {
             "tool": "tool:read-a-treg-endpoint-and-its-price",
             "input": {
-              "endpoint": "<endpoint: The endpoint's id, as tool:search-the-treg-catalog answers it, for example \"treg.web.map\">"
+              "endpoint": "dataforseo.web.backlinks.summary"
             }
           }
         }
       },
-      "hands_back": "An answer with the fields endpoint, siblings, routing.",
-      "given": "The person gives: endpoint (shown as <name> in the input)."
+      "given": "Read from tools/treg/tool-rows.json: the row sends GET https://treg.to/catalog/endpoints/dataforseo.web.backlinks.summary with no token and returns treg's reply unchanged. Endpoint id from tools/treg/test/treg-rows.test.mjs.",
+      "hands_back": "{\"endpoint\":{\"id\":\"dataforseo.web.backlinks.summary\",\"method\":\"POST\",\"cost\":{\"usd\":0.02,\"unit\":\"call\"},\"input\":{\"target\":{\"required\":true,\"note\":\"the domain, for example example.com\"}},\"async\":null,\"observed\":{\"success_rate\":0.97,\"calls\":1200}},\"siblings\":[],\"routing\":null}"
     }
-  ]
+  ],
+  "drafted_from": "tools/treg/tool-rows.json (its row), its README and test/treg-rows.test.mjs; the reply values are a worked sample of the shape its output_schema names"
 }

@@ -1,0 +1,65 @@
+{
+  "drafted_from": "tool:render-an-edit's own row in tools/media-composition/tool-rows.json, tools/media-composition/do-work/render-an-edit.mjs, and the script run on a synthetic 7 second clip",
+  "start_here": "Say to your AI: \"Render an edit of my video: its first 2 seconds, then 4 to 6.5 seconds at double speed.\" It runs tool:render-an-edit with that edit and saves the video in your files.",
+  "lists": [],
+  "no_lists_because": "It makes a new video in your files from the video you name and keeps no list of its own.",
+  "workflows": [],
+  "tools": [
+    "tool:render-an-edit"
+  ],
+  "instructions": [
+    "1. Find your clip's identity and exact length in bytes in your files; it goes in files as {name: \"source.mp4\", identity, bytes}.",
+    "2. Write the edit as JSON: spine.segments is a list of clips ({kind: \"clip\", id, source: the clip's identity, in, out, speed}), optionally encode {width, height}, subtitles.ass and audio_graph.music_bed. Any source is a file identity from your files.",
+    "3. Say \"Render this edit\" and the AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:render-an-edit with files and edl. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
+    "4. Read result (duration_seconds, width, height, has_audio, bytes, segments) and files.video, the rendered video in your files."
+  ],
+  "worked_examples": [
+    {
+      "title": "Two clips, the second at double speed",
+      "ask": "Render the first 2 seconds, then 4 to 6.5 seconds at double speed.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:render-an-edit",
+            "input": {
+              "files": [
+                {
+                  "name": "source.mp4",
+                  "identity": "1f:7320b49113520185e2ad8938759857db29ec6b0ed6a30cd1a2cfc05c68d932c6",
+                  "bytes": 40118
+                }
+              ],
+              "edl": {
+                "spine": {
+                  "segments": [
+                    {
+                      "kind": "clip",
+                      "id": "a",
+                      "source": "1f:7320b49113520185e2ad8938759857db29ec6b0ed6a30cd1a2cfc05c68d932c6",
+                      "in": 0,
+                      "out": 2
+                    },
+                    {
+                      "kind": "clip",
+                      "id": "b",
+                      "source": "1f:7320b49113520185e2ad8938759857db29ec6b0ed6a30cd1a2cfc05c68d932c6",
+                      "in": 4,
+                      "out": 6.5,
+                      "speed": 2
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "given": "read from tools/media-composition/do-work/render-an-edit.mjs and run on a 7 second 320x180 clip: 2 seconds, then 2.5 seconds at double speed (1.25 s) is about 3.25 seconds in 2 segments; with no encode size the edit keeps the first clip's own size",
+      "hands_back": "{\"result\":{\"duration_seconds\":3.269,\"width\":320,\"height\":180,\"has_audio\":true,\"bytes\":94955,\"segments\":2},\"files\":{\"video\":{\"identity\":\"1f:b6ef9e41f956c0ce169c312e77ed7451f71cbbe6a66f5c3b2cf8a9db611d73a1\",\"bytes\":94955,\"media_type\":\"video/mp4\",\"name\":\"edit.mp4\"}}}"
+    }
+  ]
+}

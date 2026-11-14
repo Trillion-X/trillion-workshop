@@ -1,22 +1,24 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:method-name-question-delete's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:method-name-question-delete.\" Before building or changing anything: name the change (who or what is in which state now and which state it should reach), question every assumption and every requirement against it, delete what is not needed, simplify what survives, shorten how long it takes, and only then automate it.",
+  "drafted_from": "workflow:method-name-question-delete's row in tools/workflows/recipes/workflows.json (its job, input schema and the step named in the worked example)",
+  "start_here": "Say to your AI: \"Run workflow:method-name-question-delete on: cut the time a new baker needs to learn the morning bake.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It is a way of thinking a request through, answered in words step by step, and it reads and writes no list.",
   "workflows": [
     "workflow:method-name-question-delete"
   ],
-  "tools": [],
+  "tools": [
+    "tool:start-a-recipe-run"
+  ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:method-name-question-delete\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-name-question-delete) and works through its steps in order: outcome, alignment, question, baseline, root, delete, rule-out, owner, smallest-change, accelerate, automate, risk, proof.",
-    "3. Read what each step hands back; the last step is proof."
+    "1. Say the thing you are about to build or change in one plain sentence, for example \"cut the time a new baker needs to learn the morning bake\", and say \"Run workflow:method-name-question-delete\" with it as request.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-name-question-delete) and answers its steps in order: outcome, alignment, question, baseline, root, delete, rule-out, owner, smallest-change, accelerate, automate, risk, proof; each answer is refused until every check of the step is answered about this request.",
+    "3. At delete, drop every demand or step that is not needed before improving anything; restore only what then fails.",
+    "4. Automate only at the automate step, after the change works by hand, and only through what already exists."
   ],
   "worked_examples": [
     {
-      "title": "Name the change, question it, delete, then simplify from its first step",
-      "ask": "Run workflow:method-name-question-delete.",
+      "title": "Name the change as a before and after pair",
+      "ask": "Run workflow:method-name-question-delete: cut the time a new baker needs to learn the morning bake.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,15 +29,15 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:method-name-question-delete",
-              "request": "<request: What you are deciding, designing or building, in plain words>"
+              "request": "Cut the time a new baker needs to learn the morning bake"
             }
           }
         }
       },
       "workflow": "workflow:method-name-question-delete",
       "step": "outcome",
-      "hands_back": "Step outcome answers with answer, checks.",
-      "given": "The person gives: request (shown as <name> in the input)."
+      "given": "Read from tools/workflows/recipes/workflows.json, step outcome: its submit shape is answer and checks with outcome-name-the-change and outcome-change-not-only-problem. The request is the one in the input above.",
+      "hands_back": "{\"answer\":\"New baker takes three weeks to run the morning bake alone -> new baker runs it alone after one shift. Facts: the last two hires needed 14 and 17 shifts, per the shift sheets.\",\"checks\":{\"outcome-name-the-change\":\"Subject: a new baker. Now: runs the morning bake alone after about 15 shifts. Wanted: runs it alone after 1 shift.\",\"outcome-change-not-only-problem\":\"The answer states the shift itself (3 weeks -> 1 shift), not only the complaint that training is slow, so it also covers adding a new capability.\"}}"
     }
   ]
 }

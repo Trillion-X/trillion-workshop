@@ -1,13 +1,11 @@
 {
-  "draft": true,
-  "drafted_from": "tool:fill-a-word-template's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:fill-a-word-template with template, fills, output.\" Put my own numbers, names and product into a template without changing any of its other words, and show where each value came from",
+  "start_here": "Say to your AI: \"Fill bakery/TEMPLATE.json with 52 loaves, sourced from my Monday log in bakery/log.txt line 1.\" It runs tool:fill-a-word-template and writes bakery/filled.md.",
   "lists": [
     {
       "list": "list:settings",
       "label": "Settings",
       "row_type": "record:setting",
-      "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON.",
+      "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON. For this folder the account row holds your own dimensions registry.",
       "fields": [
         {
           "id": "name",
@@ -71,82 +69,80 @@
           "label": "Status",
           "alike": [
             "state",
-            "on or off"
+            "active"
           ]
         }
       ],
       "example_rows": [
         {
-          "id": "caption-style",
+          "id": "tasting-note-registry",
           "values": {
-            "name": "Caption style",
-            "tool": "tool:example-captioner",
-            "scope_kind": "person",
-            "scope_id": "example-person",
-            "settings": "{\"style\":\"plain\",\"size\":\"large\"}",
+            "name": "Tasting-note registry",
+            "tool": "tool:make-a-word-template",
+            "scope_kind": "account",
+            "scope_id": "main",
+            "settings": "{\"registry\":{\"dimensions\":[{\"id\":\"taste.note\",\"name\":\"tasting note\",\"media\":[\"podcast\"],\"region\":\"speech\",\"value_kind\":\"category\",\"measure\":[{\"method\":\"a taster writes it down\"}],\"drift\":{\"threshold\":1.0}}]}}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         },
         {
-          "id": "quiet-hours",
+          "id": "open-line-candidates",
           "values": {
-            "name": "Quiet hours",
-            "tool": "tool:example-notifier",
-            "scope_kind": "account",
-            "scope_id": "whole-account",
-            "settings": "{\"from\":\"22:00\",\"to\":\"07:00\"}",
+            "name": "Open line candidates",
+            "tool": "tool:make-spoken-line-candidates-one-slot-at-a-time",
+            "scope_kind": "piece",
+            "scope_id": "open-line",
+            "settings": "{\"id_prefix\":\"open-\",\"script_path\":\"scripts/{id}.txt\"}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         }
       ],
       "alike": [
-        "an app's settings screen",
-        "a config file per tool",
-        "a spreadsheet of options"
+        "a config sheet or settings spreadsheet",
+        "an app's preferences list",
+        "a notes page of defaults per project"
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
     "tool:fill-a-word-template",
-    "tool:make-a-word-template"
+    "tool:make-a-word-template",
+    "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:fill-a-word-template\", and give it template, fills, output.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:fill-a-word-template and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Put my own numbers, names and product into a template without changing any of its other words, and show where each value came from"
+    "1. Make the template first with tool:make-a-word-template (its TEMPLATE.md lists each slot id, here auto-number-w2).",
+    "2. Write a fills file, for example bakery/fills.json: {\"title\":\"Monday bakery line\",\"root\":\".\",\"fills\":{\"auto-number-w2\":{\"value\":\"52\",\"sources\":[\"bakery/log.txt:1\"]}}}. Each value needs a checkable source (a URL, git:<repo>@<commit>, or a file line like bakery/log.txt:1) whose text holds the value's words and numbers.",
+    "3. Say to your AI: \"Fill bakery/TEMPLATE.json from bakery/fills.json\". It reads the row with tools:list and runs python3 -I tools/fill-a-template-without-changing-its-words/do-work/fill.py bakery/TEMPLATE.json bakery/fills.json bakery/filled.md --piece bakery/filled.md.piece.json",
+    "4. Read bakery/filled.md: the script, the line view with the sourced value in « », the sources table with each check, and the empty slots with what would fill them. A value with no checkable source stays empty as [TYPE: no source yet]; never invent a source.",
+    "5. A fill can change slots only; an id that is not a slot is refused. Judge the result with tool:check-words-against-a-word-template.",
+    "6. Optional: if you keep your own dimensions registry as a row of list:settings, read that row with records:read, write it to a file and add --settings-record FILE to the command."
   ],
   "worked_examples": [
     {
-      "title": "Fill a template's slots with sourced values and nothing else (runs on your computer) on a sample input",
-      "ask": "Run tool:fill-a-word-template.",
+      "title": "Fill the loaf count from a log line",
+      "ask": "Fill my template with 52 loaves from my Monday log.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:fill-a-word-template",
-            "input": {
-              "template": "<template: The template JSON made by tool:make-a-word-template, put where {template} is in the command>",
-              "fills": "<fills: The fills JSON: {\"title\", \"root\", \"fills\": {\"<slot id>\": {\"value\", \"sources\": [...], \"needs\"?, \"derived\"?, \"note\"?}}}, put where {fills} is in the command>",
-              "output": "<output: Where to write the filled markdown, put where {output} is in the command>"
-            }
+            "tool": "tool:fill-a-word-template"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Put my own numbers, names and product into a template without changing any of its other words, and show where each value came from",
-      "given": "The person gives: template, fills, output (shown as <name> in the input)."
+      "given": "Read from tools/fill-a-template-without-changing-its-words/do-work/fill.py and run for real with the template of tool:make-a-word-template and a fills file giving auto-number-w2 the value 52 with source bakery/log.txt:1 (that line reads \"Monday log: 52 loaves came out of the oven.\"): python3 -I tools/fill-a-template-without-changing-its-words/do-work/fill.py bakery/TEMPLATE.json bakery/fills.json bakery/filled.md --piece bakery/filled.md.piece.json",
+      "hands_back": "Exit 0 and the line: bakery/filled.md: 1 slots filled from checked sources, 0 empty, 0 offered without a valid source (left empty). bakery/filled.md holds the script \"Sam baked 52 loaves before dawn and sold them all.\" and a sources row: auto-number-w2, NUMBER, 52, bakery/log.txt:1, found in bakery/log.txt:1."
     }
   ],
   "pour": {
     "tool": "tool:pour-example-rows-into-my-list",
     "least_coverage": 0.8,
-    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "how": "Name the list you already keep for tool settings and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and list:settings as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
     "example": {
       "kit_list": "list:settings",
       "into": {
@@ -182,7 +178,9 @@
             "label": "Status"
           }
         ]
-      }
+      },
+      "field_map": {}
     }
-  }
+  },
+  "drafted_from": "tool:fill-a-word-template's row in tools/fill-a-template-without-changing-its-words/tool-rows.json, do-work/*.py and the tests in tools/fill-a-template-without-changing-its-words/test/; the worked run was executed on made-up bakery words"
 }

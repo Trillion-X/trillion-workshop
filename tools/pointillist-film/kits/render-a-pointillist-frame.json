@@ -1,35 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:render-a-pointillist-frame's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:render-a-pointillist-frame with nothing more.\" Turn a film script of square-grid pictures, a grid and a time into one packed frame of coloured cells",
+  "drafted_from": "tools/pointillist-film/tool-rows.json (tool:render-a-pointillist-frame), examples/encode_frame_request.rs, test/pointillist-film.test.mjs; the example was run here with cargo",
+  "start_here": "Say to your AI: \"Render the frame at 0.5 seconds of my two-cell film from request.json into frame.pfcf.\" It runs encode_frame_request on your computer and tells you where the packed frame file is.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads one request file and writes one packed frame file.",
   "workflows": [],
   "tools": [
     "tool:render-a-pointillist-frame"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:render-a-pointillist-frame\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:render-a-pointillist-frame and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Turn a film script of square-grid pictures, a grid and a time into one packed frame of coloured cells"
+    "1. Install rust (cargo) and clone the Workshop repository. The first run builds the program (about a minute; a few seconds once built).",
+    "2. Write request.json from the film you want: {config: {grid, limits, style}, script: {targets, segments}, time_seconds}. Each target is a list of cells, one {color {r,g,b,a}, opacity, scale} for each grid cell; each segment says when it runs and the weight of each target as small expressions over time.",
+    "3. The AI reads the row with tools:list {tool: \"tool:render-a-pointillist-frame\"} and runs: cargo run --release --quiet --manifest-path trillion-workshop/tools/pointillist-film/Cargo.toml --target-dir /tmp/pointillist-film-build --example encode_frame_request -- request.json frame.pfcf",
+    "4. Nothing prints on success: the answer is frame.pfcf, which begins PFCF. The same request always gives the same bytes. A request that breaks a limit or names a missing target prints the reason on standard error, exits non-zero and writes no file."
   ],
   "worked_examples": [
     {
-      "title": "Render one frame of a square-grid pointillist film (runs on your computer) on a sample input",
-      "ask": "Run tool:render-a-pointillist-frame.",
+      "title": "One frame of a two-cell film at half a second",
+      "ask": "Render the frame at 0.5 seconds of my two-cell film.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:render-a-pointillist-frame",
-            "input": {}
+            "tool": "tool:render-a-pointillist-frame"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Turn a film script of square-grid pictures, a grid and a time into one packed frame of coloured cells"
+      "given": "From tools/pointillist-film/test/pointillist-film.test.mjs (the one-frame test) and run here with cargo: request.json is a two-cell film (grid 2 columns by 1 row, gap 0.1; limits max 8 columns, 8 rows, 64 cells, 4 targets, 4096 frame bytes; style opacity 0 to 1, scale 0 to 4; target 0 is a red cell and a blue cell, target 1 is a green cell and a yellow cell; one segment from 0 s for 2 s that weights target 0 by the constant 1 and target 1 by the input time), with time_seconds 0.5. The AI runs: cargo run --release --quiet --manifest-path trillion-workshop/tools/pointillist-film/Cargo.toml --target-dir /tmp/pointillist-film-build --example encode_frame_request -- request.json frame.pfcf",
+      "hands_back": "Nothing on standard output and exit 0; frame.pfcf is 54 bytes (22 header bytes and 16 for each of the 2 cells): it starts with the text PFCF, then columns 2, rows 1, the time 0.5 and the cell count 2; running it again gives the same 54 bytes. With the grid set to 99 columns it prints \"Error: GridAxisExceedsLimit { axis: \\\"columns\\\", value: 99, max: 8 }\", exits 1 and writes nothing."
     }
   ]
 }

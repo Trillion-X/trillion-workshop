@@ -1,23 +1,23 @@
 {
-  "draft": true,
-  "drafted_from": "tool:name-what-holds-a-drive's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:name-what-holds-a-drive with mount.\" Name the programs on this person's computer that are using one drive right now, which would stop it from ejecting",
+  "drafted_from": "tool row in tools/connected-drives/tool-rows.json, read-data/drives.mjs and test/drives.test.mjs",
+  "start_here": "Say to your AI: \"Which programs are stopping my SAMPLE DRIVE from ejecting?\" It runs tool:name-what-holds-a-drive with mount /Volumes/SAMPLE DRIVE and names each program that has a file open there.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads the drives this computer shows and changes nothing.",
   "workflows": [],
   "tools": [
     "tool:name-what-holds-a-drive",
     "tool:list-connected-drives"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:name-what-holds-a-drive\", and give it mount.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:name-what-holds-a-drive and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields mount, processes."
+    "1. Run tool:list-connected-drives and copy the mount of the drive that will not eject.",
+    "2. Say \"Which programs are using /Volumes/SAMPLE DRIVE?\"; the AI calls tools:run for tool:name-what-holds-a-drive with that mount.",
+    "3. Read processes (pid and name). Close each named program, then eject the drive; an empty list means nothing has a file open there.",
+    "4. A mount that is not connected is refused with \"not connected\"."
   ],
   "worked_examples": [
     {
-      "title": "What is using a drive on a sample input",
-      "ask": "Run tool:name-what-holds-a-drive.",
+      "title": "Name the program holding a drive",
+      "ask": "Which programs are stopping my SAMPLE DRIVE from ejecting?",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,13 +27,13 @@
           "input": {
             "tool": "tool:name-what-holds-a-drive",
             "input": {
-              "mount": "<mount: Where the drive is mounted on the computer, as tool:list-connected-drives lists it, like /Volumes/Drive>"
+              "mount": "/Volumes/SAMPLE DRIVE"
             }
           }
         }
       },
-      "hands_back": "An answer with the fields mount, processes.",
-      "given": "The person gives: mount (shown as <name> in the input)."
+      "given": "From tools/connected-drives/test/drives.test.mjs (names the programs holding a drive): lsof reports process 4242, command SampleEditor, with a file open on the drive, and process 1 (launchd) which is skipped.",
+      "hands_back": "{\"mount\":\"/Volumes/SAMPLE DRIVE\",\"processes\":[{\"pid\":4242,\"name\":\"SampleEditor\"}]}"
     }
   ]
 }

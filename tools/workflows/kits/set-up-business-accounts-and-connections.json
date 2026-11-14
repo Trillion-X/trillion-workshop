@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:set-up-business-accounts-and-connections's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:set-up-business-accounts-and-connections.\" Check every account and connection the business needs (Stripe seller, Instagram, Facebook, YouTube, the email sending domain and its key) and leave each one either connected or with a named gap.",
+  "drafted_from": "tools/workflows/recipes/workflows.json (the workflow:set-up-business-accounts-and-connections row: steps list-connections, check-youtube, record-the-stage); no test names it",
+  "start_here": "Say to your AI: \"Run workflow:set-up-business-accounts-and-connections for Sunrise Bakery: check Stripe, Instagram, YouTube and the mail domain sunrise-bakery.example, and tell me what is still missing.\"",
   "lists": [
     {
       "list": "list:business-setup-checklist",
@@ -59,14 +58,14 @@
       ],
       "example_rows": [
         {
-          "id": "replies",
+          "id": "accounts",
           "values": {
-            "stage": "replies",
-            "label": "Comments and messages",
+            "stage": "accounts",
+            "label": "Accounts and connections",
             "status": "Gap",
-            "steps_status": "{\"read-facts\":\"Done\",\"pull-messages\":\"Done\",\"read-reply-templates\":\"Done\",\"pick-a-template\":\"Done\",\"fill-the-replies\":\"Done\",\"check-the-replies\":\"Done\",\"hand-the-replies-to-the-person\":\"Gap\"}",
+            "steps_status": "{\"read-facts\":\"Done\",\"list-connections\":\"Done\",\"check-stripe-seller\":\"Done\",\"check-instagram\":\"Done\",\"check-facebook\":\"Not applicable\",\"check-youtube\":\"Gap\",\"add-email-sending-domain\":\"Done\",\"check-email-sending-domain\":\"Done\",\"add-dns-records-at-the-dns-host\":\"Done\",\"make-sending-key\":\"Done\"}",
             "gaps": [
-              "record:setup-gap:hand-the-replies-to-the-person-1"
+              "record:setup-gap:check-youtube-1"
             ],
             "updated_at": "2026-11-13"
           }
@@ -75,9 +74,9 @@
           "id": "social-posting",
           "values": {
             "stage": "social-posting",
-            "label": "Posting on social channels",
+            "label": "Social posting",
             "status": "Not done",
-            "steps_status": "",
+            "steps_status": "{}",
             "gaps": [],
             "updated_at": "2026-11-13"
           }
@@ -143,25 +142,25 @@
       ],
       "example_rows": [
         {
-          "id": "hand-the-replies-to-the-person-1",
+          "id": "check-youtube-1",
           "values": {
-            "stage": "replies",
-            "step": "hand-the-replies-to-the-person",
-            "undecided": "No live tool sends an Instagram direct-message reply.",
-            "chosen": "Handed 3 checked replies to the person to send by hand.",
-            "evidence": "The live catalog has no send tool for Instagram direct messages.",
+            "stage": "accounts",
+            "step": "check-youtube",
+            "undecided": "No YouTube connection check tool is in the live catalog.",
+            "chosen": "Submitted connected false and told the owner to reconnect the channel in the app's connections list.",
+            "evidence": "The youtube row of tool:list-every-connection answered connected false.",
             "status": "open"
           }
         },
         {
-          "id": "pull-messages-1",
+          "id": "add-dns-records-at-the-dns-host-1",
           "values": {
-            "stage": "replies",
-            "step": "pull-messages",
-            "undecided": "Instagram sign-in expired.",
-            "chosen": "Submitted status needs_login and pulled nothing.",
-            "evidence": "tool:pull-my-instagram-messages answered needs_login.",
-            "status": "open"
+            "stage": "accounts",
+            "step": "add-dns-records-at-the-dns-host",
+            "undecided": "The owner did not name a DNS host.",
+            "chosen": "Submitted a gap: DNS host unknown, so the exact record-entry screen could not be given.",
+            "evidence": "The owner's answer in this step.",
+            "status": "closed"
           }
         }
       ],
@@ -172,7 +171,6 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
     "workflow:set-up-business-accounts-and-connections",
     "workflow:set-up-a-business-on-trillion"
@@ -188,14 +186,15 @@
     "tool:set-up-someone-i-pay-in-stripe"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:set-up-business-accounts-and-connections\".",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:set-up-business-accounts-and-connections) and works through its steps in order: read-facts, list-connections, check-stripe-seller, check-instagram, check-facebook, check-youtube, add-email-sending-domain, check-email-sending-domain, add-dns-records-at-the-dns-host, make-sending-key, record-the-stage.",
-    "3. Read what each step hands back; the last step is record-the-stage."
+    "1. Pour the example checklist rows into the checklist you already keep (see pour), or make list:business-setup-checklist and list:business-setup-gaps from them.",
+    "2. Write record:business-setup:facts with workflow:set-up-a-business-on-trillion; include channels, email_sending_domain, country_code, seller_return_url and seller_refresh_url.",
+    "3. Say \"Run workflow:set-up-business-accounts-and-connections\". It lists every connection, checks the Stripe seller, Instagram, Facebook and YouTube, adds the email sending domain and hands you its DNS records to add at your own DNS host, then makes the sending key and keeps it in the vault by name.",
+    "4. Open the Stripe onboarding link yourself, add the DNS records, reconnect any channel that answered not connected, and run it again; read record:setup-stage:accounts for what is left."
   ],
   "worked_examples": [
     {
-      "title": "Set up accounts and connections from its first step",
-      "ask": "Run workflow:set-up-business-accounts-and-connections.",
+      "title": "YouTube is not connected: the step reports a gap",
+      "ask": "Is my YouTube connected?",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -211,8 +210,31 @@
         }
       },
       "workflow": "workflow:set-up-business-accounts-and-connections",
-      "step": "read-facts",
-      "hands_back": "Step read-facts answers with facts."
+      "step": "check-youtube",
+      "given": "Read from the step in tools/workflows/recipes/workflows.json: it reads the youtube row of the list-connections answer instead of calling a tool. Synthetic row: {\"name\":\"youtube\",\"kind\":\"service\",\"connected\":false}. The step says to submit connected false and a gap.",
+      "hands_back": "{\"connected\":false} with the gap \"No YouTube connection check tool is in the live catalog (send-a-post-to-youtube needs an account id). Reconnect the YouTube channel in the app's connections list.\""
+    },
+    {
+      "title": "The sending domain is added and its DNS records are kept",
+      "ask": "Add my email sending domain.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:set-up-business-accounts-and-connections"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:set-up-business-accounts-and-connections",
+      "step": "check-email-sending-domain",
+      "given": "Read from the step and tools/email-sending-domains (the tool only asks Resend to verify, answering {\"id\":...}). The AI reports verified from the state of the domain. Synthetic case: the owner has not yet added the DNS records at their DNS host, so verified is false; the step then says the person adds the records and the check is run again.",
+      "hands_back": "{\"verified\":false}"
     }
   ],
   "pour": {

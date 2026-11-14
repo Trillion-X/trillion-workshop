@@ -1,22 +1,24 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:method-tell-a-story's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:method-tell-a-story.\" Write a story, post, article, newsletter, talk or video script as one real change: before, what changed and after; the part of the person that was stuck and the distinction that dissolves; every stage of the journey in their awareness; the enhancers its length carries in priority order; and a draft that shows each of them.",
+  "drafted_from": "workflow:method-tell-a-story's row in tools/workflows/recipes/workflows.json (its job, input schema and the step named in the worked example)",
+  "start_here": "Say to your AI: \"Run workflow:method-tell-a-story on: write a newsletter story about a bakery owner who stopped writing training manuals.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It is a way of thinking a request through, answered in words step by step, and it reads and writes no list.",
   "workflows": [
     "workflow:method-tell-a-story"
   ],
-  "tools": [],
+  "tools": [
+    "tool:start-a-recipe-run"
+  ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:method-tell-a-story\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-tell-a-story) and works through its steps in order: story-change, story-awareness, story-journey, story-enhancers, story-draft.",
-    "3. Read what each step hands back; the last step is story-draft."
+    "1. Say what you are writing in one plain sentence, for example \"write a newsletter story about a bakery owner who stopped writing training manuals\", and say \"Run workflow:method-tell-a-story\" with it as request.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-tell-a-story) and answers its steps in order: story-change, story-awareness, story-journey, story-enhancers, story-draft; each answer is refused until every check of the step is answered about this request.",
+    "3. At story-enhancers, state the length first and add enhancers in priority order for that length (raw truth, concrete details, the emotional arc and the rest).",
+    "4. At story-draft, write the piece; a reader must be able to point at the before, the change, the after and each enhancer in its words."
   ],
   "worked_examples": [
     {
-      "title": "Tell a story that changes the reader from its first step",
-      "ask": "Run workflow:method-tell-a-story.",
+      "title": "Name the one change a story tells and what it changes in the reader",
+      "ask": "Run workflow:method-tell-a-story: write a newsletter story about a bakery owner who stopped writing training manuals.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,15 +29,15 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:method-tell-a-story",
-              "request": "<request: What you are deciding, designing or building, in plain words>"
+              "request": "Write a newsletter story about a bakery owner who stopped writing training manuals"
             }
           }
         }
       },
       "workflow": "workflow:method-tell-a-story",
       "step": "story-change",
-      "hands_back": "Step story-change answers with answer, checks.",
-      "given": "The person gives: request (shown as <name> in the input)."
+      "given": "Read from tools/workflows/recipes/workflows.json, step story-change: its submit shape is answer and checks with story-change-before-change-after, story-change-the-reader-changes-too, story-change-the-value-it-reveals and story-change-core-stands-alone. The request is the one in the input above.",
+      "hands_back": "{\"answer\":\"Before: an owner writes a 40-page manual nobody reads, new bakers still fail the first bake, and she feels stuck. Change: a baker says \\\"just show me yesterday's sheet\\\", and she sees the sheet is the training. After: new bakers copy the filled-in sheet, she feels relieved. The reader, another owner, should see their own manual is optional.\",\"checks\":{\"story-change-before-change-after\":\"Before: a 40-page manual nobody reads, frustrated, bakers fail the first bake. Change: a baker asks for yesterday's sheet and she sees the sheet is the training. After: bakers copy the sheet, relieved, the manual is retired.\",\"story-change-the-reader-changes-too\":\"An owner who writes manuals sees that a filled-in example teaches faster; the line \\\"Nobody reads the how-to, everyone copies the sheet\\\" does it.\",\"story-change-the-value-it-reveals\":\"Value: people learn from real examples, not instructions; the manual's table of contents was cut because it serves nothing.\",\"story-change-core-stands-alone\":\"Block 1: \\\"Her bakers ignored a 40-page manual and copied one filled-in sheet. She threw the manual out.\\\" It sits in the first paragraph so it stays clear under the enhancers.\"}}"
     }
   ]
 }

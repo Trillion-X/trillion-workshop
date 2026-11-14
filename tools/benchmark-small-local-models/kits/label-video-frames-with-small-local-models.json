@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "tool:label-video-frames-with-small-local-models's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:label-video-frames-with-small-local-models with nothing more.\" Label sampled frames of my videos with a small model on my computer, from my own shot vocabulary: an image-text model, a vision decider or a vision-language model, and rank free-text places",
+  "drafted_from": "tool row in tools/benchmark-small-local-models/tool-rows.json, do-work/label_frames_with_image_text_model.py and test/test_benchmark.py (Labels)",
+  "start_here": "Say to your AI: \"Label the two sampled frames of my video with the open_clip model some/clip, using my shot vocabulary of size (wide, close) and colour (red, blue).\"",
   "lists": [
     {
       "list": "list:settings",
@@ -77,27 +76,27 @@
       ],
       "example_rows": [
         {
-          "id": "caption-style",
+          "id": "person-sample-person",
           "values": {
-            "name": "Caption style",
-            "tool": "tool:example-captioner",
+            "name": "benchmark-small-local-models defaults",
+            "tool": "tool:benchmark-small-local-models",
             "scope_kind": "person",
-            "scope_id": "example-person",
-            "settings": "{\"style\":\"plain\",\"size\":\"large\"}",
+            "scope_id": "sample-person",
+            "settings": "{\"commands\":{\"label_frames_with_image_text_model\":{\"model\":\"some/clip\",\"device\":\"cpu\"}}}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         },
         {
-          "id": "quiet-hours",
+          "id": "film-sample-film",
           "values": {
-            "name": "Quiet hours",
-            "tool": "tool:example-notifier",
-            "scope_kind": "account",
-            "scope_id": "whole-account",
-            "settings": "{\"from\":\"22:00\",\"to\":\"07:00\"}",
+            "name": "benchmark-small-local-models for one film",
+            "tool": "tool:benchmark-small-local-models",
+            "scope_kind": "film",
+            "scope_id": "sample-film",
+            "settings": "{\"commands\":{\"label_frames_with_image_text_model\":{\"model\":\"some/clip\",\"tag\":\"clip\",\"device\":\"cpu\"}}}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         }
       ],
@@ -108,35 +107,37 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
     "tool:label-video-frames-with-small-local-models",
     "tool:read-a-tool-setting",
-    "tool:score-small-model-labels-against-my-labels"
+    "tool:score-small-model-labels-against-my-labels",
+    "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:label-video-frames-with-small-local-models\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:label-video-frames-with-small-local-models and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Label sampled frames of my videos with a small model on my computer, from my own shot vocabulary: an image-text model, a vision decider or a vision-language model, and rank free-text places"
+    "1. Pour the two example settings rows into your own list:settings (see pour), or write your own row record:setting:benchmark-small-local-models~person~<you> whose settings hold {\"commands\":{\"label_frames_with_image_text_model\":{...your defaults}}}.",
+    "2. Say the line in start_here. Your AI reads this tool's row with tools:list {tool: \"tool:label-video-frames-with-small-local-models\"} and gets its run command.",
+    "3. Your AI writes the request as a JSON file (request.json), adds settings_record from your settings row if you keep one, and runs python3 trillion-workshop/tools/benchmark-small-local-models/do-work/label_frames_with_image_text_model.py request.json on your computer.",
+    "4. It reads the last line the script prints: {\"result\": ...} or {\"error\": \"what to change\"} (exit code 2), then tells you the result in plain words.",
+    "5. Other steps of this tool: label_frames_with_vision_decider (one lettered question per field), label_frames_with_vision_language_model (one JSON answer per frame) and rank_free_text_places; write_to keeps each answer in a file you can hand to tool:score-small-model-labels-against-my-labels."
   ],
   "worked_examples": [
     {
-      "title": "Label frames of my videos with a small model on my computer (runs on your computer) on a sample input",
-      "ask": "Run tool:label-video-frames-with-small-local-models.",
+      "title": "Two frames labelled for size and colour by an image-text model",
+      "ask": "Label these two frames from my video with my size and colour words.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:label-video-frames-with-small-local-models",
-            "input": {}
+            "tool": "tool:label-video-frames-with-small-local-models"
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Label sampled frames of my videos with a small model on my computer, from my own shot vocabulary: an image-text model, a vision decider or a vision-language model, and rank free-text places"
+      "given": "From tools/benchmark-small-local-models/test/test_benchmark.py (Labels.test_image_text_model_ranks_each_value_bare_and_defined), run with the test's stand-in model. After tools:list, the AI writes request.json = {\"shots\":[{\"frame\":\"a.png\",\"reference\":{\"place\":\"red room\"},\"w\":1920,\"h\":1080},{\"frame\":\"b.png\",\"reference\":{\"place\":\"blue sky\"},\"w\":1080,\"h\":1920}],\"vocabulary\":{\"size\":{\"wide\":\"a wide shot of the whole place\",\"close\":\"a close shot of a face\"},\"colour\":{\"red\":\"a red frame\",\"blue\":\"a blue frame\"}},\"model\":\"some/clip\",\"tag\":\"clip\",\"device\":\"cpu\"} (a.png is a picture of a wide red room, b.png of a close blue one) and runs: python3 trillion-workshop/tools/benchmark-small-local-models/do-work/label_frames_with_image_text_model.py request.json",
+      "hands_back": "{\"result\":{\"meta\":{\"model\":\"some/clip\",\"tag\":\"clip\",\"n\":2,\"mps_GB\":null,...},\"rows\":[{\"i\":0,\"size|bare\":[\"wide\",\"close\"],\"size|bare|all\":[0.71416,0.02127],\"size|defined\":[\"wide\",\"close\"],\"colour|bare\":[\"red\",\"blue\"],\"colour|defined\":[\"red\",\"blue\"],...},{\"i\":1,\"size|bare\":[\"close\",\"wide\"],\"colour|bare\":[\"blue\",\"red\"],\"colour|defined\":[\"blue\",\"red\"],...}]}}: each value is ranked best first, once by its bare word and once by its plain definition, one row per frame, with load seconds, time per image and memory in meta."
     }
   ],
   "pour": {
@@ -146,39 +147,40 @@
     "example": {
       "kit_list": "list:settings",
       "into": {
-        "list": "list:my-settings",
-        "row_type": "record:setting",
+        "list": "list:my-tool-options",
+        "row_type": "record:tool-option",
         "fields": [
           {
-            "id": "name",
-            "label": "Setting"
+            "id": "title",
+            "label": "Title"
           },
           {
-            "id": "tool",
-            "label": "Tool"
+            "id": "owner",
+            "label": "Owner"
           },
           {
-            "id": "scope_kind",
-            "label": "For a"
+            "id": "scope",
+            "label": "Scope"
           },
           {
-            "id": "scope_id",
-            "label": "For"
+            "id": "target",
+            "label": "Target"
           },
           {
-            "id": "settings",
-            "label": "Settings (JSON)"
+            "id": "config",
+            "label": "Config"
           },
           {
-            "id": "from",
-            "label": "From"
+            "id": "source",
+            "label": "Source"
           },
           {
-            "id": "status",
-            "label": "Status"
+            "id": "state",
+            "label": "State"
           }
         ]
-      }
+      },
+      "field_map": {}
     }
   }
 }

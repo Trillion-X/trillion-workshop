@@ -1,22 +1,23 @@
 {
-  "draft": true,
-  "drafted_from": "tool:copy-a-site's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:copy-a-site with url.\" Copy an existing live website, its pages as visitors see them plus its pictures, styles and fonts, into the files a public app is published from",
+  "drafted_from": "tool:copy-a-site's row in tools/copy-a-site/tool-rows.json, do-work/copy-a-site.mjs and test/copy-a-site.test.mjs with its test/site.mjs",
+  "start_here": "Say to your AI: \"Copy the website at https://example.com/ into files I can publish as a public app, at most 10 pages.\" It runs tool:copy-a-site and hands back site.json in your files with every page, picture, style and font it could copy and a list of what it could not.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps and reads no list: it takes a web address, copies the public site and answers one site.json file in your files.",
   "workflows": [],
   "tools": [
     "tool:copy-a-site"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:copy-a-site\", and give it url.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:copy-a-site and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields result, files."
+    "1. Pick the site's first page as a plain web address (http or https, no user name or password, no query), for example https://example.com/.",
+    "2. Say \"Copy this website\" and give your AI the address; add max_pages (1 to 200, default 60), paths for pages no link reaches (like [\"/pricing\"]) and width (320 to 2560, default 1280) when you need them.",
+    "3. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:copy-a-site and that input (the worked example shows one). It runs in the door's container with internet and takes about four minutes.",
+    "4. Read what comes back: result.pages (the pages copied), result.files and result.bytes, result.skipped (what could not be copied and why; those links stay on the original site) and result.remaining_paths; files.site is site.json, { files: { path: contents } }.",
+    "5. When result.remaining_paths is not empty the page limit was reached: run it again with those paths in paths and the pages already copied in exclude_paths. Hand files.site's files to publish_public_app_definition to publish the copy."
   ],
   "worked_examples": [
     {
-      "title": "Copy a website on a sample input",
-      "ask": "Run tool:copy-a-site.",
+      "title": "A three-page site copied, scripts removed, links pointing at the copy",
+      "ask": "Copy the website at http://copy-a-site.example/ into files I can publish, at most 10 pages.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,13 +27,14 @@
           "input": {
             "tool": "tool:copy-a-site",
             "input": {
-              "url": "<url: The site's first page, like https://example.com/>"
+              "url": "http://copy-a-site.example/",
+              "max_pages": 10
             }
           }
         }
       },
-      "hands_back": "An answer with the fields result, files.",
-      "given": "The person gives: url (shown as <name> in the input)."
+      "given": "From tools/copy-a-site/test/copy-a-site.test.mjs with its test site test/site.mjs (a home page whose words a script draws, a /guides/first page linked from it, a /listed-only page found only in the sitemap, one style sheet using a picture, two pictures and a favicon); the test runs the script with --url http://copy-a-site.example/ --max-pages 10 through a proxy, since that name resolves nowhere else.",
+      "hands_back": "result.origin is http://copy-a-site.example; result.pages holds the three pages /, /guides/first and /listed-only; result.files is 7 and the files in site.json are favicon.ico, guides/first/index.html, index.html, listed-only/index.html, look/site.css, pictures/ball.png and pictures/court.png. index.html keeps the words the script drew (\"Drawn by the page\") with the script and onclick removed, its link to the guide reads href=\"/guides/first\", its link to https://elsewhere.example/ is unchanged, the form and buttons are replaced by words like \"Ask on the original site\", and look/site.css points its picture at /pictures/ball.png. files.site names the saved site.json."
     }
   ]
 }

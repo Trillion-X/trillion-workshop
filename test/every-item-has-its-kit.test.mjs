@@ -96,6 +96,12 @@ test('when changed items are refused, an item still on the list that a change to
   assert.deepEqual(kitGateProblems({ owed, touched, rules: { ...rules, refuse_changed_items: false } }), []);
 });
 
+test('a file in the workflows folder touches no workflow: a recipe is touched only when it differs', () => {
+  const recipes = JSON.parse(readFileSync(new URL('../tools/workflows/recipes/workflows.json', import.meta.url), 'utf8'));
+  const touched = touchedIds({ changed: ['tools/workflows/kit-template.json', 'tools/workflows/recipes/workflows.json'], beforeRecipes: recipes });
+  for (const id of owed.workflows) assert.equal(touched.has(id), false, `${id} is not touched by an edit that leaves its recipe as it was`);
+});
+
 test('a workflow whose recipe differs from the one before is touched, an unchanged one is not', () => {
   const now = JSON.parse(readFileSync(new URL('../tools/workflows/recipes/workflows.json', import.meta.url), 'utf8'));
   const [first, ...rest] = now.records;

@@ -1,38 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:read-a-list-view's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-a-list-view with config.\" Read one page of what one of my lists or saved views shows, from my records, or refresh a list's row sources (a folder of documents, for one) into its records",
+  "drafted_from": "tool:read-a-list-view row in tool-rows.json, do-work/read-list-view.mjs, read-data/list-view.mjs and test/read-a-list-view.test.mjs",
+  "start_here": "Say to your AI: \"Refresh my chores list from its recipes folder source, then read me the first page of it.\" It runs the list reader on your computer with your door config and shows the rows as a table.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of its own: it reads or refreshes whichever list or saved view you give it by id through your door config.",
   "workflows": [],
   "tools": [
     "tool:read-a-list-view"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-a-list-view\", and give it config.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-a-list-view and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Read one page of what one of my lists or saved views shows, from my records, or refresh a list's row sources (a folder of documents, for one) into its records"
+    "1. Have a door config file (JSON with the door, its key and names) for your own account; the README of tools/read-a-list-view describes its keys.",
+    "2. To see rows, say \"Read my <list>\" (or a saved view): your AI reads the row with tools:list and runs `node tools/read-a-list-view/do-work/read-list-view.mjs --config door.json --list <id> --limit 20` from the Workshop checkout, adding --after with the previous page's next.",
+    "3. To pull a list's row sources (a folder of documents, for one) into its records, say \"Refresh my <list>\"; it runs the same script with --refresh <id>, the only thing that runs the source tools, and writes only the rows that changed.",
+    "4. Read the JSON answer: a page is {list, fields, rows: [{id, record_id, values, title, source?}], next, complete}; a refresh is {list, sources: [{source, rows, written, removed, unchanged, refused}]}. Read next until it is null when you want every row; exit 2 puts the reason on standard error."
   ],
   "worked_examples": [
     {
-      "title": "Read a page of one of my lists or saved views, or refresh its row sources on a sample input",
-      "ask": "Run tool:read-a-list-view.",
+      "title": "Refreshing a bakery's chores list from a folder of four recipes",
+      "ask": "Refresh my chores list from its recipes source.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:read-a-list-view",
-            "input": {
-              "config": "<config: The person's door config file (the README describes its keys)>"
-            }
+            "tool": "tool:read-a-list-view"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Read one page of what one of my lists or saved views shows, from my records, or refresh a list's row sources (a folder of documents, for one) into its records",
-      "given": "The person gives: config (shown as <name> in the input)."
+      "given": "From tools/read-a-list-view/test/read-a-list-view.test.mjs: the command line is `node tools/read-a-list-view/do-work/read-list-view.mjs --config door.json --refresh chores`. The account has list chores (row type chore, fields chore and minutes) with one row source {source: documents, of: /recipes}, two rows of its own (sweep, mop), and a recipes folder of four documents: bread (40 minutes), buns (25), scones (15), tart (55).",
+      "hands_back": "One JSON line {\"list\": \"chores\", \"sources\": [{\"source\": \"documents\", \"rows\": 4, \"written\": 4, \"removed\": 0, \"unchanged\": 0, \"refused\": []}]}. The rows are now records of the list with ids like documents~%2Fbread.md (its values \"note.chore\": \"bake bread\", \"note.minutes\": 40); sweep and mop are untouched. Refreshing again after the folder changes bread to 45 minutes and drops tart answers rows 3, written 1, removed 1, unchanged 2."
     }
   ]
 }

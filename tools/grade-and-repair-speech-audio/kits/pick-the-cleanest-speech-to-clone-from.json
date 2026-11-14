@@ -1,36 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:pick-the-cleanest-speech-to-clone-from's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:pick-the-cleanest-speech-to-clone-from with nothing more.\" From a person's own recordings, pick the cleanest ten seconds of continuous speech to clone their voice from",
+  "drafted_from": "tools/grade-and-repair-speech-audio/tool-rows.json (tool:pick-the-cleanest-speech-to-clone-from), do-work/choose_clone_reference.py, read-data/measure.py and settings.py, test/settings-for-synthetic-speech.json",
+  "start_here": "Say to your AI: \"From my recordings in /Work/demo/recordings.json, which I and the speaker agreed to, pick the cleanest stretch of continuous speech to clone the voice from, using my settings in /Work/settings.json.\" It runs tool:pick-the-cleanest-speech-to-clone-from on your computer and gives you the best windows.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of yours: it reads a recordings file on your computer and writes candidate wavs and reference-candidates.json into a folder you name.",
   "workflows": [],
   "tools": [
     "tool:pick-the-cleanest-speech-to-clone-from",
     "tool:clone-speech-that-repair-could-not-fix"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:pick-the-cleanest-speech-to-clone-from\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:pick-the-cleanest-speech-to-clone-from and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: From a person's own recordings, pick the cleanest ten seconds of continuous speech to clone their voice from"
+    "1. Install ffmpeg, numpy, scipy and soundfile; write your settings file (this tool reads reference_lufs_min and reference_lufs_max).",
+    "2. List only recordings of the person who agreed to be cloned: {\"recordings\":[{\"clip\",\"source\",\"words\":[{\"text\",\"start\",\"end\"}]}]}.",
+    "3. Say \"Pick the cleanest speech to clone from\". Your AI reads the row with tools:list and runs its run command with your recordings file, your settings and a new output folder.",
+    "4. Read the printed best windows (signal to noise, loudness, text) and pass the best wav and its text as reference and reference_text to tool:clone-speech-that-repair-could-not-fix."
   ],
   "worked_examples": [
     {
-      "title": "Find the cleanest stretch of someone's speech to use as the voice to clone from (runs on your computer) on a sample input",
-      "ask": "Run tool:pick-the-cleanest-speech-to-clone-from.",
+      "title": "The first unbroken stretch of a synthetic recording becomes the reference",
+      "ask": "Pick the cleanest stretch of this speaker's recording to clone their voice from.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:pick-the-cleanest-speech-to-clone-from",
-            "input": {}
+            "tool": "tool:pick-the-cleanest-speech-to-clone-from"
           }
         }
       },
-      "hands_back": "The result the item's own job names: From a person's own recordings, pick the cleanest ten seconds of continuous speech to clone their voice from"
+      "given": "Run here for real on the test fixture's clean.wav (a synthetic voiced tone with word times alpha 0.5-0.9, bravo 1.0-1.5, charlie 2.4-2.9, delta 3.0-3.4, echo 4.4-4.9) and test/settings-for-synthetic-speech.json. The recordings file /Work/demo/recordings.json holds that one recording. The script's default window is ten seconds, which this 5.6 s file cannot fill (it would answer best: []), so this run added the script's own flag --window 1.0, which the row's run line does not pass. The AI reads the row with this tools:list call, then runs: python3 trillion-workshop/tools/grade-and-repair-speech-audio/do-work/choose_clone_reference.py --recordings /Work/demo/recordings.json --settings /Work/settings.json --out /Work/demo/ref --window 1.0. Paths shown for /Work/demo/ref.",
+      "hands_back": "It prints \"/Work/demo/ref/clean_0.50.wav snr 29.1 lufs -14.75 tail None | alpha bravo\" (the first run of words with no pause over 0.4 s lasting one second: alpha then bravo, cut from 0.50 s) and the last line {\"result\": {\"candidates\": \"/Work/demo/ref/reference-candidates.json\", \"best\": [\"/Work/demo/ref/clean_0.50.wav\"]}}."
     }
   ]
 }

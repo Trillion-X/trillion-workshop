@@ -1,43 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:say-lines-in-a-candidate-voice-model's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:say-lines-in-a-candidate-voice-model with model, out_dir, reference, reference_text, lines.\" Try a new text-to-speech model: say these lines in my cloned voice so I can compare it with the voice I use now",
+  "drafted_from": "tool row in tools/compare-voice-and-music-models/tool-rows.json, do-work/say_lines.py and tools/compare-voice-and-music-models/test/test_compare_models.py",
+  "start_here": "Say to your AI: \"Say lines l01 and l02 in the candidate voice model some-org/candidate-tts, cloned from ref.wav, into ./candidate so I can compare it with my current voice.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it takes a model id, a reference recording and lines on its command line and writes one WAV per line into a folder.",
   "workflows": [],
   "tools": [
     "tool:say-lines-in-a-candidate-voice-model",
     "tool:score-how-alike-lines-sound-to-a-reference-voice"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:say-lines-in-a-candidate-voice-model\", and give it model, out_dir, reference, reference_text, lines.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:say-lines-in-a-candidate-voice-model and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Try a new text-to-speech model: say these lines in my cloned voice so I can compare it with the voice I use now"
+    "1. Check the voice in ref.wav is your own or one you have the speaker's consent to clone, and read the model's licence (some allow evaluation only).",
+    "2. Say the line in start_here. Your AI reads this tool's row with tools:list {tool: \"tool:say-lines-in-a-candidate-voice-model\"}, installs mlx-audio, numpy and soundfile if missing (a Mac with Apple silicon), and runs the command in given. Use the same line ids your current voice's recordings use.",
+    "3. Read the last line: {\"result\": {model, sample_rate, lines: [{line, wav, seconds, took}]}} or {\"error\": \"what to change\"} (exit 2).",
+    "4. Score ./candidate against your current voice's folder with tool:score-how-alike-lines-sound-to-a-reference-voice, and still listen."
   ],
   "worked_examples": [
     {
-      "title": "Say some lines in a voice model I am trying out, cloned from my reference recording (runs on your Mac) on a sample input",
-      "ask": "Run tool:say-lines-in-a-candidate-voice-model.",
+      "title": "Two lines said in a cloned voice, one WAV each",
+      "ask": "Say these two lines in the candidate model in my voice.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:say-lines-in-a-candidate-voice-model",
-            "input": {
-              "model": "<model: The model's Hugging Face id, put where {model} is in the command>",
-              "out_dir": "<out_dir: The folder for the line recordings, put where {out_dir} is in the command>",
-              "reference": "<reference: The reference recording the voice is cloned from, put where {reference} is in the command; the person must own the voice or have the speaker's consent>",
-              "reference_text": "<reference_text: The words said in the reference recording, put where {reference_text} is in the command>",
-              "lines": []
-            }
+            "tool": "tool:say-lines-in-a-candidate-voice-model"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Try a new text-to-speech model: say these lines in my cloned voice so I can compare it with the voice I use now",
-      "given": "The person gives: model, out_dir, reference, reference_text (shown as <name> in the input)."
+      "given": "Read from tools/compare-voice-and-music-models/do-work/say_lines.py (its argument checks are in tools/compare-voice-and-music-models/test/test_compare_models.py; the model run itself is not tested). Run: python3 -I tools/compare-voice-and-music-models/do-work/say_lines.py some-org/candidate-tts ./candidate ref.wav \"the words said in ref.wav\" l01=\"First line.\" l02=\"Second line.\" The model loads (first run downloads it), ref.wav is cloned, and each line is generated.",
+      "hands_back": "{\"result\":{\"model\":\"some-org/candidate-tts\",\"sample_rate\":<the model's rate>,\"lines\":[{\"line\":\"l01\",\"wav\":\"./candidate/l01.wav\",\"seconds\":<its length>,\"took\":<seconds it took>},{\"line\":\"l02\",\"wav\":\"./candidate/l02.wav\",\"seconds\":...,\"took\":...}]}}: ./candidate/l01.wav and ./candidate/l02.wav are 24-bit WAVs at the model's rate. With no lines the last line is {\"error\":\"pass <model id> <out dir> <ref wav> <ref text> and at least one <line id>=<text>\"} (exit 2); a line \"l01=  \" is refused as \"is not <line id>=<text>\"."
     }
   ]
 }

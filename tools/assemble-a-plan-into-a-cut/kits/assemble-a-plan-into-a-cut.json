@@ -1,40 +1,37 @@
 {
-  "draft": true,
-  "drafted_from": "tool:assemble-a-plan-into-a-cut's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:assemble-a-plan-into-a-cut with input, step.\" Cut my recordings into a video following my plan: which stretch of which recording goes where, lines a voice reads over a held frame, my look on every shot, my graphics laid over it, and only show me the cut once every check I name passes",
+  "drafted_from": "tools/assemble-a-plan-into-a-cut/tool-rows.json, do-work/assemble.py, cut.py, test/test_assemble.py",
+  "start_here": "Say to your AI: \"Show me the timeline of my plan chain-fixture from request.json before I cut it, then build the cut.\" It reads the tool row, runs the cutter on your computer and reports each check.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of yours: it reads the request file and the plan files in the folder you name and writes only those files or the cut.",
   "workflows": [],
   "tools": [
     "tool:assemble-a-plan-into-a-cut",
     "tool:check-a-rendered-video"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:assemble-a-plan-into-a-cut\", and give it input, step.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:assemble-a-plan-into-a-cut and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Cut my recordings into a video following my plan: which stretch of which recording goes where, lines a voice reads over a held frame, my look on every shot, my graphics laid over it, and only show me the cut once every check I name passes"
+    "1. Clone the Workshop checkout, run python3 -m pip install -U numpy soundfile pillow blake3 and brew install ffmpeg node.",
+    "2. Write request.json: pieces (what each segment kind becomes), plans {folder}, clips {words_folder}, looks, voice, face_reader, overlay_renderer, devices, checks and folders {work, seen}.",
+    "3. Say \"Show me the timeline of my plan chain-fixture\"; the AI reads the row with tools:list and runs python3 tools/assemble-a-plan-into-a-cut/do-work/assemble.py timeline --request request.json chain-fixture.",
+    "4. Read the last JSON line: the segment order with start and dur, then run build the same way and read where the cut is and each check's pass or fail.",
+    "5. When a check failed the cut stays in the work folder; change nothing you chose to make it pass."
   ],
   "worked_examples": [
     {
-      "title": "Cut my recordings into a video from a plan (runs on your computer) on a sample input",
-      "ask": "Run tool:assemble-a-plan-into-a-cut.",
+      "title": "A plan of five segments is laid out, then built",
+      "ask": "Show me the timeline of my plan chain-fixture, then build the cut.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:assemble-a-plan-into-a-cut",
-            "input": {
-              "input": "<input: The request file (JSON) on the person's computer, put where {input} is in the command: pieces (the piece table), plans {folder, skip} or plan_file, clips {words_folder}, looks, grades, voice {folder, word_timer, say}, face_reader {argv}, overlay_renderer, devices, checks, plan_checks, advisory_stops, folders {work, seen, specs, holds_log}, refs, rules>",
-              "step": "timeline"
-            }
+            "tool": "tool:assemble-a-plan-into-a-cut"
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Cut my recordings into a video following my plan: which stretch of which recording goes where, lines a voice reads over a held frame, my look on every shot, my graphics laid over it, and only show me the cut once every check I name passes",
-      "given": "The person gives: input (shown as <name> in the input)."
+      "given": "Read from tools/assemble-a-plan-into-a-cut/do-work/assemble.py and cut.py and run here on the made-up world of test/fixture_world.py (TEST_2 in test/test_assemble.py): command python3 tools/assemble-a-plan-into-a-cut/do-work/assemble.py timeline --request request.json chain-fixture. The plan holds an opening, a voiced ask, two replies from take-two, a reply from a sound-only memo and a note that its piece table skips.",
+      "hands_back": "timeline printed {\"result\": {\"slug\": \"chain-fixture\", \"seconds\": 11.0527, \"timeline\": [{\"seg\":0,\"kind\":\"opening\",\"start\":0.0,\"dur\":2.1271}, {\"seg\":1,\"kind\":\"ask\",\"start\":2.1271,\"dur\":2.6276}, {\"seg\":2,\"kind\":\"reply\",\"start\":4.7547,\"dur\":2.2105}, {\"seg\":3,\"kind\":\"reply\",\"start\":6.9653,\"dur\":1.6266}, {\"seg\":4,\"kind\":\"reply\",\"start\":8.5919,\"dur\":2.4608}], \"crossfades\": [0.04, 0.04]}} (each row also names its words). Then build printed a result with seconds 11.0527, seconds_made 11.13, holds [{seg 1, clip take-two, open_eyed true}], graphics 3, checks [{id first-check, passed true}] and cut <seen folder>/chain-fixture.mp4."
     }
   ]
 }

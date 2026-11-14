@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner.\" Turn a topic and a description of one learner (what they know, what they want, how long they will watch) into a finished explainer video: a lesson pitched at that learner, a spoken track, word-exact timing, one consistent animated character whose mouth follows the voice, one picture per spoken line, and a deterministic render.",
+  "drafted_from": "Read from tools/workflows/recipes/workflows.json (workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner, steps plan-the-lesson to tell); the hands_back follows the step's submit shape.",
+  "start_here": "Say to your AI: \"Run workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner for the topic how a sourdough starter works, for a learner who has baked yeast bread once and wants to keep a starter alive for a week, 90 seconds, stock voice.\"",
   "lists": [],
   "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
@@ -11,14 +10,15 @@
     "tool:tell-the-person"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner) and works through its steps in order: plan-the-lesson, write-the-lines, speak, time-the-words, make-the-character, draw-the-scenes, move-the-mouth, render, check-it, tell.",
-    "3. Read what each step hands back; the last step is tell."
+    "1. Say the run line in start_here with your own topic and a short description of the learner (level, goal, how long they will watch).",
+    "2. Read the lesson plan the plan-the-lesson step shows you and say go; nothing is spent on voice or pictures before that.",
+    "3. The AI writes the lines, speaks them, times the words, draws one character and one picture per line, moves the mouth and renders, all on your own computer.",
+    "4. Read the check-it result (word errors 0, length ok, no paid service) and the paths tool:tell-the-person gives for the finished video."
   ],
   "worked_examples": [
     {
-      "title": "Make a personalised explainer video on any topic for a learner from its first step",
-      "ask": "Run workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner.",
+      "title": "A 90-second sourdough lesson plan for a first-time baker",
+      "ask": "Make a 90-second explainer on how a sourdough starter works for someone who has baked yeast bread once.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -29,19 +29,23 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner",
-              "topic": "<topic: What the video teaches, in a few words>",
+              "topic": "how a sourdough starter works",
               "learner": {
-                "level": "<level: What the learner already knows about the topic, in their own terms>",
-                "goal": "<goal: What the learner wants to be able to do or understand afterwards>"
-              }
+                "level": "has baked yeast bread once",
+                "goal": "keep a starter alive for a week",
+                "watch_time": "90 seconds"
+              },
+              "length_seconds": 90,
+              "voice": "stock-voice",
+              "character_description": "a flat illustrated baker with a green apron and a flour smudge on the left cheek"
             }
           }
         }
       },
       "workflow": "workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner",
       "step": "plan-the-lesson",
-      "hands_back": "Step plan-the-lesson answers with hook, payoff, points, closer.",
-      "given": "The person gives: topic, level, goal (shown as <name> in the input)."
+      "given": "Read from the plan-the-lesson step text in tools/workflows/recipes/workflows.json: the input above (90 s at about 2.5 spoken words per second is about 225 words, so 4 points) and no source page named, so no number is stated.",
+      "hands_back": "{\"hook\": \"Your starter keeps dying?\", \"payoff\": \"In 90 seconds you will know what to feed it and when.\", \"points\": [{\"question\": \"What is a starter, if I know yeast?\", \"answer\": \"It is flour and water where wild yeast and friendly bacteria live together, instead of one packet of yeast.\", \"source\": \"\"}, {\"question\": \"Why does it need feeding?\", \"answer\": \"The yeast eats the flour; when the flour runs out it goes sour and weak, so you add fresh flour and water.\", \"source\": \"\"}, {\"question\": \"How do I know it is ready?\", \"answer\": \"It doubles in size and is full of bubbles a few hours after a feed.\", \"source\": \"\"}, {\"question\": \"What do I do for a week?\", \"answer\": \"Feed it once a day at the same time, and keep it in a warm spot.\", \"source\": \"\"}], \"closer\": \"Feed it daily and your starter stays alive.\"}"
     }
   ]
 }

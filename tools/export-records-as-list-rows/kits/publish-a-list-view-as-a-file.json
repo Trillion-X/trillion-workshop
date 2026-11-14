@@ -1,41 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:publish-a-list-view-as-a-file's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:publish-a-list-view-as-a-file with read, config, out.\" Put the rows one saved view of my list shows (a changelog, the articles I marked public) into a file my website renders when it is next deployed, without opening my account to the internet",
+  "drafted_from": "tool:publish-a-list-view-as-a-file row (tools/export-records-as-list-rows/tool-rows.json), do-work/publish_view_file.py, read-data/view_publish.py and test/test_view_publish.py; the answers are what the script printed on made-up bakery news rows",
+  "start_here": "Say to your AI: \"Publish what my news view shows into site/news.json so my website can render it, and tell me whether the file changed.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of its own: it takes one read of a saved view from a file and writes the rows into one file for a site.",
   "workflows": [],
   "tools": [
     "tool:publish-a-list-view-as-a-file",
     "tool:read-a-list-view"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:publish-a-list-view-as-a-file\", and give it read, config, out.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:publish-a-list-view-as-a-file and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Put the rows one saved view of my list shows (a changelog, the articles I marked public) into a file my website renders when it is next deployed, without opening my account to the internet"
+    "1. Read the saved view with tool:read-a-list-view into read.json, with a limit at least the number of rows the view shows, so the read holds the whole view.",
+    "2. Write pub-config.json with view set to the saved view's record id (add media only when its pictures must be copied into the site).",
+    "3. Say \"Publish my view as a file\"; your AI reads the row with tools:list and runs its command from the Workshop checkout with {read}, {config} and {out}.",
+    "4. Read rows of of, and written: true means the file changed, false means it already held these rows. Deploy the site yourself when you agree."
   ],
   "worked_examples": [
     {
-      "title": "Publish what a saved view of my list shows into a file my site shows (runs on your computer) on a sample input",
-      "ask": "Run tool:publish-a-list-view-as-a-file.",
+      "title": "Two of four news rows are published, then nothing changes",
+      "ask": "Publish what my news view shows into site/news.json.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:publish-a-list-view-as-a-file",
-            "input": {
-              "read": "<read: The file holding tool:read-a-list-view's answer for the view, put where {read} is in the command>",
-              "config": "<config: The config file (view, and media when the rows' pictures are carried into the site), put where {config} is in the command>",
-              "out": "<out: The file the site renders, put where {out} is in the command>"
-            }
+            "tool": "tool:publish-a-list-view-as-a-file"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Put the rows one saved view of my list shows (a changelog, the articles I marked public) into a file my website renders when it is next deployed, without opening my account to the internet",
-      "given": "The person gives: read, config, out (shown as <name> in the input)."
+      "given": "Read from a real run of do-work/publish_view_file.py (the same shape test/test_view_publish.py uses). The AI runs: python3 -I tools/export-records-as-list-rows/do-work/publish_view_file.py --read read.json --config pub-config.json --out site/news.json. read.json is a complete read of list news (of 4) holding row tarts (title Lemon tarts, stage Out, day 2026-03-09) and row rye (title Rye on Sundays, stage Out, day 2026-02-01); pub-config.json is {\"view\":\"list-view:news:shown\"}.",
+      "hands_back": "First run: {\"file\": \"site/news.json\", \"rows\": 2, \"of\": 4, \"blake3\": \"aac18c407c8082202035abbce62455c1c05419b94d624b20b31d7988db41492a\", \"media\": {\"copied\": 0, \"kept\": 0, \"not_public\": 0}, \"written\": true}. The same command again prints the same blake3 with \"written\": false and leaves the file untouched. site/news.json holds schema list-view-file/v1, source {view, list: news, blake3}, the four fields and the two rows in order."
     }
   ]
 }

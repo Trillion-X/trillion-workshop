@@ -1,22 +1,23 @@
 {
-  "draft": true,
-  "drafted_from": "tool:google-account-trash_mail_thread's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:google-account-trash_mail_thread with connection, thread_id.\" Move every message of one Gmail conversation to Trash, where it can still be restored.",
+  "drafted_from": "tool:google-account-trash_mail_thread's own row in tools/read-and-write-gmail/tool-rows.json (invoke method, url, body_template, input and output schema); Gmail response values worked out from that row for the synthetic input",
+  "start_here": "Say to your AI: \"Move conversation 18c1a2b3d4e5f601 to Trash. Use my Google account connection service_connection:google-account:sam-bakery.\" It runs tool:google-account-trash_mail_thread as that account and hands back the Gmail answer.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it calls Gmail for one Google account the connection names and answers what Gmail returns.",
   "workflows": [],
   "tools": [
-    "tool:google-account-trash_mail_thread"
+    "tool:google-account-trash_mail_thread",
+    "tool:google-account-restore_mail_thread"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:google-account-trash_mail_thread\", and give it connection, thread_id.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:google-account-trash_mail_thread and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields id."
+    "1. Connect a Google account in your Workshop connections and note its handle, like service_connection:google-account:sam-bakery.",
+    "2. Say to your AI: \"Move conversation 18c1a2b3d4e5f601 to Trash.\" and let it call run_resource_operation at @workshop-tools with method tools:run, tool tool:google-account-trash_mail_thread, and the input {\"connection\":{\"connection_id\":\"service_connection:google-account:sam-bakery\"},\"thread_id\":\"18c1a2b3d4e5f601\"}.",
+    "3. Read what comes back: the request goes as POST  the Gmail me-mailbox base (gmail.googleapis.com, v1)/threads/18c1a2b3d4e5f601/trash with no body.",
+    "4. Trash is reversible with tool:google-account-restore_mail_thread."
   ],
   "worked_examples": [
     {
-      "title": "Move email conversation to Trash on a sample input",
-      "ask": "Run tool:google-account-trash_mail_thread.",
+      "title": "Move a Gmail conversation to Trash on a sample input",
+      "ask": "Move conversation 18c1a2b3d4e5f601 to Trash.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,15 +28,15 @@
             "tool": "tool:google-account-trash_mail_thread",
             "input": {
               "connection": {
-                "connection_id": "<connection_id: The Google account to use: service_connection:google-account or service_connection:google-account:<account>, as the person's connections list it>"
+                "connection_id": "service_connection:google-account:sam-bakery"
               },
-              "thread_id": "<thread_id: string>"
+              "thread_id": "18c1a2b3d4e5f601"
             }
           }
         }
       },
-      "hands_back": "An answer with the fields id.",
-      "given": "The person gives: connection_id, thread_id (shown as <name> in the input)."
+      "given": "read from tools/read-and-write-gmail/tool-rows.json (its invoke url, method and body_template) and checked against tools/read-and-write-gmail/test/rows.test.mjs. A conversation of three messages, id 18c1a2b3d4e5f601. The call it makes: POST the Gmail me-mailbox base (gmail.googleapis.com, v1)/threads/18c1a2b3d4e5f601/trash with no body.",
+      "hands_back": "Gmail answers {\"id\":\"18c1a2b3d4e5f601\"}; all three messages now carry TRASH. restore_mail_thread brings them back."
     }
   ]
 }

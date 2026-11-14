@@ -1,39 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:regroup-a-plans-segments's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:regroup-a-plans-segments with input, step.\" Rearrange the pieces of my video plans into groups: a new line to open each group, then the recordings I pick for it in the order I pick, each with an on-screen label if I want one",
+  "drafted_from": "tools/assemble-a-plan-into-a-cut/tool-rows.json, do-work/plans.py, test/test_assemble.py",
+  "start_here": "Say to your AI: \"Show me the numbered segments of plan p1, then regroup it as one new lead line followed by segments 1 and 0.\" It runs outline, then regroup.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of yours: it reads and rewrites the plan files in the folder you name.",
   "workflows": [],
   "tools": [
     "tool:regroup-a-plans-segments"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:regroup-a-plans-segments\", and give it input, step.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:regroup-a-plans-segments and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Rearrange the pieces of my video plans into groups: a new line to open each group, then the recordings I pick for it in the order I pick, each with an on-screen label if I want one"
+    "1. Clone the Workshop checkout; only python3 is needed.",
+    "2. Say \"Outline plan p1\"; the AI runs python3 tools/assemble-a-plan-into-a-cut/do-work/assemble.py outline --request outline.json with plan_files naming your plan.",
+    "3. Write regroup.json: plans_folder and shapes {slug: {head, groups: [{lead, members, member_kind, labels}], tail}}; every segment with a recording must be used once.",
+    "4. Say \"Regroup it\"; the AI runs the regroup step and shows each group's recorded seconds. The plan file is rewritten."
   ],
   "worked_examples": [
     {
-      "title": "Regroup the segments of my plans (runs on your computer) on a sample input",
-      "ask": "Run tool:regroup-a-plans-segments.",
+      "title": "Outline a plan, then regroup it under a new lead",
+      "ask": "Show me the numbered segments of plan p1, then regroup it.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:regroup-a-plans-segments",
-            "input": {
-              "input": "<input: The request file: plans_folder, shapes {slug: {head, groups: [{lead, members, member_kind, labels}], tail}}, label_key, structure; or plan_files for the outline step>",
-              "step": "regroup"
-            }
+            "tool": "tool:regroup-a-plans-segments"
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Rearrange the pieces of my video plans into groups: a new line to open each group, then the recordings I pick for it in the order I pick, each with an on-screen label if I want one",
-      "given": "The person gives: input (shown as <name> in the input)."
+      "given": "From test_outline_numbers_the_segments and test_regroup_builds_lead_and_members_and_uses_every_clip_once in tools/assemble-a-plan-into-a-cut/test/test_assemble.py, run here: plan p1 (id X1, title Old Name) has reply a 0-2 s labelled old, reply b 1-4 s, and the note 'Then: Old Name'. Shape: groups [{lead: {kind ask, text 'A made-up lead?'}, members [1, 0], member_kind reply, labels {\"0\": \"new\"}}], tail [2]; structure 'made-up note'.",
+      "hands_back": "outline printed {\"result\": {\"plans\": [{\"slug\": \"p1\", \"id\": \"X1\", \"title\": \"Old Name\", \"recorded_seconds\": 5, \"segments\": [{i 0, kind reply, clip a, seconds 2}, {i 1, kind reply, clip b, seconds 3}, {i 2, kind note, seconds null}]}]}}. regroup printed {\"result\": {\"plans\": [{\"slug\": \"p1\", \"groups\": 1, \"group_seconds\": [5], \"segments\": 4}]}} and p1.json now holds ask, reply b, reply a (label new, its old label replaced), the note, with structure 'made-up note'. Leaving a clip out is refused: 'segments with a clip must be used exactly once'."
     }
   ]
 }

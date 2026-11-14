@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:hear-a-recording's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:hear-a-recording with file, model_path.\" Turn a recording in my files into its words with times, heard free on my own computer",
+  "drafted_from": "tools/audio-transcription/tool-rows.json, read-data/hear-here.mjs, test/hear-a-recording.test.mjs",
+  "start_here": "Say to your AI: \"Hear my recording /Recordings/sample-talk.wav on this computer with the whisper model I granted and give me its words with times.\" It runs tool:hear-a-recording and hands back the text and timed segments.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of its own: it reads one recording through the files door and answers the words it heard.",
   "workflows": [],
   "tools": [
     "tool:hear-a-recording"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:hear-a-recording\", and give it file, model_path.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:hear-a-recording and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields text, segments, language, heard_whole, produced_by."
+    "1. Install whisper-cli and ffmpeg on your computer and keep one ggml Whisper model file in the models folder you granted.",
+    "2. Say \"Hear my recording /Recordings/sample-talk.wav\", and give the model file as model_path.",
+    "3. The AI runs tool:hear-a-recording with {file, model_path}; the door reads the recording into the run folder, hears it there and removes the copy.",
+    "4. Read what comes back: text, segments (start, end, text), language, heard_whole and produced_by. Without file or model_path it refuses before reading anything."
   ],
   "worked_examples": [
     {
-      "title": "Hear a recording into timed words on my computer on a sample input",
-      "ask": "Run tool:hear-a-recording.",
+      "title": "A five-second sample talk is heard into two timed segments",
+      "ask": "Hear my recording /Recordings/sample-talk.wav and give me its words with times.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -34,7 +34,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields text, segments, language, heard_whole, produced_by."
+      "given": "From the sample-run in tools/audio-transcription/tool-rows.json (verify) and tools/audio-transcription/test/hear-a-recording.test.mjs: the file holds made-up sound bytes and the stand-in whisper-cli writes two segments (0 to 2500 ms and 2500 to 5000 ms). The answer was worked out from read-data/hear-here.mjs (hearARecording, hearFile), not run here.",
+      "hands_back": "{\"text\":\"Welcome to the sample meeting, said Ada Example. The next item is the garden budget.\",\"segments\":[{\"start\":0,\"end\":2.5,\"text\":\"Welcome to the sample meeting, said Ada Example.\"},{\"start\":2.5,\"end\":5,\"text\":\"The next item is the garden budget.\"}],\"language\":\"en\",\"produced_by\":\"whisper-cli on this computer\",\"heard_whole\":true}"
     }
   ]
 }

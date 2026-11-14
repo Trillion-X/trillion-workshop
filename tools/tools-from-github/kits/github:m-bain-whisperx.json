@@ -1,35 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:github:m-bain-whisperx's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:github:m-bain-whisperx with nothing more.\" Make captions or subtitles with word-level timings from a video or audio file, and tell speakers apart",
+  "drafted_from": "tool:github:m-bain-whisperx's row in tools/tools-from-github/tool-rows.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic names filled in. What it prints or writes is read from the tool's documented behavior; the folder test test/index-github-tools.test.mjs only checks the row, never runs whisperX.",
+  "start_here": "Say to your AI: \"Use whisperX on my computer to make captions or subtitles with word-level timings from a video or audio file: the file is talk.mp4.\" It reads the row, installs whisperX if it is missing, runs it on that one file and shows you what it made.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: whisperX is a program that runs on the person's own computer and works on the one file or address it is handed.",
   "workflows": [],
   "tools": [
     "tool:github:m-bain-whisperx"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:github:m-bain-whisperx\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:github:m-bain-whisperx and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Make captions or subtitles with word-level timings from a video or audio file, and tell speakers apart"
+    "1. Say to your AI: \"Use whisperX on talk.mp4\". It reads the row with run_resource_operation at @workshop-tools, method tools:list, input {tool: \"tool:github:m-bain-whisperx\"}.",
+    "2. It checks that python, ffmpeg are on your computer, and if whisperX is missing it runs the get_it steps: git clone https://github.com/m-bain/whisperX.git ; pip install whisperx.",
+    "3. It runs the row's command with your file in place of {input}: whisperx talk.mp4 --compute_type int8 --device cpu --highlight_words True",
+    "4. Read what it shows you and open the result. Trillion runs none of this; it all happens on your own computer."
   ],
   "worked_examples": [
     {
-      "title": "whisperX (open source, runs on your computer) on a sample input",
-      "ask": "Run tool:github:m-bain-whisperx.",
+      "title": "whisperX on a 2 minute talk by Sam, a baker, about her shop",
+      "ask": "Use whisperX on talk.mp4.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:github:m-bain-whisperx",
-            "input": {}
+            "tool": "tool:github:m-bain-whisperx"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Make captions or subtitles with word-level timings from a video or audio file, and tell speakers apart"
+      "given": "Read from tools/tools-from-github/tool-rows.json: tool:github:m-bain-whisperx runs on your computer, so after tools:list the AI runs, in the folder it got whisperX in, the command line: whisperx talk.mp4 --compute_type int8 --device cpu --highlight_words True  (synthetic input: a 2 minute talk by Sam, a baker, about her shop).",
+      "hands_back": "whisperx loads the model on the CPU in int8, aligns each word to its time and writes the captions beside where it ran: talk.srt, talk.vtt, talk.txt, talk.json and talk.tsv. In talk.srt the first caption reads \"1 / 00:00:00,000 --> 00:00:04,200 / Hi, I am Sam and I run a small bakery.\" with the word being spoken highlighted because of --highlight_words True."
     }
   ]
 }

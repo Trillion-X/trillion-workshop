@@ -1,36 +1,38 @@
 {
-  "draft": true,
-  "drafted_from": "tool:make-a-vector-set-from-picture-vectors-my-apps-kept's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:make-a-vector-set-from-picture-vectors-my-apps-kept with nothing more.\" Turn picture vectors my programs already kept (an asset index of CLIP matrices, a folder of timed frames, an app's results store) into sets I can search by what the pictures show",
+  "drafted_from": "tools/meaning-search/tool-rows.json (tool:make-a-vector-set-from-picture-vectors-my-apps-kept), do-work/make_vector_set_from_kept_vectors.py and test/kept_vectors_check.py (asset_index fixture); the answer was produced by running the script on that fixture",
+  "start_here": "Say to your AI: \"Turn the picture vectors my asset index already kept into sets I can search by what the pictures show, and put them in a new folder.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it only reads the stores of vectors you name on this computer and writes a folder of files for each.",
   "workflows": [],
   "tools": [
     "tool:make-a-vector-set-from-picture-vectors-my-apps-kept",
+    "tool:find-similar-to-a-vector",
+    "tool:find-closest-across-my-indexes",
     "tool:words-as-picture-vector"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:make-a-vector-set-from-picture-vectors-my-apps-kept\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:make-a-vector-set-from-picture-vectors-my-apps-kept and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Turn picture vectors my programs already kept (an asset index of CLIP matrices, a folder of timed frames, an app's results store) into sets I can search by what the pictures show"
+    "1. Find the stores your programs kept: an asset index folder (clip-video-embeddings.npy, clip-video-ids.json, clip-embeddings.npy, clip-ids.json, assets.jsonl), a folder with frames.npy and frames.jsonl, or an app's SQLite results store. They are only read.",
+    "2. The AI reads this tool's row with tools:list, then runs on your computer: python3 trillion-workshop/tools/meaning-search/do-work/make_vector_set_from_kept_vectors.py --asset-index <folder> --out <new folder>. Add --ssd-index, --expansion-results, --namespace or --kind video|image|all for other stores.",
+    "3. Read the last line: {\"result\": {\"sets\": {\"<set name>\": <item count>}}}, or {\"error\": ...} when no store was given. Each set is a folder under --out with items.jsonl, vectors.npy and vector-set.json.",
+    "4. Put each vector-set.json's vector_set, with the model that made the vectors (the same model tool:words-as-picture-vector uses for your words), into a semantic-index-descriptor record, then search with tool:find-similar-to-a-vector or across sets with tool:find-closest-across-my-indexes."
   ],
   "worked_examples": [
     {
-      "title": "Make a searchable set from picture vectors another program kept (runs on your computer) on a sample input",
-      "ask": "Run tool:make-a-vector-set-from-picture-vectors-my-apps-kept.",
+      "title": "An asset index with two videos and one image becomes two sets",
+      "ask": "Turn the picture vectors my asset index already kept into sets I can search by what the pictures show.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:make-a-vector-set-from-picture-vectors-my-apps-kept",
-            "input": {}
+            "tool": "tool:make-a-vector-set-from-picture-vectors-my-apps-kept"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Turn picture vectors my programs already kept (an asset index of CLIP matrices, a folder of timed frames, an app's results store) into sets I can search by what the pictures show"
+      "given": "From test/kept_vectors_check.py (its asset_index fixture) and do-work/make_vector_set_from_kept_vectors.py, run on this computer. The folder assets holds clip-video-embeddings.npy [[3,4],[0,2]], clip-video-ids.json [\"/made/up/one.mp4\",\"/made/up/two.mp4\"], clip-embeddings.npy [[1,0]], clip-ids.json [\"/made/up/still.jpg\"] and assets.jsonl naming /made/up/one.mp4 as \"Folder/One.mp4\". The command the AI runs after reading the row: python3 trillion-workshop/tools/meaning-search/do-work/make_vector_set_from_kept_vectors.py --asset-index assets --out sets",
+      "hands_back": "{\"result\": {\"sets\": {\"asset-index-video\": 2, \"asset-index-image\": 1}}} is the last line. sets/asset-index-video/items.jsonl holds {\"path\": \"/made/up/one.mp4\", \"kind\": \"video-frame\", \"t\": null, \"name\": \"Folder/One.mp4\"} and {\"path\": \"/made/up/two.mp4\", \"kind\": \"video-frame\", \"t\": null, \"name\": \"two.mp4\"}; its vectors.npy is float16 and normalised (the first row is [0.6, 0.8]); its vector-set.json has points_to {\"file\": \"path\", \"start\": \"t\", \"carry\": [\"kind\", \"name\"]} and \"items\": 2."
     }
   ]
 }

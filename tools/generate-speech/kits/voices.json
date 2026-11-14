@@ -1,0 +1,266 @@
+{
+  "drafted_from": "tools/generate-speech/tool-rows.json (tool:voices), read-data/speak.mjs and speak.json, test/speak.test.mjs",
+  "start_here": "Say to your AI: \"Show me my voices and make Trillion speak in the calm neutral voice.\" It runs tool:voices with {\"choose\":\"neutral\"}, marks that voice Chosen in your Voices list and tells you which voice now speaks.",
+  "lists": [
+    {
+      "list": "list:voices",
+      "label": "Voices",
+      "row_type": "record:voice",
+      "holds": "One voice the person can be spoken to in: a shared voice or one made from their own recording, and how fast it talks.",
+      "fields": [
+        {
+          "id": "label",
+          "kind": "text",
+          "label": "Voice",
+          "alike": [
+            "name",
+            "voice name"
+          ]
+        },
+        {
+          "id": "chosen",
+          "kind": "choice",
+          "label": "Chosen",
+          "alike": [
+            "default",
+            "selected"
+          ]
+        },
+        {
+          "id": "speed",
+          "kind": "number",
+          "label": "Speed",
+          "alike": [
+            "rate",
+            "pace"
+          ]
+        },
+        {
+          "id": "engine",
+          "kind": "text",
+          "label": "Made by",
+          "alike": [
+            "model",
+            "engine"
+          ]
+        },
+        {
+          "id": "speaker",
+          "kind": "text",
+          "label": "Speaker",
+          "alike": [
+            "speaker id"
+          ]
+        },
+        {
+          "id": "reference",
+          "kind": "text",
+          "label": "Recording it speaks from",
+          "alike": [
+            "sample",
+            "reference recording"
+          ]
+        },
+        {
+          "id": "reference_text",
+          "kind": "text",
+          "label": "Words in that recording",
+          "alike": [
+            "transcript"
+          ]
+        },
+        {
+          "id": "made_from",
+          "kind": "text",
+          "label": "Made from",
+          "alike": [
+            "source recording"
+          ]
+        },
+        {
+          "id": "made_at",
+          "kind": "date",
+          "label": "Made",
+          "alike": [
+            "created",
+            "date made"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "neutral",
+          "values": {
+            "label": "A calm neutral voice",
+            "chosen": "Chosen",
+            "speed": 1,
+            "engine": "kokoro",
+            "speaker": "af_heart"
+          }
+        },
+        {
+          "id": "own-example",
+          "values": {
+            "label": "Your own voice",
+            "speed": 0.9,
+            "engine": "qwen3-tts",
+            "reference": "/Voice/own-example.wav",
+            "reference_text": "Fresh bread at seven.",
+            "made_from": "/Voice/Me talking.wav",
+            "made_at": "2030-01-01"
+          }
+        }
+      ],
+      "alike": [
+        "the voices list in a text-to-speech app",
+        "a spreadsheet of voice names and speeds",
+        "a podcast tool's saved voices"
+      ]
+    },
+    {
+      "list": "list:where-trillion-speaks",
+      "label": "Where Trillion speaks",
+      "row_type": "record:speaking-place",
+      "holds": "One place Trillion talks to the person or for them, the voice it uses there and how fast.",
+      "fields": [
+        {
+          "id": "label",
+          "kind": "text",
+          "label": "Place",
+          "alike": [
+            "where",
+            "name"
+          ]
+        },
+        {
+          "id": "voice",
+          "kind": "link",
+          "label": "Voice",
+          "alike": [
+            "voice name",
+            "speaker"
+          ]
+        },
+        {
+          "id": "speed",
+          "kind": "number",
+          "label": "Speed",
+          "alike": [
+            "rate",
+            "pace"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "car",
+          "values": {
+            "label": "In the car",
+            "speed": 3,
+            "voice": [
+              "neutral"
+            ]
+          }
+        },
+        {
+          "id": "calls",
+          "values": {
+            "label": "Calls",
+            "speed": 1,
+            "voice": [
+              "neutral"
+            ]
+          }
+        }
+      ],
+      "alike": [
+        "a table of where each voice is used",
+        "a playback-speed setting per app"
+      ]
+    }
+  ],
+  "workflows": [],
+  "tools": [
+    "tool:voices",
+    "tool:say-with-a-voice-model"
+  ],
+  "instructions": [
+    "1. Run tool:voices with an empty input: it makes list:voices and list:where-trillion-speaks the first time, keeps the shared voice as a row and answers {chosen, voices}.",
+    "2. To add your own voice, put a recording of you speaking in your files and say \"Make my voice from /Voice/Me talking.wav\": the AI runs tool:voices with {\"make\":{\"recording\":\"/Voice/Me talking.wav\",\"label\":\"Your own voice\"}}. It picks 5 to 12 seconds that start after a pause and end on a sentence, and the new voice becomes the chosen one unless choose is false.",
+    "3. To switch voice say \"Speak in <voice id>\" (input {\"choose\":\"<id>\"}); to drop one of your own voices say \"Remove <id>\" (input {\"remove\":\"<id>\"}); a shared voice cannot be removed.",
+    "4. Read the answer: chosen (the voice id that speaks), voices (id, label, engine, speed, made_from, made_at, own) and said (one plain sentence about what changed). Then run tool:say-with-a-voice-model to hear it."
+  ],
+  "worked_examples": [
+    {
+      "title": "Choose the shared neutral voice",
+      "ask": "Speak in the calm neutral voice.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:voices",
+            "input": {
+              "choose": "neutral"
+            }
+          }
+        }
+      },
+      "given": "From tools/generate-speech/test/speak.test.mjs (the tool:voices test, voices({ choose: 'neutral' }) on an account that has also made one voice of its own): the shared voice neutral is a row of list:voices, read from read-data/speak.json (label A calm neutral voice, engine kokoro).",
+      "hands_back": "{\"chosen\":\"neutral\",\"voices\":[{\"id\":\"neutral\",\"label\":\"A calm neutral voice\",\"engine\":\"kokoro\",\"speed\":null,\"made_from\":null,\"made_at\":null,\"own\":false}],\"said\":\"Trillion now speaks in A calm neutral voice.\"} (with an own voice kept, its row follows neutral and has own true). With {\"choose\":\"robot\"} it answers the error \"There is no voice robot. The voices are ...\"."
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for the same job and its fields. The tool matches each kit field to one of yours (by the map you give, the same id, the same label, or a name in alike), refuses when fewer than least_coverage of the kit's fields match, and otherwise answers the records:write that adds the example rows to your list, leaving your own rows untouched.",
+    "example": {
+      "kit_list": "list:voices",
+      "into": {
+        "list": "list:my-saved-voices",
+        "row_type": "record:saved-voice",
+        "fields": [
+          {
+            "id": "label",
+            "label": "Voice"
+          },
+          {
+            "id": "chosen",
+            "label": "Chosen"
+          },
+          {
+            "id": "speed",
+            "label": "Speed"
+          },
+          {
+            "id": "engine",
+            "label": "Made by"
+          },
+          {
+            "id": "speaker",
+            "label": "Speaker"
+          },
+          {
+            "id": "reference",
+            "label": "Recording it speaks from"
+          },
+          {
+            "id": "reference_text",
+            "label": "Words in that recording"
+          },
+          {
+            "id": "made_from",
+            "label": "Made from"
+          },
+          {
+            "id": "made_at",
+            "label": "Made"
+          }
+        ]
+      },
+      "field_map": {}
+    }
+  }
+}

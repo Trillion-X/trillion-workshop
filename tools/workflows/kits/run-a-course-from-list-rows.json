@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:run-a-course-from-list-rows's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:run-a-course-from-list-rows.\" Write five lessons as rows, check them, test one sign-up with the owner's own consent, send lessons on their days, read where a learner stands, and stop a learner who asks.",
+  "drafted_from": "tools/workflows/recipes/workflows.json (the workflow:run-a-course-from-list-rows row: steps write-the-lessons, check-the-lessons, record-the-stage); no test names it",
+  "start_here": "Say to your AI: \"Run workflow:run-a-course-from-list-rows for my bakery: write the five-day-start lessons, check them against my word rules and test one sign-up with my own email.\"",
   "lists": [
     {
       "list": "list:business-setup-checklist",
@@ -59,25 +58,25 @@
       ],
       "example_rows": [
         {
-          "id": "replies",
+          "id": "course",
           "values": {
-            "stage": "replies",
-            "label": "Comments and messages",
-            "status": "Gap",
-            "steps_status": "{\"read-facts\":\"Done\",\"pull-messages\":\"Done\",\"read-reply-templates\":\"Done\",\"pick-a-template\":\"Done\",\"fill-the-replies\":\"Done\",\"check-the-replies\":\"Done\",\"hand-the-replies-to-the-person\":\"Gap\"}",
+            "stage": "course",
+            "label": "Course from list rows",
+            "status": "Blocked",
+            "steps_status": "{\"read-facts\":\"Done\",\"write-the-lessons\":\"Done\",\"check-the-lessons\":\"Done\",\"test-sign-up\":\"Blocked\",\"send-due-lessons\":\"Not done\",\"track-where-a-learner-stands\":\"Not done\",\"stop-when-asked\":\"Not done\"}",
             "gaps": [
-              "record:setup-gap:hand-the-replies-to-the-person-1"
+              "record:setup-gap:test-sign-up-1"
             ],
             "updated_at": "2026-11-13"
           }
         },
         {
-          "id": "social-posting",
+          "id": "community",
           "values": {
-            "stage": "social-posting",
-            "label": "Posting on social channels",
+            "stage": "community",
+            "label": "Community",
             "status": "Not done",
-            "steps_status": "",
+            "steps_status": "{}",
             "gaps": [],
             "updated_at": "2026-11-13"
           }
@@ -143,25 +142,25 @@
       ],
       "example_rows": [
         {
-          "id": "hand-the-replies-to-the-person-1",
+          "id": "test-sign-up-1",
           "values": {
-            "stage": "replies",
-            "step": "hand-the-replies-to-the-person",
-            "undecided": "No live tool sends an Instagram direct-message reply.",
-            "chosen": "Handed 3 checked replies to the person to send by hand.",
-            "evidence": "The live catalog has no send tool for Instagram direct messages.",
+            "stage": "course",
+            "step": "test-sign-up",
+            "undecided": "The mailing address for the course emails was not given.",
+            "chosen": "Stopped at test-sign-up and asked the owner for the mailing address.",
+            "evidence": "The step says course.mailing_address is the address the person gives, and the lessons must end with {{mailingAddress}}.",
             "status": "open"
           }
         },
         {
-          "id": "pull-messages-1",
+          "id": "check-the-lessons-1",
           "values": {
-            "stage": "replies",
-            "step": "pull-messages",
-            "undecided": "Instagram sign-in expired.",
-            "chosen": "Submitted status needs_login and pulled nothing.",
-            "evidence": "tool:pull-my-instagram-messages answered needs_login.",
-            "status": "open"
+            "stage": "course",
+            "step": "check-the-lessons",
+            "undecided": "Lesson 3 broke a rule in list:word-checks and was rewritten.",
+            "chosen": "Rewrote the lesson in its row and checked it again.",
+            "evidence": "tool:check-copy named lesson 3 in failing.",
+            "status": "closed"
           }
         }
       ],
@@ -274,7 +273,6 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
     "workflow:run-a-course-from-list-rows",
     "workflow:set-up-a-business-on-trillion"
@@ -287,14 +285,15 @@
     "tool:work-out-where-a-learner-stands"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:run-a-course-from-list-rows\".",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:run-a-course-from-list-rows) and works through its steps in order: read-facts, write-the-lessons, check-the-lessons, test-sign-up, send-due-lessons, track-where-a-learner-stands, stop-when-asked, record-the-stage.",
-    "3. Read what each step hands back; the last step is record-the-stage."
+    "1. Pour the example word-check rows into your own rules list (see pour) or make list:word-checks; tool:check-copy reads the rows that are On.",
+    "2. Write the facts row with workflow:set-up-a-business-on-trillion (it holds owner_email, used for the one test sign-up).",
+    "3. Say \"Run workflow:run-a-course-from-list-rows\". It writes lessons record:lesson:five-day-start-1 to -5, checks the words, signs the owner up once with the owner's own consent, sends the lessons that are due once a day, reads where a learner stands, and stops a learner who sends the stop token.",
+    "4. Read record:setup-stage:course on the checklist: Done only when every step is Done or Not applicable and no gap is open."
   ],
   "worked_examples": [
     {
-      "title": "Run a course from list rows from its first step",
-      "ask": "Run workflow:run-a-course-from-list-rows.",
+      "title": "Five lessons written as rows",
+      "ask": "Write the five lessons of my five-day-start course.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -310,8 +309,9 @@
         }
       },
       "workflow": "workflow:run-a-course-from-list-rows",
-      "step": "read-facts",
-      "hands_back": "Step read-facts answers with facts."
+      "step": "write-the-lessons",
+      "given": "Read from the step in tools/workflows/recipes/workflows.json: it writes one record:lesson row per day with records:write at @own-records ({\"day\":n,\"subject\":...,\"text\":...,\"article_url\":...}), each text ending with {{unsubscribeUrl}} and {{mailingAddress}}. Synthetic subjects: \"Day 1: Flour, water, salt\", through \"Day 5: Your first sell-out Saturday\".",
+      "hands_back": "{\"lessons\":[{\"id\":\"record:lesson:five-day-start-1\",\"day\":1},{\"id\":\"record:lesson:five-day-start-2\",\"day\":2},{\"id\":\"record:lesson:five-day-start-3\",\"day\":3},{\"id\":\"record:lesson:five-day-start-4\",\"day\":4},{\"id\":\"record:lesson:five-day-start-5\",\"day\":5}]}"
     }
   ],
   "pour": {

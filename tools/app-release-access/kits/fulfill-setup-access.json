@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:fulfill-setup-access's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:fulfill-setup-access with account_id, source_id, request_id, bundle_identifier, testflight_groups.\" Arrange the TestFlight access a person's setup requires, through the release owner's Apple account, without sending a second invitation",
+  "drafted_from": "tool:fulfill-setup-access's row in tools/app-release-access/tool-rows.json (verify: needs-a-machine), read-data/setup-access.mjs and test/setup-access.test.mjs",
+  "start_here": "Say to your AI: \"Arrange TestFlight beta access for setup request request-one of account account-one on release source native-ios, app ai.fixture.ios, group Founding members.\" It runs tool:fulfill-setup-access, which never takes an email address; today it refuses before any Apple call until the engine serves the release owner's claim, checkpoint and finish operations.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps and reads no list of yours: the person's request, consent and verified email live in the release owner's server-side claim, not in a list the tool is given.",
   "workflows": [],
   "tools": [
     "tool:fulfill-setup-access"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:fulfill-setup-access\", and give it account_id, source_id, request_id, bundle_identifier, testflight_groups.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:fulfill-setup-access and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields state, reason, request_id."
+    "1. Get the setup-access request id from the person's setup (request_id), their account_id and the release source (native-ios), plus the app's bundle_identifier and the TestFlight group names the release owner keeps. Give no email: an input that names any other field is refused.",
+    "2. Say to your AI: \"Arrange beta access for request request-one.\" The AI calls tools:run at @workshop-tools with tool tool:fulfill-setup-access and those five inputs.",
+    "3. Read the answer: state is one of available, invited, accepted, installed, awaiting-invitation, blocked, indeterminate or revoked, with a reason in plain words and the request_id; it never holds the email. On indeterminate, run it again: it reads the tester's state back and never sends a second invitation.",
+    "4. Until the engine's records door serves the setup-access operations, every run stops with the error \"not operations a tool run can reach at the records door yet. No provider action was taken.\"; take no step by hand at Apple."
   ],
   "worked_examples": [
     {
-      "title": "Arrange a person's beta app access on a sample input",
-      "ask": "Run tool:fulfill-setup-access.",
+      "title": "A run today is refused before any Apple call",
+      "ask": "Arrange beta access for request request-one.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,17 +26,17 @@
           "input": {
             "tool": "tool:fulfill-setup-access",
             "input": {
-              "account_id": "<account_id: string>",
-              "source_id": "<source_id: string>",
-              "request_id": "<request_id: string>",
-              "bundle_identifier": "<bundle_identifier: The app's bundle identifier in App Store Connect, such as com.example.sample>",
-              "testflight_groups": []
+              "account_id": "account-one",
+              "source_id": "native-ios",
+              "request_id": "request-one",
+              "bundle_identifier": "ai.fixture.ios",
+              "testflight_groups": ["Founding members"]
             }
           }
         }
       },
-      "hands_back": "An answer with the fields state, reason, request_id.",
-      "given": "The person gives: account_id, source_id, request_id, bundle_identifier (shown as <name> in the input)."
+      "given": "From tools/app-release-access/test/setup-access.test.mjs (with no setup-access operation at the records door, the tool refuses before any provider call): the tool's default operator is used, so the claim step throws. The same file's native host test shows the path once the operator exists: claim, checkpoint (enroll), finish, ending in state invited.",
+      "hands_back": "An error, no state: \"The release owner's setup-access claim, checkpoint and finish are not operations a tool run can reach at the records door yet. No provider action was taken.\""
     }
   ]
 }

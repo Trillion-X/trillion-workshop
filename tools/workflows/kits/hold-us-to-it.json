@@ -1,41 +1,45 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:hold-us-to-it's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:hold-us-to-it.\" Find every agreement people made in transcripts, messages and meetings (who agreed to what, and how often), put it on everyone's calendar for real, check afterwards who showed up, keep each person's merit scorecard, and say plainly in the shared pursuit who did not keep it, so agreeing to something and then not doing it stops",
-  "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
-  "workflows": [
-    "workflow:hold-us-to-it"
-  ],
-  "tools": [
-    "tool:hold-to-it"
-  ],
-  "instructions": [
-    "1. Say to your AI: \"Run workflow:hold-us-to-it\".",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:hold-us-to-it) and works through its steps in order: find, keep, hold-them.",
-    "3. Read what each step hands back; the last step is hold-them."
-  ],
-  "worked_examples": [
-    {
-      "title": "Hold us to it from its first step",
-      "ask": "Run workflow:hold-us-to-it.",
-      "mcp": {
-        "server": "trillion",
-        "tool": "run_resource_operation",
-        "input": {
-          "address": "@workshop-tools",
-          "method": "tools:run",
-          "input": {
-            "tool": "tool:start-a-recipe-run",
-            "input": {
-              "row": "workflow:hold-us-to-it"
-            }
-          }
-        }
-      },
-      "workflow": "workflow:hold-us-to-it",
-      "step": "find",
-      "hands_back": "Step find answers with space_id, agreements."
+ "start_here": "Say to your AI: \"Run workflow:hold-us-to-it for our shared pursuit pursuit:example-bakery-team since yesterday: find what Sam and Alex agreed to, put it on the calendar and tell the group who kept it.\"",
+ "lists": [],
+ "no_lists_because": "It keeps no list of its own: the agreements are kept, calendared and scored by tool:hold-to-it in the shared pursuit.",
+ "workflows": [
+  "workflow:hold-us-to-it"
+ ],
+ "tools": [
+  "tool:start-a-recipe-run",
+  "tool:hold-to-it"
+ ],
+ "instructions": [
+  "1. Name the shared pursuit (space_id) and, if you like, since (the default is the last day) and about (one thing someone said); none are required.",
+  "2. Say \"Run workflow:hold-us-to-it\". The AI reads the meetings, messages, voice memos and transcripts since then and lists every agreement with who agreed, how often and a quote.",
+  "3. It keeps each one with tool:hold-to-it (operation keep): posted in the space, the next meeting booked, a reminder before and a check after.",
+  "4. After a meeting has happened it runs operation check, marks each person came, missed or not arranged, says it in the pursuit, and gives the scorecard."
+ ],
+ "worked_examples": [
+  {
+   "title": "A weekly meeting is found in the words",
+   "ask": "Hold us to what we agreed yesterday.",
+   "mcp": {
+    "server": "trillion",
+    "tool": "run_resource_operation",
+    "input": {
+     "address": "@workshop-tools",
+     "method": "tools:run",
+     "input": {
+      "tool": "tool:start-a-recipe-run",
+      "input": {
+       "row": "workflow:hold-us-to-it",
+       "space_id": "pursuit:example-bakery-team",
+       "since": "2026-11-12T00:00:00"
+      }
+     }
     }
-  ]
+   },
+   "workflow": "workflow:hold-us-to-it",
+   "step": "find",
+   "given": "Read from the find step in tools/workflows/recipes/workflows.json: in yesterday's call Sam said \"let us meet every Monday at 9:00 about the order sheet\" and Alex said \"yes\".",
+   "hands_back": "{\"space_id\": \"pursuit:example-bakery-team\", \"agreements\": [{\"what\": \"Weekly meeting about the order sheet\", \"agreed_by\": [\"Sam\", \"Alex\"], \"cadence\": {\"every\": \"week\", \"day\": \"Monday\", \"time\": \"09:00\"}, \"quote\": \"let us meet every Monday at 9:00 about the order sheet\", \"heard_in\": \"Thursday call\"}]}"
+  }
+ ],
+ "drafted_from": "tools/workflows/recipes/workflows.json row of workflow:hold-us-to-it (input schema, steps and submit shapes)"
 }

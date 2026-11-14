@@ -1,13 +1,12 @@
 {
-  "draft": true,
-  "drafted_from": "tool:check-a-rendered-video's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-a-rendered-video with input, limits.\" Check my finished video for mistakes a viewer would notice: a stray frame at a cut, a cut inside a word, graphics off the frame or over a face, text too small, sound effects too quiet or harsh",
+  "drafted_from": "tool row in tools/check-a-rendered-video/tool-rows.json, do-work/check_a_rendered_video.py and test/test_settings_row.py; the run was made on an ffmpeg test video with the test fixture limits; list:settings fields read from the account's list definition",
+  "start_here": "Say to your AI: \"Check my finished video /work/film.mp4 against my limits for the film sample-film and tell me every FAIL and WARN with the seconds it happens at.\" It reads your limits row from list:settings, writes it to a file and runs check_a_rendered_video.py check on your computer.",
   "lists": [
     {
       "list": "list:settings",
       "label": "Settings",
       "row_type": "record:setting",
-      "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON.",
+      "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON. For tool:check-a-rendered-video the settings hold limits, the numbers and word lists each check uses, and the row id is record:setting:check-a-rendered-video~<scope_kind>~<scope_id>.",
       "fields": [
         {
           "id": "name",
@@ -77,27 +76,27 @@
       ],
       "example_rows": [
         {
-          "id": "caption-style",
+          "id": "film-sample-film",
           "values": {
-            "name": "Caption style",
-            "tool": "tool:example-captioner",
-            "scope_kind": "person",
-            "scope_id": "example-person",
-            "settings": "{\"style\":\"plain\",\"size\":\"large\"}",
+            "name": "Limits of the sample film",
+            "tool": "tool:check-a-rendered-video",
+            "scope_kind": "film",
+            "scope_id": "sample-film",
+            "settings": "{\"limits\":{\"frame\":{\"width\":1920,\"height\":1080},\"in_frame\":{\"safe_margin_pct\":{\"x\":4,\"y\":4},\"alpha_threshold\":230,\"min_run_s\":0.6}}}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         },
         {
-          "id": "quiet-hours",
+          "id": "person-sample-person",
           "values": {
-            "name": "Quiet hours",
-            "tool": "tool:example-notifier",
-            "scope_kind": "account",
-            "scope_id": "whole-account",
-            "settings": "{\"from\":\"22:00\",\"to\":\"07:00\"}",
+            "name": "Limits for all of Sam's videos",
+            "tool": "tool:check-a-rendered-video",
+            "scope_kind": "person",
+            "scope_id": "sample-person",
+            "settings": "{\"limits\":{\"frame\":{\"width\":1080,\"height\":1920},\"in_frame\":{\"safe_margin_pct\":{\"x\":6,\"y\":10},\"alpha_threshold\":230,\"min_run_s\":0.5}}}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         }
       ],
@@ -108,37 +107,34 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
-    "tool:check-a-rendered-video"
+    "tool:check-a-rendered-video",
+    "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-a-rendered-video\", and give it input, limits.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-rendered-video and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Check my finished video for mistakes a viewer would notice: a stray frame at a cut, a cut inside a word, graphics off the frame or over a face, text too small, sound effects too quiet or harsh"
+    "1. Pour the two example rows into your own settings list (see pour), or make list:settings from them, then fill in your own limits: the numbers and word lists each check uses. The tool has no defaults: a check with no limits says so instead of passing.",
+    "2. Say which video to check and which film or person the limits are for. The AI reads the row record:setting:check-a-rendered-video~film~<slug> from your records, writes it to a file, and reads the tool's row with tools:list {tool: tool:check-a-rendered-video}.",
+    "3. The AI runs `run` from the Workshop checkout: python3 tools/check-a-rendered-video/do-work/check_a_rendered_video.py check <video> --limits <file> --json <output>, adding --spec <file> when it has the JSON spec of the cuts and graphics.",
+    "4. Read the last line {\"result\": {verdict, videos: [{video, verdict, failed, warned, not_measured}]}} and the lines above it; for each FAIL and WARN say the check, the seconds it happens at and what it found, then which checks could not run (not_measured). Do not edit the video: say what to change."
   ],
   "worked_examples": [
     {
-      "title": "Check a rendered video's frames, joins and audio (runs on your computer) on a sample input",
-      "ask": "Run tool:check-a-rendered-video.",
+      "title": "Check a plain 3 second video against generated-video limits",
+      "ask": "Check my finished video /work/film.mp4 against my limits and tell me every FAIL and WARN.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:check-a-rendered-video",
-            "input": {
-              "input": "<input: The rendered video file on the person's computer (.mp4), put where {input} is in the command>",
-              "limits": "<limits: The person's limits (JSON) on their computer: which checks run and the numbers and word lists they use, put where {limits} is in the command>"
-            }
+            "tool": "tool:check-a-rendered-video"
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Check my finished video for mistakes a viewer would notice: a stray frame at a cut, a cut inside a word, graphics off the frame or over a face, text too small, sound effects too quiet or harsh",
-      "given": "The person gives: input, limits (shown as <name> in the input)."
+      "given": "I ran the command on an ffmpeg test video (testsrc2, 320x180, 24 frames a second, 3 seconds, a 440 Hz tone) with the limits file the Workshop keeps for its generated-video tests, tools/check-a-rendered-video/test/fixtures/limits-for-generated-videos.json (see test/check-a-rendered-video.test.mjs). Command: python3 tools/check-a-rendered-video/do-work/check_a_rendered_video.py check /work/film.mp4 --limits /work/limits.json --json /work/findings.json. No spec was given, so checks that need cuts, graphics or an overlay report that they had nothing to look at.",
+      "hands_back": "{\"result\": {\"verdict\": \"PASS\", \"videos\": [{\"video\": \"/work/film.mp4\", \"verdict\": \"PASS\", \"failed\": [], \"warned\": [], \"not_measured\": {}}]}} Above that line every check prints PASS with INFO lines such as \"no overlay (a plain video, nothing laid over it): no overlay.mov\" (settle, text-size, placement), \"no added sound\" (sound-sync, sound-loops) and \"no hold, freeze or still of the person\" (held-face); /work/findings.json holds every finding with its time."
     }
   ],
   "pour": {
@@ -180,7 +176,8 @@
             "label": "Status"
           }
         ]
-      }
+      },
+      "field_map": {}
     }
   }
 }

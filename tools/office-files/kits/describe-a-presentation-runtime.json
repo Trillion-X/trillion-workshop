@@ -1,39 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:describe-a-presentation-runtime's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:describe-a-presentation-runtime with runtime_module, deck.\" Print the property names a presentation runtime exposes on one slide, one shape's text and the speaker notes, so an edit request is written against the real names",
+  "drafted_from": "tool row in tools/office-files/tool-rows.json, do-work/describe-presentation-runtime-surface.mjs and test/apply-presentation-edits.test.mjs (run on its stand-in runtime)",
+  "start_here": "Say to your AI: \"Show me the property names my presentation runtime /work/runtime.mjs exposes for a slide, a shape's text and speaker notes, using /work/in.pptx.\" It reads the tool's row and runs describe-presentation-runtime-surface.mjs on your computer.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads or rewrites one file on the person's own computer and prints what it found or changed.",
   "workflows": [],
   "tools": [
-    "tool:describe-a-presentation-runtime"
+    "tool:describe-a-presentation-runtime",
+    "tool:edit-a-presentations-text"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:describe-a-presentation-runtime\", and give it runtime_module, deck.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:describe-a-presentation-runtime and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields slide, shape, shapeText, speakerNotes."
+    "1. Have a presentation runtime module (any module that exports FileBlob and PresentationFile with importPptx and exportPptx) and a small deck.",
+    "2. The AI reads the row with tools:list {tool: tool:describe-a-presentation-runtime} and runs its `run` command with the module path and the deck path.",
+    "3. Read the JSON it prints: the property names on the first slide, its first text shape, that shape's text object, the speaker notes and the notes text frame, plus the first shape's text and the notes text. Nothing is changed.",
+    "4. Use those real names when you write an edit request for tool:edit-a-presentations-text."
   ],
   "worked_examples": [
     {
-      "title": "List what a presentation runtime exposes on a slide, a shape and the notes (runs on your computer) on a sample input",
-      "ask": "Run tool:describe-a-presentation-runtime.",
+      "title": "List the names a stand-in runtime exposes",
+      "ask": "Show me the property names my presentation runtime exposes for a slide, a shape's text and speaker notes.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:describe-a-presentation-runtime",
-            "input": {
-              "runtime_module": "<runtime_module: Path of the presentation runtime module>",
-              "deck": "<deck: Path of a presentation file>"
-            }
+            "tool": "tool:describe-a-presentation-runtime"
           }
         }
       },
-      "hands_back": "An answer with the fields slide, shape, shapeText, speakerNotes.",
-      "given": "The person gives: runtime_module, deck (shown as <name> in the input)."
+      "given": "From tools/office-files/test/apply-presentation-edits.test.mjs, whose stand-in runtime keeps a deck as a JSON file; I ran the probe on that runtime with a three-slide deck whose first slide has the texts \"Welcome to the harbour tour\" and \"Doors open at nine\" and the notes \"Greet the group\". Command: node tools/office-files/do-work/describe-presentation-runtime-surface.mjs /work/runtime.mjs /work/in.pptx.",
+      "hands_back": "{\"slide\":[\"background\",\"data\",\"deck\",\"delete\",\"moveTo\",\"shapes\",\"speakerNotes\"],\"shape\":[\"data\",\"delete\",\"slide\",\"text\"],\"shapeText\":[\"alignment\",\"autoFit\",\"bold\",\"color\",\"fontSize\",\"set\",\"toString\",\"typeface\",\"verticalAlignment\"],\"shapeTextString\":\"Welcome to the harbour tour\",\"speakerNotes\":[\"setText\",\"text\"],\"speakerNotesText\":\"Greet the group\",\"notesTextFrame\":[]} A real presentation runtime prints its own names; they can differ from its documentation."
     }
   ]
 }

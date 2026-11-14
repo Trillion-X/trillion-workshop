@@ -1,36 +1,37 @@
 {
-  "draft": true,
-  "drafted_from": "tool:grade-and-repair-speech-audio's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:grade-and-repair-speech-audio with nothing more.\" Check whether the speech in each part of my recordings sounds good, keep the good ones as they are and clean up noise, hum, wind, room echo and clipping in the rest",
+  "drafted_from": "tools/grade-and-repair-speech-audio/tool-rows.json (tool:grade-and-repair-speech-audio), do-work/grade_and_repair_speech.py, read-data/grade_rules.py and spans.py, test/grade-and-repair-speech-audio.test.mjs and its fixture (build_fixture.py, settings-for-synthetic-speech.json)",
+  "start_here": "Say to your AI: \"Grade the speech in the three spans of /Work/demo/spans.json against my settings in /Work/settings.json and clean up the ones that sound poor, writing to /Work/demo/out.\" It runs tool:grade-and-repair-speech-audio on your computer and tells you how many spans were good, remastered or need a clone.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of yours: it reads a spans file and settings file on your computer and writes grades.json and audio files into a folder you name.",
   "workflows": [],
   "tools": [
     "tool:grade-and-repair-speech-audio",
-    "tool:clone-speech-that-repair-could-not-fix"
+    "tool:clone-speech-that-repair-could-not-fix",
+    "tool:measure-speech-in-my-recordings"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:grade-and-repair-speech-audio\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:grade-and-repair-speech-audio and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Check whether the speech in each part of my recordings sounds good, keep the good ones as they are and clean up noise, hum, wind, room echo and clipping in the rest"
+    "1. Install it as the row says (ffmpeg, numpy, scipy, soundfile, mlx-whisper; DeepFilterNet in its own venv is optional) and write your settings file with every key in read-data/settings-keys.json; take the values from your own records, never from the tool.",
+    "2. Write a spans file: {\"spans\":[{\"clip\",\"source\",\"from\",\"to\",\"text\",\"words\":[{\"text\",\"start\",\"end\"}]}]}. Words with times give a better noise reading and are needed to clone later.",
+    "3. Say \"Grade the speech in my spans file\". Your AI reads the row with tools:list {tool:\"tool:grade-and-repair-speech-audio\"} and runs its run command with your spans file, a new output folder and your settings (use `grade` instead of `all` to measure and grade without remastering).",
+    "4. Read the last JSON line ({result:{grades,counts:{good,remaster,clone}}}) and grades.json: for each span that was not good, the reasons. Spans marked clone go to tool:clone-speech-that-repair-could-not-fix."
   ],
   "worked_examples": [
     {
-      "title": "Grade the speech in my recordings and clean up what sounds poor (runs on your computer) on a sample input",
-      "ask": "Run tool:grade-and-repair-speech-audio.",
+      "title": "Three synthetic recordings graded: one kept as it is, two sent to remaster",
+      "ask": "Grade the speech in my three spans against my settings and tell me which sound poor.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:grade-and-repair-speech-audio",
-            "input": {}
+            "tool": "tool:grade-and-repair-speech-audio"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Check whether the speech in each part of my recordings sounds good, keep the good ones as they are and clean up noise, hum, wind, room echo and clipping in the rest"
+      "given": "From tools/grade-and-repair-speech-audio/test/grade-and-repair-speech-audio.test.mjs, run here for real with its `grade` stage (the stage `all` adds the remaster and needs whisper and DeepFilterNet weights): a spans file /Work/demo/spans.json with three spans of three synthetic recordings (clean.wav, noisy.wav with a 60 Hz hum and loud floor, clipped.wav driven into clipping), each from 0.4 to 5.0 s with its five word times, and one repeat of the first and test/settings-for-synthetic-speech.json. The AI first reads the row with this tools:list call, then runs: python3 trillion-workshop/tools/grade-and-repair-speech-audio/do-work/grade_and_repair_speech.py grade --spans /Work/demo/spans.json --settings /Work/settings.json --out /Work/demo/out. The answer's paths are shown for the output folder /Work/demo/out (the run was made in a temporary folder; the counts are as printed).",
+      "hands_back": "It prints clean_0.40_5.00 good, noisy_0.40_5.00 remaster, clipped_0.40_5.00 remaster (the repeated cut is graded once), then {\"result\": {\"grades\": \"/Work/demo/out/grades.json\", \"counts\": {\"good\": 1, \"remaster\": 2, \"clone\": 0}}}. grades.json gives clean treatment as-is with audio audio/clean_0.40_5.00.wav (0.2 s handle either side, snr 66.6 dB); noisy reasons: \"noise: snr 18.6 dB < 30 (floor -32.3 dBFS)\", \"hum: 150 Hz stands 23.3 dB above its neighbours\", \"wind/rumble: 69% of the noise below 120 Hz\"; clipped reasons: \"clipping: 0.2024 of samples at full scale, true peak 0.21 dB\" and \"loudness: -5.32 LUFS outside -26..-10\"."
     }
   ]
 }

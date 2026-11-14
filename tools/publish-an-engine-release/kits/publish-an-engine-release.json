@@ -1,38 +1,38 @@
 {
-  "draft": true,
-  "drafted_from": "tool:publish-an-engine-release's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:publish-an-engine-release with request_file.\" Build the engine at a commit and publish it as a signed release every computer can adopt",
+  "drafted_from": "tools/publish-an-engine-release/tool-rows.json (tool:publish-an-engine-release), do-work/publish-an-engine-release.mjs, do-work/receive-pushes.mjs, test/publish-an-engine-release.test.mjs",
+  "start_here": "Say to your AI: \"Publish the engine release for the tip of main again on my builder, using /etc/engine-releases/publish.json.\" It runs publish on the builder with the repository token on descriptor 3 and tells you the sequence, target and url.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads the publish config the builder install wrote and adds one signed entry to the release feed folder on the builder.",
   "workflows": [],
   "tools": [
-    "tool:publish-an-engine-release"
+    "tool:publish-an-engine-release",
+    "tool:install-an-engine-builder",
+    "tool:read-an-engine-builder"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:publish-an-engine-release\", and give it request_file.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:publish-an-engine-release and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields commit, sequence, target, url, content, bytes, urgent, signature."
+    "1. Have a builder first: run tool:install-an-engine-builder once for the machine. It writes /etc/engine-releases/publish.json, makes the signing key and starts the receiver, which runs publish on every push to the branch, so a hand run is only for publishing again.",
+    "2. On the builder, as its builder user, from the tool folder install made (/opt/engine-releases/tool), hand the repository token on descriptor 3 from the vault, never in argv or a file.",
+    "3. Run: node tools/publish-an-engine-release/do-work/publish-an-engine-release.mjs publish /etc/engine-releases/publish.json. Add --commit <commit> after the request file to publish an earlier commit the feed holds nothing newer than.",
+    "4. Read the one JSON line: commit, sequence (the commit time in seconds), target, url, content (1f: and the BLAKE3 of the tar.gz), bytes, urgent, signature, public_key, already_published, dropped and releases_held. The same commit again answers already_published true and changes nothing.",
+    "5. A commit older than the feed's newest for the same target is refused before any build with {\"error\": \"...\"} and exit 3 (expected, nothing changed). Run tool:read-an-engine-builder to see the feed afterwards."
   ],
   "worked_examples": [
     {
-      "title": "Publish an engine release on a sample input",
-      "ask": "Run tool:publish-an-engine-release.",
+      "title": "Publish the third commit of a made-up repository",
+      "ask": "Publish the engine release for the tip of main on my builder.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:publish-an-engine-release",
-            "input": {
-              "request_file": "<request_file: The publish config install wrote on the builder (repository, branch, base_url, work_folder, feed_folder, key_file, toolchain)>"
-            }
+            "tool": "tool:publish-an-engine-release"
           }
         }
       },
-      "hands_back": "An answer with the fields commit, sequence, target, url, content, bytes, urgent, signature.",
-      "given": "The person gives: request_file (shown as <name> in the input)."
+      "given": "From tools/publish-an-engine-release/test/publish-an-engine-release.test.mjs (the first publish test, with a fake cargo and rustc): a made-up repository whose branch main has 3 commits made at seconds 1800000001, 1800000002 and 1800000003, the third with the trailer \"Release-Urgent: true\", and a publish config for base_url https://releases.example.com/engine-releases/. The AI runs on the builder: node tools/publish-an-engine-release/do-work/publish-an-engine-release.mjs publish /etc/engine-releases/publish.json  (token on descriptor 3).",
+      "hands_back": "{\"commit\":\"<the 40-hex id of the third commit>\",\"sequence\":1800000003,\"target\":\"x86_64-unknown-linux-gnu\",\"url\":\"https://releases.example.com/engine-releases/<commit>/x86_64-unknown-linux-gnu.tar.gz\",\"content\":\"1f:<64 hex, the BLAKE3 of the tar.gz>\",\"bytes\":<the tar.gz size>,\"urgent\":true,\"signature\":\"<128 hex>\",\"public_key\":\"<64 hex of the builder's key>\",\"already_published\":false,\"dropped\":0,\"releases_held\":<the entries now in feed.json>}; the tar.gz holds trillion-local, product/bin/trillion-mcp-forwarder and the repository's product/ folder, and the entry verifies with the printed public_key. Run again for the same commit it answers already_published true and writes nothing."
     }
   ]
 }

@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "tool:sample-shots-and-frames-from-my-format-library's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:sample-shots-and-frames-from-my-format-library with nothing more.\" Sample shots from my format library spread over creators, or candidate shots for described slots, and cut each one's frame with the frame tool I already use",
+  "drafted_from": "tool row in tools/benchmark-small-local-models/tool-rows.json, do-work/sample_shots_across_groups.py and test/test_benchmark.py (Library)",
+  "start_here": "Say to your AI: \"Sample up to 5 videos from my format library at formats-library, spread over creators, with 10 evenly spaced shots each, and cut a frame for every shot.\"",
   "lists": [
     {
       "list": "list:settings",
@@ -77,27 +76,27 @@
       ],
       "example_rows": [
         {
-          "id": "caption-style",
+          "id": "person-sample-person",
           "values": {
-            "name": "Caption style",
-            "tool": "tool:example-captioner",
+            "name": "benchmark-small-local-models defaults",
+            "tool": "tool:benchmark-small-local-models",
             "scope_kind": "person",
-            "scope_id": "example-person",
-            "settings": "{\"style\":\"plain\",\"size\":\"large\"}",
+            "scope_id": "sample-person",
+            "settings": "{\"commands\":{\"sample_shots_across_groups\":{\"library\":\"formats-library\",\"videos\":5,\"rounds\":2,\"per_video\":10,\"min_seconds\":0.4,\"fields\":[\"size\",\"kind\"]}}}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         },
         {
-          "id": "quiet-hours",
+          "id": "film-sample-film",
           "values": {
-            "name": "Quiet hours",
-            "tool": "tool:example-notifier",
-            "scope_kind": "account",
-            "scope_id": "whole-account",
-            "settings": "{\"from\":\"22:00\",\"to\":\"07:00\"}",
+            "name": "benchmark-small-local-models for one film",
+            "tool": "tool:benchmark-small-local-models",
+            "scope_kind": "film",
+            "scope_id": "sample-film",
+            "settings": "{\"commands\":{\"sample_shots_across_groups\":{\"seed\":17,\"videos\":3}}}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         }
       ],
@@ -108,34 +107,37 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
     "tool:sample-shots-and-frames-from-my-format-library",
-    "tool:read-a-tool-setting"
+    "tool:read-a-tool-setting",
+    "tool:label-video-frames-with-small-local-models",
+    "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:sample-shots-and-frames-from-my-format-library\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:sample-shots-and-frames-from-my-format-library and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Sample shots from my format library spread over creators, or candidate shots for described slots, and cut each one's frame with the frame tool I already use"
+    "1. Pour the two example settings rows into your own list:settings (see pour), or write your own row record:setting:benchmark-small-local-models~person~<you> whose settings hold {\"commands\":{\"sample_shots_across_groups\":{...your defaults}}}.",
+    "2. Say the line in start_here. Your AI reads this tool's row with tools:list {tool: \"tool:sample-shots-and-frames-from-my-format-library\"} and gets its run command.",
+    "3. Your AI writes the request as a JSON file (request.json), adds settings_record from your settings row if you keep one, and runs python3 trillion-workshop/tools/benchmark-small-local-models/do-work/sample_shots_across_groups.py request.json on your computer.",
+    "4. It reads the last line the script prints: {\"result\": ...} or {\"error\": \"what to change\"} (exit code 2), then tells you the result in plain words.",
+    "5. Then run cut_sample_frames with the shots it gave, your frame_tool (an `evidence frames` command) and an out_dir; or run sample_candidates_for_slots with slots and exclude_prefix and then cut_candidate_frames."
   ],
   "worked_examples": [
     {
-      "title": "Sample shots and their frames from my format library (runs on your computer) on a sample input",
-      "ask": "Run tool:sample-shots-and-frames-from-my-format-library.",
+      "title": "Two videos of two creators sampled, shaped by the video's own size",
+      "ask": "Pick shots across my format library so I can label their frames.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:sample-shots-and-frames-from-my-format-library",
-            "input": {}
+            "tool": "tool:sample-shots-and-frames-from-my-format-library"
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Sample shots from my format library spread over creators, or candidate shots for described slots, and cut each one's frame with the frame tool I already use"
+      "given": "Read from tools/benchmark-small-local-models/do-work/sample_shots_across_groups.py and run with test/test_benchmark.py's library (Library.test_shots_are_spread_over_creators_spaced_and_shaped, cut down): library/formats/c1/v1/shots.tsv holds rows 0-2 (wide a-roll, close a-roll, close a-roll, 2 s each) with videos/v1.mp4 = 1080x1920, library/formats/c2/v2/shots.tsv one close b-roll shot 0-2 with videos/v2.mp4 = 1920x1080 turned 90 degrees. request.json = {\"library\":\"library\",\"seed\":17,\"videos\":5,\"rounds\":2,\"big_creator\":10,\"per_video\":10,\"min_seconds\":0.4,\"fields\":[\"size\",\"kind\"]}. Run: python3 trillion-workshop/tools/benchmark-small-local-models/do-work/sample_shots_across_groups.py request.json",
+      "hands_back": "{\"result\":{\"shots\":[{\"video\":\"v1\",\"creator\":\"c1\",\"row\":0,\"t_mid\":1.0,\"w\":1080,\"h\":1920,\"reference\":{\"size\":\"wide\",\"kind\":\"a-roll\"}, ...},{\"video\":\"v1\",\"row\":1,\"t_mid\":3.0,\"reference\":{\"size\":\"close\",\"kind\":\"a-roll\"}},{\"video\":\"v1\",\"row\":2,\"t_mid\":5.0,...},{\"video\":\"v2\",\"creator\":\"c2\",\"row\":0,\"t_mid\":1.0,\"w\":1080,\"h\":1920,\"reference\":{\"size\":\"close\",\"kind\":\"b-roll\"}}],\"videos\":2,\"creators\":2}}: v2 is stored 1920x1080 but turned 90 degrees, so its shot is read as 1080x1920; each shot keeps its tsv path and its own labels as the reference."
     }
   ],
   "pour": {
@@ -145,39 +147,40 @@
     "example": {
       "kit_list": "list:settings",
       "into": {
-        "list": "list:my-settings",
-        "row_type": "record:setting",
+        "list": "list:my-tool-options",
+        "row_type": "record:tool-option",
         "fields": [
           {
-            "id": "name",
-            "label": "Setting"
+            "id": "title",
+            "label": "Title"
           },
           {
-            "id": "tool",
-            "label": "Tool"
+            "id": "owner",
+            "label": "Owner"
           },
           {
-            "id": "scope_kind",
-            "label": "For a"
+            "id": "scope",
+            "label": "Scope"
           },
           {
-            "id": "scope_id",
-            "label": "For"
+            "id": "target",
+            "label": "Target"
           },
           {
-            "id": "settings",
-            "label": "Settings (JSON)"
+            "id": "config",
+            "label": "Config"
           },
           {
-            "id": "from",
-            "label": "From"
+            "id": "source",
+            "label": "Source"
           },
           {
-            "id": "status",
-            "label": "Status"
+            "id": "state",
+            "label": "State"
           }
         ]
-      }
+      },
+      "field_map": {}
     }
   }
 }

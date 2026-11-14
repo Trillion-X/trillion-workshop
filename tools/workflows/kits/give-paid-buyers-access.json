@@ -1,53 +1,58 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:give-paid-buyers-access's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:give-paid-buyers-access.\" Every time it runs (every 15 minutes is the intended schedule), turn each newly paid Stripe checkout into a customer: list the checkouts completed since the last one kept, skip any already kept, check each paid amount against a price the offer declares (a trial checkout is checked by its subscription's amount), keep a customer record keyed by the checkout, send the setup email once with an idempotency key, and mark each customer whose subscription ended as ended, keeping their record.",
-  "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
-  "workflows": [
-    "workflow:give-paid-buyers-access"
-  ],
-  "tools": [
-    "tool:check-what-a-buyer-paid",
-    "tool:list-completed-stripe-checkouts",
-    "tool:list-ended-stripe-subscriptions",
-    "tool:look-up-a-stripe-checkout",
-    "tool:tell-the-person"
-  ],
-  "instructions": [
-    "1. Say to your AI: \"Run workflow:give-paid-buyers-access\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:give-paid-buyers-access) and works through its steps in order: where-to-start, list-paid-checkouts, check-each-amount, keep-customers, send-setup, mark-ended.",
-    "3. Read what each step hands back; the last step is mark-ended."
-  ],
-  "worked_examples": [
-    {
-      "title": "Give paid buyers access from its first step",
-      "ask": "Run workflow:give-paid-buyers-access.",
-      "mcp": {
-        "server": "trillion",
-        "tool": "run_resource_operation",
-        "input": {
-          "address": "@workshop-tools",
-          "method": "tools:run",
-          "input": {
-            "tool": "tool:start-a-recipe-run",
-            "input": {
-              "row": "workflow:give-paid-buyers-access",
-              "offer_id": "<offer_id: The offer whose buyers get access, as named in the checkout's metadata>",
-              "email_tool": "tool:send-an-email-with-resend",
-              "from": "<from: The address the setup email comes from>",
-              "setup_email": {
-                "subject": "<subject: string>",
-                "text": "<text: The setup email's words; {email} and {people} are filled per buyer>"
-              }
-            }
-          }
-        }
-      },
-      "workflow": "workflow:give-paid-buyers-access",
-      "step": "where-to-start",
-      "hands_back": "Step where-to-start answers with created_after_unix, ended_after_unix, known_checkouts.",
-      "given": "The person gives: offer_id, from, subject, text (shown as <name> in the input)."
+ "start_here": "Say to your AI: \"Run workflow:give-paid-buyers-access for offer offer:sourdough-club, customer records of type record:club-customer, email tool tool:send-an-email-with-resend from club@example.com, with a setup email saying how to pick up the first loaf.\"",
+ "lists": [],
+ "no_lists_because": "It names no list: it keeps customer records of the type you give it as customer_record_type, one per paid checkout, through your records.",
+ "workflows": [
+  "workflow:give-paid-buyers-access"
+ ],
+ "tools": [
+  "tool:start-a-recipe-run",
+  "tool:send-an-email-with-resend",
+  "tool:send-an-email-with-amazon-ses",
+  "tool:list-completed-stripe-checkouts",
+  "tool:look-up-a-stripe-checkout",
+  "tool:check-what-a-buyer-paid",
+  "tool:tell-the-person",
+  "tool:list-ended-stripe-subscriptions"
+ ],
+ "instructions": [
+  "1. Declare the offer with its prices and connect Stripe; pick the email tool you use (Resend or Amazon SES) and the from address.",
+  "2. Say \"Run workflow:give-paid-buyers-access\" with offer_id, email_tool, from and setup_email (subject and text, with {email} and {people} placeholders); customer_record_type and start_unix are optional.",
+  "3. Schedule it every 15 minutes. Each run lists checkouts paid since the last one kept, checks each amount against a declared price and keeps one record per checkout.",
+  "4. Read what it tells you: a checkout whose amount matches no price is not kept and is named to you.",
+  "5. Each new customer gets the setup email once; customers whose subscription ended are marked ended and keep their record."
+ ],
+ "worked_examples": [
+  {
+   "title": "One new checkout since the last run",
+   "ask": "Give my new Sourdough Club buyers access.",
+   "mcp": {
+    "server": "trillion",
+    "tool": "run_resource_operation",
+    "input": {
+     "address": "@workshop-tools",
+     "method": "tools:run",
+     "input": {
+      "tool": "tool:start-a-recipe-run",
+      "input": {
+       "row": "workflow:give-paid-buyers-access",
+       "offer_id": "offer:sourdough-club",
+       "customer_record_type": "record:club-customer",
+       "email_tool": "tool:send-an-email-with-resend",
+       "from": "club@example.com",
+       "setup_email": {
+        "subject": "Your Sourdough Club loaf is ready to book",
+        "text": "Hi {email}, thanks for joining. Your {people} places are held: reply with a pick-up day."
+       }
+      }
+     }
     }
-  ]
+   },
+   "workflow": "workflow:give-paid-buyers-access",
+   "step": "check-each-amount",
+   "given": "Read from the row of workflow:give-paid-buyers-access in tools/workflows/recipes/workflows.json: step check-each-amount answers {matched:[{provider_session_id, paid_cents, people}], refused}. One new checkout cs_test_a1 paid 2400 cents (usd) with an email; the offer declares 1200 cents per person; tool:check-what-a-buyer-paid accepts it.",
+   "hands_back": "{\"matched\":[{\"provider_session_id\":\"cs_test_a1\",\"paid_cents\":2400,\"people\":2}],\"refused\":[]}"
+  }
+ ],
+ "drafted_from": "workflow:give-paid-buyers-access's row in tools/workflows/recipes/workflows.json (input schema, steps and submit shapes); no test names it"
 }

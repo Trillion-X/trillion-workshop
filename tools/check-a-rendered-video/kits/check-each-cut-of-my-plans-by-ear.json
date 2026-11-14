@@ -1,41 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:check-each-cut-of-my-plans-by-ear's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-each-cut-of-my-plans-by-ear with input, words_folder, output.\" Before I render, listen to every stretch of recording my video plans cut and tell me which ones start or end in the wrong place, and what in the plans themselves is wrong",
+  "drafted_from": "tool row in tools/check-a-rendered-video/tool-rows.json, do-work/check_plan_cuts.py and test/test_plan_and_cut_speech.py (PlanCuts), which I ran with the test's tone-word stand-in speech reader",
+  "start_here": "Say to your AI: \"Before I render, check each cut of my plans in /work/plans against the recordings in /work/words and tell me which stretches start or end in the wrong place.\" It reads the tool's row and runs check_plan_cuts.py on your computer.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of its own: it reads the plans, recordings and settings file it is given on the person's computer and writes one report file.",
   "workflows": [],
   "tools": [
     "tool:check-each-cut-of-my-plans-by-ear",
     "tool:assemble-a-plan-into-a-cut"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-each-cut-of-my-plans-by-ear\", and give it input, words_folder, output.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-each-cut-of-my-plans-by-ear and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Before I render, listen to every stretch of recording my video plans cut and tell me which ones start or end in the wrong place, and what in the plans themselves is wrong"
+    "1. Have a folder of plans (<slug>.json, as tool:assemble-a-plan-into-a-cut reads them) and a folder of <clip>.words.json files ({source, words}) that name each recording's media file.",
+    "2. Optionally write a settings file for plan problems (question_key, questions_file, refused_evidence, card_kind, next_prefix and so on) from your own records; leave --settings out for none.",
+    "3. The AI reads the row with tools:list {tool: tool:check-each-cut-of-my-plans-by-ear} and runs its `run` command with --plans, --words-folder and --report; a speech reader is mlx-whisper on Apple silicon or a command given with --reader.",
+    "4. Read the last line {\"result\": {report, plans, plan_failures, segments, to_check}}: exit 1 means a plan failure, exit 2 means only stretches to check. A stretch to check is not wrong until you listen; offer to change the plan's from or to, but change nothing yourself."
   ],
   "worked_examples": [
     {
-      "title": "Hear every recorded stretch my video plans cut, before anything is rendered (runs on your computer) on a sample input",
-      "ask": "Run tool:check-each-cut-of-my-plans-by-ear.",
+      "title": "One stretch catches the next word",
+      "ask": "Check each cut of my plan 'first' against its recording before I render.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:check-each-cut-of-my-plans-by-ear",
-            "input": {
-              "input": "<input: The folder of <slug>.json plans, put where {input} is>",
-              "words_folder": "<words_folder: The folder of <clip>.words.json ({source, words}) that names each recording's media file, put where {words_folder} is>",
-              "output": "<output: Where the JSON report goes, put where {output} is>"
-            }
+            "tool": "tool:check-each-cut-of-my-plans-by-ear"
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Before I render, listen to every stretch of recording my video plans cut and tell me which ones start or end in the wrong place, and what in the plans themselves is wrong",
-      "given": "The person gives: input, words_folder, output (shown as <name> in the input)."
+      "given": "From tools/check-a-rendered-video/test/test_plan_and_cut_speech.py (test_a_span_that_catches_the_next_word_is_to_check), which I ran. The recording take.wav says the eight words alpha to hotel, one tone each; plan first has an ask segment with no recording, a reply cutting take 0.15 to 2.45 with the text \"Alpha, bravo charlie delta.\" and a reply cutting take 0.75 to 3.05 with the text \"Bravo charlie delta.\". Command: python3 tools/check-a-rendered-video/do-work/check_plan_cuts.py --plans /work/plans --words-folder /work/words --report /work/report.json (the test adds its stand-in reader with --reader). It exits 2.",
+      "hands_back": "{\"result\": {\"report\": \"/work/report.json\", \"plans\": 1, \"plan_failures\": 0, \"segments\": 2, \"to_check\": [\"first#2\"]}} The lines above it: \"first#1 take 0.15-2.45 start=ok end=ok | alpha bravo charlie delta ... alpha bravo charlie delta\", \"first#2 take 0.75-3.05 start=ok end=CHECK | bravo charlie delta echo ... bravo charlie delta echo\" and \"2 segments, 1 matched at both ends, 1 to check, 0 plan failures\". The second stretch ends on \"echo\", a word the plan did not name."
     }
   ]
 }

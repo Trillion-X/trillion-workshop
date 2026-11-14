@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:put-it-in-the-world's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:put-it-in-the-world.\" Turn a supported opportunity into a real, accessible offer or experience and verify that intended people can reach it.",
+  "drafted_from": "workflow row in tools/workflows/recipes/workflows.json (input_schema and the reuse, shape, publish, reachability steps with their submit shapes); read from the row's words, no test runs it",
+  "start_here": "Say to your AI: \"Run workflow:put-it-in-the-world to turn our bakery training sheet into a public how-to page at https://example.com/train, with no paid ads and only publishing I have approved.\"",
   "lists": [],
   "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
@@ -13,14 +12,15 @@
     "tool:start-a-recipe-run"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:put-it-in-the-world\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:put-it-in-the-world) and works through its steps in order: reuse, shape, publish, reachability.",
-    "3. Read what each step hands back; the last step is reachability."
+    "1. Write the request, its scope, the constraints and the actions you authorize (publishing a page, for example); add source_id when it came from a shared source.",
+    "2. Say \"Run workflow:put-it-in-the-world\". The AI starts it with tool:start-a-recipe-run and works the steps reuse, shape, publish, reachability.",
+    "3. At each step the answer holds a summary, the evidence (id, source, what was observed) and a state for each requirement; a blocked requirement stays open with its wall, never marked complete.",
+    "4. At reachability, read that the real published address was opened and the served content checked, and that a real-user test was done or marked not applicable."
   ],
   "worked_examples": [
     {
-      "title": "Put It in the World Mode from its first step",
-      "ask": "Run workflow:put-it-in-the-world.",
+      "title": "The capable owner is chosen first",
+      "ask": "Put our training sheet in the world as a public page.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,18 +31,23 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:put-it-in-the-world",
-              "request": "<request: string>",
-              "scope": "<scope: string>",
-              "constraints": [],
-              "authorized_actions": []
+              "request": "Turn our bakery training sheet into a public how-to page.",
+              "scope": "One page at https://example.com/train",
+              "constraints": [
+                "No paid ads",
+                "Use the shared branding"
+              ],
+              "authorized_actions": [
+                "Publish the page at https://example.com/train"
+              ]
             }
           }
         }
       },
       "workflow": "workflow:put-it-in-the-world",
       "step": "reuse",
-      "hands_back": "Step reuse answers with summary, evidence, requirements.",
-      "given": "The person gives: request, scope (shown as <name> in the input)."
+      "given": "Read from tools/workflows/recipes/workflows.json (step reuse): the answer carries summary, evidence and requirements owner and capability-review-reuse, each state completed with what happened and evidence_refs.",
+      "hands_back": "{\"summary\":\"The existing page publisher owns this job; no new tool is needed.\",\"evidence\":[{\"id\":\"e1\",\"source\":\"Marketplace search for page publishing\",\"observed\":\"One licensed publisher tool found; it takes page rows and a destination\"}],\"requirements\":{\"owner\":{\"state\":\"completed\",\"what_happened\":\"Chose the page publisher as owner and kept the page words in data.\",\"evidence_refs\":[\"e1\"]},\"capability-review-reuse\":{\"state\":\"completed\",\"what_happened\":\"Reviewed REA, 21st.dev and Mobbin alongside the Marketplace tools; used the publisher.\",\"evidence_refs\":[\"e1\"]}}}"
     }
   ]
 }

@@ -1,22 +1,24 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:write-a-research-prompt-without-the-answer-in-it's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:write-a-research-prompt-without-the-answer-in-it.\" Write a research prompt (for an AI or a person) that tests the requester's question without slipping in the writer's expected answer: keep the requester's goal and scope in their own words, find every term that presumes a result (a tradeoff, a limit, a fixed number of dimensions, a physical constraint, a frontier), delete it or turn it into something to be tested, keep only the constraints the requester gave, and log every change.",
+  "start_here": "Say to your AI: \"Run workflow:write-a-research-prompt-without-the-answer-in-it. My goal is to find out how small bakeries keep new staff from quitting in the first month. My draft prompt says: Explain the tradeoff between pay and training, within the three known limits of small budgets.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It turns a goal and a draft prompt into a revised prompt with a change log, handed back in the run; nothing is kept in a list.",
   "workflows": [
     "workflow:write-a-research-prompt-without-the-answer-in-it"
   ],
-  "tools": [],
+  "tools": [
+    "tool:start-a-recipe-run"
+  ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:write-a-research-prompt-without-the-answer-in-it\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:write-a-research-prompt-without-the-answer-in-it) and works through its steps in order: goal, mark, rewrite, verify, label-claims.",
-    "3. Read what each step hands back; the last step is label-claims."
+    "1. Write your goal (at least 3 characters) in your own words, paste the draft prompt if you have one and list the constraints you gave.",
+    "2. Say \"Run workflow:write-a-research-prompt-without-the-answer-in-it\" with goal, draft_prompt and constraints.",
+    "3. Step goal keeps your goal and scope as you gave them; step mark finds every phrase that presumes a result (a tradeoff, a limit, a number of dimensions, an opinion).",
+    "4. Step rewrite deletes each marked phrase or turns it into something to test and logs every was and now; step verify checks the new prompt names no conclusion and matches your scope.",
+    "5. Use the revised prompt for your research; step label-claims then labels each claim in the research notes Fact, Inference, Hypothesis or Unknown (never in text written in your own voice)."
   ],
   "worked_examples": [
     {
-      "title": "Write a research prompt without the answer in it from its first step",
-      "ask": "Run workflow:write-a-research-prompt-without-the-answer-in-it.",
+      "title": "Two presumed results are turned into things to test",
+      "ask": "Clean my research prompt about new bakery staff so it does not assume the answer.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,15 +29,20 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:write-a-research-prompt-without-the-answer-in-it",
-              "goal": "<goal: string>"
+              "goal": "Find out how small bakeries keep new staff from quitting in the first month.",
+              "draft_prompt": "Explain the tradeoff between pay and training, within the three known limits of small budgets.",
+              "constraints": [
+                "bakeries with fewer than ten staff"
+              ]
             }
           }
         }
       },
       "workflow": "workflow:write-a-research-prompt-without-the-answer-in-it",
-      "step": "goal",
-      "hands_back": "Step goal answers with goal, scope.",
-      "given": "The person gives: goal (shown as <name> in the input)."
+      "step": "rewrite",
+      "given": "Read from the mark and rewrite steps of workflow:write-a-research-prompt-without-the-answer-in-it in tools/workflows/recipes/workflows.json. The mark step marked \"the tradeoff between pay and training\" and \"the three known limits of small budgets\"; only the constraint the person gave stays.",
+      "hands_back": "{\"prompt\":\"What keeps new staff from quitting in the first month at bakeries with fewer than ten staff? Test whether pay, training or anything else explains it, and say where the evidence is thin.\",\"constraints_kept\":[\"bakeries with fewer than ten staff\"],\"change_log\":[{\"was\":\"the tradeoff between pay and training\",\"now\":\"whether pay, training or anything else explains it\"},{\"was\":\"the three known limits of small budgets\",\"now\":\"(deleted: the person gave no such limits)\"}]}"
     }
-  ]
+  ],
+  "drafted_from": "workflow:write-a-research-prompt-without-the-answer-in-it row (input_schema and steps goal, mark, rewrite, verify, label-claims)"
 }

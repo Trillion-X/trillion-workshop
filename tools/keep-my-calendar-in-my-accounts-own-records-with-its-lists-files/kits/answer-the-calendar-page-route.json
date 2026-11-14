@@ -1,0 +1,325 @@
+{
+  "drafted_from": "tool:answer-the-calendar-page-route row in tool-rows.json, src/calendar-route.mjs, src/native-calendar-owner.mjs and test/calendar-route.test.mjs; list:calendar-tasks read with records:read; the example answer was produced by running answerTheCalendarRoute against the test's in-memory records door",
+  "start_here": "Say to your AI: \"Add a 15 minute task called Water the sample ferns to my calendar tasks, then show me my calendar tasks.\" It calls the calendar page route twice, a POST to /calendar/tasks and a GET, and reads the task back from your own records.",
+  "lists": [
+    {
+      "list": "list:calendar-tasks",
+      "label": "Calendar tasks",
+      "row_type": "record:calendar-task",
+      "holds": "The tasks on your calendar: what to do, how long it takes, when it is due or placed, and where it stands.",
+      "fields": [
+        {
+          "id": "title",
+          "kind": "text",
+          "label": "Task",
+          "alike": [
+            "name",
+            "task name",
+            "to do"
+          ]
+        },
+        {
+          "id": "description",
+          "kind": "long-text",
+          "label": "Description",
+          "alike": [
+            "notes",
+            "details"
+          ]
+        },
+        {
+          "id": "priority",
+          "kind": "choice",
+          "label": "Priority",
+          "alike": [
+            "importance",
+            "urgency"
+          ]
+        },
+        {
+          "id": "labels",
+          "kind": "tags",
+          "label": "Labels",
+          "alike": [
+            "tags",
+            "categories"
+          ]
+        },
+        {
+          "id": "duration_minutes",
+          "kind": "number",
+          "label": "Duration in minutes",
+          "alike": [
+            "estimate",
+            "minutes"
+          ]
+        },
+        {
+          "id": "due",
+          "kind": "date",
+          "label": "Due",
+          "alike": [
+            "due date",
+            "deadline"
+          ]
+        },
+        {
+          "id": "starts_at",
+          "kind": "date",
+          "label": "Starts at",
+          "alike": [
+            "start",
+            "begins"
+          ]
+        },
+        {
+          "id": "ends_at",
+          "kind": "date",
+          "label": "Ends at",
+          "alike": [
+            "end",
+            "finishes"
+          ]
+        },
+        {
+          "id": "recurrence",
+          "kind": "long-text",
+          "label": "Repeat rule",
+          "alike": [
+            "repeat",
+            "recurring"
+          ]
+        },
+        {
+          "id": "status",
+          "kind": "choice",
+          "label": "Status",
+          "alike": [
+            "state",
+            "stage"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "water-the-sample-ferns",
+          "values": {
+            "title": "Water the sample ferns",
+            "description": "The two ferns by the window.",
+            "priority": "low",
+            "labels": [
+              "home"
+            ],
+            "duration_minutes": 15,
+            "status": "To do"
+          }
+        },
+        {
+          "id": "sample-dentist",
+          "values": {
+            "title": "Sample dentist",
+            "priority": "medium",
+            "duration_minutes": 60,
+            "starts_at": "2036-10-06T09:00:00.000Z",
+            "ends_at": "2036-10-06T10:00:00.000Z",
+            "status": "Not started"
+          }
+        }
+      ],
+      "alike": [
+        "a to-do app's task list",
+        "a calendar's tasks panel",
+        "a spreadsheet of chores with durations"
+      ]
+    },
+    {
+      "list": "list:calendar",
+      "label": "Calendar",
+      "row_type": "record:calendar-event",
+      "holds": "Meetings and time blocks: when each starts and ends, who comes and where it happens; the page's calendar names it as a source this route's run cannot read, and says so in its own words.",
+      "fields": [
+        {
+          "id": "title",
+          "kind": "text",
+          "label": "Event",
+          "alike": [
+            "name",
+            "subject",
+            "meeting"
+          ]
+        },
+        {
+          "id": "starts",
+          "kind": "date",
+          "label": "Starts",
+          "alike": [
+            "start",
+            "begins"
+          ]
+        },
+        {
+          "id": "ends",
+          "kind": "date",
+          "label": "Ends",
+          "alike": [
+            "end",
+            "finishes"
+          ]
+        },
+        {
+          "id": "who",
+          "kind": "tags",
+          "label": "Who",
+          "alike": [
+            "attendees",
+            "people"
+          ]
+        },
+        {
+          "id": "where",
+          "kind": "text",
+          "label": "Where",
+          "alike": [
+            "location",
+            "link"
+          ]
+        },
+        {
+          "id": "kind",
+          "kind": "choice",
+          "label": "Kind",
+          "alike": [
+            "type",
+            "category"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "weekly-sync",
+          "values": {
+            "title": "Weekly sync",
+            "starts": "2036-10-06T15:00:00.000Z",
+            "ends": "2036-10-06T15:30:00.000Z",
+            "who": [
+              "Sam",
+              "Ana"
+            ],
+            "where": "https://meet.example.com/weekly",
+            "kind": "Meeting"
+          }
+        },
+        {
+          "id": "focus-block",
+          "values": {
+            "title": "Focus block",
+            "starts": "2036-10-07T09:00:00.000Z",
+            "ends": "2036-10-07T11:00:00.000Z",
+            "kind": "Focus"
+          }
+        }
+      ],
+      "alike": [
+        "a calendar app's events",
+        "a shared team calendar",
+        "a meetings spreadsheet"
+      ]
+    }
+  ],
+  "workflows": [],
+  "tools": [
+    "tool:answer-the-calendar-page-route",
+    "tool:pour-example-rows-into-my-list"
+  ],
+  "instructions": [
+    "1. Pour the example tasks into the task list you already keep (see pour), or let the first call make list:calendar-tasks for you: a read makes the calendar's starting lists once when they are missing and keeps no task.",
+    "2. Say what you want done on the calendar; your AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:answer-the-calendar-page-route and input {path, method, query, body}: GET /calendar reads the sources, GET and POST /calendar/tasks read and change tasks (action create, schedule, complete and the others the owner knows).",
+    "3. Read the answer {status, body}: 200 with the owner's body (the task and an undo for a create, the tasks list for a read), or the owner's refusal in its words with its status; every write is conditional on what was read, so a record changed meanwhile is never written over.",
+    "4. /calendar/actions and /calendar/availability answer 404 here; sources only another route or a connected calendar tool can read (meetings, posts) are said unread in the calendar's own words."
+  ],
+  "worked_examples": [
+    {
+      "title": "Add a 15 minute task, then read the tasks back",
+      "ask": "Add a 15 minute task called Water the sample ferns to my calendar, then list my tasks.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:answer-the-calendar-page-route",
+            "input": {
+              "path": "/calendar/tasks",
+              "method": "POST",
+              "query": {},
+              "body": {
+                "action": "create",
+                "request_key": "fern-1",
+                "title": "Water the sample ferns",
+                "duration_minutes": 15
+              }
+            }
+          }
+        }
+      },
+      "given": "From tools/keep-my-calendar-in-my-accounts-own-records-with-its-lists-files/test/calendar-route.test.mjs (the same first test): the account has no calendar tasks yet. The answer below was produced by running src/calendar-route.mjs against that test's in-memory records door.",
+      "hands_back": "{status: 200, body: {task: {id: \"calendar-fern-1\", title: \"Water the sample ferns\", duration_minutes: 15, status: \"To do\", description: \"\", labels: [], priority: null, due: null, starts_at: null, ends_at: null, may_move: true, may_cancel: false, created_at: <the time of the run>, ...}, kept: false, undo: {action: \"restore\", rows: [{task_id: \"calendar-fern-1\", remove: true}]}}}; the record record:calendar-task:calendar-fern-1 is kept and list:calendar-tasks is made once. A following GET /calendar/tasks answers {status: 200, body: {list_id: \"calendar-tasks\", tasks: [that task], collections: [], page: {complete: true, next_cursor: null}, ...}}. POST /calendar/availability answers {status: 404, body: {error: \"Not found\"}}."
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "example": {
+      "kit_list": "list:calendar-tasks",
+      "into": {
+        "list": "list:my-todos",
+        "row_type": "record:my-todo",
+        "fields": [
+          {
+            "id": "name",
+            "label": "Name"
+          },
+          {
+            "id": "notes",
+            "label": "Notes"
+          },
+          {
+            "id": "importance",
+            "label": "Importance"
+          },
+          {
+            "id": "tags",
+            "label": "Tags"
+          },
+          {
+            "id": "estimate",
+            "label": "Estimate"
+          },
+          {
+            "id": "deadline",
+            "label": "Deadline"
+          },
+          {
+            "id": "start",
+            "label": "Start"
+          },
+          {
+            "id": "end",
+            "label": "End"
+          },
+          {
+            "id": "repeat",
+            "label": "Repeat"
+          },
+          {
+            "id": "stage",
+            "label": "Stage"
+          }
+        ]
+      },
+      "field_map": {}
+    }
+  }
+}

@@ -1,9 +1,278 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:answer-commenters-with-videos's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:answer-commenters-with-videos.\" Watch the accounts the person names on any platform so each new post is pulled in, read the comments under those posts (questions, disagreements, the newest), pick the commenters whose words are worth a video, make a video that answers each one in the person's voice, reply on the comment with the video once the person says yes, and read how it did.",
-  "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "start_here": "Say to your AI: \"Run workflow:answer-commenters-with-videos on the YouTube channel https://www.youtube.com/@ExampleChannel for pursuit:example-content, tasks in record:calendar-task-list:example, at most 5 a run.\"",
+  "lists": [
+    {
+      "list": "list:comment-leads",
+      "label": "Comment leads",
+      "row_type": "record:comment-leads",
+      "holds": "Each comment worth answering with a video: the words as written, where it was said, the video made and how it did.",
+      "fields": [
+        {
+          "id": "comment",
+          "kind": "text",
+          "label": "Comment (as written)",
+          "alike": [
+            "comment text",
+            "message"
+          ]
+        },
+        {
+          "id": "kind",
+          "kind": "choice",
+          "label": "Kind",
+          "alike": [
+            "type"
+          ]
+        },
+        {
+          "id": "platform",
+          "kind": "text",
+          "label": "Platform",
+          "alike": [
+            "channel",
+            "network"
+          ]
+        },
+        {
+          "id": "source_link",
+          "kind": "text",
+          "label": "Where it was said",
+          "alike": [
+            "link",
+            "url"
+          ]
+        },
+        {
+          "id": "why",
+          "kind": "long-text",
+          "label": "Why it is worth a video",
+          "alike": [
+            "idea",
+            "angle"
+          ]
+        },
+        {
+          "id": "state",
+          "kind": "choice",
+          "label": "State",
+          "alike": [
+            "status",
+            "stage"
+          ]
+        },
+        {
+          "id": "pursuit",
+          "kind": "text",
+          "label": "Pursuit",
+          "alike": [
+            "brand"
+          ]
+        },
+        {
+          "id": "piece",
+          "kind": "text",
+          "label": "Content piece",
+          "alike": [
+            "video",
+            "post"
+          ]
+        },
+        {
+          "id": "reply",
+          "kind": "long-text",
+          "label": "Reply",
+          "alike": [
+            "response",
+            "answer"
+          ]
+        },
+        {
+          "id": "measure",
+          "kind": "text",
+          "label": "Numbers",
+          "alike": [
+            "results",
+            "stats"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "post-123-1",
+          "values": {
+            "comment": "how do you train a new baker in one morning??",
+            "kind": "question",
+            "platform": "youtube",
+            "source_link": "https://www.youtube.com/watch?v=EXAMPLE123",
+            "why": "A short showing the filled-in bake sheet a new baker follows answers it directly.",
+            "state": "Posted",
+            "pursuit": "pursuit:example-content",
+            "piece": "record:content-pieces:answer-how-do-you-train-staff",
+            "reply": "You asked how a new baker learns the bake in one morning: here is the sheet we hand them. https://www.youtube.com/shorts/EXAMPLE456",
+            "measure": "1,840 views, 3 replies back"
+          }
+        },
+        {
+          "id": "post-123-2",
+          "values": {
+            "comment": "Pre-orders never work for small shops, people just walk in",
+            "kind": "disagreement",
+            "platform": "youtube",
+            "source_link": "https://www.youtube.com/watch?v=EXAMPLE123",
+            "why": "A video with a real weekend count of pre-orders against walk-ins answers the doubt with numbers.",
+            "state": "Picked",
+            "pursuit": "pursuit:example-content"
+          }
+        }
+      ],
+      "alike": [
+        "a social listening inbox",
+        "a spreadsheet of audience questions",
+        "a FAQ backlog"
+      ]
+    },
+    {
+      "list": "list:content-pieces",
+      "label": "Content pieces",
+      "row_type": "record:content-pieces",
+      "holds": "Every piece to make for a pursuit: when it goes out, which pillar and format it serves and why, who does the next step, the script and the draft.",
+      "fields": [
+        {
+          "id": "piece",
+          "kind": "text",
+          "label": "Piece",
+          "alike": [
+            "title",
+            "post",
+            "headline"
+          ]
+        },
+        {
+          "id": "goes_out",
+          "kind": "date",
+          "label": "Goes out",
+          "alike": [
+            "publish date",
+            "scheduled"
+          ]
+        },
+        {
+          "id": "pursuit",
+          "kind": "text",
+          "label": "Pursuit",
+          "alike": [
+            "brand",
+            "niche"
+          ]
+        },
+        {
+          "id": "pillar",
+          "kind": "link",
+          "label": "Pillar",
+          "alike": [
+            "theme",
+            "category"
+          ]
+        },
+        {
+          "id": "kind",
+          "kind": "choice",
+          "label": "Kind",
+          "alike": [
+            "type",
+            "medium"
+          ]
+        },
+        {
+          "id": "why",
+          "kind": "long-text",
+          "label": "Why make it",
+          "alike": [
+            "goal",
+            "reason"
+          ]
+        },
+        {
+          "id": "state",
+          "kind": "choice",
+          "label": "State",
+          "alike": [
+            "status",
+            "stage"
+          ]
+        },
+        {
+          "id": "who",
+          "kind": "tags",
+          "label": "Who does the next step",
+          "alike": [
+            "owner",
+            "assignee"
+          ]
+        },
+        {
+          "id": "script",
+          "kind": "long-text",
+          "label": "Script",
+          "alike": [
+            "copy",
+            "caption",
+            "words"
+          ]
+        },
+        {
+          "id": "came_from",
+          "kind": "text",
+          "label": "Came from",
+          "alike": [
+            "source",
+            "origin"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "rows-not-instructions-thread",
+          "values": {
+            "piece": "Stop writing instructions. Hand people the rows.",
+            "goes_out": "2026-11-20",
+            "pursuit": "Small bakery owners",
+            "pillar": "record:content-pillars:start-from-rows",
+            "kind": "Writing",
+            "why": "The seed says new staff learn the order sheet faster from filled-in rows.",
+            "state": "Needs you to approve",
+            "who": [
+              "owner"
+            ],
+            "script": "Nobody reads the how-to. Everyone copies the filled-in order sheet. So ship the filled-in sheet.",
+            "came_from": "record:calendar-task:tree-hand-people-the-rows"
+          }
+        },
+        {
+          "id": "answer-how-do-you-train-staff",
+          "values": {
+            "piece": "How we train a new baker in one morning",
+            "goes_out": "2026-11-22",
+            "pursuit": "Small bakery owners",
+            "pillar": "record:content-pillars:start-from-rows",
+            "kind": "Video",
+            "why": "A commenter asked how a new baker learns the morning bake in one shift.",
+            "state": "Being made",
+            "who": [
+              "AI"
+            ],
+            "script": "You asked how a new baker learns the bake in a morning. We hand them yesterday's finished sheet, not a manual.",
+            "came_from": "record:comment-leads:post-123-1"
+          }
+        }
+      ],
+      "alike": [
+        "a content calendar",
+        "an editorial board in Airtable or Trello",
+        "a Notion content database"
+      ]
+    }
+  ],
   "workflows": [
     "workflow:answer-commenters-with-videos",
     "workflow:make-one-piece-of-content-from-audience-to-publish",
@@ -11,6 +280,8 @@
     "workflow:read-the-week-and-make-more-of-what-won"
   ],
   "tools": [
+    "tool:start-a-recipe-run",
+    "tool:pour-example-rows-into-my-list",
     "tool:call-a-treg-endpoint",
     "tool:decide-an-agent-action",
     "tool:decide-the-replies",
@@ -26,18 +297,19 @@
     "tool:see-how-each-post-did",
     "tool:send-a-reply-on-instagram",
     "tool:send-a-reply-on-youtube",
-    "tool:start-a-recipe-run",
     "tool:watch-my-sources"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:answer-commenters-with-videos\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:answer-commenters-with-videos) and works through its steps in order: set-watched-accounts, watch, keep-posts-and-comments, pick-commenters, make-the-answer-video, reply-with-the-video, measure-and-feed-back.",
-    "3. Read what each step hands back; the last step is measure-and-feed-back."
+    "1. Pour the example comment leads into the list you keep audience questions in (see pour), or make list:comment-leads from them; make list:content-pieces too if you keep no content calendar.",
+    "2. Say \"Run workflow:answer-commenters-with-videos\" with accounts (platform and handle or link for each), pursuit and owner_list; most_per_run is optional.",
+    "3. The first watch is a quiet baseline: the next run reads the comments under every new post and writes one comment-leads row per comment worth a video.",
+    "4. Each lead gets a video through workflow:make-one-piece-of-content-from-audience-to-publish; approve the reply when it asks (Instagram and YouTube send, other places wait as reply-ready).",
+    "5. Read the numbers on each lead row after measure-and-feed-back; the angles that win go into the next week's plan."
   ],
   "worked_examples": [
     {
-      "title": "Answer commenters with videos from its first step",
-      "ask": "Run workflow:answer-commenters-with-videos.",
+      "title": "A question under a channel's video becomes a lead",
+      "ask": "Answer the commenters on @ExampleChannel with videos, at most 5.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -48,17 +320,78 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:answer-commenters-with-videos",
-              "accounts": [],
-              "pursuit": "<pursuit: string>",
-              "owner_list": "<owner_list: string>"
+              "accounts": [
+                {
+                  "platform": "youtube",
+                  "handle_or_link": "https://www.youtube.com/@ExampleChannel",
+                  "why": "Its viewers ask the questions my audience asks."
+                }
+              ],
+              "pursuit": "pursuit:example-content",
+              "owner_list": "record:calendar-task-list:example",
+              "most_per_run": 5
             }
           }
         }
       },
       "workflow": "workflow:answer-commenters-with-videos",
-      "step": "set-watched-accounts",
-      "hands_back": "Step set-watched-accounts answers with watched.",
-      "given": "The person gives: pursuit, owner_list (shown as <name> in the input)."
+      "step": "pick-commenters",
+      "given": "The keep-posts-and-comments step kept two comments under https://www.youtube.com/watch?v=EXAMPLE123: \"how do you train a new baker in one morning??\" (question) and \"Pre-orders never work for small shops, people just walk in\" (disagreement).",
+      "hands_back": "lead_ids [\"record:comment-leads:post-123-1\", \"record:comment-leads:post-123-2\"], each row holding the comment word for word, its kind, the link, one sentence on the video it could be and state Picked; skipped []."
     }
-  ]
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "example": {
+      "kit_list": "list:comment-leads",
+      "into": {
+        "list": "list:my-audience-questions",
+        "row_type": "record:audience-question",
+        "fields": [
+          {
+            "id": "comment_text",
+            "label": "Comment text"
+          },
+          {
+            "id": "type",
+            "label": "Type"
+          },
+          {
+            "id": "channel",
+            "label": "Channel"
+          },
+          {
+            "id": "url",
+            "label": "URL"
+          },
+          {
+            "id": "angle",
+            "label": "Angle"
+          },
+          {
+            "id": "status",
+            "label": "Status"
+          },
+          {
+            "id": "brand",
+            "label": "Brand"
+          },
+          {
+            "id": "video",
+            "label": "Video"
+          },
+          {
+            "id": "response",
+            "label": "Response"
+          },
+          {
+            "id": "stats",
+            "label": "Stats"
+          }
+        ]
+      }
+    }
+  }
 }

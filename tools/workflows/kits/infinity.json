@@ -1,50 +1,55 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:infinity's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:infinity.\" Keep improving quality, depth, breadth, scale, granularity and continuity while driving energy, effort, cost, latency and setup toward zero against observed reality.",
-  "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
-  "workflows": [
-    "workflow:infinity",
-    "workflow:grow-the-one-tree",
-    "workflow:make-the-piece-without-waiting-for-the-person",
-    "workflow:trillion-x-mode",
-    "workflow:turn-something-shared-into-what-you-can-use"
-  ],
-  "tools": [
-    "tool:start-a-recipe-run"
-  ],
-  "instructions": [
-    "1. Say to your AI: \"Run workflow:infinity\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:infinity) and works through its steps in order: baseline, bottleneck, improve, continue.",
-    "3. Read what each step hands back; the last step is continue."
-  ],
-  "worked_examples": [
-    {
-      "title": "Infinity Mode from its first step",
-      "ask": "Run workflow:infinity.",
-      "mcp": {
-        "server": "trillion",
-        "tool": "run_resource_operation",
-        "input": {
-          "address": "@workshop-tools",
-          "method": "tools:run",
-          "input": {
-            "tool": "tool:start-a-recipe-run",
-            "input": {
-              "row": "workflow:infinity",
-              "request": "<request: string>",
-              "scope": "<scope: string>",
-              "constraints": [],
-              "authorized_actions": []
-            }
-          }
-        }
-      },
-      "workflow": "workflow:infinity",
-      "step": "baseline",
-      "hands_back": "Step baseline answers with summary, evidence, requirements.",
-      "given": "The person gives: request, scope (shown as <name> in the input)."
+ "start_here": "Say to your AI: \"Run workflow:infinity on my bakery order page: request is to keep making the page load faster and easier to order from, scope is the page at https://bakery.example.com/order, constraints are no paid tools, authorized actions are editing the page and running its checks.\"",
+ "lists": [],
+ "no_lists_because": "It keeps no list of its own: its five steps hand back one evidence-backed answer each, kept on the run record.",
+ "workflows": [
+  "workflow:infinity",
+  "workflow:turn-something-shared-into-what-you-can-use",
+  "workflow:make-the-piece-without-waiting-for-the-person",
+  "workflow:trillion-x-mode",
+  "workflow:grow-the-one-tree"
+ ],
+ "tools": [
+  "tool:start-a-recipe-run"
+ ],
+ "instructions": [
+  "1. Write the request (the outcome to keep improving), the scope (what the AI may look at and change), constraints (what it must not do) and authorized_actions (the changes it may make); all four are required.",
+  "2. Say \"Run workflow:infinity\" with those four values; the AI starts it through tool:start-a-recipe-run and answers the steps in order: baseline, bottleneck, improve, continue.",
+  "3. At baseline, give the measured numbers with where each came from; at bottleneck, name the one constraint worth most; at improve, change one mechanism and test it for real; at continue, say what the next pass should measure.",
+  "4. Read what each step handed back: every completed requirement cites evidence ids kept in the same step. A requirement that could not be met stays open with its gap, never marked completed.",
+  "5. Run it again after the change to compare against the new baseline."
+ ],
+ "worked_examples": [
+  {
+   "title": "Baseline of a bakery order page",
+   "ask": "Run workflow:infinity on my bakery order page.",
+   "mcp": {
+    "server": "trillion",
+    "tool": "run_resource_operation",
+    "input": {
+     "address": "@workshop-tools",
+     "method": "tools:run",
+     "input": {
+      "tool": "tool:start-a-recipe-run",
+      "input": {
+       "row": "workflow:infinity",
+       "request": "Keep making the order page load faster and easier to order from.",
+       "scope": "The page at https://bakery.example.com/order and its checkout form",
+       "constraints": [
+        "No paid tools"
+       ],
+       "authorized_actions": [
+        "Edit the page",
+        "Run its checks"
+       ]
+      }
+     }
     }
-  ]
+   },
+   "workflow": "workflow:infinity",
+   "step": "baseline",
+   "given": "Read from the row of workflow:infinity in tools/workflows/recipes/workflows.json: the baseline step asks for the outcome, its observable baseline with provenance, and the capability review. The AI measured the page: it loads in 3.4 seconds on a phone and ordering takes 7 taps.",
+   "hands_back": "{\"summary\":\"Order page loads in 3.4 s on a phone and an order takes 7 taps; no measure was claimed as zero.\",\"evidence\":[{\"id\":\"e1\",\"source\":\"a phone load test of https://bakery.example.com/order\",\"observed\":\"Fully loaded in 3.4 seconds on a mid-range phone\"},{\"id\":\"e2\",\"source\":\"walking the order form by hand\",\"observed\":\"Seven taps from the menu to the order confirmation\"}],\"requirements\":{\"baseline\":{\"state\":\"completed\",\"what_happened\":\"Named the outcome (a fast, easy order), measured load time and taps, and kept elapsed time as its own measure.\",\"evidence_refs\":[\"e1\",\"e2\"]},\"capability-review-baseline\":{\"state\":\"completed\",\"what_happened\":\"Searched the Marketplace for page-speed and form tools; REA, 21st.dev and Mobbin reviewed and none changed the baseline.\",\"evidence_refs\":[\"e1\"]}}}"
+  }
+ ]
 }

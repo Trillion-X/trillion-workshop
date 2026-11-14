@@ -1,38 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:set-up-trillion-hooks-in-an-ai-app-on-this-computer's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:set-up-trillion-hooks-in-an-ai-app-on-this-computer with action, harness.\" Read, add or take out the hooks that keep an AI app's sessions on this computer as the person's records (Claude Code or Codex)",
+  "drafted_from": "tools/keep-and-wake-ai-sessions-on-this-computer/tool-rows.json (tool:set-up-trillion-hooks-in-an-ai-app-on-this-computer), harness/setup.mjs and test/harness-setup.test.mjs, and a run of setup() with a non-Mac platform over an empty scratch home",
+  "start_here": "Say to your AI: \"Inspect whether Trillion's hooks are set up in Claude Code on this computer, and change nothing.\" It runs the inspect action and tells you what is ready and what each failed check says.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It reads and edits one AI app's own settings file on this computer and keeps no list of yours.",
   "workflows": [],
   "tools": [
-    "tool:set-up-trillion-hooks-in-an-ai-app-on-this-computer"
+    "tool:set-up-trillion-hooks-in-an-ai-app-on-this-computer",
+    "tool:connect-an-ai-app-on-this-computer-to-trillion"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:set-up-trillion-hooks-in-an-ai-app-on-this-computer\", and give it action, harness.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:set-up-trillion-hooks-in-an-ai-app-on-this-computer and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields schema, action, harness, status, ready, checks, changes, boundaries."
+    "1. Clone the Workshop checkout, run npm ci in its root, and pick the app: claude-code or codex.",
+    "2. Say \"Inspect Trillion's hooks in claude-code\". The AI reads the row with tools:list and runs node tools/keep-and-wake-ai-sessions-on-this-computer/harness/setup.mjs --action inspect --harness claude-code. inspect writes nothing.",
+    "3. Read the report: status, ready, checks (id, status, reason), changes and boundaries. Exit 0 means ready, 2 not ready, 1 a wrong request.",
+    "4. Only when you ask, run --action apply to add the hooks (your own settings and permissions are kept and a backup is made) or --action remove to take them out again. Applying never writes an MCP entry; connecting the app is a separate tool."
   ],
   "worked_examples": [
     {
-      "title": "Set up Trillion's hooks in an AI app on this computer on a sample input",
-      "ask": "Run tool:set-up-trillion-hooks-in-an-ai-app-on-this-computer.",
+      "title": "Inspect on a computer that is not a Mac",
+      "ask": "Inspect whether Trillion's hooks are set up in Claude Code on this computer.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:set-up-trillion-hooks-in-an-ai-app-on-this-computer",
-            "input": {
-              "action": "inspect",
-              "harness": "claude-code"
-            }
+            "tool": "tool:set-up-trillion-hooks-in-an-ai-app-on-this-computer"
           }
         }
       },
-      "hands_back": "An answer with the fields schema, action, harness, status, ready, checks, changes, boundaries."
+      "given": "The command is node tools/keep-and-wake-ai-sessions-on-this-computer/harness/setup.mjs --action inspect --harness claude-code. Worked out by calling setup() from harness/setup.mjs with action inspect, harness claude-code, platform linux and an empty scratch home (the test \"unknown hosts, unsupported platforms and disabled hooks\" asserts the same unsupported platform check); on a real Mac the checks list is longer.",
+      "hands_back": "{\"schema\":\"trillion.harness-setup-report/v1\",\"scope\":\"local-harness\",\"evidence_level\":\"local-configuration-and-processes\",\"action\":\"inspect\",\"harness\":\"claude-code\",\"status\":\"pending\",\"ready\":false,\"checks\":[{\"id\":\"platform\",\"status\":\"unsupported\",\"reason\":\"The full local hook suite currently uses the Mac app and macOS Keychain. Use account setup for this platform's supported capabilities.\",\"evidence\":{}}],\"changes\":[],\"boundaries\":[ids mcp, sources, notifications and iphone-widgets, each with an owner and a reason]}; nothing is written and the process exits 2."
     }
   ]
 }

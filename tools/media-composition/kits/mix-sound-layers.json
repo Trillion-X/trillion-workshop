@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:mix-sound-layers's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:mix-sound-layers with video, sounds.\" Lay music, voice-overs and sound effects under a video at chosen times, each trimmed, with its own volume and fades, music lowering itself under speech",
+  "drafted_from": "tool:mix-sound-layers's own row in tools/media-composition/tool-rows.json, tools/media-composition/do-work/layer-over-video.mjs, tools/media-composition/test/layer-over-video.test.mjs, and the script run on a synthetic 7 second clip with a 10 second tone as the music",
+  "start_here": "Say to your AI: \"Put my music file under my video at 30% volume with a one second fade in and out, ducking under speech, and even the loudness out to -14.\" It runs tool:mix-sound-layers and saves the new video in your files.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It makes a new video in your files from the video you name and keeps no list of its own.",
   "workflows": [],
   "tools": [
     "tool:mix-sound-layers"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:mix-sound-layers\", and give it video, sounds.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:mix-sound-layers and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields result, files."
+    "1. Find the identities in your files of the video and of each sound (music, voice-over or effect).",
+    "2. Say \"Lay this music under the video\" with video and sounds: each is {file, start (seconds into the video), optional from and to (trim of the sound file), volume (1 as recorded, 0.3 suits music under speech), fade_in, fade_out, duck, label}. Add loudness_lufs (-14 suits most sites) to even out the whole video.",
+    "3. The AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:mix-sound-layers. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
+    "4. Read result (duration_seconds, bytes, sounds: how many were laid) and files.video, the new video in your files. Check it with tool:measure-loudness."
   ],
   "worked_examples": [
     {
-      "title": "Mix sounds under a video on a sample input",
-      "ask": "Run tool:mix-sound-layers.",
+      "title": "Music at 30%, faded, ducked, and levelled to -14",
+      "ask": "Put my music under the video quietly and level it to -14.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,19 +26,25 @@
           "input": {
             "tool": "tool:mix-sound-layers",
             "input": {
-              "video": "<video: The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it>",
+              "video": "1f:7320b49113520185e2ad8938759857db29ec6b0ed6a30cd1a2cfc05c68d932c6",
               "sounds": [
                 {
-                  "file": "<file: The sound's identity in your files (1f: then 64 hex): music, a voice-over or a sound effect>",
-                  "start": "<start: Seconds into the video where it starts playing>"
+                  "file": "1f:9a22230e7756909497c192cdfd00f9867160ee8088f6861e8fa904258a233fb3",
+                  "label": "Music",
+                  "start": 0,
+                  "volume": 0.3,
+                  "fade_in": 1,
+                  "fade_out": 1,
+                  "duck": true
                 }
-              ]
+              ],
+              "loudness_lufs": -14
             }
           }
         }
       },
-      "hands_back": "An answer with the fields result, files.",
-      "given": "The person gives: video, file, start (shown as <name> in the input)."
+      "given": "read from tools/media-composition/do-work/layer-over-video.mjs (the translation is tested in tools/media-composition/test/layer-over-video.test.mjs) and run on a 7 second clip with a 10 second tone as the music: the music stops when the video ends",
+      "hands_back": "{\"result\":{\"duration_seconds\":7.1,\"width\":320,\"height\":180,\"has_audio\":true,\"bytes\":190273,\"segments\":1,\"expected_duration_seconds\":7,\"sounds\":1,\"pictures\":0},\"files\":{\"video\":{\"identity\":\"1f:a244d467eab8e515098578a639589cc3173956795efb40669a660e4050c3601c\",\"bytes\":190273,\"media_type\":\"video/mp4\",\"name\":\"layered.mp4\"}}}"
     }
   ]
 }

@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "tool:put-a-picked-option-into-a-filmcraft-project's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:put-a-picked-option-into-a-filmcraft-project with film, option, project, ops.\" Put an option I picked for my film into my protected FilmCraft project, and refuse any option I have not picked myself",
+  "drafted_from": "tool:put-a-picked-option-into-a-filmcraft-project's row (tools/put-picked-options-into-a-filmcraft-project/tool-rows.json), do-work/pick_gate.py and test/pick-gate.test.mjs",
+  "start_here": "Say to your AI: \"I agreed to option x05-r4-1 for my film in /films/made-up-film; put it into my protected FilmCraft project cut.fcproj with the ops file ops.jsonl.\" It checks your own stand first and only then runs the ops headless.",
   "lists": [
     {
       "list": "list:settings",
@@ -108,40 +107,35 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
-    "tool:put-a-picked-option-into-a-filmcraft-project",
-    "tool:keep-where-you-stand"
+    "tool:keep-where-you-stand",
+    "tool:pour-example-rows-into-my-list",
+    "tool:put-a-picked-option-into-a-filmcraft-project"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:put-a-picked-option-into-a-filmcraft-project\", and give it film, option, project, ops.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:put-a-picked-option-into-a-filmcraft-project and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Put an option I picked for my film into my protected FilmCraft project, and refuse any option I have not picked myself"
+    "1. Pour the two example setting rows into your own settings list (see pour), then fill the film's row: record:setting:put-picked-options-into-a-filmcraft-project~film~<film folder name> with protected_projects and allowed_option_folders.",
+    "2. Keep your own stand on the option with tool:keep-where-you-stand, in your own words (agree is the stand that counts by default).",
+    "3. Say what you said in start_here. Your AI reads the row with tools:list, runs `pick_gate.py --film <film> check <option>` and shows what it printed.",
+    "4. Only when check says picked does it run `pick_gate.py --film <film> apply <option> --project <project> --ops <ops>`; read the line it appended to the film's apply log. A refusal means you have not picked the option: nothing was changed."
   ],
   "worked_examples": [
     {
-      "title": "Put the option I picked into my FilmCraft project (runs on your computer) on a sample input",
-      "ask": "Run tool:put-a-picked-option-into-a-filmcraft-project.",
+      "title": "An option the person agreed to goes into the protected project; one nobody picked is refused",
+      "ask": "Put option a, which I agreed to, into my FilmCraft project cut.fcproj with ops.jsonl.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:put-a-picked-option-into-a-filmcraft-project",
-            "input": {
-              "film": "<film: The film's folder on the person's computer, put where {film} is in the command>",
-              "option": "<option: The option's id, put where {option} is in the command>",
-              "project": "<project: The FilmCraft project file to change, put where {project} is in the command>",
-              "ops": "<ops: The FilmCraft ops file (JSON lines) inside the film's folder, put where {ops} is in the command>"
-            }
+            "tool": "tool:put-a-picked-option-into-a-filmcraft-project"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Put an option I picked for my film into my protected FilmCraft project, and refuse any option I have not picked myself",
-      "given": "The person gives: film, option, project, ops (shown as <name> in the input)."
+      "given": "From tools/put-picked-options-into-a-filmcraft-project/test/pick-gate.test.mjs, run for real on its made-up film with the stand-in records door and stand-in filmcraft-cli: the person's stand on 'Option  A' is agree. The AI runs `python3 tools/put-picked-options-into-a-filmcraft-project/do-work/pick_gate.py --film /films/film-one apply \"option a\" --project /films/film-one/filmcraft/cut.fcproj --ops /films/film-one/ops.jsonl` (the same option typed another way is the same option). For `apply cp1-c1`, which has no stand, it exits 1.",
+      "hands_back": "Exit 0, filmcraft-cli ran `--project /films/film-one/filmcraft/cut.fcproj --save run /films/film-one/ops.jsonl`, and one line was appended to applied.jsonl: {\"option_id\":\"option a\",\"verdict\":\"agree\",\"verdict_decision_id\":\"stance:film-option:1f:4959070c...\",\"project\":\"/films/film-one/filmcraft/cut.fcproj\",\"protected\":true,\"ops_file\":\"/films/film-one/ops.jsonl\",\"ops_hash\":\"blake3:5a78ee24...\",\"exit\":0}. `check \"option a\"` printed `picked: option a (agree) decision stance:film-option:1f:4959070c...`. For cp1-c1 stderr says: pick-gate: REFUSED. Option 'cp1-c1' has no stand kept; only the person's own pick lets it into a protected project. A 'recommended' flag is not a pick. and nothing ran."
     }
   ],
   "pour": {

@@ -1,40 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:adopt-reviewed-evidence-into-my-library's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:adopt-reviewed-evidence-into-my-library with library, schema, command.\" Take a saved, reviewed set of intervals or evidence and adopt it into my library of records, refusing anything that does not match",
+  "start_here": "Say to your AI: \"I reviewed the packet in adoption-input.json, so adopt it into my herb bed record and tell me what changed.\" It runs tool:adopt-reviewed-evidence-into-my-library.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of yours: it adopts a saved, reviewed input into the table, template spec and investigation record your schema names.",
   "workflows": [],
   "tools": [
     "tool:adopt-reviewed-evidence-into-my-library"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:adopt-reviewed-evidence-into-my-library\", and give it library, schema, command.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:adopt-reviewed-evidence-into-my-library and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Take a saved, reviewed set of intervals or evidence and adopt it into my library of records, refusing anything that does not match"
+    "1. Have a library whose schema carries a frame_evidence profile and an adoption profile, and a finalized page journal for the evidence (see tool:pin-video-frames-as-evidence-pages and the finalize-page-journal command).",
+    "2. Write the adoption input and have the person review it: {\"schema\": \"source_evidence_adoption@1\", \"piece\", \"leaf\", \"spec_path\", \"before_spec_identity\", \"question_id\", \"journal_path\", \"evidence_paths\", \"appended_scope\", \"evidence_note\"}. before_spec_identity must be the spec's current BLAKE3.",
+    "3. Say to your AI: \"Adopt this reviewed packet\". It reads the row with tools:list and runs python3 -I tools/keep-a-record-library-valid/do-work/keep_a_record_library.py --library <library> --schema <schema> adopt-window adoption-input.json",
+    "4. Read the answer: question_state (preserved), source_review_kind, exact_byte_inverse_verified, the before and after identities and receipt_path. Report any refusal exactly.",
+    "5. A second adoption on the same input refuses (\"Current template spec does not match the declared before-spec identity\") and changes nothing; the pre-images and receipt are never overwritten."
   ],
   "worked_examples": [
     {
-      "title": "Adopt a reviewed window of evidence into my library (runs on your computer) on a sample input",
-      "ask": "Run tool:adopt-reviewed-evidence-into-my-library.",
+      "title": "A finalized page journal adopted as source evidence only",
+      "ask": "Adopt this reviewed evidence packet into my herb bed record.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:adopt-reviewed-evidence-into-my-library",
-            "input": {
-              "library": "<library: The folder the library's files are relative to, put where {library} is in the command>",
-              "schema": "<schema: The schema file on the person's computer, put where {schema} is in the command>",
-              "command": "<command: `adopt-window INPUT_FILE`, where INPUT_FILE is the saved adoption input>"
-            }
+            "tool": "tool:adopt-reviewed-evidence-into-my-library"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Take a saved, reviewed set of intervals or evidence and adopt it into my library of records, refusing anything that does not match",
-      "given": "The person gives: library, schema, command (shown as <name> in the input)."
+      "given": "From tools/keep-a-record-library-valid/test/test_adoption.py (test_the_cli_adopts_without_deadlocking_on_the_library_lock), run for real on its made-up greenhouse library and 2 made-up frames: the input is {\"schema\": \"source_evidence_adoption@1\", \"piece\": \"beds/herb-bed\", \"leaf\": \"review\", \"spec_path\": \"SPEC.json\", \"question_id\": \"QN-099\", \"journal_path\": \"admission/PAGE-READBACK.json\", \"evidence_paths\": [\"manifest.json\", \"EXTRACTION-READBACK.json\", \"PAGE-01-OBSERVATION.json\", \"PAGE-01-READBACK.json\", \"contact.jpg\", \"admission/PAGE-READBACK.json\"], \"appended_scope\": \"Bounded page evidence with structural joins only.\", \"evidence_note\": \"A bounded packet was validated; full coverage stays open.\"} plus the spec's before_spec_identity. python3 -I tools/keep-a-record-library-valid/do-work/keep_a_record_library.py --library <library> --schema <library>/schema.json adopt-window adoption-input.json",
+      "hands_back": "Exit 0 and a JSON receipt: {\"schema\": \"source_evidence_readback@1\", \"piece\": \"herb-bed\", \"question_id\": \"QN-099\", \"question_state\": {\"status\": \"asked\", \"label\": \"Seen\", \"defect\": false, \"caught_by\": []}, \"shots_tsv_before\": null, \"source_review_kind\": \"finalized-pages\", \"exact_byte_inverse_verified\": true, ...} with the journal, before_spec, after_spec, before_investigation and after_investigation identities, adopted_evidence, scope_appended and receipt_path. Only the spec's evidence member changed; the question stays asked."
     }
-  ]
+  ],
+  "drafted_from": "tool:adopt-reviewed-evidence-into-my-library's row in tools/keep-a-record-library-valid/tool-rows.json, do-work/keep_a_record_library.py and read-data/*.py, and the fixtures and tests in tools/keep-a-record-library-valid/test/; the worked run was executed here on the made-up greenhouse fixtures"
 }

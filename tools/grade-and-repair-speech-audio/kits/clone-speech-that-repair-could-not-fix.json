@@ -1,37 +1,38 @@
 {
-  "draft": true,
-  "drafted_from": "tool:clone-speech-that-repair-could-not-fix's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:clone-speech-that-repair-could-not-fix with nothing more.\" Where the speech in a recording is still unusable after cleaning, say the same words again in the speaker's own voice, with the same timing",
+  "drafted_from": "tools/grade-and-repair-speech-audio/tool-rows.json (tool:clone-speech-that-repair-could-not-fix), do-work/clone_speech.py, speaker_check.py, grade_and_repair_speech.py (write_result), read-data/phrases.py; no test runs the clone stage",
+  "start_here": "Say to your AI: \"Re-voice in the speaker's own voice, with their agreement, the spans still graded clone in /Work/demo/out, using the reference /Work/demo/ref/clean_0.50.wav whose words are 'alpha bravo'.\" It runs tool:clone-speech-that-repair-could-not-fix on your computer and tells you which spans were cloned or refused.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of yours: it updates grades.json and audio files in the output folder a grade made, from a spans file and a reference recording on your computer.",
   "workflows": [],
   "tools": [
     "tool:clone-speech-that-repair-could-not-fix",
     "tool:grade-and-repair-speech-audio",
-    "tool:pick-the-cleanest-speech-to-clone-from"
+    "tool:pick-the-cleanest-speech-to-clone-from",
+    "tool:read-back-repaired-speech"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:clone-speech-that-repair-could-not-fix\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:clone-speech-that-repair-could-not-fix and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Where the speech in a recording is still unusable after cleaning, say the same words again in the speaker's own voice, with the same timing"
+    "1. Confirm that the reference is a clean recording of the speaker in the spans and that the speaker agreed to be cloned; tool:pick-the-cleanest-speech-to-clone-from finds one.",
+    "2. Run tool:grade-and-repair-speech-audio (stage all) first, so the output folder holds grades.json and the spans graded clone; keep the same spans file and settings (they need clone_model, read_model, speaker_similarity_min).",
+    "3. Say \"Clone the spans that repair could not fix\". Your AI reads the row with tools:list and runs its run command with the spans file, settings, output folder, reference and reference_text.",
+    "4. Read the last JSON line and grades.json: a cloned span has cloned true and a clone entry (phrases, stretch_min, stretch_max); a refused span has not_cloned with the reason (voice not verified, no words with times, or no passing take) and keeps its best remaster. Show a cloned span as cloned wherever it is used, then run tool:read-back-repaired-speech."
   ],
   "worked_examples": [
     {
-      "title": "Re-voice the spans that are still bad, in the speaker's own voice (runs on your computer) on a sample input",
-      "ask": "Run tool:clone-speech-that-repair-could-not-fix.",
+      "title": "Nothing graded clone: the span grades are left as they were",
+      "ask": "Re-voice the spans that repair could not fix, from the reference I picked.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:clone-speech-that-repair-could-not-fix",
-            "input": {}
+            "tool": "tool:clone-speech-that-repair-could-not-fix"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Where the speech in a recording is still unusable after cleaning, say the same words again in the speaker's own voice, with the same timing"
+      "given": "Worked out from do-work/clone_speech.py and grade_and_repair_speech.py write_result, not run here (it needs the clone model, pyannote and whisper weights). The output folder is the one the real `grade` run made from the test fixture (one good, two remaster, zero clone). The AI reads the row with this tools:list call, then runs: python3 trillion-workshop/tools/grade-and-repair-speech-audio/do-work/clone_speech.py --spans /Work/demo/spans.json --settings /Work/settings.json --out /Work/demo/out --reference /Work/demo/ref/clean_0.50.wav --reference-text \"alpha bravo\". The loop only visits spans whose grade is clone, so it checks no speaker and clones nothing.",
+      "hands_back": "It prints nothing per span, rewrites grades.json from the saved state, and prints {\"result\": {\"grades\": \"/Work/demo/out/grades.json\", \"counts\": {\"good\": 1, \"remaster\": 2, \"clone\": 0}}}. Had a span been graded clone and its speaker similarity been under speaker_similarity_min, it would instead print the span id and \"voice not verified as the reference voice (similarity <value> < <min>)\", and grades.json would carry not_cloned for it."
     }
   ]
 }

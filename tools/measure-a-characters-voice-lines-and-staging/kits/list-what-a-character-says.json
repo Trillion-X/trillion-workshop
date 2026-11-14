@@ -1,22 +1,24 @@
 {
-  "draft": true,
-  "drafted_from": "tool:list-what-a-character-says's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:list-what-a-character-says with data_folder, youtube_folder.\" List every caption line spoken inside a character's turns, with the video and second, for quoting",
+  "drafted_from": "tool:list-what-a-character-says's row in tools/measure-a-characters-voice-lines-and-staging/tool-rows.json, its script in tools/measure-a-characters-voice-lines-and-staging/do-work/ and the tests in tools/measure-a-characters-voice-lines-and-staging/test/",
+  "start_here": "Say to your AI: \"List every caption line the parrot says in my episodes, from the turns files, into a table I can quote.\" It runs tool:list-what-a-character-says and writes character-lines.tsv.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of its own: it reads one settings row of yours (record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>) or the settings you pass, and works on files in the show's folder.",
   "workflows": [],
   "tools": [
-    "tool:list-what-a-character-says"
+    "tool:list-what-a-character-says",
+    "tool:find-when-a-character-speaks",
+    "tool:catalog-a-channels-videos-by-format"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:list-what-a-character-says\", and give it data_folder, youtube_folder.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-what-a-character-says and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: List every caption line spoken inside a character's turns, with the video and second, for quoting"
+    "1. Make the show's folder and the YouTube library folder the run may change, and have the catalog.tsv (tool:catalog-a-channels-videos-by-format), voice/<id>.turns.json (tool:find-when-a-character-speaks) and the captions in the folders. Put the keys the row needs (none: it reads no settings key) in your settings row or pass them as settings.",
+    "2. Say the sentence in start_here to your AI. It calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-what-a-character-says and the input in the worked example; the door asks for the granted folder.",
+    "3. Read the last line it prints, {\"result\": ...}, or {\"error\": ...} saying what to fix (a missing settings key is named).",
+    "4. Quote lines from character-lines.tsv; they are YouTube's auto-captions, so the spelling is YouTube's."
   ],
   "worked_examples": [
     {
-      "title": "List every caption line a character says, with the second it starts (runs on your computer) on a sample input",
-      "ask": "Run tool:list-what-a-character-says.",
+      "title": "Two caption lines inside one turn",
+      "ask": "What does the parrot say?",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,7 +34,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: List every caption line spoken inside a character's turns, with the video and second, for quoting"
+      "given": "From the sample run in tools/measure-a-characters-voice-lines-and-staging/tool-rows.json and LinesTest in tools/measure-a-characters-voice-lines-and-staging/test/test_measures.py: vid-a has one turn from 10.0 to 14.0 s and captions \"the keeper speaks\" (5 s for 4 s), \">> crackers please\" (9 s for 2 s) and \"and a storm\" (11.5 s for 2 s).",
+      "hands_back": "{\"result\": {\"table\": \"{grant:change-a-folder}/show/character-lines.tsv\", \"lines\": 2}}; the table rows are vid-a 20300105 episode second 9 turn 10.0-14.0 \">> crackers please\" and second 11 \"and a storm\"; \"the keeper speaks\" is left out because less than half of it lies in the turn."
     }
   ]
 }

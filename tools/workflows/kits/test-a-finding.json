@@ -1,23 +1,172 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:test-a-finding's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:test-a-finding.\" Take anything a person noticed or claims (said in a chat or a recording, shared from a page, or an AI's own conclusion), question what it assumes, research the strongest case for it and the strongest case against it in the hardest places it could fail, say how strongly it holds and where it was tested, hand the person one to three small tests to try in their own life, and keep it as a row of their Findings list so only tested findings rise into the summaries they decide from.",
-  "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "start_here": "Say to your AI: \"Run workflow:test-a-finding on this claim: free shipping over 50 makes customers add one more item to reach it. It came from Sam's message on 2 November. Give me up to 2 small tests.\"",
+  "lists": [
+    {
+      "list": "list:findings",
+      "label": "Findings",
+      "row_type": "record:findings",
+      "holds": "What was noticed or claimed, tested: the case for and against, how strongly it holds, where it was tested, small tests to try and when to test it again.",
+      "fields": [
+        {
+          "id": "claim",
+          "kind": "text",
+          "label": "What you noticed",
+          "alike": [
+            "claim",
+            "hunch",
+            "observation"
+          ]
+        },
+        {
+          "id": "came_from",
+          "kind": "text",
+          "label": "Where it came from",
+          "alike": [
+            "source",
+            "origin"
+          ]
+        },
+        {
+          "id": "case_for",
+          "kind": "text",
+          "label": "For",
+          "alike": [
+            "evidence for",
+            "pros"
+          ]
+        },
+        {
+          "id": "case_against",
+          "kind": "text",
+          "label": "Against",
+          "alike": [
+            "evidence against",
+            "cons"
+          ]
+        },
+        {
+          "id": "strength",
+          "kind": "choice",
+          "label": "How strongly it holds",
+          "alike": [
+            "confidence",
+            "rating"
+          ]
+        },
+        {
+          "id": "where_tested",
+          "kind": "text",
+          "label": "Where it was tested",
+          "alike": [
+            "tested in",
+            "scope"
+          ]
+        },
+        {
+          "id": "could_break",
+          "kind": "text",
+          "label": "Where it could break",
+          "alike": [
+            "limits",
+            "risks"
+          ]
+        },
+        {
+          "id": "try_this",
+          "kind": "text",
+          "label": "Try this",
+          "alike": [
+            "next test",
+            "experiment"
+          ]
+        },
+        {
+          "id": "state",
+          "kind": "choice",
+          "label": "State",
+          "alike": [
+            "status",
+            "stage"
+          ]
+        },
+        {
+          "id": "test_again_on",
+          "kind": "date",
+          "label": "Test again on",
+          "alike": [
+            "review date",
+            "recheck"
+          ]
+        },
+        {
+          "id": "sources",
+          "kind": "long-text",
+          "label": "Sources",
+          "alike": [
+            "links",
+            "references"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "free-shipping-raises-order-size",
+          "values": {
+            "claim": "Free shipping over 50 makes customers add one more item to reach it.",
+            "came_from": "A message from Sam on 2026-11-02: \"people keep topping up to 50\"",
+            "case_for": "Order data from the shop: average basket rose from 44 to 52 after the offer (example.com/orders-report).",
+            "case_against": "A second shop saw no change in basket size and only a drop in cart abandonment (example.com/shop-study).",
+            "strength": "Holds with limits",
+            "where_tested": "One bakery shop over six weeks; not tested on first-time buyers alone.",
+            "could_break": "When the threshold sits far above the usual basket.",
+            "try_this": "Set the threshold 10 above the usual basket for two weeks and compare basket size with the two weeks before.",
+            "state": "Testing",
+            "test_again_on": "2026-12-15",
+            "sources": "example.com/orders-report: \"average basket 44 to 52\"; example.com/shop-study: \"no change in basket size\""
+          }
+        },
+        {
+          "id": "morning-posts-get-more-replies",
+          "values": {
+            "claim": "Posts before 8 AM get more replies than posts after lunch.",
+            "came_from": "The person's own note from last week",
+            "case_for": "Last 10 posts: the 4 morning posts got 6, 9, 5 and 8 replies.",
+            "case_against": "The 6 afternoon posts got 2 to 4 replies each, but 3 of them were about a less popular topic.",
+            "strength": "Unclear",
+            "where_tested": "The person's own account only, 10 posts.",
+            "could_break": "Topic and time of day are mixed together in these 10 posts.",
+            "try_this": "Post the same topic once at 7:30 AM and once at 1 PM on two different days.",
+            "state": "Testing",
+            "test_again_on": "2026-12-01"
+          }
+        }
+      ],
+      "alike": [
+        "a notes app with a \"hunches\" tag",
+        "a decision journal spreadsheet",
+        "an experiment backlog on a project board"
+      ]
+    }
+  ],
   "workflows": [
     "workflow:test-a-finding",
     "workflow:method-name-question-delete"
   ],
-  "tools": [],
+  "tools": [
+    "tool:start-a-recipe-run",
+    "tool:pour-example-rows-into-my-list"
+  ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:test-a-finding\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:test-a-finding) and works through its steps in order: capture, question, for, against, verdict, try, keep.",
-    "3. Read what each step hands back; the last step is keep."
+    "1. Pour the two example findings into the list you already keep hunches or experiments in (see pour), or let the first run make list:findings for you.",
+    "2. Say \"Run workflow:test-a-finding\" with the claim in the words it was said (at least 5 characters), optionally came_from, list_id (findings when left out) and tests (0 to 3, 3 when left out).",
+    "3. The steps run in order: capture, question, for, against, verdict, try, keep. Each needs real sources someone can open; an AI's own conclusion counts as a claim, not evidence.",
+    "4. Read the verdict (strength, state Held, Broke or Testing, the narrowest true version, the date to test again) and run the small tests it hands you; the person decides whether to run them.",
+    "5. Open the Findings row it kept: tested findings (Held or Broke) rise into the summaries you decide from, Testing ones wait for your tests."
   ],
   "worked_examples": [
     {
-      "title": "Test what you noticed from its first step",
-      "ask": "Run workflow:test-a-finding.",
+      "title": "A shipping claim becomes a testable claim and a verdict that waits for tests",
+      "ask": "Test this: free shipping over 50 makes customers add one more item to reach it.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -28,15 +177,76 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:test-a-finding",
-              "claim": "<claim: What was noticed or claimed, in the words it was said>"
+              "claim": "Free shipping over 50 makes customers add one more item to reach it.",
+              "came_from": "a message from Sam on 2026-11-02",
+              "tests": 2
             }
           }
         }
       },
       "workflow": "workflow:test-a-finding",
-      "step": "capture",
-      "hands_back": "Step capture answers with claim, observed, explanation, said_by, came_from, earlier_rows.",
-      "given": "The person gives: claim (shown as <name> in the input)."
+      "step": "verdict",
+      "given": "Read from the steps of workflow:test-a-finding in tools/workflows/recipes/workflows.json (verdict step submit shape). The earlier steps found one source for it (an order report showing the average basket rising from 44 to 52) and one against it (a second shop with no change in basket size) and tested it in one shop only.",
+      "hands_back": "{\"strength\":\"Holds with limits\",\"state\":\"Testing\",\"where_tested\":\"One bakery shop over six weeks, not on first-time buyers alone\",\"could_break\":\"When the threshold sits far above the usual basket\",\"true_version\":\"In a small shop whose usual basket is about 44, a free-shipping threshold of 50 raises the average basket when customers are close to it.\",\"cites\":[\"example.com/orders-report\",\"example.com/shop-study\"],\"test_again_on\":\"2026-12-15\"}. The next step try then hands back at most 2 tests, each with do, watch and shows_wrong_if."
     }
-  ]
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "example": {
+      "kit_list": "list:findings",
+      "into": {
+        "list": "list:my-hunches",
+        "row_type": "record:hunch",
+        "fields": [
+          {
+            "id": "hunch",
+            "label": "Hunch"
+          },
+          {
+            "id": "source",
+            "label": "Source"
+          },
+          {
+            "id": "evidence_for",
+            "label": "Evidence for"
+          },
+          {
+            "id": "evidence_against",
+            "label": "Evidence against"
+          },
+          {
+            "id": "confidence",
+            "label": "Confidence"
+          },
+          {
+            "id": "tested_in",
+            "label": "Tested in"
+          },
+          {
+            "id": "limits",
+            "label": "Limits"
+          },
+          {
+            "id": "next_test",
+            "label": "Next test"
+          },
+          {
+            "id": "status",
+            "label": "Status"
+          },
+          {
+            "id": "review_date",
+            "label": "Review date"
+          },
+          {
+            "id": "links",
+            "label": "Links"
+          }
+        ]
+      }
+    }
+  },
+  "drafted_from": "workflow:test-a-finding row (input_schema, steps capture to keep, list definition from list:findings)"
 }

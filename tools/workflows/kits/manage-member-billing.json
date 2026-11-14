@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:manage-member-billing's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:manage-member-billing.\" List subscriptions that ended, cancel at the end of a period when a member asks, tag the reason, count paid installments, show a member their offers, and record the billing-page gap.",
+  "drafted_from": "workflow:manage-member-billing's row in tools/workflows/recipes/workflows.json (steps and submit shapes); values worked out from the step text",
+  "start_here": "Say to your AI: \"Run workflow:manage-member-billing: Sam, a member of my bakery club, asked to stop at the end of this period because the price is too high.\"",
   "lists": [
     {
       "list": "list:business-setup-checklist",
@@ -186,14 +185,18 @@
     "tool:tag-a-stripe-subscription"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:manage-member-billing\".",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:manage-member-billing) and works through its steps in order: read-facts, list-ended-subscriptions, cancel-at-the-period-end, tag-the-reason, count-paid-installments, show-the-member-their-offers, record-the-billing-page-gap, record-the-stage.",
-    "3. Read what each step hands back; the last step is record-the-stage."
+    "1. Run workflow:set-up-a-business-on-trillion first if record:business-setup:facts does not exist yet; this workflow reads that row.",
+    "2. Say \"Run workflow:manage-member-billing\" and name the member's Stripe subscription id and their reason in their own words.",
+    "3. Read what each step hands back: ended subscriptions, cancelled with ends_at, tagged, paid installments, the offers the member may see.",
+    "4. The billing-page view has no live tool: it is written as a gap row, and record-the-stage writes record:setup-stage:member-billing."
   ],
   "worked_examples": [
     {
-      "title": "Manage member billing from its first step",
-      "ask": "Run workflow:manage-member-billing.",
+      "title": "A member cancels at the period end and the reason is tagged",
+      "ask": "Sam wants to stop at the end of this period because the price is too high.",
+      "step": "cancel-at-the-period-end",
+      "given": "Read from the cancel-at-the-period-end step in tools/workflows/recipes/workflows.json: the AI calls tool:cancel-a-stripe-subscription with {\"subscription_id\":\"sub_EXAMPLE123\",\"at_period_end\":true}; Sam keeps access until the period already paid for ends.",
+      "hands_back": "{\"cancelled\":true,\"ends_at\":\"2026-12-01\"}",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -208,9 +211,7 @@
           }
         }
       },
-      "workflow": "workflow:manage-member-billing",
-      "step": "read-facts",
-      "hands_back": "Step read-facts answers with facts."
+      "workflow": "workflow:manage-member-billing"
     }
   ],
   "pour": {

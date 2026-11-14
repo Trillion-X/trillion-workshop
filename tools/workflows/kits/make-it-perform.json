@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:make-it-perform's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:make-it-perform.\" Improve discoverability, conversion and useful performance across search, answer engines, social channels and the live experience using current evidence.",
+  "drafted_from": "Read from tools/workflows/recipes/workflows.json (workflow:make-it-perform, steps discover, improve, measure); the hands_back follows the step's submit shape.",
+  "start_here": "Say to your AI: \"Run workflow:make-it-perform to get my bakery's pre-order page at https://example.com/pre-order found for custom cakes nearby, with no paid ads and the wording kept, and you may edit its title and description.\"",
   "lists": [],
   "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
@@ -13,14 +12,15 @@
     "tool:start-a-recipe-run"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:make-it-perform\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:make-it-perform) and works through its steps in order: discover, improve, measure.",
-    "3. Read what each step hands back; the last step is measure."
+    "1. Say the run line in start_here with the request, the page or channel in scope, your constraints and the actions you allow.",
+    "2. The AI discovers the current route for each operation (discover), then fixes the actual bottleneck (improve) and replays a real task through the page.",
+    "3. After a stated window it compares fresh numbers with the baseline (measure); a blocked or unavailable measurement stays open with its exact gap.",
+    "4. Read each step's summary and evidence; nothing promises rankings or impressions."
   ],
   "worked_examples": [
     {
-      "title": "Make It Perform Mode from its first step",
-      "ask": "Run workflow:make-it-perform.",
+      "title": "Find what blocks a pre-order page from being found",
+      "ask": "Make my bakery's pre-order page easier to find for custom cakes nearby.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,18 +31,24 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:make-it-perform",
-              "request": "<request: string>",
-              "scope": "<scope: string>",
-              "constraints": [],
-              "authorized_actions": []
+              "request": "Get my bakery's pre-order page found when people search for custom cakes nearby",
+              "scope": "https://example.com/pre-order",
+              "constraints": [
+                "no paid ads",
+                "keep the page's current wording"
+              ],
+              "authorized_actions": [
+                "edit the page's title and description",
+                "read Search Console numbers"
+              ]
             }
           }
         }
       },
       "workflow": "workflow:make-it-perform",
       "step": "discover",
-      "hands_back": "Step discover answers with summary, evidence, requirements.",
-      "given": "The person gives: request, scope (shown as <name> in the input)."
+      "given": "Read from the discover step in tools/workflows/recipes/workflows.json: it inspects the real schema of each operation before acting, reads back the persisted work record and states what is requirement and what is a gap.",
+      "hands_back": "{\"summary\": \"Read the page https://example.com/pre-order and found the Search Console report route in the account's catalog; the page title says 'Order' and has no description.\", \"evidence\": [{\"source\": \"https://example.com/pre-order\", \"observed\": \"title 'Order', no meta description, one H1 'Pre-order'\"}, {\"source\": \"the account's tool catalog\", \"observed\": \"Search Console read route found; schema inspected before use\"}], \"requirements\": {\"no_paid_ads\": true, \"keep_wording\": true, \"allowed\": [\"edit title\", \"edit description\", \"read Search Console numbers\"], \"gaps\": []}}"
     }
   ]
 }

@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "tool:read-a-tool-setting's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-a-tool-setting with nothing more.\" Read the settings a person keeps for one of their tools, choosing the row for this piece, else this film, else this person, else their whole account, or make the settings row to write",
+  "drafted_from": "tool:read-a-tool-setting row in tools/settings/tool-rows.json, do-work/read_setting.py, read-data/settings.py and test/test_settings.py; list:settings read with records:read",
+  "start_here": "Say to your AI: \"Read the settings I keep for the make-a-sample tool: try piece p1 first, then film f1, then my account, and tell me which row it used.\" It takes the rows from your list:settings and answers the settings of the most specific scope that has an active row.",
   "lists": [
     {
       "list": "list:settings",
@@ -9,132 +8,49 @@
       "row_type": "record:setting",
       "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON.",
       "fields": [
-        {
-          "id": "name",
-          "kind": "text",
-          "label": "Setting",
-          "alike": [
-            "title",
-            "key",
-            "label"
-          ]
-        },
-        {
-          "id": "tool",
-          "kind": "text",
-          "label": "Tool",
-          "alike": [
-            "tool id",
-            "owner"
-          ]
-        },
-        {
-          "id": "scope_kind",
-          "kind": "text",
-          "label": "For a",
-          "alike": [
-            "scope",
-            "applies to"
-          ]
-        },
-        {
-          "id": "scope_id",
-          "kind": "text",
-          "label": "For",
-          "alike": [
-            "scope id",
-            "target"
-          ]
-        },
-        {
-          "id": "settings",
-          "kind": "long-text",
-          "label": "Settings (JSON)",
-          "alike": [
-            "values",
-            "config",
-            "options"
-          ]
-        },
-        {
-          "id": "from",
-          "kind": "text",
-          "label": "From",
-          "alike": [
-            "source",
-            "origin"
-          ]
-        },
-        {
-          "id": "status",
-          "kind": "text",
-          "label": "Status",
-          "alike": [
-            "state",
-            "on or off"
-          ]
-        }
+        { "id": "name", "kind": "text", "label": "Setting", "alike": ["title", "key", "label"] },
+        { "id": "tool", "kind": "text", "label": "Tool", "alike": ["tool id", "owner"] },
+        { "id": "scope_kind", "kind": "text", "label": "For a", "alike": ["scope type", "applies to kind"] },
+        { "id": "scope_id", "kind": "text", "label": "For", "alike": ["scope", "applies to"] },
+        { "id": "settings", "kind": "long-text", "label": "Settings (JSON)", "alike": ["config", "values"] },
+        { "id": "from", "kind": "text", "label": "From", "alike": ["source", "came from"] },
+        { "id": "status", "kind": "text", "label": "Status", "alike": ["state"] }
       ],
       "example_rows": [
-        {
-          "id": "caption-style",
-          "values": {
-            "name": "Caption style",
-            "tool": "tool:example-captioner",
-            "scope_kind": "person",
-            "scope_id": "example-person",
-            "settings": "{\"style\":\"plain\",\"size\":\"large\"}",
-            "from": "the person",
-            "status": "on"
-          }
-        },
-        {
-          "id": "quiet-hours",
-          "values": {
-            "name": "Quiet hours",
-            "tool": "tool:example-notifier",
-            "scope_kind": "account",
-            "scope_id": "whole-account",
-            "settings": "{\"from\":\"22:00\",\"to\":\"07:00\"}",
-            "from": "the person",
-            "status": "on"
-          }
-        }
+        { "id": "make-a-sample-account-main", "values": { "name": "sample", "tool": "tool:make-a-sample", "scope_kind": "account", "scope_id": "main", "settings": "{\"pace\":1}", "from": "tools/sample/settings.json@0000000", "status": "active" } },
+        { "id": "make-a-sample-film-f1", "values": { "name": "sample", "tool": "tool:make-a-sample", "scope_kind": "film", "scope_id": "f1", "settings": "{\"pace\":2}", "from": "tools/sample/settings.json@0000000", "status": "active" } }
       ],
-      "alike": [
-        "an app's settings screen",
-        "a config file per tool",
-        "a spreadsheet of options"
-      ]
+      "alike": ["a per-project config table", "a settings sheet with one row per tool", "a feature-flags table"]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
-    "tool:read-a-tool-setting"
+    "tool:read-a-tool-setting",
+    "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-a-tool-setting\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-a-tool-setting and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Read the settings a person keeps for one of their tools, choosing the row for this piece, else this film, else this person, else their whole account, or make the settings row to write"
+    "1. Pour the example setting rows into the list you keep tool settings in (see pour), or make list:settings from them; each row's id is record:setting:<workshop-folder>~<scope_kind>~<scope_id>.",
+    "2. Say \"Read my settings for <tool>\" and name the scopes to try, most specific first (piece, film, person, account); your AI reads the rows with records:read or records:list on list:settings, writes them to a file, and runs `python3 -I trillion-workshop/tools/settings/do-work/read_setting.py < request.json`.",
+    "3. Read the last line {\"result\": {found, id, settings}}: found true gives the id of the row used and its settings parsed; found false gives the default you passed. A retired row, a row written for another tool or a request with two rows and no scope is refused with what to fix (exit 2).",
+    "4. To write a setting, run it with {\"make\": {folder, scope_kind, scope_id, settings, name, tool, from}, \"with_list\": true}: the answer is the records:write input, and the settings are kept as sorted JSON text."
   ],
   "worked_examples": [
     {
-      "title": "Read the settings a person keeps for a tool, for one person, film, piece or their whole account (runs on your computer) on a sample input",
-      "ask": "Run tool:read-a-tool-setting.",
+      "title": "The film's pace wins over the account's",
+      "ask": "Read my make-a-sample settings for film f1, falling back to my account.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:read-a-tool-setting",
-            "input": {}
+            "tool": "tool:read-a-tool-setting"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Read the settings a person keeps for one of their tools, choosing the row for this piece, else this film, else this person, else their whole account, or make the settings row to write"
+      "given": "From tools/settings/test/test_settings.py (class Reading): request.json is {\"settings_record\": <the rows read from list:settings: the account row make-a-sample~account~main with settings {\"pace\": 1}, the film row make-a-sample~film~f1 with {\"pace\": 2}, and a row of another tool other-tool~film~f2 with {\"pace\": 9}>, \"folder\": \"make-a-sample\", \"scopes\": [{\"kind\": \"piece\", \"id\": \"p1\"}, {\"kind\": \"film\", \"id\": \"f1\"}, {\"kind\": \"account\", \"id\": \"main\"}]}; the command is `python3 -I trillion-workshop/tools/settings/do-work/read_setting.py < request.json`.",
+      "hands_back": "The last line is {\"result\": {\"found\": true, \"id\": \"record:setting:make-a-sample~film~f1\", \"settings\": {\"pace\": 2}}}: there is no row for piece p1, so the film's row is the most specific one. With scopes [{\"kind\": \"film\", \"id\": \"f3\"}, {\"kind\": \"account\", \"id\": \"main\"}] the answer is the account row's {\"pace\": 1}; with no row at all and \"default\": {\"pace\": 0} it is {\"found\": false, \"id\": null, \"settings\": {\"pace\": 0}}."
     }
   ],
   "pour": {
@@ -144,39 +60,19 @@
     "example": {
       "kit_list": "list:settings",
       "into": {
-        "list": "list:my-settings",
-        "row_type": "record:setting",
+        "list": "list:tool-options",
+        "row_type": "record:tool-option",
         "fields": [
-          {
-            "id": "name",
-            "label": "Setting"
-          },
-          {
-            "id": "tool",
-            "label": "Tool"
-          },
-          {
-            "id": "scope_kind",
-            "label": "For a"
-          },
-          {
-            "id": "scope_id",
-            "label": "For"
-          },
-          {
-            "id": "settings",
-            "label": "Settings (JSON)"
-          },
-          {
-            "id": "from",
-            "label": "From"
-          },
-          {
-            "id": "status",
-            "label": "Status"
-          }
+          { "id": "title", "label": "Title" },
+          { "id": "tool_id", "label": "Tool id" },
+          { "id": "scope_type", "label": "Scope type" },
+          { "id": "applies_to", "label": "Applies to" },
+          { "id": "config", "label": "Config" },
+          { "id": "source", "label": "Source" },
+          { "id": "state", "label": "State" }
         ]
-      }
+      },
+      "field_map": {}
     }
   }
 }

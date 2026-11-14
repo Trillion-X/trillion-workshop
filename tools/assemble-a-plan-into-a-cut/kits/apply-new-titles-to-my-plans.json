@@ -1,39 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:apply-new-titles-to-my-plans's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:apply-new-titles-to-my-plans with input, step.\" Change the titles of my video plans to the ones in my titles list, and fix every card that points to an old title",
+  "drafted_from": "tools/assemble-a-plan-into-a-cut/tool-rows.json, do-work/plans.py, test/test_assemble.py",
+  "start_here": "Say to your AI: \"Put the new titles from my titles file into the plans in plans/ and fix every card that names an old title.\" It runs retitle, or titles-table to show the table first.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of yours: you hand it a titles list in the request file and it rewrites the plan files in the folder you name.",
   "workflows": [],
   "tools": [
     "tool:apply-new-titles-to-my-plans"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:apply-new-titles-to-my-plans\", and give it input, step.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:apply-new-titles-to-my-plans and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Change the titles of my video plans to the ones in my titles list, and fix every card that points to an old title"
+    "1. Clone the Workshop checkout; only python3 is needed.",
+    "2. Write request.json: plans_folder, titles {titles: [{id, title, old_title?}]}, untitled (placeholder words), card_kind, card_prefixes, copy_from_row, copy_from_doc.",
+    "3. Say \"Show me the titles table\"; the AI runs assemble.py titles-table --request request.json and shows the Markdown table.",
+    "4. Say \"Apply them\"; the AI runs assemble.py retitle --request request.json and lists each plan's id and title; placeholders keep the old title under withdrawn_title."
   ],
   "worked_examples": [
     {
-      "title": "Put new titles into my video plans and the cards that name them (runs on your computer) on a sample input",
-      "ask": "Run tool:apply-new-titles-to-my-plans.",
+      "title": "Two plans retitled, one to a placeholder",
+      "ask": "Apply the new titles to my plans and fix the cards.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:apply-new-titles-to-my-plans",
-            "input": {
-              "input": "<input: The request file: plans_folder, titles {titles: [{id, title, old_title?}]}, untitled, card_kind, card_prefixes, copy_from_row, copy_from_doc, fields; for titles-table: titles, untitled, columns>",
-              "step": "retitle"
-            }
+            "tool": "tool:apply-new-titles-to-my-plans"
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Change the titles of my video plans to the ones in my titles list, and fix every card that points to an old title",
-      "given": "The person gives: input (shown as <name> in the input)."
+      "given": "From test_retitle_renames_titles_and_the_cards_that_name_them and test_a_titles_table_marks_the_untitled_and_keeps_its_columns in tools/assemble-a-plan-into-a-cut/test/test_assemble.py, run here: plan X1 titled Old Name has a note card 'Then: Old Name'; plan X2 titled Second has no segments. Titles list: X1 'New Name' (basis given), X2 'placeholder' (basis none); untitled ['placeholder'], card_kind note, card_prefixes ['Then: '], copy_from_row ['basis'], copy_from_doc ['card_state'] with card_state 'held'.",
+      "hands_back": "retitle printed {\"result\": {\"plans\": [{\"id\": \"X1\", \"title\": \"New Name\", \"basis\": \"given\"}, {\"id\": \"X2\", \"title\": \"placeholder\", \"basis\": \"none\"}]}}. X1's card now reads 'Then: New Name' and X1 has card_state held; X2 keeps title placeholder with withdrawn_title 'Second'. titles-table on the same list (column basis) printed table lines '| ID | Title | basis |', '|---|---|---|', '| X1 | New Name | given |', '| X2 | **placeholder** | none |'."
     }
   ]
 }

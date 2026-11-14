@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:blur-faces-not-agreed's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:blur-faces-not-agreed with video.\" Make a copy of a video with every face blurred and every word silenced except those of the people who agreed to be filmed, before it is posted or shared",
+  "drafted_from": "tool:blur-faces-not-agreed's own row in tools/media-composition/tool-rows.json, tools/media-composition/do-work/blur-faces-not-agreed.py (its docstring and the line it prints), and its re-encode run here on a synthetic 3 second test pattern with no faces and no sound; the face and voice models are not on this computer so the detector itself was not run",
+  "start_here": "Say to your AI: \"Make a copy of my practice video with everyone blurred and silenced except the people who agreed to be filmed.\" It runs tool:blur-faces-not-agreed and keeps the copy in your files.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It reads the video and the agreed pictures and voices you name and keeps one copy of the video, so it keeps no list of its own.",
   "workflows": [],
   "tools": [
     "tool:blur-faces-not-agreed"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:blur-faces-not-agreed\", and give it video.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:blur-faces-not-agreed and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields result, files."
+    "1. Find the video's identity in your files, a clear picture of each person who agreed to be filmed (yourself included) and, for the sound, a recording of each of them speaking for ten seconds or more.",
+    "2. Say \"Blur everyone who has not agreed\" with video, agreed (the pictures) and agreed_voices (the recordings), and name for what to call the copy. With no agreed pictures every face is blurred; with no agreed voices every word is silenced. Raise match or voice_match to blur or silence more.",
+    "3. The AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:blur-faces-not-agreed. It runs on the tool's own computer with no network. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
+    "4. Read result: faces seen, blurred, kept, agreed_faces, pictures_without_a_face (an agreed picture where no face was found: replace it), silenced and silenced_seconds. The copy is files.video, kept under Made by tools; the original is never changed."
   ],
   "worked_examples": [
     {
-      "title": "Blur and silence everyone who has not agreed to be filmed on a sample input",
-      "ask": "Run tool:blur-faces-not-agreed.",
+      "title": "No one agreed: every face would be blurred",
+      "ask": "Make a copy of my street practice video with every face blurred.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,13 +26,14 @@
           "input": {
             "tool": "tool:blur-faces-not-agreed",
             "input": {
-              "video": "<video: The video, by its identity in your files>"
+              "video": "1f:7e4d4a0de1d4494cebf981afb6810beb766f3db61b0289e5275d13319d8fc395",
+              "name": "Street practice without strangers"
             }
           }
         }
       },
-      "hands_back": "An answer with the fields result, files.",
-      "given": "The person gives: video (shown as <name> in the input)."
+      "given": "read from tools/media-composition/do-work/blur-faces-not-agreed.py on a 3 second 320x180 clip at 10 frames a second with no sound and no face in the picture: frames 30 and seconds 3.0 come from the probe, every count is 0, and video_bytes is the size of the same ffmpeg re-encode run here (the container's ffmpeg may differ by a few bytes)",
+      "hands_back": "{\"result\":{\"frames\":30,\"seconds\":3,\"width\":320,\"height\":180,\"faces\":0,\"blurred\":0,\"kept\":0,\"agreed_faces\":0,\"pictures_without_a_face\":[],\"agreed_voices\":0,\"silenced\":0,\"silenced_seconds\":0,\"video_bytes\":12529},\"files\":{\"video\":{\"identity\":\"1f:67ef3d14b24504714146cec36da834c9449a0310cb82cc14c567519d9de28ff9\",\"bytes\":12529,\"media_type\":\"video/mp4\",\"name\":\"Street practice without strangers.mp4\"}}}"
     }
   ]
 }

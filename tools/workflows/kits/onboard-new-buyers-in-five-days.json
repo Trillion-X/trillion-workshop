@@ -1,13 +1,12 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:onboard-new-buyers-in-five-days's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:onboard-new-buyers-in-five-days.\" Sign each new buyer up for the five-day course with their consent, send the lessons on their days, add them as customers, record their steps, see where each one is, and record the follow-up gap.",
+  "drafted_from": "workflow:onboard-new-buyers-in-five-days's row in tools/workflows/recipes/workflows.json, the checklist and gap lists as workflow:set-up-a-business-on-trillion makes them, and tools/customer-follow-up/test/customer-follow-up-tools.test.mjs and tools/customer-follow-up/do-work/add-a-customer.mjs",
+  "start_here": "Say to your AI: \"Run workflow:onboard-new-buyers-in-five-days for the buyer sam@example.com who paid and agreed to the course emails.\"",
   "lists": [
     {
       "list": "list:business-setup-checklist",
       "label": "Business setup checklist",
       "row_type": "record:setup-stage",
-      "holds": "One row per stage of setting the business up; this workflow writes the replies row.",
+      "holds": "One row per stage of setting up the business: what is done, not done, a gap or blocked, with the status of each step.",
       "fields": [
         {
           "id": "stage",
@@ -59,23 +58,23 @@
       ],
       "example_rows": [
         {
-          "id": "replies",
+          "id": "onboarding",
           "values": {
-            "stage": "replies",
-            "label": "Comments and messages",
+            "stage": "onboarding",
+            "label": "Onboarding",
             "status": "Gap",
-            "steps_status": "{\"read-facts\":\"Done\",\"pull-messages\":\"Done\",\"read-reply-templates\":\"Done\",\"pick-a-template\":\"Done\",\"fill-the-replies\":\"Done\",\"check-the-replies\":\"Done\",\"hand-the-replies-to-the-person\":\"Gap\"}",
+            "steps_status": "{\"read-facts\":\"Done\",\"sign-up-the-buyer\":\"Done\",\"send-due-lessons\":\"Done\",\"add-the-buyer-as-a-customer\":\"Done\",\"record-day-one\":\"Done\",\"see-where-each-buyer-is\":\"Done\",\"follow-up-after-sign-up\":\"Gap\"}",
             "gaps": [
-              "record:setup-gap:hand-the-replies-to-the-person-1"
+              "record:setup-gap:follow-up-after-sign-up-1"
             ],
             "updated_at": "2026-11-13"
           }
         },
         {
-          "id": "social-posting",
+          "id": "retention-and-referral",
           "values": {
-            "stage": "social-posting",
-            "label": "Posting on social channels",
+            "stage": "retention-and-referral",
+            "label": "Retention and referral",
             "status": "Not done",
             "steps_status": "",
             "gaps": [],
@@ -84,16 +83,16 @@
         }
       ],
       "alike": [
+        "an onboarding checklist spreadsheet",
         "a launch checklist",
-        "a project board's to-do column",
-        "an onboarding checklist spreadsheet"
+        "a project board's to-do column"
       ]
     },
     {
       "list": "list:business-setup-gaps",
-      "label": "Business setup gaps",
+      "label": "Business set-up gaps",
       "row_type": "record:setup-gap",
-      "holds": "One row per thing a stage could not do itself: the step, what was left undecided, what the run did and the evidence.",
+      "holds": "One row per thing a stage could not close: the step, what was not decided, what this run did and the evidence.",
       "fields": [
         {
           "id": "stage",
@@ -143,57 +142,60 @@
       ],
       "example_rows": [
         {
-          "id": "hand-the-replies-to-the-person-1",
+          "id": "follow-up-after-sign-up-1",
           "values": {
-            "stage": "replies",
-            "step": "hand-the-replies-to-the-person",
-            "undecided": "No live tool sends an Instagram direct-message reply.",
-            "chosen": "Handed 3 checked replies to the person to send by hand.",
-            "evidence": "The live catalog has no send tool for Instagram direct messages.",
+            "stage": "onboarding",
+            "step": "follow-up-after-sign-up",
+            "undecided": "No live tool sends a follow-up email after sign-up.",
+            "chosen": "Drafted the follow-up, checked it with tool:check-copy and handed it to the person to send.",
+            "evidence": "The workshop has no tool named send-follow-up-emails-after-sign-up.",
             "status": "open"
           }
         },
         {
-          "id": "pull-messages-1",
+          "id": "sign-up-the-buyer-1",
           "values": {
-            "stage": "replies",
-            "step": "pull-messages",
-            "undecided": "Instagram sign-in expired.",
-            "chosen": "Submitted status needs_login and pulled nothing.",
-            "evidence": "tool:pull-my-instagram-messages answered needs_login.",
+            "stage": "onboarding",
+            "step": "sign-up-the-buyer",
+            "undecided": "The buyer did not agree to the course consent words.",
+            "chosen": "Did not sign the buyer up.",
+            "evidence": "consent was false for this buyer in this run.",
             "status": "open"
           }
         }
       ],
       "alike": [
-        "an issues list",
-        "a blockers column on a board",
-        "a bug tracker"
+        "an issues spreadsheet",
+        "a blockers list in a project board",
+        "a bug tracker backlog"
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
     "workflow:onboard-new-buyers-in-five-days",
     "workflow:set-up-a-business-on-trillion"
   ],
   "tools": [
+    "tool:start-a-recipe-run",
     "tool:add-a-customer",
     "tool:check-copy",
     "tool:record-a-customer-step",
     "tool:see-where-each-customer-is",
     "tool:send-due-email-lessons-with-resend",
-    "tool:sign-someone-up-for-an-email-course-with-resend"
+    "tool:sign-someone-up-for-an-email-course-with-resend",
+    "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:onboard-new-buyers-in-five-days\".",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:onboard-new-buyers-in-five-days) and works through its steps in order: read-facts, sign-up-the-buyer, send-due-lessons, add-the-buyer-as-a-customer, record-day-one, see-where-each-buyer-is, follow-up-after-sign-up, record-the-stage.",
-    "3. Read what each step hands back; the last step is record-the-stage."
+    "1. Run workflow:set-up-a-business-on-trillion first (its write-the-business-facts and make-the-checklist steps) so record:business-setup:facts and list:business-setup-checklist exist; or pour the example rows into your own checklist (see pour).",
+    "2. Say \"Run workflow:onboard-new-buyers-in-five-days\". It reads the facts (read-facts), then for the buyer who paid and agreed to the consent words signs them up (sign-up-the-buyer), sends due lessons (send-due-lessons), adds them as a customer (add-the-buyer-as-a-customer) and records onboarding-day-1 (record-day-one).",
+    "3. Each later day say it again: send-due-lessons sends that day's lesson and record-day-one is repeated with the next onboarding-day step.",
+    "4. Read see-where-each-buyer-is (each customer and last step), then follow-up-after-sign-up: send-follow-up-emails-after-sign-up is not a live tool, so it is recorded as a gap and the follow-up is drafted for you to send.",
+    "5. record-the-stage ticks the onboarding row on list:business-setup-checklist and writes each gap to list:business-setup-gaps, then reads both back."
   ],
   "worked_examples": [
     {
-      "title": "Onboard new buyers in five days from its first step",
-      "ask": "Run workflow:onboard-new-buyers-in-five-days.",
+      "title": "Add a paying buyer as a customer and keep the contact id",
+      "ask": "Run workflow:onboard-new-buyers-in-five-days for the buyer Sam who paid and agreed to the course emails.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -209,8 +211,9 @@
         }
       },
       "workflow": "workflow:onboard-new-buyers-in-five-days",
-      "step": "read-facts",
-      "hands_back": "Step read-facts answers with facts."
+      "step": "add-the-buyer-as-a-customer",
+      "given": "From tools/customer-follow-up/test/customer-follow-up-tools.test.mjs: tool:add-a-customer with name \"Sam Example\", reach_them_by \"sam@example.com\", came_from \"buyer-after-payment\", owner \"Pat\" keeps a customer-contact whose id starts with \"contact:\"; tools/customer-follow-up/do-work/add-a-customer.mjs makes that id as contact: plus a generated unique id when none is given.",
+      "hands_back": "{\"contact_id\":\"contact:6f1c2b7e-3d0a-4c58-9b1e-2a7d5c9e4f10\"}"
     }
   ],
   "pour": {
@@ -220,32 +223,32 @@
     "example": {
       "kit_list": "list:business-setup-checklist",
       "into": {
-        "list": "list:my-business-setup-checklist",
-        "row_type": "record:setup-stage",
+        "list": "list:my-onboarding-checklist",
+        "row_type": "record:onboarding-task",
         "fields": [
           {
             "id": "stage",
             "label": "Stage"
           },
           {
-            "id": "label",
-            "label": "Stage name"
+            "id": "name",
+            "label": "Name"
           },
           {
-            "id": "status",
-            "label": "Status"
+            "id": "state",
+            "label": "State"
           },
           {
-            "id": "steps_status",
-            "label": "Steps"
+            "id": "notes",
+            "label": "Notes"
           },
           {
-            "id": "gaps",
-            "label": "Gaps"
+            "id": "blockers",
+            "label": "Blockers"
           },
           {
-            "id": "updated_at",
-            "label": "Updated"
+            "id": "date",
+            "label": "Date"
           }
         ]
       }

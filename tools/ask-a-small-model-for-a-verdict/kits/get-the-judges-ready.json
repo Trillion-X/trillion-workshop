@@ -1,39 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:get-the-judges-ready's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:get-the-judges-ready with rubrics_file, remember_file.\" Calibrate every question in my rubrics file against the models I can ask, once and away from the moment of asking, and keep which model passed each so a later question is one fast call",
+  "drafted_from": "tool:get-the-judges-ready row in tools/ask-a-small-model-for-a-verdict/tool-rows.json, its code in tools/ask-a-small-model-for-a-verdict/do-work/ and tools/ask-a-small-model-for-a-verdict/test/tool.test.mjs; the answers were produced by running the tool against a stand-in model server",
+  "start_here": "Say to your AI: \"Get my judges ready: calibrate every rubric in /work/judge/rubrics.json and keep the settled choice in /work/judge/kept.json.\" It runs calibration and tells you which questions are ready.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads your rubrics file, scores each model on every rubric and writes the choice it settles on to the remember file you name.",
   "workflows": [],
   "tools": [
-    "tool:get-the-judges-ready"
+    "tool:get-the-judges-ready",
+    "tool:ask-a-small-model-for-a-verdict"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:get-the-judges-ready\", and give it rubrics_file, remember_file.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:get-the-judges-ready and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields outcomes."
+    "1. Write /work/judge/rubrics.json with your providers and rubrics (each with calibration cases).",
+    "2. Write /work/judge/request.json: {\"rubrics_file\": \"/work/judge/rubrics.json\", \"remember_file\": \"/work/judge/kept.json\"} (passes defaults to 1).",
+    "3. Say \"Get my judges ready\". The AI reads the row with tools:list and runs: node tools/ask-a-small-model-for-a-verdict/do-work/ask-a-small-model.mjs calibrate < /work/judge/request.json.",
+    "4. Read result.outcomes: per rubric the model chosen and its scoreboard, or a refused reason. Later tool:ask-a-small-model-for-a-verdict calls with the same remember_file ask only the question."
   ],
   "worked_examples": [
     {
-      "title": "Test my models on my questions ahead of time and keep who passed (runs on your computer) on a sample input",
-      "ask": "Run tool:get-the-judges-ready.",
+      "title": "Calibrate one rubric and keep the chosen model",
+      "ask": "Get my judges ready for the claims-done question.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:get-the-judges-ready",
-            "input": {
-              "rubrics_file": "<rubrics_file: string>",
-              "remember_file": "<remember_file: string>"
-            }
+            "tool": "tool:get-the-judges-ready"
           }
         }
       },
-      "hands_back": "An answer with the fields outcomes.",
-      "given": "The person gives: rubrics_file, remember_file (shown as <name> in the input)."
+      "given": "From tools/ask-a-small-model-for-a-verdict/test/tool.test.mjs (test \"scoreboard and calibrate...\"), run for real against a stand-in model server (a bakery's note checker; the stand-in model server answers true only for text containing \"trust me\"): rubrics.json as in tool:see-which-models-can-judge, request.json {\"rubrics_file\": \"/work/judge/rubrics.json\", \"remember_file\": \"/work/judge/kept.json\"}. Command: node tools/ask-a-small-model-for-a-verdict/do-work/ask-a-small-model.mjs calibrate < /work/judge/request.json",
+      "hands_back": "Last line: {\"result\": {\"outcomes\": [{\"rubric\": \"claims-done\", \"chosen\": \"stand-in\", \"scoreboard\": [{\"candidate\": \"stand-in\", \"correct\": 2, \"errors\": 0, \"passed\": true, \"needed\": 2}], \"took_ms\": 161}]}}. kept.json now holds one entry (keyed by a blake3 identity of the rubric and models) with chosen \"stand-in\"."
     }
   ]
 }

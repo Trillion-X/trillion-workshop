@@ -1,43 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:check-a-compiled-packaging-template-against-the-ledger's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-a-compiled-packaging-template-against-the-ledger with root, ledger, source_key, compiled, output.\" Check that the template made from my packaging ledger joins back to the right videos, files and caption events, and that nothing from the earlier version was lost",
+  "drafted_from": "tool row in tools/keep-a-video-packaging-ledger/tool-rows.json, do-work/readback_compiled_packaging.py and the fixture of test/test_readback_compiled_packaging.py (run to observe)",
+  "start_here": "Say to your AI: \"Check that the compiled template for source key channel-fixture joins back to my packaging ledger, and write the report to out/READBACK.json.\" It reads the tool's row and runs readback_compiled_packaging.py on your computer.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no Trillion list: the ledger is a JSON Lines file in the person's own working folder, one row per video, and the tool reads and writes files there.",
   "workflows": [],
   "tools": [
     "tool:check-a-compiled-packaging-template-against-the-ledger",
     "tool:make-a-word-template"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-a-compiled-packaging-template-against-the-ledger\", and give it root, ledger, source_key, compiled, output.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-compiled-packaging-template-against-the-ledger and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Check that the template made from my packaging ledger joins back to the right videos, files and caption events, and that nothing from the earlier version was lost"
+    "1. Build the template (TEMPLATE.json) from the projected source with tool:make-a-word-template.",
+    "2. Say which source key, ledger and compiled template to check. The AI reads the row with tools:list {tool: tool:check-a-compiled-packaging-template-against-the-ledger} and runs its `run` command; after adding videos to a source that already had a template add --before-compiled, --before-ledger and one --expected-new-video-id per added video.",
+    "3. Read the last JSON line: status pass, videos, compiled_records, legacy_preservation, ledger_prefix and output; on failure it prints {status: rejected, reason} on standard error and exits 1.",
+    "4. Tell the person pass or the reason it was rejected."
   ],
   "worked_examples": [
     {
-      "title": "Check that a template built from my packaging ledger still matches the ledger and lost nothing (runs on your computer) on a sample input",
-      "ask": "Run tool:check-a-compiled-packaging-template-against-the-ledger.",
+      "title": "Check one compiled video against the ledger",
+      "ask": "Check that the compiled template for source key channel-fixture joins back to my packaging ledger.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:check-a-compiled-packaging-template-against-the-ledger",
-            "input": {
-              "root": "<root: The folder every other path is relative to (the person's own working folder that holds the ledger, captions, metadata, thumbnails and review notes), put where {root} is in the command>",
-              "ledger": "<ledger: The packaging ledger: a JSON Lines file, one row per video (video_id, source_key, channel, titles, thumbnail identity and review, caption file references, hook evidence locators), put where {ledger} is in the command>",
-              "source_key": "<source_key: The source key: the name the person gives one channel or playlist batch in the ledger, put where {source_key} is in the command>",
-              "compiled": "<compiled: The compiled template JSON, put where {compiled} is in the command>",
-              "output": "<output: Where to write the read-back report JSON, put where {output} is in the command>"
-            }
+            "tool": "tool:check-a-compiled-packaging-template-against-the-ledger"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Check that the template made from my packaging ledger joins back to the right videos, files and caption events, and that nothing from the earlier version was lost",
-      "given": "The person gives: root, ledger, source_key, compiled, output (shown as <name> in the input)."
+      "given": "I ran readback_compiled_packaging.py on the fixture of tools/keep-a-video-packaging-ledger/test/test_readback_compiled_packaging.py (CompiledChannelJoinCompatibility, default fixture): one video CHANNELFIXTURE123 with a title record, a thumbnail-analysis record and a unit record, its metadata file and thumbnail pinned in the ledger by BLAKE3. Command: python3 -I tools/keep-a-video-packaging-ledger/do-work/readback_compiled_packaging.py --root /work/example-channel --source-key channel-fixture --ledger /work/example-channel/VIDEO-PACKAGING.jsonl --compiled /work/example-channel/compiled.json --output /work/example-channel/out/READBACK.json.",
+      "hands_back": "{\"status\": \"pass\", \"videos\": 1, \"compiled_records\": 3, \"legacy_preservation\": null, \"ledger_prefix\": null, \"output\": \"/work/example-channel/out/READBACK.json\"} The report (schema compiled-youtube-packaging-readback@2) resolves CHANNELFIXTURE123 to source_channel_id UC-channel-fixture (channel_join_basis channel_id+identity-pinned-metadata), title Fixture title, caption_source_count 0 and caption_text_copied false."
     }
   ]
 }

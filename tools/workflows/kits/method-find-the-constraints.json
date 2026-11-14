@@ -1,22 +1,24 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:method-find-the-constraints's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:method-find-the-constraints.\" List every hard constraint a design must meet and find the ones that, combined, rule out every lazy answer, so the right design is the only one left standing.",
+  "drafted_from": "workflow:method-find-the-constraints's row in tools/workflows/recipes/workflows.json (its job, input schema and the step named in the worked example)",
+  "start_here": "Say to your AI: \"Run workflow:method-find-the-constraints on: decide the price of a five-lesson online bread-baking course for home bakers.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It is a way of thinking a request through, answered in words step by step, and it reads and writes no list.",
   "workflows": [
     "workflow:method-find-the-constraints"
   ],
-  "tools": [],
+  "tools": [
+    "tool:start-a-recipe-run"
+  ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:method-find-the-constraints\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-find-the-constraints) and works through its steps in order: outcome, question, baseline, rule-out, owner, smallest-change, automate, risk, production, proof.",
-    "3. Read what each step hands back; the last step is proof."
+    "1. Write the decision in one plain sentence, for example \"decide the price of a five-lesson online bread-baking course for home bakers\", and say \"Run workflow:method-find-the-constraints\" with it as request (at least 10 characters).",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-find-the-constraints) and answers its steps in order: outcome, question, baseline, rule-out, owner, smallest-change, automate, risk, production, proof; each answer is refused until every check of the step is answered about this request.",
+    "3. At rule-out, write the table of extremes (people, use, money, memory, disk, setup, time, absence, failure) and count how many options survive; if more than a few survive, name the constraint you are missing.",
+    "4. Read what the last step, proof, hands back: how success and failure will be checked and the date it will be checked."
   ],
   "worked_examples": [
     {
-      "title": "Find the constraints that leave one right answer from its first step",
-      "ask": "Run workflow:method-find-the-constraints.",
+      "title": "Name what a course price is chosen to maximize",
+      "ask": "Run workflow:method-find-the-constraints: decide the price of a five-lesson online bread-baking course for home bakers.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,15 +29,15 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:method-find-the-constraints",
-              "request": "<request: What you are deciding, designing or building, in plain words>"
+              "request": "Decide the price of a five-lesson online bread-baking course for home bakers"
             }
           }
         }
       },
       "workflow": "workflow:method-find-the-constraints",
       "step": "outcome",
-      "hands_back": "Step outcome answers with answer, checks.",
-      "given": "The person gives: request (shown as <name> in the input)."
+      "given": "Read from tools/workflows/recipes/workflows.json, step outcome: its submit shape is answer (at least 40 characters) and checks, which holds one check, outcome-price-names-what-it-optimizes (at least 20 characters). The request is the one in the input above.",
+      "hands_back": "{\"answer\":\"Home bakers who finished the free first lesson (412 last month) know the course exists but have not bought; the change is that they are enrolled, and no price has been shown to any of them yet.\",\"checks\":{\"outcome-price-names-what-it-optimizes\":\"The price is chosen to maximize money collected per person shown the offer in their first 90 days, not the price per sale.\"}}"
     }
   ]
 }

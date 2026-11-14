@@ -1,40 +1,37 @@
 {
-  "draft": true,
-  "drafted_from": "tool:work-a-piece-through-a-question-bank's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:work-a-piece-through-a-question-bank with library, schema, command.\" Ask a small set of the right questions about one thing I am making or reviewing, keep each answer with the files that show it, tell me when an answer's evidence has changed, and add what I learned to my library of findings",
+  "start_here": "Say to your AI: \"Start the spring-planting profile on my herb bed, then walk me through the questions and record each answer with the file that shows it.\" It runs tool:work-a-piece-through-a-question-bank.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of yours: its questions, profiles and findings are files of your own record library, named by your schema, and it writes only the piece's investigation record and your findings file.",
   "workflows": [],
   "tools": [
     "tool:work-a-piece-through-a-question-bank"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:work-a-piece-through-a-question-bank\", and give it library, schema, command.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:work-a-piece-through-a-question-bank and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Ask a small set of the right questions about one thing I am making or reviewing, keep each answer with the files that show it, tell me when an answer's evidence has changed, and add what I learned to my library of findings"
+    "1. Have a library with a schema whose investigation section names the question bank, the profiles, the piece header and the statuses, and a piece folder with a header listing its tags (the greenhouse fixture beds/herb-bed is a worked piece).",
+    "2. Say to your AI: \"Start the spring-planting profile on my herb bed\". It reads the row with tools:list and runs python3 -I tools/keep-a-record-library-valid/do-work/keep_a_record_library.py --library <library> --schema <schema> start <piece> --profile spring-planting --limit 4",
+    "3. Run next <piece> to see which questions are ready, read the files each question says to verify, then record each answer: evidence <piece> --q ID --status executed --file PATH --note \"what the file shows\". A missing file is refused; an unchanged file is not recorded twice.",
+    "4. Run progress <piece> to see the counts, the share done and answers whose evidence changed after they were recorded (answers_with_changed_or_missing_evidence).",
+    "5. When something is worth keeping for the next piece, add finding <piece> --kind tip --title TITLE --field NAME=VALUE ... --q ID --evidence E1.",
+    "6. A recorded answer shows which files it rests on, not that it is true; say so plainly."
   ],
   "worked_examples": [
     {
-      "title": "Work one piece through a bank of questions, with evidence for every answer (runs on your computer) on a sample input",
-      "ask": "Run tool:work-a-piece-through-a-question-bank.",
+      "title": "Start the herb bed, answer two questions, see one answer go stale",
+      "ask": "Walk my herb bed through the spring-planting questions.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:work-a-piece-through-a-question-bank",
-            "input": {
-              "library": "<library: The folder the library's files are relative to, put where {library} is in the command>",
-              "schema": "<schema: The schema file on the person's computer, put where {schema} is in the command>",
-              "command": "<command: One of: start <piece> --profile ID [--limit N] [--objective TEXT]; next <piece>; evidence <piece> --q ID --status STATUS --file PATH --note TEXT [--append] [--defect] [--caught-by ID]; finding <piece> --kind KIND --title TITLE --field NAME=VALUE ..>"
-            }
+            "tool": "tool:work-a-piece-through-a-question-bank"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Ask a small set of the right questions about one thing I am making or reviewing, keep each answer with the files that show it, tell me when an answer's evidence has changed, and add what I learned to my library of findings",
-      "given": "The person gives: library, schema, command (shown as <name> in the input)."
+      "given": "Read from tools/keep-a-record-library-valid/do-work/keep_a_record_library.py and run for real on a copy of tools/keep-a-record-library-valid/test/fixtures/greenhouse (library \"greenhouse\", piece greenhouse/beds/herb-bed, an evidence file soil-test.txt added beside NOTES.md): python3 -I tools/keep-a-record-library-valid/do-work/keep_a_record_library.py --library greenhouse --schema greenhouse/schema.json start greenhouse/beds/herb-bed --profile spring-planting --limit 4 --objective \"Spring check of the herb bed\"; then next; then evidence greenhouse/beds/herb-bed --q orient --status executed --file greenhouse/beds/herb-bed/NOTES.md --note \"Header lists herb, outdoor, part shade\"; then evidence ... --q QN-001 --status executed --file greenhouse/beds/herb-bed/soil-test.txt --note \"Seen: finger pushes in to the knuckle\"; then soil-test.txt is edited and progress is run.",
+      "hands_back": "start answers profile \"spring-planting\", target_kind \"own\", tags herb, mulch, outdoor, raised, shade, shade:part, trellis, and selected QN-001, QN-003, QN-005, QN-006 (QN-004 and QN-007 are over_limit) and writes beds/herb-bed/investigation.json. next lists ready: [orient] and waiting_ids [QN-001, QN-003, QN-005, QN-006]. The first evidence call answers {\"question\": \"orient\", \"status\": \"executed\", \"evidence\": [\"E1\"], \"progress\": {\"applicable\": 5, \"progress_pct\": 20.0}}; the second {\"question\": \"QN-001\", \"evidence\": [\"E2\"], \"progress_pct\": 40.0}. After soil-test.txt is edited, progress shows evidence {\"total\": 2, \"matches\": 1, \"changed\": 1, \"missing\": 0} and answers_with_changed_or_missing_evidence [\"QN-001\"]. A finding --kind tip returns piece_finding \"T1\" and library_finding id \"FN-0001\" with the file's BLAKE3 identity."
     }
-  ]
+  ],
+  "drafted_from": "tool:work-a-piece-through-a-question-bank's row in tools/keep-a-record-library-valid/tool-rows.json, do-work/keep_a_record_library.py and read-data/*.py, and the fixtures and tests in tools/keep-a-record-library-valid/test/; the worked run was executed here on the made-up greenhouse fixtures"
 }

@@ -1,41 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:pin-files-by-content's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:pin-files-by-content with action, root, pin_file, folder.\" Check that a pin file records each DATA file's exact byte count and BLAKE3, or bring the pins up to the files, so a program that reads them can refuse a file that changed after it was pinned",
+  "drafted_from": "tools/pin-files-by-content/tool-rows.json (tool:pin-files-by-content), do-work/pin-files.mjs, read-data/pins.mjs and pin-shape.json, test/pin-files-by-content.test.mjs",
+  "start_here": "Say to your AI: \"Check whether the pins in pins.json still match the files in my settings folder, and tell me which are stale.\" It runs pin-files.mjs check on your computer and names every file whose pin is added, changed or gone.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads a folder of files and one pin file on your computer and answers which pins differ.",
   "workflows": [],
   "tools": [
     "tool:pin-files-by-content"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:pin-files-by-content\", and give it action, root, pin_file, folder.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:pin-files-by-content and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Check that a pin file records each DATA file's exact byte count and BLAKE3, or bring the pins up to the files, so a program that reads them can refuse a file that changed after it was pinned"
+    "1. Clone the Workshop repository and run npm install in it (the tool needs @noble/hashes), then work from its root.",
+    "2. Say which folder holds the files to pin and which pin file records them; the AI reads the row with tools:list {tool: \"tool:pin-files-by-content\"}.",
+    "3. It runs \"node tools/pin-files-by-content/do-work/pin-files.mjs check --root <root> --pin-file <pin file> --folder <folder>\", adding --unpinned-ok <file> once for each file that is never pinned (for example package.json).",
+    "4. Read the one JSON line it prints: ok, pinned, added, changed, gone, unchanged, written. Exit 1 means a difference; exit 2 means a path or the pin file could not be read, with the reason on standard error.",
+    "5. When you mean the files to be the new truth, run the same command with write in place of check, then commit the pin file in the same change as the files."
   ],
   "worked_examples": [
     {
-      "title": "Check or update the pins of a folder of DATA files on a sample input",
-      "ask": "Run tool:pin-files-by-content.",
+      "title": "Check a settings folder against an empty pin file",
+      "ask": "Check whether pins.json matches my settings folder.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:pin-files-by-content",
-            "input": {
-              "action": "check",
-              "root": "<root: The repository or granted folder; the other paths are under it>",
-              "pin_file": "<pin_file: The pin file, under root>",
-              "folder": "<folder: The folder of pinned files, under root>"
-            }
+            "tool": "tool:pin-files-by-content"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Check that a pin file records each DATA file's exact byte count and BLAKE3, or bring the pins up to the files, so a program that reads them can refuse a file that changed after it was pinned",
-      "given": "The person gives: root, pin_file, folder (shown as <name> in the input)."
+      "given": "From tools/pin-files-by-content/test/pin-files-by-content.test.mjs (the first test): a folder settings holding colors.json ({\"sky\":\"blue\"}), themes/night.json and package.json, and a pins.json with an empty \"files\" object. The AI runs: node tools/pin-files-by-content/do-work/pin-files.mjs check --root /work/app --pin-file pins.json --folder settings --unpinned-ok package.json",
+      "hands_back": "{\"ok\":false,\"pinned\":2,\"added\":[\"colors\",\"themes/night\"],\"changed\":[],\"gone\":[],\"unchanged\":0,\"written\":false} with exit 1, and nothing written. Running the same line with write answers written true and exit 0; a check after that answers ok true, and pins.json then holds, for colors, {\"path\":\"colors.json\",\"pin\":{\"bytes\":15,\"blake3\":\"<64 hex digits>\"}}."
     }
   ]
 }

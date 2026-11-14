@@ -1,9 +1,8 @@
 {
-  "draft": true,
-  "drafted_from": "tool:plan-a-side-by-side-movement-comparison's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:plan-a-side-by-side-movement-comparison with spec, out.\" Make the edit for a video that shows two movements next to each other, each cropped to the person doing it, with labels and an optional slow-motion pass",
+  "drafted_from": "tool row in tools/track-and-compare-movement/tool-rows.json, do-work/author_comparison_edl.py and test/test_author_comparison_edl.py (run on its synthetic tracks)",
+  "start_here": "Say to your AI: \"Plan a side by side video of a.mp4 (peak at 2.0 seconds, labelled ONE) and b.mp4 (peak at 1.6 seconds, labelled TWO, mirrored), with a full pass and a slow pass, using their pose tracks; write the edit to /work/out/edit.json.\" It reads the tool's row and runs author_comparison_edl.py on your computer.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads video or pose files on the person's own computer and writes a new file or folder beside them.",
   "workflows": [],
   "tools": [
     "tool:plan-a-side-by-side-movement-comparison",
@@ -11,31 +10,28 @@
     "tool:read-peoples-poses-from-a-video"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:plan-a-side-by-side-movement-comparison\", and give it spec, out.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:plan-a-side-by-side-movement-comparison and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Make the edit for a video that shows two movements next to each other, each cropped to the person doing it, with labels and an optional slow-motion pass"
+    "1. Make a pose track for each clip (tool:read-peoples-poses-from-a-video) and decide the second each movement peaks at; tool:line-up-two-movements can help find matching moments.",
+    "2. Write the spec JSON: layout h or v, left and right ({clip, kp, peak, label, corner, flip, track_id}), passes ({id, half, speed, label_suffix}), and optionally encode, crop and voice_audio.",
+    "3. The AI reads the row with tools:list {tool: tool:plan-a-side-by-side-movement-comparison} and runs its `run` command with --spec and --out. Read the last line: {\"result\": {out, segments}}.",
+    "4. Hand the edit file to the media-composition tool to render; this tool renders nothing."
   ],
   "worked_examples": [
     {
-      "title": "Plan a side-by-side video of two movements, each framed on its person (runs on your computer) on a sample input",
-      "ask": "Run tool:plan-a-side-by-side-movement-comparison.",
+      "title": "A full pass and a slow pass of two clips",
+      "ask": "Plan a side by side video of a.mp4 and b.mp4 with a full pass and a slow pass.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:plan-a-side-by-side-movement-comparison",
-            "input": {
-              "spec": "<spec: A JSON file, put where {spec} is in the command: {encode?: {width, height, fps, crf, preset}, layout: h or v, bg?, left: {clip, kp, peak, label?, corner?, flip?, track_id?, label_size?}, right: {same}, passes: [{id, half, speed?, label_suffix?}], crop?: {min_confidence, pad_height, pad_width}, voice_audio?}>",
-              "out": "<out: The edit file to write, put where {out} is>"
-            }
+            "tool": "tool:plan-a-side-by-side-movement-comparison"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Make the edit for a video that shows two movements next to each other, each cropped to the person doing it, with labels and an optional slow-motion pass",
-      "given": "The person gives: spec, out (shown as <name> in the input)."
+      "given": "From tools/track-and-compare-movement/test/test_author_comparison_edl.py (TheCommand), which I ran to observe the edit. spec.json: encode 1920x1080 at 30; layout h; left {clip a.mp4, kp l.json, peak 2.0, label ONE, corner tl}; right {clip b.mp4, kp r.json, peak 1.6, label TWO, corner tr, flip h}; passes [{id full, half 1.0}, {id slow, half 0.5, speed 0.4, label_suffix \" (slow)\"}]. Both pose tracks are 1920x1080 with joints clustered near (960, 540) and (900, 500). Command: python3 tools/track-and-compare-movement/do-work/author_comparison_edl.py --spec /work/spec.json --out /work/out/edit.json.",
+      "hands_back": "{\"result\": {\"out\": \"/work/out/edit.json\", \"segments\": 2}} The edit has encode {width 1920, height 1080, fps 30, crf 20, preset medium}, base black, and two split segments: full (a.mp4 from 1.0 to 3.0 cropped w113 h128 at x903 y476 labelled ONE tl; b.mp4 from 0.6 to 2.6 cropped w113 h128 at x843 y436 labelled TWO tr, flip h) and slow (a.mp4 1.5 to 2.5, b.mp4 1.1 to 2.1, labels ONE (slow) and TWO (slow), speed 0.4)."
     }
   ]
 }

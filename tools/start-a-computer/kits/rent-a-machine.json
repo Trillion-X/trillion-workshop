@@ -1,39 +1,38 @@
 {
-  "draft": true,
-  "drafted_from": "tool:rent-a-machine's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:rent-a-machine with request_file.\" Rent a machine (or take one I already run) with a public name pointed at it, for another tool to set up",
+  "drafted_from": "tool row in tools/start-a-computer/tool-rows.json, do-work/start-a-computer.mjs (rentAMachine) and tools/start-a-computer/test/start-a-computer.test.mjs",
+  "start_here": "Say to your AI: \"Rent me a builder machine at 192.0.2.41 under the name a-builder, point releases.example.com at it, and tell me when it answers SSH.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of yours: it reads a request file and its provider rows, and writes one lease file.",
   "workflows": [],
   "tools": [
     "tool:rent-a-machine",
-    "tool:give-back-a-computer"
+    "tool:start-a-computer",
+    "tool:give-back-a-computer",
+    "tool:read-a-computer-price"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:rent-a-machine\", and give it request_file.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:rent-a-machine and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields lease, host_name, arch, price."
+    "1. Write request.json: lease_file, machine {provider, name, placement, lifetime}, name {host_name} (and name.provider and zone to make a DNS record), ssh {known_hosts}. A machine you already run uses provider \"existing-machine\" with placement.address.",
+    "2. Say the line in start_here. Your AI reads the row with tools:list {tool: \"tool:rent-a-machine\"} and runs node tools/start-a-computer/do-work/start-a-computer.mjs rent request.json, with provider credentials on descriptors 3 and 4 when the provider rents.",
+    "3. Read the JSON line: lease, host_name, arch and price. Nothing is set up on the machine; hand the lease to the tool that builds on it. Run again to resume from the saved lease.",
+    "4. Give it back later with tool:give-back-a-computer and the same lease file."
   ],
   "worked_examples": [
     {
-      "title": "Rent a machine on a sample input",
-      "ask": "Run tool:rent-a-machine.",
+      "title": "A machine the person already runs is leased and waited for",
+      "ask": "Take my spare machine as a builder and tell me its architecture.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:rent-a-machine",
-            "input": {
-              "request_file": "<request_file: A request JSON (lease_file, machine, name, ssh); its paths are read relative to it>"
-            }
+            "tool": "tool:rent-a-machine"
           }
         }
       },
-      "hands_back": "An answer with the fields lease, host_name, arch, price.",
-      "given": "The person gives: request_file (shown as <name> in the input)."
+      "given": "From tools/start-a-computer/test/start-a-computer.test.mjs ('renting a machine leases it and waits for SSH, and sets nothing up on it'). request.json = {\"lease_file\":\"lease.json\",\"machine\":{\"provider\":\"existing-machine\",\"name\":\"a-builder\",\"placement\":{\"address\":\"192.0.2.41\"},\"lifetime\":\"service\"},\"name\":{\"host_name\":\"releases.example.com\"},\"ssh\":{\"known_hosts\":\"known_hosts\"}}. The only command run on the machine is uname -m, which says x86_64. Run: node tools/start-a-computer/do-work/start-a-computer.mjs rent request.json",
+      "hands_back": "{\"lease\":{\"provider\":\"existing-machine\",\"name\":\"a-builder\",\"address\":\"192.0.2.41\",\"state\":\"running\"},\"host_name\":\"releases.example.com\",\"arch\":\"x86_64\",\"price\":null}: lease.json now holds address 192.0.2.41, so tool:give-back-a-computer can forget it."
     }
   ]
 }

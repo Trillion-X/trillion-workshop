@@ -1,23 +1,23 @@
 {
-  "draft": true,
-  "drafted_from": "tool:trade-a-gmail-sign-in-code-for-its-tokens's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:trade-a-gmail-sign-in-code-for-its-tokens with connection, code, redirect_uri, code_verifier.\" Trade the code Google's sign-in page handed back for the connection's access and refresh tokens, kept sealed in the vault",
+  "drafted_from": "tool:trade-a-gmail-sign-in-code-for-its-tokens's row in tools/connect-a-service-and-seal-its-key/tool-rows.json (job, description, input_schema, invoke) and the folder's test/connect-by-signing-in.test.mjs, whose stand-in answers give the reply and the held word",
+  "start_here": "Say to your AI: \"Trade a Gmail sign-in code for its tokens for the new connection service_connection:google-account:9c1d4e7a with the code made-up-code-4f9a2c.\" It runs tool:trade-a-gmail-sign-in-code-for-its-tokens and tells you the tokens are kept in the vault without showing any of them.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it sends one request to Gmail for the connection it is handed and keeps the tokens in the vault as that connection's fields.",
   "workflows": [],
   "tools": [
     "tool:trade-a-gmail-sign-in-code-for-its-tokens",
     "tool:connect-an-account-by-signing-in-to-the-service"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:trade-a-gmail-sign-in-code-for-its-tokens\", and give it connection, code, redirect_uri, code_verifier.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:trade-a-gmail-sign-in-code-for-its-tokens and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $ holds the result: Trade the code Google's sign-in page handed back for the connection's access and refresh tokens, kept sealed in the vault"
+    "1. Do not run this by hand: tool:connect-an-account-by-signing-in-to-the-service runs it for you at the sign-in callback, after you open the sign-in address it gave you. Start that tool first (its kit shows the call) and keep the connection_id it answers: service_connection:google-account:9c1d4e7a is the shape.",
+    "2. To run this step alone, the AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:trade-a-gmail-sign-in-code-for-its-tokens and the input the worked example shows (the connection by its handle only, the code the service handed back, the callback address the sign-in was started with and the PKCE verifier).",
+    "3. Read what comes back: the service's reply with every kept token already replaced by the word [held]. The access, refresh and id tokens now sit in the vault as the connection's own fields; none is in the answer.",
+    "4. A refusal (a used-up code, a wrong callback address) is shown as the service's own error; nothing is kept, so start the sign-in again for a new link."
   ],
   "worked_examples": [
     {
-      "title": "Trade a Gmail sign-in code for its tokens on a sample input",
-      "ask": "Run tool:trade-a-gmail-sign-in-code-for-its-tokens.",
+      "title": "Trade a Gmail sign-in code for its tokens for a made-up connection",
+      "ask": "Trade a Gmail sign-in code for its tokens for service_connection:google-account:9c1d4e7a.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -28,17 +28,17 @@
             "tool": "tool:trade-a-gmail-sign-in-code-for-its-tokens",
             "input": {
               "connection": {
-                "connection_id": "<connection_id: The new connection the sign-in fills: service_connection:<vendor>:<account>, made by tool:connect-an-account-by-signing-in-to-the-service when the sign-in started>"
+                "connection_id": "service_connection:google-account:9c1d4e7a"
               },
-              "code": "<code: The code the service handed back to the sign-in callback>",
-              "redirect_uri": "<redirect_uri: The callback address the sign-in was started with>",
-              "code_verifier": "<code_verifier: The PKCE verifier the sign-in was started with (RFC 7636)>"
+              "code": "made-up-code-4f9a2c",
+              "redirect_uri": "https://app.gettrillion.ai/work/api/connect/callback",
+              "code_verifier": "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFG"
             }
           }
         }
       },
-      "hands_back": "The answer's $ holds the result: Trade the code Google's sign-in page handed back for the connection's access and refresh tokens, kept sealed in the vault",
-      "given": "The person gives: connection_id, code, redirect_uri, code_verifier (shown as <name> in the input)."
+      "given": "From tools/connect-a-service-and-seal-its-key/test/connect-by-signing-in.test.mjs (its stand-in for this tool's answer, made up the way the engine answers: every token is already the held word \"[held]\", because reply_holds_values keeps each token in the vault before the reply is read): the code made-up-code-4f9a2c, the callback address and the PKCE verifier go to oauth2.googleapis.com/token.. Input: {\"connection\":{\"connection_id\":\"service_connection:google-account:9c1d4e7a\"},\"code\":\"made-up-code-4f9a2c\",\"redirect_uri\":\"https://app.gettrillion.ai/work/api/connect/callback\",\"code_verifier\":\"abcdefghijklmnopqrstuvwxyz0123456789ABCDEFG\"}.",
+      "hands_back": "{\"access_token\":\"[held]\",\"refresh_token\":\"[held]\",\"id_token\":\"[held]\",\"expires_in\":3599,\"scope\":\"openid email https://www.googleapis.com/auth/gmail.readonly\",\"token_type\":\"Bearer\"}. The access, refresh and id tokens now sit in the vault as the connection's own fields; none is in the answer."
     }
   ]
 }

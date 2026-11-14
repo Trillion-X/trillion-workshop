@@ -1,35 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:run-better-auth-sign-in's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:run-better-auth-sign-in with nothing more.\" Start the sign-in server: email and password, passkeys, and JWTs that anything can verify against its public keys",
+  "drafted_from": "tool:run-better-auth-sign-in's row and tools/better-auth (README, settings.json, src/main.rs); the answers below were observed by building it (cargo build --release) and running it on this checkout's code with port 38791 and a synthetic account",
+  "start_here": "Say to your AI: \"Start my Better Auth sign-in server on port 8791 with tools/better-auth/settings.json and check it answers at http://localhost:8791/api/auth/ok.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it keeps its users, sessions, passkeys and signing keys in its own SQLite file (settings.json database_path), not in Trillion rows.",
   "workflows": [],
   "tools": [
     "tool:run-better-auth-sign-in"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:run-better-auth-sign-in\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:run-better-auth-sign-in and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Start the sign-in server: email and password, passkeys, and JWTs that anything can verify against its public keys"
+    "1. The AI reads the row with run_resource_operation at @workshop-tools, tools:list { tool: \"tool:run-better-auth-sign-in\" } and clones https://github.com/Trillion-X/trillion-workshop.git on your computer.",
+    "2. Edit trillion-workshop/tools/better-auth/settings.json for your port, base_url, issuer, audience, passkey origin and database file; set BETTER_AUTH_SECRET from your vault by name (32+ random characters, never printed) and RUST_ICU_MAJOR_VERSION_NUMBER=78 with RUST_ICU_LINK_SEARCH_DIR at ICU 78's lib folder (brew install icu4c@78).",
+    "3. Run cargo run --release --quiet --manifest-path trillion-workshop/tools/better-auth/Cargo.toml --target-dir /tmp/better-auth-build -- trillion-workshop/tools/better-auth/settings.json; the first build takes a few minutes.",
+    "4. Check GET {base_url}/api/auth/ok answers {\"ok\":true}; sign up with POST /api/auth/sign-up/email, get a JWT with GET /api/auth/token (cookie or Authorization: Bearer) and give verifiers {base_url}/api/auth/jwks."
   ],
   "worked_examples": [
     {
-      "title": "Run the Better Auth sign-in server (runs on your computer) on a sample input",
-      "ask": "Run tool:run-better-auth-sign-in.",
+      "title": "Start it, sign up one person and read their token",
+      "ask": "Start my sign-in server and make a test account for Sam.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:run-better-auth-sign-in",
-            "input": {}
+            "tool": "tool:run-better-auth-sign-in"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Start the sign-in server: email and password, passkeys, and JWTs that anything can verify against its public keys"
+      "given": "Observed on this computer: settings.json with port 38791 and base_url http://localhost:38791, run as the row's command; then curl POST http://localhost:38791/api/auth/sign-up/email {\"email\":\"sam@example.com\",\"password\":\"correct-horse-battery-9\",\"name\":\"Sam\"} and GET /api/auth/token with Authorization: Bearer <the session token>.",
+      "hands_back": "GET /api/auth/ok answered {\"ok\":true}. Sign-up answered {\"token\":\"<a 32-character session token>\",\"user\":{\"name\":\"Sam\",\"email\":\"sam@example.com\",\"emailVerified\":false,\"image\":null,\"id\":\"<32 characters>\"}}. GET /api/auth/token answered {\"token\":\"eyJhbGciOiJFZERTQSIsImtpZCI6...\"}, an EdDSA JWT whose kid matches GET /api/auth/jwks {\"keys\":[{\"alg\":\"EdDSA\",\"crv\":\"Ed25519\",\"kty\":\"OKP\",\"x\":\"...\",\"kid\":\"...\"}]}."
     }
   ]
 }

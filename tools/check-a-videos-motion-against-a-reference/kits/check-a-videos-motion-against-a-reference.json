@@ -1,41 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:check-a-videos-motion-against-a-reference's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-a-videos-motion-against-a-reference with reference, render, end_card_start_seconds, bar.\" Tell me whether the video I made is as lively as the video I am copying, or holds still too long",
+  "drafted_from": "tool:check-a-videos-motion-against-a-reference's row in tools/check-a-videos-motion-against-a-reference/tool-rows.json, do-work/check-motion.mjs, read-data/motion-bar.mjs, read-data/measure-motion.mjs and test/check-motion.test.mjs; the answers were observed by running the command on ffmpeg test clips",
+  "start_here": "Say to your AI: \"Check that clips/draft.mp4 moves as much as clips/reference.mp4, which I am copying; its end card starts at 5 seconds, and my bar is in bar.json.\" It measures both videos on your computer and tells you whether the draft passed each row of your bar.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list: the bar is a JSON file of kind motion-bar that your AI writes from your own records, and the videos are files on your computer.",
   "workflows": [],
   "tools": [
     "tool:check-a-videos-motion-against-a-reference"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-a-videos-motion-against-a-reference\", and give it reference, render, end_card_start_seconds, bar.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-videos-motion-against-a-reference and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Tell me whether the video I made is as lively as the video I am copying, or holds still too long"
+    "1. On your computer, clone the Workshop checkout and run brew install ffmpeg (this brings ffprobe). Run everything from the root of the checkout.",
+    "2. Write your bar to a file, for example bar.json: {\"kind\":\"motion-bar\",\"rows\":[{\"name\":\"moving\",\"bar_key\":\"moving_min\",\"measure\":\"moving_share\",\"relation\":\"at_least\",\"times_reference\":0.5},{\"name\":\"hold\",\"bar_key\":\"hold_max_s\",\"measure\":\"longest_hold_s\",\"relation\":\"at_most\",\"times_reference\":3}]}. Each row names a measure (moving_share, longest_hold_s or holds_over_1s_per_min), a relation (at_least or at_most) and either times_reference (a multiple of the reference's own value) or value (a fixed number).",
+    "3. Say to your AI: \"Check my draft's motion against the reference.\" It reads the row with tools:list {tool}, then runs: node tools/check-a-videos-motion-against-a-reference/do-work/check-motion.mjs --reference clips/reference.mp4 --render clips/draft.mp4 --end-card-start 5 --bar bar.json",
+    "4. Read the last line: {\"result\": {still_threshold, reference, draft, bar, pass, verdict}}. verdict is passed only when every row in pass is true; a failed verdict still exits 0. An {\"error\": ...} line says what to change (a missing flag or file, an end card second of 0 or less, a bar that is not a motion-bar, a measure name the tool does not give)."
   ],
   "worked_examples": [
     {
-      "title": "Check that my video moves as much as the one I copied (runs on your computer) on a sample input",
-      "ask": "Run tool:check-a-videos-motion-against-a-reference.",
+      "title": "A moving clip passes against itself; the same bar fails a still grey clip",
+      "ask": "Check that clips/flat.mp4 moves as much as clips/reference.mp4, end card at 5 seconds.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:check-a-videos-motion-against-a-reference",
-            "input": {
-              "reference": "<reference: The video file being copied, put where {reference} is in the command>",
-              "render": "<render: The video file made, put where {render} is in the command>",
-              "end_card_start_seconds": "<end_card_start_seconds: The second the made video's end card begins; the piece is measured from 0 to there>",
-              "bar": "<bar: A JSON file holding a motion-bar record, put where {bar} is in the command: { kind: 'motion-bar', rows: [{ name, bar_key, measure, relation, times_reference | value }] }>"
-            }
+            "tool": "tool:check-a-videos-motion-against-a-reference"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Tell me whether the video I made is as lively as the video I am copying, or holds still too long",
-      "given": "The person gives: reference, render, end_card_start_seconds, bar (shown as <name> in the input)."
+      "given": "Run locally from the Workshop checkout after tools:list: node tools/check-a-videos-motion-against-a-reference/do-work/check-motion.mjs --reference clips/reference.mp4 --render clips/flat.mp4 --end-card-start 5 --bar bar.json. clips/reference.mp4 is a 6 second 160x120 15 fps ffmpeg testsrc2 pattern, clips/flat.mp4 is 6 seconds of plain grey, and bar.json is the two-row bar of step 2 (the clips and bar are made as in tools/check-a-videos-motion-against-a-reference/test/check-motion.test.mjs). Read from do-work/check-motion.mjs and observed by running it; with --render clips/reference.mp4 the same bar gives verdict passed.",
+      "hands_back": "{\"result\":{\"still_threshold\":1.5,\"reference\":{\"path\":\"clips/reference.mp4\",\"seconds\":6,\"moving_share\":1,\"longest_hold_s\":0},\"draft\":{\"path\":\"clips/flat.mp4\",\"seconds\":5,\"moving_share\":0,\"longest_hold_s\":4.93,\"holds_over_1s_per_min\":12},\"bar\":{\"moving_min\":0.5,\"hold_max_s\":0},\"pass\":{\"moving\":false,\"hold\":false},\"verdict\":\"failed\"}}"
     }
   ]
 }

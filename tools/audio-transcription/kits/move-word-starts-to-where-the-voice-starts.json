@@ -1,39 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:move-word-starts-to-where-the-voice-starts's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:move-word-starts-to-where-the-voice-starts with request.\" Make the word times of my voice take start where each word is actually heard, so on-screen graphics land on the word and not early in the pause before it",
+  "drafted_from": "tools/audio-transcription/tool-rows.json, do-work/word_onsets.py, test/test_word_onsets.py (observed run)",
+  "start_here": "Say to your AI: \"Move the word starts of my take /Takes/hello.wav to where the voice really starts, using the Whisper words in /Takes/words.json, and write /Takes/hello.onsets.json.\" It runs word_onsets.py on your computer.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads a request file, a voice take and its word times, and writes one words file.",
   "workflows": [],
   "tools": [
     "tool:move-word-starts-to-where-the-voice-starts",
     "tool:transcribe-audio-and-repair-whisper-loops"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:move-word-starts-to-where-the-voice-starts\", and give it request.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:move-word-starts-to-where-the-voice-starts and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Make the word times of my voice take start where each word is actually heard, so on-screen graphics land on the word and not early in the pause before it"
+    "1. Install python with numpy and soundfile (python3 -m pip install numpy soundfile) and hear the take first for its Whisper word times.",
+    "2. Write a request file {\"take\": ..., \"words\": ..., \"out\": ..., \"line\"?: ..., \"edge_db\"?: ...}; add the take's line file as line to take the script's spelling.",
+    "3. Say \"Move the word starts of my take\", and the AI reads the tool row with tools:list and runs its command with that request file on stdin.",
+    "4. Read the last line {\"result\": {out, words, moved, spelling}} and time graphics from the output file, never from the raw Whisper starts."
   ],
   "worked_examples": [
     {
-      "title": "Time each word of a voice take from where the voice really starts, for graphics on the word (runs on your computer) on a sample input",
-      "ask": "Run tool:move-word-starts-to-where-the-voice-starts.",
+      "title": "A word that starts inside a pause is moved to where the voice starts",
+      "ask": "Move the word starts of my take to where the voice really starts.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:move-word-starts-to-where-the-voice-starts",
-            "input": {
-              "request": "<request: The request JSON file, put where {request} is in the command: {take, words, out, line?, edge_db?}>"
-            }
+            "tool": "tool:move-word-starts-to-where-the-voice-starts"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Make the word times of my voice take start where each word is actually heard, so on-screen graphics land on the word and not early in the pause before it",
-      "given": "The person gives: request (shown as <name> in the input)."
+      "given": "From tools/audio-transcription/test/test_word_onsets.py (observed by running do-work/word_onsets.py on the same made-up take): a 3 second take with voice at 0.30-0.90 s and 1.39-2.20 s, words.json = [{text Hello, start 0.30, end 0.90}, {text Jonh., start 1.02, end 2.20}], run as: echo '{\"take\":\"/Takes/hello.wav\",\"words\":\"/Takes/words.json\",\"out\":\"/Takes/hello.onsets.json\"}' | python3 trillion-workshop/tools/audio-transcription/do-work/word_onsets.py",
+      "hands_back": "Last line {\"result\": {\"out\": \"/Takes/hello.onsets.json\", \"words\": 2, \"moved\": 1, \"spelling\": \"whisper\"}}; the out file holds source hello.wav, timing \"whisper words, starts moved to the first level above -45 dBFS\", and words Hello 0.3 to 0.9 and Jonh. 1.385 to 2.2 (the second start moved from 1.02, the ends stay)."
     }
   ]
 }

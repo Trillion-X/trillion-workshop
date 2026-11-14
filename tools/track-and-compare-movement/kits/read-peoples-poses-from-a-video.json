@@ -1,40 +1,52 @@
 {
-  "draft": true,
-  "drafted_from": "tool:read-peoples-poses-from-a-video's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-peoples-poses-from-a-video with video, out, checkpoint.\" Find the people in a video and where their joints are in every frame, so two movements can be compared",
+  "drafted_from": "tool row in tools/track-and-compare-movement/tool-rows.json, do-work/estimate_pose.py and test/test_estimate_pose.py (read from code and test; no pose model run here)",
+  "start_here": "Say to your AI: \"Read the poses of the people in /work/serve.mp4 with my pose model /work/models/pose.pt and write the track to /work/poses/serve.json.\" It reads the tool's row and runs estimate_pose.py on your computer.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads video or pose files on the person's own computer and writes a new file or folder beside them.",
   "workflows": [],
   "tools": [
     "tool:read-peoples-poses-from-a-video"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-peoples-poses-from-a-video\", and give it video, out, checkpoint.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-peoples-poses-from-a-video and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Find the people in a video and where their joints are in every frame, so two movements can be compared"
+    "1. Have the video and a pose model file you downloaded (an ultralytics pose checkpoint); ultralytics is AGPL-3.0, so check its licence suits your use, then install numpy, opencv-python and ultralytics in a Python 3.10 or later environment.",
+    "2. The AI reads the row with tools:list {tool: tool:read-peoples-poses-from-a-video} and runs its `run` command with --video, --out, --checkpoint and optionally --device, --conf (0.3 if you say nothing) and --max-frames (0 for the whole video).",
+    "3. Read the last line: {\"result\": {out, persons, frames, cached}} or {\"error\": ...}. The file holds, for each person kept as one track id, per frame 17 joints as [x, y, confidence]; a joint not found is [0, 0, 0].",
+    "4. A second run with the same video bytes and the same checkpoint returns at once with cached true. Use the track with tool:line-up-two-movements or tool:plan-a-side-by-side-movement-comparison."
   ],
   "worked_examples": [
     {
-      "title": "Read where each person's joints are in a video, frame by frame (runs on your computer) on a sample input",
-      "ask": "Run tool:read-peoples-poses-from-a-video.",
+      "title": "Run again on a video that already has its track",
+      "ask": "Read the poses of the people in /work/serve.mp4 with my pose model.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:read-peoples-poses-from-a-video",
-            "input": {
-              "video": "<video: The video file, put where {video} is in the command>",
-              "out": "<out: The track file to write, put where {out} is>",
-              "checkpoint": "<checkpoint: Path of a downloaded ultralytics pose model, put where {checkpoint} is>"
-            }
+            "tool": "tool:read-peoples-poses-from-a-video"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Find the people in a video and where their joints are in every frame, so two movements can be compared",
-      "given": "The person gives: video, out, checkpoint (shown as <name> in the input)."
+      "given": "From tools/track-and-compare-movement/test/test_estimate_pose.py (a track made from the same video and checkpoint is returned without a model): /work/poses/serve.json already holds a pose.keypoints.v1 track with one person (track_id 1), 4 video frames and the digest of /work/serve.mp4 and checkpoint /work/models/pose.pt. Command: motion-env/bin/python tools/track-and-compare-movement/do-work/estimate_pose.py --video /work/serve.mp4 --out /work/poses/serve.json --checkpoint /work/models/pose.pt --device cpu --conf 0.3 --max-frames 0.",
+      "hands_back": "{\"result\": {\"out\": \"/work/poses/serve.json\", \"persons\": 1, \"frames\": 4, \"cached\": true}} A first run on a new video does the same work with a pose model and prints cached false with the counts it found."
+    },
+    {
+      "title": "A missing video is refused with what to change",
+      "ask": "Read the poses in /work/none.mp4.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:list",
+          "input": {
+            "tool": "tool:read-peoples-poses-from-a-video"
+          }
+        }
+      },
+      "given": "I ran estimate_pose.py with --video /work/none.mp4 --out /work/t.json --checkpoint /work/models/pose.pt where /work/none.mp4 does not exist (see test/test_estimate_pose.py, test_a_missing_video_or_checkpoint_says_what_to_change); it exits 2.",
+      "hands_back": "{\"error\": \"the video is not a file on this computer: /work/none.mp4\"} A missing checkpoint instead answers \"the pose checkpoint is not a file on this computer: <path>; give the path of a downloaded pose model\"."
     }
   ]
 }

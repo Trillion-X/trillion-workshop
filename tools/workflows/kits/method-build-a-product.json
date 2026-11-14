@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:method-build-a-product's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:method-build-a-product.\" Build a product people reach, use and pay for: research the field, name the change, find the constraints, test the design against every case, build the real running thing with its free extras, name it plainly, do it completely, and prove it with real people.",
+  "drafted_from": "workflow:method-build-a-product's row in tools/workflows/recipes/workflows.json (input schema, step ids, submit shapes {run_id, changed}); no test names it",
+  "start_here": "Say to your AI: \"Run workflow:method-build-a-product for the request: let customers of a small bakery pre-order a weekend box from the website.\" It walks nine method workflows in order and hands back each one's run_id and what it changed.",
   "lists": [],
   "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
@@ -20,14 +19,15 @@
     "tool:start-a-recipe-run"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:method-build-a-product\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-build-a-product) and works through its steps in order: research-plan-build, name-question-delete, contact-reality, find-the-constraints, test-a-design-against-every-case, build-the-real-thing, name-things-by-what-they-do, do-it-completely, plan-only-what-helps.",
-    "3. Read what each step hands back; the last step is plan-only-what-helps."
+    "1. Say \"Run workflow:method-build-a-product\" with request, in plain words, the product you want built (for example a pre-order page for a bakery).",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-build-a-product, input {request}) and walks its steps in order: research-plan-build, name-question-delete, contact-reality, find-the-constraints, test-a-design-against-every-case, build-the-real-thing, name-things-by-what-they-do, do-it-completely, plan-only-what-helps.",
+    "3. Each step starts one child workflow with the same request; read the {run_id, changed} it hands back and let that change shape the next step.",
+    "4. The last step, plan-only-what-helps, ends the run: read what it changed and ship the real thing it names."
   ],
   "worked_examples": [
     {
-      "title": "Build a product from its first step",
-      "ask": "Run workflow:method-build-a-product.",
+      "title": "Research first: the first step runs the research-plan-build workflow",
+      "ask": "Run workflow:method-build-a-product for the request: let customers of a small bakery pre-order a weekend box from the website.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -38,15 +38,15 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:method-build-a-product",
-              "request": "<request: What you are deciding, designing or building, in plain words>"
+              "request": "Let customers of a small bakery pre-order a weekend box from the website."
             }
           }
         }
       },
       "workflow": "workflow:method-build-a-product",
       "step": "research-plan-build",
-      "hands_back": "Step research-plan-build answers with run_id, changed.",
-      "given": "The person gives: request (shown as <name> in the input)."
+      "given": "Read from tools/workflows/recipes/workflows.json (workflow:method-build-a-product, step research-plan-build): the step starts workflow:method-research-plan-build with the same request and walks it to its end.",
+      "hands_back": "The step starts workflow:method-research-plan-build with request \"Let customers of a small bakery pre-order a weekend box from the website.\", walks it, and submits {\"run_id\":\"run-example-001\",\"changed\":\"Research showed shops lose pre-orders at the payment step, so the build now takes the order and the payment on one page instead of two.\"}."
     }
   ]
 }

@@ -1,22 +1,23 @@
 {
-  "draft": true,
-  "drafted_from": "tool:add-captions's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:add-captions with files, transcript.\" Burn captions into a video from its transcript, in a caption style: plain subtitles, large captions, or words that light up as they are said",
+  "drafted_from": "tool:add-captions's own row in tools/media-composition/tool-rows.json, tools/media-composition/do-work/cut-and-caption.mjs (the script this tool runs), tools/media-composition/read-data/caption-styles.json, and the script run on a synthetic 7 second clip",
+  "start_here": "Say to your AI: \"Burn captions into my video from its transcript, with the words lighting up as they are said.\" It runs tool:add-captions and saves the captioned video in your files.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It makes a new video in your files from the video you name and keeps no list of its own.",
   "workflows": [],
   "tools": [
-    "tool:add-captions"
+    "tool:add-captions",
+    "tool:extract-sound"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:add-captions\", and give it files, transcript.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:add-captions and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields result, files."
+    "1. Get the timed words of the video: run the speech-to-text tool on the video's sound (tool:extract-sound makes a small audio file for it) or write a list of {text, start, end} words.",
+    "2. Say \"Add captions to this video\" with the clip (name source.mp4, its identity and exact byte length from your files), the transcript, and a style: subtitles, emphasis, spoken-words, serif-spoken-words or white-words-light-up (default subtitles). Use transcript_from if the transcript's zero is not the video's start.",
+    "3. The AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:add-captions. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
+    "4. Read result.captions (how many caption lines were burned in) and files.video, the captioned video in your files."
   ],
   "worked_examples": [
     {
-      "title": "Add captions to a video from its transcript on a sample input",
-      "ask": "Run tool:add-captions.",
+      "title": "Two caption lines, words light up as said",
+      "ask": "Caption my video with white words that light up.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -29,17 +30,56 @@
               "files": [
                 {
                   "name": "source.mp4",
-                  "identity": "<identity: The clip's identity in your files (1f: then 64 hex)>",
-                  "bytes": "<bytes: integer>"
+                  "identity": "1f:7320b49113520185e2ad8938759857db29ec6b0ed6a30cd1a2cfc05c68d932c6",
+                  "bytes": 40118
                 }
               ],
-              "transcript": "<transcript: Timed words: {words:[{text,start,end}]}, {segments:[{words}]} or a list of words>"
+              "transcript": {
+                "words": [
+                  {
+                    "text": "Welcome",
+                    "start": 0.2,
+                    "end": 0.6
+                  },
+                  {
+                    "text": "to",
+                    "start": 0.6,
+                    "end": 0.8
+                  },
+                  {
+                    "text": "the",
+                    "start": 0.8,
+                    "end": 1
+                  },
+                  {
+                    "text": "bakery.",
+                    "start": 1,
+                    "end": 1.6
+                  },
+                  {
+                    "text": "Fresh",
+                    "start": 4.2,
+                    "end": 4.6
+                  },
+                  {
+                    "text": "bread",
+                    "start": 4.6,
+                    "end": 5
+                  },
+                  {
+                    "text": "daily.",
+                    "start": 5,
+                    "end": 5.6
+                  }
+                ]
+              },
+              "style": "white-words-light-up"
             }
           }
         }
       },
-      "hands_back": "An answer with the fields result, files.",
-      "given": "The person gives: identity, bytes, transcript (shown as <name> in the input)."
+      "given": "read from tools/media-composition/do-work/cut-and-caption.mjs and run on a 7 second clip: the seven words fall in two gaps of speech (0.2 to 1.6 s and 4.2 to 5.6 s), so they gather into two lines",
+      "hands_back": "{\"result\":{\"expected_duration_seconds\":7,\"duration_seconds\":7.021,\"width\":320,\"height\":180,\"has_audio\":true,\"bytes\":134936,\"segments\":1,\"captions\":2},\"files\":{\"video\":{\"identity\":\"1f:172154cd760a80f9e7adc2c6692a70c4f87e8f2590bd706b99124a94923f4ed5\",\"bytes\":134936,\"media_type\":\"video/mp4\",\"name\":\"captioned.mp4\"}}}"
     }
   ]
 }

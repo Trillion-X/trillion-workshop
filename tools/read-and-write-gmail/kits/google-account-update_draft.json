@@ -1,22 +1,23 @@
 {
-  "draft": true,
-  "drafted_from": "tool:google-account-update_draft's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:google-account-update_draft with connection, draft_id, raw.\" Replace the contents of an existing Gmail draft.",
+  "drafted_from": "tool:google-account-update_draft's own row in tools/read-and-write-gmail/tool-rows.json (invoke method, url, body_template, input and output schema); Gmail response values worked out from that row for the synthetic input",
+  "start_here": "Say to your AI: \"Change my draft r-7301442210 to say the order is ready at 4 PM. Use my Google account connection service_connection:google-account:sam-bakery.\" It runs tool:google-account-update_draft as that account and hands back the Gmail answer.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it calls Gmail for one Google account the connection names and answers what Gmail returns.",
   "workflows": [],
   "tools": [
-    "tool:google-account-update_draft"
+    "tool:google-account-update_draft",
+    "tool:google-account-read_draft"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:google-account-update_draft\", and give it connection, draft_id, raw.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:google-account-update_draft and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields id, message."
+    "1. Connect a Google account in your Workshop connections and note its handle, like service_connection:google-account:sam-bakery.",
+    "2. Say to your AI: \"Change my draft r-7301442210 to say the order is ready at 4 PM.\" and let it call run_resource_operation at @workshop-tools with method tools:run, tool tool:google-account-update_draft, and the input {\"connection\":{\"connection_id\":\"service_connection:google-account:sam-bakery\"},\"draft_id\":\"r-7301442210\",\"raw\":\"RnJvbTogc2FtQGV4YW1wbGUuY29tDQpUbzogYWxleEBleGFtcGxlLmNvbQ0KU3ViamVjdDogT3JkZXIgcGlja3VwDQoNCllvdXIgYmFrZXJ5IG9yZGVyIGlzIHJlYWR5IGF0IDQgUE0u\"}.",
+    "3. Read what comes back: the request goes as PUT  the Gmail me-mailbox base (gmail.googleapis.com, v1)/drafts/r-7301442210 with the body {\"message\":{\"raw\":\"<that raw>\"}} (threadId is left out because thread_id is not given).",
+    "4. The whole message is replaced, so raw must hold every header and the full body again."
   ],
   "worked_examples": [
     {
-      "title": "Edit email draft on a sample input",
-      "ask": "Run tool:google-account-update_draft.",
+      "title": "Replace the contents of a Gmail draft on a sample input",
+      "ask": "Change my draft r-7301442210 to say the order is ready at 4 PM.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,16 +28,16 @@
             "tool": "tool:google-account-update_draft",
             "input": {
               "connection": {
-                "connection_id": "<connection_id: The Google account to use: service_connection:google-account or service_connection:google-account:<account>, as the person's connections list it>"
+                "connection_id": "service_connection:google-account:sam-bakery"
               },
-              "draft_id": "<draft_id: string>",
-              "raw": "<raw: string>"
+              "draft_id": "r-7301442210",
+              "raw": "RnJvbTogc2FtQGV4YW1wbGUuY29tDQpUbzogYWxleEBleGFtcGxlLmNvbQ0KU3ViamVjdDogT3JkZXIgcGlja3VwDQoNCllvdXIgYmFrZXJ5IG9yZGVyIGlzIHJlYWR5IGF0IDQgUE0u"
             }
           }
         }
       },
-      "hands_back": "An answer with the fields id, message.",
-      "given": "The person gives: connection_id, draft_id, raw (shown as <name> in the input)."
+      "given": "read from tools/read-and-write-gmail/tool-rows.json (its invoke url, method and body_template) and checked against tools/read-and-write-gmail/test/rows.test.mjs. The draft r-7301442210 now saying 3 PM; raw is the base64url of the same message saying 4 PM. The call it makes: PUT the Gmail me-mailbox base (gmail.googleapis.com, v1)/drafts/r-7301442210 with the body {\"message\":{\"raw\":\"<that raw>\"}} (threadId is left out because thread_id is not given).",
+      "hands_back": "Gmail answers {\"id\":\"r-7301442210\",\"message\":{\"id\":\"18c1a2b3d4e5f778\",\"threadId\":\"18c1a2b3d4e5f601\",\"labelIds\":[\"DRAFT\"]}}."
     }
   ]
 }

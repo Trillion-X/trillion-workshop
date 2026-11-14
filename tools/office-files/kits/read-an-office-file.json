@@ -1,38 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:read-an-office-file's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-an-office-file with file.\" Read a spreadsheet (xlsx), a Word document (docx) or a presentation (pptx) into plain data: the sheets with their rows and typed cells, the document's paragraphs and tables, or the slides' text in presentation order",
+  "drafted_from": "tool row in tools/office-files/tool-rows.json, do-work/decode-office-open-xml.py and test/decode-office-open-xml.test.py (run on its fixture)",
+  "start_here": "Say to your AI: \"Read /work/budget.xlsx and show me every cell, including the formulas I typed.\" It reads the tool's row, then runs decode-office-open-xml.py on your computer and tells you what the sheets hold.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads or rewrites one file on the person's own computer and prints what it found or changed.",
   "workflows": [],
   "tools": [
     "tool:read-an-office-file"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-an-office-file\", and give it file.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-an-office-file and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields kind, sheets, blocks, slides, parts."
+    "1. Say which xlsx, docx or pptx file to read (for a long sheet add --sheet NAME or --max-rows N).",
+    "2. The AI reads the row with tools:list {tool: tool:read-an-office-file} and runs its `run` command from the Workshop checkout; add --formulas to see what was typed in each cell.",
+    "3. Read the one JSON object it prints: kind (workbook, document, presentation or container) and sheets with rows of cells, blocks of paragraphs (selector paragraph:N) and tables, or slides in the deck's own order.",
+    "4. Tell the person what the file holds in their words; to change it use tool:change-cells-or-words-in-an-office-file."
   ],
   "worked_examples": [
     {
-      "title": "Read a spreadsheet, document or presentation as data (runs on your computer) on a sample input",
-      "ask": "Run tool:read-an-office-file.",
+      "title": "Read a one-sheet workbook with its formulas",
+      "ask": "Read /work/budget.xlsx and show me every cell, including the formulas I typed.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:read-an-office-file",
-            "input": {
-              "file": "<file: Path of the xlsx, docx or pptx file on the person's computer>"
-            }
+            "tool": "tool:read-an-office-file"
           }
         }
       },
-      "hands_back": "An answer with the fields kind, sheets, blocks, slides, parts.",
-      "given": "The person gives: file (shown as <name> in the input)."
+      "given": "From tools/office-files/test/decode-office-open-xml.test.py, which builds this workbook; I ran its decoder on that fixture to observe the output. Command: python3 -I tools/office-files/do-work/decode-office-open-xml.py /work/budget.xlsx --formulas. The workbook has one sheet, Model, with A1 \"Runway (months)\", B1 \"Price is $2,499 per seat\", A2 12 and B2 the formula IF(A2>0,999,A2) showing 999.",
+      "hands_back": "{\"kind\":\"workbook\",\"sheets\":[{\"name\":\"Model\",\"rows\":[{\"row\":1,\"cells\":{\"A\":{\"value\":\"Runway (months)\"},\"B\":{\"value\":\"Price is $2,499 per seat\"}}},{\"row\":2,\"cells\":{\"A\":{\"value\":12},\"B\":{\"value\":999,\"formula\":\"IF(A2>0,999,A2)\"}}}]}]} Without --formulas, B2 comes back as {\"value\":999} alone."
     }
   ]
 }

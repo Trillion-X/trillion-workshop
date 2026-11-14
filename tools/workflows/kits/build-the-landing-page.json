@@ -1,8 +1,109 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:build-the-landing-page's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:build-the-landing-page.\" Write the page words as rows, check them against the person's rules, publish the page as a site, name it, attach the person's domain, and critique the live page.",
+  "drafted_from": "workflow:build-the-landing-page's row in tools/workflows/recipes/workflows.json (its input schema, steps and submit shapes)",
+  "start_here": "Say to your AI: \"Run workflow:build-the-landing-page for Sunrise Bakery; the business facts are already in record:business-setup:facts and my domain is example.com.\"",
   "lists": [
+    {
+      "list": "list:word-checks",
+      "label": "Word checks",
+      "row_type": "record:word-check",
+      "holds": "One rule for every line a person reads; a reply that breaks an On rule is rewritten before it is handed over.",
+      "fields": [
+        {
+          "id": "id",
+          "kind": "text",
+          "label": "Rule"
+        },
+        {
+          "id": "says",
+          "kind": "long-text",
+          "label": "Says",
+          "alike": [
+            "rule",
+            "guideline",
+            "description"
+          ]
+        },
+        {
+          "id": "words",
+          "kind": "tags",
+          "label": "Words",
+          "alike": [
+            "banned words",
+            "phrases"
+          ]
+        },
+        {
+          "id": "kinds",
+          "kind": "tags",
+          "label": "Kinds",
+          "alike": [
+            "applies to"
+          ]
+        },
+        {
+          "id": "because",
+          "kind": "tags",
+          "label": "Because",
+          "alike": [
+            "why",
+            "reason"
+          ]
+        },
+        {
+          "id": "on",
+          "kind": "choice",
+          "label": "On",
+          "alike": [
+            "active",
+            "enabled"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "no-hype",
+          "values": {
+            "id": "no-hype",
+            "says": "No hype words in a reply.",
+            "words": [
+              "amazing",
+              "game-changer",
+              "revolutionary"
+            ],
+            "kinds": [
+              "copy"
+            ],
+            "because": [
+              "replies read as a person, not an ad"
+            ],
+            "on": "On"
+          }
+        },
+        {
+          "id": "no-promise",
+          "values": {
+            "id": "no-promise",
+            "says": "Never promise a result or a date the business has not set.",
+            "words": [
+              "guaranteed",
+              "100%"
+            ],
+            "kinds": [
+              "copy"
+            ],
+            "because": [
+              "a promise in a DM is a promise"
+            ],
+            "on": "On"
+          }
+        }
+      ],
+      "alike": [
+        "a brand voice guide",
+        "a style guide spreadsheet",
+        "a banned-words list"
+      ]
+    },
     {
       "list": "list:business-setup-checklist",
       "label": "Business setup checklist",
@@ -170,132 +271,33 @@
         "a blockers column on a board",
         "a bug tracker"
       ]
-    },
-    {
-      "list": "list:word-checks",
-      "label": "Word checks",
-      "row_type": "record:word-check",
-      "holds": "One rule for every line a person reads; a reply that breaks an On rule is rewritten before it is handed over.",
-      "fields": [
-        {
-          "id": "id",
-          "kind": "text",
-          "label": "Rule"
-        },
-        {
-          "id": "says",
-          "kind": "long-text",
-          "label": "Says",
-          "alike": [
-            "rule",
-            "guideline",
-            "description"
-          ]
-        },
-        {
-          "id": "words",
-          "kind": "tags",
-          "label": "Words",
-          "alike": [
-            "banned words",
-            "phrases"
-          ]
-        },
-        {
-          "id": "kinds",
-          "kind": "tags",
-          "label": "Kinds",
-          "alike": [
-            "applies to"
-          ]
-        },
-        {
-          "id": "because",
-          "kind": "tags",
-          "label": "Because",
-          "alike": [
-            "why",
-            "reason"
-          ]
-        },
-        {
-          "id": "on",
-          "kind": "choice",
-          "label": "On",
-          "alike": [
-            "active",
-            "enabled"
-          ]
-        }
-      ],
-      "example_rows": [
-        {
-          "id": "no-hype",
-          "values": {
-            "id": "no-hype",
-            "says": "No hype words in a reply.",
-            "words": [
-              "amazing",
-              "game-changer",
-              "revolutionary"
-            ],
-            "kinds": [
-              "copy"
-            ],
-            "because": [
-              "replies read as a person, not an ad"
-            ],
-            "on": "On"
-          }
-        },
-        {
-          "id": "no-promise",
-          "values": {
-            "id": "no-promise",
-            "says": "Never promise a result or a date the business has not set.",
-            "words": [
-              "guaranteed",
-              "100%"
-            ],
-            "kinds": [
-              "copy"
-            ],
-            "because": [
-              "a promise in a DM is a promise"
-            ],
-            "on": "On"
-          }
-        }
-      ],
-      "alike": [
-        "a brand voice guide",
-        "a style guide spreadsheet",
-        "a banned-words list"
-      ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
     "workflow:build-the-landing-page",
     "workflow:set-up-a-business-on-trillion"
   ],
   "tools": [
-    "tool:attach_domain",
+    "tool:start-a-recipe-run",
     "tool:check-copy",
     "tool:copy-a-site",
-    "tool:critique-a-public-page",
+    "tool:publish_site",
     "tool:name_site",
-    "tool:publish_site"
+    "tool:attach_domain",
+    "tool:critique-a-public-page",
+    "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:build-the-landing-page\".",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:build-the-landing-page) and works through its steps in order: read-facts, write-the-page-rows, check-the-page-words, copy-a-reference-site, publish-the-site, name-the-site, attach-the-domain, critique-the-page, record-the-stage.",
-    "3. Read what each step hands back; the last step is record-the-stage."
+    "1. Pour the example word checks into the list where you keep your writing rules (see pour), or make list:word-checks from them; run workflow:set-up-a-business-on-trillion first so record:business-setup:facts exists.",
+    "2. Say \"Run workflow:build-the-landing-page\".",
+    "3. The AI reads the facts, writes seven page-block rows (headline, what you get, who it is for, price, one proof line, buy button label, one question), checks them with tool:check-copy, publishes the site, names it, attaches your domain and critiques the live page.",
+    "4. Set the DNS record the attach step names at your DNS host; fix each issue the critique lists in the page-block rows and publish again.",
+    "5. Read the stage row it ticks in list:business-setup-checklist and any gap rows in list:business-setup-gaps."
   ],
   "worked_examples": [
     {
-      "title": "Build the landing page from its first step",
-      "ask": "Run workflow:build-the-landing-page.",
+      "title": "A hype word in the headline fails the word check",
+      "ask": "Check my landing page words.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -311,8 +313,9 @@
         }
       },
       "workflow": "workflow:build-the-landing-page",
-      "step": "read-facts",
-      "hands_back": "Step read-facts answers with facts."
+      "step": "check-the-page-words",
+      "given": "The write-the-page-rows step wrote seven blocks; block 1 (record:page-block:1) says \"A revolutionary way to order bread\" and list:word-checks has the On row no-hype (words amazing, game-changer, revolutionary, kind copy). tool:check-copy is run on the blocks with kind copy; read from the step's run_tool in the workflow row.",
+      "hands_back": "The submit shape of step check-the-page-words: {\"failing\":[\"record:page-block:1\"]}. The block is rewritten and its row updated before publish-the-site runs."
     }
   ],
   "pour": {
@@ -320,37 +323,38 @@
     "least_coverage": 0.8,
     "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
     "example": {
-      "kit_list": "list:business-setup-checklist",
+      "kit_list": "list:word-checks",
       "into": {
-        "list": "list:my-business-setup-checklist",
-        "row_type": "record:setup-stage",
+        "list": "list:my-word-checks",
+        "row_type": "record:my-word-check",
         "fields": [
           {
-            "id": "stage",
-            "label": "Stage"
+            "id": "my_id",
+            "label": "Rule"
           },
           {
-            "id": "label",
-            "label": "Stage name"
+            "id": "my_says",
+            "label": "Says"
           },
           {
-            "id": "status",
-            "label": "Status"
+            "id": "my_words",
+            "label": "Words"
           },
           {
-            "id": "steps_status",
-            "label": "Steps"
+            "id": "my_kinds",
+            "label": "Kinds"
           },
           {
-            "id": "gaps",
-            "label": "Gaps"
+            "id": "my_because",
+            "label": "Because"
           },
           {
-            "id": "updated_at",
-            "label": "Updated"
+            "id": "my_on",
+            "label": "On"
           }
         ]
-      }
+      },
+      "field_map": {}
     }
   }
 }

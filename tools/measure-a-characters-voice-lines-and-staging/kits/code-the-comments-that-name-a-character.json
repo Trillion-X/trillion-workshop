@@ -1,22 +1,23 @@
 {
-  "draft": true,
-  "drafted_from": "tool:code-the-comments-that-name-a-character's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:code-the-comments-that-name-a-character with data_folder.\" Sort the viewer comments about a character into the person's codes (what they enjoy, miss, dislike, and so on) and count comments and likes per code",
+  "drafted_from": "tool:code-the-comments-that-name-a-character's row in tools/measure-a-characters-voice-lines-and-staging/tool-rows.json, its script in tools/measure-a-characters-voice-lines-and-staging/do-work/ and the tests in tools/measure-a-characters-voice-lines-and-staging/test/",
+  "start_here": "Say to your AI: \"Code the comments that name the parrot with my codebook, pleasure and absence.\" It runs tool:code-the-comments-that-name-a-character on comments-character.tsv.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of its own: it reads one settings row of yours (record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>) or the settings you pass, and works on files in the show's folder.",
   "workflows": [],
   "tools": [
-    "tool:code-the-comments-that-name-a-character"
+    "tool:code-the-comments-that-name-a-character",
+    "tool:collect-the-comments-that-name-a-character"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:code-the-comments-that-name-a-character\", and give it data_folder.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:code-the-comments-that-name-a-character and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Sort the viewer comments about a character into the person's codes (what they enjoy, miss, dislike, and so on) and count comments and likes per code"
+    "1. Make the show's folder and the YouTube library folder the run may change, and have comments-character.tsv from tool:collect-the-comments-that-name-a-character. Put the keys the row needs (codebook) in your settings row or pass them as settings.",
+    "2. Say the sentence in start_here to your AI. It calls run_resource_operation at @workshop-tools with method tools:run, tool tool:code-the-comments-that-name-a-character and the input in the worked example; the door asks for the granted folder.",
+    "3. Read the last line it prints, {\"result\": ...}, or {\"error\": ...} saying what to fix (a missing settings key is named).",
+    "4. Read comments-character-coded.tsv: a comment gets every code it matches, and a comment that matches none is coded mention-only."
   ],
   "worked_examples": [
     {
-      "title": "Code the comments that name a character with the person's codebook (runs on your computer) on a sample input",
-      "ask": "Run tool:code-the-comments-that-name-a-character.",
+      "title": "Three comments coded",
+      "ask": "Code the parrot comments.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -37,7 +38,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Sort the viewer comments about a character into the person's codes (what they enjoy, miss, dislike, and so on) and count comments and likes per code"
+      "given": "From the sample run in tools/measure-a-characters-voice-lines-and-staging/tool-rows.json: comments-character.tsv holds c1 \"The parrot is so funny\" (9 likes), c3 \"I missed the parrot\" (3 likes) and c5 \"Polly!\" (0 likes); codebook pleasure = \"funny|laugh\", absence = \"miss(ed)? (him|the parrot)\".",
+      "hands_back": "{\"result\": {\"table\": \"{grant:change-a-folder}/show/comments-character-coded.tsv\", \"comments\": 3, \"codes\": {\"pleasure\": 1, \"absence\": 1, \"mention-only\": 1}}}; coded rows: c1 pleasure, c3 absence, c5 mention-only."
     }
   ]
 }

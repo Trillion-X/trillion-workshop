@@ -1,39 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:connect-an-ai-app-on-this-computer-to-trillion's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:connect-an-ai-app-on-this-computer-to-trillion with action, client.\" Read, preview, add or take out the Trillion MCP entry in AI apps on this computer (Claude Code, Codex, Gemini CLI, Cursor)",
+  "drafted_from": "tools/keep-and-wake-ai-sessions-on-this-computer/tool-rows.json (tool:connect-an-ai-app-on-this-computer-to-trillion), harness/mcp-registration.mjs, harness/setup.json, test/harness-guidance-mcp-and-runs.test.mjs; the answer was produced by running registerMcp in an empty temporary home",
+  "start_here": "Say to your AI: \"Show me what changes in my Cursor config if you add the Trillion connection, and do not write anything until I say yes.\" It previews the change with action mcp-preview and client cursor.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it reads and edits only the config files of the AI apps you name on this computer.",
   "workflows": [],
   "tools": [
     "tool:connect-an-ai-app-on-this-computer-to-trillion"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:connect-an-ai-app-on-this-computer-to-trillion\", and give it action, client.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:connect-an-ai-app-on-this-computer-to-trillion and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields schema, action, review_hash, results."
+    "1. Say \"Preview adding the Trillion connection to cursor\". The AI reads this tool's row with tools:list, then runs its command on your computer: node tools/keep-and-wake-ai-sessions-on-this-computer/harness/setup.mjs --action mcp-preview --client cursor (the folder is the root of the Workshop checkout after npm ci).",
+    "2. Read each app's result: now is absent, registered, outdated, custom, blocked or not_installed, and diff shows the exact lines that would be added. Nothing is written by mcp-inspect or mcp-preview.",
+    "3. If you agree, say yes. The AI runs the same command with --action mcp-register and --reviewed set to the review_hash the preview answered; if a file changed since the preview, it answers refused and writes nothing, so preview again.",
+    "4. Do the sign_in step each result names in that app. To undo, run --action mcp-unregister with the same --client; an entry that was yours (custom) is never changed or removed."
   ],
   "worked_examples": [
     {
-      "title": "Connect an AI app on this computer to Trillion on a sample input",
-      "ask": "Run tool:connect-an-ai-app-on-this-computer-to-trillion.",
+      "title": "Preview the Trillion entry for Cursor on a computer that has Cursor and no entry yet",
+      "ask": "Show me what changes in my Cursor config if you add the Trillion connection, and do not write anything until I say yes.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:connect-an-ai-app-on-this-computer-to-trillion",
-            "input": {
-              "action": "mcp-inspect",
-              "client": "<client: The AI apps, comma-separated>"
-            }
+            "tool": "tool:connect-an-ai-app-on-this-computer-to-trillion"
           }
         }
       },
-      "hands_back": "An answer with the fields schema, action, review_hash, results.",
-      "given": "The person gives: client (shown as <name> in the input)."
+      "given": "Run from harness/mcp-registration.mjs (registerMcp with the shipped harness/setup.json) in an empty temporary home that holds only an empty .cursor folder, because this tool runs on the person's computer and cannot be run through the door. The command line the AI runs after reading the row: node tools/keep-and-wake-ai-sessions-on-this-computer/harness/setup.mjs --action mcp-preview --client cursor. The temporary file path differs on every computer.",
+      "hands_back": "{\"schema\":\"trillion.mcp-registration-report/v1\",\"action\":\"mcp-preview\",\"name\":\"trillion\",\"url\":\"https://app.gettrillion.ai/mcp\",\"transport\":\"http\",\"review_hash\":\"e7fda0d2d873b4eda3275c34c9dfd91c239c16dd38e565e8ed2178c8197e92a8\",\"boundary\":\"An entry is not a signed-in connection; complete each app's sign-in, then its Trillion round trip.\",\"change\":\"register\",\"results\":[{\"client\":\"cursor\",\"path\":\"<home>/.cursor/mcp.json\",\"now\":\"absent\",\"sign_in\":\"Finish sign-in using the cursor instructions in Trillion's current guide: https://app.gettrillion.ai/docs\",\"would_change\":true,\"diff\":{\"at_line\":1,\"removed\":[],\"added\":[\"{\",\"  \\\"trillion\\\": {\",\"    \\\"url\\\": \\\"https://app.gettrillion.ai/mcp\\\"\",\"  }\",\"}\",\"\"]}}]}. The last line of the script is this JSON."
     }
   ]
 }

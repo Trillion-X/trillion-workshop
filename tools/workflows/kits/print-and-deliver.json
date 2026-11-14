@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:print-and-deliver's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:print-and-deliver.\" Print a file at a print shop (shelf-scale packaging, posters, signs, many copies) and have it ready for pickup on the person's way or delivered, after one tap with the price; small jobs go to the person's own printer instead",
+  "drafted_from": "workflow row in tools/workflows/recipes/workflows.json (input_schema and the choose, ask and order steps); read from the row's words, no test runs it",
+  "start_here": "Say to your AI: \"Run workflow:print-and-deliver for my file menu-poster.pdf: 40 copies at 11 x 17 in, I am at 100 Example Street and need them on my way to 200 Example Avenue by Friday at 5 PM.\"",
   "lists": [],
   "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
@@ -15,14 +14,16 @@
     "tool:who-does-each-step"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:print-and-deliver\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:print-and-deliver) and works through its steps in order: choose, ask, order.",
-    "3. Read what each step hands back; the last step is order."
+    "1. Put the file in your files and decide the finished size, the number of copies, where you start (near), the place you need the prints (on_the_way_to) and the deadline (by).",
+    "2. Say \"Run workflow:print-and-deliver\" with those values. The AI starts it with tool:start-a-recipe-run and works the steps choose, ask, order.",
+    "3. At choose, a small job (Letter or A4, a few copies) goes to your own printer; any other size goes to the print shop nearest your route, with its price read from the shop's own print page.",
+    "4. At ask, one row lands on your Waiting on you list with what is printed, where, ready when and the price; nothing is ordered until you tap yes (a yes you gave before skips the tap).",
+    "5. At order, the AI orders through the shop account in your name and gives you route buttons from where you start, through the shop, to where you need the prints. If an account or card blocks it, it names which."
   ],
   "worked_examples": [
     {
-      "title": "Print and deliver from its first step",
-      "ask": "Run workflow:print-and-deliver.",
+      "title": "40 posters go to the shop on the way, price shown first",
+      "ask": "Print 40 copies of menu-poster.pdf at 11 x 17 on my way to Sample Avenue.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,15 +34,20 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:print-and-deliver",
-              "file": "<file: The file in the person's files>"
+              "file": "menu-poster.pdf",
+              "size": "11 x 17 in",
+              "copies": 40,
+              "near": "100 Example Street",
+              "on_the_way_to": "200 Example Avenue",
+              "by": "2026-11-20T17:00:00-06:00"
             }
           }
         }
       },
       "workflow": "workflow:print-and-deliver",
       "step": "choose",
-      "hands_back": "Step choose answers with where, price.",
-      "given": "The person gives: file (shown as <name> in the input)."
+      "given": "Read from tools/workflows/recipes/workflows.json (step choose): 11 x 17 in with 40 copies is too big for the person's own printer, so the step finds print shops near 100 Example Street (tool:find-nearest-places), prefers the one on the way to 200 Example Avenue and reads that shop's own print page for the price.",
+      "hands_back": "{\"where\":\"Example Print Shop, 150 Example Street\",\"price\":\"$68.00 for 40 copies, 11 x 17 in, 80 lb gloss\",\"order_page\":\"https://example.com/print/posters\",\"printed_here\":false}"
     }
   ]
 }

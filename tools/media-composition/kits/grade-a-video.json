@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:grade-a-video's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:grade-a-video with video.\" Put a colour look or grade on a video and adjust its brightness, contrast, saturation, exposure, warmth or vibrance",
+  "drafted_from": "tool:grade-a-video's own row in tools/media-composition/tool-rows.json, tools/media-composition/do-work/grade-a-video.mjs, tools/media-composition/read-data/looks.json, tools/media-composition/test/grade-files-from-the-account.test.mjs, and the script run on a synthetic 7 second clip",
+  "start_here": "Say to your AI: \"Give my video a golden hour look with film grain, a little warmer and a touch brighter.\" It runs tool:grade-a-video and saves the graded video in your files.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It makes a new video in your files from the video you name and keeps no list of its own.",
   "workflows": [],
   "tools": [
     "tool:grade-a-video"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:grade-a-video\", and give it video.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:grade-a-video and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields result, files."
+    "1. Find your video's identity in your files: 1f: then 64 hex.",
+    "2. Say \"Grade this video\" with any of: looks (named looks applied in order, such as golden-hour, vhs, film-grain, soft-glow), brightness (-0.5 to 0.5), contrast (0.5 to 1.5), saturation (0 to 2), exposure (-2 to 2), warmth (-1 to 1), vibrance (-1 to 1), or match_to and match_at to match another video's colour first.",
+    "3. The AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:grade-a-video. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
+    "4. Read result.looks (the looks actually applied) and files.video, the graded video in your files at its own size and length. A look that needs a grade file the account has not supplied (such as teal-and-orange) stops with a message saying so; the other looks still render."
   ],
   "worked_examples": [
     {
-      "title": "Change a video's colour on a sample input",
-      "ask": "Run tool:grade-a-video.",
+      "title": "Golden hour with grain, a little warmer",
+      "ask": "Give my video a golden hour look with grain, slightly warmer and brighter.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,13 +26,43 @@
           "input": {
             "tool": "tool:grade-a-video",
             "input": {
-              "video": "<video: The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it>"
+              "video": "1f:7320b49113520185e2ad8938759857db29ec6b0ed6a30cd1a2cfc05c68d932c6",
+              "looks": [
+                "golden-hour",
+                "film-grain"
+              ],
+              "brightness": 0.05,
+              "contrast": 1.1,
+              "warmth": 0.2
             }
           }
         }
       },
-      "hands_back": "An answer with the fields result, files.",
-      "given": "The person gives: video (shown as <name> in the input)."
+      "given": "read from tools/media-composition/do-work/grade-a-video.mjs and run on a 7 second 320x180 clip; both looks are filters that need no grade file, and the picture keeps its size and length",
+      "hands_back": "{\"result\":{\"expected_duration_seconds\":7,\"duration_seconds\":7.034,\"width\":320,\"height\":180,\"has_audio\":true,\"bytes\":668987,\"segments\":1,\"looks\":[\"golden-hour\",\"film-grain\"]},\"files\":{\"video\":{\"identity\":\"1f:d5dcb126442f931487622a2bc732ed36b2bde7572bbade198028461a4f86accf\",\"bytes\":668987,\"media_type\":\"video/mp4\",\"name\":\"graded.mp4\"}}}"
+    },
+    {
+      "title": "A look whose grade file is not supplied",
+      "ask": "Give my video the teal and orange look.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:grade-a-video",
+            "input": {
+              "video": "1f:7320b49113520185e2ad8938759857db29ec6b0ed6a30cd1a2cfc05c68d932c6",
+              "looks": [
+                "teal-and-orange"
+              ]
+            }
+          }
+        }
+      },
+      "given": "From tools/media-composition/test/grade-files-from-the-account.test.mjs: on a computer where tools/media-composition/read-data/luts is absent, the teal-and-orange look stops with words, no stack trace",
+      "hands_back": "{\"error\":\"grade-teal-and-orange needs read-data/luts/06-color-wheels-teal-orange.cube, which the account supplies; it is not in this repository\"}"
     }
   ]
 }

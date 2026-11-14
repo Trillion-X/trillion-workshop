@@ -1,9 +1,8 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:run-a-linkedin-content-system's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:run-a-linkedin-content-system.\" Build a voice guide from the person's real posts and transcripts, mine the questions buyers ask on calls, keep an outreach research desk, write posts that answer the objections of stalled deals, review each on a 100-point rubric where invented evidence blocks it, attribute results honestly (tracked conversions apart from influence), and turn the edits the person keeps making into rule proposals.",
+  "drafted_from": "tools/workflows/recipes/workflows.json (the workflow:run-a-linkedin-content-system row: input_schema and step buyer-questions with its submit shape); no test names it",
+  "start_here": "Say to your AI: \"Run workflow:run-a-linkedin-content-system for my bakery consultancy: my posts are in posts/2026-q3.md, my talks in talks/podcast-1.txt, and my sales calls in calls/call-1.txt and calls/call-2.txt.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "The workflow keeps its voice profile, research desk rows and drafts through tools (tool:keep-a-profile, tool:keep-a-prospect, tool:draft-a-post) and names no list of its own in its words, input or steps.",
   "workflows": [
     "workflow:run-a-linkedin-content-system"
   ],
@@ -24,14 +23,15 @@
     "tool:set-a-post-to-go-at-its-time"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:run-a-linkedin-content-system\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:run-a-linkedin-content-system) and works through its steps in order: voice-sources, voice-guide, keep-voice, buyer-questions, objections, research-desk, keep-desk, draft, review, track, approve, schedule, attribute, edits-to-rules.",
-    "3. Read what each step hands back; the last step is edits-to-rules."
+    "1. Put your own published posts, transcripts of you speaking and sales call transcripts in your files, and note the file names; get the LinkedIn destination id from tool:list-post-destinations and make a tracked landing page and project.",
+    "2. Say \"Run workflow:run-a-linkedin-content-system\" with posts, transcripts, call_transcripts, linkedin_account, landing_page and project; target_accounts, stalled_days (default 21) and min_score (default 80) are optional.",
+    "3. It builds your layered voice guide, mines the questions buyers asked on your calls, lists stalled deals and their objections, briefs the target accounts, and drafts one post per common objection where every claim names its evidence.",
+    "4. Each post is scored on the 100-point rubric (a claim without a named source blocks the post), you approve the ones that pass, and the AI sets them to go at their time; read the results with tracked conversions kept apart from influence."
   ],
   "worked_examples": [
     {
-      "title": "Run a LinkedIn content system from its first step",
-      "ask": "Run workflow:run-a-linkedin-content-system.",
+      "title": "Buyer questions are pulled from two sales calls",
+      "ask": "What do buyers ask on my calls?",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -43,25 +43,26 @@
             "input": {
               "row": "workflow:run-a-linkedin-content-system",
               "posts": [
-                "<posts: string>"
+                "posts/2026-q3.md"
               ],
               "transcripts": [
-                "<transcripts: string>"
+                "talks/podcast-1.txt"
               ],
               "call_transcripts": [
-                "<call_transcripts: string>"
+                "calls/call-1.txt",
+                "calls/call-2.txt"
               ],
-              "linkedin_account": "<linkedin_account: The LinkedIn destination id, as tool:list-post-destinations names it>",
-              "landing_page": "<landing_page: The page tracked links point at>",
-              "project": "<project: The traffic project the links and sales are counted in>"
+              "linkedin_account": "linkedin:example-page",
+              "landing_page": "https://example.com/consulting",
+              "project": "traffic:consulting"
             }
           }
         }
       },
       "workflow": "workflow:run-a-linkedin-content-system",
-      "step": "voice-sources",
-      "hands_back": "Step voice-sources answers with tool, read, brief_ref.",
-      "given": "The person gives: posts, transcripts, call_transcripts, linkedin_account, landing_page, project (shown as <name> in the input)."
+      "step": "buyer-questions",
+      "given": "Read from the step in tools/workflows/recipes/workflows.json: tool:read-an-export-of-my-conversations reads both calls; the buyer asks \"How long until we see results?\" in call-1 and again in call-2, and \"Do you work with a single-shop bakery?\" in call-2 (seller questions are left out). Same-meaning questions are grouped under the most common wording; the posts are written against the profile \"profile:sam-voice\".",
+      "hands_back": "{\"tool\":\"tool:read-an-export-of-my-conversations\",\"voice_profile_ref\":\"profile:sam-voice\",\"calls_read\":[\"calls/call-1.txt\",\"calls/call-2.txt\"],\"questions\":[{\"question\":\"How long until we see results?\",\"quote\":\"How long until we see results?\",\"call\":\"calls/call-1.txt\",\"times_asked\":2},{\"question\":\"Do you work with a single-shop bakery?\",\"quote\":\"Do you work with a single-shop bakery?\",\"call\":\"calls/call-2.txt\",\"times_asked\":1}]}"
     }
   ]
 }

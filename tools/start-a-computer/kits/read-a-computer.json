@@ -1,38 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:read-a-computer's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-a-computer with lease_file.\" See whether a computer's machine is running and its sign-up page answers",
+  "drafted_from": "tool row in tools/start-a-computer/tool-rows.json, do-work/start-a-computer.mjs (placeStatus) and tools/start-a-computer/test/start-a-computer.test.mjs",
+  "start_here": "Say to your AI: \"Is my computer arm1 running, and does its sign-up page at place.example.com answer?\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads a lease file and asks the provider and the public sign-up page.",
   "workflows": [],
   "tools": [
-    "tool:read-a-computer"
+    "tool:read-a-computer",
+    "tool:start-a-computer",
+    "tool:check-a-sign-up"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-a-computer\", and give it lease_file.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-a-computer and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields name, provider, lease_state, machine, host_name, sign_up_status."
+    "1. Have the lease file a start or rent wrote (lease.json).",
+    "2. Say the line in start_here. Your AI reads the row with tools:list {tool: \"tool:read-a-computer\"} and runs node tools/start-a-computer/do-work/start-a-computer.mjs status lease.json (the provider credential on descriptor 3 for a rented machine, none for one you run).",
+    "3. Read the JSON line: name, provider, lease_state, machine {state, address}, host_name and sign_up_status (200 means the public /readyz page answers)."
   ],
   "worked_examples": [
     {
-      "title": "Read a computer on a sample input",
-      "ask": "Run tool:read-a-computer.",
+      "title": "A machine the person runs, asked once at its public name",
+      "ask": "Is my computer up and answering?",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:read-a-computer",
-            "input": {
-              "lease_file": "<lease_file: string>"
-            }
+            "tool": "tool:read-a-computer"
           }
         }
       },
-      "hands_back": "An answer with the fields name, provider, lease_state, machine, host_name, sign_up_status.",
-      "given": "The person gives: lease_file (shown as <name> in the input)."
+      "given": "Read from do-work/start-a-computer.mjs (placeStatus) with the lease from tools/start-a-computer/test/start-a-computer.test.mjs (first test) plus \"state\":\"running\": lease.json = {\"schema\":\"place-lease/1\",\"provider\":\"existing-machine\",\"name\":\"arm1\",\"state\":\"running\",\"address\":\"192.0.2.9\",\"adopted\":true,\"hostName\":\"place.example.com\"}; https://place.example.com/readyz answers 200. Run: node tools/start-a-computer/do-work/start-a-computer.mjs status lease.json",
+      "hands_back": "{\"name\":\"arm1\",\"provider\":\"existing-machine\",\"lease_state\":\"running\",\"machine\":{\"state\":\"running\",\"address\":\"192.0.2.9\"},\"host_name\":\"place.example.com\",\"sign_up_status\":200}: for an adopted machine the state is the lease's own, no provider is asked, and the page is asked once."
     }
   ]
 }

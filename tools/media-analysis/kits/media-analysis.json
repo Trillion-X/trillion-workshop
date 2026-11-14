@@ -1,38 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:media-analysis's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:media-analysis with requests.\" Find which of my recordings show or mention something, and at what second",
+  "drafted_from": "tool:media-analysis row in tool-rows.json, do-work/meaning_index.py and test/test_meaning_index.py",
+  "start_here": "Say to your AI: \"Index my bakery clips red.png and blue.png and the two talk transcripts, then find which talk is about baking bread in the morning.\" It writes a requests file, runs the index on your computer and tells you which recording matched and where.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it reads a requests file, answers one line per request, and your AI keeps the vectors it returns under each recording's identity.",
   "workflows": [],
   "tools": [
     "tool:media-analysis"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:media-analysis\", and give it requests.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:media-analysis and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Find which of my recordings show or mention something, and at what second"
+    "1. Set it up once: clone the Workshop repository, brew install ffmpeg, make a virtual environment with numpy, pillow, torch, open_clip_torch, sentence-transformers and tokenizers, and fetch the two default models into the local Hugging Face cache (the script never downloads them).",
+    "2. Say which recordings to learn and what to look for; your AI writes a requests file with one JSON line per request (embed_picture for a picture or video with a file and an identity you choose, embed_speech for a transcript's chunks, then a search line) and a config file {\"in_order\": true} so one file both indexes and searches.",
+    "3. It runs `media-env/bin/python trillion-workshop/tools/media-analysis/do-work/meaning_index.py config.json < requests.jsonl`; read the replies: each line echoes its id with ok or an error saying what to change, and the last line is {\"result\": {\"answered\", \"failed\"}}.",
+    "4. Keep each embed value under its identity; next time send those back as add lines instead of embedding again, and compare hits of one search with each other, since a score is a similarity and not comparable across searches."
   ],
   "worked_examples": [
     {
-      "title": "Find the moments in my videos, pictures and talks that match a phrase (runs on your computer) on a sample input",
-      "ask": "Run tool:media-analysis.",
+      "title": "Two pictures and two talks, then a speech search for baking",
+      "ask": "Which of my talks is about baking bread in the morning?",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:media-analysis",
-            "input": {
-              "requests": "<requests: A file on the person's computer, put where {requests} is in the command: one JSON request per line: {id, op: embed_picture, identity, file, media_kind?: image, duration?, sampling?: {interval_seconds, max_frames, dedup_similarity}}, {id, op: embed_speech, identity, chunks: [{start?, end?, text}]}, {id, op: add, kind: picture or speech, identity, value}, {id, op: search, query, lanes?: [picture, speech], limit?}, {id, op: prepare}>"
-            }
+            "tool": "tool:media-analysis"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Find which of my recordings show or mention something, and at what second",
-      "given": "The person gives: requests (shown as <name> in the input)."
+      "given": "From tools/media-analysis/test/test_meaning_index.py (the real-models test): requests.jsonl holds {\"id\": \"r\", \"op\": \"embed_picture\", \"identity\": \"red\", \"file\": \"red.png\", \"media_kind\": \"image\"}, the same for blue.png, {\"id\": \"s1\", \"op\": \"embed_speech\", \"identity\": \"talk-bread\", \"chunks\": [{\"start\": 0, \"end\": 4, \"text\": \"We bake sourdough bread every morning before the shop opens.\"}]}, {\"id\": \"s2\", \"op\": \"embed_speech\", \"identity\": \"talk-tax\", \"chunks\": [{\"start\": 0, \"end\": 4, \"text\": \"The quarterly tax filing is due at the end of the month.\"}]} and {\"id\": \"q\", \"op\": \"search\", \"query\": \"baking bread in the morning\", \"lanes\": [\"speech\"], \"limit\": 2}; config.json is {\"in_order\": true}. red.png is a 320x240 red picture and blue.png a blue one. The command is `media-env/bin/python trillion-workshop/tools/media-analysis/do-work/meaning_index.py config.json < requests.jsonl`.",
+      "hands_back": "First line {\"id\": null, \"ok\": true, \"ready\": true}. The reply to r has ok true, frames 1 and value.dims 512 (the picture's vector, to keep under the identity red); s1 and s2 give values with their chunks and vectors. The reply to q lists speech hits best first with talk-bread on top, each hit {identity, score, start, end, text}, here talk-bread at start 0, end 4 with its sourdough sentence. Last line {\"result\": {\"answered\": 5, \"failed\": 0}}. Sending the kept red value back as {\"id\": 1, \"op\": \"add\", \"kind\": \"picture\", \"identity\": \"red\", \"value\": ...} answers {\"id\": 1, \"ok\": true, \"rows\": 1} without embedding the picture again."
     }
   ]
 }

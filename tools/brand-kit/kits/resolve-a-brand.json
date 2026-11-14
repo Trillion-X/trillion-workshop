@@ -1,38 +1,235 @@
 {
-  "draft": true,
-  "drafted_from": "tool:resolve-a-brand's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:resolve-a-brand with request.\" Pick the logo variant (wordmark or mark, SVG or PNG) a light or a dark page draws, from a brand kept as list rows",
-  "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "drafted_from": "tool row in tools/brand-kit/tool-rows.json, code in do-work/resolve-a-brand.mjs and read-data/brand-assets.mjs, test/resolve-a-brand.test.mjs, list definition list:brand-assets (read only)",
+  "start_here": "Say to your AI: \"Read my brand assets list and tell me which Harbour Bakery logo a dark page draws, the wordmark and the mark as SVG.\" It saves the rows and tone dark into a request file, runs tool:resolve-a-brand on your computer and names the variant for each role.",
+  "lists": [
+    {
+      "list": "list:brand-assets",
+      "label": "Brand assets",
+      "row_type": "record:brand-asset",
+      "holds": "One row per logo variant of a brand (wordmark or mark, SVG or PNG, on a background such as black on transparent) plus one row with role selection that names the family in use.",
+      "fields": [
+        {
+          "id": "name",
+          "kind": "text",
+          "label": "Asset",
+          "alike": [
+            "title",
+            "file name"
+          ]
+        },
+        {
+          "id": "brand",
+          "kind": "text",
+          "label": "Brand",
+          "alike": [
+            "company",
+            "business"
+          ]
+        },
+        {
+          "id": "family",
+          "kind": "text",
+          "label": "Family",
+          "alike": [
+            "set",
+            "version",
+            "collection"
+          ]
+        },
+        {
+          "id": "role",
+          "kind": "text",
+          "label": "Role",
+          "alike": [
+            "type",
+            "kind",
+            "wordmark or mark"
+          ]
+        },
+        {
+          "id": "format",
+          "kind": "text",
+          "label": "Format",
+          "alike": [
+            "file type",
+            "extension"
+          ]
+        },
+        {
+          "id": "background",
+          "kind": "text",
+          "label": "Background",
+          "alike": [
+            "colours",
+            "look"
+          ]
+        },
+        {
+          "id": "url",
+          "kind": "url",
+          "label": "Asset URL",
+          "alike": [
+            "link",
+            "address",
+            "file"
+          ]
+        },
+        {
+          "id": "source",
+          "kind": "text",
+          "label": "Source",
+          "alike": [
+            "notes",
+            "origin"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "harbour",
+          "values": {
+            "name": "Harbour Bakery",
+            "brand": "Harbour Bakery",
+            "family": "original",
+            "role": "selection",
+            "source": "the family in use"
+          }
+        },
+        {
+          "id": "original-wordmark-black",
+          "values": {
+            "name": "wordmark-black",
+            "brand": "Harbour Bakery",
+            "family": "original",
+            "role": "wordmark",
+            "format": "svg",
+            "background": "black on transparent",
+            "url": "https://assets.example.com/brand/original-wordmark-black.svg",
+            "source": "made in-house"
+          }
+        },
+        {
+          "id": "original-wordmark-white",
+          "values": {
+            "name": "wordmark-white",
+            "brand": "Harbour Bakery",
+            "family": "original",
+            "role": "wordmark",
+            "format": "svg",
+            "background": "white on transparent",
+            "url": "https://assets.example.com/brand/original-wordmark-white.svg",
+            "source": "made in-house"
+          }
+        },
+        {
+          "id": "original-mark-black-white",
+          "values": {
+            "name": "mark-black-white",
+            "brand": "Harbour Bakery",
+            "family": "original",
+            "role": "mark",
+            "format": "svg",
+            "background": "black on white",
+            "url": "https://assets.example.com/brand/original-mark-black-white.svg",
+            "source": "made in-house"
+          }
+        },
+        {
+          "id": "original-mark-white-black",
+          "values": {
+            "name": "mark-white-black",
+            "brand": "Harbour Bakery",
+            "family": "original",
+            "role": "mark",
+            "format": "svg",
+            "background": "white on black",
+            "url": "https://assets.example.com/brand/original-mark-white-black.svg",
+            "source": "made in-house"
+          }
+        }
+      ],
+      "alike": [
+        "a brand-assets folder in a shared drive",
+        "a logo sheet in a design tool",
+        "a brand guidelines spreadsheet"
+      ]
+    }
+  ],
   "workflows": [],
   "tools": [
-    "tool:resolve-a-brand"
+    "tool:resolve-a-brand",
+    "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:resolve-a-brand\", and give it request.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:resolve-a-brand and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields family, tone, variants, chosen."
+    "1. Pour the five example rows into your own brand list (see pour), or make list:brand-assets from them and then replace the example rows' urls with your own https asset addresses.",
+    "2. Make sure one row has role selection and its family names the family in use, and each variant row has role wordmark or mark, format svg or png, a background such as \"white on transparent\" and an https url.",
+    "3. Say \"Resolve my brand for a dark page.\" Your AI reads the rows, saves {\"rows\": [...], \"tone\": \"dark\"} as a request file in the Workshop checkout and runs node tools/brand-kit/do-work/resolve-a-brand.mjs <request.json>.",
+    "4. Read the last JSON line: family, tone, chosen (what that tone's page draws) and variants for light and dark. A null variant means no row exists for it: add that row. Exit 2 with a message on standard error says what to change (for example a missing selection row)."
   ],
   "worked_examples": [
     {
-      "title": "Resolve a brand on a sample input",
-      "ask": "Run tool:resolve-a-brand.",
+      "title": "A dark page draws the white wordmark and the white-on-black mark",
+      "ask": "Which Harbour Bakery logos does a dark page draw?",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:resolve-a-brand",
-            "input": {
-              "request": "<request: The request JSON file: {rows, tone?, files_at?}, put where {request} is in the command>"
-            }
+            "tool": "tool:resolve-a-brand"
           }
         }
       },
-      "hands_back": "An answer with the fields family, tone, variants, chosen.",
-      "given": "The person gives: request (shown as <name> in the input)."
+      "given": "Read from tools/brand-kit/do-work/resolve-a-brand.mjs and read-data/brand-assets.mjs, with the same row shapes as test/resolve-a-brand.test.mjs. The AI reads the row with tools:list, saves the five example rows with tone dark as /tmp/request.json and runs: node tools/brand-kit/do-work/resolve-a-brand.mjs /tmp/request.json. No files_at is given, so no variant carries a local file.",
+      "hands_back": "{\"family\":\"original\",\"tone\":\"dark\",\"variants\":{\"light\":{\"wordmark_svg\":{\"url\":\"https://assets.example.com/brand/original-wordmark-black.svg\",\"row_id\":\"original-wordmark-black\",\"family\":\"original\"},\"wordmark_png\":null,\"mark_svg\":{\"url\":\"https://assets.example.com/brand/original-mark-black-white.svg\",\"row_id\":\"original-mark-black-white\",\"family\":\"original\"},\"mark_png\":null},\"dark\":{\"wordmark_svg\":{\"url\":\"https://assets.example.com/brand/original-wordmark-white.svg\",\"row_id\":\"original-wordmark-white\",\"family\":\"original\"},\"wordmark_png\":null,\"mark_svg\":{\"url\":\"https://assets.example.com/brand/original-mark-white-black.svg\",\"row_id\":\"original-mark-white-black\",\"family\":\"original\"},\"mark_png\":null}},\"chosen\":\"the same as variants.dark\"} (chosen holds, in the real answer, the same four entries as variants.dark; the png entries are null because the example brand has no png rows)."
     }
-  ]
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the brand list you already keep and its fields. The tool matches each kit field to one of yours (by the map you give, the same id, the same label, or a name in alike), refuses when fewer than least_coverage of the kit's fields match, and otherwise answers the records:write that adds the example rows to your list, leaving your own rows untouched.",
+    "example": {
+      "kit_list": "list:brand-assets",
+      "into": {
+        "list": "list:logo-sheet",
+        "row_type": "record:logo",
+        "fields": [
+          {
+            "id": "asset",
+            "label": "Asset"
+          },
+          {
+            "id": "company",
+            "label": "Company"
+          },
+          {
+            "id": "set",
+            "label": "Family"
+          },
+          {
+            "id": "kind",
+            "label": "Role"
+          },
+          {
+            "id": "file_type",
+            "label": "Format"
+          },
+          {
+            "id": "look",
+            "label": "Background"
+          },
+          {
+            "id": "link",
+            "label": "Asset URL"
+          },
+          {
+            "id": "notes",
+            "label": "Source"
+          }
+        ]
+      },
+      "field_map": {}
+    }
+  }
 }

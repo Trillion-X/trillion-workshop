@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:research-what-everyone-says's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:research-what-everyone-says.\" Research any subject, market, product or claim the way a hardcore researcher does: read what people out there say about it (social posts, threads, forums, reviews), what the companies in the field do, what the very best do, and every complaint and gap in all of them; lay the findings side by side to see what every source agrees on and where they contradict; rebuild the answer from first principles; and finish with the least obvious insights that would change the result most.",
+  "drafted_from": "workflow row in tools/workflows/recipes/workflows.json (input_schema and the people, companies, best, complaints, synthesis, insights steps with their submit shapes); read from the row's words, no test runs it",
+  "start_here": "Say to your AI: \"Run workflow:research-what-everyone-says on the subject: online booking tools for small bakeries, to settle the question whether I should take pre-orders, and show me every source.\"",
   "lists": [],
   "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
@@ -12,14 +11,16 @@
     "tool:read-public-web-page"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:research-what-everyone-says\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:research-what-everyone-says) and works through its steps in order: people, companies, best, complaints, synthesis, insights.",
-    "3. Read what each step hands back; the last step is insights."
+    "1. Say the subject in plain words; add pursuit_id when it serves a pursuit, and question when there is a decision the research has to settle.",
+    "2. Say \"Run workflow:research-what-everyone-says\". The AI starts it with tool:start-a-recipe-run and works the steps people, companies, best, complaints, synthesis, insights.",
+    "3. Read each source with its exact quote and how that source found it out (its own trial, a survey, a post, an opinion); sources that are not independent count once.",
+    "4. Read the complaints with how often each came up, then what all sources agree on, where they contradict, and the answer rebuilt from first principles.",
+    "5. Read the least obvious insights and the one next action; test the biggest one with workflow:test-a-finding."
   ],
   "worked_examples": [
     {
-      "title": "Research what everyone says, then see past it from its first step",
-      "ask": "Run workflow:research-what-everyone-says.",
+      "title": "What people say, in their own words",
+      "ask": "Research what everyone says about pre-orders for small bakeries.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -30,15 +31,16 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:research-what-everyone-says",
-              "subject": "<subject: What to research, in plain words>"
+              "subject": "Pre-orders for small bakeries",
+              "question": "Should a small bakery take pre-orders?"
             }
           }
         }
       },
       "workflow": "workflow:research-what-everyone-says",
       "step": "people",
-      "hands_back": "Step people answers with sources.",
-      "given": "The person gives: subject (shown as <name> in the input)."
+      "given": "Read from tools/workflows/recipes/workflows.json (step people): at least one source actually read, each with where (an address the reader can open), the exact quote and how_found, how the speaker knows it.",
+      "hands_back": "{\"sources\":[{\"where\":\"https://example.com/forum/pre-orders-thread\",\"quote\":\"We started pre-orders for holidays and cut our waste in half.\",\"how_found\":\"the shop owner's own trial\"},{\"where\":\"https://example.com/reviews/booking-app\",\"quote\":\"Customers forget their pickup time and the loaf goes unsold.\",\"how_found\":\"a review by a user of the app\"}]}"
     }
   ]
 }

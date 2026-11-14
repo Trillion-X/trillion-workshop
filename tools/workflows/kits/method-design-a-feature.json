@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:method-design-a-feature's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:method-design-a-feature.\" Design a new feature or capability from the request to the working result: name the change, find the constraints, look at what already exists, test the design against every case, keep the mechanism generic, list and build what it makes possible for free, name it plainly, and prove it in the running product.",
+  "drafted_from": "workflow:method-design-a-feature's row in tools/workflows/recipes/workflows.json (its input schema, steps and submit shapes)",
+  "start_here": "Say to your AI: \"Run workflow:method-design-a-feature on this request: let a bakery show how many loaves are left each morning.\" It runs seven sub-workflows in order and hands back each run_id and what it changed.",
   "lists": [],
   "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
@@ -18,14 +17,15 @@
     "tool:start-a-recipe-run"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:method-design-a-feature\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-design-a-feature) and works through its steps in order: name-question-delete, contact-reality, find-the-constraints, test-a-design-against-every-case, build-the-real-thing, name-things-by-what-they-do, plan-only-what-helps.",
-    "3. Read what each step hands back; the last step is plan-only-what-helps."
+    "1. Write the feature in plain words, for example \"Let a bakery show how many loaves are left each morning\".",
+    "2. Say \"Run workflow:method-design-a-feature\" with that request; the AI starts it with tool:start-a-recipe-run.",
+    "3. For each of its seven steps the AI starts the named sub-workflow with the same request (name-question-delete, contact-reality, find-the-constraints, test-a-design-against-every-case, build-the-real-thing, name-things-by-what-they-do, plan-only-what-helps), walks it to the end and hands back its run_id and the one thing it changed.",
+    "4. Read the last step, plan-only-what-helps, for the plan you build from."
   ],
   "worked_examples": [
     {
-      "title": "Design a feature from its first step",
-      "ask": "Run workflow:method-design-a-feature.",
+      "title": "Start the first sub-workflow for a loaf-count feature",
+      "ask": "Run method-design-a-feature on: let a bakery show how many loaves are left each morning.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -36,15 +36,15 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:method-design-a-feature",
-              "request": "<request: What you are deciding, designing or building, in plain words>"
+              "request": "Let a bakery show how many loaves are left each morning"
             }
           }
         }
       },
       "workflow": "workflow:method-design-a-feature",
       "step": "name-question-delete",
-      "hands_back": "Step name-question-delete answers with run_id, changed.",
-      "given": "The person gives: request (shown as <name> in the input)."
+      "given": "Read from tools/workflows/recipes/workflows.json: step name-question-delete starts workflow:method-name-question-delete with the same request, walks it to the end, and submits run_id and changed.",
+      "hands_back": "{\"run_id\":\"run:example-name-question-delete-1\",\"changed\":\"Dropped the separate stock screen: the loaf count is one number on the existing pickup page.\"}"
     }
   ]
 }

@@ -1,38 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:resolve-a-look's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:resolve-a-look with request.\" Turn a look's colour, size and font tokens into concrete values and the stylesheet a document carries, with the person's own font faces",
+  "drafted_from": "tool:resolve-a-look row in tools/screen-looks/tool-rows.json, do-work/resolve-a-look.mjs and test/resolve-a-look.test.mjs",
+  "start_here": "Say to your AI: \"Resolve my Harbour look from request.json into its real colours and fonts and write the stylesheet to look.css, with my own Tidewater Serif font file.\" It runs the resolver on your computer and tells you the main colours, the fonts and any font file that was missing.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list: it reads one request file holding a look and your font files, and writes one stylesheet.",
   "workflows": [],
   "tools": [
     "tool:resolve-a-look"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:resolve-a-look\", and give it request.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:resolve-a-look and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields palette, families, faces_written, faces_missing, css_bytes."
+    "1. Write request.json with look (the look record: tokens of {key, value, css_variable?}) and faces (your own font files: family, weight, style, file relative to the request).",
+    "2. Say \"Resolve this look\"; your AI reads the row with tools:list and runs `node tools/screen-looks/do-work/resolve-a-look.mjs request.json --css look.css` from the Workshop checkout.",
+    "3. Read the one JSON line: palette (concrete values by variable name such as --accent-primary), families the look names, faces_written, faces_missing and css_bytes; look.css holds a @font-face for each named face you gave, then the look's variables.",
+    "4. A face the look does not name is left out; a face file that is not there is listed in faces_missing; exit 2 puts what to change on standard error (for example a request without look.tokens)."
   ],
   "worked_examples": [
     {
-      "title": "Resolve a look on a sample input",
-      "ask": "Run tool:resolve-a-look.",
+      "title": "The Harbour look with one named face, one unused face and one missing file",
+      "ask": "Resolve my Harbour look and write the stylesheet.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:resolve-a-look",
-            "input": {
-              "request": "<request: The request JSON file: {look, faces?}, put where {request} is in the command>"
-            }
+            "tool": "tool:resolve-a-look"
           }
         }
       },
-      "hands_back": "An answer with the fields palette, families, faces_written, faces_missing, css_bytes.",
-      "given": "The person gives: request (shown as <name> in the input)."
+      "given": "From tools/screen-looks/test/resolve-a-look.test.mjs: the command line is `node tools/screen-looks/do-work/resolve-a-look.mjs request.json --css look.css`. request.json holds the look Harbour with tokens black-pure #eef2f0, text-primary #1d2b2a, accent-primary #0f7a6b (each with its css_variable), displayFontFamily \"Tidewater Serif\" and defaultPrimaryFontFamily \"Quay Sans\", and the faces Tidewater Serif 600 (tidewater.woff2, present), Not In The Look (unused.woff2, present) and Quay Sans (missing.woff2, not there).",
+      "hands_back": "One JSON line whose palette[\"--accent-primary\"] is \"#0f7a6b\", faces_written [\"Tidewater Serif 600 normal\"], faces_missing [\"missing.woff2\"], families naming Tidewater Serif and Quay Sans, and css_bytes the size of look.css. look.css starts with @font-face{font-family:'Tidewater Serif';src:url(data:font/woff2;base64,...) and then :root{...--accent-primary:#0f7a6b...}; it never mentions \"Not In The Look\". A value that could end the rule, such as red;}</style>, is never written."
     }
   ]
 }

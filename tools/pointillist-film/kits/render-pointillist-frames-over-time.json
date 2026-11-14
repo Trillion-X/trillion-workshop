@@ -1,35 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:render-pointillist-frames-over-time's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:render-pointillist-frames-over-time with nothing more.\" Turn one film script into a numbered file of packed frames, one for each time I list",
+  "drafted_from": "tools/pointillist-film/tool-rows.json (tool:render-pointillist-frames-over-time), examples/encode_frame_sequence.rs, test/pointillist-film.test.mjs; the example was run here with cargo",
+  "start_here": "Say to your AI: \"Render my two-cell film at 0, 1 and 1.5 seconds into a folder of frames.\" It runs encode_frame_sequence on your computer and tells you where the three frame files are.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads one sequence file and writes numbered frame files into a folder.",
   "workflows": [],
   "tools": [
-    "tool:render-pointillist-frames-over-time"
+    "tool:render-pointillist-frames-over-time",
+    "tool:render-a-pointillist-frame"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:render-pointillist-frames-over-time\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:render-pointillist-frames-over-time and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Turn one film script into a numbered file of packed frames, one for each time I list"
+    "1. Install rust (cargo) and clone the Workshop repository. The first run builds the program (about a minute; a few seconds once built).",
+    "2. Write sequence.json: {request: <the single-frame request, its time_seconds is replaced>, times_seconds: [0, 1, 1.5]}.",
+    "3. The AI reads the row with tools:list {tool: \"tool:render-pointillist-frames-over-time\"} and runs: cargo run --release --quiet --manifest-path trillion-workshop/tools/pointillist-film/Cargo.toml --target-dir /tmp/pointillist-film-build --example encode_frame_sequence -- sequence.json frames",
+    "4. Read the folder: frame-0000.pfcf, frame-0001.pfcf and so on, one for each time in the order given, each the same packed frame the single-frame tool writes for that time. A request that breaks a limit prints the reason and exits non-zero."
   ],
   "worked_examples": [
     {
-      "title": "Render a run of frames of a square-grid pointillist film (runs on your computer) on a sample input",
-      "ask": "Run tool:render-pointillist-frames-over-time.",
+      "title": "Three frames of a two-cell film",
+      "ask": "Render my two-cell film at 0, 1 and 1.5 seconds.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:render-pointillist-frames-over-time",
-            "input": {}
+            "tool": "tool:render-pointillist-frames-over-time"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Turn one film script into a numbered file of packed frames, one for each time I list"
+      "given": "From tools/pointillist-film/test/pointillist-film.test.mjs (the sequence test) and run here with cargo: sequence.json holds the request for a two-cell film (grid 2 columns by 1 row, gap 0.1; limits max 8 columns, 8 rows, 64 cells, 4 targets, 4096 frame bytes; style opacity 0 to 1, scale 0 to 4; target 0 is a red cell and a blue cell, target 1 is a green cell and a yellow cell; one segment from 0 s for 2 s that weights target 0 by the constant 1 and target 1 by the input time) and times_seconds [0, 1, 1.5]. The AI runs: cargo run --release --quiet --manifest-path trillion-workshop/tools/pointillist-film/Cargo.toml --target-dir /tmp/pointillist-film-build --example encode_frame_sequence -- sequence.json frames",
+      "hands_back": "Nothing on standard output and exit 0; the folder frames holds frame-0000.pfcf, frame-0001.pfcf and frame-0002.pfcf, each 54 bytes and beginning PFCF; the first (time 0) and the last (time 1.5) differ in their bytes because target 1 weighs more as time passes."
     }
   ]
 }

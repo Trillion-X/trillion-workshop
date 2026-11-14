@@ -1,0 +1,251 @@
+{
+  "drafted_from": "tool:calibrate-a-checks-questions-on-lines-i-ruled-on row in tools/ask-a-small-model-for-a-verdict/tool-rows.json, its code in tools/ask-a-small-model-for-a-verdict/do-work/ and tools/ask-a-small-model-for-a-verdict/test/answer-with-a-downloaded-model.test.mjs, its row's verify sample run and do-work/answer_with_a_downloaded_model.py; the answers were produced by running the tool against a stand-in model server",
+  "start_here": "Say to your AI: \"Calibrate my sample-vague check on my sample-rulings lines: where should it pass and fail a line, and is it usable?\" It asks the model the check's question about every ruled line and fits the lines.",
+  "lists": [
+    {
+      "list": "list:checks",
+      "label": "Checks",
+      "row_type": "record:check",
+      "holds": "One node of a person's check tree per row; the rows these tools read are labelled lines (kind labelled-line: a line of copy with the person's ruling, good or bad, and the set it belongs to) and check rows with an ask (a question for a model).",
+      "fields": [
+        {
+          "id": "part_of",
+          "kind": "tags",
+          "label": "Part of",
+          "alike": [
+            "rule",
+            "group",
+            "parent"
+          ]
+        },
+        {
+          "id": "kind",
+          "kind": "text",
+          "label": "Kind",
+          "alike": [
+            "type",
+            "row kind"
+          ]
+        },
+        {
+          "id": "set",
+          "kind": "text",
+          "label": "Set of lines",
+          "alike": [
+            "batch",
+            "collection",
+            "list name"
+          ]
+        },
+        {
+          "id": "at",
+          "kind": "number",
+          "label": "Place in the set",
+          "alike": [
+            "order",
+            "position",
+            "index"
+          ]
+        },
+        {
+          "id": "text",
+          "kind": "long-text",
+          "label": "Line",
+          "alike": [
+            "copy",
+            "sentence",
+            "example"
+          ]
+        },
+        {
+          "id": "good",
+          "kind": "checkbox",
+          "label": "Ruled good",
+          "alike": [
+            "approved",
+            "ok",
+            "passes"
+          ]
+        },
+        {
+          "id": "bad_for",
+          "kind": "tags",
+          "label": "Bad for",
+          "alike": [
+            "broken rules",
+            "failed checks",
+            "problems"
+          ]
+        },
+        {
+          "id": "split",
+          "kind": "text",
+          "label": "Split",
+          "alike": [
+            "train or test",
+            "group"
+          ]
+        },
+        {
+          "id": "source",
+          "kind": "text",
+          "label": "Source of the ruling",
+          "alike": [
+            "ruled by",
+            "origin",
+            "labeller"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "labelled-line-sample-rulings-0",
+          "values": {
+            "part_of": [
+              "sample-vague"
+            ],
+            "kind": "labelled-line",
+            "set": "sample-rulings",
+            "at": 0,
+            "text": "Things happen.",
+            "good": false,
+            "bad_for": [
+              "vague"
+            ],
+            "split": "real",
+            "source": "owner-ruling"
+          }
+        },
+        {
+          "id": "labelled-line-sample-rulings-2",
+          "values": {
+            "part_of": [
+              "sample-vague"
+            ],
+            "kind": "labelled-line",
+            "set": "sample-rulings",
+            "at": 2,
+            "text": "Ten people came.",
+            "good": true,
+            "bad_for": [],
+            "split": "real",
+            "source": "owner-ruling"
+          }
+        },
+        {
+          "id": "labelled-line-sample-rulings-3",
+          "values": {
+            "part_of": [
+              "sample-vague"
+            ],
+            "kind": "labelled-line",
+            "set": "sample-rulings",
+            "at": 3,
+            "text": "The door is red.",
+            "good": true,
+            "bad_for": [],
+            "split": "real",
+            "source": "owner-ruling"
+          }
+        }
+      ],
+      "alike": [
+        "a spreadsheet of example lines marked good or bad",
+        "the labelled examples of a style guide",
+        "a test set of sentences with pass or fail"
+      ]
+    }
+  ],
+  "workflows": [],
+  "tools": [
+    "tool:calibrate-a-checks-questions-on-lines-i-ruled-on",
+    "tool:fit-pass-and-fail-lines",
+    "tool:answer-a-checks-questions-with-a-model-on-this-computer",
+    "tool:pour-example-rows-into-my-list"
+  ],
+  "instructions": [
+    "1. Have your setting row (record:setting:ask-a-small-model-for-a-verdict~person~sample-person) with the fit bars the person chose (fit.fail_good_share_at_most, pass_bad_share_at_most, usable_when), your check row with an ask (record:check:sample-vague) and your ruled lines in list:checks (pour the example rows, or add rows of kind labelled-line with good, bad_for and set).",
+    "2. Say \"Calibrate my check\". The AI calls tools:run with this tool, settings_record, rules (the ids of check rows with an ask), lines (the set of ruled lines) and optionally split, context_only, fpr and mode (the worked example shows one).",
+    "3. Read result: per rule id a finding with status (\"usable\" or \"unseparable\" and a reason), auc, t_pass, t_fail, recall, n_bad, n_good and the held-out shares.",
+    "4. Write a usable finding into that check row's ask.calibration yourself. Lines a model was trained on must never calibrate it."
+  ],
+  "worked_examples": [
+    {
+      "title": "The sample-vague check separates two vague lines from two good ones",
+      "ask": "Calibrate my vague-line check on the lines I ruled.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:calibrate-a-checks-questions-on-lines-i-ruled-on",
+            "input": {
+              "settings_record": "record:setting:ask-a-small-model-for-a-verdict~person~sample-person",
+              "rules": [
+                "sample-vague"
+              ],
+              "lines": "sample-rulings",
+              "split": "real",
+              "mode": "cache"
+            }
+          }
+        }
+      },
+      "given": "From the row's own verify sample run in tools/ask-a-small-model-for-a-verdict/tool-rows.json, answered by running do-work/answer_with_a_downloaded_model.py calibrate with the same stand-in: check row sample-vague asks \"Is this line vague?\" (fail on yes) and the stand-in says yes 0.9 for \"Things happen.\" and 0.8 for \"It works somehow.\" (both ruled bad for vague) and yes 0.05 for the two lines ruled good (\"Ten people came.\", \"The door is red.\"); the setting's bars are fail_good_share_at_most 0.05, pass_bad_share_at_most 0.1, usable_when auc 0.75, 2 bad lines, recall 0.25, good_failed_or_uncertain 0.35.",
+      "hands_back": "{\"sample-vague\": {\"status\": \"usable\", \"auc\": 1, \"n_bad\": 2, \"n_good\": 2, \"fail_good_share_at_most\": 0.05, \"t_pass\": 0.05, \"t_fail\": 0.05, \"recall\": 1, \"good_failed_held_out\": 0, \"good_failed_or_uncertain_held_out\": 0, \"fpr\": 0.05, \"lines\": \"sample-rulings split=real\", \"date\": \"2026-11-13\"}}"
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for lines you ruled good or bad and its fields. The tool matches each kit field to one of yours (by the map you give, the same id, the same label, or a name in alike), refuses when fewer than 80% match, and otherwise answers the records:write that adds the example rows, leaving your own rows untouched.",
+    "example": {
+      "kit_list": "list:checks",
+      "into": {
+        "list": "list:ruled-lines",
+        "row_type": "record:ruled-line",
+        "fields": [
+          {
+            "id": "part_of",
+            "label": "Part of"
+          },
+          {
+            "id": "kind",
+            "label": "Kind"
+          },
+          {
+            "id": "set",
+            "label": "Set"
+          },
+          {
+            "id": "at",
+            "label": "Order"
+          },
+          {
+            "id": "text",
+            "label": "Line"
+          },
+          {
+            "id": "good",
+            "label": "Approved"
+          },
+          {
+            "id": "bad_for",
+            "label": "Problems"
+          },
+          {
+            "id": "split",
+            "label": "Split"
+          },
+          {
+            "id": "source",
+            "label": "Source"
+          }
+        ]
+      },
+      "field_map": {}
+    }
+  }
+}

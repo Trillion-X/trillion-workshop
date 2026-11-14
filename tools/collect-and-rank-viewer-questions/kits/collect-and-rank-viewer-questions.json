@@ -1,13 +1,12 @@
 {
-  "draft": true,
-  "drafted_from": "tool:collect-and-rank-viewer-questions's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:collect-and-rank-viewer-questions with nothing more.\" Find the real questions people ask in the forums and video comments my audience reads, sort them into my topics, tell me how often each comes up, and find the moments in my own recordings where I answer each one",
+  "drafted_from": "tool:collect-and-rank-viewer-questions's row (tools/collect-and-rank-viewer-questions/tool-rows.json), do-work/candidates.py, do-work/rank.py and test/viewer-questions.test.mjs",
+  "start_here": "Say to your AI: \"Find the questions in the forum posts and video comments saved in ./viewer-questions, using my sample-baker settings row, and rank them into my buckets.\" It runs the candidates script on your computer, then rank with your settings file, and tells you how many questions it found and which bucket each fits.",
   "lists": [
     {
       "list": "list:settings",
       "label": "Settings",
       "row_type": "record:setting",
-      "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON.",
+      "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON. For this tool the settings hold your buckets, bucket codes, overrides, inferred questions, package readings and reach rules.",
       "fields": [
         {
           "id": "name",
@@ -77,27 +76,27 @@
       ],
       "example_rows": [
         {
-          "id": "caption-style",
+          "id": "viewer-questions-sample-baker",
           "values": {
-            "name": "Caption style",
-            "tool": "tool:example-captioner",
+            "name": "Sample baker viewer questions",
+            "tool": "tool:collect-and-rank-viewer-questions",
             "scope_kind": "person",
-            "scope_id": "example-person",
-            "settings": "{\"style\":\"plain\",\"size\":\"large\"}",
+            "scope_id": "sample-baker",
+            "settings": "{\"buckets\":{\"starter-care\":[\"starter\",\"feed\"],\"shaping\":[\"crumb\",\"stretch\",\"tear\"]},\"bucket_codes\":{\"SC\":\"starter-care\",\"SH\":\"shaping\"}}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         },
         {
-          "id": "quiet-hours",
+          "id": "viewer-questions-pizza-channel",
           "values": {
-            "name": "Quiet hours",
-            "tool": "tool:example-notifier",
-            "scope_kind": "account",
-            "scope_id": "whole-account",
-            "settings": "{\"from\":\"22:00\",\"to\":\"07:00\"}",
+            "name": "Pizza channel viewer questions",
+            "tool": "tool:collect-and-rank-viewer-questions",
+            "scope_kind": "person",
+            "scope_id": "pizza-channel",
+            "settings": "{\"buckets\":{\"dough\":[\"dough\",\"proof\"],\"toppings\":[\"sauce\",\"cheese\"]},\"bucket_codes\":{\"DG\":\"dough\",\"TP\":\"toppings\"}}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         }
       ],
@@ -108,79 +107,81 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
     "tool:collect-and-rank-viewer-questions",
-    "tool:check-copy",
-    "tool:keep-channels-latest-videos-and-captions",
     "tool:keep-forum-posts-from-a-public-archive",
-    "tool:read-a-tool-setting"
+    "tool:keep-channels-latest-videos-and-captions",
+    "tool:read-a-tool-setting",
+    "tool:check-copy"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:collect-and-rank-viewer-questions\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:collect-and-rank-viewer-questions and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Find the real questions people ask in the forums and video comments my audience reads, sort them into my topics, tell me how often each comes up, and find the moments in my own recordings where I answer each one"
+    "1. Pour the two example settings rows into the settings list you already keep (see pour), or make list:settings from them; replace the buckets with your own topics and words. Keep status active: a retired row is refused.",
+    "2. Put your forum posts (forum-posts.jsonl, kept by tool:keep-forum-posts-from-a-public-archive) and video comments (youtube-comments/*.info.json, or comments.jsonl kept by tool:keep-channels-latest-videos-and-captions) in one folder, for example ./viewer-questions, with a raw/ folder beside them.",
+    "3. Say \"Find the questions my viewers really ask\". The AI reads the row with tools:list {tool: tool:collect-and-rank-viewer-questions}, installs sentence-transformers and numpy, reads your settings row with tool:read-a-tool-setting and writes it to a file.",
+    "4. The AI runs the candidates script (python3 tools/collect-and-rank-viewer-questions/do-work/candidates.py <folder> <out.tsv>) and then rank.py with the settings file; read the last JSON line of each: {\"result\": {...}} or {\"error\": what to fix}.",
+    "5. Pick the questions worth keeping (picks.txt), then have the AI run embed_moments, build_library with the picks and settings, and apply_gate with your copy rules (tool:check-copy); it writes the questions with their frequency and answers back as rows of your library and tells you which have no answer yet."
   ],
   "worked_examples": [
     {
-      "title": "Find the questions my viewers really ask and the moments where I already answer them (runs on your computer) on a sample input",
-      "ask": "Run tool:collect-and-rank-viewer-questions.",
+      "title": "Five question candidates found in two forum posts and two videos' comments",
+      "ask": "Find the questions my viewers really ask in the posts and comments saved in ./viewer-questions.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:collect-and-rank-viewer-questions",
-            "input": {}
+            "tool": "tool:collect-and-rank-viewer-questions"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Find the real questions people ask in the forums and video comments my audience reads, sort them into my topics, tell me how often each comes up, and find the moments in my own recordings where I answer each one"
+      "given": "From tools/collect-and-rank-viewer-questions/test/viewer-questions.test.mjs: ./viewer-questions holds forum-posts.jsonl (post p1 titled \"How do I keep my starter alive on holiday?\" whose body adds \"Also why does my dough tear when I stretch it?\", and post p2 whose body asks \"How can I get a more open crumb in my loaf?\"), youtube-comments/vid0000001.info.json (a comment \"What should I feed my starter every single day?\" with 120 likes and \"Nice video\") and comments.jsonl (video vid0000002: \"Why does my bread go flat in the oven every time?\"), with ./viewer-questions/raw/ made. The AI runs, from the folder holding the trillion-workshop clone: python3 trillion-workshop/tools/collect-and-rank-viewer-questions/do-work/candidates.py ./viewer-questions ./viewer-questions/raw/candidates.tsv.",
+      "hands_back": "{\"result\": {\"candidates\": 5, \"posts\": 2, \"videos\": 2, \"out\": \"./viewer-questions/raw/candidates.tsv\"}} as the last line. candidates.tsv holds ids 0 to 4: the two post sentences about the starter and the dough, the crumb sentence, then the two comment questions, the starter one linked https://www.youtube.com/watch?v=vid0000001&lc=c1. \"Nice video\" is not kept: it ends in no question mark."
     }
   ],
   "pour": {
     "tool": "tool:pour-example-rows-into-my-list",
     "least_coverage": 0.8,
-    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "how": "Name the settings list you already keep and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
     "example": {
       "kit_list": "list:settings",
       "into": {
-        "list": "list:my-settings",
-        "row_type": "record:setting",
+        "list": "list:my-tool-options",
+        "row_type": "record:tool-option",
         "fields": [
           {
-            "id": "name",
-            "label": "Setting"
+            "id": "title",
+            "label": "Option"
           },
           {
-            "id": "tool",
+            "id": "owner",
             "label": "Tool"
           },
           {
-            "id": "scope_kind",
-            "label": "For a"
+            "id": "scope",
+            "label": "Applies to"
           },
           {
-            "id": "scope_id",
-            "label": "For"
+            "id": "target",
+            "label": "Target"
           },
           {
-            "id": "settings",
-            "label": "Settings (JSON)"
+            "id": "values",
+            "label": "Values"
           },
           {
-            "id": "from",
-            "label": "From"
+            "id": "origin",
+            "label": "Origin"
           },
           {
-            "id": "status",
-            "label": "Status"
+            "id": "state",
+            "label": "State"
           }
         ]
-      }
+      },
+      "field_map": {}
     }
   }
 }

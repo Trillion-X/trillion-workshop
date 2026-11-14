@@ -1,39 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:voice-the-lines-of-my-plans's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:voice-the-lines-of-my-plans with input.\" Make a voice recording of every line in my plans that a voice reads aloud, with the voice I choose, and keep each one so it is made only once",
+  "drafted_from": "tools/assemble-a-plan-into-a-cut/tool-rows.json, do-work/voice.py, test/test_assemble.py",
+  "start_here": "Say to your AI: \"Record a voice take for every line my plans in plans/ have a voice read, using request.json.\" It runs the voice step and tells you how many lines were new.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of yours: it reads plan files and writes only voice takes (a .wav beside a .txt) in the folder you name.",
   "workflows": [],
   "tools": [
     "tool:voice-the-lines-of-my-plans",
     "tool:assemble-a-plan-into-a-cut"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:voice-the-lines-of-my-plans\", and give it input.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:voice-the-lines-of-my-plans and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Make a voice recording of every line in my plans that a voice reads aloud, with the voice I choose, and keep each one so it is made only once"
+    "1. Clone the Workshop checkout and install numpy, soundfile, pillow, blake3 (and mlx-audio for the Kokoro speaker).",
+    "2. Write request.json with pieces (which segment kind is a voiced_line), plans {folder} and voice {folder, say: [{argv}]} where the last command writes the take at {fill: out}.",
+    "3. Say \"Voice the lines of my plans\"; the AI runs python3 tools/assemble-a-plan-into-a-cut/do-work/assemble.py voice-lines --request request.json.",
+    "4. Read lines, had and made; play a made take before it goes into a cut. Run it again: nothing is made twice."
   ],
   "worked_examples": [
     {
-      "title": "Record a voice take of every line my plans have a voice read (runs on your computer) on a sample input",
-      "ask": "Run tool:voice-the-lines-of-my-plans.",
+      "title": "One voiced line is made once and then found",
+      "ask": "Record a voice take of every line my plans have a voice read.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:voice-the-lines-of-my-plans",
-            "input": {
-              "input": "<input: The request file (pieces, plans {folder}, voice {folder, say}), put where {input} is>"
-            }
+            "tool": "tool:voice-the-lines-of-my-plans"
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Make a voice recording of every line in my plans that a voice reads aloud, with the voice I choose, and keep each one so it is made only once",
-      "given": "The person gives: input (shown as <name> in the input)."
+      "given": "From test_1_voice_lines_makes_each_missing_take_once in tools/assemble-a-plan-into-a-cut/test/test_assemble.py, run here on its made-up world with its stand-in speaker: one voiced line, 'What is the made-up question?', and an empty voice folder.",
+      "hands_back": "First run printed {\"result\": {\"lines\": 1, \"had\": 0, \"made\": [{\"text\": \"What is the made-up question?\", \"take\": \"<voice folder>/7c1d0ce3eb9a8cc8.wav\"}]}}, with 7c1d0ce3eb9a8cc8.txt beside it holding the exact words (the name is the first 16 characters of the BLAKE3 of the words). The second run printed {\"result\": {\"lines\": 1, \"had\": 1, \"made\": []}}."
     }
   ]
 }

@@ -1,39 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:score-how-alike-lines-sound-to-a-reference-voice's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:score-how-alike-lines-sound-to-a-reference-voice with reference, dirs.\" Check which voice model sounds most like the real speaker: score each line against the reference recording",
+  "drafted_from": "tool row in tools/compare-voice-and-music-models/tool-rows.json, do-work/speaker_similarity.py and tools/compare-voice-and-music-models/test/test_compare_models.py",
+  "start_here": "Say to your AI: \"Score which of my folders ./current and ./candidate sounds most like the real speaker in ref.wav.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it takes a reference recording and folders of line recordings and prints scores.",
   "workflows": [],
   "tools": [
-    "tool:score-how-alike-lines-sound-to-a-reference-voice"
+    "tool:score-how-alike-lines-sound-to-a-reference-voice",
+    "tool:say-lines-in-a-candidate-voice-model"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:score-how-alike-lines-sound-to-a-reference-voice\", and give it reference, dirs.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:score-how-alike-lines-sound-to-a-reference-voice and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Check which voice model sounds most like the real speaker: score each line against the reference recording"
+    "1. Put each voice model's lines in one folder with the same file names (l01.wav, l02.wav).",
+    "2. Say the line in start_here. Your AI reads the row with tools:list {tool: \"tool:score-how-alike-lines-sound-to-a-reference-voice\"}, installs torch and pyannote.audio if missing and runs the command in given; the first run needs HF_HUB_OFFLINE=0 once so the speaker model downloads.",
+    "3. Read the last line: each folder's lines and mean. Higher is more alike (same-speaker pairs score well above 0.5).",
+    "4. Tell the person which folder is closest and that this is likeness only: listen too."
   ],
   "worked_examples": [
     {
-      "title": "Score how much each line sounds like the voice it was cloned from (runs on your computer) on a sample input",
-      "ask": "Run tool:score-how-alike-lines-sound-to-a-reference-voice.",
+      "title": "Two folders scored against the speaker's reference",
+      "ask": "Which folder sounds most like the real speaker?",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:score-how-alike-lines-sound-to-a-reference-voice",
-            "input": {
-              "reference": "<reference: The speaker's reference recording, put where {reference} is in the command>",
-              "dirs": []
-            }
+            "tool": "tool:score-how-alike-lines-sound-to-a-reference-voice"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Check which voice model sounds most like the real speaker: score each line against the reference recording",
-      "given": "The person gives: reference (shown as <name> in the input)."
+      "given": "Read from tools/compare-voice-and-music-models/do-work/speaker_similarity.py; its score step is tested in tools/compare-voice-and-music-models/test/test_compare_models.py (cosine of 1.0 and 0.6 for two lines gives mean 0.8). Run: python3 -I tools/compare-voice-and-music-models/do-work/speaker_similarity.py ref.wav ./current ./candidate with l01.wav and l02.wav in each folder.",
+      "hands_back": "{\"result\":{\"reference\":\"ref.wav\",\"model\":\"pyannote/wespeaker-voxceleb-resnet34-LM\",\"folders\":[{\"dir\":\"./current\",\"lines\":{\"l01.wav\":<cosine>,\"l02.wav\":<cosine>},\"mean\":<mean of the two>},{\"dir\":\"./candidate\",\"lines\":{...},\"mean\":...}]}}: each line is the cosine of its voice embedding with the reference, rounded to 3 places, and the mean is per folder (a folder with no matching file has mean null). A missing folder answers {\"error\":\"./nowhere is not a folder: pass one folder of line recordings per voice model\"}."
     }
   ]
 }

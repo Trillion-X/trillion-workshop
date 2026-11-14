@@ -1,22 +1,24 @@
 {
-  "draft": true,
-  "drafted_from": "tool:catalog-a-channels-videos-by-format's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:catalog-a-channels-videos-by-format with data_folder, youtube_folder, channel.\" List every video of a YouTube channel with its format (episode, side piece, compilation, members-only, short, or a series of its own) and how its views compare with the nearby videos of the same format",
+  "drafted_from": "tool:catalog-a-channels-videos-by-format's row in tools/measure-a-characters-voice-lines-and-staging/tool-rows.json, its script in tools/measure-a-characters-voice-lines-and-staging/do-work/ and the tests in tools/measure-a-characters-voice-lines-and-staging/test/",
+  "start_here": "Say to your AI: \"Catalog the lighthouse channel's videos by format from my YouTube folder into the show folder.\" It runs tool:catalog-a-channels-videos-by-format, which labels each video episode, extra, short or side and compares its views with its neighbours.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of its own: it reads one settings row of yours (record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>) or the settings you pass, and works on files in the show's folder.",
   "workflows": [],
   "tools": [
-    "tool:catalog-a-channels-videos-by-format"
+    "tool:catalog-a-channels-videos-by-format",
+    "tool:find-when-a-character-speaks",
+    "tool:sum-a-characters-time-per-video"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:catalog-a-channels-videos-by-format\", and give it data_folder, youtube_folder, channel.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:catalog-a-channels-videos-by-format and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: List every video of a YouTube channel with its format (episode, side piece, compilation, members-only, short, or a series of its own) and how its views compare with the nearby videos of the same format"
+    "1. Make the show's folder and the YouTube library folder the run may change, and put the yt-dlp flat lists lighthouse-videos.json and lighthouse-shorts.json in <youtube folder>/flat/. Put the keys the row needs (series_prefixes, compilation_words, side_pattern) in your settings row or pass them as settings.",
+    "2. Say the sentence in start_here to your AI. It calls run_resource_operation at @workshop-tools with method tools:run, tool tool:catalog-a-channels-videos-by-format and the input in the worked example; the door asks for the granted folder.",
+    "3. Read the last line it prints, {\"result\": ...}, or {\"error\": ...} saying what to fix (a missing settings key is named).",
+    "4. The catalog.tsv it wrote is the table every other tool of this folder reads (find-when-a-character-speaks, list-what-a-character-says, sum-a-characters-time-per-video); run those next."
   ],
   "worked_examples": [
     {
-      "title": "Catalog a channel's videos by format, with views against the channel's rolling baseline (runs on your computer) on a sample input",
-      "ask": "Run tool:catalog-a-channels-videos-by-format.",
+      "title": "Four videos catalogued",
+      "ask": "Catalog my channel.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -42,7 +44,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: List every video of a YouTube channel with its format (episode, side piece, compilation, members-only, short, or a series of its own) and how its views compare with the nearby videos of the same format"
+      "given": "From the sample run in tools/measure-a-characters-voice-lines-and-staging/tool-rows.json and CatalogTest in tools/measure-a-characters-voice-lines-and-staging/test/test_measures.py: lighthouse-videos.json holds vid-a \"The Lighthouse Hour: Fog\" (1800 s, 1000 views), vid-b \"Behind the lamp: tools\" (600 s, 500 views) and vid-c \"The Lighthouse Hour: Gulls\" (1700 s, 3000 views); lighthouse-shorts.json holds clip-a \"Parrot!\" (20 s, 50 views).",
+      "hands_back": "{\"result\": {\"catalog\": \"{grant:change-a-folder}/show/catalog.tsv\", \"videos\": 4}}; catalog.tsv has vid-a episode, vid-b extra (its title starts with \"behind the lamp\"), vid-c episode (3000 views against a baseline of 1000, x_baseline 3.0) and clip-a short."
     }
   ]
 }

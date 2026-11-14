@@ -1,35 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:read-a-videos-captions's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-a-videos-captions with nothing more.\" Get the words spoken in a video as text, from the captions the video site holds for it",
+  "drafted_from": "tools/research-a-creator-or-topic/tool-rows.json (tool:read-a-videos-captions), do-work/research-from-this-computer.mjs (videoCaptions) and sources.mjs, test/commands.test.mjs",
+  "start_here": "Say to your AI: \"Get the words spoken in the video vid-aaa from its captions and tell me what it teaches.\" It runs the captions command on your computer with yt-dlp and reads the transcript from the file it writes.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it asks yt-dlp for one video's captions and writes the words to one JSON file on your computer.",
   "workflows": [],
   "tools": [
-    "tool:read-a-videos-captions"
+    "tool:read-a-videos-captions",
+    "tool:list-a-channels-latest-videos"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-a-videos-captions\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-a-videos-captions and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Get the words spoken in a video as text, from the captions the video site holds for it"
+    "1. Check that node and yt-dlp are installed (brew install yt-dlp) and clone the Workshop repository. No key is needed and nothing is sent to Trillion.",
+    "2. Give the video as an id or a link (tool:list-a-channels-latest-videos gives each video's item_id and url).",
+    "3. The AI reads the row with tools:list {tool: \"tool:read-a-videos-captions\"} and runs: node trillion-workshop/tools/research-a-creator-or-topic/do-work/research-from-this-computer.mjs captions --video vid-aaa --out captions.json. Add --langs en,en-orig to change the languages, --js-runtimes node when stderr_tail says yt-dlp needs a JavaScript runtime.",
+    "4. Read the last line, {\"result\": {video_id, url, parser, has_captions, char_count, stderr_tail, status, out}}, then the transcript in captions.json. Status ready means words; status empty means the video has none, and stderr_tail says why: tell the person that instead of guessing its words."
   ],
   "worked_examples": [
     {
-      "title": "Get the words spoken in a video from its captions (runs on your computer) on a sample input",
-      "ask": "Run tool:read-a-videos-captions.",
+      "title": "A video whose original-language captions are read first",
+      "ask": "Get the words spoken in vid-aaa from its captions.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:read-a-videos-captions",
-            "input": {}
+            "tool": "tool:read-a-videos-captions"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Get the words spoken in a video as text, from the captions the video site holds for it"
+      "given": "From tools/research-a-creator-or-topic/test/commands.test.mjs (the captions test, with yt-dlp stood in): yt-dlp leaves two caption files for vid-aaa, sub.en.json3 (\"English words\") and sub.en-orig.json3 (\"Original words\"). The AI runs: node trillion-workshop/tools/research-a-creator-or-topic/do-work/research-from-this-computer.mjs captions --video vid-aaa --out captions.json",
+      "hands_back": "{\"result\":{\"video_id\":\"vid-aaa\",\"url\":\"https://www.youtube.com/watch?v=vid-aaa\",\"parser\":\"caption-json3\",\"has_captions\":true,\"char_count\":14,\"stderr_tail\":\"\",\"status\":\"ready\",\"out\":\"captions.json\"}} and captions.json holds \"transcript\":\"Original words\" (the original language is read before plain English). For a video with no captions, status is \"empty\", has_captions false, transcript \"\" and stderr_tail holds yt-dlp's reason."
     }
   ]
 }

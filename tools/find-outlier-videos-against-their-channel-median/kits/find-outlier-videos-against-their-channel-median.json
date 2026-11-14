@@ -1,39 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:find-outlier-videos-against-their-channel-median's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:find-outlier-videos-against-their-channel-median with videos, output.\" Find the outlier videos: the ones that got many times more views than their channel normally gets",
+  "drafted_from": "tool:find-outlier-videos-against-their-channel-median's row in tool-rows.json, do-work/find_outliers.py and test/test_find_outliers.py",
+  "start_here": "Say to your AI: \"Find the videos in my videos.tsv that did at least 5 times better than their own channel usually does, and write them to outliers.tsv.\" It reads the row, runs the script on your computer and shows you the outliers, highest ratio first, with each channel's median.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads one tab-separated file of videos and writes one tab-separated file of outliers.",
   "workflows": [],
   "tools": [
     "tool:find-outlier-videos-against-their-channel-median"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:find-outlier-videos-against-their-channel-median\", and give it videos, output.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-outlier-videos-against-their-channel-median and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Find the outlier videos: the ones that got many times more views than their channel normally gets"
+    "1. Make a tab-separated table of videos with one header line: source, kind, added, url, views, length, channel, title (columns 0, 1, 3, 4, 6 and 7 are the ones it reads; any other layout is passed with --source-col, --kind-col, --url-col, --views-col, --channel-col, --title-col as a number or a header name).",
+    "2. Say \"Find the outlier videos in my videos.tsv\". Your AI reads the row with tools:list {tool: \"tool:find-outlier-videos-against-their-channel-median\"} and runs its run command from the root of the Workshop checkout.",
+    "3. Read the last line it prints: {\"result\": {...}} says how many outliers it found in how many sources; {\"error\": \"what to change\"} says what to fix. The outliers are in the output file.",
+    "4. Add --min-ratio and --min-views when you want a looser or stricter bar (default: 5 times the median and at least 10000 views)."
   ],
   "worked_examples": [
     {
-      "title": "Find the videos that did far better than their own channel usually does (runs on your computer) on a sample input",
-      "ask": "Run tool:find-outlier-videos-against-their-channel-median.",
+      "title": "Two outliers out of three channels",
+      "ask": "Find the videos in videos.tsv that beat their own channel's usual views and write them to outliers.tsv.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:find-outlier-videos-against-their-channel-median",
-            "input": {
-              "videos": "<videos: The tab-separated table of videos, put where {videos} is in the command>",
-              "output": "<output: The outliers table to write, put where {output} is in the command>"
-            }
+            "tool": "tool:find-outlier-videos-against-their-channel-median"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Find the outlier videos: the ones that got many times more views than their channel normally gets",
-      "given": "The person gives: videos, output (shown as <name> in the input)."
+      "given": "From tools/find-outlier-videos-against-their-channel-median/test/test_find_outliers.py: the command line python3 -I tools/find-outlier-videos-against-their-channel-median/do-work/find_outliers.py videos.tsv outliers.tsv on a table of 16 lines: 5 titled rows of source glimmerhatch (views 2000, 2000, 50000, 9000, 1000; median 2000), 5 of quillborough (2000, 2000, 3000, 4000, 900000; median 3000), 3 of tinsel-moor (1000, 1000, 6000; median 1000), plus 3 rows the script skips (no title, views \"n/a\", a short line). The 13 counted rows are the ones read.",
+      "hands_back": "The last line printed is {\"result\": {\"outliers\": \"outliers.tsv\", \"rows_read\": 13, \"found\": 2, \"sources\": 2, \"min_ratio\": 5.0, \"min_views\": 10000}}. outliers.tsv holds the header ratio, views, kind, channel, source, median, n, url, title and two rows: 25.0, 50000, video, Glimmerhatch, glimmerhatch, 2000, 5, https://example.com/glimmerhatch/3, The sprocket that flew; and 300.0, 900000, short, Quillborough, quillborough, 3000, 5, https://example.com/quillborough/5, The fen at night. The 6000-view tinsel-moor video is 6 times its median but under 10000 views, so it is left out."
     }
   ]
 }

@@ -1,9 +1,8 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:method-hold-to-the-hardest-test's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:method-hold-to-the-hardest-test.\" Walk any decision, plan or claim through the method's hardest questions: attack every claim and say how each source found it out, hear every voice and name the least obvious insights, find unexplored ground that fits the person, pick the move with the most result for its time, money and attention (hiring included), let what the pursuit already makes pay for it, have the next need ready before it is asked, and show the result where the person already is.",
+  "drafted_from": "workflow:method-hold-to-the-hardest-test's row in tools/workflows/recipes/workflows.json (its job, input schema and the step named in the worked example)",
+  "start_here": "Say to your AI: \"Run workflow:method-hold-to-the-hardest-test on: decide the monthly price of an ordering app for small bakeries.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It is a way of thinking a request through, answered in words step by step, and it reads and writes no list.",
   "workflows": [
     "workflow:method-hold-to-the-hardest-test",
     "workflow:find-unexplored-ground",
@@ -12,19 +11,21 @@
     "workflow:test-a-finding"
   ],
   "tools": [
+    "tool:start-a-recipe-run",
     "tool:choose-what-a-visitor-sees",
     "tool:read-experiment-results",
     "tool:who-does-each-step"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:method-hold-to-the-hardest-test\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-hold-to-the-hardest-test) and works through its steps in order: alignment, question, baseline, root, delete, rule-out, owner, combine, smallest-change, accelerate, automate, risk, naming, production, proof.",
-    "3. Read what each step hands back; the last step is proof."
+    "1. Write the plan, decision or claim in one plain sentence, for example \"decide the monthly price of an ordering app for small bakeries\", and say \"Run workflow:method-hold-to-the-hardest-test\" with it as request.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-hold-to-the-hardest-test) and answers its steps in order: alignment, question, baseline, root, delete, rule-out, owner, combine, smallest-change, accelerate, automate, risk, naming, production, proof; each answer is refused until every check of the step is answered about this request.",
+    "3. Where a step names a workflow (workflow:find-unexplored-ground, workflow:research-what-everyone-says, workflow:test-a-finding, workflow:sell-what-the-pursuit-makes) or a tool (tool:choose-what-a-visitor-sees, tool:read-experiment-results), run it and quote what it gave back in your answer.",
+    "4. At proof, say what shows success, what shows failure, how it is checked independently and on what date."
   ],
   "worked_examples": [
     {
-      "title": "Hold any plan to the hardest test from its first step",
-      "ask": "Run workflow:method-hold-to-the-hardest-test.",
+      "title": "Question a price against who it prices out and what it funds",
+      "ask": "Run workflow:method-hold-to-the-hardest-test: decide the monthly price of an ordering app for small bakeries.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -35,15 +36,15 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:method-hold-to-the-hardest-test",
-              "request": "<request: What you are deciding, designing or building, in plain words>"
+              "request": "Decide the monthly price of an ordering app for small bakeries"
             }
           }
         }
       },
       "workflow": "workflow:method-hold-to-the-hardest-test",
-      "step": "alignment",
-      "hands_back": "Step alignment answers with answer, checks.",
-      "given": "The person gives: request (shown as <name> in the input)."
+      "step": "question",
+      "given": "Read from tools/workflows/recipes/workflows.json, step question: its submit shape is answer and checks, which holds one check, question-price-opens-the-door-and-funds-growth. The request is the one in the input above.",
+      "hands_back": "{\"answer\":\"Demands: (1) a bakery owner will not pay more than a day of one baker's wage a month, set by the owners we spoke to; (2) the price must fund the support hours, set by us. Dropping (2) would make the app less reachable to run, so both survive.\",\"checks\":{\"question-price-opens-the-door-and-funds-growth\":\"Three prices run as live arms: $9 prices out no one but funds only 3 support hours, $19 prices out the one-person stalls and funds 8 hours, $39 prices out most. tool:choose-what-a-visitor-sees keeps each visitor on one price and tool:read-experiment-results reads the winner from payments, not from guesses.\"}}"
     }
   ]
 }

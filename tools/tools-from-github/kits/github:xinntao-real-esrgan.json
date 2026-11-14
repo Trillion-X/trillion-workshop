@@ -1,35 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:github:xinntao-real-esrgan's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:github:xinntao-real-esrgan with nothing more.\" Upscale an image or photo to a higher resolution and restore its detail",
+  "drafted_from": "tool:github:xinntao-real-esrgan's row in tools/tools-from-github/tool-rows.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic names filled in. What it prints or writes is read from the tool's documented behavior; the folder test test/index-github-tools.test.mjs only checks the row, never runs Real-ESRGAN.",
+  "start_here": "Say to your AI: \"Use Real-ESRGAN on my computer to upscale an image or photo to a higher resolution and restore its detail: the file is logo-small.png.\" It reads the row, installs Real-ESRGAN if it is missing, runs it on that one file and shows you what it made.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: Real-ESRGAN is a program that runs on the person's own computer and works on the one file or address it is handed.",
   "workflows": [],
   "tools": [
     "tool:github:xinntao-real-esrgan"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:github:xinntao-real-esrgan\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:github:xinntao-real-esrgan and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Upscale an image or photo to a higher resolution and restore its detail"
+    "1. Say to your AI: \"Use Real-ESRGAN on logo-small.png\". It reads the row with run_resource_operation at @workshop-tools, method tools:list, input {tool: \"tool:github:xinntao-real-esrgan\"}.",
+    "2. It checks that nothing else is on your computer, and if Real-ESRGAN is missing it runs the get_it steps: git clone https://github.com/xinntao/Real-ESRGAN.git ; download realesrgan-ncnn-vulkan for your system from the repository's releases.",
+    "3. It runs the row's command with your file in place of {input} and where the result goes in place of {output}: ./realesrgan-ncnn-vulkan -i logo-small.png -o logo-big.png -n realesrgan-x4plus",
+    "4. Read what it shows you and open the result. Trillion runs none of this; it all happens on your own computer."
   ],
   "worked_examples": [
     {
-      "title": "Real-ESRGAN (open source, runs on your computer) on a sample input",
-      "ask": "Run tool:github:xinntao-real-esrgan.",
+      "title": "Real-ESRGAN on a 256 by 256 pixel logo of a bakery",
+      "ask": "Use Real-ESRGAN on logo-small.png.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:github:xinntao-real-esrgan",
-            "input": {}
+            "tool": "tool:github:xinntao-real-esrgan"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Upscale an image or photo to a higher resolution and restore its detail"
+      "given": "Read from tools/tools-from-github/tool-rows.json: tool:github:xinntao-real-esrgan runs on your computer, so after tools:list the AI runs, in the folder it got Real-ESRGAN in, the command line: ./realesrgan-ncnn-vulkan -i logo-small.png -o logo-big.png -n realesrgan-x4plus  (synthetic input: a 256 by 256 pixel logo of a bakery).",
+      "hands_back": "realesrgan-ncnn-vulkan writes logo-big.png at 4 times the size (1024 by 1024) with the edges and detail restored, and prints the percentage it has done as it goes."
     }
   ]
 }

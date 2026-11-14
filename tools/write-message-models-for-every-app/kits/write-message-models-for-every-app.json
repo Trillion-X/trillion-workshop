@@ -1,38 +1,52 @@
 {
-  "draft": true,
-  "drafted_from": "tool:write-message-models-for-every-app's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:write-message-models-for-every-app with models.\" Write the Swift and TypeScript message models two apps and the web use to talk to each other, from one list of models",
+  "drafted_from": "tool:write-message-models-for-every-app's row in tools/write-message-models-for-every-app/tool-rows.json, do-work/write-message-models.mjs, read-data/sample-models.json and test/write-message-models.test.mjs; the answers were observed by running the script on a copy of the sample models file",
+  "start_here": "Say to your AI: \"Check whether the Swift and TypeScript message models under my app folder are behind my models.json, and if they are, write them.\" It runs write-message-models.mjs on your computer, first with --check, then with --write.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no account list: its models are rows in one JSON file on the person's computer, and it writes source files from that file.",
   "workflows": [],
   "tools": [
     "tool:write-message-models-for-every-app"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:write-message-models-for-every-app\", and give it models.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:write-message-models-for-every-app and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Write the Swift and TypeScript message models two apps and the web use to talk to each other, from one list of models"
+    "1. Write your models file in the shape of read-data/sample-models.json: models (each {name, doc, fields: [{name, type, optional?, doc?, mutable?}]}, type String, Int, Bool, a model name or a one-element list) and targets (mac, ios, typescript: the file each is written to under the root, and for Swift the protocols, the Swift type name each model takes and which models are Identifiable).",
+    "2. Say where it is and which folder holds the app sources. The AI reads the row with @workshop-tools tools:list {tool: \"tool:write-message-models-for-every-app\"}, then from the root of the Workshop checkout runs node tools/write-message-models-for-every-app/do-work/write-message-models.mjs --models models.json --root <app folder> --check.",
+    "3. Read the result. --check prints nothing and exits 0 when every file is current; it exits 1 and says on standard error \"Behind <models file>: <files>\" when any is behind. Run it again with --write (the default) to bring them up to date: it prints \"Wrote <files>\", or \"Up to date.\" when nothing was behind.",
+    "4. Change a model by editing a row in the models file and running --write again, never by editing a generated file: each carries a header that says so."
   ],
   "worked_examples": [
     {
-      "title": "Write the message models every app reads from one list (runs on your computer) on a sample input",
-      "ask": "Run tool:write-message-models-for-every-app.",
+      "title": "Write the three files for the sample notice models, then check",
+      "ask": "Write my message models for the apps and the web from models.json.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:write-message-models-for-every-app",
-            "input": {
-              "models": "<models: The models file, put where {models} is in the command (shape: read-data/sample-models.json)>"
-            }
+            "tool": "tool:write-message-models-for-every-app"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Write the Swift and TypeScript message models two apps and the web use to talk to each other, from one list of models",
-      "given": "The person gives: models (shown as <name> in the input)."
+      "given": "Run for real with a copy of tools/write-message-models-for-every-app/read-data/sample-models.json saved as models.json, and an empty folder root: node tools/write-message-models-for-every-app/do-work/write-message-models.mjs --models models.json --root root --check, then the same with --write, then --check again.",
+      "hands_back": "The first --check exits 1 and prints on standard error: \"Behind models.json: macos/Shared/DeviceBridgeModels.swift, ios/Notices/DeviceBridgeModels.swift, src/device-bridge-models.d.ts. Run: node write-message-models.mjs --models models.json --write\". --write prints \"Wrote macos/Shared/DeviceBridgeModels.swift, ios/Notices/DeviceBridgeModels.swift, src/device-bridge-models.d.ts\". The last --check prints nothing and exits 0. root/macos/Shared/DeviceBridgeModels.swift starts \"// generated from models.json by write-message-models.mjs; change the rows there and run the script, never this file\" and holds struct NoticeActionInput, struct NoticeAction: Codable, Hashable, Identifiable and struct Notice: Codable, Hashable, Identifiable with let seq: Int and var read: Bool?; the iPhone file holds only the two models its target names, as TrillionNoticeActionInput and TrillionNoticeAction."
+    },
+    {
+      "title": "A new field on a model makes two files fall behind",
+      "ask": "I added a pinned field to Notice; are the models current?",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:list",
+          "input": {
+            "tool": "tool:write-message-models-for-every-app"
+          }
+        }
+      },
+      "given": "From test/write-message-models.test.mjs ('a changed row makes --check fail'), run for real: after the files above were written, the Notice model in models.json gets one more field {name: pinned, type: Bool, optional: true}, then --check.",
+      "hands_back": "Exit 1 and on standard error: \"Behind models.json: macos/Shared/DeviceBridgeModels.swift, src/device-bridge-models.d.ts. Run: node write-message-models.mjs --models models.json --write\". The iPhone file is not listed: its target does not name Notice."
     }
   ]
 }

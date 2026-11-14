@@ -1,40 +1,34 @@
 {
-  "draft": true,
-  "drafted_from": "tool:judge-one-shot-sounds-as-whole-sounds's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:judge-one-shot-sounds-as-whole-sounds with out, query, files.\" Judge these one-shot sound files whole, from first onset to their tail, against a description",
+  "drafted_from": "tool:judge-one-shot-sounds-as-whole-sounds row in tools/generate-and-judge-sound-effects/tool-rows.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
+  "start_here": "Say to your AI: \"Judge /work/sfx/hits/b.wav as a whole sound against the description a high blip, with a door and a knock as alternatives.\" It runs the whole-sound listener and reads back the trim and the match.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads sound files named on the command line and merges its readings into an OUT.json file on this computer.",
   "workflows": [],
   "tools": [
     "tool:judge-one-shot-sounds-as-whole-sounds"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:judge-one-shot-sounds-as-whole-sounds\", and give it out, query, files.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:judge-one-shot-sounds-as-whole-sounds and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Judge these one-shot sound files whole, from first onset to their tail, against a description"
+    "1. Pick the one-shot sound files, for example /work/sfx/hits/b.wav, and the description to judge them against (\"a high blip\"); optionally alternatives separated by | (\"a door|a knock\").",
+    "2. Say \"Judge these as whole sounds\". The AI reads the row with tools:list and runs: EARSHOT_THREADS=3 <earshot python> -I tools/generate-and-judge-sound-effects/do-work/listen_to_whole_sounds.py /work/sfx/whole.json \"a high blip\" \"a door|a knock\" /work/sfx/hits/b.wav",
+    "3. Read the last line (how many files were heard), then open whole.json: each entry is keyed \"<file>::<query>\" and holds the trim, head_db, tail_db, match z, realness, describe and measures."
   ],
   "worked_examples": [
     {
-      "title": "Judge one-shot sounds as whole sounds (runs on your computer) on a sample input",
-      "ask": "Run tool:judge-one-shot-sounds-as-whole-sounds.",
+      "title": "A 2000 Hz blip judged whole from its first onset to its tail",
+      "ask": "Judge this blip as a whole sound for \"a high blip\".",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:judge-one-shot-sounds-as-whole-sounds",
-            "input": {
-              "out": "<out: OUT.json>",
-              "query": "<query: The description>",
-              "files": []
-            }
+            "tool": "tool:judge-one-shot-sounds-as-whole-sounds"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Judge these one-shot sound files whole, from first onset to their tail, against a description",
-      "given": "The person gives: out, query (shown as <name> in the input)."
+      "given": "From tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (test_rank_then_whole_listening, stand-in earshot): b.wav is a 0.5 s 2000 Hz tone with 0.1 s of silence before and after it. Command: EARSHOT_THREADS=3 python -I tools/generate-and-judge-sound-effects/do-work/listen_to_whole_sounds.py /work/sfx/whole.json \"a high blip\" \"a door|a knock\" /work/sfx/hits/b.wav",
+      "hands_back": "Last line: {\"result\": {\"out\": \"/work/sfx/whole.json\", \"heard\": 1}}. whole.json has the key \"/work/sfx/hits/b.wav::a high blip\" with trim [0.095, 0.61] (first onset less 5 ms, to the last sample above -50 dB of peak), head_db -240.0, match_z 3.0, describe \"a tone near 2000 Hz\", realness \"unsure\"."
     }
   ]
 }

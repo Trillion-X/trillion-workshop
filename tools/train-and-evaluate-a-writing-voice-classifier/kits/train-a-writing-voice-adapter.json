@@ -1,40 +1,37 @@
 {
-  "draft": true,
-  "drafted_from": "tool:train-a-writing-voice-adapter's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:train-a-writing-voice-adapter with data, out, decider_common_dir.\" Train a small LoRA adapter that judges a writer's voice from labelled training rows bound to their source passages",
+  "drafted_from": "tool row in tools/train-and-evaluate-a-writing-voice-classifier/tool-rows.json; do-work/train-voice-adapter.py (load_rows, main, the receipt); test/fixtures/training/wording16-train.jsonl and test/test_train_voice_provenance.py for the row shape",
+  "start_here": "Say to your AI: \"Train a writing-voice adapter from ~/voice/train.jsonl into the new folder ~/voice/adapter-1, with the decider frame in ~/decider/finetune.\" It reads the tool's row, runs the training script on your computer and hands back the receipt.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads a JSONL file of training rows you name and writes an adapter folder with a receipt, both on your computer.",
   "workflows": [],
   "tools": [
-    "tool:train-a-writing-voice-adapter"
+    "tool:train-a-writing-voice-adapter",
+    "tool:score-writing-with-a-voice-adapter",
+    "tool:evaluate-a-writing-voice-classifier"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:train-a-writing-voice-adapter\", and give it data, out, decider_common_dir.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:train-a-writing-voice-adapter and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Train a small LoRA adapter that judges a writer's voice from labelled training rows bound to their source passages"
+    "1. Write a JSONL file of training rows, one JSON object per line, each with schema \"book-voice-adapter-training-row-v1\", split \"train\", state {reference_text, reader_context, target_kind, target_text}, a one-line question, options (2 to 10 named, described choices) and gold (one option name). See the worked example for two rows. Rows with any other split are refused.",
+    "2. Have the decider model snapshot and the folder holding its common.py on the computer (python, torch with Apple MPS, b3sum and node are needed). Choose a folder name that does not exist yet for the adapter.",
+    "3. Say \"Train a writing-voice adapter\" with data, out and decider_common_dir. The AI reads the row with tools:list {tool:\"tool:train-a-writing-voice-adapter\"} and runs its run command.",
+    "4. Read the receipt it prints (also saved as train-info.json in the out folder): rows, steps_completed, loss_initial and loss_final, adapter_model_blake3, in_sample_fit_diagnostic. Then score passages with tool:score-writing-with-a-voice-adapter, giving it that folder as adapter."
   ],
   "worked_examples": [
     {
-      "title": "Train a writing-voice adapter on labelled rows on a sample input",
-      "ask": "Run tool:train-a-writing-voice-adapter.",
+      "title": "Train on two made-up rows, one epoch",
+      "ask": "Train a writing-voice adapter from my two training rows.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:train-a-writing-voice-adapter",
-            "input": {
-              "data": "<data: JSONL of training rows (book-voice-adapter-training-row-v1 or v2)>",
-              "out": "<out: a new folder for the adapter>",
-              "decider_common_dir": "<decider_common_dir: the folder holding common.py>"
-            }
+            "tool": "tool:train-a-writing-voice-adapter"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Train a small LoRA adapter that judges a writer's voice from labelled training rows bound to their source passages",
-      "given": "The person gives: data, out, decider_common_dir (shown as <name> in the input)."
+      "given": "Read from tools/train-and-evaluate-a-writing-voice-classifier/do-work/train-voice-adapter.py; the model could not be run here. After tools:list the AI runs: python3 trillion-workshop/tools/train-and-evaluate-a-writing-voice-classifier/do-work/train-voice-adapter.py --decider-common-dir /work/decider/finetune --data /work/voice/train.jsonl --out /work/voice/adapter-1. /work/voice/train.jsonl holds these two lines: {\"schema\":\"book-voice-adapter-training-row-v1\",\"split\":\"train\",\"state\":{\"reference_text\":\"Made-up reference: short plain sentences; each one answers the question the last one raised.\",\"reader_context\":\"\",\"target_kind\":\"paragraph\",\"target_text\":\"The kettle stopped working on Tuesday. Why then? Because the rain came in, so I dried it and it ran again.\"},\"question\":\"Do the wording and the connections between sentences sound like the made-up reference writer?\",\"options\":{\"pass\":\"Plain words, each sentence leads to the next.\",\"fail\":\"Stock phrases or sentences that do not connect.\"},\"gold\":\"pass\"} and {\"schema\":\"book-voice-adapter-training-row-v1\",\"split\":\"train\",\"state\":{\"reference_text\":\"Made-up reference: short plain sentences; each one answers the question the last one raised.\",\"reader_context\":\"\",\"target_kind\":\"paragraph\",\"target_text\":\"Optimizing bread performance unlocks transformative value for every stakeholder.\"},\"question\":\"Do the wording and the connections between sentences sound like the made-up reference writer?\",\"options\":{\"pass\":\"Plain words, each sentence leads to the next.\",\"fail\":\"Stock phrases or sentences that do not connect.\"},\"gold\":\"fail\"}. No --rank, --epochs, --batch or --provenance is given, so the defaults apply (rank 8, 1 epoch, learning rate 1e-4, batch 1, seed 20261026).",
+      "hands_back": "It prints one receipt (indented JSON) and writes it to /work/voice/adapter-1/train-info.json. Worked out from the code: schema \"book-voice-adapter-training-receipt-v1\", rows 2, split_policy \"train-only input; no evaluation rows accepted\", provenance null, rank 8, alpha 16, dropout 0.05, epochs_requested 1.0, learning_rate 0.0001, batch_size 1, max_steps null, steps_completed 2 (2 rows, batch 1, 1 epoch), seed 20261026, device \"mps\", dtype \"bfloat16\", step_row_id_policy \"opaque-jsonl-ordinal-v1\", and assurance \"local optimization, serialization, and load smoke only; no evaluation or qualification\". Measured on the computer and not stated here: loss_initial, loss_final, per_epoch_mean_loss, training_seconds, adapter_model_blake3 and the fit diagnostic. Before it, each step prints a line like step 1/2 row_ids=[\"row-0002\"] loss=<measured> step_seconds=<measured>."
     }
   ]
 }

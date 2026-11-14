@@ -1,22 +1,25 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:trace-to-first-principles's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:trace-to-first-principles.\" Walk a feature, decision, claim or plan back through a person's own chain of first principles (kept as a framework file whose stages run from the most basic to the change it should make in the world), saying at each stage how the thing shows up there with evidence, which stage is its deepest root, whether it reaches a real change, and which stages it skips, then what to change so it does.",
+  "start_here": "Say to your AI: \"Run workflow:trace-to-first-principles on subject 'add a weekly digest email for new members' with framework 'framework:my-first-principles', and tell me which stage it really rests on.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "The chain it reads is a framework file in the person's files and a traced decision gets a note on its own record, so it keeps no list of its own.",
   "workflows": [
-    "workflow:trace-to-first-principles"
+    "workflow:trace-to-first-principles",
+    "workflow:bring-in-a-framework"
   ],
-  "tools": [],
+  "tools": [
+    "tool:start-a-recipe-run"
+  ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:trace-to-first-principles\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:trace-to-first-principles) and works through its steps in order: read, walk, root.",
-    "3. Read what each step hands back; the last step is root."
+    "1. Have your chain of first principles as a framework file in your files (kind framework, items in order from the most basic stage to the last, each with a title and text); if you have none, run workflow:bring-in-a-framework first.",
+    "2. Say \"Run workflow:trace-to-first-principles\" with subject (at least 5 characters: plain words or an id of a decision, workflow, tool or file) and framework (its name or identity).",
+    "3. Step read hands back the framework id, its stages in order and the subject; step walk says for every stage whether the subject shows up there, how, and the evidence (where and a quote).",
+    "4. Step root names the deepest stage it truly rests on, whether it reaches the last stage (a real change in the world), the stages it skips and the smallest change that would make it hold at each skipped one.",
+    "5. Make the changes it names to the subject; when you traced a decision, the result was added to it as a note."
   ],
   "worked_examples": [
     {
-      "title": "Trace something back to first principles from its first step",
-      "ask": "Run workflow:trace-to-first-principles.",
+      "title": "A weekly email is traced down to its deepest root",
+      "ask": "Trace the weekly digest email back through my first principles.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,16 +30,17 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:trace-to-first-principles",
-              "subject": "<subject: The feature, decision, claim or plan to trace, in plain words or by its id>",
-              "framework": "<framework: The chain's framework file in the person's files (name or identity): kind framework with items in order from the most basic stage to the last>"
+              "subject": "add a weekly digest email for new members",
+              "framework": "framework:my-first-principles"
             }
           }
         }
       },
       "workflow": "workflow:trace-to-first-principles",
-      "step": "read",
-      "hands_back": "Step read answers with framework_id, stages, subject.",
-      "given": "The person gives: subject, framework (shown as <name> in the input)."
+      "step": "root",
+      "given": "Read from the root step of workflow:trace-to-first-principles in tools/workflows/recipes/workflows.json. The framework framework:my-first-principles has five stages in order: Truth, Need, Habit, Product, Change in the world. The walk step found the digest shows up at Need (new members say they forget to come back) and Habit (a weekly rhythm) and at Product, but not at Truth and not at Change in the world.",
+      "hands_back": "{\"root\":\"Habit\",\"reaches_last_stage\":false,\"skipped\":[\"Truth\",\"Change in the world\"],\"changes\":[{\"stage\":\"Truth\",\"change\":\"Write down the one thing a new member should learn in week one and make the digest carry only that.\"},{\"stage\":\"Change in the world\",\"change\":\"Count how many new members do the week-one action after reading the digest, and keep the digest only if that number rises.\"}]}"
     }
-  ]
+  ],
+  "drafted_from": "workflow:trace-to-first-principles row (input_schema and steps read, walk, root)"
 }

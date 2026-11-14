@@ -1,29 +1,30 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:out-launch-a-new-launch's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:out-launch-a-new-launch.\" Each hour, read every launch place the person watches (rows of their Sources I watch list, read by tool:watch-my-sources: Show HN, Product Hunt and Launch YC start there turned off, and a launch newsletter or any other launch feed is a row they add) for products that launched in the last 24 hours; keep the ones whose own pages compete for the person's buyers; reverse engineer each from public evidence within hours, every finding SEEN or INFERRED, and keep the teardown as a row of the person's Library list; draft a counter-launch from its gaps and the person's own proof and get the person's approval; then hand it to the person's marketing workflows (a launch record that starts workflow:plan-a-launch-as-a-content-campaign) to out-launch it.",
+  "drafted_from": "workflow:out-launch-a-new-launch's row in tools/workflows/recipes/workflows.json (its job, input schema and the step named in the worked example)",
+  "start_here": "Say to your AI: \"Run workflow:out-launch-a-new-launch for a bakery ordering app, watching Show HN and Product Hunt, posting on a newsletter and a video channel.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It reads the person's own Sources I watch list and keeps each teardown as a row of their own Library list, so it ships no list of its own.",
   "workflows": [
     "workflow:out-launch-a-new-launch",
     "workflow:plan-a-launch-as-a-content-campaign",
     "workflow:reverse-engineer-how-something-grows"
   ],
   "tools": [
+    "tool:start-a-recipe-run",
     "tool:check-against-a-persons-rules-and-verdicts",
     "tool:read-public-web-page",
-    "tool:start-a-recipe-run",
     "tool:watch-my-sources"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:out-launch-a-new-launch\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:out-launch-a-new-launch) and works through its steps in order: read-launches, match, reverse-engineer, counter-launch, hand-off, timing.",
-    "3. Read what each step hands back; the last step is timing."
+    "1. Add the places that launch products as rows of your Sources I watch list (Show HN, Product Hunt and Launch YC start there turned off; turn on the ones you want).",
+    "2. Say \"Run workflow:out-launch-a-new-launch\" with market (what you sell and to whom), channels (where you post) and, when you have them, match_words, sources, own_product, licence, target_hours and deadline_hours; it is meant to wake every hour.",
+    "3. Each run reads the launches of the last 24 hours (read-launches), keeps only those whose own page overlaps your market (match) and tears each one down from public evidence, SEEN apart from INFERRED, as a row of your Library list (reverse-engineer).",
+    "4. Read each counter-launch it drafts (counter-launch) and approve or turn it down; nothing goes out without your approval and nobody is contacted.",
+    "5. Each approved one is handed off as a launch record that starts workflow:plan-a-launch-as-a-content-campaign (hand-off); timing reports hours to teardown and hand-off against the 1-hour target and 24-hour deadline."
   ],
   "worked_examples": [
     {
-      "title": "Out-launch a new launch within its first 24 hours from its first step",
-      "ask": "Run workflow:out-launch-a-new-launch.",
+      "title": "Keep only the launch whose own page overlaps the market",
+      "ask": "Run workflow:out-launch-a-new-launch for a bakery ordering app.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -34,18 +35,23 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:out-launch-a-new-launch",
-              "market": "<market: What the person sells and to whom, in their own words; a launch counts only when its own page overlaps it>",
+              "market": "An ordering app for small neighbourhood bakeries",
+              "match_words": [
+                "pre-order",
+                "bakery"
+              ],
               "channels": [
-                "<channels: string>"
+                "newsletter",
+                "video channel"
               ]
             }
           }
         }
       },
       "workflow": "workflow:out-launch-a-new-launch",
-      "step": "read-launches",
-      "hands_back": "Step read-launches answers with sources_read, not_read, launches.",
-      "given": "The person gives: market, channels (shown as <name> in the input)."
+      "step": "match",
+      "given": "Read from tools/workflows/recipes/workflows.json, step match: for each launch read-launches found, it reads the launch's own page with tool:read-public-web-page and keeps it only when its own words overlap the market and hold one match word. Say read-launches found two launches: \"Crumb\" on Show HN and \"Tidal Notes\", a note app.",
+      "hands_back": "{\"matches\":[{\"key\":\"show-hn:crumb\",\"source\":\"show-hn\",\"name\":\"Crumb\",\"url\":\"https://example.com/crumb\",\"launched_at\":\"2026-11-13T09:10:00-06:00\",\"hours_since_launch\":2.5,\"overlap_quote\":\"Crumb lets a neighbourhood bakery take pre-orders for tomorrow's loaves.\",\"why\":\"It sells pre-orders to small bakeries, the same buyer as the market.\"}],\"passed\":[{\"key\":\"show-hn:tidal-notes\",\"reason\":\"A note-taking app for students, a different buyer and a different job.\"}]}"
     }
   ]
 }

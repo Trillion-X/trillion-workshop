@@ -1,22 +1,24 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:method-research-plan-build's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:method-research-plan-build.\" Research how a capability is done across the whole field and from first principles, turn the findings into a plan, and carry that plan through to the real working result.",
+  "drafted_from": "workflow:method-research-plan-build's row in tools/workflows/recipes/workflows.json (its job, input schema and the step named in the worked example)",
+  "start_here": "Say to your AI: \"Run workflow:method-research-plan-build on: send bakery customers a pickup reminder before their pickup time.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It is a way of thinking a request through, answered in words step by step, and it reads and writes no list.",
   "workflows": [
     "workflow:method-research-plan-build"
   ],
-  "tools": [],
+  "tools": [
+    "tool:start-a-recipe-run"
+  ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:method-research-plan-build\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-research-plan-build) and works through its steps in order: baseline, root, rule-out, combine, risk, production.",
-    "3. Read what each step hands back; the last step is production."
+    "1. Say the capability you want in one plain sentence, for example \"send bakery customers a pickup reminder before their pickup time\", and say \"Run workflow:method-research-plan-build\" with it as request.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-research-plan-build) and answers its steps in order: baseline, root, rule-out, combine, risk, production; each answer is refused until every check of the step is answered about this request.",
+    "3. At baseline, research how many others handle it and what is far beyond common practice; at root, reason from basic constraints alone so the two can be compared.",
+    "4. At production, write the detailed plan and then carry it out end to end; the step is done when the real working result exists."
   ],
   "worked_examples": [
     {
-      "title": "Research the field, then plan and build it end to end from its first step",
-      "ask": "Run workflow:method-research-plan-build.",
+      "title": "Reason from first principles before comparing with outside examples",
+      "ask": "Run workflow:method-research-plan-build: send bakery customers a pickup reminder before their pickup time.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,15 +29,15 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:method-research-plan-build",
-              "request": "<request: What you are deciding, designing or building, in plain words>"
+              "request": "Send bakery customers a pickup reminder before their pickup time"
             }
           }
         }
       },
       "workflow": "workflow:method-research-plan-build",
-      "step": "baseline",
-      "hands_back": "Step baseline answers with answer, checks.",
-      "given": "The person gives: request (shown as <name> in the input)."
+      "step": "root",
+      "given": "Read from tools/workflows/recipes/workflows.json, step root: its submit shape is answer and checks with one check, root-independent-first-principles. The request is the one in the input above.",
+      "hands_back": "{\"answer\":\"Why 1: customers forget pickups. Why 2: nothing tells them when it is close. Why 3: the order holds a pickup time but nothing reads it. The deepest cause to change is that the pickup time is stored but never acted on.\",\"checks\":{\"root-independent-first-principles\":\"From constraints alone: a reminder needs the pickup time, a way to reach the customer and a clock; sending it one hour before covers the walk. This was written before reading how other shops do it.\"}}"
     }
   ]
 }

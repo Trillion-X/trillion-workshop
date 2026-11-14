@@ -1,0 +1,111 @@
+{
+  "drafted_from": "tool:export-editor-timeline's own row in tools/media-composition/tool-rows.json, tools/media-composition/do-work/export-editor-timeline.mjs, tools/media-composition/do-work/export-xmeml.mjs and export-xmeml.md, and the script run on a two-cut edit",
+  "start_here": "Say to your AI: \"Export my two-cut bakery edit as a timeline file I can open in Premiere Pro or DaVinci Resolve.\" It runs tool:export-editor-timeline and saves the xmeml file in your files.",
+  "lists": [],
+  "no_lists_because": "It turns the edit you hand it into one timeline file and keeps no list of its own.",
+  "workflows": [],
+  "tools": [
+    "tool:export-editor-timeline"
+  ],
+  "instructions": [
+    "1. Write the edit as JSON with encode {width, height, fps} and spine.segments of clips; each clip's source is the absolute path your editor will find the recording at (not a file identity).",
+    "2. Optionally give source_metadata, keyed by that path, with fps, duration, width, height and has_audio, so the timeline is exact; without it the export lists what it assumed. Give a title for the sequence name (default Edit).",
+    "3. Say \"Export this edit as an editor timeline\" and the AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:export-editor-timeline. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
+    "4. Read result.limitations (what the timeline could not carry, such as colour or caption styles) and files.timeline, the xml saved in your files; open it in your editor. A retimed or repeated clip is refused in words rather than exported wrong."
+  ],
+  "worked_examples": [
+    {
+      "title": "Two cuts of one recording as an xmeml timeline",
+      "ask": "Export my edit as a Premiere Pro timeline called Bakery reel.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:export-editor-timeline",
+            "input": {
+              "edl": {
+                "encode": {
+                  "width": 1920,
+                  "height": 1080,
+                  "fps": 30
+                },
+                "spine": {
+                  "segments": [
+                    {
+                      "kind": "clip",
+                      "id": "a",
+                      "source": "/Volumes/Footage/bakery-day.mp4",
+                      "in": 0,
+                      "out": 2
+                    },
+                    {
+                      "kind": "clip",
+                      "id": "b",
+                      "source": "/Volumes/Footage/bakery-day.mp4",
+                      "in": 4,
+                      "out": 6.5
+                    }
+                  ]
+                }
+              },
+              "title": "Bakery reel",
+              "source_metadata": {
+                "/Volumes/Footage/bakery-day.mp4": {
+                  "fps": 30,
+                  "duration": 12,
+                  "width": 1920,
+                  "height": 1080,
+                  "has_audio": true
+                }
+              }
+            }
+          }
+        }
+      },
+      "given": "read from tools/media-composition/do-work/export-editor-timeline.mjs and run on a 2 s cut and a 2.5 s cut at 30 frames a second: 60 + 75 = 135 sequence frames",
+      "hands_back": "{\"result\":{\"sequence\":{\"width\":1920,\"height\":1080,\"fps\":30,\"timebase\":30,\"ntsc\":false,\"duration_frames\":135},\"retained\":[\"source-cuts\",\"sequence-frame-rate\",\"sequence-dimensions\",\"source-audio\"],\"limitations\":[{\"code\":\"audio-channel-routing-unverified\",\"message\":\"One source audio track is referenced per clip; multichannel routing requires editor verification.\"}],\"bytes\":3157},\"files\":{\"timeline\":{\"identity\":\"1f:69a1e21b5d385c0a4bc399da773b0b9142c046653cbac55954d06ba72337e254\",\"bytes\":3157,\"media_type\":\"application/xml\",\"name\":\"timeline.xml\"}}}"
+    },
+    {
+      "title": "A clip at double speed is refused in words",
+      "ask": "Export an edit that has a clip at double speed.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:export-editor-timeline",
+            "input": {
+              "edl": {
+                "encode": {
+                  "width": 1920,
+                  "height": 1080,
+                  "fps": 30
+                },
+                "spine": {
+                  "segments": [
+                    {
+                      "kind": "clip",
+                      "id": "b",
+                      "source": "/Volumes/Footage/bakery-day.mp4",
+                      "in": 4,
+                      "out": 6.5,
+                      "speed": 2
+                    }
+                  ]
+                }
+              },
+              "title": "Bakery reel"
+            }
+          }
+        }
+      },
+      "given": "read from tools/media-composition/do-work/export-xmeml.mjs and run on a one-clip edit with speed 2: retimed clips are rejected, not exported with a wrong duration",
+      "hands_back": "{\"error\":\"Retimed or repeated clips need a verified export adapter before their timeline can be preserved.\"}"
+    }
+  ]
+}

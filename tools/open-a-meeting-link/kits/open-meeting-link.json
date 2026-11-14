@@ -1,23 +1,23 @@
 {
-  "draft": true,
-  "drafted_from": "tool:open-meeting-link's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:open-meeting-link with link.\" Open a meeting link in the meeting app that owns it on the person's computer, after reading it through the declared routes; a refused link is never opened",
+  "drafted_from": "tool:open-meeting-link row in tools/open-a-meeting-link/tool-rows.json, read-data/meeting-links.mjs, read-data/meeting-links.json and test/meeting-links.test.mjs",
+  "start_here": "Say to your AI: \"Open this meeting link for my 10 am call: zoommtg://zoom.us/join?confno=123456789&pwd=hunter2.\" It reads the link first and, only if its host and parameters are allowed, opens it in the meeting app on your computer.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list: it takes one link, reads it through the declared meeting routes and hands an allowed link to the system to open.",
   "workflows": [],
   "tools": [
     "tool:open-meeting-link",
     "tool:read-meeting-link"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:open-meeting-link\", and give it link.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:open-meeting-link and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Open a meeting link in the meeting app that owns it on the person's computer, after reading it through the declared routes; a refused link is never opened"
+    "1. Have the meeting app installed on a Mac that has /usr/bin/open and the app registered for the link's scheme (for example zoommtg).",
+    "2. Say \"Open this meeting link\" with the link; your AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:open-meeting-link and input {link}. Use tool:read-meeting-link first if you only want to see what the link would do.",
+    "3. Read the answer: opened true with route, action and redacted (the link with secret values hidden), or a refusal that says why the host, action or a parameter was not allowed; a refused link is never opened.",
+    "4. Never paste the passcode into notes or logs: the answer shows the link only in redacted form."
   ],
   "worked_examples": [
     {
-      "title": "Open a meeting link on a sample input",
-      "ask": "Run tool:open-meeting-link.",
+      "title": "A join link with a passcode is opened and the passcode stays hidden",
+      "ask": "Open this meeting link: zoommtg://zoom.us/join?confno=123456789&pwd=hunter2",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,13 +27,13 @@
           "input": {
             "tool": "tool:open-meeting-link",
             "input": {
-              "link": "<link: A meeting link: a deep link (such as zoommtg://...) or a web address>"
+              "link": "zoommtg://zoom.us/join?confno=123456789&pwd=hunter2"
             }
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Open a meeting link in the meeting app that owns it on the person's computer, after reading it through the declared routes; a refused link is never opened",
-      "given": "The person gives: link (shown as <name> in the input)."
+      "given": "From tools/open-a-meeting-link/test/meeting-links.test.mjs: the link has scheme zoommtg and host zoom.us, which the zoom-links route allows; its action is join, confno 123456789 matches the nine to twelve digits form and pwd is a secret parameter. Read from read-data/meeting-links.mjs: the redacted form replaces each secret value with three stars. The opening itself needs a Mac with /usr/bin/open.",
+      "hands_back": "{opened: true, route: \"zoom-links\", action: \"join\", redacted: \"zoommtg://zoom.us/join?confno=123456789&pwd=***\"}; the text hunter2 appears nowhere in the answer. For https://zoom.us.evil.example/join?confno=123456789 it refuses with \"host zoom.us.evil.example is not one this meeting app reads\" and nothing is opened."
     }
   ]
 }

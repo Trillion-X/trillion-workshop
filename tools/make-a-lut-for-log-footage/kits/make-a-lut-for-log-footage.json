@@ -1,39 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:make-a-lut-for-log-footage's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:make-a-lut-for-log-footage with profile, output.\" Make a LUT file so my flat, grey-looking log camera footage looks like normal colour",
+  "drafted_from": "tool:make-a-lut-for-log-footage row in tool-rows.json, do-work/make_lut.py and test/make-lut.test.mjs",
+  "start_here": "Say to your AI: \"My flat log footage from the made-up Orchard camera looks grey; make me a LUT with its profile in orchard.profile.json, 33 points a side, saved as orchard.cube.\" It writes the .cube file on your computer and names the settings it used.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list: it reads one profile JSON file you give it and writes one .cube file, keeping nothing else.",
   "workflows": [],
   "tools": [
     "tool:make-a-lut-for-log-footage"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:make-a-lut-for-log-footage\", and give it profile, output.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:make-a-lut-for-log-footage and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Make a LUT file so my flat, grey-looking log camera footage looks like normal colour"
+    "1. Get the camera's profile: a JSON record of kind log-to-display-profile holding its log curve, gamut matrix, luma weights, video range, shoulder and display gamma (your AI can read yours, or build one from the maker's published log curve); write it to a file.",
+    "2. Install numpy once (python3 -m pip install -U numpy) and clone the Workshop repository.",
+    "3. Say \"Make a LUT for this footage\" and name the profile and the output; your AI reads the row with tools:list and runs `python3 -I tools/make-a-lut-for-log-footage/do-work/make_lut.py --profile <profile> --out <file>.cube`, adding --exposure, --saturation, --size, --red-gain or --blue-gain if you ask.",
+    "4. Read the last line: {\"result\": {\"lut\", \"profile\", \"size\", \"entries\", \"exposure\", \"saturation\", \"red_gain\", \"blue_gain\"}} names the file and settings; {\"error\": \"what to change\"} says what the profile lacks. Put the .cube in the editor's or ffmpeg's LUT step for footage of that camera and curve only."
   ],
   "worked_examples": [
     {
-      "title": "Make a colour lookup table that fixes flat log footage from any camera (runs on your computer) on a sample input",
-      "ask": "Run tool:make-a-lut-for-log-footage.",
+      "title": "A made-up camera's profile becomes a 9-point table",
+      "ask": "Make a LUT for my Orchard camera's log footage, small, 9 points a side.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:make-a-lut-for-log-footage",
-            "input": {
-              "profile": "<profile: A JSON file holding a log-to-display-profile record, put where {profile} is in the command>",
-              "output": "<output: The .cube file to write, put where {output} is in the command>"
-            }
+            "tool": "tool:make-a-lut-for-log-footage"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Make a LUT file so my flat, grey-looking log camera footage looks like normal colour",
-      "given": "The person gives: profile, output (shown as <name> in the input)."
+      "given": "From tools/make-a-lut-for-log-footage/test/make-lut.test.mjs: the command line is `python3 -I tools/make-a-lut-for-log-footage/do-work/make_lut.py --profile made-up.json --out lut.cube --size 9`. made-up.json is {\"kind\": \"log-to-display-profile\", \"title\": \"Made-up camera log to display\", \"log_curve\": {\"code_scale\": 255, \"cut_code\": 60, \"log\": {\"base\": 2, \"offset_code\": 120, \"slope_code\": 40, \"mid_grey\": 0.2, \"pedestal\": 0.02}, \"toe\": {\"origin_code\": 20, \"linear_at_cut\": 0.02}}, \"gamut_matrix\": [[1.2, -0.1, -0.1], [-0.05, 1.1, -0.05], [0, -0.1, 1.1]], \"luma_weights\": [0.3, 0.59, 0.11], \"video_range\": {\"black_code\": 16, \"white_code\": 235}, \"shoulder\": {\"a\": 2.4, \"b\": 0.05, \"c\": 2.4, \"d\": 0.6, \"e\": 0.15}, \"display_gamma\": 2.2}.",
+      "hands_back": "The last line printed is {\"result\": {\"lut\": \"lut.cube\", \"profile\": \"Made-up camera log to display\", \"size\": 9, \"entries\": 729, \"exposure\": 1.0, \"saturation\": 1.0, \"red_gain\": 1.0, \"blue_gain\": 1.0}}. lut.cube starts with the lines TITLE \"Made-up camera log to display exp 1.0 sat 1.0\" and LUT_3D_SIZE 9, then 729 rows of three numbers between 0 and 1, red changing fastest. The same profile and settings give the same file byte for byte. A profile without \"kind\": \"log-to-display-profile\" answers {\"error\": \"The profile must be an object with \\\"kind\\\": \\\"log-to-display-profile\\\".\"} and exit 2."
     }
   ]
 }

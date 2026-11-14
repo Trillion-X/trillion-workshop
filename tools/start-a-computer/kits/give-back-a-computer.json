@@ -1,38 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:give-back-a-computer's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:give-back-a-computer with lease_file.\" Stop paying for a computer's machine: remove its public name and give the machine back",
+  "drafted_from": "tool row in tools/start-a-computer/tool-rows.json, do-work/start-a-computer.mjs (removeAPlace), do-work/rent-a-machine.mjs and tools/start-a-computer/test/start-a-computer.test.mjs",
+  "start_here": "Say to your AI: \"Give back the computer in lease.json: I have moved its accounts to another computer.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads one lease file and removes only what that lease made.",
   "workflows": [],
   "tools": [
-    "tool:give-back-a-computer"
+    "tool:give-back-a-computer",
+    "tool:rent-a-machine",
+    "tool:start-a-computer"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:give-back-a-computer\", and give it lease_file.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:give-back-a-computer and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields name, provider, state, adopted."
+    "1. Confirm the computer holds no account that has not moved: this deletes a rented machine's disk.",
+    "2. Say the line in start_here. Your AI reads the row with tools:list {tool: \"tool:give-back-a-computer\"} and runs node tools/start-a-computer/do-work/start-a-computer.mjs remove lease.json, with the machine credential on descriptor 3 and the DNS credential on descriptor 4 when the lease rented a machine or made a record.",
+    "3. Read {name, provider, state, adopted}. A machine you already run is only forgotten, never touched."
   ],
   "worked_examples": [
     {
-      "title": "Give back a computer on a sample input",
-      "ask": "Run tool:give-back-a-computer.",
+      "title": "A machine the person already runs is forgotten, not touched",
+      "ask": "Stop paying for this computer.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:give-back-a-computer",
-            "input": {
-              "lease_file": "<lease_file: string>"
-            }
+            "tool": "tool:give-back-a-computer"
           }
         }
       },
-      "hands_back": "An answer with the fields name, provider, state, adopted.",
-      "given": "The person gives: lease_file (shown as <name> in the input)."
+      "given": "From tools/start-a-computer/test/start-a-computer.test.mjs ('an existing machine is adopted at its address and only forgotten on release'). lease.json = {\"schema\":\"place-lease/1\",\"provider\":\"existing-machine\",\"name\":\"a-pi\",\"state\":\"running\",\"address\":\"192.0.2.40\",\"adopted\":true} with no DNS record, so no credential is read. Run: node tools/start-a-computer/do-work/start-a-computer.mjs remove lease.json",
+      "hands_back": "{\"name\":\"a-pi\",\"provider\":\"existing-machine\",\"state\":\"removed\",\"adopted\":true}: nothing was sent to the machine. For a rented Hetzner machine the name record is removed first, then the server and the SSH key, each only after reading it back and finding this lease's own label, and adopted is false."
     }
   ]
 }

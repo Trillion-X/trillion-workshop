@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:method-do-it-completely's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:method-do-it-completely.\" Hold the work to the full result on the first pass: no stopgaps, no partial versions, nothing left for later, every claim checked against what is actually there.",
+  "drafted_from": "workflow:method-do-it-completely's row in tools/workflows/recipes/workflows.json (its input schema, steps and submit shapes)",
+  "start_here": "Say to your AI: \"Run workflow:method-do-it-completely on this request: add a pre-order page for a bakery, finished in one pass.\" It walks delete, owner, smallest-change, production and proof and hands back an answer and checks for each.",
   "lists": [],
   "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
@@ -9,14 +8,15 @@
   ],
   "tools": [],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:method-do-it-completely\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-do-it-completely) and works through its steps in order: delete, owner, smallest-change, production, proof.",
-    "3. Read what each step hands back; the last step is proof."
+    "1. Write what you are deciding, designing or building in plain words, for example \"Add a pre-order page for a bakery\".",
+    "2. Say \"Run workflow:method-do-it-completely\" with that request; the AI starts it with tool:start-a-recipe-run.",
+    "3. The steps run in order: delete, owner, smallest-change, production, proof; each hands back an answer (at least 40 characters) and one short answer per named check.",
+    "4. Read proof last: it says what shows success or failure and the date it will be checked, so nothing is left for later."
   ],
   "worked_examples": [
     {
-      "title": "Do it completely and correctly the first time from its first step",
-      "ask": "Run workflow:method-do-it-completely.",
+      "title": "Delete first on a bakery pre-order page",
+      "ask": "Run method-do-it-completely on: add a pre-order page for a bakery.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,15 +27,15 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:method-do-it-completely",
-              "request": "<request: What you are deciding, designing or building, in plain words>"
+              "request": "Add a pre-order page for a bakery"
             }
           }
         }
       },
       "workflow": "workflow:method-do-it-completely",
       "step": "delete",
-      "hands_back": "Step delete answers with answer, checks.",
-      "given": "The person gives: request (shown as <name> in the input)."
+      "given": "Read from tools/workflows/recipes/workflows.json: step delete asks which demands or steps can be dropped; its three checks are delete-methods-are-aids, delete-delete-before-improving and delete-restore-only-what-failed.",
+      "hands_back": "{\"answer\":\"Drop the account sign-up and the online card payment; keep the menu, the pickup time and the loaf count, because those make the result.\",\"checks\":{\"delete-methods-are-aids\":\"No method is run as paperwork: the only checklist in use is the pickup-time check, which answers whether two orders collide at 8 AM.\",\"delete-delete-before-improving\":\"Removed sign-up and card payment first, then ran an order with only name, loaf and pickup time and it went through.\",\"delete-restore-only-what-failed\":\"Added back a phone number field only because the first test order could not be confirmed without it; nothing else was restored.\"}}"
     }
   ]
 }

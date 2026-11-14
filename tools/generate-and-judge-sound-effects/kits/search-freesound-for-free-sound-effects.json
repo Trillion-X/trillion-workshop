@@ -1,39 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:search-freesound-for-free-sound-effects's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:search-freesound-for-free-sound-effects with queries, out.\" Find CC0 and CC BY sound effects on Freesound for each kind of sound I need",
+  "drafted_from": "tool:search-freesound-for-free-sound-effects row in tools/generate-and-judge-sound-effects/tool-rows.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
+  "start_here": "Say to your AI: \"Search Freesound for CC0 and CC BY soft tick sounds under one second and write /work/sfx/fs-candidates.json.\" It runs the Freesound search and tells you how many it found per category.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads a queries.json on this computer, reads Freesound's public search pages and writes a candidates.json file.",
   "workflows": [],
   "tools": [
-    "tool:search-freesound-for-free-sound-effects"
+    "tool:search-freesound-for-free-sound-effects",
+    "tool:fetch-free-sound-effects-with-their-licences"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:search-freesound-for-free-sound-effects\", and give it queries, out.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:search-freesound-for-free-sound-effects and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Find CC0 and CC BY sound effects on Freesound for each kind of sound I need"
+    "1. Write /work/sfx/fs-queries.json: {\"tick\": {\"queries\": [\"soft tick\"], \"max_s\": 1.0}} (category, its search words, the longest length in seconds; min_s is optional).",
+    "2. Say \"Search Freesound\". The AI reads the row with tools:list and runs: python3 -I tools/generate-and-judge-sound-effects/do-work/search_freesound.py /work/sfx/fs-queries.json /work/sfx/fs-candidates.json (it needs the internet and waits 1.5 s between requests).",
+    "3. Read the last line (count per category), then open fs-candidates.json for each item's id, user, title, duration, downloads, page and preview address.",
+    "4. Choose items and pass them to tool:fetch-free-sound-effects-with-their-licences, which reads each licence before it downloads."
   ],
   "worked_examples": [
     {
-      "title": "Search Freesound for free-licence sound effects (runs on your computer) on a sample input",
-      "ask": "Run tool:search-freesound-for-free-sound-effects.",
+      "title": "One soft tick found, listed once although the page shows it twice",
+      "ask": "Search Freesound for a soft tick under one second.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:search-freesound-for-free-sound-effects",
-            "input": {
-              "queries": "<queries: queries.json: {category: {queries, max_s, min_s}}>",
-              "out": "<out: candidates.json>"
-            }
+            "tool": "tool:search-freesound-for-free-sound-effects"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Find CC0 and CC BY sound effects on Freesound for each kind of sound I need",
-      "given": "The person gives: queries, out (shown as <name> in the input)."
+      "given": "From tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (test_freesound_and_mixkit_searches_keep_each_item_once_within_its_length, made-up Freesound page): fs-queries.json is {\"tick\": {\"queries\": [\"soft tick\"], \"max_s\": 1.0}}. Command: python3 -I tools/generate-and-judge-sound-effects/do-work/search_freesound.py /work/sfx/fs-queries.json /work/sfx/fs-candidates.json. It reads two pages (one per licence filter, Creative Commons 0 and Attribution), each with duration filter [0 TO 1.0].",
+      "hands_back": "Last line: {\"result\": {\"out\": \"/work/sfx/fs-candidates.json\", \"counts\": {\"tick\": 1}}}. fs-candidates.json tick[0] is {\"id\": 12345, \"user\": \"maker_a\", \"title\": \"Soft & tick\", \"duration_s\": 0.457, \"downloads\": 900, \"page\": \"https://freesound.org/people/maker_a/sounds/12345/\", \"preview_hq_mp3\": \"https://cdn.freesound.org/previews/12/12345_77-hq.mp3\", \"query\": \"soft tick\", \"licence_filter\": \"Creative Commons 0\"}."
     }
   ]
 }

@@ -1,35 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:github:microsoft-markitdown's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:github:microsoft-markitdown with nothing more.\" Turn a PDF, Word, PowerPoint or Excel file into Markdown text an AI can read",
+  "drafted_from": "tool:github:microsoft-markitdown's row in tools/tools-from-github/tool-rows.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic names filled in. What it prints or writes is read from the tool's documented behavior; the folder test test/index-github-tools.test.mjs only checks the row, never runs markitdown.",
+  "start_here": "Say to your AI: \"Use markitdown on my computer to turn a PDF: the file is menu.pdf.\" It reads the row, installs markitdown if it is missing, runs it on that one file and shows you what it made.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: markitdown is a program that runs on the person's own computer and works on the one file or address it is handed.",
   "workflows": [],
   "tools": [
     "tool:github:microsoft-markitdown"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:github:microsoft-markitdown\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:github:microsoft-markitdown and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Turn a PDF, Word, PowerPoint or Excel file into Markdown text an AI can read"
+    "1. Say to your AI: \"Use markitdown on menu.pdf\". It reads the row with run_resource_operation at @workshop-tools, method tools:list, input {tool: \"tool:github:microsoft-markitdown\"}.",
+    "2. It checks that python are on your computer, and if markitdown is missing it runs the get_it steps: git clone https://github.com/microsoft/markitdown.git ; pip install 'markitdown[all]'.",
+    "3. It runs the row's command with your file in place of {input} and where the result goes in place of {output}: markitdown menu.pdf -o menu.md",
+    "4. Read what it shows you and open the result. Trillion runs none of this; it all happens on your own computer."
   ],
   "worked_examples": [
     {
-      "title": "markitdown (open source, runs on your computer) on a sample input",
-      "ask": "Run tool:github:microsoft-markitdown.",
+      "title": "markitdown on a one page PDF menu of a bakery",
+      "ask": "Use markitdown on menu.pdf.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:github:microsoft-markitdown",
-            "input": {}
+            "tool": "tool:github:microsoft-markitdown"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Turn a PDF, Word, PowerPoint or Excel file into Markdown text an AI can read"
+      "given": "Read from tools/tools-from-github/tool-rows.json: tool:github:microsoft-markitdown runs on your computer, so after tools:list the AI runs, in the folder it got markitdown in, the command line: markitdown menu.pdf -o menu.md  (synthetic input: a one page PDF menu of a bakery).",
+      "hands_back": "markitdown writes menu.md: the text of menu.pdf as Markdown, with headings as \"#\" lines and each price list as \"-\" lines."
     }
   ]
 }

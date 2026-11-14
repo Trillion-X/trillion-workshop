@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:reframe-video's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:reframe-video with files.\" Make a video vertical, square or any other shape, with the frame following the person or action",
+  "drafted_from": "tool:reframe-video's own row in tools/media-composition/tool-rows.json, tools/media-composition/do-work/reframe-to-a-size.mjs, and the script run on a synthetic 7 second 320x180 clip",
+  "start_here": "Say to your AI: \"Make my 16:9 video vertical for a reel, with the frame following the action.\" It runs tool:reframe-video and saves the new video in your files.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It makes a new video in your files from the video you name and keeps no list of its own.",
   "workflows": [],
   "tools": [
     "tool:reframe-video"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:reframe-video\", and give it files.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:reframe-video and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields result, files."
+    "1. Find your clip's identity and exact length in bytes in your files (find_file or list_files).",
+    "2. Say \"Reframe this video to 9:16\" with that clip. Optional: aspect_w and aspect_h (default 9 and 16), fill (\"crop\" fills the frame, \"blur\" fits the whole picture over a blurred copy, or a colour such as black), follow (\"motion\" or \"brightness\"), width and height in pixels.",
+    "3. The AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:reframe-video, passing files as [{name:\"source.mp4\", identity, bytes}]. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
+    "4. Read result (duration_seconds, width, height, bytes) and files.video, the identity of the reframed video now in your files."
   ],
   "worked_examples": [
     {
-      "title": "Reframe a video to a new shape on a sample input",
-      "ask": "Run tool:reframe-video.",
+      "title": "A landscape clip made 9:16",
+      "ask": "Make my video vertical for a reel.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -29,16 +29,16 @@
               "files": [
                 {
                   "name": "source.mp4",
-                  "identity": "<identity: The clip's identity in your files (1f: then 64 hex)>",
-                  "bytes": "<bytes: integer>"
+                  "identity": "1f:7320b49113520185e2ad8938759857db29ec6b0ed6a30cd1a2cfc05c68d932c6",
+                  "bytes": 40118
                 }
               ]
             }
           }
         }
       },
-      "hands_back": "An answer with the fields result, files.",
-      "given": "The person gives: identity, bytes (shown as <name> in the input)."
+      "given": "read from tools/media-composition/do-work/reframe-to-a-size.mjs and run on a 7 second 320x180 clip: the default crop of 9:16 is the largest that fits without enlarging, 180 tall by 102 wide",
+      "hands_back": "{\"result\":{\"expected_duration_seconds\":7,\"duration_seconds\":7.034,\"width\":102,\"height\":180,\"has_audio\":true,\"bytes\":130110,\"segments\":1},\"files\":{\"video\":{\"identity\":\"1f:36669c7faca6263621cc55ae2965164203aff052237a8e41dc0152f68055a512\",\"bytes\":130110,\"media_type\":\"video/mp4\",\"name\":\"reframed.mp4\"}}}"
     }
   ]
 }

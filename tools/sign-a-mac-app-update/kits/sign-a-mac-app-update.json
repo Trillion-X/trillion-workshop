@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:sign-a-mac-app-update's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:sign-a-mac-app-update with payload.\" Sign the Mac app's update record text with the release key in my vault, so installed apps accept the update",
+  "drafted_from": "tool:sign-a-mac-app-update row in tool-rows.json, do-work/sign-a-mac-app-update.mjs and test/sign-a-mac-app-update.test.mjs",
+  "start_here": "Say to your AI: \"Sign this Mac app update record with my release key so installed apps accept the update\", and give it the record's signed lines joined by newlines. It runs tool:sign-a-mac-app-update and hands you the signature in base64, without the key ever leaving your vault.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list: it signs the text it is given with the release key held in your vault and answers a name and a signature.",
   "workflows": [],
   "tools": [
     "tool:sign-a-mac-app-update"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:sign-a-mac-app-update\", and give it payload.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:sign-a-mac-app-update and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields name, signature_base64."
+    "1. Keep the Ed25519 release key in your vault under the name mac-app-update-signing-key and grant this tool the program-start capability it asks for.",
+    "2. Build the update record's signed lines (version lines, the download address and the file's checksum) and join them with newlines, at most 65536 characters.",
+    "3. Say \"Sign this update record\"; your AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:sign-a-mac-app-update and input {payload}.",
+    "4. Read the answer {name: \"mac-app-update-signing-key\", signature_base64}: a 64 byte Ed25519 signature as 88 base64 characters; put it in the update record as the app reads it. An empty or oversized payload is refused before any call, and a refused vault answers without echoing the run's capability."
   ],
   "worked_examples": [
     {
-      "title": "Sign a Mac app update record on a sample input",
-      "ask": "Run tool:sign-a-mac-app-update.",
+      "title": "Signing a five-line update record",
+      "ask": "Sign this Mac app update record with my release key.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,13 +26,13 @@
           "input": {
             "tool": "tool:sign-a-mac-app-update",
             "input": {
-              "payload": "<payload: The signed lines of the update record, joined by newlines>"
+              "payload": "trillion-mac-update-v1\n202611112042\n202611112042\nhttps://app.gettrillion.ai/download/Trillion-202611112042.dmg\nabc"
             }
           }
         }
       },
-      "hands_back": "An answer with the fields name, signature_base64.",
-      "given": "The person gives: payload (shown as <name> in the input)."
+      "given": "From tools/sign-a-mac-app-update/test/sign-a-mac-app-update.test.mjs, which signs this payload with a synthetic Ed25519 key standing in for the vault's key and checks that the signature verifies over the payload bytes. Read from do-work/sign-a-mac-app-update.mjs: the tool sends one held-values:sign call at @held-values for the key mac-app-update-signing-key and converts the engine's 128-digit hex signature to base64. The signature value itself depends on your key, so it is not shown here.",
+      "hands_back": "{name: \"mac-app-update-signing-key\", signature_base64: \"<88 base64 characters, the 64 byte Ed25519 signature of the payload's UTF-8 bytes>\"}, which verifies with the key's public half. A payload of \"\" answers \"Give the text to sign: the record's signed lines, joined by newlines.\" and nothing reaches the vault."
     }
   ]
 }

@@ -1,51 +1,53 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:keep-a-changelog-from-what-shipped's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:keep-a-changelog-from-what-shipped.\" Every time the person ships, put one row for that release into the list they keep their work in: read their newest release (from the release program or git ref they name) with the subjects of the commits since the release before it, make the row with their own mapping, and write it only when the list lacks it, so a row someone already edited stays as they left it.",
-  "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
-  "workflows": [
-    "workflow:keep-a-changelog-from-what-shipped"
-  ],
-  "tools": [
-    "tool:build-records-to-write",
-    "tool:put-records-into-my-account",
-    "tool:read-what-shipped"
-  ],
-  "instructions": [
-    "1. Say to your AI: \"Run workflow:keep-a-changelog-from-what-shipped\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:keep-a-changelog-from-what-shipped) and works through its steps in order: read-release, make-rows, write-new-rows.",
-    "3. Read what each step hands back; the last step is write-new-rows."
-  ],
-  "worked_examples": [
-    {
-      "title": "Keep a changelog from what shipped from its first step",
-      "ask": "Run workflow:keep-a-changelog-from-what-shipped.",
-      "mcp": {
-        "server": "trillion",
-        "tool": "run_resource_operation",
-        "input": {
-          "address": "@workshop-tools",
-          "method": "tools:run",
-          "input": {
-            "tool": "tool:start-a-recipe-run",
-            "input": {
-              "row": "workflow:keep-a-changelog-from-what-shipped",
-              "repository": "<repository: The person's repository folder>",
-              "settings": "<settings: The read-what-shipped settings file: where the newest release is read and which keys hold its commit, name and time>",
-              "staged": "<staged: The staged file of releases the reader keeps>",
-              "mapping": "<mapping: The person's build-records-to-write mapping that makes one row of their list from each staged release>",
-              "payload": "<payload: Where the built payload is written>",
-              "door_config": "<door_config: The sender config for the person's door, with keep_held true>",
-              "work": "<work: A folder for the sender's plan, result and status files>"
-            }
-          }
-        }
-      },
-      "workflow": "workflow:keep-a-changelog-from-what-shipped",
-      "step": "read-release",
-      "hands_back": "Step read-release answers with releases, added.",
-      "given": "The person gives: repository, settings, staged, mapping, payload, door_config, work (shown as <name> in the input)."
+ "start_here": "Say to your AI: \"Run workflow:keep-a-changelog-from-what-shipped for my bakery site repository: read the newest release from the git ref refs/heads/released and add one row for it to my changelog list, leaving rows I edited alone.\"",
+ "lists": [],
+ "no_lists_because": "The list the rows go into is the person's own, named by their mapping and door config, so the workflow itself names no list.",
+ "drafted_from": "the workflow row in tools/workflows/recipes/workflows.json, tools/export-records-as-list-rows/read-data/what_shipped.py and test/test_what_shipped.py",
+ "workflows": [
+  "workflow:keep-a-changelog-from-what-shipped"
+ ],
+ "tools": [
+  "tool:start-a-recipe-run",
+  "tool:read-what-shipped",
+  "tool:build-records-to-write",
+  "tool:put-records-into-my-account"
+ ],
+ "instructions": [
+  "1. Write a settings file for tool:read-what-shipped, for example {\"mark\":{\"ref\":\"refs/heads/released\"},\"most_subjects\":60}, and choose a staged file path and a work folder.",
+  "2. Write a mapping that makes one row of your changelog list from each staged release, and a door config for your account with keep_held true.",
+  "3. Say \"Run workflow:keep-a-changelog-from-what-shipped\" with repository, settings, staged, mapping, roots (if any), payload, door_config and work.",
+  "4. Step read-release reads the newest release; when added is null it was already noted and the run stops. Otherwise make-rows builds the rows and write-new-rows writes only the rows the list lacks.",
+  "5. Read the last line: state all_written means the new row is in your list; stopped_on_refusal means the door refused and you read its words before sending again."
+ ],
+ "worked_examples": [
+  {
+   "title": "A second release adds one row with the subjects since the first",
+   "ask": "Add my newest release to the changelog.",
+   "mcp": {
+    "server": "trillion",
+    "tool": "run_resource_operation",
+    "input": {
+     "address": "@workshop-tools",
+     "method": "tools:run",
+     "input": {
+      "tool": "tool:start-a-recipe-run",
+      "input": {
+       "row": "workflow:keep-a-changelog-from-what-shipped",
+       "repository": "/work/bakery",
+       "settings": "/work/changelog/settings.json",
+       "staged": "/work/changelog/staged/releases.json",
+       "mapping": "/work/changelog/mapping.json",
+       "payload": "/work/changelog/payload.json",
+       "door_config": "/work/changelog/door.json",
+       "work": "/work/changelog/run"
+      }
+     }
     }
-  ]
+   },
+   "workflow": "workflow:keep-a-changelog-from-what-shipped",
+   "step": "read-release",
+   "given": "From tools/export-records-as-list-rows/test/test_what_shipped.py (first release \"Rye on Sundays\" already staged, then the commits \"Lemon tarts\" and \"A second van\", and the ref refs/heads/released moved to \"A second van\"): the settings are {\"mark\":{\"ref\":\"refs/heads/released\"}}.",
+   "hands_back": "{\"releases\":2,\"added\":\"3f9a1c07be52\"}"
+  }
+ ]
 }

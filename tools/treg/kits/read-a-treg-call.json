@@ -1,23 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:read-a-treg-call's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-a-treg-call with account, call_id.\" Read one of the person's treg calls by the id it answered: what it cost, and how an asynchronous task it started is going and where its result is",
+  "start_here": "Say to your AI: \"Follow my treg call 0123456789abcdef0123456789abcdef until its task settles and give me the result link.\" It runs tool:read-a-treg-call.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of yours: it reads treg's own record of one call by its id and writes nothing.",
   "workflows": [],
   "tools": [
     "tool:read-a-treg-call",
     "tool:call-a-treg-endpoint"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-a-treg-call\", and give it account, call_id.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-a-treg-call and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields call, async_task, ledger, charged_micro."
+    "1. Keep the x-treg-call-id header that tool:call-a-treg-endpoint answered (32 hex characters).",
+    "2. About 60 seconds later, say to your AI: \"Read my treg call <id>\". It calls tools:run with tool tool:read-a-treg-call, account and call_id.",
+    "3. Read async_task.status: pending means read again every 30 to 60 seconds; settled has result_url (it expires, so fetch it at once); released and timed_out charged nothing.",
+    "4. Never send the call again or try another provider while it is pending."
   ],
   "worked_examples": [
     {
-      "title": "Read one treg call by its id on a sample input",
-      "ask": "Run tool:read-a-treg-call.",
+      "title": "A settled video task",
+      "ask": "Follow my treg call 0123456789abcdef0123456789abcdef and give me the result.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,14 +26,15 @@
           "input": {
             "tool": "tool:read-a-treg-call",
             "input": {
-              "account": "<account: Which of the person's treg connections made the call, by its id: service_connection:treg, or service_connection:treg:<account>>",
-              "call_id": "<call_id: The x-treg-call-id header of the call's answer>"
+              "account": "service_connection:treg",
+              "call_id": "0123456789abcdef0123456789abcdef"
             }
           }
         }
       },
-      "hands_back": "An answer with the fields call, async_task, ledger, charged_micro.",
-      "given": "The person gives: account, call_id (shown as <name> in the input)."
+      "given": "From tools/treg/test/treg-rows.test.mjs: the second read of GET https://treg.to/calls/0123456789abcdef0123456789abcdef (the first answered pending).",
+      "hands_back": "{\"call\":{\"call_ref\":\"0123456789abcdef0123456789abcdef\",\"status_code\":202,\"cost_charged_micro\":420000},\"async_task\":{\"status\":\"settled\",\"reserved_micro\":500000,\"settled_micro\":420000,\"result_url\":\"https://media.example.test/made-up.mp4\"},\"ledger\":[],\"charged_micro\":420000}. It charged 0.42 dollars of the 0.50 held."
     }
-  ]
+  ],
+  "drafted_from": "tools/treg/tool-rows.json (its row), its README and test/treg-rows.test.mjs (the settled read)"
 }

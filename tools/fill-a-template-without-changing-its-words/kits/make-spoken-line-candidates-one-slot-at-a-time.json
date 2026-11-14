@@ -1,13 +1,11 @@
 {
-  "draft": true,
-  "drafted_from": "tool:make-spoken-line-candidates-one-slot-at-a-time's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:make-spoken-line-candidates-one-slot-at-a-time with request.\" Make candidate versions of a spoken line where each slot's other options are tried one at a time against my base picks, each with its script, shot file and a claim for every sentence",
+  "start_here": "Say to your AI: \"Make candidates of my shop opening line, trying lamp wording LEAD L1 or L2 and BEAT B1 or none, one slot at a time, with a claim for each sentence.\" It runs tool:make-spoken-line-candidates-one-slot-at-a-time.",
   "lists": [
     {
       "list": "list:settings",
       "label": "Settings",
       "row_type": "record:setting",
-      "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON.",
+      "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON. For this folder the account row holds your own dimensions registry.",
       "fields": [
         {
           "id": "name",
@@ -71,79 +69,78 @@
           "label": "Status",
           "alike": [
             "state",
-            "on or off"
+            "active"
           ]
         }
       ],
       "example_rows": [
         {
-          "id": "caption-style",
+          "id": "tasting-note-registry",
           "values": {
-            "name": "Caption style",
-            "tool": "tool:example-captioner",
-            "scope_kind": "person",
-            "scope_id": "example-person",
-            "settings": "{\"style\":\"plain\",\"size\":\"large\"}",
+            "name": "Tasting-note registry",
+            "tool": "tool:make-a-word-template",
+            "scope_kind": "account",
+            "scope_id": "main",
+            "settings": "{\"registry\":{\"dimensions\":[{\"id\":\"taste.note\",\"name\":\"tasting note\",\"media\":[\"podcast\"],\"region\":\"speech\",\"value_kind\":\"category\",\"measure\":[{\"method\":\"a taster writes it down\"}],\"drift\":{\"threshold\":1.0}}]}}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         },
         {
-          "id": "quiet-hours",
+          "id": "open-line-candidates",
           "values": {
-            "name": "Quiet hours",
-            "tool": "tool:example-notifier",
-            "scope_kind": "account",
-            "scope_id": "whole-account",
-            "settings": "{\"from\":\"22:00\",\"to\":\"07:00\"}",
+            "name": "Open line candidates",
+            "tool": "tool:make-spoken-line-candidates-one-slot-at-a-time",
+            "scope_kind": "piece",
+            "scope_id": "open-line",
+            "settings": "{\"id_prefix\":\"open-\",\"script_path\":\"scripts/{id}.txt\"}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         }
       ],
       "alike": [
-        "an app's settings screen",
-        "a config file per tool",
-        "a spreadsheet of options"
+        "a config sheet or settings spreadsheet",
+        "an app's preferences list",
+        "a notes page of defaults per project"
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
-    "tool:make-spoken-line-candidates-one-slot-at-a-time"
+    "tool:make-spoken-line-candidates-one-slot-at-a-time",
+    "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:make-spoken-line-candidates-one-slot-at-a-time\", and give it request.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:make-spoken-line-candidates-one-slot-at-a-time and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Make candidate versions of a spoken line where each slot's other options are tried one at a time against my base picks, each with its script, shot file and a claim for every sentence"
+    "1. Write a request file, for example bakery/vary-request.json: slots (each a name, a base pick and candidates {id: {text, claim}}), sentences (a template with {SLOT} where a slot's words go, plus claim_from: SLOT or a fixed claim), id_prefix, script_path, shot_about, claims_about and out {here, narrator}.",
+    "2. Say to your AI: \"Make the line candidates from bakery/vary-request.json\". It reads the row with tools:list and runs python3 -I tools/fill-a-template-without-changing-its-words/do-work/vary_slots_one_at_a_time.py --request bakery/vary-request.json",
+    "3. Read the last line: {\"result\":{\"variants\":N,\"ids\":[...]}}; {\"error\": ...} says what to change (a picked candidate with words but no claim is refused).",
+    "4. Open <here>/lines.txt for every variant line, and each variant's claims file under claims/: that is what a fact check reads before the line is voiced.",
+    "5. Keep your own slots and ids in a list:settings row and pass it as settings_record; never write them into the tool's folder."
   ],
   "worked_examples": [
     {
-      "title": "Make the candidates of a spoken line, one slot varying at a time (runs on your computer) on a sample input",
-      "ask": "Run tool:make-spoken-line-candidates-one-slot-at-a-time.",
+      "title": "Three variants of an opening line, one slot changed at a time",
+      "ask": "Make candidates of my shop opening line one slot at a time.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:make-spoken-line-candidates-one-slot-at-a-time",
-            "input": {
-              "request": "<request: The request JSON file, put where {request} is in the command: {slots, sentences, id_prefix, script_path, shot_about, claims_about, out: {here, narrator}}>"
-            }
+            "tool": "tool:make-spoken-line-candidates-one-slot-at-a-time"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Make candidate versions of a spoken line where each slot's other options are tried one at a time against my base picks, each with its script, shot file and a claim for every sentence",
-      "given": "The person gives: request (shown as <name> in the input)."
+      "given": "From tools/fill-a-template-without-changing-its-words/test/test_vary_slots.py (its made-up sentences) run for real with slots LEAD (base L1 \", with a lamp on the counter\"; L2 \", with two lamps\") and BEAT (base B1 \"It is early.\"; B2 empty with claim null), sentences \"This is Alex Example{LEAD}.\", \"{BEAT}\", \"The shop opens at nine.\", id_prefix \"open-\": python3 -I tools/fill-a-template-without-changing-its-words/do-work/vary_slots_one_at_a_time.py --request bakery/vary-request.json",
+      "hands_back": "Exit 0, prints \"3 variants written\", then the last line {\"result\": {\"variants\": 3, \"ids\": [\"base\", \"L2\", \"B2\"]}}. lines.txt holds: \"This is Alex Example, with a lamp on the counter. It is early. The shop opens at nine.\" / \"This is Alex Example, with two lamps. It is early. The shop opens at nine.\" / \"This is Alex Example, with a lamp on the counter. The shop opens at nine.\" Variant B2 leaves out the empty sentence, so its claims file holds 2 claims (f-lamp; topics hours, f-hours)."
     }
   ],
   "pour": {
     "tool": "tool:pour-example-rows-into-my-list",
     "least_coverage": 0.8,
-    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "how": "Name the list you already keep for tool settings and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and list:settings as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
     "example": {
       "kit_list": "list:settings",
       "into": {
@@ -179,7 +176,9 @@
             "label": "Status"
           }
         ]
-      }
+      },
+      "field_map": {}
     }
-  }
+  },
+  "drafted_from": "tool:make-spoken-line-candidates-one-slot-at-a-time's row in tools/fill-a-template-without-changing-its-words/tool-rows.json, do-work/*.py and the tests in tools/fill-a-template-without-changing-its-words/test/; the worked run was executed on made-up bakery words"
 }

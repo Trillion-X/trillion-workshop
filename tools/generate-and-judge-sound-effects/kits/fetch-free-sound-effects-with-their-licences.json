@@ -1,42 +1,37 @@
 {
-  "draft": true,
-  "drafted_from": "tool:fetch-free-sound-effects-with-their-licences's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:fetch-free-sound-effects-with-their-licences with selection, freesound, mixkit, folder, manifest.\" Download the sound effects I chose, reading each one's licence first and keeping a manifest",
+  "drafted_from": "tool:fetch-free-sound-effects-with-their-licences row in tools/generate-and-judge-sound-effects/tool-rows.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
+  "start_here": "Say to your AI: \"Download the sound effects I chose in /work/sfx/selection.json, reading each licence first, into /work/sfx/sfx with a manifest.\" It runs the fetcher and tells you how many were kept, blocked and unavailable.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads selection.json and the two candidates files on this computer, downloads files into a folder and writes a manifest.json.",
   "workflows": [],
   "tools": [
-    "tool:fetch-free-sound-effects-with-their-licences"
+    "tool:fetch-free-sound-effects-with-their-licences",
+    "tool:search-freesound-for-free-sound-effects",
+    "tool:search-mixkit-for-free-sound-effects"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:fetch-free-sound-effects-with-their-licences\", and give it selection, freesound, mixkit, folder, manifest.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:fetch-free-sound-effects-with-their-licences and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Download the sound effects I chose, reading each one's licence first and keeping a manifest"
+    "1. Run tool:search-freesound-for-free-sound-effects and tool:search-mixkit-for-free-sound-effects to get fs-candidates.json and mk-candidates.json.",
+    "2. Write /work/sfx/selection.json: {\"tick\": [[\"freesound\", 1], [\"freesound\", 2], [\"mixkit\", 9]]} (category, then [library, id] pairs taken from the candidates).",
+    "3. Say \"Download my chosen sounds\". The AI reads the row with tools:list and runs: python3 -I tools/generate-and-judge-sound-effects/do-work/fetch_free_sound_effects.py /work/sfx/selection.json /work/sfx/fs-candidates.json /work/sfx/mk-candidates.json /work/sfx/sfx /work/sfx/manifest.json",
+    "4. Read the last line (kept, blocked, unavailable) and manifest.json: each entry has its page, author, title, licence as read, licence_seen, local file, and blocked or unavailable with the reason. A file already kept is not fetched again."
   ],
   "worked_examples": [
     {
-      "title": "Download chosen free sound effects with their licences (runs on your computer) on a sample input",
-      "ask": "Run tool:fetch-free-sound-effects-with-their-licences.",
+      "title": "A CC0 sound and a Mixkit sound are kept; a NonCommercial one is blocked; a missing file is unavailable",
+      "ask": "Download the four sounds I chose and keep their licences.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:fetch-free-sound-effects-with-their-licences",
-            "input": {
-              "selection": "<selection: selection.json: {category: [[library, id], ...]}>",
-              "freesound": "<freesound: search_freesound's candidates>",
-              "mixkit": "<mixkit: search_mixkit's candidates>",
-              "folder": "<folder: Where the files go, per category>",
-              "manifest": "<manifest: manifest.json>"
-            }
+            "tool": "tool:fetch-free-sound-effects-with-their-licences"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Download the sound effects I chose, reading each one's licence first and keeping a manifest",
-      "given": "The person gives: selection, freesound, mixkit, folder, manifest (shown as <name> in the input)."
+      "given": "From tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (test_fetch_keeps_allowed_licences_only_and_says_why_not, made-up pages): selection.json is {\"tick\": [[\"freesound\", 1], [\"freesound\", 2], [\"mixkit\", 9], [\"mixkit\", 8]]}. Freesound item 1's page says Creative Commons 0; item 2's page says Attribution NonCommercial; Mixkit 9 serves a WAV; Mixkit 8 answers HTTP 404. Command: python3 -I tools/generate-and-judge-sound-effects/do-work/fetch_free_sound_effects.py /work/sfx/selection.json /work/sfx/fs-candidates.json /work/sfx/mk-candidates.json /work/sfx/sfx /work/sfx/manifest.json",
+      "hands_back": "It prints \"tick: freesound-1 CC0 1.0 -> fs-1_tick-one.mp3\", \"tick: freesound-2 BLOCKED Attribution NonCommercial\", \"tick: mixkit-9 Mixkit Sound Effects Free License -> mk-9_click.wav\", \"tick: mixkit-8 UNAVAILABLE HTTP 404\", then {\"result\": {\"manifest\": \"/work/sfx/manifest.json\", \"kept\": 2, \"blocked\": 1, \"unavailable\": 1}}. manifest freesound-2 has file null and blocked \"licence Attribution NonCommercial (https://creativecommons.org/licenses/by-nc/4.0/) is not CC0 / CC BY\"."
     }
   ]
 }

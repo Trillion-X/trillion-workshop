@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "tool:say-a-narration-line-in-a-kokoro-voice's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:say-a-narration-line-in-a-kokoro-voice with line, voice, out.\" Say my narration line in a Kokoro voice with natural pauses, so I can compare voices",
+  "drafted_from": "tool row in tools/compare-voice-and-music-models/tool-rows.json, do-work/say_a_line_in_kokoro.py, test/fixtures and tools/compare-voice-and-music-models/test/test_voice_ab.py",
+  "start_here": "Say to your AI: \"Say my narration line in line.json in the Kokoro voice bm_lewis, with the set pauses, into take-kokoro.wav.\"",
   "lists": [
     {
       "list": "list:settings",
@@ -77,27 +76,27 @@
       ],
       "example_rows": [
         {
-          "id": "caption-style",
+          "id": "person-sample-person",
           "values": {
-            "name": "Caption style",
-            "tool": "tool:example-captioner",
+            "name": "compare-voice-and-music-models defaults",
+            "tool": "tool:compare-voice-and-music-models",
             "scope_kind": "person",
-            "scope_id": "example-person",
-            "settings": "{\"style\":\"plain\",\"size\":\"large\"}",
+            "scope_id": "sample-person",
+            "settings": "{\"clone_takes\":7}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         },
         {
-          "id": "quiet-hours",
+          "id": "film-sample-film",
           "values": {
-            "name": "Quiet hours",
-            "tool": "tool:example-notifier",
-            "scope_kind": "account",
-            "scope_id": "whole-account",
-            "settings": "{\"from\":\"22:00\",\"to\":\"07:00\"}",
+            "name": "compare-voice-and-music-models for one film",
+            "tool": "tool:compare-voice-and-music-models",
+            "scope_kind": "film",
+            "scope_id": "sample-film",
+            "settings": "{\"clone_takes\":5,\"master_command\":\"\",\"takes\":[{\"engine\":\"pocket\",\"maker\":\"clone\",\"name\":\"B pocket\",\"work\":\"pocket\"},{\"maker\":\"kokoro\",\"name\":\"A kokoro\",\"voice\":\"af_heart\",\"work\":\"synthetic-601f4f805f94\"}]}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         }
       ],
@@ -108,39 +107,37 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
     "tool:say-a-narration-line-in-a-kokoro-voice",
-    "tool:measure-narration-takes"
+    "tool:read-a-tool-setting",
+    "tool:measure-narration-takes",
+    "tool:make-and-measure-every-voice-take-of-a-line",
+    "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:say-a-narration-line-in-a-kokoro-voice\", and give it line, voice, out.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:say-a-narration-line-in-a-kokoro-voice and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Say my narration line in a Kokoro voice with natural pauses, so I can compare voices"
+    "1. Pour the two example settings rows into your own list:settings (see pour), or write line.json alone (units, pause_after, inner_most, script) and use the defaults.",
+    "2. Say the line in start_here. Your AI reads the row with tools:list {tool: \"tool:say-a-narration-line-in-a-kokoro-voice\"}, installs mlx-audio, misaki, numpy and soundfile if missing (a Mac with Apple silicon) and runs the command in given. If you keep a list:settings row for this folder (record:setting:compare-voice-and-music-models~film~<film>) your AI reads it with tool:read-a-tool-setting, saves it to a file and adds --settings-record that file --film <film>; its values go over the defaults.",
+    "3. Read the last line: {\"result\": {take, voice, model, seconds, sample_rate}} or {\"error\": \"what to change\"}.",
+    "4. Measure it beside the other voices with tool:measure-narration-takes."
   ],
   "worked_examples": [
     {
-      "title": "Say one narration line in a Kokoro voice, the natural way (runs on your Mac) on a sample input",
-      "ask": "Run tool:say-a-narration-line-in-a-kokoro-voice.",
+      "title": "Three units said as three generations, joined by the line's pauses",
+      "ask": "Say my narration line in Kokoro bm_lewis.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:say-a-narration-line-in-a-kokoro-voice",
-            "input": {
-              "line": "<line: The narration line as JSON (units, pause_after, inner_most, script; hear_prompt, voice_reference and vowel_check for the measure), put where {line} is in the command>",
-              "voice": "<voice: A Kokoro voice such as bm_lewis or af_heart, put where {voice} is>",
-              "out": "<out: The WAV to write, put where {out} is>"
-            }
+            "tool": "tool:say-a-narration-line-in-a-kokoro-voice"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Say my narration line in a Kokoro voice with natural pauses, so I can compare voices",
-      "given": "The person gives: line, voice, out (shown as <name> in the input)."
+      "given": "Read from tools/compare-voice-and-music-models/do-work/say_a_line_in_kokoro.py; its units, pauses and refusals are tested in tools/compare-voice-and-music-models/test/test_voice_ab.py with a stand-in model (each unit one generation with voice, speed 1.0 and lang_code b for bm_*). line.json = {\"script\":\"Close. The kettle is on... and the toast is burning. Aren't you, Morwenna?\",\"units\":[\"Close.\",\"The kettle is on... and the toast is burning.\",\"Aren't you, [Morwenna](/mɔːwˈɛnə/)?\"],\"pause_after\":[0.65,0.4,0.0],\"inner_most\":0.45,\"hear_prompt\":\"Morwenna.\",\"voice_reference\":\"reference-take.wav\",\"vowel_check\":{\"word\":\"close\"}} (from tools/compare-voice-and-music-models/test/fixtures/narration-line.json). Run: python3 -I tools/compare-voice-and-music-models/do-work/say_a_line_in_kokoro.py line.json bm_lewis take-kokoro.wav",
+      "hands_back": "{\"result\":{\"take\":\"take-kokoro.wav\",\"voice\":\"bm_lewis\",\"model\":\"mlx-community/Kokoro-82M-bf16\",\"seconds\":<length, at least 1.05 s because the set pauses alone are 0.65 + 0.4>,\"sample_rate\":24000}}: three generations (Close. / The kettle is on... and the toast is burning. / Aren't you, Morwenna? with the IPA word fixed), the silence inside unit 2 capped at 0.45 s, 0.65 s then 0.4 s between units, a 24-bit WAV. Without arguments: {\"error\":\"pass <line.json> <voice> <out.wav>, the voice a Kokoro voice name such as bm_lewis\"}."
     }
   ],
   "pour": {
@@ -150,39 +147,40 @@
     "example": {
       "kit_list": "list:settings",
       "into": {
-        "list": "list:my-settings",
-        "row_type": "record:setting",
+        "list": "list:my-tool-options",
+        "row_type": "record:tool-option",
         "fields": [
           {
-            "id": "name",
-            "label": "Setting"
+            "id": "title",
+            "label": "Title"
           },
           {
-            "id": "tool",
-            "label": "Tool"
+            "id": "owner",
+            "label": "Owner"
           },
           {
-            "id": "scope_kind",
-            "label": "For a"
+            "id": "scope",
+            "label": "Scope"
           },
           {
-            "id": "scope_id",
-            "label": "For"
+            "id": "target",
+            "label": "Target"
           },
           {
-            "id": "settings",
-            "label": "Settings (JSON)"
+            "id": "config",
+            "label": "Config"
           },
           {
-            "id": "from",
-            "label": "From"
+            "id": "source",
+            "label": "Source"
           },
           {
-            "id": "status",
-            "label": "Status"
+            "id": "state",
+            "label": "State"
           }
         ]
-      }
+      },
+      "field_map": {}
     }
   }
 }

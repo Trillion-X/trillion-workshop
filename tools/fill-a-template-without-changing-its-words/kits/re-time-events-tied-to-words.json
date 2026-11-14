@@ -1,13 +1,11 @@
 {
-  "draft": true,
-  "drafted_from": "tool:re-time-events-tied-to-words's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:re-time-events-tied-to-words with piece, transcript, output.\" After I rewrite the script, move every transition, graphic, caption or section break that was tied to a phrase to where that phrase now plays",
+  "start_here": "Say to your AI: \"I rewrote the voice-over, so move the events in bakery/events.piece.json to where their words now play in bakery/new-words.json.\" It runs tool:re-time-events-tied-to-words.",
   "lists": [
     {
       "list": "list:settings",
       "label": "Settings",
       "row_type": "record:setting",
-      "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON.",
+      "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON. For this folder the account row holds your own dimensions registry.",
       "fields": [
         {
           "id": "name",
@@ -71,81 +69,79 @@
           "label": "Status",
           "alike": [
             "state",
-            "on or off"
+            "active"
           ]
         }
       ],
       "example_rows": [
         {
-          "id": "caption-style",
+          "id": "tasting-note-registry",
           "values": {
-            "name": "Caption style",
-            "tool": "tool:example-captioner",
-            "scope_kind": "person",
-            "scope_id": "example-person",
-            "settings": "{\"style\":\"plain\",\"size\":\"large\"}",
+            "name": "Tasting-note registry",
+            "tool": "tool:make-a-word-template",
+            "scope_kind": "account",
+            "scope_id": "main",
+            "settings": "{\"registry\":{\"dimensions\":[{\"id\":\"taste.note\",\"name\":\"tasting note\",\"media\":[\"podcast\"],\"region\":\"speech\",\"value_kind\":\"category\",\"measure\":[{\"method\":\"a taster writes it down\"}],\"drift\":{\"threshold\":1.0}}]}}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         },
         {
-          "id": "quiet-hours",
+          "id": "open-line-candidates",
           "values": {
-            "name": "Quiet hours",
-            "tool": "tool:example-notifier",
-            "scope_kind": "account",
-            "scope_id": "whole-account",
-            "settings": "{\"from\":\"22:00\",\"to\":\"07:00\"}",
+            "name": "Open line candidates",
+            "tool": "tool:make-spoken-line-candidates-one-slot-at-a-time",
+            "scope_kind": "piece",
+            "scope_id": "open-line",
+            "settings": "{\"id_prefix\":\"open-\",\"script_path\":\"scripts/{id}.txt\"}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         }
       ],
       "alike": [
-        "an app's settings screen",
-        "a config file per tool",
-        "a spreadsheet of options"
+        "a config sheet or settings spreadsheet",
+        "an app's preferences list",
+        "a notes page of defaults per project"
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
-    "tool:re-time-events-tied-to-words"
+    "tool:re-time-events-tied-to-words",
+    "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:re-time-events-tied-to-words\", and give it piece, transcript, output.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:re-time-events-tied-to-words and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: After I rewrite the script, move every transition, graphic, caption or section break that was tied to a phrase to where that phrase now plays"
+    "1. Have a piece JSON whose event tokens carry bound_to (the phrase, an edge start or end, an offset in seconds, optionally a slot and which repeat), for example an event bound to \"sold them all\" at its start with offset -0.1.",
+    "2. Get a word-timed transcript of the rewritten voice-over from any speech-to-text tool: {\"words\":[{\"text\",\"start\",\"end\"}]}, saved as bakery/new-words.json.",
+    "3. Say to your AI: \"Re-time my events to the new words\". It reads the row with tools:list and runs python3 -I tools/fill-a-template-without-changing-its-words/do-work/retime.py bakery/events.piece.json bakery/new-words.json bakery/events.retimed.json --report",
+    "4. Read how many events moved and where each went. An event whose words are not in the new transcript keeps its time and is listed as unmatched: decide what it should follow, never accept a guess.",
+    "5. Events keep their length when they have an end time (t1).",
+    "6. Optional: if you keep your own dimensions registry as a row of list:settings, read that row with records:read, write it to a file and add --settings-record FILE to the command."
   ],
   "worked_examples": [
     {
-      "title": "Move events to where their words now play (runs on your computer) on a sample input",
-      "ask": "Run tool:re-time-events-tied-to-words.",
+      "title": "One event follows its phrase, one is left unmatched",
+      "ask": "Move my events to where their words now play.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:re-time-events-tied-to-words",
-            "input": {
-              "piece": "<piece: The piece JSON whose tokens carry bound_to, put where {piece} is in the command>",
-              "transcript": "<transcript: The word-timed transcript JSON of the rewritten script ({\"words\": [{\"text\", \"start\", \"end\"}]}), put where {transcript} is in the command>",
-              "output": "<output: Where to write the re-timed piece JSON, put where {output} is in the command>"
-            }
+            "tool": "tool:re-time-events-tied-to-words"
           }
         }
       },
-      "hands_back": "The result the item's own job names: After I rewrite the script, move every transition, graphic, caption or section break that was tied to a phrase to where that phrase now plays",
-      "given": "The person gives: piece, transcript, output (shown as <name> in the input)."
+      "given": "Read from tools/fill-a-template-without-changing-its-words/do-work/retime.py and run for real. bakery/events.piece.json has ev-sold (t 2.0 to 3.5, bound to \"sold them all\", edge start, offset -0.1) and ev-close (t 5.0, bound to \"closing time\", edge end). bakery/new-words.json is \"Sam baked 52 loaves then sold them all\", one word every 0.5 s from 1.0 s: python3 -I tools/fill-a-template-without-changing-its-words/do-work/retime.py bakery/events.piece.json bakery/new-words.json bakery/events.retimed.json --report",
+      "hands_back": "Exit 0 and: bakery/events.retimed.json: 1 of 2 bound tokens re-timed from the new words; ev-sold: moved: 'sold them all' 2.0 -> 3.4; ev-close: unmatched: 'closing time' 5.0 -> 5.0 (these words are not in the new transcript; the time is unchanged)."
     }
   ],
   "pour": {
     "tool": "tool:pour-example-rows-into-my-list",
     "least_coverage": 0.8,
-    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "how": "Name the list you already keep for tool settings and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and list:settings as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
     "example": {
       "kit_list": "list:settings",
       "into": {
@@ -181,7 +177,9 @@
             "label": "Status"
           }
         ]
-      }
+      },
+      "field_map": {}
     }
-  }
+  },
+  "drafted_from": "tool:re-time-events-tied-to-words's row in tools/fill-a-template-without-changing-its-words/tool-rows.json, do-work/*.py and the tests in tools/fill-a-template-without-changing-its-words/test/; the worked run was executed on made-up bakery words"
 }

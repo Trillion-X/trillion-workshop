@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "tool:score-small-model-labels-against-my-labels's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:score-small-model-labels-against-my-labels with nothing more.\" Score the frame labels my small models gave against the labels I already have: agreement per field, the top mix-ups, how often a model is right when it is sure, a prior-corrected reading, and the always-the-most-common-value baseline",
+  "drafted_from": "tool row in tools/benchmark-small-local-models/tool-rows.json, do-work/score_frame_labels.py and test/test_benchmark.py (Labels)",
+  "start_here": "Say to your AI: \"Score the size labels in p.json against my own labels and tell me how often the small model agrees with me and whether it beats always saying wide.\"",
   "lists": [
     {
       "list": "list:settings",
@@ -77,27 +76,27 @@
       ],
       "example_rows": [
         {
-          "id": "caption-style",
+          "id": "person-sample-person",
           "values": {
-            "name": "Caption style",
-            "tool": "tool:example-captioner",
+            "name": "benchmark-small-local-models defaults",
+            "tool": "tool:benchmark-small-local-models",
             "scope_kind": "person",
-            "scope_id": "example-person",
-            "settings": "{\"style\":\"plain\",\"size\":\"large\"}",
+            "scope_id": "sample-person",
+            "settings": "{\"commands\":{\"score_frame_labels\":{\"reference_name\":\"labeller\",\"unknown\":\"unknown\",\"list_separator\":\";\",\"thresholds\":[0.7,0.9]}}}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         },
         {
-          "id": "quiet-hours",
+          "id": "film-sample-film",
           "values": {
-            "name": "Quiet hours",
-            "tool": "tool:example-notifier",
-            "scope_kind": "account",
-            "scope_id": "whole-account",
-            "settings": "{\"from\":\"22:00\",\"to\":\"07:00\"}",
+            "name": "benchmark-small-local-models for one film",
+            "tool": "tool:benchmark-small-local-models",
+            "scope_kind": "film",
+            "scope_id": "sample-film",
+            "settings": "{\"commands\":{\"score_frame_labels\":{\"reference_name\":\"editor\",\"thresholds\":[0.8]}}}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         }
       ],
@@ -108,34 +107,37 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
     "tool:score-small-model-labels-against-my-labels",
-    "tool:read-a-tool-setting"
+    "tool:read-a-tool-setting",
+    "tool:label-video-frames-with-small-local-models",
+    "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:score-small-model-labels-against-my-labels\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:score-small-model-labels-against-my-labels and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Score the frame labels my small models gave against the labels I already have: agreement per field, the top mix-ups, how often a model is right when it is sure, a prior-corrected reading, and the always-the-most-common-value baseline"
+    "1. Pour the two example settings rows into your own list:settings (see pour), or write your own row record:setting:benchmark-small-local-models~person~<you> whose settings hold {\"commands\":{\"score_frame_labels\":{...your defaults}}}.",
+    "2. Say the line in start_here. Your AI reads this tool's row with tools:list {tool: \"tool:score-small-model-labels-against-my-labels\"} and gets its run command.",
+    "3. Your AI writes the request as a JSON file (request.json), adds settings_record from your settings row if you keep one, and runs python3 trillion-workshop/tools/benchmark-small-local-models/do-work/score_frame_labels.py request.json on your computer.",
+    "4. It reads the last line the script prints: {\"result\": ...} or {\"error\": \"what to change\"} (exit code 2), then tells you the result in plain words.",
+    "5. Read agree per field, top_confusions, agree_when_answered at each threshold, and the majority-baseline line: a model is worth wiring only when it beats the baseline."
   ],
   "worked_examples": [
     {
-      "title": "Score small models' frame labels against the labels I already have (runs on your computer) on a sample input",
-      "ask": "Run tool:score-small-model-labels-against-my-labels.",
+      "title": "A decider that agrees on 2 of 3 sizes, level with the majority baseline",
+      "ask": "Score this decider's size labels against my own labels.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:score-small-model-labels-against-my-labels",
-            "input": {}
+            "tool": "tool:score-small-model-labels-against-my-labels"
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Score the frame labels my small models gave against the labels I already have: agreement per field, the top mix-ups, how often a model is right when it is sure, a prior-corrected reading, and the always-the-most-common-value baseline"
+      "given": "From tools/benchmark-small-local-models/test/test_benchmark.py (Labels.test_scores_agreement_confusions_lines_centered_and_baseline), size field only. request.json = {\"shots\":[{\"frame\":\"x\",\"w\":1920,\"h\":1080,\"reference\":{\"size\":\"wide\"}},{\"frame\":\"x\",\"w\":1080,\"h\":1920,\"reference\":{\"size\":\"close\"}},{\"frame\":\"x\",\"w\":1080,\"h\":1080,\"reference\":{\"size\":\"close; wide\"}},{\"frame\":\"x\",\"w\":1920,\"h\":1080,\"reference\":{\"size\":\"unknown\"}}],\"vocabulary\":{\"size\":{\"wide\":\"w\",\"close\":\"c\"}},\"labels\":[\"p.json\"],\"reference_name\":\"labeller\",\"unknown\":\"unknown\",\"list_separator\":\";\",\"thresholds\":[0.7,0.9]} where p.json is the file a label step wrote: tag dec, rows i 0..3 with size|defined wide, wide, wide, close and confidences 0.9, 0.6, 0.95, 0.5. Run: python3 trillion-workshop/tools/benchmark-small-local-models/do-work/score_frame_labels.py request.json",
+      "hands_back": "{\"result\":{\"dec|defined\":{\"meta\":{\"tag\":\"dec\"},\"fields\":{\"size\":{\"n\":3,\"agree\":0.667,\"top_confusions\":[\"labeller close -> wide x1\"],\"t0.7\":{\"answered\":0.667,\"agree_when_answered\":1.0},\"t0.9\":{\"answered\":0.667,\"agree_when_answered\":1.0},\"mean_conf\":0.817}}},\"majority-baseline\":{\"fields\":{\"size\":{\"agree\":0.667,\"value\":\"wide\"}}}}}: the shot labelled unknown is left out (n 3), the model agrees on 2 of 3 (0.667), the one mix-up is your close called wide, and always answering wide scores the same 0.667, so it has not beaten the baseline."
     }
   ],
   "pour": {
@@ -145,39 +147,40 @@
     "example": {
       "kit_list": "list:settings",
       "into": {
-        "list": "list:my-settings",
-        "row_type": "record:setting",
+        "list": "list:my-tool-options",
+        "row_type": "record:tool-option",
         "fields": [
           {
-            "id": "name",
-            "label": "Setting"
+            "id": "title",
+            "label": "Title"
           },
           {
-            "id": "tool",
-            "label": "Tool"
+            "id": "owner",
+            "label": "Owner"
           },
           {
-            "id": "scope_kind",
-            "label": "For a"
+            "id": "scope",
+            "label": "Scope"
           },
           {
-            "id": "scope_id",
-            "label": "For"
+            "id": "target",
+            "label": "Target"
           },
           {
-            "id": "settings",
-            "label": "Settings (JSON)"
+            "id": "config",
+            "label": "Config"
           },
           {
-            "id": "from",
-            "label": "From"
+            "id": "source",
+            "label": "Source"
           },
           {
-            "id": "status",
-            "label": "Status"
+            "id": "state",
+            "label": "State"
           }
         ]
-      }
+      },
+      "field_map": {}
     }
   }
 }

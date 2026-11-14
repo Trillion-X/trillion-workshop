@@ -1,40 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:make-a-sound-effect-palette's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:make-a-sound-effect-palette with palette, root, out.\" Render my sound-effect palette from its sources and trims, and check each finished sound by ear",
+  "drafted_from": "tool:make-a-sound-effect-palette row in tools/generate-and-judge-sound-effects/tool-rows.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
+  "start_here": "Say to your AI: \"Render my sound-effect palette from /work/sfx/PALETTE.json with sources under /work/sfx into /work/sfx/palette and check each sound by ear.\" It runs the palette maker and reads back each finished sound.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads PALETTE.json and source sound files on this computer and writes WAV files and palette_readings.json into the folder it is given.",
   "workflows": [],
   "tools": [
-    "tool:make-a-sound-effect-palette"
+    "tool:make-a-sound-effect-palette",
+    "tool:check-a-sound-effect-palette"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:make-a-sound-effect-palette\", and give it palette, root, out.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:make-a-sound-effect-palette and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Render my sound-effect palette from its sources and trims, and check each finished sound by ear"
+    "1. Write /work/sfx/PALETTE.json: rate, channels, fade_in_s, fade_out_s, peak_dbfs and sounds [{name, src, trim [start, end] in seconds, query, manifest}] with each src relative to the root folder.",
+    "2. Say \"Make my palette\". The AI reads the row with tools:list and runs: EARSHOT_THREADS=3 <earshot python> -I tools/generate-and-judge-sound-effects/do-work/make_sound_palette.py /work/sfx/PALETTE.json /work/sfx /work/sfx/palette",
+    "3. Read the last line, then open palette_readings.json: each sound has its seconds, final match z, verdict, describe, realness and loudness.",
+    "4. Run tool:check-a-sound-effect-palette on the folder to check format, edges and licences."
   ],
   "worked_examples": [
     {
-      "title": "Make a sound-effect palette from trimmed sources and read each sound back (runs on your computer) on a sample input",
-      "ask": "Run tool:make-a-sound-effect-palette.",
+      "title": "Cut a 0.6 s trim of one source into a 48 kHz stereo palette sound",
+      "ask": "Render my palette and read each sound back.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:make-a-sound-effect-palette",
-            "input": {
-              "palette": "<palette: PALETTE.json>",
-              "root": "<root: The folder the sources are relative to>",
-              "out": "<out: The palette folder written>"
-            }
+            "tool": "tool:make-a-sound-effect-palette"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Render my sound-effect palette from its sources and trims, and check each finished sound by ear",
-      "given": "The person gives: palette, root, out (shown as <name> in the input)."
+      "given": "From tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (test_made_palette_passes_its_check_and_an_unlicensed_or_short_one_fails, stand-in earshot): PALETTE.json has rate 48000, channels 2, fade_in_s 0.005, fade_out_s 0.02, peak_dbfs -6.0 and one sound {\"name\": \"hit\", \"src\": \"hits/a.wav\", \"trim\": [0.05, 0.65], \"query\": \"a low hit\", \"manifest\": \"lib-1\"}. Command: EARSHOT_THREADS=3 python -I tools/generate-and-judge-sound-effects/do-work/make_sound_palette.py /work/sfx/PALETTE.json /work/sfx /work/sfx/palette",
+      "hands_back": "Last line: {\"result\": {\"out\": \"/work/sfx/palette\", \"sounds\": 1, \"readings\": \"/work/sfx/palette/palette_readings.json\"}}. /work/sfx/palette/hit.wav is 48000 Hz x2, 24-bit, peak -6.0 dBFS; palette_readings.json has hit with seconds 0.6, final_match_z 3.0, final_verdict \"matches\", final_describe \"a tone near 200 Hz\", final_lufs -9.8."
     }
   ]
 }

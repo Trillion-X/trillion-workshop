@@ -56,7 +56,9 @@ export function items() {
 export function touchedIds({ changed = [], beforeRecipes = null } = {}) {
   const touched = new Set();
   const offered = offeringFolders();
-  const inFolder = new Map(rows().map(({ folder, payload }) => [payload.id, offered.get(payload.id) ?? folder]));
+  // Only a tool is touched through its folder's files: a workflow recipe is a row the workflows folder lists, so a file
+  // there (the kit template, the recipes file) would otherwise touch every workflow; a recipe is touched when it differs.
+  const inFolder = new Map(rows().filter(({ payload }) => payload.kind === 'ai-tool-descriptor').map(({ folder, payload }) => [payload.id, offered.get(payload.id) ?? folder]));
   for (const [id, folder] of inFolder) {
     if (changed.some(path => path.startsWith(`tools/${folder}/`) && !path.startsWith(`tools/${folder}/kits/`))) touched.add(id);
   }

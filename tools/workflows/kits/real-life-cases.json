@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:real-life-cases's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:real-life-cases.\" Discover real situations, people’s actual jobs and recurring friction that reveal a valuable outcome to improve.",
+  "drafted_from": "workflow row in tools/workflows/recipes/workflows.json (input_schema and the case, evidence, opportunity steps with their submit shapes); read from the row's words, no test runs it",
+  "start_here": "Say to your AI: \"Run workflow:real-life-cases to find real situations where small bakery owners struggle to train new staff, from forums and video comments, with no private data and sources kept.\"",
   "lists": [],
   "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
@@ -14,14 +13,15 @@
     "tool:start-a-recipe-run"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:real-life-cases\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:real-life-cases) and works through its steps in order: case, evidence, opportunity.",
-    "3. Read what each step hands back; the last step is opportunity."
+    "1. Write the request, its scope, the constraints (source terms, privacy) and the actions you authorize; add source_id when it came from a shared source.",
+    "2. Say \"Run workflow:real-life-cases\". The AI starts it with tool:start-a-recipe-run and works the steps case, evidence, opportunity.",
+    "3. At case, real situations are found from current authorized sources; when they are comments under other people's posts, the AI runs workflow:answer-commenters-with-videos for its watch, keep and pick steps.",
+    "4. At evidence, each case keeps its author, link, date and excerpt, with supporting and contradicting evidence; at opportunity, read which cases are worth acting on and why."
   ],
   "worked_examples": [
     {
-      "title": "Real Life Cases Mode from its first step",
-      "ask": "Run workflow:real-life-cases.",
+      "title": "Finding the cases",
+      "ask": "Find real cases of bakery owners struggling to train staff.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,18 +32,24 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:real-life-cases",
-              "request": "<request: string>",
-              "scope": "<scope: string>",
-              "constraints": [],
-              "authorized_actions": []
+              "request": "Find real situations where small bakery owners struggle to train new staff.",
+              "scope": "Public forums and video comments only",
+              "constraints": [
+                "Respect source terms",
+                "No private data"
+              ],
+              "authorized_actions": [
+                "Read public pages",
+                "Write case rows to my account"
+              ]
             }
           }
         }
       },
       "workflow": "workflow:real-life-cases",
       "step": "case",
-      "hands_back": "Step case answers with summary, evidence, requirements.",
-      "given": "The person gives: request, scope (shown as <name> in the input)."
+      "given": "Read from tools/workflows/recipes/workflows.json (step case): the answer holds a summary, evidence (id, source, observed) and requirements find-cases and capability-review-case, each completed with what happened and evidence_refs.",
+      "hands_back": "{\"summary\":\"Found 3 recurring cases of new bakers taking weeks to learn the morning bake.\",\"evidence\":[{\"id\":\"c1\",\"source\":\"https://example.com/forum/new-baker-training\",\"observed\":\"An owner writes that each new hire needs two weeks of shadowing\"},{\"id\":\"c2\",\"source\":\"https://www.youtube.com/watch?v=EXAMPLE123\",\"observed\":\"A commenter asks how to train a new baker in one morning\"}],\"requirements\":{\"find-cases\":{\"state\":\"completed\",\"what_happened\":\"Searched public forums and video comments; kept 3 cases with their links.\",\"evidence_refs\":[\"c1\",\"c2\"]},\"capability-review-case\":{\"state\":\"completed\",\"what_happened\":\"Reviewed REA, 21st.dev and Mobbin; none applied to reading public comments, so the comment workflow was used.\",\"evidence_refs\":[\"c2\"]}}}"
     }
   ]
 }

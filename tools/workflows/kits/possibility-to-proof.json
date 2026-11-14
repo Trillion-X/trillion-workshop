@@ -1,22 +1,24 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:possibility-to-proof's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:possibility-to-proof.\" Convert any person's idea, observed unmet need, recombined tool capability, business or service concept into a hypothesis, an independently executable minimal real-world experiment, observed customer behavior or cost, and a revised next action; iterate without treating a draft or demo as market validation.",
+  "drafted_from": "workflow:possibility-to-proof's row in tools/workflows/recipes/workflows.json (its job, input schema and the step named in the worked example)",
+  "start_here": "Say to your AI: \"Run workflow:possibility-to-proof on the idea: a weekly sourdough box that small cafes pre-order, for my bakery pursuit.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It carries one idea through a hypothesis and a real test and keeps its observations in the run and in one linked record, so it ships no list of its own.",
   "workflows": [
     "workflow:possibility-to-proof"
   ],
-  "tools": [],
+  "tools": [
+    "tool:start-a-recipe-run"
+  ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:possibility-to-proof\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:possibility-to-proof) and works through its steps in order: first-principles, combinatorics, test, execute, learn-and-repeat.",
-    "3. Read what each step hands back; the last step is learn-and-repeat."
+    "1. Write the idea in a sentence (at least 3 characters), for example \"a weekly sourdough box that small cafes pre-order\", and add pursuit, context and authority (what the AI may do) when you have them.",
+    "2. Say \"Run workflow:possibility-to-proof\". At first-principles it names the decision the test would change, the chooser, the unmet need and a falsifiable before and after.",
+    "3. At combinatorics it finds the smallest mechanism from what exists; at test it picks a real-world test and writes predictions, baseline, success, failure and a resource ceiling before anything is observed.",
+    "4. At execute it carries out the authorized test and verifies every artifact where it lives; at learn-and-repeat it compares what happened with the predictions and sets the next test."
   ],
   "worked_examples": [
     {
-      "title": "Turn a possibility into reality evidence from its first step",
-      "ask": "Run workflow:possibility-to-proof.",
+      "title": "Define the decision, the chooser and what would prove the idea wrong",
+      "ask": "Run workflow:possibility-to-proof: a weekly sourdough box that small cafes pre-order.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,15 +29,16 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:possibility-to-proof",
-              "idea": "<idea: string>"
+              "idea": "A weekly sourdough box that small cafes pre-order",
+              "pursuit": "pursuit:example-bakery"
             }
           }
         }
       },
       "workflow": "workflow:possibility-to-proof",
       "step": "first-principles",
-      "hands_back": "Step first-principles answers with decision, desired_change, chooser, need, evidence, falsifier.",
-      "given": "The person gives: idea (shown as <name> in the input)."
+      "given": "Read from tools/workflows/recipes/workflows.json, step first-principles: its submit shape is decision, desired_change, chooser, need, evidence and falsifier, all text.",
+      "hands_back": "{\"decision\":\"Whether to bake a second weekly batch for cafe customers or keep baking only for walk-ins.\",\"desired_change\":\"Five cafes each pre-order a weekly box (now: no cafe orders from us; wanted: 5 cafes repeat for 4 weeks).\",\"chooser\":\"The cafe owner who buys the bread; the 12 cafes within two miles are reachable and represent the chooser.\",\"need\":\"Cafes run out of fresh bread by Saturday noon and lose breakfast sales.\",\"evidence\":\"Three cafe owners said they ran out last month; no one has paid yet.\",\"falsifier\":\"If fewer than 3 of 12 cafes pay a deposit within 14 days, or fewer than 2 reorder in week 2, the idea is wrong.\"}"
     }
   ]
 }

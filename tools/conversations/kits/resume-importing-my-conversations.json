@@ -1,0 +1,269 @@
+{
+  "drafted_from": "tool:resume-importing-my-conversations row, read-data/chat-import.mjs (resumeConversationImports), read-data/ai-conversations-list.json and test/import-conversations.test.mjs; the answer was observed by running resumeConversationImports over a Hermes session shaped like the test's against the test's fake records door",
+  "start_here": "Say to your AI: \"Resume bringing in all my AI conversations from this computer, and keep going until nothing is left.\" It runs the resume tool, reads whether more is true and runs it again until more is false.",
+  "lists": [
+    {
+      "list": "list:ai-conversations",
+      "label": "AI conversations",
+      "row_type": "record:ai-conversation",
+      "holds": "One row per conversation you had with an AI: its title, the app, when it started and ended, how many messages and which models; your own labels, people, pursuits and follow-ups are never overwritten by an import.",
+      "fields": [
+        {
+          "id": "title",
+          "kind": "text",
+          "label": "Title",
+          "alike": [
+            "name",
+            "subject"
+          ]
+        },
+        {
+          "id": "app",
+          "kind": "text",
+          "label": "App",
+          "alike": [
+            "assistant",
+            "source"
+          ]
+        },
+        {
+          "id": "conversation_id",
+          "kind": "text",
+          "label": "Conversation",
+          "alike": [
+            "chat id",
+            "thread"
+          ]
+        },
+        {
+          "id": "started",
+          "kind": "date",
+          "label": "Started",
+          "alike": [
+            "first message",
+            "created"
+          ]
+        },
+        {
+          "id": "last",
+          "kind": "date",
+          "label": "Last message",
+          "alike": [
+            "updated",
+            "last at"
+          ]
+        },
+        {
+          "id": "messages",
+          "kind": "number",
+          "label": "Messages",
+          "alike": [
+            "message count",
+            "turns"
+          ]
+        },
+        {
+          "id": "models",
+          "kind": "tags",
+          "label": "Models",
+          "alike": [
+            "model"
+          ]
+        },
+        {
+          "id": "labels",
+          "kind": "tags",
+          "label": "Labels",
+          "alike": [
+            "tags",
+            "topics"
+          ]
+        },
+        {
+          "id": "people",
+          "kind": "tags",
+          "label": "People",
+          "alike": [
+            "contacts"
+          ]
+        },
+        {
+          "id": "pursuits",
+          "kind": "tags",
+          "label": "Pursuits",
+          "alike": [
+            "projects",
+            "goals"
+          ]
+        },
+        {
+          "id": "follow_ups",
+          "kind": "text",
+          "label": "Follow-ups",
+          "alike": [
+            "next steps",
+            "todo"
+          ]
+        },
+        {
+          "id": "original_file",
+          "kind": "text",
+          "label": "Original file",
+          "alike": [
+            "file",
+            "path"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "cl-1",
+          "values": {
+            "title": "Sourdough schedule",
+            "app": "Claude",
+            "conversation_id": "Claude:cl-1",
+            "started": "2025-01-02T10:00:00.000Z",
+            "last": "2025-01-02T10:00:05.000Z",
+            "messages": 2,
+            "models": [],
+            "labels": [
+              "bread"
+            ],
+            "people": [
+              "Sam"
+            ],
+            "pursuits": [
+              "a bakery"
+            ],
+            "follow_ups": "Feed the starter every morning",
+            "original_file": "Downloads/claude-data/conversations.json"
+          }
+        },
+        {
+          "id": "cl-2",
+          "values": {
+            "title": "Oven spring",
+            "app": "Claude",
+            "conversation_id": "Claude:cl-2",
+            "started": "2025-01-03T10:00:00.000Z",
+            "last": "2025-01-03T10:00:09.000Z",
+            "messages": 2,
+            "models": [],
+            "labels": [
+              "bread"
+            ],
+            "people": [],
+            "pursuits": [
+              "a bakery"
+            ],
+            "follow_ups": "Proof the dough longer",
+            "original_file": "Downloads/claude-data/conversations.json"
+          }
+        }
+      ],
+      "alike": [
+        "a spreadsheet of chat logs",
+        "a notes app folder of saved chats",
+        "a research log of AI conversations"
+      ]
+    }
+  ],
+  "workflows": [],
+  "tools": [
+    "tool:resume-importing-my-conversations",
+    "tool:import-my-conversations-from-a-source",
+    "tool:list-the-conversation-sources-on-this-computer",
+    "tool:show-how-far-my-conversation-import-is",
+    "tool:pour-example-rows-into-my-list"
+  ],
+  "instructions": [
+    "1. Keep list:ai-conversations, or pour the two example rows into your own chat list (see pour); grant the door your home folder.",
+    "2. Run tool:resume-importing-my-conversations with {} (every source found here) or with sources and time_box_seconds to limit it.",
+    "3. If the answer has more: true, run it again with the same input: each file continues from its cursor row and finished, unchanged files are skipped. Stop when more is false.",
+    "4. Run tool:show-how-far-my-conversation-import-is to see each source's files and messages, and read list:ai-conversations for the conversations."
+  ],
+  "worked_examples": [
+    {
+      "title": "One Hermes session is resumed in and finishes",
+      "ask": "Bring in my Hermes sessions from this computer.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:resume-importing-my-conversations",
+            "input": {
+              "sources": [
+                "hermes-sessions"
+              ],
+              "time_box_seconds": 30
+            }
+          }
+        }
+      },
+      "given": "From tools/conversations/test/import-conversations.test.mjs (the made-up bakery home): the granted folder holds .hermes/sessions/session_20261004.json with 2 messages (\"Remind me to order flour.\" and \"I will remind you on Friday.\"). I ran resumeConversationImports over it against the test's fake door, so the values below are observed.",
+      "hands_back": "{\"sources\":[{\"source\":\"hermes-sessions\",\"app\":\"Hermes\",\"files_found\":1,\"files_done\":1,\"files_skipped\":0,\"conversations_kept\":1,\"messages_added\":2,\"messages_already_kept\":0,\"attachments_kept\":0,\"attachments_not_kept\":0,\"attachments_too_large\":0,\"rows_let_go\":0,\"conversations_refused\":[],\"attachments_refused\":[],\"done\":true}],\"more\":false}. Run again, the same file answers files_skipped: 1 and messages_added: 0."
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for your AI chats and its fields. The tool matches each kit field to one of yours (same id, same label or a name in alike), refuses when fewer than 80% match, and otherwise answers the records:write that adds the two example rows to your list.",
+    "example": {
+      "kit_list": "list:ai-conversations",
+      "into": {
+        "list": "list:chat-log",
+        "row_type": "record:chat-log-entry",
+        "fields": [
+          {
+            "id": "name",
+            "label": "Name"
+          },
+          {
+            "id": "assistant",
+            "label": "Assistant"
+          },
+          {
+            "id": "thread",
+            "label": "Thread"
+          },
+          {
+            "id": "created",
+            "label": "Created"
+          },
+          {
+            "id": "updated",
+            "label": "Updated"
+          },
+          {
+            "id": "turns",
+            "label": "Turns"
+          },
+          {
+            "id": "model",
+            "label": "Model"
+          },
+          {
+            "id": "tags",
+            "label": "Tags"
+          },
+          {
+            "id": "projects",
+            "label": "Projects"
+          },
+          {
+            "id": "todo",
+            "label": "Todo"
+          },
+          {
+            "id": "contacts",
+            "label": "Contacts"
+          }
+        ]
+      },
+      "field_map": {}
+    }
+  }
+}

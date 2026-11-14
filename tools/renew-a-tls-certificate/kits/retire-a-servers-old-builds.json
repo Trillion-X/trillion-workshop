@@ -1,22 +1,23 @@
 {
-  "draft": true,
-  "drafted_from": "tool:retire-a-servers-old-builds's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:retire-a-servers-old-builds with hostname, address, ssh_port, admin_user, knownHost, host.\" Free the disk on my public server of the receptionist build folders the retired hand road left",
+  "drafted_from": "tool:retire-a-servers-old-builds's row in tools/renew-a-tls-certificate/tool-rows.json, do-work/renew-a-tls-certificate.mjs, do-work/tls-host-owner.py and the tests in test/",
+  "start_here": "Say to your AI: \"Retire the old hand-road build folders on my server at 192.0.2.34, but keep the one the seed runs from.\" It runs tool:retire-a-servers-old-builds and says how many it removed.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of its own: it takes one server's facts as its input and answers what that server's certificate owner reports.",
   "workflows": [],
   "tools": [
-    "tool:retire-a-servers-old-builds"
+    "tool:retire-a-servers-old-builds",
+    "tool:seed-a-servers-receptionist"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:retire-a-servers-old-builds\", and give it hostname, address, ssh_port, admin_user, knownHost, host.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:retire-a-servers-old-builds and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields retired."
+    "1. Gather the server's facts: its public name, IPv4 address, SSH port, the administrator you sign in as, its pinned key (\"<address> ssh-ed25519 <key>\") and its layout (host: owner path, state folder, downloads folder, ingress, receptionist). The README in tools/renew-a-tls-certificate/ shows a made-up one.",
+    "2. Say to your AI the sentence in start_here. It calls run_resource_operation at @workshop-tools with method tools:run, tool tool:retire-a-servers-old-builds and that input (the worked example shows one). The door mounts your server administration key for the run; you paste no key.",
+    "3. Read what comes back: {\"retired\": <how many folders were removed>}. An {\"error\": ...} or a thrown message names what to change (for example the layout or the pinned key was refused).",
+    "4. host.receptionist.releases.retire ({folder, name}) is required; only real folders whose whole name matches `name` go, and never the one the receptionist is held on."
   ],
   "worked_examples": [
     {
-      "title": "Remove a server's old hand-built receptionist folders on a sample input",
-      "ask": "Run tool:retire-a-servers-old-builds.",
+      "title": "Remove two of three old builds",
+      "ask": "Clean up the old builds.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,18 +27,68 @@
           "input": {
             "tool": "tool:retire-a-servers-old-builds",
             "input": {
-              "hostname": "<hostname: string>",
-              "address": "<address: string>",
-              "ssh_port": "<ssh_port: The server's SSH port (22 for a pinned key written as \"<address> ssh-ed25519 <key>\")>",
-              "admin_user": "<admin_user: The administrator the run signs in as>",
-              "knownHost": "<knownHost: string>",
-              "host": {}
+              "hostname": "app.example.com",
+              "address": "192.0.2.34",
+              "ssh_port": 22,
+              "admin_user": "admin",
+              "knownHost": "192.0.2.34 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleExampleExampleExampleExample0",
+              "host": {
+                "owner": "/usr/local/lib/example/tls-host-owner.py",
+                "state": "/etc/example-public-tls",
+                "downloads": "/var/lib/public-downloads",
+                "ingress": {
+                  "service": "example-public-tls",
+                  "pid_file": "/run/example-public-tls.pid",
+                  "error_log": "/var/log/nginx/example-error.log"
+                },
+                "receptionist": {
+                  "service": "example-receptionist",
+                  "account": "example-mcp",
+                  "binary_pattern": "/opt/example/source/[a-f0-9]{40}/target/release/example-receptionist",
+                  "listen": "127.0.0.1:9443",
+                  "paths": [
+                    "/mcp",
+                    "/mcp/resource-connection",
+                    "/.well-known/oauth-protected-resource/mcp",
+                    "/.well-known/oauth-protected-resource"
+                  ],
+                  "environment": {
+                    "EXAMPLE_LISTEN": "{listen}",
+                    "EXAMPLE_ORIGIN": "https://{hostname}"
+                  },
+                  "releases": {
+                    "folder": "/var/lib/example/releases",
+                    "program": "example-forwarder",
+                    "feed": {
+                      "urls": [
+                        "https://releases.example.com/forwarder-feed.json"
+                      ],
+                      "public_keys": [
+                        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                      ]
+                    },
+                    "target": "x86_64-unknown-linux-gnu",
+                    "body_max_bytes": 268435456,
+                    "retire": {
+                      "folder": "/opt/example/source",
+                      "name": "[a-f0-9]{40}"
+                    }
+                  }
+                },
+                "site": {
+                  "hostname": "example.org",
+                  "paths": [
+                    "/privacy",
+                    "/terms"
+                  ]
+                }
+              }
             }
           }
         }
       },
-      "hands_back": "An answer with the fields retired.",
-      "given": "The person gives: hostname, address, ssh_port, admin_user, knownHost (shown as <name> in the input)."
+      "given": "From tools/renew-a-tls-certificate/test/tls-host-owner.test.py (retiring the hand road): under /opt/example/source sit folders named a x40, b x40 and not-a-build; the seed runs from the b folder, so only the a folder is removed.",
+      "hands_back": "{\"retired\":1}"
     }
   ]
 }

@@ -1,44 +1,52 @@
 {
-  "draft": true,
-  "drafted_from": "tool:track-a-selected-object-in-a-video's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:track-a-selected-object-in-a-video with video, output, start, end, time, points, model.\" Follow an object or a person I pointed at through a clip and get its outline in every frame",
+  "drafted_from": "tool row in tools/track-and-compare-movement/tool-rows.json, do-work/track_selected_object.py and test/test_track_selected_object.py (the refusal was run; the model run is read from the code and test)",
+  "start_here": "Say to your AI: \"In /work/square.mp4 follow the white square I pointed at one second in (a point at 34% across and 50% down), for seconds 0 to 3, and write the outline for every frame to /work/square-mask.\" It reads the tool's row and runs track_selected_object.py on your computer with a SAM 2 video model.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads video or pose files on the person's own computer and writes a new file or folder beside them.",
   "workflows": [],
   "tools": [
     "tool:track-a-selected-object-in-a-video"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:track-a-selected-object-in-a-video\", and give it video, output, start, end, time, points, model.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:track-a-selected-object-in-a-video and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Follow an object or a person I pointed at through a clip and get its outline in every frame"
+    "1. Choose the clip, the stretch (up to 30 seconds) and the second you pointed at; get a frame at that second and turn the point you chose into x and y between 0 and 1, adding a point outside the object (include false) if something similar sits next to it.",
+    "2. Have the model ready once beforehand: the script runs offline from the local Hugging Face cache (for example facebook/sam2.1-hiera-tiny) with ffmpeg, numpy, pillow, torch and transformers installed.",
+    "3. The AI reads the row with tools:list {tool: tool:track-a-selected-object-in-a-video} and runs its `run` command with an output folder that does not exist yet.",
+    "4. Read the last line: {\"result\": {start, end, fps, frames, width, height, selected_frame, pixels, model}} or {\"error\": ...}; the folder holds mask.mkv, a mask and a transparent preview picture per frame, and result.json. A frame with an empty mask (pixels 0) means the object was hidden."
   ],
   "worked_examples": [
     {
-      "title": "Follow one thing I point at through a video clip and outline it in every frame (runs on your computer) on a sample input",
-      "ask": "Run tool:track-a-selected-object-in-a-video.",
+      "title": "Follow a white square for three seconds",
+      "ask": "In /work/square.mp4 follow the white square I pointed at one second in, for seconds 0 to 3.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:track-a-selected-object-in-a-video",
-            "input": {
-              "video": "<video: The video file, put where {video} is in the command>",
-              "output": "<output: A folder that does not exist yet, put where {output} is>",
-              "start": "<start: Second the stretch begins, put where {start} is>",
-              "end": "<end: Second the stretch ends, at most 30 after start, put where {end} is>",
-              "time": "<time: The second the person pointed at, from start up to but not including end, put where {time} is>",
-              "points": "<points: JSON text: a list of {x, y, include} where x and y are 0 to 1 across and down the picture and include is true for a point inside the object and false for one outside it>",
-              "model": "<model: The SAM 2 video model name in the local Hugging Face cache, put where {model} is>"
-            }
+            "tool": "tool:track-a-selected-object-in-a-video"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Follow an object or a person I pointed at through a clip and get its outline in every frame",
-      "given": "The person gives: video, output, start, end, time, points, model (shown as <name> in the input)."
+      "given": "Read from tools/track-and-compare-movement/do-work/track_selected_object.py and the real-model case of test/test_track_selected_object.py (not run here: it needs the SAM 2 model in the local cache). The video is 320x240 at 12 frames a second, a black picture with a 60 by 60 white square moving right from x 20 to 200. Command: motion-env/bin/python tools/track-and-compare-movement/do-work/track_selected_object.py --video /work/square.mp4 --output /work/square-mask --start 0 --end 3 --time 1 --points '[{\"x\":0.34375,\"y\":0.5,\"include\":true},{\"x\":0.9,\"y\":0.1,\"include\":false}]' --fps 12 --model facebook/sam2.1-hiera-tiny --device cpu.",
+      "hands_back": "{\"result\": {\"start\": 0.0, \"end\": 3.0, \"fps\": 12, \"frames\": 36, \"width\": 720, \"height\": 540, \"selected_frame\": 12, \"pixels\": [36 counts, one per frame], \"model\": \"facebook/sam2.1-hiera-tiny\"}} Frames are scaled to fit 720 by 720, so 320x240 becomes 720x540 and the square is 3600*(720/320)^2 = 18225 pixels; the test needs pixels[12] between 14580 and 23692 and more than 24 frames above half that area. /work/square-mask then holds mask.mkv, masks/00000.png to 00035.png, preview/ and result.json."
+    },
+    {
+      "title": "A stretch over 30 seconds is refused before anything is made",
+      "ask": "Follow the square for seconds 0 to 45.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:list",
+          "input": {
+            "tool": "tool:track-a-selected-object-in-a-video"
+          }
+        }
+      },
+      "given": "I ran this refusal with python3 -I tools/track-and-compare-movement/do-work/track_selected_object.py --video /work/square.mp4 --output /work/never-made --start 0 --end 45 --time 1 --points '[{\"x\":0.34,\"y\":0.5,\"include\":true}]' --fps 12 --model facebook/sam2.1-hiera-tiny; it exits 2 and the output folder is not created (test_a_range_over_thirty_seconds).",
+      "hands_back": "{\"error\": \"Choose a mask range up to 30 seconds containing the selected frame.\"}"
     }
   ]
 }

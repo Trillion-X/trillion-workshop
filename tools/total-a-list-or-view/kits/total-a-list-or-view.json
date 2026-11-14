@@ -1,0 +1,124 @@
+{
+  "drafted_from": "tool:total-a-list-or-view's row in tools/total-a-list-or-view/tool-rows.json, do-work/total-a-list.mjs, tools/query-and-change-list-rows/src/list-aggregates.mjs (the arithmetic and labels), keep-and-wake-ai-sessions-on-this-computer/src/lists.json (aggregates) and test/total-a-list-or-view.test.mjs (the bakery list)",
+  "start_here": "Say to your AI: \"Total my bakery orders list: how many orders and the sum of the amount, and then the same for each kind of order.\" It runs tool:total-a-list-or-view on list:orders and reads you the totals without pulling the rows.",
+  "lists": [
+    {
+      "list": "list:orders",
+      "label": "Orders",
+      "row_type": "record:order",
+      "holds": "One order a bakery took: what was ordered, what kind it is and what it cost.",
+      "fields": [
+        { "id": "item", "kind": "text", "label": "Item", "alike": ["product", "name", "title"] },
+        { "id": "kind", "kind": "choice", "label": "Kind", "alike": ["category", "type"] },
+        { "id": "amount", "kind": "number", "label": "Amount", "alike": ["price", "total", "value"] }
+      ],
+      "example_rows": [
+        { "id": "a", "values": { "item": "a", "kind": "bread", "amount": 4 } },
+        { "id": "b", "values": { "item": "b", "kind": "bread", "amount": 6.5 } },
+        { "id": "c", "values": { "item": "c", "kind": "cake", "amount": 30 } },
+        { "id": "d", "values": { "item": "d", "kind": "cake", "amount": 12 } },
+        { "id": "e", "values": { "item": "e", "kind": "tart", "amount": 8 } }
+      ],
+      "alike": ["an orders sheet in a spreadsheet", "the sales list in a shop app", "an invoices table"]
+    }
+  ],
+  "workflows": [],
+  "tools": [
+    "tool:total-a-list-or-view"
+  ],
+  "instructions": [
+    "1. Have a list of rows with a number field, or pour the five example orders into the list you already keep for sales (see pour), or make list:orders from them.",
+    "2. Say which list and what to add up, for example: \"Count my orders and sum the amount, for each kind.\" The AI needs the list's id (list:orders) and its row type (record:order, the list's row_type with record: in front).",
+    "3. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:total-a-list-or-view and {list_id, type, measures: [{op, field?}], group_by?, view_id?}. op is count, filled, distinct, sum, average, median, min or max; every op but count, filled and distinct needs a number field.",
+    "4. Read the answer: rows_counted, complete (false means it stopped before the end, so the total is partial), measures, and with group_by one entry in groups for each value. With view_id only the rows that saved view keeps are totalled. A refusal says what to ask instead."
+  ],
+  "worked_examples": [
+    {
+      "title": "Count the orders and sum the amount over the whole list",
+      "ask": "How many orders do I have and what do they add up to?",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:total-a-list-or-view",
+            "input": {
+              "list_id": "list:orders",
+              "type": "record:order",
+              "measures": [{ "op": "count" }, { "op": "sum", "field": "amount" }]
+            }
+          }
+        }
+      },
+      "given": "From tools/total-a-list-or-view/test/total-a-list-or-view.test.mjs ('a count and a sum of the whole list'): the five example orders above, amounts 4, 6.5, 30, 12 and 8. Labels read from keep-and-wake-ai-sessions-on-this-computer/src/lists.json (count is Rows, sum is Sum).",
+      "hands_back": "{\"list_id\":\"orders\",\"rows_counted\":5,\"complete\":true,\"measures\":[{\"field\":null,\"op\":\"count\",\"label\":\"Rows\",\"value\":5},{\"field\":\"amount\",\"op\":\"sum\",\"label\":\"Sum\",\"value\":60.5}]}"
+    },
+    {
+      "title": "Sum the amount for each kind of order",
+      "ask": "Add up the amount for each kind of order.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:total-a-list-or-view",
+            "input": {
+              "list_id": "list:orders",
+              "type": "record:order",
+              "group_by": "kind",
+              "measures": [{ "op": "count" }, { "op": "sum", "field": "amount" }]
+            }
+          }
+        }
+      },
+      "given": "From tools/total-a-list-or-view/test/total-a-list-or-view.test.mjs ('grouped by a field'): the same five orders.",
+      "hands_back": "rows_counted 5, complete true, group_by \"kind\" and groups bread (rows 2, sum 10.5), cake (rows 2, sum 42) and tart (rows 1, sum 8); each group lists its count and sum measures."
+    },
+    {
+      "title": "Sum only the rows a saved view keeps",
+      "ask": "What is the total of my Bread only view?",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:total-a-list-or-view",
+            "input": {
+              "list_id": "list:orders",
+              "type": "record:order",
+              "view_id": "bread-only",
+              "measures": [{ "op": "sum", "field": "amount" }]
+            }
+          }
+        }
+      },
+      "given": "From tools/total-a-list-or-view/test/total-a-list-or-view.test.mjs ('over a saved view'): list:orders has a saved view bread-only that keeps the rows whose kind is bread.",
+      "hands_back": "{\"list_id\":\"orders\",\"view_id\":\"bread-only\",\"rows_counted\":2,\"complete\":true,\"measures\":[{\"field\":\"amount\",\"op\":\"sum\",\"label\":\"Sum\",\"value\":10.5}]}"
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for sales and its fields. The tool matches each kit field to one of yours (by the map you give, the same id, the same label, or a name in alike), refuses when fewer than least_coverage of the kit's fields match, and otherwise answers the records:write that adds the example orders to your list, leaving your own rows untouched.",
+    "example": {
+      "kit_list": "list:orders",
+      "into": {
+        "list": "list:shop-sales",
+        "row_type": "record:shop-sale",
+        "fields": [
+          { "id": "product", "label": "Product" },
+          { "id": "category", "label": "Category" },
+          { "id": "price", "label": "Price" },
+          { "id": "customer", "label": "Customer" }
+        ]
+      },
+      "field_map": {}
+    }
+  }
+}

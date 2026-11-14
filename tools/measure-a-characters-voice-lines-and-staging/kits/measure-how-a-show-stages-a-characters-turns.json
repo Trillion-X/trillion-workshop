@@ -1,22 +1,24 @@
 {
-  "draft": true,
-  "drafted_from": "tool:measure-how-a-show-stages-a-characters-turns's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:measure-how-a-show-stages-a-characters-turns with ids, data_folder, youtube_folder.\" Measure how a video is cut and scored around a character's turns: whether a cut lands on the turn, how short the shots are inside the exchanges, and whether the music stops just before",
+  "drafted_from": "tool:measure-how-a-show-stages-a-characters-turns's row in tools/measure-a-characters-voice-lines-and-staging/tool-rows.json, its script in tools/measure-a-characters-voice-lines-and-staging/do-work/ and the tests in tools/measure-a-characters-voice-lines-and-staging/test/",
+  "start_here": "Say to your AI: \"Measure how the show stages the parrot's turns in vid-a: cuts, shot lengths and music stop-downs.\" It runs tool:measure-how-a-show-stages-a-characters-turns and updates staging.tsv.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of its own: it reads one settings row of yours (record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>) or the settings you pass, and works on files in the show's folder.",
   "workflows": [],
   "tools": [
+    "tool:measure-how-a-show-stages-a-characters-turns",
+    "tool:find-when-a-character-speaks",
     "tool:measure-how-a-show-stages-a-characters-turns"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:measure-how-a-show-stages-a-characters-turns\", and give it ids, data_folder, youtube_folder.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:measure-how-a-show-stages-a-characters-turns and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Measure how a video is cut and scored around a character's turns: whether a cut lands on the turn, how short the shots are inside the exchanges, and whether the music stops just before"
+    "1. Make the show's folder and the YouTube library folder the run may change, and have voice/<id>.turns.json (tool:find-when-a-character-speaks), measure/<id>/rhythm.json and measure/<id>/earshot-timeline.txt for each id in the youtube folder. Put the keys the row needs (none: it reads no settings key) in your settings row or pass them as settings.",
+    "2. Say the sentence in start_here to your AI. It calls run_resource_operation at @workshop-tools with method tools:run, tool tool:measure-how-a-show-stages-a-characters-turns and the input in the worked example; the door asks for the granted folder.",
+    "3. Read the last line it prints, {\"result\": ...}, or {\"error\": ...} saying what to fix (a missing settings key is named).",
+    "4. Read staging.tsv: each share is set beside its share by chance, so a cut at entry far above chance means the show stages the character's turns with a cut."
   ],
   "worked_examples": [
     {
-      "title": "Measure how a video stages a character's turns: cuts, shot lengths and music stop-downs (runs on your computer) on a sample input",
-      "ask": "Run tool:measure-how-a-show-stages-a-characters-turns.",
+      "title": "Staging of one episode with three turns",
+      "ask": "How does the show stage the parrot in vid-a?",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -35,7 +37,8 @@
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Measure how a video is cut and scored around a character's turns: whether a cut lands on the turn, how short the shots are inside the exchanges, and whether the music stops just before"
+      "given": "From the sample run in tools/measure-a-characters-voice-lines-and-staging/tool-rows.json: vid-a has turns [10,12], [15,17] and [40,42] (6.0 s), shots 0-9.8, 9.8-11.0, 11.0-30.0 and 30.0-60.0 at 4 cuts a minute, and one music stop-down at 0:08.50.",
+      "hands_back": "{\"result\": {\"table\": \"{grant:change-a-folder}/show/staging.tsv\", \"measured\": [\"vid-a\"]}}; the vid-a row is turns 3, character_s 6.0, cut_at_entry_share 0.33 against cut_chance_share 0.05, median_shot_in_exchange_s 10.1 against median_shot_elsewhere_s 19.9, stopdown_before_turn_share 0.33 against stopdown_chance_share 0.03."
     }
   ]
 }

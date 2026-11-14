@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:look-at-screen's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:look-at-screen with nothing more.\" See what is on the person's Mac screen right now: a picture of every display, the main one first, each with its size in pixels so an AI can point at an exact spot.",
+  "drafted_from": "tool:look-at-screen row in tools/look-at-screen/tool-rows.json, do-work/look-at-screen.mjs, read-data/rules.json and test/look-at-screen.test.mjs",
+  "start_here": "Say to your AI: \"Look at my screen now and tell me what is on it; make the pictures at most 800 pixels on the long side and include the mouse pointer.\" It runs tool:look-at-screen once and describes each display.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list: it takes a picture only when run, keeps nothing on the Mac and answers the pictures in its reply.",
   "workflows": [],
   "tools": [
     "tool:look-at-screen"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:look-at-screen\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:look-at-screen and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields looked_at, said, needs_access, error, pictures."
+    "1. Allow Screen Recording for the app that runs the tool in System Settings, Privacy & Security; without it the tool answers needs_access and captures nothing.",
+    "2. Say \"Look at my screen\"; your AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:look-at-screen, with long_edge (200 to 1600 pixels) and cursor (true to show the pointer) if you want them.",
+    "3. Read the answer: pictures has one entry per display, the main one first, each with display, main, width and height in pixels, media_type image/jpeg and base64 bytes; use the pixel sizes to point at an exact spot.",
+    "4. If the answer says the displays are too many for one answer, disconnect some or ask again; nothing is kept on the Mac either way."
   ],
   "worked_examples": [
     {
-      "title": "Look at my screen on a sample input",
-      "ask": "Run tool:look-at-screen.",
+      "title": "Two displays, main first, pointer on",
+      "ask": "Look at my screen now, small pictures, with the pointer.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -25,11 +25,15 @@
           "method": "tools:run",
           "input": {
             "tool": "tool:look-at-screen",
-            "input": {}
+            "input": {
+              "long_edge": 800,
+              "cursor": true
+            }
           }
         }
       },
-      "hands_back": "An answer with the fields looked_at, said, needs_access, error, pictures."
+      "given": "From tools/look-at-screen/test/look-at-screen.test.mjs (system commands stood in for): a Mac with two displays, Screen Recording allowed, the first picture 1600 by 900 and the second 1200 by 750 after shrinking. Read from do-work/look-at-screen.mjs: long_edge 800 is under the rules' limit of 1600 so it is used, and cursor true is passed to the capture.",
+      "hands_back": "pictures: [{display 1, main true, width 1600, height 900, media_type \"image/jpeg\", base64 ...}, {display 2, main false, width 1200, height 750, media_type \"image/jpeg\", base64 ...}] (sizes as the shrink step reports them), said \"This is what is on the screen now, the main display first; each picture gives its size in pixels.\" and looked_at a time. With Screen Recording off it answers {needs_access: \"screen-recording\", said: \"Turn on Screen Recording for the app that runs this tool in System Settings, Privacy & Security, so it can see your screen when you ask.\"} and captures nothing."
     }
   ]
 }

@@ -1,35 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:github:systran-faster-whisper's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:github:systran-faster-whisper with nothing more.\" Transcribe speech to text in Python with Whisper models, several times faster",
+  "drafted_from": "tool:github:systran-faster-whisper's row in tools/tools-from-github/tool-rows.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic names filled in. What it prints or writes is read from the tool's documented behavior; the folder test test/index-github-tools.test.mjs only checks the row, never runs faster-whisper.",
+  "start_here": "Say to your AI: \"Use faster-whisper on my computer to transcribe speech to text in Python with Whisper models: the file is memo.mp3.\" It reads the row, installs faster-whisper if it is missing, runs it on that one file and shows you what it made.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: faster-whisper is a program that runs on the person's own computer and works on the one file or address it is handed.",
   "workflows": [],
   "tools": [
     "tool:github:systran-faster-whisper"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:github:systran-faster-whisper\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:github:systran-faster-whisper and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Transcribe speech to text in Python with Whisper models, several times faster"
+    "1. Say to your AI: \"Use faster-whisper on memo.mp3\". It reads the row with run_resource_operation at @workshop-tools, method tools:list, input {tool: \"tool:github:systran-faster-whisper\"}.",
+    "2. It checks that python are on your computer, and if faster-whisper is missing it runs the get_it steps: git clone https://github.com/SYSTRAN/faster-whisper.git ; pip install faster-whisper.",
+    "3. It runs the row's command with your file in place of {input}: python -c \"from faster_whisper import WhisperModel; m = WhisperModel('small', device='cpu', compute_type='int8'); print(' '.join(s.text for s in m.transcribe('memo.mp3')[0]))\"",
+    "4. Read what it shows you and open the result. Trillion runs none of this; it all happens on your own computer."
   ],
   "worked_examples": [
     {
-      "title": "faster-whisper (open source, runs on your computer) on a sample input",
-      "ask": "Run tool:github:systran-faster-whisper.",
+      "title": "faster-whisper on a 40 second voice memo from Sam, a baker, about this week's orders",
+      "ask": "Use faster-whisper on memo.mp3.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:github:systran-faster-whisper",
-            "input": {}
+            "tool": "tool:github:systran-faster-whisper"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Transcribe speech to text in Python with Whisper models, several times faster"
+      "given": "Read from tools/tools-from-github/tool-rows.json: tool:github:systran-faster-whisper runs on your computer, so after tools:list the AI runs, in the folder it got faster-whisper in, the command line: python -c \"from faster_whisper import WhisperModel; m = WhisperModel('small', device='cpu', compute_type='int8'); print(' '.join(s.text for s in m.transcribe('memo.mp3')[0]))\"  (synthetic input: a 40 second voice memo from Sam, a baker, about this week's orders).",
+      "hands_back": "The one-line Python program prints the whole transcript as one line of text, for example \"Hi, this is Sam. We need forty loaves for Friday and two dozen cinnamon rolls for the school fair.\" Nothing is written to a file."
     }
   ]
 }

@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "tool:publish-a-checked-filmcraft-preview's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:publish-a-checked-filmcraft-preview with request.\" Move a finished option preview into its previews folder, and put it in my watch folder only after it was checked",
+  "drafted_from": "tool:publish-a-checked-filmcraft-preview's row, do-work/publish_preview.py and test/test_filmcraft_preview.py",
+  "start_here": "Say to your AI: \"Publish the built preview of option x05-r4-1 in /films/made-up-film into its previews folder, and put it in my watch folder only after the rendered-video check passed.\" It runs publish first and watch only when the check allows it.",
   "lists": [
     {
       "list": "list:settings",
@@ -108,37 +107,35 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
-    "tool:publish-a-checked-filmcraft-preview",
-    "tool:check-a-rendered-video"
+    "tool:check-a-rendered-video",
+    "tool:pour-example-rows-into-my-list",
+    "tool:publish-a-checked-filmcraft-preview"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:publish-a-checked-filmcraft-preview\", and give it request.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:publish-a-checked-filmcraft-preview and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields result, error."
+    "1. Pour the two example setting rows into your own settings list (see pour) and fill the film's row with preview.frame, preview.content_gate and the layout.",
+    "2. Build the preview first with tool:build-a-filmcraft-option-preview so it sits in work-round-<n>/pending/.",
+    "3. Say what you said in start_here. Your AI reads the row with tools:list and runs `python3 tools/put-picked-options-into-a-filmcraft-project/do-work/publish_preview.py /films/made-up-film/request.json` with action publish.",
+    "4. Run tool:check-a-rendered-video on the published file, then run the same command with action watch. If it refuses, read why and fix that; never copy the file into the watch folder another way."
   ],
   "worked_examples": [
     {
-      "title": "Publish a checked option preview, then put it in my watch folder (runs on your computer) on a sample input",
-      "ask": "Run tool:publish-a-checked-filmcraft-preview.",
+      "title": "A built preview is published; watch is refused until the rendered-video check ran",
+      "ask": "Publish option x05-r4-1's preview and then put it in my watch folder.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:publish-a-checked-filmcraft-preview",
-            "input": {
-              "request": "<request: A JSON file on the person's computer holding the request, put where {request} is in the command>"
-            }
+            "tool": "tool:publish-a-checked-filmcraft-preview"
           }
         }
       },
-      "hands_back": "An answer with the fields result, error.",
-      "given": "The person gives: request (shown as <name> in the input)."
+      "given": "From tools/put-picked-options-into-a-filmcraft-project/test/test_filmcraft_preview.py (publish_moves_a_whole_preview_and_refuses_a_wrong_one, watch_needs_the_check_the_gate_and_a_watch_name), run for real on its made-up film after the build of x05-r4-1 (preview range 38.0 to 58.0). The AI runs `python3 tools/put-picked-options-into-a-filmcraft-project/do-work/publish_preview.py /films/made-up-film/request.json` with request.json = {\"film\":\"/films/made-up-film\",\"option\":\"x05-r4-1\",\"action\":\"publish\",\"settings\":{...}}. A second request with \"action\":\"watch\" is the refusal shown.",
+      "hands_back": "publish: {\"result\":{\"published\":[{\"option\":\"x05-r4-1\",\"preview\":\"/films/made-up-film/cuts/options-one/previews-round-4/x05-r4-1.mp4\",\"duration_s\":20.0}]}} and the mp4 and its jpg moved out of work-round-4/pending. watch before any check: {\"error\":\"x05-r4-1: the rendered-video check has not been run on /films/made-up-film/cuts/options-one/previews-round-4/x05-r4-1.mp4 (expected /films/made-up-film/cuts/options-one/work-round-4/qa/x05-r4-1.json, newer than the preview)\"} and the watch folder stays empty."
     }
   ],
   "pour": {

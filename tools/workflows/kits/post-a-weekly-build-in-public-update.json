@@ -1,26 +1,27 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:post-a-weekly-build-in-public-update's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:post-a-weekly-build-in-public-update.\" Every week, build the person's public update from what really happened: read the changes this week in the lists and records the person names, pick the numbers that moved (each with the record it comes from), one setback or mistake that really happened, and what the person promised last week and whether it was done; draft one update per platform the person names, each written the way that platform reads (its first line, length and tone), check every word against the person's own rules, and have the person approve the exact words and post them.",
+  "drafted_from": "workflow:post-a-weekly-build-in-public-update's row in tools/workflows/recipes/workflows.json (its job, input schema and the step named in the worked example)",
+  "start_here": "Say to your AI: \"Run workflow:post-a-weekly-build-in-public-update from my tasks and sales records, for X and LinkedIn, never naming customers.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It reads the person's own records named in its input and keeps one post-a-weekly-build-in-public record of its own, so it ships no list.",
   "workflows": [
     "workflow:post-a-weekly-build-in-public-update"
   ],
   "tools": [
+    "tool:start-a-recipe-run",
     "tool:check-against-a-persons-rules-and-verdicts",
     "tool:read-a-page-in-my-browser",
     "tool:tell-the-person"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:post-a-weekly-build-in-public-update\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:post-a-weekly-build-in-public-update) and works through its steps in order: read-week, pick, draft, check-words, approve-and-post, record.",
-    "3. Read what each step hands back; the last step is record."
+    "1. Name the record kinds or lists that show your work in lists (for example \"tasks\" and \"sales\"), the platforms you post on, your word rules and the words you never share (private).",
+    "2. Say \"Run workflow:post-a-weekly-build-in-public-update\" with them. It reads what changed in the last 7 days (read-week) and picks up to 3 numbers that moved, one real setback and whether last week's promise was kept (pick).",
+    "3. It reads your last 5 posts on each platform to match length and opening, writes one draft per platform (draft) and checks every word against your rules (check-words).",
+    "4. Approve each draft exactly as written (approve-and-post), post it yourself, and it keeps the week and next week's promise as a record (record)."
   ],
   "worked_examples": [
     {
-      "title": "Post a weekly build-in-public update from its first step",
-      "ask": "Run workflow:post-a-weekly-build-in-public-update.",
+      "title": "Pick the numbers that moved and the real setback",
+      "ask": "Run workflow:post-a-weekly-build-in-public-update for my tasks and sales, on X and LinkedIn.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,22 +33,29 @@
             "input": {
               "row": "workflow:post-a-weekly-build-in-public-update",
               "lists": [
-                "<lists: string>"
+                "tasks",
+                "sales"
               ],
               "platforms": [
-                "<platforms: string>"
+                "x",
+                "linkedin"
               ],
               "rules": [
-                {}
+                {
+                  "id": "no-unlimited-claims"
+                }
+              ],
+              "private": [
+                "customer names"
               ]
             }
           }
         }
       },
       "workflow": "workflow:post-a-weekly-build-in-public-update",
-      "step": "read-week",
-      "hands_back": "Step read-week answers with changes.",
-      "given": "The person gives: lists, platforms (shown as <name> in the input)."
+      "step": "pick",
+      "given": "Read from tools/workflows/recipes/workflows.json, step pick: from the read-week changes it picks up to 3 numbers each with what, before, now and record_id, exactly one real setback, and promise_kept. Say read-week found sales going from 12 to 19 (record sales:week-46), sign-ups from 40 to 52 (record signups:week-46) and a task \"ship the reminder email\" that slipped (record task:reminder-email), with last week's promise \"ship the reminder email\" not done.",
+      "hands_back": "{\"numbers\":[{\"what\":\"Sales this week\",\"before\":12,\"now\":19,\"record_id\":\"sales:week-46\"},{\"what\":\"New sign-ups\",\"before\":40,\"now\":52,\"record_id\":\"signups:week-46\"}],\"setback\":{\"what\":\"The reminder email slipped a week because the sending address was not verified.\",\"record_id\":\"task:reminder-email\"},\"promise_kept\":\"not-kept\",\"next_promise\":\"Ship the reminder email by Friday.\"}"
     }
   ]
 }

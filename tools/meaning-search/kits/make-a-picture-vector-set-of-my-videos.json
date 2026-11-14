@@ -1,9 +1,8 @@
 {
-  "draft": true,
-  "drafted_from": "tool:make-a-picture-vector-set-of-my-videos's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:make-a-picture-vector-set-of-my-videos with nothing more.\" Turn a folder of my videos into a set of picture vectors, one frame every few seconds with its time, so I can find moments by what they show",
+  "drafted_from": "tools/meaning-search/tool-rows.json (tool:make-a-picture-vector-set-of-my-videos), do-work/make_picture_vector_set.py, test/synthetic_picture_set.py and the test \"make_picture_vector_set keeps one frame every two seconds\" in test/meaning-search.test.mjs; the answer was produced by running the builder on two synthetic videos",
+  "start_here": "Say to your AI: \"Make a searchable set of what the videos in my card folder show, one frame every 2 seconds, so I can find moments by what they show.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads a folder of videos and writes four files (frames.npy, frames.jsonl, done.json, vector-set.json) into an output folder on your computer.",
   "workflows": [],
   "tools": [
     "tool:make-a-picture-vector-set-of-my-videos",
@@ -11,27 +10,28 @@
     "tool:words-as-picture-vector"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:make-a-picture-vector-set-of-my-videos\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:make-a-picture-vector-set-of-my-videos and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Turn a folder of my videos into a set of picture vectors, one frame every few seconds with its time, so I can find moments by what they show"
+    "1. Say which folder of videos to read and where the set goes. The AI reads this tool's row with tools:list, installs what get_it names if missing (the Workshop clone, ffmpeg, numpy, torch, open_clip_torch, pillow), and never writes in your videos folder.",
+    "2. The AI runs the command with those two folders: python3 trillion-workshop/tools/meaning-search/do-work/make_picture_vector_set.py --videos <folder of videos> --out <folder of the set>. Add --pattern \"*.MP4\" for some files, --every N for a frame every N seconds, --lut FILE.cube for log footage, --proxy for smaller copies. It can run for hours on a big card; run it again to go on where it stopped.",
+    "3. Read the last line it prints: {\"result\": {\"frames\", \"added\", \"videos_done\", \"out\"}}. Run it again on the same --out after a new card and only the new videos are added.",
+    "4. Put the vector_set member of <out>/vector-set.json, with the model it names, into a semantic-index-descriptor record of yours, then search it with tool:find-similar-to-a-vector (words become a query vector with tool:words-as-picture-vector)."
   ],
   "worked_examples": [
     {
-      "title": "Make a searchable set of what my videos show (runs on your computer) on a sample input",
-      "ask": "Run tool:make-a-picture-vector-set-of-my-videos.",
+      "title": "Two videos become five timed frames",
+      "ask": "Make a searchable set of what the videos in my card folder show, one frame every 2 seconds.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:make-a-picture-vector-set-of-my-videos",
-            "input": {}
+            "tool": "tool:make-a-picture-vector-set-of-my-videos"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Turn a folder of my videos into a set of picture vectors, one frame every few seconds with its time, so I can find moments by what they show"
+      "given": "From tools/meaning-search/test/synthetic_picture_set.py and the builder in do-work/make_picture_vector_set.py, run on this computer with the test's stand-in picture model (a frame's mean colour) in place of CLIP, because CLIP is not installed here; frames, times and files are the same for either model. Folder card/CLIP holds red-take.mp4 (a red picture, 6 seconds) and blue-take.mp4 (a blue picture, 4 seconds), a key frame every half second. The command the AI runs after reading the row: python3 trillion-workshop/tools/meaning-search/do-work/make_picture_vector_set.py --videos card/CLIP --out set",
+      "hands_back": "{\"result\": {\"frames\": 5, \"added\": 5, \"videos_done\": 2, \"out\": \"set\"}} is the last line (out is the absolute path of the folder you gave). set/frames.jsonl then holds 5 rows: blue-take.mp4 at t 0.0 and 2.0, red-take.mp4 at t 0.0, 2.0 and 4.0, each with video, path and decoded; set/done.json is [\"blue-take.mp4\", \"red-take.mp4\"]; set/vector-set.json holds {\"vector_set\": {\"items\": {\"file\": \"<out>/frames.jsonl\"}, \"vectors\": {\"file\": \"<out>/frames.npy\"}, \"points_to\": {\"file\": \"path\", \"start\": \"t\"}}, \"model\": \"<model that made them>\", \"every_seconds\": 2.0, \"frames\": 5}."
     }
   ]
 }

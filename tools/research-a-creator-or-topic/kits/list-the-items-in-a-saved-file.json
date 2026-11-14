@@ -1,35 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:list-the-items-in-a-saved-file's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:list-the-items-in-a-saved-file with nothing more.\" Read a list the person saved in a file (bookmarks, a source list, an exported set of rows, a browser's saved tabs) into items to research",
+  "drafted_from": "tools/research-a-creator-or-topic/tool-rows.json (tool:list-the-items-in-a-saved-file), do-work/research-from-this-computer.mjs (savedList) and sources.mjs, test/commands.test.mjs; the example was run here on synthetic files",
+  "start_here": "Say to your AI: \"Read my saved list in bookmarks.json into items I can research, and tell me what it holds.\" It runs the saved-list command on your computer and reads the items from the file it writes.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads one JSON file you saved on your computer and writes its items to another JSON file.",
   "workflows": [],
   "tools": [
     "tool:list-the-items-in-a-saved-file"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:list-the-items-in-a-saved-file\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-the-items-in-a-saved-file and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Read a list the person saved in a file (bookmarks, a source list, an exported set of rows, a browser's saved tabs) into items to research"
+    "1. Clone the Workshop repository; the only thing needed is node. Nothing leaves your computer.",
+    "2. Point at the file: a JSON array of rows, or an object holding rows under sources, bookmarks, items, records, rows or data, or a browser sidebar file (--shape browser-sidebar).",
+    "3. The AI reads the row with tools:list {tool: \"tool:list-the-items-in-a-saved-file\"} and runs: node trillion-workshop/tools/research-a-creator-or-topic/do-work/research-from-this-computer.mjs saved-list --file bookmarks.json --out items.json (add --limit N to cut the list; 5000 is the most).",
+    "4. Read the last line, {\"result\": {source, subject_ref, count, out}}, then items.json: each row has item_id, title, url, published, description, source_family, source_type, container_path, license_status (unknown when the row says nothing) and lifecycle_status. A failure prints {\"failed\": {code, message}} with exit 2: bad-request or unreadable-file."
   ],
   "worked_examples": [
     {
-      "title": "List the items in a list saved on your computer (runs on your computer) on a sample input",
-      "ask": "Run tool:list-the-items-in-a-saved-file.",
+      "title": "Two saved bookmarks become two items",
+      "ask": "Read my saved list in bookmarks.json into items to research.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:list-the-items-in-a-saved-file",
-            "input": {}
+            "tool": "tool:list-the-items-in-a-saved-file"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Read a list the person saved in a file (bookmarks, a source list, an exported set of rows, a browser's saved tabs) into items to research"
+      "given": "Read from tools/research-a-creator-or-topic/do-work/research-from-this-computer.mjs and sources.mjs and run here on a synthetic file: /work/bookmarks.json is [{\"id\":\"a\",\"title\":\"Rye starter guide\",\"url\":\"https://example.com/rye\"},{\"id\":\"b\",\"title\":\"Hydration table\",\"url\":\"https://example.com/hydration\"}]. The AI runs: node trillion-workshop/tools/research-a-creator-or-topic/do-work/research-from-this-computer.mjs saved-list --file /work/bookmarks.json --out items.json",
+      "hands_back": "{\"result\":{\"source\":\"Saved array\",\"subject_ref\":\"/work/bookmarks.json\",\"count\":2,\"out\":\"items.json\"}} and items.json holds two items, the first {\"item_id\":\"a\",\"title\":\"Rye starter guide\",\"source_family\":\"Saved array\",\"source_type\":\"item\",\"container_path\":\"\",\"url\":\"https://example.com/rye\",\"published\":\"\",\"description\":\"\",\"license_status\":\"unknown\",\"lifecycle_status\":\"observed\"}. A file that does not exist ends with {\"failed\":{\"code\":\"unreadable-file\",\"message\":\"/work/none.json could not be read.\"}} and exit 2."
     }
   ]
 }

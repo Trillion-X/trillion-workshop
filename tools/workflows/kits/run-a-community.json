@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:run-a-community's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:run-a-community.\" Check a community exists, advance its matchmaker, answer members in the person's words, and record what no live tool gives (creating a community and removing a member).",
+  "drafted_from": "tools/workflows/recipes/workflows.json (the workflow:run-a-community row: steps check-the-community-exists, advance-the-matchmaker, record-the-stage); no test names it",
+  "start_here": "Say to your AI: \"Run workflow:run-a-community for my bakery club: check the community exists, advance its matchmaker and answer one member, using my business facts row.\"",
   "lists": [
     {
       "list": "list:business-setup-checklist",
@@ -59,25 +58,26 @@
       ],
       "example_rows": [
         {
-          "id": "replies",
+          "id": "community",
           "values": {
-            "stage": "replies",
-            "label": "Comments and messages",
+            "stage": "community",
+            "label": "Community",
             "status": "Gap",
-            "steps_status": "{\"read-facts\":\"Done\",\"pull-messages\":\"Done\",\"read-reply-templates\":\"Done\",\"pick-a-template\":\"Done\",\"fill-the-replies\":\"Done\",\"check-the-replies\":\"Done\",\"hand-the-replies-to-the-person\":\"Gap\"}",
+            "steps_status": "{\"read-facts\":\"Done\",\"check-the-community-exists\":\"Gap\",\"advance-the-matchmaker\":\"Not done\",\"answer-a-member\":\"Not done\",\"record-the-gaps-for-the-community\":\"Done\"}",
             "gaps": [
-              "record:setup-gap:hand-the-replies-to-the-person-1"
+              "record:setup-gap:check-the-community-exists-1",
+              "record:setup-gap:record-the-gaps-for-the-community-1"
             ],
             "updated_at": "2026-11-13"
           }
         },
         {
-          "id": "social-posting",
+          "id": "retention-and-referral",
           "values": {
-            "stage": "social-posting",
-            "label": "Posting on social channels",
+            "stage": "retention-and-referral",
+            "label": "Retention and referral",
             "status": "Not done",
-            "steps_status": "",
+            "steps_status": "{}",
             "gaps": [],
             "updated_at": "2026-11-13"
           }
@@ -143,24 +143,24 @@
       ],
       "example_rows": [
         {
-          "id": "hand-the-replies-to-the-person-1",
+          "id": "check-the-community-exists-1",
           "values": {
-            "stage": "replies",
-            "step": "hand-the-replies-to-the-person",
-            "undecided": "No live tool sends an Instagram direct-message reply.",
-            "chosen": "Handed 3 checked replies to the person to send by hand.",
-            "evidence": "The live catalog has no send tool for Instagram direct messages.",
+            "stage": "community",
+            "step": "check-the-community-exists",
+            "undecided": "facts.community_id was empty, and no live tool creates a community.",
+            "chosen": "Submitted exists false with the gap and ran no matchmaker step.",
+            "evidence": "The facts row had no community_id; the row says run-a-community is not a live tool.",
             "status": "open"
           }
         },
         {
-          "id": "pull-messages-1",
+          "id": "record-the-gaps-for-the-community-1",
           "values": {
-            "stage": "replies",
-            "step": "pull-messages",
-            "undecided": "Instagram sign-in expired.",
-            "chosen": "Submitted status needs_login and pulled nothing.",
-            "evidence": "tool:pull-my-instagram-messages answered needs_login.",
+            "stage": "community",
+            "step": "record-the-gaps-for-the-community",
+            "undecided": "No live tool moves a member out of a community.",
+            "chosen": "Wrote a gap row for creating the community and one for removing a member.",
+            "evidence": "The step text names both as missing from the live catalog.",
             "status": "open"
           }
         }
@@ -172,7 +172,6 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
     "workflow:run-a-community",
     "workflow:set-up-a-business-on-trillion"
@@ -183,14 +182,15 @@
     "tool:read-my-community-matches"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:run-a-community\".",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:run-a-community) and works through its steps in order: read-facts, check-the-community-exists, advance-the-matchmaker, answer-a-member, record-the-gaps-for-the-community, record-the-stage.",
-    "3. Read what each step hands back; the last step is record-the-stage."
+    "1. Pour the example checklist rows into the checklist you already keep (see pour), or make list:business-setup-checklist and list:business-setup-gaps from them.",
+    "2. Write record:business-setup:facts first with workflow:set-up-a-business-on-trillion; put your community id in it as community_id when you have one.",
+    "3. Say \"Run workflow:run-a-community\". With a community id it reads tool:read-my-community-matches, advances the matchmaker once per day (the same request key replays instead of running twice) and answers a member through tool:answer-in-a-community.",
+    "4. With no community id it submits a gap instead: no live tool creates a community or removes a member. Read record:setup-stage:community on the checklist for the final status."
   ],
   "worked_examples": [
     {
-      "title": "Run a community from its first step",
-      "ask": "Run workflow:run-a-community.",
+      "title": "No community id yet: the stage reports a gap instead of guessing",
+      "ask": "Check my community exists.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -206,8 +206,31 @@
         }
       },
       "workflow": "workflow:run-a-community",
-      "step": "read-facts",
-      "hands_back": "Step read-facts answers with facts."
+      "step": "check-the-community-exists",
+      "given": "Read from the step in tools/workflows/recipes/workflows.json: record:business-setup:facts has no community_id, so the step makes no tool call and takes its gap branch.",
+      "hands_back": "{\"exists\":false,\"gap\":\"no community id; no community tool creates one in the live catalog (run-a-community is not a live tool)\"}"
+    },
+    {
+      "title": "A community id is set: the matchmaker advances once",
+      "ask": "Advance my community matchmaker for today.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:run-a-community"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:run-a-community",
+      "step": "advance-the-matchmaker",
+      "given": "Read from the step: facts.community_id is \"community:bakery-club\" and today is 2026-11-13. The AI calls tool:advance-a-community-matchmaker with {\"community_id\":\"community:bakery-club\",\"request_key\":\"business-setup-2026-11-13\"}; a second call with that key is a replay, not a second run.",
+      "hands_back": "{\"advanced\":true}"
     }
   ],
   "pour": {

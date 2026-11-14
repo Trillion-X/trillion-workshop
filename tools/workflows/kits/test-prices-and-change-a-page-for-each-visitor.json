@@ -1,7 +1,5 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:test-prices-and-change-a-page-for-each-visitor's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:test-prices-and-change-a-page-for-each-visitor.\" Run price tests and A/B tests on a page for as long as the person wants, and change the page per visitor: write each part of the page that changes (a price card, a headline, an offer) as a set of versions with a rule that picks one, make a tracked link for every place the page is shared so each visit says where it came from, show each visitor one version and keep showing them the same one, credit sign-ups and payments to the version each person saw, and every week read which version did best by source.",
+  "start_here": "Say to your AI: \"Run workflow:test-prices-and-change-a-page-for-each-visitor on https://example.com/pricing: the plan card has three versions, 9, 12 and 15 a month; the page is shared in my newsletter and on a social ad account; count sign-ups and payments.\"",
   "lists": [],
   "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
@@ -13,17 +11,20 @@
     "tool:credit-outcomes-to-candidates",
     "tool:make-tracked-link",
     "tool:read-experiment-results",
-    "tool:tell-the-person"
+    "tool:tell-the-person",
+    "tool:start-a-recipe-run"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:test-prices-and-change-a-page-for-each-visitor\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:test-prices-and-change-a-page-for-each-visitor) and works through its steps in order: write-the-versions, make-tracked-links, choose-per-visitor, credit-and-read, next-round.",
-    "3. Read what each step hands back; the last step is next-round."
+    "1. Have the page address ready, each part of it that changes with its versions (for example the plan card: 9, 12, 15), the places you share it (a newsletter, an ad account) and what counts as a result (signed up, paid). No list is needed: the versions and the rule are kept as records the workflow writes.",
+    "2. Say \"Run workflow:test-prices-and-change-a-page-for-each-visitor\" with page, parts (each with its versions), and optionally channels, known_facts and outcomes.",
+    "3. Read every version's words and every rule it shows you in plain words and approve only the ones you want; nothing changes for visitors before your yes, and a new price goes live only once your payment provider holds it.",
+    "4. Use the tracked link it makes for each place you share the page; a visit through a link carries its source, so each visitor sees one version and keeps seeing it.",
+    "5. Each week read the counts per version and per source; a version with fewer than 100 views is reported as too early, not as a winner. Say yes to settle, add a version, remove one or keep going."
   ],
   "worked_examples": [
     {
-      "title": "Test prices and change a page for each visitor from its first step",
-      "ask": "Run workflow:test-prices-and-change-a-page-for-each-visitor.",
+      "title": "A newsletter gets its own tracked link to the pricing page",
+      "ask": "Make me a tracked link for my newsletter for the price test.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -34,23 +35,33 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:test-prices-and-change-a-page-for-each-visitor",
-              "page": "<page: The address of the page that changes>",
+              "page": "https://example.com/pricing",
               "parts": [
                 {
-                  "part": "<part: The part of the page that changes, for example the plan card or the headline>",
+                  "part": "the plan card",
                   "versions": [
-                    "<versions: string>"
+                    "9 a month",
+                    "12 a month",
+                    "15 a month"
                   ]
                 }
+              ],
+              "channels": [
+                "newsletter"
+              ],
+              "outcomes": [
+                "signed up",
+                "paid"
               ]
             }
           }
         }
       },
       "workflow": "workflow:test-prices-and-change-a-page-for-each-visitor",
-      "step": "write-the-versions",
-      "hands_back": "Step write-the-versions answers with surfaces, approved.",
-      "given": "The person gives: page, part, versions (shown as <name> in the input)."
+      "step": "make-tracked-links",
+      "given": "Read from tools/traffic-attribution/do-work/make-a-tracked-link.mjs (run with destination https://example.com/pricing, project bakery-pricing, source newsletter, campaign nov-price-test, medium email; the tool also requires a project id, which the step's own input does not list).",
+      "hands_back": "{\"links\":[{\"channel\":\"newsletter\",\"url\":\"https://example.com/pricing?bf_project=bakery-pricing&utm_source=newsletter&utm_campaign=nov-price-test&utm_medium=email\"}]}"
     }
-  ]
+  ],
+  "drafted_from": "workflow:test-prices-and-change-a-page-for-each-visitor row and tools/traffic-attribution/do-work/make-a-tracked-link.mjs run on the example input"
 }

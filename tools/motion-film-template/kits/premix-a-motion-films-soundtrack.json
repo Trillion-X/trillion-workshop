@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "tool:premix-a-motion-films-soundtrack's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:premix-a-motion-films-soundtrack with input.\" Mix my film's soundtrack: the music bed ducked under the voice, every voice line and every sound effect on the frame of its picture event, at the loudness I chose",
+  "drafted_from": "tools/motion-film-template/tool-rows.json (tool:premix-a-motion-films-soundtrack), do-work/premix_soundtrack.py, test/test_premix_soundtrack.py (RunTest, PlanTest); list:settings read with records:read; the answer was produced by running the script with ffmpeg tones",
+  "start_here": "Say to your AI: \"Mix the soundtrack for my sample film from its cue sheet: the music bed ducked under both voice lines, and three sound effects on their frames.\" It writes the request file and runs the premix on your computer.",
   "lists": [
     {
       "list": "list:settings",
@@ -77,27 +76,27 @@
       ],
       "example_rows": [
         {
-          "id": "caption-style",
+          "id": "sample-film-soundtrack",
           "values": {
-            "name": "Caption style",
-            "tool": "tool:example-captioner",
-            "scope_kind": "person",
-            "scope_id": "example-person",
-            "settings": "{\"style\":\"plain\",\"size\":\"large\"}",
+            "name": "Sample film soundtrack",
+            "tool": "tool:premix-a-motion-films-soundtrack",
+            "scope_kind": "film",
+            "scope_id": "sample-film",
+            "settings": "{\"duration\":6,\"music\":{\"file\":\"{sound}/music/bed.wav\",\"start\":2,\"fade_out\":1.5},\"gain\":{\"base\":-6,\"duck\":-8},\"loudness\":{\"method\":\"none\"},\"after_mix\":\"loudnorm=I=-14:TP=-1.5:LRA=11\"}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         },
         {
-          "id": "quiet-hours",
+          "id": "second-film-soundtrack",
           "values": {
-            "name": "Quiet hours",
-            "tool": "tool:example-notifier",
-            "scope_kind": "account",
-            "scope_id": "whole-account",
-            "settings": "{\"from\":\"22:00\",\"to\":\"07:00\"}",
+            "name": "Second film soundtrack",
+            "tool": "tool:premix-a-motion-films-soundtrack",
+            "scope_kind": "film",
+            "scope_id": "second-film",
+            "settings": "{\"duration\":30,\"gain\":{\"base\":-9,\"duck\":-6},\"loudness\":{\"method\":\"linear-two-pass\",\"target_i\":-14.5}}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         }
       ],
@@ -108,79 +107,78 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
     "tool:premix-a-motion-films-soundtrack",
-    "tool:plan-a-motion-films-soundtrack-premix"
+    "tool:plan-a-motion-films-soundtrack-premix",
+    "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:premix-a-motion-films-soundtrack\", and give it input.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:premix-a-motion-films-soundtrack and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Mix my film's soundtrack: the music bed ducked under the voice, every voice line and every sound effect on the frame of its picture event, at the loudness I chose"
+    "1. Pour the two example settings rows into your own options list (see pour), or make list:settings from them, and put your film's music file, start, gain windows and loudness choice in its row (record:setting:motion-film-template~film~<film>).",
+    "2. Optionally run tool:plan-a-motion-films-soundtrack-premix first to see the ffmpeg commands without making anything.",
+    "3. Say \"Mix the soundtrack for my film\". The AI reads the row with tools:list, writes a request file ({cue_sheet, film_folder, sound_folder, settings, run: true}) and runs python3 trillion-workshop/tools/motion-film-template/do-work/premix_soundtrack.py < request.json where your recordings are (needs ffmpeg).",
+    "4. Read the last line it prints: {\"result\": {\"out\", \"DUR\", \"method\", \"counts\", ...}} and play the wav at out. For a two-pass method it also gives measured_i and output_i, the loudness before and after."
   ],
   "worked_examples": [
     {
-      "title": "Premix a motion film's soundtrack from its cue sheet (runs on your computer) on a sample input",
-      "ask": "Run tool:premix-a-motion-films-soundtrack.",
+      "title": "Two voice lines and three effects mixed to one 6-second wav with no loudness pass",
+      "ask": "Mix the soundtrack for my sample film from its cue sheet.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:premix-a-motion-films-soundtrack",
-            "input": {
-              "input": "<input: The request file (JSON) on the person's computer, put where {input} is in the command: the plan tool's request with run: true and the film's settings row's settings written in as settings>"
-            }
+            "tool": "tool:premix-a-motion-films-soundtrack"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Mix my film's soundtrack: the music bed ducked under the voice, every voice line and every sound effect on the frame of its picture event, at the loudness I chose",
-      "given": "The person gives: input (shown as <name> in the input)."
+      "given": "From test/test_premix_soundtrack.py (its RunTest setup and SHEET) and do-work/premix_soundtrack.py, run on this computer with ffmpeg sine tones standing in for recordings: sound/music/bed.wav (12 s), sound/palette/whoosh.wav, tick.wav, chime.wav, films/sample/assets/vo/l01.wav and l02.wav. The request file holds {\"cue_sheet\": {\"DUR\": 6, \"VO\": [0.5, 2.3], \"voiced\": [[0.6, 1.8], [2.4, 3.5]], \"cues\": [[0, \"whoosh\", -12], [1.25, \"tick\", -18], [4, \"chime\", -9]]}, \"film_folder\": \"films/sample\", \"sound_folder\": \"sound\", \"run\": true, \"settings\": {\"music\": {\"file\": \"{sound}/music/bed.wav\", \"start\": 2, \"fade_out\": 1.5, \"chain\": \"<the music chain of the film's settings row>\"}, \"gain\": {\"base\": -6, \"duck\": -8}, \"loudness\": {\"method\": \"none\"}, \"after_mix\": \"loudnorm=I=-14:TP=-1.5:LRA=11\"}}. The AI runs: python3 trillion-workshop/tools/motion-film-template/do-work/premix_soundtrack.py < request.json",
+      "hands_back": "It prints \"wrote films/sample/assets/soundtrack.wav 6.0 s, 3 effects from 3 recordings\", and its last line is {\"result\": {\"out\": \"films/sample/assets/soundtrack.wav\", \"DUR\": 6.0, \"method\": \"none\", \"gain_segments\": [[0.0, -6.0], [0.5, -14], [2.05, -6.0], [2.3, -14], [3.75, -6.0]], \"counts\": {\"voice_lines\": 2, \"effects\": 3, \"recordings\": 3, \"inputs\": 6}}}. The file films/sample/assets/soundtrack.wav now exists and lasts 6 seconds."
     }
   ],
   "pour": {
     "tool": "tool:pour-example-rows-into-my-list",
     "least_coverage": 0.8,
-    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "how": "Name the options list you already keep and its fields. The tool matches each kit field to one of yours (by the map you give, the same id, the same label, or a name in alike), refuses when fewer than 80% of the kit's fields match, and otherwise answers the records:write that adds the example rows to your list, leaving your own rows untouched.",
     "example": {
       "kit_list": "list:settings",
       "into": {
-        "list": "list:my-settings",
-        "row_type": "record:setting",
+        "list": "list:film-options",
+        "row_type": "record:option",
         "fields": [
           {
-            "id": "name",
-            "label": "Setting"
+            "id": "title",
+            "label": "Title"
           },
           {
-            "id": "tool",
-            "label": "Tool"
+            "id": "owner",
+            "label": "Owner"
           },
           {
-            "id": "scope_kind",
-            "label": "For a"
+            "id": "applies_to",
+            "label": "Applies to"
           },
           {
-            "id": "scope_id",
-            "label": "For"
+            "id": "target",
+            "label": "Target"
           },
           {
-            "id": "settings",
-            "label": "Settings (JSON)"
+            "id": "config",
+            "label": "Config"
           },
           {
-            "id": "from",
-            "label": "From"
+            "id": "origin",
+            "label": "Origin"
           },
           {
-            "id": "status",
-            "label": "Status"
+            "id": "state",
+            "label": "State"
           }
         ]
-      }
+      },
+      "field_map": {}
     }
   }
 }

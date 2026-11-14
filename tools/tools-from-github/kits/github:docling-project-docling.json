@@ -1,35 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:github:docling-project-docling's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:github:docling-project-docling with nothing more.\" Read a document (PDF, Word, slides, scanned pages) into clean structured text, tables included",
+  "drafted_from": "tool:github:docling-project-docling's row in tools/tools-from-github/tool-rows.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic names filled in. What it prints or writes is read from the tool's documented behavior; the folder test test/index-github-tools.test.mjs only checks the row, never runs docling.",
+  "start_here": "Say to your AI: \"Use docling on my computer to read a document (PDF: the file is price-list.pdf.\" It reads the row, installs docling if it is missing, runs it on that one file and shows you what it made.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: docling is a program that runs on the person's own computer and works on the one file or address it is handed.",
   "workflows": [],
   "tools": [
     "tool:github:docling-project-docling"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:github:docling-project-docling\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:github:docling-project-docling and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Read a document (PDF, Word, slides, scanned pages) into clean structured text, tables included"
+    "1. Say to your AI: \"Use docling on price-list.pdf\". It reads the row with run_resource_operation at @workshop-tools, method tools:list, input {tool: \"tool:github:docling-project-docling\"}.",
+    "2. It checks that python are on your computer, and if docling is missing it runs the get_it steps: git clone https://github.com/docling-project/docling.git ; pip install docling.",
+    "3. It runs the row's command with your file in place of {input}: docling price-list.pdf",
+    "4. Read what it shows you and open the result. Trillion runs none of this; it all happens on your own computer."
   ],
   "worked_examples": [
     {
-      "title": "docling (open source, runs on your computer) on a sample input",
-      "ask": "Run tool:github:docling-project-docling.",
+      "title": "docling on a two page PDF price list with one table",
+      "ask": "Use docling on price-list.pdf.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:github:docling-project-docling",
-            "input": {}
+            "tool": "tool:github:docling-project-docling"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Read a document (PDF, Word, slides, scanned pages) into clean structured text, tables included"
+      "given": "Read from tools/tools-from-github/tool-rows.json: tool:github:docling-project-docling runs on your computer, so after tools:list the AI runs, in the folder it got docling in, the command line: docling price-list.pdf  (synthetic input: a two page PDF price list with one table).",
+      "hands_back": "docling reads price-list.pdf and writes price-list.md in the folder it ran in: the text as Markdown with the table rebuilt as a Markdown table (one \"|\" row per price line)."
     }
   ]
 }

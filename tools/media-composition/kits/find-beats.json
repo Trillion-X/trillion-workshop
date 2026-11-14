@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:find-beats's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:find-beats with video.\" Find the beat times in a song or in a video's soundtrack, to cut on the beat",
+  "drafted_from": "tool:find-beats's own row in tools/media-composition/tool-rows.json, tools/media-composition/do-work/detect-beats.mjs, and the script run on a synthetic 8 second clip with a click every half second",
+  "start_here": "Say to your AI: \"Find the beats in the music of my video so I can cut on them.\" It runs tool:find-beats and hands back each beat time in seconds.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It reads one video you name by its file identity and answers from that video alone, so it keeps no list of its own.",
   "workflows": [],
   "tools": [
     "tool:find-beats"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:find-beats\", and give it video.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-beats and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields result."
+    "1. Find the identity of the song or the video with the soundtrack in your files: 1f: then 64 hex.",
+    "2. Say \"Find the beats in this video\" with that identity; the tool takes no other input.",
+    "3. The AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:find-beats. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
+    "4. Read result.beats (seconds) and result.count; the answer also carries bpm, the tempo from the median gap between beats. Cut your clips on those times."
   ],
   "worked_examples": [
     {
-      "title": "Find the beats in music on a sample input",
-      "ask": "Run tool:find-beats.",
+      "title": "Clicks every half second found as beats",
+      "ask": "Find the beats in my video.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,13 +26,13 @@
           "input": {
             "tool": "tool:find-beats",
             "input": {
-              "video": "<video: The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it>"
+              "video": "1f:03d1529110c602e63aa08d9eefaa6f92e93c296efa1f0b4672acb26d3755742b"
             }
           }
         }
       },
-      "hands_back": "An answer with the fields result.",
-      "given": "The person gives: video (shown as <name> in the input)."
+      "given": "read from tools/media-composition/do-work/detect-beats.mjs and run on an 8 second clip with a loud 50 millisecond click every 0.5 seconds (a true 120 beats a minute)",
+      "hands_back": "{\"result\":{\"beats\":[0.488,0.998,1.509,2.02,2.485,2.995,3.506,4.017,4.481,4.992,5.503,6.014,6.478,6.989,7.5,7.918],\"count\":16,\"sampleRate\":22050,\"bpm\":117.4}}"
     }
   ]
 }

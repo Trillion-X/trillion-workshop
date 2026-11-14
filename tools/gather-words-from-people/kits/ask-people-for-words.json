@@ -1,0 +1,247 @@
+{
+  "drafted_from": "tool row in tools/gather-words-from-people/tool-rows.json, do-work/gather-words-on-the-records-door.mjs, read-data/gathered-words.mjs and test/gather-words.test.mjs",
+  "start_here": "Say to your AI: \"Ask Sam Example and Bo Sample for their own words about the cake order cake-2026 on list:praise; their good words are message:made-up-1 and message:made-up-2.\" It runs tool:ask-people-for-words, keeps one asked row for each and hands you each draft to send; it sends nothing.",
+  "lists": [
+    {
+      "list": "list:praise",
+      "label": "Praise",
+      "row_type": "record:praise",
+      "holds": "One row per person asked for their own words about a case: the words, the consent they gave, the reason it was the time to ask and where the row stands (asked, received, approved, declined or withdrawn).",
+      "fields": [
+        {
+          "id": "words",
+          "kind": "long-text",
+          "label": "Words",
+          "alike": [
+            "quote",
+            "testimonial",
+            "comment",
+            "feedback"
+          ]
+        },
+        {
+          "id": "who",
+          "kind": "text",
+          "label": "Speaker",
+          "alike": [
+            "name",
+            "said by",
+            "author"
+          ]
+        },
+        {
+          "id": "person",
+          "kind": "text",
+          "label": "Person id",
+          "alike": [
+            "customer id",
+            "contact id"
+          ]
+        },
+        {
+          "id": "consent",
+          "kind": "choice",
+          "label": "Consent",
+          "alike": [
+            "permission",
+            "okay to show"
+          ]
+        },
+        {
+          "id": "consent_note",
+          "kind": "long-text",
+          "label": "Consent note",
+          "alike": [
+            "permission note",
+            "how they agreed"
+          ]
+        },
+        {
+          "id": "status",
+          "kind": "choice",
+          "label": "State",
+          "alike": [
+            "stage",
+            "progress"
+          ]
+        },
+        {
+          "id": "case",
+          "kind": "text",
+          "label": "Case",
+          "alike": [
+            "order",
+            "project",
+            "course"
+          ]
+        },
+        {
+          "id": "win",
+          "kind": "text",
+          "label": "Positive word",
+          "alike": [
+            "good word",
+            "reason to ask",
+            "win reference"
+          ]
+        },
+        {
+          "id": "asked_at",
+          "kind": "date",
+          "label": "Asked at",
+          "alike": [
+            "date asked",
+            "requested on"
+          ]
+        },
+        {
+          "id": "approved_identity",
+          "kind": "text",
+          "label": "Approved identity",
+          "alike": [
+            "approval pin",
+            "approved hash"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "cake-sam",
+          "values": {
+            "words": "The cake was the best part of the day.",
+            "who": "Sam Example",
+            "person": "p1",
+            "consent": "first-name",
+            "consent_note": "Replied: yes, first name is fine",
+            "status": "received",
+            "case": "cake-2026",
+            "win": "message:made-up-1",
+            "asked_at": "2026-11-12"
+          }
+        },
+        {
+          "id": "cake-bo",
+          "values": {
+            "who": "Bo Sample",
+            "person": "p2",
+            "status": "asked",
+            "case": "cake-2026",
+            "win": "message:made-up-2",
+            "asked_at": "2026-11-12"
+          }
+        }
+      ],
+      "alike": [
+        "a testimonials spreadsheet",
+        "the reviews list in a help desk",
+        "a Notion table of customer quotes"
+      ]
+    }
+  ],
+  "workflows": [],
+  "tools": [
+    "tool:ask-people-for-words",
+    "tool:keep-the-words-a-person-gave",
+    "tool:pour-example-rows-into-my-list"
+  ],
+  "instructions": [
+    "1. Pour the two example rows into the testimonials list you already keep (see pour), or make list:praise from the ten fields above and give it a gathers block saying which field is which.",
+    "2. Say who to ask for which case, and give each person's win: the id of their own positive word (a message or record) that made this the time to ask.",
+    "3. The AI calls tools:run for tool:ask-people-for-words with list, type, case and people. Read asked (row_id, person, draft {to, subject, body}) and skipped (already_asked or no_win).",
+    "4. Send each draft yourself through a sending tool you chose; when a person replies, keep their words with tool:keep-the-words-a-person-gave."
+  ],
+  "worked_examples": [
+    {
+      "title": "Ask two people about one order",
+      "ask": "Ask Sam Example and Bo Sample for their own words about cake order cake-2026.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:ask-people-for-words",
+            "input": {
+              "list": "list:praise",
+              "type": "record:praise",
+              "case": "cake-2026",
+              "people": [
+                {
+                  "id": "p1",
+                  "name": "Sam Example",
+                  "address": "sam@example.com",
+                  "win": "message:made-up-1"
+                },
+                {
+                  "id": "p2",
+                  "name": "Bo Sample",
+                  "address": "bo@example.com",
+                  "win": "message:made-up-2"
+                }
+              ],
+              "now": "2026-11-12T20:00:00Z"
+            }
+          }
+        }
+      },
+      "given": "From tools/gather-words-from-people/test/gather-words.test.mjs (asking writes one asked row per person, returns each draft, and sends nothing), with the names changed and the row ids worked out by askedRowId in read-data/gathered-words.mjs. list:praise must hold a gathers block (a bakery list shaped like the one in test/gather-words.test.mjs: consents full-name, first-name, no-name and private, anonymous heading 'A customer', ask subject 'How did the cake go, {name}?'). Neither person has been asked for cake-2026 before.",
+      "hands_back": "{\"asked\":[{\"row_id\":\"record:praise:d9cbfc282b44d3c7c2029ca5d06c3c92\",\"person\":\"p1\",\"draft\":{\"to\":\"sam@example.com\",\"subject\":\"How did the cake go, Sam Example?\",\"body\":\"Hi Sam Example, you told us the cake was a success. Would you tell us in your own words? Reply only if you want to.\"}},{\"row_id\":\"record:praise:571ed178bf69467e02144b17044ad310\",\"person\":\"p2\",\"draft\":{\"to\":\"bo@example.com\",\"subject\":\"How did the cake go, Bo Sample?\",\"body\":\"Hi Bo Sample, you told us the cake was a success. Would you tell us in your own words? Reply only if you want to.\"}}],\"skipped\":[]} (two asked rows now exist with status asked, case cake-2026, the win and asked_at 2026-11-12T20:00:00Z; the addresses are in the drafts only, never in the rows. Asking again returns skipped [{person p1, reason already_asked},{person p2, reason already_asked}]; a person with no win is skipped as no_win.)"
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the testimonials list you already keep and its fields. The tool matches each of the ten fields of list:praise to one of yours (the map you give, the same id, the same label, or a name in alike), refuses when fewer than 80% match, and otherwise answers the records:write that adds the two example rows to your list. The list also needs its own gathers block (which field holds the words, the speaker, the consent and the state, the consents and what each state is called) before these tools take it.",
+    "example": {
+      "kit_list": "list:praise",
+      "into": {
+        "list": "list:testimonials",
+        "row_type": "record:testimonial",
+        "fields": [
+          {
+            "id": "quote",
+            "label": "Quote"
+          },
+          {
+            "id": "name",
+            "label": "Name"
+          },
+          {
+            "id": "customer_id",
+            "label": "Customer id"
+          },
+          {
+            "id": "permission",
+            "label": "Permission"
+          },
+          {
+            "id": "permission_note",
+            "label": "Permission note"
+          },
+          {
+            "id": "stage",
+            "label": "Stage"
+          },
+          {
+            "id": "order",
+            "label": "Order"
+          },
+          {
+            "id": "good_word",
+            "label": "Good word"
+          },
+          {
+            "id": "date_asked",
+            "label": "Date asked"
+          },
+          {
+            "id": "owner",
+            "label": "Owner"
+          }
+        ]
+      },
+      "field_map": {}
+    }
+  }
+}

@@ -1,55 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:route-to-the-owner-that-answers's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:route-to-the-owner-that-answers with looking_for, owners, providers, pass_when_share_correct, confidence_bands, band_when_confidence_unknown.\" Given something I am looking for and a list of places an answer could live, say which place most likely holds it, how sure that is, and which to try next",
+  "drafted_from": "tool:route-to-the-owner-that-answers row in tools/ask-a-small-model-for-a-verdict/tool-rows.json, its code in tools/ask-a-small-model-for-a-verdict/do-work/ and tools/ask-a-small-model-for-a-verdict/test/tool.test.mjs; the answers were produced by running the tool against a stand-in model server",
+  "start_here": "Say to your AI: \"Who holds the answer to 'who sells flour near the shop': the oven log or the supplier book? Ask my local model.\" It runs the router and tells you which place to look first and how.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads one request file naming your owners and the question, and answers which owner to look in.",
   "workflows": [],
   "tools": [
     "tool:route-to-the-owner-that-answers"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:route-to-the-owner-that-answers\", and give it looking_for, owners, providers, pass_when_share_correct, confidence_bands, band_when_confidence_unknown.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:route-to-the-owner-that-answers and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields looking_for, go_to, confidence, what_to_do, how, then_try."
+    "1. Write your owners: [{id, holds, ask (how to look there), for_example: [questions that owner answers]}], at least two.",
+    "2. Write /work/judge/request.json with owners, looking_for, providers, and your bars: pass_when_share_correct (0 to 1), confidence_bands [{at_least, then}] and band_when_confidence_unknown. These bars are yours; the tool refuses without them.",
+    "3. Say \"Route my question\". The AI reads the row with tools:list and runs: node tools/ask-a-small-model-for-a-verdict/do-work/ask-a-small-model.mjs route < /work/judge/request.json.",
+    "4. Read the last line: result.go_to (the owner), result.how, result.what_to_do (the band your bars draw) and result.then_try (the next owners)."
   ],
   "worked_examples": [
     {
-      "title": "Pick which of my places holds the answer to what I am looking for (runs on your computer) on a sample input",
-      "ask": "Run tool:route-to-the-owner-that-answers.",
+      "title": "A flour question goes to the supplier book",
+      "ask": "Where do I look for who sells flour near the shop?",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:route-to-the-owner-that-answers",
-            "input": {
-              "looking_for": "<looking_for: string>",
-              "owners": [
-                {
-                  "id": "<id: string>",
-                  "holds": "<holds: string>"
-                }
-              ],
-              "providers": [
-                {}
-              ],
-              "pass_when_share_correct": "<pass_when_share_correct: The share of the owners' own examples a model must file back under the right owner>",
-              "confidence_bands": [
-                {
-                  "at_least": "<at_least: number>",
-                  "then": "<then: string>"
-                }
-              ],
-              "band_when_confidence_unknown": "<band_when_confidence_unknown: What to do when a model answers with no probability>"
-            }
+            "tool": "tool:route-to-the-owner-that-answers"
           }
         }
       },
-      "hands_back": "An answer with the fields looking_for, go_to, confidence, what_to_do, how, then_try.",
-      "given": "The person gives: looking_for, id, holds, pass_when_share_correct, at_least, then, band_when_confidence_unknown (shown as <name> in the input)."
+      "given": "From tools/ask-a-small-model-for-a-verdict/test/tool.test.mjs (test \"route: the owner whose examples match is picked...\"), run for real against a stand-in model server that picks the second owner for questions mentioning flour. Request: {\"owners\": [{\"id\": \"oven-log\", \"holds\": \"what was baked and when\", \"ask\": \"read the oven log\", \"for_example\": [\"when did the rye come out\", \"how many loaves did the oven take\"]}, {\"id\": \"supplier-book\", \"holds\": \"who sells flour and at what price\", \"ask\": \"open the supplier book\", \"for_example\": [\"who sells the cheapest flour\", \"what does a sack of flour cost\"]}], \"looking_for\": \"who sells flour near the shop\", \"providers\": [{\"via\": \"locally-served\", \"endpoint\": \"http://127.0.0.1:11434\", \"timeout_seconds\": 30, \"protocol\": \"ollama\"}], \"pass_when_share_correct\": 0.9, \"confidence_bands\": [{\"at_least\": 0.6, \"then\": \"go-there\"}, {\"at_least\": 0, \"then\": \"look-in-the-top-two\"}], \"band_when_confidence_unknown\": \"look-in-the-top-two\"}. Command: node tools/ask-a-small-model-for-a-verdict/do-work/ask-a-small-model.mjs route < /work/judge/request.json",
+      "hands_back": "Last line: {\"result\": {\"looking_for\": \"who sells flour near the shop\", \"go_to\": \"supplier-book\", \"confidence\": null, \"what_to_do\": \"look-in-the-top-two\", \"how\": \"open the supplier book\", \"then_try\": []}}. The model's confidence is unknown (a chat model gives none), so the band_when_confidence_unknown applies."
     }
   ]
 }

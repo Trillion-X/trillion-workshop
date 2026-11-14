@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:publish-articles-and-newsletter-on-a-cadence's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:publish-articles-and-newsletter-on-a-cadence.\" Write dated articles for the next seven days at the cadence the person chooses (1 to 5 a day), check them against the person's rules, get approval, set them to go, and read the numbers after a week.",
+  "drafted_from": "workflow row in tools/workflows/recipes/workflows.json (steps, submit shapes), the shipped list rows in tools/workflows/kit-lists.json; values synthetic",
+  "start_here": "Say to your AI: \"Run workflow:publish-articles-and-newsletter-on-a-cadence for Sunrise Bakery: one article a day for the next 7 days on my Substack newsletter, checked against my word rules, and wait for my yes before anything is set to go.\"",
   "lists": [
     {
       "list": "list:business-setup-checklist",
@@ -288,14 +287,15 @@
     "tool:set-a-post-to-go-at-its-time"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:publish-articles-and-newsletter-on-a-cadence\".",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:publish-articles-and-newsletter-on-a-cadence) and works through its steps in order: read-facts, write-the-articles, check-the-articles, draft-the-articles, approve-and-set-to-go, send-the-newsletter, read-the-newsletter-results, record-the-stage.",
-    "3. Read what each step hands back; the last step is record-the-stage."
+    "1. Make sure record:business-setup:facts exists with newsletter_platform (substack, beehiiv or ghost), posts_per_day (1 to 5) and owner_name; pour the example word checks into your own rules list (see pour) or make list:word-checks from them.",
+    "2. Say \"Run workflow:publish-articles-and-newsletter-on-a-cadence\". The AI starts it with tool:start-a-recipe-run and works the steps in order: read-facts, write-the-articles, check-the-articles, draft-the-articles, approve-and-set-to-go, send-the-newsletter, read-the-newsletter-results, record-the-stage.",
+    "3. Read the titles and dates it shows and answer with your approval; only then are the posts approved and set to go at their time.",
+    "4. After a week read each article's numbers from read-the-newsletter-results; record-the-stage ticks the stage on list:business-setup-checklist and writes open gaps to list:business-setup-gaps."
   ],
   "worked_examples": [
     {
-      "title": "Publish articles and a newsletter on a cadence from its first step",
-      "ask": "Run workflow:publish-articles-and-newsletter-on-a-cadence.",
+      "title": "A week of articles, one slot a day",
+      "ask": "Write my newsletter articles for the next 7 days.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -311,8 +311,9 @@
         }
       },
       "workflow": "workflow:publish-articles-and-newsletter-on-a-cadence",
-      "step": "read-facts",
-      "hands_back": "Step read-facts answers with facts."
+      "step": "write-the-articles",
+      "given": "Read from tools/workflows/recipes/workflows.json (step write-the-articles): the facts row holds posts_per_day 1, so the step writes 7 days x 1 slot = 7 articles with ids article-<day>-<slot>, each with one useful point and one link to the person's own page, no two titles alike.",
+      "hands_back": "{\"articles\":[{\"id\":\"article-1-1\",\"title\":\"Why we let the dough rest overnight\",\"body\":\"A slow rise is the whole secret of a good crust. Here is how we do it at home too. More at https://example.com/bread\",\"scheduled_for\":\"2026-11-14T07:00:00-06:00\"},{\"id\":\"article-2-1\",\"title\":\"Three ways to use day-old bread\",\"body\":\"...\",\"scheduled_for\":\"2026-11-15T07:00:00-06:00\"}, ... through article-7-1], 7 articles in all}"
     }
   ],
   "pour": {

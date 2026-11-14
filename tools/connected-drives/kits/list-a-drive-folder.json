@@ -1,22 +1,23 @@
 {
-  "draft": true,
-  "drafted_from": "tool:list-a-drive-folder's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:list-a-drive-folder with path.\" List the files and folders in one folder on a drive connected to this person's computer, a page at a time",
+  "drafted_from": "tool row in tools/connected-drives/tool-rows.json, read-data/drives.mjs and test/drives.test.mjs",
+  "start_here": "Say to your AI: \"List the files in the DCIM folder on my SAMPLE DRIVE, folders first, 200 at a time.\" It runs tool:list-a-drive-folder with path /Volumes/SAMPLE DRIVE/DCIM and hands back each entry with its kind, size and date.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads the drives this computer shows and changes nothing.",
   "workflows": [],
   "tools": [
-    "tool:list-a-drive-folder"
+    "tool:list-a-drive-folder",
+    "tool:list-connected-drives"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:list-a-drive-folder\", and give it path.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-a-drive-folder and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields path, entries, total, has_more."
+    "1. Run tool:list-connected-drives to get the mount of the drive, for example /Volumes/SAMPLE DRIVE.",
+    "2. Say \"List the files in /Volumes/SAMPLE DRIVE/DCIM\"; the AI calls tools:run for tool:list-a-drive-folder with path (and offset and limit for a long folder).",
+    "3. Read entries (folders first, then files with numbers in natural order, hidden names left out) and total; when has_more is true, ask again with offset set to the entries you have seen.",
+    "4. A path off the connected drives, or a symbolic link that leaves the drive, is refused with \"not on a connected drive\"."
   ],
   "worked_examples": [
     {
-      "title": "Look inside a folder on a drive on a sample input",
-      "ask": "Run tool:list-a-drive-folder.",
+      "title": "Look inside the DCIM folder of a drive",
+      "ask": "List the files in the DCIM folder on my SAMPLE DRIVE.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,13 +27,13 @@
           "input": {
             "tool": "tool:list-a-drive-folder",
             "input": {
-              "path": "<path: A full path on a connected drive, like /Volumes/Drive/DCIM>"
+              "path": "/Volumes/SAMPLE DRIVE/DCIM"
             }
           }
         }
       },
-      "hands_back": "An answer with the fields path, entries, total, has_more.",
-      "given": "The person gives: path (shown as <name> in the input)."
+      "given": "From tools/connected-drives/test/drives.test.mjs (lists one folder on a drive): DCIM holds a folder Day 2, clip-9.mov (1 byte), clip-10.mov (2 bytes) and a hidden file .hidden. The test runs on a pretend drive; the path here is the same shape on a real mount.",
+      "hands_back": "{\"path\":\"/Volumes/SAMPLE DRIVE/DCIM\",\"name\":\"DCIM\",\"mount\":\"/Volumes/SAMPLE DRIVE\",\"entries\":[{\"name\":\"Day 2\",\"kind\":\"folder\",\"bytes\":null},{\"name\":\"clip-9.mov\",\"kind\":\"file\",\"file_kind\":\"video\",\"bytes\":1},{\"name\":\"clip-10.mov\",\"kind\":\"file\",\"file_kind\":\"video\",\"bytes\":2}],\"total\":3,\"has_more\":false} (each entry also has its full path and modified_at; the hidden file is left out, and clip-9 comes before clip-10)."
     }
   ]
 }

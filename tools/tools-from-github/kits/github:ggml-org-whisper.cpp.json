@@ -1,35 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:github:ggml-org-whisper.cpp's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:github:ggml-org-whisper.cpp with nothing more.\" Transcribe speech in an audio or video file to text on your own computer, fast and offline",
+  "drafted_from": "tool:github:ggml-org-whisper.cpp's row in tools/tools-from-github/tool-rows.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic names filled in. What it prints or writes is read from the tool's documented behavior; the folder test test/index-github-tools.test.mjs only checks the row, never runs whisper.cpp.",
+  "start_here": "Say to your AI: \"Use whisper.cpp on my computer to transcribe speech in an audio or video file to text on your own computer: the file is interview.wav.\" It reads the row, installs whisper.cpp if it is missing, runs it on that one file and shows you what it made.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: whisper.cpp is a program that runs on the person's own computer and works on the one file or address it is handed.",
   "workflows": [],
   "tools": [
     "tool:github:ggml-org-whisper.cpp"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:github:ggml-org-whisper.cpp\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:github:ggml-org-whisper.cpp and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Transcribe speech in an audio or video file to text on your own computer, fast and offline"
+    "1. Say to your AI: \"Use whisper.cpp on interview.wav\". It reads the row with run_resource_operation at @workshop-tools, method tools:list, input {tool: \"tool:github:ggml-org-whisper.cpp\"}.",
+    "2. It checks that git, cmake, a C++ compiler are on your computer, and if whisper.cpp is missing it runs the get_it steps: git clone https://github.com/ggml-org/whisper.cpp.git ; cd whisper.cpp ; sh ./models/download-ggml-model.sh base.en ; cmake -B build ; cmake --build build -j --config Release.",
+    "3. It runs the row's command with your file in place of {input}: ./build/bin/whisper-cli -m models/ggml-base.en.bin -f interview.wav",
+    "4. Read what it shows you and open the result. Trillion runs none of this; it all happens on your own computer."
   ],
   "worked_examples": [
     {
-      "title": "whisper.cpp (open source, runs on your computer) on a sample input",
-      "ask": "Run tool:github:ggml-org-whisper.cpp.",
+      "title": "whisper.cpp on a 30 second interview recording of Sam, a baker, talking about her shop",
+      "ask": "Use whisper.cpp on interview.wav.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:github:ggml-org-whisper.cpp",
-            "input": {}
+            "tool": "tool:github:ggml-org-whisper.cpp"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Transcribe speech in an audio or video file to text on your own computer, fast and offline"
+      "given": "Read from tools/tools-from-github/tool-rows.json: tool:github:ggml-org-whisper.cpp runs on your computer, so after tools:list the AI runs, in the folder it got whisper.cpp in, the command line: ./build/bin/whisper-cli -m models/ggml-base.en.bin -f interview.wav  (synthetic input: a 30 second interview recording of Sam, a baker, talking about her shop).",
+      "hands_back": "Each line whisper-cli prints is a time range and the words spoken in it, for example \"[00:00:00.000 --> 00:00:06.000]   Hi, I am Sam and I run a small bakery.\" The transcript is on screen only; nothing is written to a file."
     }
   ]
 }

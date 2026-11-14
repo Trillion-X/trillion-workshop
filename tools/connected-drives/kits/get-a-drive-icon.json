@@ -1,23 +1,23 @@
 {
-  "draft": true,
-  "drafted_from": "tool:get-a-drive-icon's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:get-a-drive-icon with mount.\" Get the icon Finder shows for one drive connected to this person's computer, as a PNG picture",
+  "drafted_from": "tool row in tools/connected-drives/tool-rows.json, read-data/drives.mjs and test/drives.test.mjs",
+  "start_here": "Say to your AI: \"Get the Finder icon of my SAMPLE DRIVE as a 64 pixel picture.\" It runs tool:get-a-drive-icon with mount /Volumes/SAMPLE DRIVE and size 64 and hands back the PNG as base64.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads the drives this computer shows and changes nothing.",
   "workflows": [],
   "tools": [
     "tool:get-a-drive-icon",
     "tool:list-connected-drives"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:get-a-drive-icon\", and give it mount.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:get-a-drive-icon and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields mount, media_type, base64."
+    "1. Run tool:list-connected-drives and copy the mount of the drive.",
+    "2. Say \"Get the icon of /Volumes/SAMPLE DRIVE at 64 pixels\"; the AI calls tools:run for tool:get-a-drive-icon with mount and size (32 to 512; 256 when left out).",
+    "3. Read media_type (image/png) and base64; decode base64 to a PNG file to show it. A size outside 32 to 512 is refused.",
+    "4. A computer that draws no drive icons answers {mount, icon: \"none\", reason} instead."
   ],
   "worked_examples": [
     {
-      "title": "A drive's icon on a sample input",
-      "ask": "Run tool:get-a-drive-icon.",
+      "title": "Draw a 64 pixel drive icon",
+      "ask": "Get the Finder icon of my SAMPLE DRIVE as a 64 pixel picture.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,13 +27,14 @@
           "input": {
             "tool": "tool:get-a-drive-icon",
             "input": {
-              "mount": "<mount: Where the drive is mounted on the computer, as tool:list-connected-drives lists it, like /Volumes/Drive>"
+              "mount": "/Volumes/SAMPLE DRIVE",
+              "size": 64
             }
           }
         }
       },
-      "hands_back": "An answer with the fields mount, media_type, base64.",
-      "given": "The person gives: mount (shown as <name> in the input)."
+      "given": "From tools/connected-drives/test/drives.test.mjs (draws a drive icon at an allowed size only): the icon is drawn by osascript with the mount and 64 as arguments; the test stands in 9 bytes of text for the picture, a real run writes a PNG.",
+      "hands_back": "{\"mount\":\"/Volumes/SAMPLE DRIVE\",\"media_type\":\"image/png\",\"base64\":\"iVBORw0KGgo...\"} (base64 of the PNG file the computer drew; size 4 would be refused with \"from 32 to 512\")."
     }
   ]
 }

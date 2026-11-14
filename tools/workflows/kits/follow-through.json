@@ -1,48 +1,54 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:follow-through's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:follow-through.\" Carry dependencies and commitments through to independently checked outcomes, with a clear owner and recovery path for every unresolved item.",
-  "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
-  "workflows": [
-    "workflow:follow-through",
-    "workflow:trillion-x-mode",
-    "workflow:turn-something-shared-into-what-you-can-use"
-  ],
-  "tools": [
-    "tool:start-a-recipe-run"
-  ],
-  "instructions": [
-    "1. Say to your AI: \"Run workflow:follow-through\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:follow-through) and works through its steps in order: state, act, verify.",
-    "3. Read what each step hands back; the last step is verify."
-  ],
-  "worked_examples": [
-    {
-      "title": "Follow Through Mode from its first step",
-      "ask": "Run workflow:follow-through.",
-      "mcp": {
-        "server": "trillion",
-        "tool": "run_resource_operation",
-        "input": {
-          "address": "@workshop-tools",
-          "method": "tools:run",
-          "input": {
-            "tool": "tool:start-a-recipe-run",
-            "input": {
-              "row": "workflow:follow-through",
-              "request": "<request: string>",
-              "scope": "<scope: string>",
-              "constraints": [],
-              "authorized_actions": []
-            }
-          }
-        }
-      },
-      "workflow": "workflow:follow-through",
-      "step": "state",
-      "hands_back": "Step state answers with summary, evidence, requirements.",
-      "given": "The person gives: request, scope (shown as <name> in the input)."
+ "start_here": "Say to your AI: \"Run workflow:follow-through on my bakery wedding-cake orders: request is that every deposit promised this week is received or chased, scope is the order inbox and the deposits sheet, constraints are at most 3 reminders per customer, authorized actions are reading both and drafting reminders for me to send.\"",
+ "lists": [],
+ "no_lists_because": "It keeps no list of its own: its three steps hand back one evidence-backed answer each, kept on the run record.",
+ "workflows": [
+  "workflow:follow-through",
+  "workflow:turn-something-shared-into-what-you-can-use",
+  "workflow:trillion-x-mode"
+ ],
+ "tools": [
+  "tool:start-a-recipe-run"
+ ],
+ "instructions": [
+  "1. Write the request (the commitments and dependencies to carry through), the scope, the constraints and authorized_actions; all four are required.",
+  "2. Say \"Run workflow:follow-through\". Answer step state: reconcile what is open now, with evidence, and review existing capabilities.",
+  "3. Answer step act: give every unresolved dependency a real owner, its source, the next event that matters, a finite boundary and a stop condition.",
+  "4. Answer step verify: check the consequence at its real destination, recover failures once the shared cause is repaired, and measure customer benefit when it applies.",
+  "5. Read each answer: an unresolved item without an owner and a next event is not done."
+ ],
+ "worked_examples": [
+  {
+   "title": "State of this week's cake deposits",
+   "ask": "Follow through on this week's cake deposits.",
+   "mcp": {
+    "server": "trillion",
+    "tool": "run_resource_operation",
+    "input": {
+     "address": "@workshop-tools",
+     "method": "tools:run",
+     "input": {
+      "tool": "tool:start-a-recipe-run",
+      "input": {
+       "row": "workflow:follow-through",
+       "request": "Every deposit promised for a wedding cake this week is received or chased.",
+       "scope": "The order inbox and the deposits sheet",
+       "constraints": [
+        "At most 3 reminders per customer"
+       ],
+       "authorized_actions": [
+        "Read the inbox and the sheet",
+        "Draft reminders for the owner to send"
+       ]
+      }
+     }
     }
-  ]
+   },
+   "workflow": "workflow:follow-through",
+   "step": "state",
+   "given": "Read from the row of workflow:follow-through in tools/workflows/recipes/workflows.json: step state needs requirements current-state and capability-review-state. The sheet lists 4 deposits promised; 3 are marked received, the 4th (Sam, a 3-tier cake on 21 Nov) is not.",
+   "hands_back": "{\"summary\":\"3 of 4 deposits received; Sam's deposit for the 21 Nov cake is open.\",\"evidence\":[{\"id\":\"e1\",\"source\":\"the deposits sheet\",\"observed\":\"4 rows promised this week, 3 marked received, Sam row empty\"},{\"id\":\"e2\",\"source\":\"the order inbox\",\"observed\":\"Last message from Sam 5 days ago says the deposit is coming Friday\"}],\"requirements\":{\"current-state\":{\"state\":\"completed\",\"what_happened\":\"One open dependency: Sam's deposit, promised for Friday and not marked received.\",\"evidence_refs\":[\"e1\",\"e2\"]},\"capability-review-state\":{\"state\":\"completed\",\"what_happened\":\"Searched the Marketplace for a payment-check tool, found one that reads checkouts; REA, 21st.dev and Mobbin reviewed and not needed.\",\"evidence_refs\":[\"e1\"]}}}"
+  }
+ ],
+ "drafted_from": "workflow:follow-through's row in tools/workflows/recipes/workflows.json (input schema, steps and submit shapes); no test names it"
 }

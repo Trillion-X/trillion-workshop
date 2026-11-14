@@ -1,35 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:find-media-for-a-description's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:find-media-for-a-description with nothing more.\" Get a picture or a video clip that fits a few words, from my own media folder or from free-licence stock libraries, and save it as a file",
+  "drafted_from": "tools/find-media-for-a-description/tool-rows.json, do-work/find_media.mjs, do-work/bank-provider.mjs and test/find-media.test.mjs (bank provider, run on a made-up media folder)",
+  "start_here": "Say to your AI: \"Find a clip of boats at sunrise in my media folder /tmp/media-bank and save it as /tmp/picked.mp4.\" It writes a request file, runs the finder with the bank provider and tells you which file it picked.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads one folder of your own media (or the stock libraries) and copies the best match to a file.",
   "workflows": [],
   "tools": [
     "tool:find-media-for-a-description"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:find-media-for-a-description\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-media-for-a-description and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Get a picture or a video clip that fits a few words, from my own media folder or from free-licence stock libraries, and save it as a file"
+    "1. For your own media, give each file you want found an optional sidecar <file>.tags.json holding {\"tags\": [\"harbour\", \"boats\"]}; for stock, have your key for each library in the environment variable read-data/stock-sources.json names (never type the value).",
+    "2. Write a request file: {\"provider\": \"bank\", \"description\": \"boats at sunrise\", \"kind\": \"clip\", \"bank_dir\": \"/tmp/media-bank\", \"out\": \"/tmp/picked.mp4\"} (provider stock needs no bank_dir).",
+    "3. Say \"Find media for this description\"; your AI reads the row with tools:list and runs: node trillion-workshop/tools/find-media-for-a-description/do-work/find_media.mjs < request.json.",
+    "4. Read the last line {\"result\": {provider, file, request}} for the saved file. A refusal prints why and exits non-zero (2 unknown provider, 3 kind not offered, 4 nothing found or licence not offered); then try the other provider."
   ],
   "worked_examples": [
     {
-      "title": "Find a picture or clip that fits a description (runs on your computer) on a sample input",
-      "ask": "Run tool:find-media-for-a-description.",
+      "title": "Pick the best-tagged clip from my own folder",
+      "ask": "Find a clip of boats at sunrise in my media folder.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:find-media-for-a-description",
-            "input": {}
+            "tool": "tool:find-media-for-a-description"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Get a picture or a video clip that fits a few words, from my own media folder or from free-licence stock libraries, and save it as a file"
+      "given": "Run on a made-up folder (the case of test/find-media.test.mjs 'bank provider finds a tagged clip end to end'). /tmp/media-bank holds harbour-sunrise.mp4 with harbour-sunrise.mp4.tags.json {\"tags\": [\"harbour\", \"boats\", \"sunrise\"]} and forest-path.mp4 with tags nature, trees. request.json is {\"provider\":\"bank\",\"description\":\"boats at sunrise\",\"kind\":\"clip\",\"bank_dir\":\"/tmp/media-bank\",\"out\":\"/tmp/picked.mp4\"}. The AI runs: node trillion-workshop/tools/find-media-for-a-description/do-work/find_media.mjs < request.json",
+      "hands_back": "harbour-sunrise.mp4 is copied to /tmp/picked.mp4 (match score 3; forest-path.mp4 is not touched), and the last line is {\"result\": {\"provider\": \"bank\", \"file\": \"/tmp/picked.mp4\", \"request\": {\"provider\": \"bank\", \"description\": \"boats at sunrise\", \"kind\": \"clip\", \"bank_dir\": \"/tmp/media-bank\", \"out\": \"/tmp/picked.mp4\"}}}."
     }
   ]
 }

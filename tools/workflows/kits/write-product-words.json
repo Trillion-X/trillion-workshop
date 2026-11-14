@@ -1,24 +1,25 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:write-product-words's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:write-product-words.\" Write copy a person will read (a tour, a what is new note, a notice, an error, a button, a landing section, an email or a post) in plain, true, warm sentences, checked by the copy judge before anyone sees it.",
+  "start_here": "Say to your AI: \"Run workflow:write-product-words for a tour card on the drawing feature: you can now draw on top of any page you have open and your lines stay put when you scroll. The readers are new members.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It takes the facts as input and hands the words back by where they go; it reads and writes no list.",
   "workflows": [
     "workflow:write-product-words"
   ],
   "tools": [
-    "tool:check-copy"
+    "tool:check-copy",
+    "tool:start-a-recipe-run"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:write-product-words\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:write-product-words) and works through its steps in order: facts, draft, judge.",
-    "3. Read what each step hands back; the last step is judge."
+    "1. Gather every true fact about what changed or what the words are for (at least 10 characters), where the words will show (a tour card, a notice, a landing page, an email, a post) and who reads them.",
+    "2. Say \"Run workflow:write-product-words\" with what, and where and reader when you know them.",
+    "3. Step facts lists only what is true and the one thing the reader can now do; step draft writes every piece in full second-person sentences, leading with what the reader gets.",
+    "4. Step judge runs tool:check-copy on the words and rewrites every finding until it passes.",
+    "5. Read the final words by where they go (title, body, button) and use them; nothing was added that your facts did not state."
   ],
   "worked_examples": [
     {
-      "title": "Write product words people enjoy reading from its first step",
-      "ask": "Run workflow:write-product-words.",
+      "title": "A title without a full stop fails the copy judge, then passes",
+      "ask": "Write the tour card for the drawing feature.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -29,15 +30,18 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:write-product-words",
-              "what": "<what: What changed or what the words are for, with every true fact you have>"
+              "what": "You can now draw on top of any page you have open and your lines stay put when you scroll.",
+              "where": "a tour card",
+              "reader": "new members"
             }
           }
         }
       },
       "workflow": "workflow:write-product-words",
-      "step": "facts",
-      "hands_back": "Step facts answers with facts, reader, gets.",
-      "given": "The person gives: what (shown as <name> in the input)."
+      "step": "judge",
+      "given": "Read from tools/check-against-a-persons-rules-and-verdicts/do-work/check-copy.mjs, run with value {title, body} and no rules (the mechanical grammar rows judge). With title \"New: Draw over anything\" it says failed, \"2 units: 1 fail, 0 uncertain, 1 pass\", FAIL value.title: sentence-ends-with-stop. With the title \"New: Draw over anything.\" and the body below it says passed, \"2 units: 0 fail, 0 uncertain, 2 pass\".",
+      "hands_back": "{\"words\":{\"title\":\"New: Draw over anything.\",\"body\":\"You can now draw on top of any page you have open. Pick the pen, draw, and your lines stay put when you scroll.\"},\"judge_said\":\"passed: 2 units: 0 fail, 0 uncertain, 2 pass\"}"
     }
-  ]
+  ],
+  "drafted_from": "workflow:write-product-words row and tools/check-against-a-persons-rules-and-verdicts/do-work/check-copy.mjs run on the example words"
 }

@@ -1,39 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:write-a-web-page-from-a-record's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:write-a-web-page-from-a-record with envelope, output.\" Turn one record and a publication descriptor into a finished web page: its words, its address, its search and sharing tags, its structured data and a proof of what it was made from",
+  "drafted_from": "tools/export-documents-to-files/tool-rows.json (tool:write-a-web-page-from-a-record), do-work/render-public-page-cli.mjs, test/write-a-web-page.test.mjs, and a run of the command on the envelope below",
+  "start_here": "Say to your AI: \"Write the web page for my rye loaf record at bakery.example.com from this envelope file, and save it as page.html.\" It writes the envelope from the record, runs the page writer on your computer and tells you the address and where the file is.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It reads one record that arrives inside the envelope file and writes one HTML file, so it names no list of yours.",
   "workflows": [],
   "tools": [
     "tool:write-a-web-page-from-a-record"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:write-a-web-page-from-a-record\", and give it envelope, output.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:write-a-web-page-from-a-record and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields artifact, proof, written."
+    "1. Clone the Workshop checkout and open a terminal in its root; the page writer needs only node.",
+    "2. Save the record and how to publish it as envelope.json: publication_descriptor (title, description and section fields, the address pieces), source_record (ref, revision_ref, fields) and materialized_values (the domain).",
+    "3. Say to your AI: \"Write the web page from envelope.json to page.html\". It reads the row with tools:list and runs node tools/export-documents-to-files/do-work/render-public-page-cli.mjs envelope.json page.html.",
+    "4. Read the last JSON line: artifact.canonical_url is the address the page is written for, artifact.byte_length its size, proof names the descriptor, record and revision, written is the file. Putting it on a site is a separate step you ask for."
   ],
   "worked_examples": [
     {
-      "title": "Write a web page from one record and a description of how to publish it (runs on your computer) on a sample input",
-      "ask": "Run tool:write-a-web-page-from-a-record.",
+      "title": "A rye loaf record becomes a page for bakery.example.com",
+      "ask": "Write the web page for my rye loaf record from envelope.json to page.html.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:write-a-web-page-from-a-record",
-            "input": {
-              "envelope": "<envelope: Path of the JSON envelope file>",
-              "output": "<output: Path of the HTML file to write>"
-            }
+            "tool": "tool:write-a-web-page-from-a-record"
           }
         }
       },
-      "hands_back": "An answer with the fields artifact, proof, written.",
-      "given": "The person gives: envelope, output (shown as <name> in the input)."
+      "given": "Run by the command: node tools/export-documents-to-files/do-work/render-public-page-cli.mjs envelope.json page.html. The envelope holds descriptor ref descriptor:article with a title from fields.title, a description from fields.summary, a paragraph section from fields.summary and a list section from fields.items; url scheme https, domain read from materialized_values site.domain (bakery.example.com), path segment read from fields.slug; source_record ref record:loaf-1, revision_ref revision:1, fields {title \"Our Rye Loaf\", slug \"rye-loaf\", summary \"A dense rye loaf baked fresh each morning.\", items [\"rye flour\",\"water\",\"salt\"]}; correlation_id correlation:bakery-1. Observed by running the command on this envelope in a scratch folder (the behaviour is also asserted in test/write-a-web-page.test.mjs).",
+      "hands_back": "{\"artifact\":{\"kind\":\"publication_artifact\",\"mime_type\":\"text/html\",\"canonical_url\":\"https://bakery.example.com/rye-loaf\",\"metadata\":{\"og:title\":\"Our Rye Loaf\",\"og:type\":\"article\",\"og:url\":\"https://bakery.example.com/rye-loaf\",\"og:description\":\"A dense rye loaf baked fresh each morning.\"},\"projection_refs\":[],\"byte_length\":3029},\"proof\":{\"descriptor_ref\":\"descriptor:article\",\"source_ref\":\"record:loaf-1\",\"source_revision_ref\":\"revision:1\",\"materialized_input_ref\":\"inline-materialization\",\"process_session_ref\":\"process-session:pending\",\"correlation_id\":\"correlation:bakery-1\",\"integrity_policy\":{}},\"written\":\"page.html\"}"
     }
   ]
 }

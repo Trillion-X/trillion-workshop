@@ -1,38 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:find-where-the-line-should-go's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:find-where-the-line-should-go with rubrics_file.\" Work out, from my rubric's known cases, how sure a model has to be before I act, by measuring how sure it is on known-true and known-false cases",
+  "drafted_from": "tool:find-where-the-line-should-go row in tools/ask-a-small-model-for-a-verdict/tool-rows.json, its code in tools/ask-a-small-model-for-a-verdict/do-work/ and tools/ask-a-small-model-for-a-verdict/test/tool.test.mjs and its do-work/find-where-the-line-should-go.mjs; the answers were produced by running the tool against a stand-in model server",
+  "start_here": "Say to your AI: \"Measure where the confidence line belongs for the claims-done question in /work/judge/rubrics.json, using my model.\" It runs the line finder and reads the measured line or why it cannot draw one.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads your rubrics file and asks the model on your known cases, then prints where the confidence line should go.",
   "workflows": [],
   "tools": [
-    "tool:find-where-the-line-should-go"
+    "tool:find-where-the-line-should-go",
+    "tool:fit-pass-and-fail-lines"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:find-where-the-line-should-go\", and give it rubrics_file.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-where-the-line-should-go and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields lines."
+    "1. Write /work/judge/rubrics.json with providers and rubrics; each rubric needs known cases that expect both answers, so a confident NO can be seen.",
+    "2. Write /work/judge/request.json: {\"rubrics_file\": \"/work/judge/rubrics.json\"} (add rubric_id to measure one rubric, and band to name the band).",
+    "3. Say \"Find where the line should go\". The AI reads the row with tools:list and runs: node tools/ask-a-small-model-for-a-verdict/do-work/ask-a-small-model.mjs find-lines < /work/judge/request.json. It needs a hosted classifier or a model server that gives probabilities.",
+    "4. Read result.lines: per rubric the measured line and how many cases fall on the wrong side, or a \"cannot\" sentence saying what to add. Feed scored lines to tool:fit-pass-and-fail-lines to fit pass and fail lines."
   ],
   "worked_examples": [
     {
-      "title": "Measure where my confidence line belongs instead of guessing a round number (runs on your computer) on a sample input",
-      "ask": "Run tool:find-where-the-line-should-go.",
+      "title": "A model that gives no confidence gets a reason, not an invented line",
+      "ask": "Where should the confidence line go for the claims-done question?",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:find-where-the-line-should-go",
-            "input": {
-              "rubrics_file": "<rubrics_file: string>"
-            }
+            "tool": "tool:find-where-the-line-should-go"
           }
         }
       },
-      "hands_back": "An answer with the fields lines.",
-      "given": "The person gives: rubrics_file (shown as <name> in the input)."
+      "given": "From tools/ask-a-small-model-for-a-verdict/test/tool.test.mjs (test \"find-lines: with a model that gives no confidence it says so...\"), run for real against a stand-in chat model that gives answers only: rubrics.json is {\"providers\": [{\"via\": \"locally-served\", \"endpoint\": \"http://127.0.0.1:11434\", \"timeout_seconds\": 30, \"protocol\": \"ollama\"}], \"rubrics\": [{\"id\": \"claims-done\", \"question\": \"Does the note say the order is ready without saying it was checked?\", \"answer_shape\": {\"kind\": \"true-or-false\"}, \"accept_when_answer_in\": [true], \"calibration\": [{\"content\": \"the sourdough order is ready, trust me\", \"expect\": true}, {\"content\": \"counted 12 loaves against the slip: ready\", \"expect\": false}]}]}; request.json is {\"rubrics_file\": \"/work/judge/rubrics.json\"}. Command: node tools/ask-a-small-model-for-a-verdict/do-work/ask-a-small-model.mjs find-lines < /work/judge/request.json",
+      "hands_back": "Last line: {\"result\": {\"lines\": [{\"rubric\": \"claims-done\", \"measured_by\": \"stand-in\", \"cannot\": \"the cases are one-sided, so nothing here shows what a confident NO looks like. Add cases that expect the opposite answer.\"}]}}. No line is drawn."
     }
   ]
 }

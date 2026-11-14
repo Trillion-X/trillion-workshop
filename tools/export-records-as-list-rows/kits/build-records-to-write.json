@@ -1,22 +1,23 @@
 {
-  "draft": true,
-  "drafted_from": "tool:build-records-to-write's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:build-records-to-write with mapping, source_type, source_prefix.\" Take records I keep in files and prepare everything to put them into my lists as records, each value with where it came from and how sure we are, in batches I can send",
+  "drafted_from": "tool:build-records-to-write row (tools/export-records-as-list-rows/tool-rows.json) and its sample-run verify, do-work/build_record_write.mjs and build_record_write.py, test/scoped-record-source.test.mjs; the answer is what do-work run-an-export.mjs printed for the row's own sample files",
+  "start_here": "Say to your AI: \"Build the records to write for my stores from the mapping in the folder I granted, and tell me how many commands and pending items there are.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of its own: the lists, record types and fields all come from the mapping file, and it only returns records:write commands as data.",
   "workflows": [],
   "tools": [
-    "tool:build-records-to-write"
+    "tool:build-records-to-write",
+    "tool:put-records-into-my-account"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:build-records-to-write\", and give it mapping, source_type, source_prefix.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:build-records-to-write and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields counts, pending, commands, merged, extra_links."
+    "1. Grant the one folder holding your mapping and source files (here mapping.json, shelf-lists.json and stores.json) and name the source record type and id prefix the run may list (here sample-source and sample-source:).",
+    "2. Say \"Build the records to write\"; your AI calls tools:run for tool:build-records-to-write with mapping, source_type and source_prefix.",
+    "3. Read counts (records, commands, lists, views, rows per list), pending (items waiting) and commands (each one a records:write input); a row with no address, two rows with one id, a broken link or a value over the limit is refused by name.",
+    "4. Nothing is written yet: send the commands with tool:put-records-into-my-account when you agree."
   ],
   "worked_examples": [
     {
-      "title": "Prepare records for my lists with their sources and basis (runs on your computer) on a sample input",
-      "ask": "Run tool:build-records-to-write.",
+      "title": "One store row becomes one records:write command",
+      "ask": "Build the records to write for my stores.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +34,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields counts, pending, commands, merged, extra_links."
+      "given": "Read from a real run of do-work/build_record_write.mjs through tools/records-door/do-work/run-an-export.mjs on the tool row's own sample-run files: stores.json holds {\"id\":\"corner\",\"values\":{\"name\":\"Corner Store\"}}, shelf-lists.json defines the list stores with one text field name, and mapping.json copies the values (the same input as the row's verify sample-run). built_at changes on every run.",
+      "hands_back": "{\"result\": {\"counts\": {\"records\": 2, \"commands\": 1, \"lists\": 1, \"views\": 0, \"rows\": {\"stores\": 1}}, \"pending\": [], \"commands\": [{\"input\": {\"records\": [{\"id\": \"list:stores\", \"type\": \"list\", \"value\": {\"label\": \"Stores\", \"row_type\": \"stores\", \"title_field\": \"name\", \"fields\": [{\"id\": \"name\", \"label\": \"Name\", \"kind\": \"text\"}]}}, {\"id\": \"record:stores:corner\", \"type\": \"record:stores\", \"value\": {\"name\": \"Corner Store\"}}]}}]}}, plus _what and built_at."
     }
   ]
 }

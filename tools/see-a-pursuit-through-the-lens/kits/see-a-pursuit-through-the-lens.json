@@ -1,0 +1,87 @@
+{
+  "drafted_from": "tool:see-a-pursuit-through-the-lens row in tool-rows.json, do-work/see-a-pursuit-through-the-lens.mjs, src/pursuit-lens.mjs, read-data/see-a-pursuit-through-the-lens.json and test/see-a-pursuit-through-the-lens.test.mjs; list:pursuit-lens fields read with records:read",
+  "start_here": "Say to your AI: \"Tell me how to look at what I am pursuing through my pursuit lens, the short paragraph and the full setup with every part and its rows.\" It runs tool:see-a-pursuit-through-the-lens, reads your lens rows and answers the paragraph every AI reads when it connects and the setup.",
+  "lists": [
+    {
+      "list": "list:pursuit-lens",
+      "label": "Pursuit lens",
+      "row_type": "record:pursuit-lens",
+      "holds": "The rows of your lens: for each part of what you pursue, what to look for and what to ask or do; the parts and the opening and closing words are kept in your content settings.",
+      "fields": [
+        { "id": "id", "kind": "text", "label": "Id", "alike": ["key", "slug"] },
+        { "id": "part", "kind": "text", "label": "Part", "alike": ["section", "area", "group"] },
+        { "id": "look_for", "kind": "long-text", "label": "Look for", "alike": ["notice", "observe", "signal"] },
+        { "id": "ask_or_do", "kind": "long-text", "label": "Ask or do", "alike": ["next step", "action", "question"] }
+      ],
+      "example_rows": [
+        { "id": "roots", "values": { "id": "roots", "part": "soil", "look_for": "what they water every day", "ask_or_do": "ask which bed they would save first" } },
+        { "id": "frost", "values": { "id": "frost", "part": "weather", "look_for": "the frost they fear", "ask_or_do": "name the date of the last frost" } }
+      ],
+      "alike": ["a coaching intake checklist", "a discovery-call question bank", "a research interview guide"]
+    }
+  ],
+  "workflows": [],
+  "tools": [
+    "tool:see-a-pursuit-through-the-lens",
+    "tool:pour-example-rows-into-my-list"
+  ],
+  "instructions": [
+    "1. Pour the example lens rows into the list you keep interview or discovery prompts in (see pour), or make list:pursuit-lens from them; keep the lens's opening, parts and closing in your content settings row, or hand the whole lens in.",
+    "2. Say \"How should an AI look at what I pursue?\"; your AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:see-a-pursuit-through-the-lens, with answer paragraph, setup or both (the default) and optionally lens {opening, parts, closing, rows}.",
+    "3. Read the answer: paragraph is the opening, each part in one sentence and the closing; setup holds every part with each row's look_for and ask_or_do, the joining interview rows (those marked joining_interview) and where its answers are kept; joining_interview_file names that file.",
+    "4. It writes nothing; with no lens in your lists and none handed in it says what to hand in or keep first."
+  ],
+  "worked_examples": [
+    {
+      "title": "A gardener's lens handed in, paragraph only",
+      "ask": "Give me the paragraph an AI should read to look at what a gardener pursues.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:see-a-pursuit-through-the-lens",
+            "input": {
+              "answer": "paragraph",
+              "lens": {
+                "opening": "Look at what the gardener tends.",
+                "parts": [
+                  { "id": "soil", "name": "Soil", "about": "what feeds the plant" },
+                  { "id": "weather", "name": "Weather", "about": "what comes from outside" }
+                ],
+                "closing": "Then pick one bed to work.",
+                "rows": [
+                  { "id": "roots", "part": "soil", "look_for": "what they water every day", "ask_or_do": "ask which bed they would save first", "joining_interview": true },
+                  { "id": "frost", "part": "weather", "look_for": "the frost they fear", "ask_or_do": "name the date of the last frost" }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "given": "From tools/see-a-pursuit-through-the-lens/test/see-a-pursuit-through-the-lens.test.mjs: the made-up gardener lens above, handed in. With answer \"both\" the same lens also answers the setup.",
+      "hands_back": "{paragraph: \"Look at what the gardener tends. Soil: what feeds the plant Weather: what comes from outside Then pick one bed to work.\", joining_interview_file: \"/Pursuits/joining interview.json\"} (no setup key for answer paragraph). With answer setup the setup holds how \"Look at what the gardener tends.\", parts Soil and Weather with one row each, joining_interview.rows [{look_for: \"what they water every day\", ask_or_do: \"ask which bed they would save first\"}] and then \"Then pick one bed to work.\"."
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "example": {
+      "kit_list": "list:pursuit-lens",
+      "into": {
+        "list": "list:discovery-questions",
+        "row_type": "record:discovery-question",
+        "fields": [
+          { "id": "slug", "label": "Slug" },
+          { "id": "section", "label": "Section" },
+          { "id": "observe", "label": "Observe" },
+          { "id": "next_step", "label": "Next step" }
+        ]
+      },
+      "field_map": {}
+    }
+  }
+}

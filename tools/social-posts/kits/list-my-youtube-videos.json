@@ -1,23 +1,23 @@
 {
-  "draft": true,
-  "drafted_from": "tool:list-my-youtube-videos's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:list-my-youtube-videos with account_id, playlist_id.\" List the videos of the person's own YouTube channel, public, unlisted and private as the connection allows, with each video's title and privacy status",
+  "drafted_from": "tools/social-posts/tool-rows.json (tool:list-my-youtube-videos), tools/social-posts/test/youtube-connection.test.mjs and the row's request; the answer is worked out from the row, not observed",
+  "start_here": "Say to your AI: \"List the videos on my YouTube channel, including unlisted and private ones, with their privacy status.\" It checks the connection for the uploads playlist id, then runs tool:list-my-youtube-videos with it.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads your uploads playlist through your YouTube connection and posts and changes nothing.",
   "workflows": [],
   "tools": [
     "tool:list-my-youtube-videos",
     "tool:check-the-youtube-connection"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:list-my-youtube-videos\", and give it account_id, playlist_id.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-my-youtube-videos and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $ holds the result: List the videos of the person's own YouTube channel, public, unlisted and private as the connection allows, with each video's title and privacy status"
+    "1. Connect your YouTube account (service_connection:youtube, or service_connection:youtube:<name> for a second one).",
+    "2. Run tool:check-the-youtube-connection with {account_id}; it answers the channel and its uploads playlist_id.",
+    "3. Say \"List my YouTube videos\": the AI runs tool:list-my-youtube-videos at @workshop-tools with {account_id, playlist_id}.",
+    "4. Read the answer: the playlist's items (50 a page), each with its title, publish time and privacy status (public, unlisted or private), and nextPageToken when there is more; pass it back as page_token for the next page. A refusal from YouTube means the sign-in lacks read access to the channel."
   ],
   "worked_examples": [
     {
-      "title": "List my YouTube videos on a sample input",
-      "ask": "Run tool:list-my-youtube-videos.",
+      "title": "The first page of a channel's uploads",
+      "ask": "List the videos on my YouTube channel with their privacy status.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,14 +27,14 @@
           "input": {
             "tool": "tool:list-my-youtube-videos",
             "input": {
-              "account_id": "<account_id: One of the person's accounts of this kind, service_connection:youtube or service_connection:youtube:<account>>",
-              "playlist_id": "<playlist_id: The channel's uploads playlist id, from tool:check-the-youtube-connection>"
+              "account_id": "service_connection:youtube:one",
+              "playlist_id": "UUexampleuploads0000000000"
             }
           }
         }
       },
-      "hands_back": "The answer's $ holds the result: List the videos of the person's own YouTube channel, public, unlisted and private as the connection allows, with each video's title and privacy status",
-      "given": "The person gives: account_id, playlist_id (shown as <name> in the input)."
+      "given": "Read from tools/social-posts/tool-rows.json (the row's http request) and test/youtube-connection.test.mjs, not run live: the engine sends GET https://www.googleapis.com/youtube/v3/playlistItems with part=snippet,status,contentDetails, maxResults=50 and playlistId=UUexampleuploads0000000000, the connection's access token in the Authorization header only to www.googleapis.com. The channel (synthetic) has two uploads.",
+      "hands_back": "YouTube's own answer for that request, unchanged: {\"items\":[{\"snippet\":{\"title\":\"Shaping a boule\",\"publishedAt\":\"2030-11-05T10:00:00Z\",\"resourceId\":{\"videoId\":\"vid-aaa\"}},\"status\":{\"privacyStatus\":\"public\"},\"contentDetails\":{\"videoId\":\"vid-aaa\"}},{\"snippet\":{\"title\":\"Draft: scoring tips\",\"publishedAt\":\"2030-11-06T10:00:00Z\",\"resourceId\":{\"videoId\":\"vid-bbb\"}},\"status\":{\"privacyStatus\":\"private\"},\"contentDetails\":{\"videoId\":\"vid-bbb\"}}], ...} (each item also carries the snippet's other fields; the example values are synthetic, the fields are the ones the request asks for). With more than 50 videos it also holds nextPageToken."
     }
   ]
 }

@@ -1,37 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:allow-my-ai-command-line-tools-in-a-folder's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:allow-my-ai-command-line-tools-in-a-folder with verb.\" Keep, read or clear the tools I allow my own AI command line in one workspace folder, passed as that command line's own allow-list flag",
+  "drafted_from": "tools/follow-my-ai-command-line-runs/tool-rows.json (tool:allow-my-ai-command-line-tools-in-a-folder), do-work/follow-runs.mjs, do-work/session-runs.mjs and test/session-runs.test.mjs",
+  "start_here": "Say to your AI: \"In my folder /srv/bakery-site allow my AI command line only Read and Edit, then read the list back to me.\" It keeps the list in this computer's settings file and reads it back.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "The allowed tools are kept per folder in this computer's own settings file, not in a list of your account.",
   "workflows": [],
   "tools": [
     "tool:allow-my-ai-command-line-tools-in-a-folder"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:allow-my-ai-command-line-tools-in-a-folder\", and give it verb.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:allow-my-ai-command-line-tools-in-a-folder and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Keep, read or clear the tools I allow my own AI command line in one workspace folder, passed as that command line's own allow-list flag"
+    "1. Pick one existing workspace folder and the tool names you want allowed, for example Read,Edit.",
+    "2. Say \"Allow Read and Edit in /srv/bakery-site\". The AI reads the row with tools:list and runs node tools/follow-my-ai-command-line-runs/do-work/follow-runs.mjs --allow-tools /srv/bakery-site \"Read,Edit\" from the Workshop checkout.",
+    "3. Read it back with --tools /srv/bakery-site (or --tools alone for every folder) and take it away with --clear-tools /srv/bakery-site.",
+    "4. A folder with no list keeps the command line's own permission rules; a command line with no allow-list flag (Codex) is answered as not applying. A folder that does not exist, or no tool named, exits 2 with {\"error\"} on standard error."
   ],
   "worked_examples": [
     {
-      "title": "Allow my AI command line some tools in one folder (runs on your computer) on a sample input",
-      "ask": "Run tool:allow-my-ai-command-line-tools-in-a-folder.",
+      "title": "Allow Read and Edit in one folder, with a repeated name kept once",
+      "ask": "In /srv/bakery-site allow my AI command line only Read and Edit.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:allow-my-ai-command-line-tools-in-a-folder",
-            "input": {
-              "verb": "--allow-tools"
-            }
+            "tool": "tool:allow-my-ai-command-line-tools-in-a-folder"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Keep, read or clear the tools I allow my own AI command line in one workspace folder, passed as that command line's own allow-list flag"
+      "given": "From tools/follow-my-ai-command-line-runs/test/session-runs.test.mjs (\"the workspace allow-list is kept, read and cleared by folder\"), whose call setWorkspaceTools(rules, folder, 'Read, Edit,Read') is what the command runs. Command: node tools/follow-my-ai-command-line-runs/do-work/follow-runs.mjs --allow-tools /srv/bakery-site \"Read, Edit,Read\" (the folder must exist).",
+      "hands_back": "{\"folder\":\"/srv/bakery-site\",\"tools\":[\"Read\",\"Edit\"]} printed as pretty JSON; the test asserts the names are trimmed and the duplicate dropped. Then --tools /srv/bakery-site answers {\"folder\":\"/srv/bakery-site\",\"tools\":[\"Read\",\"Edit\"]} and --clear-tools /srv/bakery-site answers {\"folder\":\"/srv/bakery-site\",\"cleared\":true}."
     }
   ]
 }

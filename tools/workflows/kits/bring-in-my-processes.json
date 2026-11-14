@@ -1,23 +1,25 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:bring-in-my-processes's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:bring-in-my-processes.\" Find the processes, skills, checklists, scripts and tools a person already has on a computer or agent, check which ones the marketplace already has, and bring each missing one in as a workflow or a tool that keeps running where it already lives, with no duplicates.",
+  "drafted_from": "workflow:bring-in-my-processes's row in tools/workflows/recipes/workflows.json (its input schema, steps and submit shapes)",
+  "start_here": "Say to your AI: \"Run workflow:bring-in-my-processes with scope: the folder named skills, which holds three checklists and one script.\" It lists what you have, searches the marketplace, and brings in only what is missing.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It reads your skills, scripts and checklists where they live and publishes workflow and tool rows; it keeps no list of its own.",
   "workflows": [
     "workflow:bring-in-my-processes",
     "workflow:turn-research-into-a-plan"
   ],
-  "tools": [],
+  "tools": [
+    "tool:start-a-recipe-run"
+  ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:bring-in-my-processes\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:bring-in-my-processes) and works through its steps in order: inventory, match, decide, bring_in.",
-    "3. Read what each step hands back; the last step is bring_in."
+    "1. Decide the scope: one folder of skills, a scripts folder, or everything your AI can reach.",
+    "2. Say \"Run workflow:bring-in-my-processes\" with that scope.",
+    "3. The AI works the steps inventory, match, decide and bring_in: it reads each item, searches the workflows and tools for the same job, decides each item once and adapts only the missing ones (workflow:turn-research-into-a-plan shows a whole workflow).",
+    "4. Read the bring_in answer: each workflow_id or tool_id and whether it was published; read leave for what was left out and why."
   ],
   "worked_examples": [
     {
-      "title": "Bring in my processes and tools from its first step",
-      "ask": "Run workflow:bring-in-my-processes.",
+      "title": "Three items: one becomes a workflow, one a tool, one is left",
+      "ask": "Bring in what is in my skills folder.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -28,15 +30,15 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:bring-in-my-processes",
-              "scope": "<scope: What to look through, such as a folder of skills, a scripts folder, or everything this agent can reach>"
+              "scope": "the folder named skills, holding close-the-shop.md, send-invoice.sh and brand-notes.md"
             }
           }
         }
       },
       "workflow": "workflow:bring-in-my-processes",
-      "step": "inventory",
-      "hands_back": "Step inventory answers with items.",
-      "given": "The person gives: scope (shown as <name> in the input)."
+      "step": "decide",
+      "given": "The inventory step listed close-the-shop.md (a five-step evening checklist: a workflow), send-invoice.sh (one action: a tool) and brand-notes.md (reference). The match step searched the workflow recipes and the tools with each job and found nothing doing the same job for the first two.",
+      "hands_back": "The submit shape of step decide: {\"bring_in\":[{\"item\":\"close-the-shop.md\",\"as\":\"new workflow\",\"reason\":\"A five-step checklist done every evening and nothing found does the same job.\"},{\"item\":\"send-invoice.sh\",\"as\":\"new tool\",\"reason\":\"One repeatable action that keeps running where the script lives.\"}],\"leave\":[{\"item\":\"brand-notes.md\",\"reason\":\"Reference material, not a repeatable job.\"}]}"
     }
   ]
 }

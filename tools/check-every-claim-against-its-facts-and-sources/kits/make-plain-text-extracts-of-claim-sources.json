@@ -1,39 +1,34 @@
 {
-  "draft": true,
-  "drafted_from": "tool:make-plain-text-extracts-of-claim-sources's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:make-plain-text-extracts-of-claim-sources with request.\" Turn every source I saved for fact checking (a web page, a FoodData Central food, an edit plan, a text) into the plain text my claims are checked against",
+  "drafted_from": "tool:make-plain-text-extracts-of-claim-sources row, do-work/make_source_extracts.py, test/test_claim_check.py (test_source_extracts_are_made_from_the_raw_files) and test/fixture_world.py",
+  "start_here": "Say to your AI: \"I saved the made-up iron fact sheet as raw/iron.html in my gate folder, so make the plain-text copy my claims are checked against.\" It runs the script on your sources file and tells you each source's extract and its length.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It reads a sources file and the raw files beside it and writes extract files; it names no list of yours.",
   "workflows": [],
   "tools": [
     "tool:make-plain-text-extracts-of-claim-sources",
     "tool:check-every-claim-against-its-facts-and-sources"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:make-plain-text-extracts-of-claim-sources\", and give it request.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:make-plain-text-extracts-of-claim-sources and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Turn every source I saved for fact checking (a web page, a FoodData Central food, an edit plan, a text) into the plain text my claims are checked against"
+    "1. Save each source you cite in a folder (for example gate/raw/iron.html) and write gate/sources.json: {\"sources\": {\"iron-sheet\": {\"raw\": \"raw/iron.html\", \"extract\": \"html\", \"text\": \"iron.txt\"}}}. The extract kind is html, fdc-json, new-order or copy.",
+    "2. Read the tool's row with tools:list {tool: \"tool:make-plain-text-extracts-of-claim-sources\"}, then from the root of the Workshop checkout run its command with {request} set to a file holding {\"sources\": \"gate/sources.json\"}.",
+    "3. Read the last line: {\"result\": {\"sources\": [{\"id\", \"text\", \"chars\"}]}}. A kind made by its own tool (such as whisper-words) shows kept: true, and is refused with an error when its extract file is missing.",
+    "4. Run tool:check-every-claim-against-its-facts-and-sources next: it checks each quoted wording against these extracts."
   ],
   "worked_examples": [
     {
-      "title": "Make the plain-text copy of every source my claims cite, from the files I saved (runs on your computer) on a sample input",
-      "ask": "Run tool:make-plain-text-extracts-of-claim-sources.",
+      "title": "A web page becomes one line of plain text",
+      "ask": "Make the plain-text copy of my iron fact sheet source.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
-          "input": {
-            "tool": "tool:make-plain-text-extracts-of-claim-sources",
-            "input": {
-              "request": "<request: The request JSON file, put where {request} is: {\"sources\": the sources file}>"
-            }
-          }
+          "method": "tools:list",
+          "input": { "tool": "tool:make-plain-text-extracts-of-claim-sources" }
         }
       },
-      "hands_back": "The result the item's own job names: Turn every source I saved for fact checking (a web page, a FoodData Central food, an edit plan, a text) into the plain text my claims are checked against",
-      "given": "The person gives: request (shown as <name> in the input)."
+      "given": "From tools/check-every-claim-against-its-facts-and-sources/test/test_claim_check.py and test/fixture_world.py: the AI then runs `python3 -I tools/check-every-claim-against-its-facts-and-sources/do-work/make_source_extracts.py < request.json` from the checkout root, where request.json is {\"sources\": \"gate/sources.json\"}, gate/sources.json is {\"sources\": {\"iron-sheet\": {\"raw\": \"raw/iron.html\", \"extract\": \"html\", \"text\": \"iron.txt\"}}} and gate/raw/iron.html is <html><head><style>p{}</style></head><body><p>Iron, Fact Sheet (made up). Adults 19-50 years 18 mg a day. Spinach, 1 cup cooked 6 mg. Lentils, 1 cup cooked 6.6 mg.</p></body></html>.",
+      "hands_back": "The style block and tags are dropped and gate/iron.txt holds the line \"Iron, Fact Sheet (made up). Adults 19-50 years 18 mg a day. Spinach, 1 cup cooked 6 mg. Lentils, 1 cup cooked 6.6 mg.\" and a newline. The last printed line is {\"result\": {\"sources\": [{\"id\": \"iron-sheet\", \"text\": \"gate/iron.txt\", \"chars\": 118}]}}."
     }
   ]
 }

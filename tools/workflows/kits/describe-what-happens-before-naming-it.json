@@ -1,22 +1,24 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:describe-what-happens-before-naming-it's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:describe-what-happens-before-naming-it.\" Find out what is actually happening in any subject, and under which conditions it holds or fails, before choosing its dimensions, goals, tradeoffs or name: describe it in observable terms, sort every stated requirement into observed, assumed or inherited, keep only the distinctions that change the outcome, derive the fewest principles the evidence supports, and only then propose dimensions (each with a test that could reject it) and a name that claims no more than what was derived.",
+  "drafted_from": "workflow:describe-what-happens-before-naming-it's row in tools/workflows/recipes/workflows.json (its input schema, steps and submit shapes)",
+  "start_here": "Say to your AI: \"Run workflow:describe-what-happens-before-naming-it on the subject: why customers leave the Saturday bread queue, with the goal of fewer walk-aways.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It writes its answer back in the chat step by step and keeps no list.",
   "workflows": [
     "workflow:describe-what-happens-before-naming-it"
   ],
-  "tools": [],
+  "tools": [
+    "tool:start-a-recipe-run"
+  ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:describe-what-happens-before-naming-it\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:describe-what-happens-before-naming-it) and works through its steps in order: observe, requirements, conditions, principles, dimensions-and-name.",
-    "3. Read what each step hands back; the last step is dimensions-and-name."
+    "1. State the subject in a few words and, if you have one, the goal.",
+    "2. Say \"Run workflow:describe-what-happens-before-naming-it\" with subject and goal.",
+    "3. The AI works observe, requirements, conditions, principles and dimensions-and-name in order: what can be seen or counted, each requirement marked observed, assumed or inherited, where it holds and fails, the fewest principles, and only then dimensions with a rejecting test and a name.",
+    "4. Read still_unknown at the end: it is what the evidence did not settle."
   ],
   "worked_examples": [
     {
-      "title": "Describe what happens before you name it from its first step",
-      "ask": "Run workflow:describe-what-happens-before-naming-it.",
+      "title": "Each stated requirement is marked observed, assumed or inherited",
+      "ask": "Describe the Saturday queue problem before naming it.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,15 +29,16 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:describe-what-happens-before-naming-it",
-              "subject": "<subject: string>"
+              "subject": "why customers leave the Saturday bread queue",
+              "goal": "fewer walk-aways"
             }
           }
         }
       },
       "workflow": "workflow:describe-what-happens-before-naming-it",
-      "step": "observe",
-      "hands_back": "Step observe answers with observations.",
-      "given": "The person gives: subject (shown as <name> in the input)."
+      "step": "requirements",
+      "given": "The observe step counted: between 8 and 9 AM, 14 of 60 people who joined the queue left before the counter. Stated requirements: \"everyone must be served in order\" and \"the queue must be under 5 minutes\". Read from the requirements step of the workflow row.",
+      "hands_back": "The submit shape of step requirements: {\"requirements\":[{\"requirement\":\"Everyone must be served in order\",\"basis\":\"inherited\",\"if_removed\":\"People ordering one loaf could be served first and the queue would shrink faster.\"},{\"requirement\":\"The queue must be under 5 minutes\",\"basis\":\"assumed\",\"if_removed\":\"No one measured how long the 14 people waited before leaving, so the limit may be shorter or longer.\"}]}"
     }
   ]
 }

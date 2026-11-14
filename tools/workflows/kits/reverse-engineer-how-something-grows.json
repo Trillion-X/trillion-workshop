@@ -1,9 +1,8 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:reverse-engineer-how-something-grows's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:reverse-engineer-how-something-grows.\" For any target the person names (a company, product, app or creator): chart its monthly search traffic and brand searches from one source and find the months growth stepped up; date every launch, price change, headline change, tool added, ad start, sponsorship, campaign, funding round, press wave and hire on that chart from its site, sitemap, archives, DNS, certificate logs, ad libraries, the paid promotion ad libraries miss, posts and creator videos, founder interviews, reviews and job posts; read what it ranks for and which AI answers name and cite it; rank its own content top quarter against bottom on each channel; find its loops and programs; credit clusters of moves with their lift; compare it stage by stage with the person's own numbers and find where it is weak; then turn what worked into plays the person can copy, each with the Workshop workflow or tool that runs it and a ready prompt, plus the plays to skip and the one to start this week.",
+  "drafted_from": "tools/workflows/recipes/workflows.json (the workflow:reverse-engineer-how-something-grows row: input_schema and step setup with its submit shape); prices are example numbers, the real run reads them with tool:read-a-treg-endpoint-and-its-price",
+  "start_here": "Say to your AI: \"Run workflow:reverse-engineer-how-something-grows on https://example.com in quick mode with a 3 dollar budget; I want to grow my bakery's online pre-orders from 20 to 100 a month.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "The workflow keeps its findings in its own run answers and the person's treg balance, and names no list in its words, input or steps.",
   "workflows": [
     "workflow:reverse-engineer-how-something-grows"
   ],
@@ -24,14 +23,15 @@
     "tool:search-the-treg-catalog"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:reverse-engineer-how-something-grows\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:reverse-engineer-how-something-grows) and works through its steps in order: setup, site, history, stack-and-news, when-it-grew, search-and-answers, ads, paid-promotion, who-talks-about-it, own-content, links-and-loops, hiring, hidden-signals, team-voices, go-inside, landscape, moves-vs-growth, gap, path, playbook, content-report, watch-report.",
-    "3. Read what each step hands back; the last step is watch-report."
+    "1. Have a treg connection (service_connection:treg) with some balance; the first step reads it and stops if treg refuses the token.",
+    "2. Say \"Run workflow:reverse-engineer-how-something-grows\" with target (a site address or a name), goal (what you want to grow, in your words), and optionally mode (quick is a first look), budget_usd (default 3) and country (default US).",
+    "3. At setup the AI shows you the plan: each step's endpoint and price, the estimated total, your budget and balance. Answer continue, skip or stop before any paid call is made.",
+    "4. Each later step ends by telling you its finding in three lines and the cost of the next step; the last steps give plays you can copy, each with the Workshop workflow or tool that runs it and a ready prompt, the plays to skip, and the one to start this week."
   ],
   "worked_examples": [
     {
-      "title": "Reverse engineer how something grows from its first step",
-      "ask": "Run workflow:reverse-engineer-how-something-grows.",
+      "title": "Setting up a quick look at a bakery site on a 3 dollar budget",
+      "ask": "Reverse engineer how https://example.com grows, quick mode, 3 dollars.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -42,16 +42,18 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:reverse-engineer-how-something-grows",
-              "target": "<target: What to reverse engineer: its site address, or its name when the site is not known, for example https://example.com>",
-              "goal": "<goal: What the person wants to grow, in their own words: their product or channel and the result they want; the plays are crossed with it>"
+              "target": "https://example.com",
+              "goal": "Grow my bakery's online pre-orders from 20 to 100 a month",
+              "mode": "quick",
+              "budget_usd": 3
             }
           }
         }
       },
       "workflow": "workflow:reverse-engineer-how-something-grows",
       "step": "setup",
-      "hands_back": "Step setup answers with target, domain, mode, budget_usd, team_id, balance_start_usd, plan, estimated_total_usd, within_budget, person_said, window_months, industry_packs.",
-      "given": "The person gives: target, goal (shown as <name> in the input)."
+      "given": "Read from the setup step of the row (tools/workflows/recipes/workflows.json). Synthetic values: the person says their domain is mybakery.example, stage early revenue, channels instagram; Search Console connected; tool:read-my-treg-balance answers 12.40 for team 1234; one priced endpoint (treg.web.map, 0.01 dollars per call, example price); the person answers continue.",
+      "hands_back": "{\"target\":\"https://example.com\",\"domain\":\"example.com\",\"mode\":\"quick\",\"budget_usd\":3,\"team_id\":1234,\"balance_start_usd\":12.4,\"plan\":[{\"step\":\"site\",\"endpoint\":\"treg.web.map\",\"price_usd\":0.01,\"unit\":\"call\"}],\"estimated_total_usd\":0.01,\"within_budget\":true,\"person_said\":\"continue\",\"window_months\":24,\"industry_packs\":[\"food-and-beverage\"],\"yours\":{\"domain\":\"mybakery.example\",\"stage\":\"early revenue\",\"channels\":[\"instagram\"],\"connected\":[\"Search Console\"]}}"
     }
   ]
 }

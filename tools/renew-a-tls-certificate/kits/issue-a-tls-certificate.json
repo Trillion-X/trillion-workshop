@@ -1,23 +1,23 @@
 {
-  "draft": true,
-  "drafted_from": "tool:issue-a-tls-certificate's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:issue-a-tls-certificate with hostname, address, ssh_port, admin_user, knownHost, host.\" Get a certificate for my server's public address for the first time, by a DNS-01 check with my DNS key",
+  "drafted_from": "tool:issue-a-tls-certificate's row in tools/renew-a-tls-certificate/tool-rows.json, do-work/renew-a-tls-certificate.mjs, do-work/tls-host-owner.py and the tests in test/",
+  "start_here": "Say to your AI: \"Issue a certificate for app.example.com on my server at 192.0.2.34, reached as admin with its pinned key.\" It runs tool:issue-a-tls-certificate with your DNS key and keeps a still-valid certificate instead of replacing it.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of its own: it takes one server's facts as its input and answers what that server's certificate owner reports.",
   "workflows": [],
   "tools": [
     "tool:issue-a-tls-certificate",
     "tool:set-up-a-servers-tls-owner"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:issue-a-tls-certificate\", and give it hostname, address, ssh_port, admin_user, knownHost, host.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:issue-a-tls-certificate and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields hostname, certificate_present, certificate_changed."
+    "1. Gather the server's facts: its public name, IPv4 address, SSH port, the administrator you sign in as, its pinned key (\"<address> ssh-ed25519 <key>\") and its layout (host: owner path, state folder, downloads folder, ingress, receptionist). The README in tools/renew-a-tls-certificate/ shows a made-up one.",
+    "2. Say to your AI the sentence in start_here. It calls run_resource_operation at @workshop-tools with method tools:run, tool tool:issue-a-tls-certificate and that input (the worked example shows one). The door mounts your server administration key for the run; you paste no key.",
+    "3. Read what comes back: the certificate as the server verified it, preexisting_dns_records_unchanged, certificate_changed and dry_run (false). An {\"error\": ...} or a thrown message names what to change (for example the layout or the pinned key was refused).",
+    "4. Next run tool:write-a-public-hosts-paths and tool:switch-on-a-servers-receptionist; renewals later go through tool:renew-a-tls-certificate."
   ],
   "worked_examples": [
     {
-      "title": "Issue a server's TLS certificate on a sample input",
-      "ask": "Run tool:issue-a-tls-certificate.",
+      "title": "First certificate for a server",
+      "ask": "Get a certificate for app.example.com.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,18 +27,50 @@
           "input": {
             "tool": "tool:issue-a-tls-certificate",
             "input": {
-              "hostname": "<hostname: string>",
-              "address": "<address: string>",
-              "ssh_port": "<ssh_port: The server's SSH port (22 for a pinned key written as \"<address> ssh-ed25519 <key>\")>",
-              "admin_user": "<admin_user: The administrator the run signs in as>",
-              "knownHost": "<knownHost: string>",
-              "host": {}
+              "hostname": "app.example.com",
+              "address": "192.0.2.34",
+              "ssh_port": 22,
+              "admin_user": "admin",
+              "knownHost": "192.0.2.34 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleExampleExampleExampleExample0",
+              "host": {
+                "owner": "/usr/local/lib/example/tls-host-owner.py",
+                "state": "/etc/example-public-tls",
+                "downloads": "/var/lib/public-downloads",
+                "ingress": {
+                  "service": "example-public-tls",
+                  "pid_file": "/run/example-public-tls.pid",
+                  "error_log": "/var/log/nginx/example-error.log"
+                },
+                "receptionist": {
+                  "service": "example-receptionist",
+                  "account": "example-mcp",
+                  "binary_pattern": "/opt/example/source/[a-f0-9]{40}/target/release/example-receptionist",
+                  "listen": "127.0.0.1:9443",
+                  "paths": [
+                    "/mcp",
+                    "/mcp/resource-connection",
+                    "/.well-known/oauth-protected-resource/mcp",
+                    "/.well-known/oauth-protected-resource"
+                  ],
+                  "environment": {
+                    "EXAMPLE_LISTEN": "{listen}",
+                    "EXAMPLE_ORIGIN": "https://{hostname}"
+                  }
+                },
+                "site": {
+                  "hostname": "example.org",
+                  "paths": [
+                    "/privacy",
+                    "/terms"
+                  ]
+                }
+              }
             }
           }
         }
       },
-      "hands_back": "An answer with the fields hostname, certificate_present, certificate_changed.",
-      "given": "The person gives: hostname, address, ssh_port, admin_user, knownHost (shown as <name> in the input)."
+      "given": "Read from tools/renew-a-tls-certificate/do-work/tls-host-owner.py (certificate: action issue runs certbot certonly with --keep-until-expiring and answers the status plus preexisting_dns_records_unchanged, certificate_changed, dry_run) and the Mac side in do-work/renew-a-tls-certificate.mjs; the server has had tool:set-up-a-servers-tls-owner and has no certificate yet.",
+      "hands_back": "{\"hostname\":\"app.example.com\",\"certificate_present\":true,\"system_trust_and_hostname_verified\":true,\"not_before_local\":\"11/13/2026, 4:10:22 PM PST\",\"not_after_local\":\"2/11/2027, 4:10:21 PM PST\",\"issuer\":\"C = US, O = Let's Encrypt, CN = E7\",\"serial\":\"05A1B2C3D4E5F60718293A4B5C6D7E8F9A0B\",\"private_key_mode\":\"0600\",\"preexisting_dns_records_unchanged\":true,\"certificate_changed\":true,\"dry_run\":false}"
     }
   ]
 }

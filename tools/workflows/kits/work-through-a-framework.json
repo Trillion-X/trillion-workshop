@@ -1,22 +1,156 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:work-through-a-framework's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:work-through-a-framework.\" Work through any author's framework for a person using what is already known about them, keep every answer with its source and confidence, and ask only for answers the evidence cannot support.",
-  "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "start_here": "Say to your AI: \"Run workflow:work-through-a-framework with framework 'Morning Routine Handbook' about my bakery pursuit: answer every question from what you already know about me and ask me only what you cannot tell.\"",
+  "lists": [
+    {
+      "list": "list:about-me",
+      "label": "About me",
+      "row_type": "record:about-me",
+      "holds": "What is known about the person, one row per framework question: the draft answer, whether the AI inferred it or the person confirmed it, how sure, and the evidence behind it.",
+      "fields": [
+        {
+          "id": "framework_id",
+          "kind": "text",
+          "label": "Framework",
+          "alike": [
+            "framework",
+            "source framework"
+          ]
+        },
+        {
+          "id": "item",
+          "kind": "text",
+          "label": "Source item",
+          "alike": [
+            "item id",
+            "section"
+          ]
+        },
+        {
+          "id": "question",
+          "kind": "text",
+          "label": "Question",
+          "alike": [
+            "prompt",
+            "ask"
+          ]
+        },
+        {
+          "id": "answer",
+          "kind": "long-text",
+          "label": "Answer",
+          "alike": [
+            "draft answer",
+            "response",
+            "notes"
+          ]
+        },
+        {
+          "id": "status",
+          "kind": "choice",
+          "label": "Status",
+          "alike": [
+            "state",
+            "stage"
+          ]
+        },
+        {
+          "id": "confidence",
+          "kind": "number",
+          "label": "Confidence",
+          "alike": [
+            "certainty",
+            "score"
+          ]
+        },
+        {
+          "id": "evidence",
+          "kind": "long-text",
+          "label": "Evidence",
+          "alike": [
+            "proof",
+            "quotes",
+            "references"
+          ]
+        },
+        {
+          "id": "source",
+          "kind": "text",
+          "label": "Source citation",
+          "alike": [
+            "citation",
+            "author"
+          ]
+        },
+        {
+          "id": "areas",
+          "kind": "tags",
+          "label": "Areas it bears on",
+          "alike": [
+            "topics",
+            "profile area"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "morning-handbook-item-2-q1",
+          "values": {
+            "framework_id": "framework:morning-routine-handbook",
+            "item": "item-2",
+            "question": "What is the first thing you do when you wake up?",
+            "answer": "Draft: you start the oven and read the order sheet before anything else.",
+            "status": "inferred",
+            "confidence": 0.8,
+            "evidence": "Voice note on 2026-10-30: \"first thing I do is start the oven and read the order sheet\"",
+            "source": "Example Author, Morning Routine Handbook, chapter 2",
+            "areas": [
+              "work",
+              "habits"
+            ]
+          }
+        },
+        {
+          "id": "morning-handbook-item-3-q1",
+          "values": {
+            "framework_id": "framework:morning-routine-handbook",
+            "item": "item-3",
+            "question": "What would you stop doing if nobody noticed?",
+            "answer": "",
+            "status": "needs-you",
+            "confidence": 0,
+            "evidence": "",
+            "source": "Example Author, Morning Routine Handbook, chapter 3",
+            "areas": [
+              "values"
+            ]
+          }
+        }
+      ],
+      "alike": [
+        "a personal profile or bio note",
+        "a journaling app's answers",
+        "a coaching intake form"
+      ]
+    }
+  ],
   "workflows": [
     "workflow:work-through-a-framework"
   ],
-  "tools": [],
+  "tools": [
+    "tool:start-a-recipe-run",
+    "tool:pour-example-rows-into-my-list"
+  ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:work-through-a-framework\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:work-through-a-framework) and works through its steps in order: read, infer, keep, ask, use.",
-    "3. Read what each step hands back; the last step is use."
+    "1. Have the framework as a private file in your files (items with their questions, exercises and source citations); run workflow:bring-in-a-framework first if you do not have one.",
+    "2. Pour the two example rows into the list you keep facts about yourself in (see pour), or let the run make list:about-me; say \"Run workflow:work-through-a-framework\" with framework and, when known, about.",
+    "3. Steps read and infer go through every item in order and answer from your own messages, recordings and files, each inferred answer with its quote, confidence and area; nothing is asked yet.",
+    "4. Step keep saves every answer as a row of About me (AI-inferred and person-confirmed stay apart); step ask shows you only the needs-you questions beside the AI's best draft.",
+    "5. Confirm, correct or leave each open; step use refreshes awareness from the confirmed rows and reports how many items were inferred, asked, confirmed, changed and left open."
   ],
   "worked_examples": [
     {
-      "title": "Work through a framework from its first step",
-      "ask": "Run workflow:work-through-a-framework.",
+      "title": "One question is answered from a voice note, another is left for the person",
+      "ask": "Work through my Morning Routine Handbook for my bakery.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,15 +161,67 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:work-through-a-framework",
-              "framework": "<framework: A private framework file in this person's files (name or identity), with its items, questions, exercises and source citations>"
+              "framework": "framework:morning-routine-handbook",
+              "about": "pursuit:example-bakery"
             }
           }
         }
       },
       "workflow": "workflow:work-through-a-framework",
-      "step": "read",
-      "hands_back": "Step read answers with framework_id, items_in_scope, already_answered, read.",
-      "given": "The person gives: framework (shown as <name> in the input)."
+      "step": "infer",
+      "given": "Read from the infer step of workflow:work-through-a-framework in tools/workflows/recipes/workflows.json. The framework has items item-2 and item-3; a voice note from 2026-10-30 says \"first thing I do is start the oven and read the order sheet\"; nothing in the account says what the person would stop doing.",
+      "hands_back": "{\"answers\":[{\"item\":\"item-2\",\"question\":\"What is the first thing you do when you wake up?\",\"answer\":\"You start the oven and read the order sheet before anything else.\",\"status\":\"inferred\",\"confidence\":0.8,\"evidence\":[{\"where\":\"voice note 2026-10-30\",\"quote\":\"first thing I do is start the oven and read the order sheet\"}],\"area\":[\"work\",\"habits\"]},{\"item\":\"item-3\",\"question\":\"What would you stop doing if nobody noticed?\",\"answer\":\"No evidence in the account.\",\"status\":\"needs-you\",\"confidence\":0,\"evidence\":[],\"area\":[\"values\"]}],\"needs_you\":[\"item-3\"]}"
     }
-  ]
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "example": {
+      "kit_list": "list:about-me",
+      "into": {
+        "list": "list:my-profile-notes",
+        "row_type": "record:profile-note",
+        "fields": [
+          {
+            "id": "framework",
+            "label": "Framework"
+          },
+          {
+            "id": "section",
+            "label": "Section"
+          },
+          {
+            "id": "prompt",
+            "label": "Prompt"
+          },
+          {
+            "id": "response",
+            "label": "Response"
+          },
+          {
+            "id": "state",
+            "label": "State"
+          },
+          {
+            "id": "certainty",
+            "label": "Certainty"
+          },
+          {
+            "id": "proof",
+            "label": "Proof"
+          },
+          {
+            "id": "citation",
+            "label": "Citation"
+          },
+          {
+            "id": "topics",
+            "label": "Topics"
+          }
+        ]
+      }
+    }
+  },
+  "drafted_from": "workflow:work-through-a-framework row (input_schema; steps read to use; the About me row fields come from its keep step)"
 }

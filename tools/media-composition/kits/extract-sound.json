@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:extract-sound's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:extract-sound with video.\" Take the sound out of a video as a small audio file, for example to transcribe it",
+  "drafted_from": "tool:extract-sound's own row in tools/media-composition/tool-rows.json (its argv is one ffmpeg command: no script, mono, 16 kHz, 64 kb/s), and that command run on a synthetic 7 second clip",
+  "start_here": "Say to your AI: \"Take the sound out of my video as a small audio file so I can transcribe it.\" It runs tool:extract-sound and saves an MP3 in your files.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It reads one video you name and saves its sound as one file, so it keeps no list of its own.",
   "workflows": [],
   "tools": [
     "tool:extract-sound"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:extract-sound\", and give it video.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:extract-sound and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields files."
+    "1. Find your video's identity in your files: 1f: then 64 hex.",
+    "2. Say \"Extract the sound from this video\"; the tool takes only the video.",
+    "3. The AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:extract-sound. It answers {\"files\": {\"sound\": {identity, bytes, media_type, name}}}, or {\"error\": \"what to change\"}.",
+    "4. Give files.sound.identity to the speech-to-text tool, or keep the MP3: it is mono 16 kHz at 64 kb/s, about 0.5 MB a minute."
   ],
   "worked_examples": [
     {
-      "title": "Extract the sound from a video on a sample input",
-      "ask": "Run tool:extract-sound.",
+      "title": "A 7 second clip becomes a 57 KB MP3",
+      "ask": "Take the sound out of my video.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,13 +26,13 @@
           "input": {
             "tool": "tool:extract-sound",
             "input": {
-              "video": "<video: The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it>"
+              "video": "1f:7320b49113520185e2ad8938759857db29ec6b0ed6a30cd1a2cfc05c68d932c6"
             }
           }
         }
       },
-      "hands_back": "An answer with the fields files.",
-      "given": "The person gives: video (shown as <name> in the input)."
+      "given": "read from the tool row's argv (ffmpeg -vn -ac 1 -ar 16000 -b:a 64k) and run on a 7 second clip: 7 s at 64 kb/s is about 56 KB",
+      "hands_back": "{\"files\":{\"sound\":{\"identity\":\"1f:e263691c0f313330476d4c3667659d43e499bb51ba212f527d98ca6ac9922da1\",\"bytes\":57171,\"media_type\":\"audio/mpeg\",\"name\":\"sound.mp3\"}}}"
     }
   ]
 }

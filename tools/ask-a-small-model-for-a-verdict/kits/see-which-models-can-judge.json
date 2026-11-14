@@ -1,38 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:see-which-models-can-judge's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:see-which-models-can-judge with rubrics_file.\" Score every model I can ask against every question in my rubrics file and show who agrees with the answers I already know, how long it took and who did not answer",
+  "drafted_from": "tool:see-which-models-can-judge row in tools/ask-a-small-model-for-a-verdict/tool-rows.json, its code in tools/ask-a-small-model-for-a-verdict/do-work/ and tools/ask-a-small-model-for-a-verdict/test/tool.test.mjs; the answers were produced by running the tool against a stand-in model server",
+  "start_here": "Say to your AI: \"Score my local model against the claims-done question in /work/judge/rubrics.json and tell me whether it can judge it.\" It runs the scoreboard and reads which models can and cannot judge each question.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads your rubrics file and asks each model you name its known cases, writing nothing.",
   "workflows": [],
   "tools": [
     "tool:see-which-models-can-judge"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:see-which-models-can-judge\", and give it rubrics_file.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:see-which-models-can-judge and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Score every model I can ask against every question in my rubrics file and show who agrees with the answers I already know, how long it took and who did not answer"
+    "1. Write /work/judge/rubrics.json: {\"providers\": [your models], \"rubrics\": [{id, question, answer_shape, accept_when_answer_in, calibration cases}]}.",
+    "2. Write /work/judge/request.json: {\"rubrics_file\": \"/work/judge/rubrics.json\", \"passes\": 1}.",
+    "3. Say \"Which of my models can judge?\". The AI reads the row with tools:list and runs: node tools/ask-a-small-model-for-a-verdict/do-work/ask-a-small-model.mjs scoreboard < /work/judge/request.json.",
+    "4. Read result: one entry per rubric, one row per model with correct of needed and verdict (\"can judge this\" or not). Use only models that can judge."
   ],
   "worked_examples": [
     {
-      "title": "See which of my models can judge each of my questions (runs on your computer) on a sample input",
-      "ask": "Run tool:see-which-models-can-judge.",
+      "title": "One local model, one rubric: it can judge it",
+      "ask": "Can my local model judge the claims-done question?",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:see-which-models-can-judge",
-            "input": {
-              "rubrics_file": "<rubrics_file: string>"
-            }
+            "tool": "tool:see-which-models-can-judge"
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Score every model I can ask against every question in my rubrics file and show who agrees with the answers I already know, how long it took and who did not answer",
-      "given": "The person gives: rubrics_file (shown as <name> in the input)."
+      "given": "From tools/ask-a-small-model-for-a-verdict/test/tool.test.mjs (test \"scoreboard and calibrate...\"), run for real against a stand-in model server (a bakery's note checker; the stand-in model server answers true only for text containing \"trust me\"). rubrics.json is {\"providers\": [{\"via\": \"locally-served\", \"endpoint\": \"http://127.0.0.1:11434\", \"timeout_seconds\": 30, \"protocol\": \"ollama\"}], \"rubrics\": [{\"id\": \"claims-done\", \"question\": \"Does the note say the order is ready without saying it was checked?\", \"answer_shape\": {\"kind\": \"true-or-false\"}, \"accept_when_answer_in\": [true], \"calibration\": [{\"content\": \"the sourdough order is ready, trust me\", \"expect\": true}, {\"content\": \"counted 12 loaves against the slip: ready\", \"expect\": false}]}]}; request.json is {\"rubrics_file\": \"/work/judge/rubrics.json\", \"passes\": 1}. Command: node tools/ask-a-small-model-for-a-verdict/do-work/ask-a-small-model.mjs scoreboard < /work/judge/request.json",
+      "hands_back": "Last line: {\"result\": [{\"rubric\": \"claims-done\", \"cases\": 2, \"passes\": 1, \"rows\": [{\"via\": \"locally-served\", \"candidate\": \"stand-in\", \"correct\": 2, \"errors\": 0, \"attempts\": 2, \"asked\": 2, \"passed\": true, \"needed\": 2, \"wrong\": 0, \"verdict\": \"can judge this\", \"took_ms\": 35}]}]}."
     }
   ]
 }

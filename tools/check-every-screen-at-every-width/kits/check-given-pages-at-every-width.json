@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:check-given-pages-at-every-width's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-given-pages-at-every-width with screens.\" Open each page I give at every width and device setting and read every piece of text a person can see, refusing text that cannot be read, is drawn in a font the page did not ask for, is cut off or makes a phone scroll sideways",
+  "drafted_from": "tools/check-every-screen-at-every-width/tool-rows.json (its sample run), check-given-pages.mjs, check-screens.mjs and views.json; the sample was run here on 2026-11-13",
+  "start_here": "Say to your AI: \"Check my garden club notice page on a phone and a desktop, in light and dark mode, and tell me any text that is hard to read.\" It runs tool:check-given-pages-at-every-width on the page's HTML.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It takes the pages in its input, writes no file and keeps nothing after the run.",
   "workflows": [],
   "tools": [
     "tool:check-given-pages-at-every-width"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-given-pages-at-every-width\", and give it screens.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-given-pages-at-every-width and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields passed, failures, reported, counts, report."
+    "1. Put the HTML of each page in screens as {id, html}; add route, fonts (the font families the page declares) or steps when the page needs them.",
+    "2. Say \"Check these pages at every width\", or name widths (phone, tablet, desktop) and modes (light, dark, forced, darkreader) to read fewer.",
+    "3. Read what comes back: passed is true only when failures is empty; each failure names the screen, width, mode, probe (contrast, font, overflow, horizontal-scroll, control_name or open), the selector, the text and why.",
+    "4. Fix each failing text in the page and run the check again; counts shows how many failures each probe found."
   ],
   "worked_examples": [
     {
-      "title": "Check pages at every width and device setting on a sample input",
-      "ask": "Run tool:check-given-pages-at-every-width.",
+      "title": "A notice with one faint line fails contrast in four views",
+      "ask": "Check my garden club notice at phone and desktop width, in light and dark mode.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -44,7 +44,8 @@
           }
         }
       },
-      "hands_back": "An answer with the fields passed, failures, reported, counts, report."
+      "given": "Observed on 2026-11-13: this input run through checkGivenPages in tools/check-every-screen-at-every-width/check-given-pages.mjs (the sample run in its own tool-rows.json). The headline and the first paragraph read fine; the paragraph in #c8c8c8 on white is under the 4.5 bar in every view because the page sets its own colours in dark mode too. The report's seconds and timing vary between runs and are left out here.",
+      "hands_back": "{\"passed\":false,\"failures\":[{\"screen\":\"sample-notice\",\"width\":\"desktop\",\"mode\":\"light\",\"probe\":\"contrast\",\"selector\":\"html > body > p.faint\",\"text\":\"Bring your own gloves.\",\"detail\":\"contrast 1.67 < 4.5 before it scrolls into view: rgb(200, 200, 200) on rgb(255,255,255) (ground from html > body)\",\"mark\":3},{\"screen\":\"sample-notice\",\"width\":\"desktop\",\"mode\":\"dark\",\"probe\":\"contrast\",\"selector\":\"html > body > p.faint\",\"text\":\"Bring your own gloves.\",\"detail\":\"contrast 1.67 < 4.5 before it scrolls into view: rgb(200, 200, 200) on rgb(255,255,255) (ground from html > body)\",\"mark\":3},{\"screen\":\"sample-notice\",\"width\":\"phone\",\"mode\":\"light\",\"probe\":\"contrast\",\"selector\":\"html > body > p.faint\",\"text\":\"Bring your own gloves.\",\"detail\":\"contrast 1.67 < 4.5 before it scrolls into view: rgb(200, 200, 200) on rgb(255,255,255) (ground from html > body)\",\"mark\":3},{\"screen\":\"sample-notice\",\"width\":\"phone\",\"mode\":\"dark\",\"probe\":\"contrast\",\"selector\":\"html > body > p.faint\",\"text\":\"Bring your own gloves.\",\"detail\":\"contrast 1.67 < 4.5 before it scrolls into view: rgb(200, 200, 200) on rgb(255,255,255) (ground from html > body)\",\"mark\":3}],\"reported\":[],\"counts\":{\"contrast\":4},\"report\":{\"jobs\":4,\"texts\":12,\"modes\":[\"light\",\"dark\"],\"widths\":[\"phone\",\"desktop\"],\"screens\":[\"sample-notice\"]}}"
     }
   ]
 }

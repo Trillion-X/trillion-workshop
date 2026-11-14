@@ -1,23 +1,24 @@
 {
-  "draft": true,
-  "drafted_from": "tool:send-a-reply-on-youtube's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:send-a-reply-on-youtube with account_id, decision.\" Send one chosen automatic reply to one YouTube message or comment, once, while its place's window, if it sets one, is still open",
+  "drafted_from": "tools/reply-by-keyword-rule/tool-rows.json (tool:send-a-reply-on-youtube), do-work/send-a-reply.mjs, read-data/reply-places.json, test/decide-and-send.test.mjs; the example was run on the test fixture with a stand-in network",
+  "start_here": "Say to your AI: \"Send the YouTube reply that tool:decide-the-replies chose for the comment that asked the price from my YouTube account.\" It runs tool:send-a-reply-on-youtube with account_id and that one decision and tells you whether it was sent.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it takes one decision and keeps only its own reply-kept record for that decision, so a reply is sent once.",
   "workflows": [],
   "tools": [
     "tool:send-a-reply-on-youtube",
-    "tool:decide-the-replies"
+    "tool:decide-the-replies",
+    "tool:send-a-reply-on-instagram"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:send-a-reply-on-youtube\", and give it account_id, decision.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:send-a-reply-on-youtube and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields status, key."
+    "1. Connect your YouTube account first; its connection is named service_connection:youtube or service_connection:youtube:<name>.",
+    "2. Run tool:decide-the-replies for the place and keep only a decision whose action is send; this tool refuses any other.",
+    "3. Say \"Send that reply\": the AI runs tool:send-a-reply-on-youtube at @workshop-tools with {account_id, decision}. It posts publicly on your account, so run it only for replies your rules chose.",
+    "4. Read status: sent (with key and message_id), already-sent (that key has a record and nothing is sent again), refused (with reason: window-closed, host-not-allowed or unknown-kind), failed (with what the place said) or not-known (no answer came back; look on the place yourself, it is never retried)."
   ],
   "worked_examples": [
     {
-      "title": "Send a reply on YouTube on a sample input",
-      "ask": "Run tool:send-a-reply-on-youtube.",
+      "title": "Send the price reply to a YouTube comment, once",
+      "ask": "Send the reply my rules chose for the price comment.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,14 +28,26 @@
           "input": {
             "tool": "tool:send-a-reply-on-youtube",
             "input": {
-              "account_id": "<account_id: One of the person's YouTube accounts, service_connection:youtube or service_connection:youtube:<account>>",
-              "decision": {}
+              "account_id": "service_connection:youtube:one",
+              "decision": {
+                "place": "reply-place:youtube",
+                "kind": "comment",
+                "thread_id": "Ugx1",
+                "message_id": "Ugx1",
+                "created_time": "2026-11-12T11:00:00.000Z",
+                "window_ms": null,
+                "recipient": {},
+                "key": "Ugx1:rule:prices",
+                "rule_id": "rule:prices",
+                "action": "send",
+                "reply_text": "The list is linked below."
+              }
             }
           }
         }
       },
-      "hands_back": "An answer with the fields status, key.",
-      "given": "The person gives: account_id (shown as <name> in the input)."
+      "given": "From tools/reply-by-keyword-rule/test/decide-and-send.test.mjs (the shipped YouTube row test, run here with a stand-in network that answers {\"id\":\"Ugx1.reply\"}): the decision is the one tool:decide-the-replies chose for the comment Ugx1 (\"what is the price\", someone else's). YouTube sets no window. The request goes to https://www.googleapis.com/youtube/v3/comments?part=snippet with {\"snippet\":{\"parentId\":\"Ugx1\",\"textOriginal\":\"The list is linked below.\"}}.",
+      "hands_back": "{\"status\":\"sent\",\"key\":\"Ugx1:rule:prices\",\"message_id\":\"Ugx1.reply\"}; running it again answers {\"status\":\"already-sent\",\"key\":\"Ugx1:rule:prices\"} without a request."
     }
   ]
 }

@@ -1,54 +1,56 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:follow-up-with-people-who-engaged's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:follow-up-with-people-who-engaged.\" Once a week, list the people who commented, replied or signed up because of the person's own posts in the window, match each to the person's people records (adding none without the person), rank them by what they did, draft one short personal follow-up for each of the top people that answers what they actually said, check every draft against the person's own rules, get the person's approval of the exact words, and record each follow-up the person sent.",
-  "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
-  "workflows": [
-    "workflow:follow-up-with-people-who-engaged"
-  ],
-  "tools": [
-    "tool:check-against-a-persons-rules-and-verdicts",
-    "tool:find-people",
-    "tool:rank-people-by-activity",
-    "tool:read-a-page-in-my-browser",
-    "tool:record-a-customer-step",
-    "tool:tell-the-person"
-  ],
-  "instructions": [
-    "1. Say to your AI: \"Run workflow:follow-up-with-people-who-engaged\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:follow-up-with-people-who-engaged) and works through its steps in order: read-engagement, match, rank, draft, approve, person-sends, record.",
-    "3. Read what each step hands back; the last step is record."
-  ],
-  "worked_examples": [
-    {
-      "title": "Follow up with the people who engaged from its first step",
-      "ask": "Run workflow:follow-up-with-people-who-engaged.",
-      "mcp": {
-        "server": "trillion",
-        "tool": "run_resource_operation",
-        "input": {
-          "address": "@workshop-tools",
-          "method": "tools:run",
-          "input": {
-            "tool": "tool:start-a-recipe-run",
-            "input": {
-              "row": "workflow:follow-up-with-people-who-engaged",
-              "platforms": [
-                {
-                  "platform": "<platform: string>",
-                  "profile_url": "<profile_url: string>"
-                }
-              ],
-              "offer": "<offer: What the person can offer a person who engaged (an answer, a call, a free resource, the product), in their own words>"
-            }
-          }
-        }
-      },
-      "workflow": "workflow:follow-up-with-people-who-engaged",
-      "step": "read-engagement",
-      "hands_back": "Step read-engagement answers with engaged.",
-      "given": "The person gives: platform, profile_url, offer (shown as <name> in the input)."
+ "start_here": "Say to your AI: \"Run workflow:follow-up-with-people-who-engaged for my Instagram and YouTube, offer a free tasting box, window 7 days, follow up with at most 5 people.\"",
+ "lists": [],
+ "no_lists_because": "It names no list of its own: it reads the records you already keep of posted pieces, people and sign-ups, and writes only people and customer steps you approve.",
+ "workflows": [
+  "workflow:follow-up-with-people-who-engaged"
+ ],
+ "tools": [
+  "tool:start-a-recipe-run",
+  "tool:read-a-page-in-my-browser",
+  "tool:find-people",
+  "tool:rank-people-by-activity",
+  "tool:check-against-a-persons-rules-and-verdicts",
+  "tool:tell-the-person",
+  "tool:record-a-customer-step"
+ ],
+ "instructions": [
+  "1. Have records of your published pieces, your people and your sign-ups, under whatever kinds you keep them.",
+  "2. Say \"Run workflow:follow-up-with-people-who-engaged\" with platforms and offer; window_days (7) and most_people (10) are optional.",
+  "3. Read the drafts it shows: one short follow-up per top person, each answering their exact words, checked against your rules.",
+  "4. Approve each exact text and each new person, then send every message yourself from your own account; the AI never sends.",
+  "5. Tell it when sent; it confirms each message is visible, records the step and gives you the questions people asked."
+ ],
+ "worked_examples": [
+  {
+   "title": "Two people who engaged this week",
+   "ask": "Follow up with the people who engaged with my posts this week.",
+   "mcp": {
+    "server": "trillion",
+    "tool": "run_resource_operation",
+    "input": {
+     "address": "@workshop-tools",
+     "method": "tools:run",
+     "input": {
+      "tool": "tool:start-a-recipe-run",
+      "input": {
+       "row": "workflow:follow-up-with-people-who-engaged",
+       "platforms": [
+        "instagram",
+        "youtube"
+       ],
+       "offer": "a free tasting box",
+       "window_days": 7,
+       "most_people": 5
+      }
+     }
     }
-  ]
+   },
+   "workflow": "workflow:follow-up-with-people-who-engaged",
+   "step": "rank",
+   "given": "Read from the row of workflow:follow-up-with-people-who-engaged in tools/workflows/recipes/workflows.json: step rank answers {top:[{handle, points}]}, using weights signed-up 5, messaged 4, replied 3, commented 2 when you keep none. read-engagement found @sam_bakes signed up and commented (earlier step: none) and @maya.eats replied once.",
+   "hands_back": "{\"top\":[{\"handle\":\"@sam_bakes\",\"points\":7},{\"handle\":\"@maya.eats\",\"points\":3}]}"
+  }
+ ],
+ "drafted_from": "workflow:follow-up-with-people-who-engaged's row in tools/workflows/recipes/workflows.json (input schema, steps and submit shapes); no test names it"
 }

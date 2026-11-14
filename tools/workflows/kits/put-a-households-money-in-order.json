@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:put-a-households-money-in-order's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:put-a-households-money-in-order.\" Take a vague request about money (a bill past due, a debt, a refund owed, a subscription not used, money given or owed) and put the household's money in order without further instruction: find or open the pursuit, inventory every bill, debt, subscription, refund and transfer from the person's own sources, reconcile them against money that has moved, research each item's rules with sources, decide the order in a decision case, draft every message, file every movement for the person's approval, act only on approvals with readbacks, follow each item until a readback closes it, and repeat monthly.",
+  "drafted_from": "workflow row in tools/workflows/recipes/workflows.json (input_schema, the 11 steps with their submit shapes and the monthly-check wake); read from the row's words, no test runs it",
+  "start_here": "Say to your AI: \"Run workflow:put-a-households-money-in-order with my words: the electric bill is past due and I think a streaming subscription still charges me. I can use about 400 dollars now.\"",
   "lists": [],
   "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
@@ -36,14 +35,16 @@
     "tool:what-is-waiting-on-me"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:put-a-households-money-in-order\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:put-a-households-money-in-order) and works through its steps in order: open-the-pursuit, connect-the-sources, inventory-every-item, reconcile-against-cash, research-each-item, decide-the-order, draft-every-message, file-every-movement-for-approval, act-on-approved-rows, follow-up-until-closed, repeat-monthly.",
-    "3. Read what each step hands back; the last step is repeat-monthly."
+    "1. Say what is on your mind about money in your own words, even vaguely (\"get my money in order\" is enough); add cash_available_cents (like 40000) only if you know it, and for_whom only for another household member who has a consent row.",
+    "2. Say \"Run workflow:put-a-households-money-in-order\". The AI starts it with tool:start-a-recipe-run and works the steps open-the-pursuit, connect-the-sources, inventory-every-item, reconcile-against-cash, research-each-item, decide-the-order, draft-every-message, file-every-movement-for-approval, act-on-approved-rows, follow-up-until-closed, repeat-monthly.",
+    "3. Read the inventory: one row per bill, debt, subscription or refund, each with the exact sentence from its source; read each researched rule with its address and quote.",
+    "4. Open the decision case for the order and approve it; every payment, cancellation and message waits as one row on your Waiting-on-you list until you approve it, and nothing moves before that.",
+    "5. Items close only on a readback (a matching line, a confirmation id or the payee's written end of balance); a monthly wake runs the whole thing again and writes one summary row."
   ],
   "worked_examples": [
     {
-      "title": "Put a household's money in order from a vague request from its first step",
-      "ask": "Run workflow:put-a-households-money-in-order.",
+      "title": "A vague money request opens one pursuit with its areas",
+      "ask": "Put my money in order: the electric bill is past due and a streaming service may still charge me.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -54,15 +55,16 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:put-a-households-money-in-order",
-              "request": "<request: The person's words, as said>"
+              "request": "The electric bill is past due and I think a streaming subscription still charges me.",
+              "cash_available_cents": 40000
             }
           }
         }
       },
       "workflow": "workflow:put-a-households-money-in-order",
       "step": "open-the-pursuit",
-      "hands_back": "Step open-the-pursuit answers with pursuit_id, task_list_id, trunk_id, branch_ids, reused, consent_found.",
-      "given": "The person gives: request (shown as <name> in the input)."
+      "given": "Read from tools/workflows/recipes/workflows.json (step open-the-pursuit): no pursuit holds this money yet, so the step writes pursuit:money-in-order with the person's words quoted, record:calendar-task-list:money-in-order, the trunk record:calendar-task:money-in-order-trunk and one branch per default area (bills-and-due-dates, debts, owed-to-me, subscriptions, cash-and-allocation, decisions); for_whom was not given, so no consent row is needed.",
+      "hands_back": "{\"pursuit_id\":\"pursuit:money-in-order\",\"task_list_id\":\"record:calendar-task-list:money-in-order\",\"trunk_id\":\"record:calendar-task:money-in-order-trunk\",\"branch_ids\":[\"record:calendar-task:money-in-order-bills-and-due-dates\",\"record:calendar-task:money-in-order-debts\",\"record:calendar-task:money-in-order-owed-to-me\",\"record:calendar-task:money-in-order-subscriptions\",\"record:calendar-task:money-in-order-cash-and-allocation\",\"record:calendar-task:money-in-order-decisions\"],\"reused\":false,\"consent_found\":true}"
     }
   ]
 }

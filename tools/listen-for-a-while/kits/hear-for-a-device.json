@@ -1,9 +1,8 @@
 {
-  "draft": true,
-  "drafted_from": "tool:hear-for-a-device's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:hear-for-a-device with file, device, model_path.\" Hear a recording one of my other devices made and keep each person's turn in it as that device heard it",
+  "drafted_from": "tool:hear-for-a-device row in tools/listen-for-a-while/tool-rows.json, hearForADevice and hearPieces in read-data/listen-for-a-while.mjs, and the test in test/listen-for-a-while.test.mjs",
+  "start_here": "Say to your AI: \"Hear the recording /Recordings/phone-piece.m4a that my Phone made at 2026-10-31T12:00:00Z, call the listening p1, and use the Whisper model I keep at ~/models/ggml-base.bin.\" It runs tool:hear-for-a-device and tells you how many turns it kept.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It writes heard rows and voice-session rows through the records door, but it names no list of yours; the rows are its own record kinds.",
   "workflows": [],
   "tools": [
     "tool:hear-for-a-device",
@@ -12,14 +11,15 @@
     "tool:who-is-in-this"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:hear-for-a-device\", and give it file, device, model_path.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:hear-for-a-device and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields listening, pieces, turns, rows_written, left_out, let_go, blocked, paused."
+    "1. Put the recording in your files (the door finds it by name) and have a ggml Whisper model file and the whisper-cli and ffmpeg programs on the computer that will hear it; enrol the voices you want named with tool:enrol-a-voice-or-face first.",
+    "2. Say \"Hear the recording <file> that my <device> made at <time>\" with the model path; your AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:hear-for-a-device (file, device and model_path are required; at, listening and write_back are optional).",
+    "3. Read the answer: pieces, turns and rows_written count what was heard and kept as one heard row per turn; let_go and blocked say when a recording rule or a pause let the piece go unheard; leaves and stays list what leaves this computer and what stays.",
+    "4. Use the same listening name to continue an earlier listening so unknown voices keep their numbers (voice-1 stays voice-1); add write_back true to get <file>.speakers.json beside the recording."
   ],
   "worked_examples": [
     {
-      "title": "Hear a recording another of my devices made on a sample input",
-      "ask": "Run tool:hear-for-a-device.",
+      "title": "A phone's recording becomes one heard row",
+      "ask": "Hear the recording my Phone made at noon on 31 October and keep who said what.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -29,19 +29,17 @@
           "input": {
             "tool": "tool:hear-for-a-device",
             "input": {
-              "device": "sample-phone",
-              "file": "/Recordings/sample-talk.wav",
-              "at": "2026-11-03T15:00:00-07:00",
-              "listening": "sample-meeting",
-              "transcribe_script": "../audio-transcription/do-work/audio_transcription.py",
-              "model_path": "{grant:start-a-program}/sample-whisper.bin",
-              "whisper_cli": "whisper-cli",
-              "ffmpeg": "ffmpeg"
+              "file": "/Recordings/phone-piece.m4a",
+              "device": "Phone",
+              "at": "2026-10-31T12:00:00Z",
+              "listening": "p1",
+              "model_path": "{grant:start-a-program}/ggml-base.bin"
             }
           }
         }
       },
-      "hands_back": "An answer with the fields listening, pieces, turns, rows_written, left_out, let_go, blocked, paused."
+      "given": "From tools/listen-for-a-while/test/listen-for-a-while.test.mjs (the test replaces hearing and naming with stand-ins): the door holds /Recordings/phone-piece.m4a, the hearing step returns one stretch from 1 s to 2 s with the text \"from the phone\", and the naming step labels it Someone (voice-1).",
+      "hands_back": "One heard row with id heard:p1:1793448001000 (the start time plus 1 s) whose device is Phone and text is \"from the phone\"; the answer says listening \"p1\", pieces 1, turns 1, rows_written 1, left_out 0, let_go 0, blocked null, paused null, heard_until \"2026-10-31T12:00:00.000Z\", with the leaves and stays lists. The copy read for hearing is deleted; the recording in your files is left where it is and nothing is deleted from it. Without device the run refuses with \"Say which device recorded this\"; without file with \"Give `file`\"."
     }
   ]
 }

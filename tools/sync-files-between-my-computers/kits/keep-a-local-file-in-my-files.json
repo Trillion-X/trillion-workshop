@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:keep-a-local-file-in-my-files's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:keep-a-local-file-in-my-files with nothing more.\" Keep files from the person's computer in their Files under names they choose: one file or a list of files, each kept in order; a small file in pieces, a large one over the lease road",
+  "drafted_from": "tool:keep-a-local-file-in-my-files's row in tools/sync-files-between-my-computers/tool-rows.json, do-work/keep-a-local-file.mjs and test/keep-a-local-file.test.mjs",
+  "start_here": "Say to your AI: \"Keep /tmp/shoot/clip.mp4 on this computer in my Files as /site/clip.mp4, type video/mp4.\" It runs tool:keep-a-local-file-in-my-files, which reads the file in place and answers what was kept and what was refused.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of its own: it takes file paths and names as input and writes the files themselves into the person's Files.",
   "workflows": [],
   "tools": [
     "tool:keep-a-local-file-in-my-files"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:keep-a-local-file-in-my-files\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:keep-a-local-file-in-my-files and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields kept, refused."
+    "1. Pick the regular files on your computer to keep (full path each, not a link or folder) and the absolute name each gets in Files, such as /site/clip.mp4 (letters, digits, dots, dashes and underscores; folders by slash).",
+    "2. Say to your AI: \"Keep these files in my Files\" and give the paths and names. For one file the input is {path, name, media_type}; for several it is {files: [{path, name, media_type}, ...]}, at most 256.",
+    "3. The AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:keep-a-local-file-in-my-files (the worked example shows the call).",
+    "4. Read the answer: kept lists each file's name, bytes, media_type and the door's finish; refused names each file that was not kept with its reason. One refusal does not stop the others. Fix those names or paths and run again for only them."
   ],
   "worked_examples": [
     {
-      "title": "Keep a file from my computer in my Files on a sample input",
-      "ask": "Run tool:keep-a-local-file-in-my-files.",
+      "title": "Keep one 100,000-byte video in Files as /site/clip.mp4",
+      "ask": "Keep /tmp/shoot/clip.mp4 in my Files as /site/clip.mp4.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -25,11 +25,40 @@
           "method": "tools:run",
           "input": {
             "tool": "tool:keep-a-local-file-in-my-files",
-            "input": {}
+            "input": {
+              "path": "/tmp/shoot/clip.mp4",
+              "name": "/site/clip.mp4",
+              "media_type": "video/mp4"
+            }
           }
         }
       },
-      "hands_back": "An answer with the fields kept, refused."
+      "given": "From tools/sync-files-between-my-computers/test/keep-a-local-file.test.mjs ('keeps a regular file in pieces'): a regular file of 100000 bytes, below the whole-file threshold, so it is sent in pieces (a write_file_start, at least two write_file_piece, then a write_file_finish).",
+      "hands_back": "{\"kept\":[{\"name\":\"/site/clip.mp4\",\"bytes\":100000,\"media_type\":\"video/mp4\",\"finished\":{\"name\":\"/site/clip.mp4\",\"state\":\"written\"}}],\"refused\":[]}"
+    },
+    {
+      "title": "A link and a bad name are refused while the good file is kept",
+      "ask": "Keep these three files in my Files.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-a-local-file-in-my-files",
+            "input": {
+              "files": [
+                { "path": "/tmp/shoot/link.txt", "name": "/a/link.txt" },
+                { "path": "/tmp/shoot/real.txt", "name": "/../escape.txt" },
+                { "path": "/tmp/shoot/real.txt", "name": "/a/real.txt" }
+              ]
+            }
+          }
+        }
+      },
+      "given": "From tools/sync-files-between-my-computers/test/keep-a-local-file.test.mjs ('a list keeps each file in order and names each refusal'): /tmp/shoot/link.txt is a symbolic link to /tmp/shoot/real.txt, which is a 1-byte regular file. Read from do-work/keep-a-local-file.mjs for the exact words and the bytes.",
+      "hands_back": "{\"kept\":[{\"name\":\"/a/real.txt\",\"bytes\":1,\"media_type\":\"application/octet-stream\",\"finished\":{\"name\":\"/a/real.txt\",\"state\":\"written\"}}],\"refused\":[{\"path\":\"/tmp/shoot/link.txt\",\"name\":\"/a/link.txt\",\"code\":\"refused\",\"reason\":\"A link is not kept; name the file itself.\"},{\"path\":\"/tmp/shoot/real.txt\",\"name\":\"/../escape.txt\",\"code\":\"refused\",\"reason\":\"The name in Files is not a valid name.\"}]}"
     }
   ]
 }

@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:arrange-videos's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:arrange-videos with videos.\" Put two or more videos side by side, stacked, or in a grid in one frame, such as a swing next to a pro's",
+  "drafted_from": "tool:arrange-videos's own row in tools/media-composition/tool-rows.json (its argv builds a split edit for tools/media-composition/do-work/render-an-edit.mjs), and that script run on two synthetic clips",
+  "start_here": "Say to your AI: \"Put my swing video next to the pro's video, side by side, for 4 seconds.\" It runs tool:arrange-videos and saves the combined video in your files.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It makes a new video in your files from the video you name and keeps no list of its own.",
   "workflows": [],
   "tools": [
     "tool:arrange-videos"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:arrange-videos\", and give it videos.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:arrange-videos and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields result, files."
+    "1. Find the identities of two to nine videos in your files (1f: then 64 hex each).",
+    "2. Say \"Arrange these videos side by side\" with the videos. Optional: layout (\"h\" side by side, default; \"v\" stacked; \"grid\"), seconds (how long to play), width and height of the output (default 1920 by 1080).",
+    "3. The AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:arrange-videos. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
+    "4. Read result (duration_seconds, width, height, bytes) and files.video, the arranged video in your files; the sound of the videos is mixed."
   ],
   "worked_examples": [
     {
-      "title": "Arrange videos side by side on a sample input",
-      "ask": "Run tool:arrange-videos.",
+      "title": "Two clips side by side for 4 seconds",
+      "ask": "Put these two videos side by side for 4 seconds.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,14 +27,19 @@
             "tool": "tool:arrange-videos",
             "input": {
               "videos": [
-                "<videos: string>"
-              ]
+                "1f:7320b49113520185e2ad8938759857db29ec6b0ed6a30cd1a2cfc05c68d932c6",
+                "1f:70a8d10dc294aa9694d134b3750830b0e6e3686c7d50e63a557f4c84b079878a"
+              ],
+              "layout": "h",
+              "seconds": 4,
+              "width": 640,
+              "height": 180
             }
           }
         }
       },
-      "hands_back": "An answer with the fields result, files.",
-      "given": "The person gives: videos (shown as <name> in the input)."
+      "given": "read from tools/media-composition/do-work/render-an-edit.mjs and run on a 7 second clip and a 26 second clip with layout h, seconds 4, width 640, height 180",
+      "hands_back": "{\"result\":{\"duration_seconds\":4.021,\"width\":640,\"height\":180,\"has_audio\":true,\"bytes\":95876,\"segments\":1},\"files\":{\"video\":{\"identity\":\"1f:22b2c91d93512f9df04e913b1be59f2abb86204fd28a308be9cfbf26bc8556f2\",\"bytes\":95876,\"media_type\":\"video/mp4\",\"name\":\"arranged.mp4\"}}}"
     }
   ]
 }

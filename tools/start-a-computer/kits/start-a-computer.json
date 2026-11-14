@@ -1,38 +1,40 @@
 {
-  "draft": true,
-  "drafted_from": "tool:start-a-computer's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:start-a-computer with request_file.\" Make a machine into a computer that keeps people's accounts: rent one or use one I already run, set it up, start the engine serving and read back its sign-up page",
+  "drafted_from": "tool row in tools/start-a-computer/tool-rows.json, do-work/start-a-computer.mjs and tools/start-a-computer/test/start-a-computer.test.mjs",
+  "start_here": "Say to your AI: \"Start a computer on my spare Linux machine at 192.0.2.40 as computer.example.com, with the engine release r1 already on it, and tell me whether the sign-up page answers 200.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of yours: it reads a request file, the provider rows in its own read-data/providers.json and the product data you point at, and keeps one lease file.",
   "workflows": [],
   "tools": [
-    "tool:start-a-computer"
+    "tool:start-a-computer",
+    "tool:read-a-computer-price",
+    "tool:rent-a-machine",
+    "tool:check-a-sign-up",
+    "tool:read-a-computer",
+    "tool:give-back-a-computer"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:start-a-computer\", and give it request_file.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:start-a-computer and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields lease, host_name, arch, price, place_id, release, sign_up_status."
+    "1. Write request.json: lease_file, machine {provider \"existing-machine\", name, placement {address}, lifetime \"service\"}, name {host_name}, ssh {known_hosts}, port, engine {file, data_env, data_dir, id_argv, release_name, release}, product_data (the manifest of your product settings) and host_layout. Paths are read relative to the file.",
+    "2. Say the line in start_here. Your AI reads this tool's row with tools:list {tool: \"tool:start-a-computer\"} and runs node tools/start-a-computer/do-work/start-a-computer.mjs start request.json. For a rented machine the provider credential (vault key from the machine row) goes on descriptor 3 and the DNS credential on descriptor 4, never in argv.",
+    "3. Read the one JSON line it prints: lease, host_name, arch, price, place_id, release and sign_up_status. If it stops part way, run the same command again: the saved lease resumes it.",
+    "4. Run tool:check-a-sign-up against https://<host_name> to prove a new account can sign up, and tool:give-back-a-computer with the lease file when you stop paying for it."
   ],
   "worked_examples": [
     {
-      "title": "Start a computer on a sample input",
-      "ask": "Run tool:start-a-computer.",
+      "title": "A computer started on a machine the person already runs",
+      "ask": "Start a computer on my spare machine and tell me if the sign-up page answers.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:start-a-computer",
-            "input": {
-              "request_file": "<request_file: A request JSON (lease_file, machine, name, ssh, port, engine, required product_settings object or file, optional place_config, config_from_release, release_feed); local paths are read relative to it>"
-            }
+            "tool": "tool:start-a-computer"
           }
         }
       },
-      "hands_back": "An answer with the fields lease, host_name, arch, price, place_id, release, sign_up_status.",
-      "given": "The person gives: request_file (shown as <name> in the input)."
+      "given": "From tools/start-a-computer/test/start-a-computer.test.mjs ('starting a computer on an existing machine sets it up, installs the release, serves and reads it back'). request.json = {\"lease_file\":\"lease.json\",\"machine\":{\"provider\":\"existing-machine\",\"name\":\"a-pi\",\"placement\":{\"address\":\"192.0.2.40\"},\"lifetime\":\"service\"},\"name\":{\"host_name\":\"computer.example.com\"},\"ssh\":{\"known_hosts\":\"known_hosts\"},\"port\":7199,\"product_data\":\"product-data.json\",\"host_layout\":{\"caddy\":{\"site_hosts\":[\"computer.example.com\"],\"port\":7199,\"releases\":\"/opt/place/releases\"},\"units\":[{\"unit\":\"place.service\",\"user\":\"place\",\"releases\":\"/opt/place/releases\",\"engine_file\":\"engine\",\"data_env\":\"ENGINE_DATA\",\"data_dir\":\"data\",\"config\":\"/var/lib/place/place.json\",\"launch_setting\":\"PRODUCT_SETTINGS\",\"product_settings\":\"/var/lib/place/product-settings.json\"}]},\"engine\":{\"file\":\"engine\",\"data_env\":\"ENGINE_DATA\",\"data_dir\":\"data\",\"id_argv\":[\"computer\",\"id\"],\"release_name\":\"r1\",\"release\":{\"on_machine\":\"/opt/build/release\"}}}. The machine reports aarch64 and https://computer.example.com/readyz answers 200. lease_file and the other local paths in a request are read relative to the request file. Run: node tools/start-a-computer/do-work/start-a-computer.mjs start request.json",
+      "hands_back": "{\"lease\":{\"provider\":\"existing-machine\",\"name\":\"a-pi\",\"address\":\"192.0.2.40\",\"state\":\"running\"},\"host_name\":\"computer.example.com\",\"arch\":\"aarch64\",\"price\":null,\"place_id\":\"ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\",\"release\":\"/opt/place/releases/r1\",\"sign_up_status\":200}: price is null because no monthly_price_cents was given for a machine the person already runs, and sign_up_status 200 means the public /readyz page answered."
     }
   ]
 }

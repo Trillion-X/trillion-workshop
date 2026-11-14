@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:read-objects-in-an-s3-store's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-objects-in-an-s3-store with account_id.\" List the files in one bucket of the person's connected object store, or read one file, such as the pages of a site kept there",
+  "drafted_from": "tool:read-objects-in-an-s3-store row in tool-rows.json, do-work/read-objects.mjs and test/read-objects.test.mjs",
+  "start_here": "Say to your AI: \"List the files under site/ in my connected R2 store, then read site/index.html.\" It runs tool:read-objects-in-an-s3-store with your store connection, lists one page of objects and reads the one file.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list: it reads a bucket through your connected store and answers object names, sizes and bytes, writing and deleting nothing.",
   "workflows": [],
   "tools": [
     "tool:read-objects-in-an-s3-store"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-objects-in-an-s3-store\", and give it account_id.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-objects-in-an-s3-store and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields objects, truncated, next_token, key, size, content_type, base64."
+    "1. Connect your S3-compatible store (Cloudflare R2 is one) so a service connection such as service_connection:cloudflare-r2 holds its key, endpoint and bucket; the key never appears in the request.",
+    "2. Say \"List the files in my store\" (add prefix or max_keys) or \"Read the file <key>\"; your AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-objects-in-an-s3-store and input {account_id, action, ...}.",
+    "3. Read the answer: a list gives objects [{key, size, last_modified}], truncated and next_token (pass it back as continuation_token for the next page); a get gives key, size, content_type and base64 (objects up to 10 MB).",
+    "4. If the store refuses the key (401 or 403) connect the store again with a current key; a missing key or bucket answers what was not found."
   ],
   "worked_examples": [
     {
-      "title": "Read objects in an S3-compatible store on a sample input",
-      "ask": "Run tool:read-objects-in-an-s3-store.",
+      "title": "Read one page of a site's files, then one file",
+      "ask": "List the files under site/ in my R2 store and read index.html.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,13 +26,15 @@
           "input": {
             "tool": "tool:read-objects-in-an-s3-store",
             "input": {
-              "account_id": "<account_id: The S3-compatible store connection, service_connection:cloudflare-r2 or service_connection:cloudflare-r2:<account>>"
+              "account_id": "service_connection:cloudflare-r2",
+              "action": "get",
+              "key": "index.html"
             }
           }
         }
       },
-      "hands_back": "An answer with the fields objects, truncated, next_token, key, size, content_type, base64.",
-      "given": "The person gives: account_id (shown as <name> in the input)."
+      "given": "From tools/read-objects-in-an-s3-store/test/read-objects.test.mjs: the connected store has the made-up endpoint https://example-account.r2.example.test and bucket example-bucket, and the object index.html holds the 11 bytes <h1>Hi</h1> with content type text/html. The tool sends one signed GET to that endpoint only.",
+      "hands_back": "{key: \"index.html\", size: 11, content_type: \"text/html\", base64: \"PGgxPkhpPC9oMT4=\"}. The listing call with input {account_id, action: \"list\", prefix: \"site/\"} sends one GET to /example-bucket?list-type=2&max-keys=100&prefix=site/ and, when the bucket holds only index.html of 5 bytes, answers {objects: [{key: \"index.html\", size: 5, last_modified: \"2026-11-01T00:00:00.000Z\"}], truncated: false, next_token: null}. A 403 from the store answers \"The store refused the held key (403). Connect the store again with a current key.\""
     }
   ]
 }

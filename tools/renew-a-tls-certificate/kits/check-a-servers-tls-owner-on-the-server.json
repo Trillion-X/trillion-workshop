@@ -1,22 +1,23 @@
 {
-  "draft": true,
-  "drafted_from": "tool:check-a-servers-tls-owner-on-the-server's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-a-servers-tls-owner-on-the-server with hostname, address, ssh_port, admin_user, knownHost, host.\" Run the certificate program's own tests on my Linux server, where its private-credential checks can run",
+  "drafted_from": "tool:check-a-servers-tls-owner-on-the-server's row in tools/renew-a-tls-certificate/tool-rows.json, do-work/renew-a-tls-certificate.mjs, do-work/tls-host-owner.py and the tests in test/",
+  "start_here": "Say to your AI: \"Run the certificate owner's own tests on my server at 192.0.2.34, signing in as admin.\" It runs tool:check-a-servers-tls-owner-on-the-server, which puts the test file beside the owner and runs it there.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of its own: it takes one server's facts as its input and answers what that server's certificate owner reports.",
   "workflows": [],
   "tools": [
-    "tool:check-a-servers-tls-owner-on-the-server"
+    "tool:check-a-servers-tls-owner-on-the-server",
+    "tool:set-up-a-servers-tls-owner"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-a-servers-tls-owner-on-the-server\", and give it hostname, address, ssh_port, admin_user, knownHost, host.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-servers-tls-owner-on-the-server and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields host_tests."
+    "1. Gather the server's facts: its public name, IPv4 address, SSH port, the administrator you sign in as, its pinned key (\"<address> ssh-ed25519 <key>\") and its layout (host: owner path, state folder, downloads folder, ingress, receptionist). The README in tools/renew-a-tls-certificate/ shows a made-up one.",
+    "2. Say to your AI the sentence in start_here. It calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-servers-tls-owner-on-the-server and that input (the worked example shows one). The door mounts your server administration key for the run; you paste no key.",
+    "3. Read what comes back: {\"host_tests\": \"passed\"} (or the test output when it printed any). An {\"error\": ...} or a thrown message names what to change (for example the layout or the pinned key was refused).",
+    "4. A failure comes back as an error naming the process status; the Linux-only checks (the DNS key in an anonymous memory file, a failed provider never returning the key, a dry run asking staging) only run here."
   ],
   "worked_examples": [
     {
-      "title": "Check a server's TLS owner on the server on a sample input",
-      "ask": "Run tool:check-a-servers-tls-owner-on-the-server.",
+      "title": "Run the Linux-only owner tests on the server",
+      "ask": "Test the certificate owner on my server.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,18 +27,50 @@
           "input": {
             "tool": "tool:check-a-servers-tls-owner-on-the-server",
             "input": {
-              "hostname": "<hostname: string>",
-              "address": "<address: string>",
-              "ssh_port": "<ssh_port: The server's SSH port (22 for a pinned key written as \"<address> ssh-ed25519 <key>\")>",
-              "admin_user": "<admin_user: The administrator the run signs in as>",
-              "knownHost": "<knownHost: string>",
-              "host": {}
+              "hostname": "app.example.com",
+              "address": "192.0.2.34",
+              "ssh_port": 22,
+              "admin_user": "admin",
+              "knownHost": "192.0.2.34 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleExampleExampleExampleExample0",
+              "host": {
+                "owner": "/usr/local/lib/example/tls-host-owner.py",
+                "state": "/etc/example-public-tls",
+                "downloads": "/var/lib/public-downloads",
+                "ingress": {
+                  "service": "example-public-tls",
+                  "pid_file": "/run/example-public-tls.pid",
+                  "error_log": "/var/log/nginx/example-error.log"
+                },
+                "receptionist": {
+                  "service": "example-receptionist",
+                  "account": "example-mcp",
+                  "binary_pattern": "/opt/example/source/[a-f0-9]{40}/target/release/example-receptionist",
+                  "listen": "127.0.0.1:9443",
+                  "paths": [
+                    "/mcp",
+                    "/mcp/resource-connection",
+                    "/.well-known/oauth-protected-resource/mcp",
+                    "/.well-known/oauth-protected-resource"
+                  ],
+                  "environment": {
+                    "EXAMPLE_LISTEN": "{listen}",
+                    "EXAMPLE_ORIGIN": "https://{hostname}"
+                  }
+                },
+                "site": {
+                  "hostname": "example.org",
+                  "paths": [
+                    "/privacy",
+                    "/terms"
+                  ]
+                }
+              }
             }
           }
         }
       },
-      "hands_back": "An answer with the fields host_tests.",
-      "given": "The person gives: hostname, address, ssh_port, admin_user, knownHost (shown as <name> in the input)."
+      "given": "Read from tools/renew-a-tls-certificate/do-work/renew-a-tls-certificate.mjs (host-test copies test/tls-host-owner.test.py to host.owner with .test.py and runs it with /usr/bin/python3; unittest writes to stderr, so a pass leaves stdout empty and the answer is passed).",
+      "hands_back": "{\"host_tests\":\"passed\"}"
     }
   ]
 }

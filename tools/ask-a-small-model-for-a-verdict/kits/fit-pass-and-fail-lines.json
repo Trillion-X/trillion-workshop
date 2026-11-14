@@ -1,47 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:fit-pass-and-fail-lines's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:fit-pass-and-fail-lines with bad, good, fail_good_share_at_most, pass_bad_share_at_most, usable_when.\" From a model's scores on lines I already ruled good or bad, work out where it should pass a line, where it should fail one, and whether its question can tell my good lines from my bad ones at all",
+  "drafted_from": "tool:fit-pass-and-fail-lines row in tools/ask-a-small-model-for-a-verdict/tool-rows.json, its code in tools/ask-a-small-model-for-a-verdict/do-work/ and tools/ask-a-small-model-for-a-verdict/test/fit-lines-and-fresh-fetch.test.mjs; the answers were produced by running the tool against a stand-in model server",
+  "start_here": "Say to your AI: \"Fit the pass and fail lines from these model scores: 7 lines I ruled bad and 10 I ruled good, with my bars.\" It runs the fitter and tells you the two lines and whether the question is usable.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it takes the scores and your bars in the request and prints the fitted lines.",
   "workflows": [],
   "tools": [
     "tool:fit-pass-and-fail-lines"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:fit-pass-and-fail-lines\", and give it bad, good, fail_good_share_at_most, pass_bad_share_at_most, usable_when.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:fit-pass-and-fail-lines and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields status, t_pass, t_fail, auc, reason."
+    "1. For lines you already ruled on, get the model's probability of the failing answer for each (a number from 0 to 1, or a list of numbers per sentence; null when unanswered).",
+    "2. Ask the person for the bars (never invent them): fail_good_share_at_most, pass_bad_share_at_most and usable_when {auc_at_least, bad_lines_at_least, recall_at_least, good_failed_or_uncertain_at_most}.",
+    "3. Write /work/judge/request.json with bad, good and the bars, and run: node tools/ask-a-small-model-for-a-verdict/do-work/ask-a-small-model.mjs fit-lines < /work/judge/request.json.",
+    "4. Read result: status (\"usable\" or \"unseparable\" with a reason), t_pass, t_fail, auc, recall and the held-out shares. An unseparable question needs better lines or a better question, not looser bars."
   ],
   "worked_examples": [
     {
-      "title": "Fit a pass line and a fail line for a model's yes or no, from lines I already ruled on (runs on your computer) on a sample input",
-      "ask": "Run tool:fit-pass-and-fail-lines.",
+      "title": "Seven bad and ten good scored lines separate cleanly",
+      "ask": "Fit pass and fail lines from these scores.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:fit-pass-and-fail-lines",
-            "input": {
-              "bad": [],
-              "good": [],
-              "fail_good_share_at_most": "<fail_good_share_at_most: number>",
-              "pass_bad_share_at_most": "<pass_bad_share_at_most: number>",
-              "usable_when": {
-                "auc_at_least": "<auc_at_least: number>",
-                "bad_lines_at_least": "<bad_lines_at_least: integer>",
-                "recall_at_least": "<recall_at_least: number>",
-                "good_failed_or_uncertain_at_most": "<good_failed_or_uncertain_at_most: number>"
-              }
-            }
+            "tool": "tool:fit-pass-and-fail-lines"
           }
         }
       },
-      "hands_back": "An answer with the fields status, t_pass, t_fail, auc, reason.",
-      "given": "The person gives: fail_good_share_at_most, pass_bad_share_at_most, auc_at_least, bad_lines_at_least, recall_at_least, good_failed_or_uncertain_at_most (shown as <name> in the input)."
+      "given": "From tools/ask-a-small-model-for-a-verdict/test/fit-lines-and-fresh-fetch.test.mjs (test \"fit-lines: well separated scores...\"), run for real: {\"bad\": [0.95, 0.9, 0.85, 0.97, 0.99, 0.92, 0.88], \"good\": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.05], \"fail_good_share_at_most\": 0.05, \"pass_bad_share_at_most\": 0.10, \"usable_when\": {\"auc_at_least\": 0.75, \"bad_lines_at_least\": 6, \"recall_at_least\": 0.25, \"good_failed_or_uncertain_at_most\": 0.35}}. Command: node tools/ask-a-small-model-for-a-verdict/do-work/ask-a-small-model.mjs fit-lines < /work/judge/request.json",
+      "hands_back": "Last line: {\"result\": {\"status\": \"usable\", \"auc\": 0.964, \"n_bad\": 7, \"n_good\": 10, \"fail_good_share_at_most\": 0.05, \"t_pass\": 0.85, \"t_fail\": 0.9, \"recall\": 0.571, \"good_failed_held_out\": 0.1, \"good_failed_or_uncertain_held_out\": 0.1}}. With overlapping scores (bad [0.6, 0.4, 0.7], good [0.5, 0.65, 0.3, 0.45]) it answers status \"unseparable\", auc 0.667 and reason \"AUC 0.67 < 0.75; only 3 bad lines; 75% of good lines fail or escalate\"."
     }
   ]
 }

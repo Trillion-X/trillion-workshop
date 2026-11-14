@@ -1,0 +1,378 @@
+{
+  "drafted_from": "tools/where-a-person-stands/tool-rows.json (tool:keep-rulings-on-lines), do-work/ruling-records.mjs, test/rulings-from-the-verdict-log.test.mjs; the example was run here",
+  "start_here": "Say to your AI: \"Keep my ruling that the line 'A line that says too much.' in films/x/SCRIPT.md line 3 is bad, using my settings for this tool.\" It runs tool:keep-rulings-on-lines and hands you the one write that adds the ruling to my Checks list.",
+  "lists": [
+    {
+      "list": "list:checks",
+      "label": "Checks",
+      "row_type": "record:check",
+      "holds": "One node of the person's check tree; a ruling on a single line of copy is one row of it (id record:check:ruling-<BLAKE3 of its text, verdict, by and rule>) with the line, the verdict, who gave it and where.",
+      "fields": [
+        {
+          "id": "kind",
+          "kind": "text",
+          "label": "Kind",
+          "alike": [
+            "type",
+            "label"
+          ]
+        },
+        {
+          "id": "part_of",
+          "kind": "link",
+          "label": "Part of",
+          "alike": [
+            "parent",
+            "branch"
+          ]
+        },
+        {
+          "id": "at",
+          "kind": "date",
+          "label": "When",
+          "alike": [
+            "date",
+            "ruled at"
+          ]
+        },
+        {
+          "id": "film",
+          "kind": "text",
+          "label": "Film",
+          "alike": [
+            "piece",
+            "video",
+            "project"
+          ]
+        },
+        {
+          "id": "text",
+          "kind": "long-text",
+          "label": "Line",
+          "alike": [
+            "copy",
+            "quote",
+            "sentence"
+          ]
+        },
+        {
+          "id": "verdict",
+          "kind": "text",
+          "label": "Verdict",
+          "alike": [
+            "ruling",
+            "decision",
+            "good or bad"
+          ]
+        },
+        {
+          "id": "by",
+          "kind": "text",
+          "label": "By",
+          "alike": [
+            "ruled by",
+            "reviewer",
+            "who"
+          ]
+        },
+        {
+          "id": "where",
+          "kind": "text",
+          "label": "Where",
+          "alike": [
+            "place",
+            "location",
+            "file and line"
+          ]
+        },
+        {
+          "id": "rule",
+          "kind": "text",
+          "label": "Rule",
+          "alike": [
+            "check id",
+            "rule id"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "ruling-too-much",
+          "values": {
+            "kind": "labelled-line",
+            "part_of": [
+              "content-production"
+            ],
+            "at": "2030-01-01",
+            "film": "x",
+            "text": "A line that says too much.",
+            "verdict": "bad",
+            "by": "person",
+            "where": "films/x/SCRIPT.md:3"
+          }
+        },
+        {
+          "id": "ruling-flagged",
+          "values": {
+            "kind": "escalated-line",
+            "part_of": [
+              "ask-plain"
+            ],
+            "at": "2030-01-01",
+            "film": "x",
+            "text": "Flagged by the checker.",
+            "verdict": "escalated",
+            "by": "small-model",
+            "where": "films/x/SCRIPT.md:7",
+            "rule": "ask-plain"
+          }
+        }
+      ],
+      "alike": [
+        "a spreadsheet of editor notes on lines of copy",
+        "review comments in a document",
+        "a proofreader's log of good and bad lines"
+      ]
+    },
+    {
+      "list": "list:settings",
+      "label": "Settings",
+      "row_type": "record:setting",
+      "holds": "One setting row for one tool and one scope (a person, a film, a piece or the whole account): the values as JSON and where they came from.",
+      "fields": [
+        {
+          "id": "name",
+          "kind": "text",
+          "label": "Setting",
+          "alike": [
+            "title",
+            "name"
+          ]
+        },
+        {
+          "id": "tool",
+          "kind": "text",
+          "label": "Tool",
+          "alike": [
+            "app",
+            "feature"
+          ]
+        },
+        {
+          "id": "scope_kind",
+          "kind": "text",
+          "label": "For a",
+          "alike": [
+            "scope",
+            "applies to"
+          ]
+        },
+        {
+          "id": "scope_id",
+          "kind": "text",
+          "label": "For",
+          "alike": [
+            "scope name",
+            "who"
+          ]
+        },
+        {
+          "id": "settings",
+          "kind": "long-text",
+          "label": "Settings (JSON)",
+          "alike": [
+            "values",
+            "config",
+            "options"
+          ]
+        },
+        {
+          "id": "from",
+          "kind": "text",
+          "label": "From",
+          "alike": [
+            "source",
+            "origin"
+          ]
+        },
+        {
+          "id": "status",
+          "kind": "text",
+          "label": "Status",
+          "alike": [
+            "state"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "rulings-sample-person",
+          "values": {
+            "name": "Rulings for a sample person",
+            "tool": "tool:keep-rulings-on-lines",
+            "scope_kind": "person",
+            "scope_id": "sample",
+            "settings": "{\"unruled_part_of\":\"content-production\",\"real\":[\"person\"],\"needs\":[\"film\"],\"needed\":3,\"bad_label\":\"real-bad-film\",\"default_kind\":\"voiceover\",\"place\":{\"field\":\"film\",\"pattern\":\"films/([^/]+)/\"},\"refuse\":[{\"field\":\"film\",\"one_of\":[\"test-piece\"]},{\"field\":\"where\",\"contains_one_of\":[\"/scratch-test-\",\"/tmp/\",\"/.local/\"]}],\"hand_rulings\":{\"verdict\":[\"bad\",\"good\"],\"by\":[\"reviewer\"]}}",
+            "from": "made up",
+            "status": "active"
+          }
+        },
+        {
+          "id": "count-sample-person",
+          "values": {
+            "name": "Counts for a sample person",
+            "tool": "tool:count-real-rulings",
+            "scope_kind": "person",
+            "scope_id": "sample",
+            "settings": "{\"real\":[\"person\"],\"needs\":[\"film\"],\"needed\":3}",
+            "from": "made up",
+            "status": "active"
+          }
+        }
+      ],
+      "alike": [
+        "app settings in a configuration file",
+        "a spreadsheet of per-person options",
+        "a feature-flags table"
+      ]
+    }
+  ],
+  "workflows": [],
+  "tools": [
+    "tool:keep-rulings-on-lines",
+    "tool:count-real-rulings",
+    "tool:make-examples-from-rulings"
+  ],
+  "instructions": [
+    "1. Pour the example rulings into your own list of rulings on lines (see pour), or keep them in list:checks, and keep your settings for this tool as one row of list:settings (the example row shows the values: unruled_part_of, real, needs, refuse, place, hand_rulings).",
+    "2. Say which lines you ruled on and how: text, verdict (bad, good, escalated or any one word), by, and optionally rule, kind, at and where.",
+    "3. The AI reads the rulings already kept (records:list type record:check prefix record:check:ruling-) and your settings row, then runs tool:keep-rulings-on-lines at @workshop-tools with {rows, existing, settings_record}.",
+    "4. Read the answer: write (the records:write input to send at @own-records, one record:check for each new ruling, with its film read from where) and fresh (how many are new). A ruling already kept is not written again; a row from a test piece or a temporary folder refuses the whole write. Nothing is written until the AI sends write."
+  ],
+  "worked_examples": [
+    {
+      "title": "One bad line is kept once even when it is given twice",
+      "ask": "Keep my ruling that the line \"A line that says too much.\" is bad.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-rulings-on-lines",
+            "input": {
+              "rows": [
+                {
+                  "text": "A line that says too much.",
+                  "verdict": "bad",
+                  "by": "person",
+                  "where": "films/x/SCRIPT.md:3"
+                },
+                {
+                  "text": "A line that says too much.",
+                  "verdict": "bad",
+                  "by": "person",
+                  "where": "films/x/SCRIPT.md:3"
+                }
+              ],
+              "at": "2030-01-01T09:00:00Z",
+              "unruled_part_of": "content-production",
+              "real": [
+                "person"
+              ],
+              "needs": [
+                "film"
+              ],
+              "needed": 3,
+              "bad_label": "real-bad-film",
+              "default_kind": "voiceover",
+              "place": {
+                "field": "film",
+                "pattern": "films/([^/]+)/"
+              },
+              "refuse": [
+                {
+                  "field": "film",
+                  "one_of": [
+                    "test-piece"
+                  ]
+                },
+                {
+                  "field": "where",
+                  "contains_one_of": [
+                    "/scratch-test-",
+                    "/tmp/",
+                    "/.local/"
+                  ]
+                }
+              ],
+              "hand_rulings": {
+                "verdict": [
+                  "bad",
+                  "good"
+                ],
+                "by": [
+                  "reviewer"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "given": "From tools/where-a-person-stands/test/rulings-from-the-verdict-log.test.mjs (the first test, run here): the same ruling given twice, with the settings written out in the input (unruled_part_of content-production, place pattern films/([^/]+)/ on the field film, refuse rows from film test-piece or paths holding /scratch-test-, /tmp/ or /.local/); nothing is kept yet.",
+      "hands_back": "{\"write\":{\"records\":[{\"id\":\"record:check:ruling-f65eb2746a8e7ef4428f86981fa051425cbf138afd3957e6b3d6399541725858\",\"type\":\"record:check\",\"value\":{\"kind\":\"labelled-line\",\"part_of\":[\"content-production\"],\"at\":\"2030-01-01T09:00:00Z\",\"film\":\"x\",\"text\":\"A line that says too much.\",\"verdict\":\"bad\",\"by\":\"person\",\"where\":\"films/x/SCRIPT.md:3\"}}]},\"fresh\":1}. Sent again with that record in existing, it answers {\"write\":{\"records\":[]},\"fresh\":0}."
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for the same job and its fields. The tool matches each kit field to one of yours (by the map you give, the same id, the same label, or a name in alike), refuses when fewer than least_coverage of the kit's fields match, and otherwise answers the records:write that adds the example rows to your list, leaving your own rows untouched.",
+    "example": {
+      "kit_list": "list:checks",
+      "into": {
+        "list": "list:line-rulings",
+        "row_type": "record:line-ruling",
+        "fields": [
+          {
+            "id": "kind",
+            "label": "Kind"
+          },
+          {
+            "id": "part_of",
+            "label": "Part of"
+          },
+          {
+            "id": "at",
+            "label": "When"
+          },
+          {
+            "id": "film",
+            "label": "Film"
+          },
+          {
+            "id": "text",
+            "label": "Line"
+          },
+          {
+            "id": "verdict",
+            "label": "Verdict"
+          },
+          {
+            "id": "by",
+            "label": "By"
+          },
+          {
+            "id": "where",
+            "label": "Where"
+          },
+          {
+            "id": "rule",
+            "label": "Rule"
+          }
+        ]
+      },
+      "field_map": {}
+    }
+  }
+}

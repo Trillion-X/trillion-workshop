@@ -1,0 +1,94 @@
+{
+  "drafted_from": "tool:place-pursuits-on-a-life-map row in tool-rows.json, do-work/place-pursuits-on-a-life-map.mjs, src/life-map.mjs, read-data/place-pursuits-on-a-life-map.json and test/place-pursuits-on-a-life-map.test.mjs; list:your-map read with records:read, list:life-map-areas fields from the test's records",
+  "start_here": "Say to your AI: \"Place my pursuits on my map of a full life and tell me which parts of my life none of them touch.\" It reads your map list and your pursuits, places each pursuit on the areas it names and answers one line for every area nothing touches.",
+  "lists": [
+    {
+      "list": "list:your-map",
+      "label": "Your map",
+      "row_type": "record:your-map",
+      "holds": "The parts of your life your pursuits are placed on: one row per area, what it is part of and what it means to you.",
+      "fields": [
+        { "id": "area", "kind": "text", "label": "Area", "alike": ["name", "part of life", "domain"] },
+        { "id": "part_of", "kind": "text", "label": "Part of", "alike": ["parent", "group", "category"] },
+        { "id": "means", "kind": "long-text", "label": "What it means", "alike": ["description", "meaning", "notes"] },
+        { "id": "sides", "kind": "text", "label": "Both sides", "alike": ["two sides", "balance"] },
+        { "id": "optional", "kind": "choice", "label": "Optional", "alike": ["nice to have", "skip allowed"] }
+      ],
+      "example_rows": [
+        { "id": "beds", "values": { "area": "Beds", "part_of": "Garden", "means": "what is planted", "sides": "sun / shade", "optional": "No" } },
+        { "id": "herbs", "values": { "area": "Herbs", "part_of": "Garden", "means": "what I cook with", "optional": "No" } },
+        { "id": "paths", "values": { "area": "Paths", "part_of": "Garden", "means": "how you walk through", "optional": "Yes" } }
+      ],
+      "alike": ["a wheel of life worksheet", "a life areas spreadsheet", "a goals-by-area planner"]
+    },
+    {
+      "list": "list:life-map-areas",
+      "label": "Life map areas",
+      "row_type": "record:life-map-area",
+      "holds": "The starter map: one row per area a person may adopt, the row id being the area id; read only when you hand in no settings.",
+      "fields": [
+        { "id": "label", "kind": "text", "label": "Area", "alike": ["name", "title"] },
+        { "id": "part_of", "kind": "text", "label": "Part of", "alike": ["parent", "group"] },
+        { "id": "means", "kind": "long-text", "label": "What it means", "alike": ["description", "meaning"] },
+        { "id": "optional", "kind": "checkbox", "label": "Optional", "alike": ["nice to have"] },
+        { "id": "shown", "kind": "checkbox", "label": "Shown", "alike": ["visible"] }
+      ],
+      "example_rows": [
+        { "id": "garden", "values": { "label": "Garden", "means": "everything that grows", "optional": false, "shown": true } },
+        { "id": "compost", "values": { "label": "Compost", "part_of": "garden", "means": "what feeds the soil", "optional": false, "shown": true } }
+      ],
+      "alike": ["a template wheel of life", "a coach's list of life areas"]
+    }
+  ],
+  "workflows": [],
+  "tools": [
+    "tool:place-pursuits-on-a-life-map",
+    "tool:pour-example-rows-into-my-list"
+  ],
+  "instructions": [
+    "1. Pour the example areas into the list you keep your life areas in (see pour), or make list:your-map from them; the tool never reads the starter map in place of a map you did not choose.",
+    "2. Say \"Place my pursuits on my life map\"; your AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:place-pursuits-on-a-life-map, with pursuits [{title, areas: [area id]}] if you hand them in (otherwise your pursuit records are read) and section true for the Progress section.",
+    "3. Read the answer: areas lists every area with the pursuits placed on it, missing lists the leaf areas no pursuit names that are not optional, and missing_lines says each in one sentence; offered true means you have no map yet and nothing was placed.",
+    "4. Name the missing areas to a new or existing pursuit, or mark an area optional in your map, then run it again; it writes nothing."
+  ],
+  "worked_examples": [
+    {
+      "title": "One pursuit on the beds, the herbs left untouched",
+      "ask": "Place my pursuits on my life map and tell me what I leave out.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:place-pursuits-on-a-life-map",
+            "input": {}
+          }
+        }
+      },
+      "given": "From tools/place-pursuits-on-a-life-map/test/place-pursuits-on-a-life-map.test.mjs: the account holds list:your-map with rows beds (\"My beds\", \"what I planted\") and herbs (\"Herbs\", \"what I cook with\"), one pursuit record \"Grow beans\" naming area beds, and the starter settings row whose words say missing_one \"Nothing you do tends your {label}.\".",
+      "hands_back": "offered false; areas [{id beds, label \"My beds\", pursuits [\"Grow beans\"]}, {id herbs, label \"Herbs\", pursuits []}] (each with its part_of, means and optional); missing [{id herbs, label \"Herbs\"}]; missing_lines [\"Nothing you do tends your herbs.\"]. With no list:your-map in the account the answer is {list_id: \"your-map\", offered: true} and nothing is placed."
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "example": {
+      "kit_list": "list:your-map",
+      "into": {
+        "list": "list:life-areas",
+        "row_type": "record:life-area",
+        "fields": [
+          { "id": "name", "label": "Name" },
+          { "id": "parent", "label": "Parent" },
+          { "id": "description", "label": "Description" },
+          { "id": "two_sides", "label": "Two sides" },
+          { "id": "skip_allowed", "label": "Skip allowed" }
+        ]
+      },
+      "field_map": {}
+    }
+  }
+}

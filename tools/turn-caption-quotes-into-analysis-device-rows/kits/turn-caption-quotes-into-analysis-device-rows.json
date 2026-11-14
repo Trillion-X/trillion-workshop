@@ -1,13 +1,12 @@
 {
-  "draft": true,
-  "drafted_from": "tool:turn-caption-quotes-into-analysis-device-rows's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:turn-caption-quotes-into-analysis-device-rows with nothing more.\" Check that every quote my device rows cite is really said in the videos' captions, stamp each with the minute and second, and write the rows as tables grouped my way",
+  "drafted_from": "tool:turn-caption-quotes-into-analysis-device-rows's row in tools/turn-caption-quotes-into-analysis-device-rows/tool-rows.json, do-work/turn_quotes_into_device_rows.py, read-data/device_rows.py and test/turn-quotes-into-device-rows.test.mjs; the answers were observed by running the script on the test's made-up settings and caption file",
+  "start_here": "Say to your AI: \"Check the quotes behind my garden-tips device rows against the saved captions in captions/, then write the family file and the checked rows into out/.\" It reads your settings row for the piece garden-tips and runs the script on your computer, first as a check only.",
   "lists": [
     {
       "list": "list:settings",
       "label": "Settings",
       "row_type": "record:setting",
-      "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON.",
+      "holds": "One row per tool and scope: here the settings of one batch of device rows (scope piece:<family>), as JSON: the rows, their quotes, the table columns and the wording.",
       "fields": [
         {
           "id": "name",
@@ -77,27 +76,27 @@
       ],
       "example_rows": [
         {
-          "id": "caption-style",
+          "id": "garden-tips",
           "values": {
-            "name": "Caption style",
-            "tool": "tool:example-captioner",
-            "scope_kind": "person",
-            "scope_id": "example-person",
-            "settings": "{\"style\":\"plain\",\"size\":\"large\"}",
-            "from": "the person",
-            "status": "on"
+            "name": "device rows: garden-tips",
+            "tool": "tool:turn-caption-quotes-into-analysis-device-rows",
+            "scope_kind": "piece",
+            "scope_id": "garden-tips",
+            "settings": "{\"family\": \"garden-tips\", \"title\": \"Garden tips\", \"introduction\": \"Made-up rows.\", \"channels\": {\"vidA\": [\"BenchTalk\", \"Potting basics\"]}, \"groups\": [\"Care\"], \"rows\": [{\"group\": \"Care\", \"name\": \"say the rule, then the reason\", \"also\": [], \"what\": \"The viewer remembers it.\", \"seen\": [[\"vidA\", \"water the roots, not the leaves\"]], \"fits\": \"how-to\", \"cost\": \"low\", \"verification\": \"verified\"}], \"columns\": [{\"head\": \"tip\", \"parts\": [{\"text\": \"**{name}**\"}]}, {\"head\": \"seen in\", \"parts\": [{\"text\": \"{seen_text}\"}]}], \"file_head\": [\"# {title}\", \"\"], \"index_marker\": \"<!-- {family} -->\", \"seen_quote\": \"{channel}/{video} [{stamp}] \\\"{quote}\\\"\", \"seen_join\": \"; \", \"list_join\": \"; \", \"checked_fields\": [\"group\", \"name\"]}",
+            "from": "made-up/build.py@0000000",
+            "status": "active"
           }
         },
         {
-          "id": "quiet-hours",
+          "id": "bakery-tips",
           "values": {
-            "name": "Quiet hours",
-            "tool": "tool:example-notifier",
-            "scope_kind": "account",
-            "scope_id": "whole-account",
-            "settings": "{\"from\":\"22:00\",\"to\":\"07:00\"}",
-            "from": "the person",
-            "status": "on"
+            "name": "device rows: bakery-tips",
+            "tool": "tool:turn-caption-quotes-into-analysis-device-rows",
+            "scope_kind": "piece",
+            "scope_id": "bakery-tips",
+            "settings": "{\"family\": \"bakery-tips\", \"title\": \"Bakery tips\", \"introduction\": \"Made-up rows.\", \"channels\": {\"vidB\": [\"OvenTalk\", \"Proofing dough\"]}, \"groups\": [\"Dough\"], \"rows\": [{\"group\": \"Dough\", \"name\": \"show the poke test\", \"seen\": [[\"vidB\", \"press the dough and watch it spring back\"]]}], \"columns\": [{\"head\": \"tip\", \"parts\": [{\"text\": \"**{name}**\"}]}, {\"head\": \"seen in\", \"parts\": [{\"text\": \"{seen_text}\"}]}], \"file_head\": [\"# {title}\", \"\"], \"index_marker\": \"<!-- {family} -->\", \"seen_quote\": \"{channel}/{video} [{stamp}] \\\"{quote}\\\"\", \"seen_join\": \"; \", \"list_join\": \"; \", \"checked_fields\": [\"group\", \"name\"]}",
+            "from": "made-up/build.py@0000000",
+            "status": "active"
           }
         }
       ],
@@ -108,39 +107,57 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
     "tool:turn-caption-quotes-into-analysis-device-rows"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:turn-caption-quotes-into-analysis-device-rows\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:turn-caption-quotes-into-analysis-device-rows and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Check that every quote my device rows cite is really said in the videos' captions, stamp each with the minute and second, and write the rows as tables grouped my way"
+    "1. Have your settings row for this tool (see the list, or pour the two examples into your own settings list): one row per batch of device rows, id record:setting:turn-caption-quotes-into-analysis-device-rows~piece~<family>, its settings holding the rows, quotes, columns and wording.",
+    "2. Save each video's captions as json3 (yt-dlp --write-subs --write-auto-subs --sub-format json3 --skip-download), named so a glob such as captions/{video}.*json3 finds each one by video id.",
+    "3. The AI reads the tool's row with @workshop-tools tools:list {tool}, saves your settings row to a file with @own-records records:read, and runs the command in the row on your computer. Run it first without --family-file and --checked-file: it only checks every quote.",
+    "4. Read the last JSON line. rows is how many rows hold; bad names each quote that is not in its captions (or whose caption file is missing); with any bad quote the exit is 1 and nothing is written. Fix those quotes in your settings row and run again.",
+    "5. When bad is empty, run it again with --family-file out/family.md --checked-file out/checked.json (and --index-file FILE to add the family's tables to an index once). The checked rows, each with [video, second, quote], go back into your library list."
   ],
   "worked_examples": [
     {
-      "title": "Check the video quotes behind my device rows and write the rows as tables (runs on your computer) on a sample input",
-      "ask": "Run tool:turn-caption-quotes-into-analysis-device-rows.",
+      "title": "Every quote holds: the tables and the checked rows are written",
+      "ask": "Check my garden-tips device rows against the captions and write the tables.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:turn-caption-quotes-into-analysis-device-rows",
-            "input": {}
+            "tool": "tool:turn-caption-quotes-into-analysis-device-rows"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Check that every quote my device rows cite is really said in the videos' captions, stamp each with the minute and second, and write the rows as tables grouped my way"
+      "given": "From tools/turn-caption-quotes-into-analysis-device-rows/test/turn-quotes-into-device-rows.test.mjs ('every quote holds'), run for real on its made-up files. Settings saved as settings.json (the garden-tips row above); captions/vidA.en.json3 has an event at 65400 ms saying \"Water the roots, not the leaves\". Command: python3 trillion-workshop/tools/turn-caption-quotes-into-analysis-device-rows/do-work/turn_quotes_into_device_rows.py --settings-record settings.json --captions 'captions/{video}.*json3' --family-file out/family.md --checked-file out/checked.json",
+      "hands_back": "Last line {\"result\": {\"rows\": 1, \"bad\": [], \"written\": [\"out/family.md\", \"out/checked.json\"]}}, exit 0. out/family.md holds \"# Garden tips\", the group \"## Care\" and one table row: | **say the rule, then the reason** | BenchTalk/vidA [1:05] \"water the roots, not the leaves\" |. out/checked.json holds [{\"group\":\"Care\",\"name\":\"say the rule, then the reason\",\"t\":[[\"vidA\",65,\"water the roots, not the leaves\"]]}]."
+    },
+    {
+      "title": "A quote that is not in the captions writes nothing",
+      "ask": "Check my garden-tips rows again; I changed a quote.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:list",
+          "input": {
+            "tool": "tool:turn-caption-quotes-into-analysis-device-rows"
+          }
+        }
+      },
+      "given": "From the test 'a quote that is not in the captions writes nothing and exits 1', run for real: the row's quote is \"water the leaves\" instead, same captions, with --family-file out/nw.md.",
+      "hands_back": "It prints BAD vidA (not in the captions) water the leaves, then the last line {\"result\": {\"rows\": 1, \"bad\": [{\"name\": \"say the rule, then the reason\", \"video\": \"vidA\", \"quote\": \"water the leaves\", \"reason\": \"not in the captions\"}], \"written\": []}}, exit 1, and out/nw.md is not created."
     }
   ],
   "pour": {
     "tool": "tool:pour-example-rows-into-my-list",
     "least_coverage": 0.8,
-    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "how": "Name the settings list you already keep and read it with records:read (its fields and row type). The tool matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example settings rows beside your own.",
     "example": {
       "kit_list": "list:settings",
       "into": {
@@ -176,7 +193,8 @@
             "label": "Status"
           }
         ]
-      }
+      },
+      "field_map": {}
     }
   }
 }

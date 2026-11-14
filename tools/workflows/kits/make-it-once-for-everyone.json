@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:make-it-once-for-everyone's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:make-it-once-for-everyone.\" Build a feature, tool, page, footer, email look or design someone asks for, in one pass: treat what they said as raw material rather than the answer (is it worthwhile, how far each constraint can go), check whether it already works by combining what exists or is built but not shown, build what is truly new as a tool or workflow everyone building on the platform gets and use it yourself, carry its deep principle into each of their pursuits and into unrelated fields, and make every surface it touches show the exact state at once.",
+  "drafted_from": "Read from tools/workflows/recipes/workflows.json (workflow:make-it-once-for-everyone, steps raw-material to answer); the hands_back follows the step's submit shape.",
+  "start_here": "Say to your AI: \"Run workflow:make-it-once-for-everyone: add a footer to my bakery's order emails that shows the pickup time, and make it a thing any builder gets.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list in its own words or steps: it works on the request it is given and answers what it changed.",
   "workflows": [
     "workflow:make-it-once-for-everyone"
   ],
   "tools": [],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:make-it-once-for-everyone\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:make-it-once-for-everyone) and works through its steps in order: raw-material, already-there, for-everyone, carry-the-principle, state-at-once, answer.",
-    "3. Read what each step hands back; the last step is answer."
+    "1. Say the run line in start_here with what you want built, in your own words.",
+    "2. The AI works the request as raw material (raw-material), searches for what exists (already-there) and decides whether it is truly new.",
+    "3. Read the for-everyone shape (the tool or workflow, and what another builder sets) and the principle it carried into your other pursuits.",
+    "4. Read the answer step: the change, what already existed, the tool everyone now gets and the links to see each surface."
   ],
   "worked_examples": [
     {
-      "title": "Build a feature, tool or page once, for everyone from its first step",
-      "ask": "Run workflow:make-it-once-for-everyone.",
+      "title": "A pickup-time footer treated as raw material",
+      "ask": "Add a footer to my bakery's order emails that shows the pickup time.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,15 +27,16 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:make-it-once-for-everyone",
-              "request": "<request: What is asked for, in the words it was asked>"
+              "request": "Add a footer to my bakery's order emails that shows the pickup time",
+              "came_from": "Sam, owner of a bakery"
             }
           }
         }
       },
       "workflow": "workflow:make-it-once-for-everyone",
       "step": "raw-material",
-      "hands_back": "Step raw-material answers with asked, constraints, serves, change.",
-      "given": "The person gives: request (shown as <name> in the input)."
+      "given": "Read from the raw-material step in tools/workflows/recipes/workflows.json: it quotes the request, gives each constraint's smallest and largest sensible version, names the pursuit served and states the change that came out.",
+      "hands_back": "{\"asked\": \"Add a footer to my bakery's order emails that shows the pickup time.\", \"constraints\": [{\"constraint\": \"order emails\", \"smallest\": \"only the confirmation email\", \"largest\": \"every email the shop sends\", \"changes\": \"the footer must be one block any email look can include\"}, {\"constraint\": \"pickup time\", \"smallest\": \"a single time\", \"largest\": \"a time window plus the address and a change link\", \"changes\": \"the footer reads the order's own row instead of fixed words\"}], \"serves\": \"The bakery pursuit: buyers who know when to collect call and ask less.\", \"change\": \"One footer block that shows the order's pickup window, address and a change link, set once for every email look.\"}"
     }
   ]
 }

@@ -1,22 +1,24 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:method-test-a-design-against-every-case's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:method-test-a-design-against-every-case.\" Test a proposed design or feature from outside the box it was drawn in: the underlying building block it is one case of, what it gives for free combined with everything already there, how it holds for any number of people in completely different fields, and what breaks first.",
+  "drafted_from": "workflow:method-test-a-design-against-every-case's row in tools/workflows/recipes/workflows.json (its job, input schema and the step named in the worked example)",
+  "start_here": "Say to your AI: \"Run workflow:method-test-a-design-against-every-case on: add a reorder button to a bakery's order history page.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It is a way of thinking a request through, answered in words step by step, and it reads and writes no list.",
   "workflows": [
     "workflow:method-test-a-design-against-every-case"
   ],
-  "tools": [],
+  "tools": [
+    "tool:start-a-recipe-run"
+  ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:method-test-a-design-against-every-case\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-test-a-design-against-every-case) and works through its steps in order: outcome, baseline, root, delete, rule-out, owner, combine, smallest-change, risk, naming, production, proof.",
-    "3. Read what each step hands back; the last step is proof."
+    "1. Say the design or feature in one plain sentence, for example \"add a reorder button to a bakery's order history page\", and say \"Run workflow:method-test-a-design-against-every-case\" with it as request.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-test-a-design-against-every-case) and answers its steps in order: outcome, baseline, root, delete, rule-out, owner, combine, smallest-change, risk, naming, production, proof; each answer is refused until every check of the step is answered about this request.",
+    "3. At rule-out, strip the nouns off the request to find the underlying building block it is one case of, and test it in a completely different field.",
+    "4. At proof, check that what the design could support is actually done: zero open obligations and the next binding constraint named."
   ],
   "worked_examples": [
     {
-      "title": "Test a design against every case it will meet from its first step",
-      "ask": "Run workflow:method-test-a-design-against-every-case.",
+      "title": "See the request as one case of a broader need",
+      "ask": "Run workflow:method-test-a-design-against-every-case: add a reorder button to a bakery's order history page.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,15 +29,15 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:method-test-a-design-against-every-case",
-              "request": "<request: What you are deciding, designing or building, in plain words>"
+              "request": "Add a reorder button to a bakery's order history page"
             }
           }
         }
       },
       "workflow": "workflow:method-test-a-design-against-every-case",
       "step": "outcome",
-      "hands_back": "Step outcome answers with answer, checks.",
-      "given": "The person gives: request (shown as <name> in the input)."
+      "given": "Read from tools/workflows/recipes/workflows.json, step outcome: its submit shape is answer and checks with outcome-derive-whole-outcome and outcome-the-request-is-a-box. The request is the one in the input above.",
+      "hands_back": "{\"answer\":\"A returning customer retypes the same order each week -> a returning customer repeats a past order in one tap. Fact: 31 of 50 orders last month matched the customer's previous order line for line.\",\"checks\":{\"outcome-derive-whole-outcome\":\"Result: the same items arrive for pickup again. Steps: see the past order, copy its items, check each is still sold, pick a pickup time, confirm. Nobody asked for \\\"check each is still sold\\\" but it cannot work without it.\",\"outcome-the-request-is-a-box\":\"The broader need is \\\"repeat something I did before\\\"; the reorder button is one case, and the same building block serves a saved weekly order or a standing order.\"}}"
     }
   ]
 }

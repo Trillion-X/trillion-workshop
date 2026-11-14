@@ -1,9 +1,8 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:personalized-reach-out's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:personalized-reach-out.\" Identify relevant people and deliver individually useful, truthful outreach through suitable connected channels.",
+  "drafted_from": "workflow:personalized-reach-out's row in tools/workflows/recipes/workflows.json (its job, input schema and the step named in the worked example)",
+  "start_here": "Say to your AI: \"Run workflow:personalized-reach-out: thank the three people who commented on my bakery video, by reply only, with nothing sent without my approval.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It finds people from the person's own comment threads, messages and customer records and keeps its evidence in the run itself, so it ships no list of its own.",
   "workflows": [
     "workflow:personalized-reach-out",
     "workflow:answer-commenters-with-videos",
@@ -14,14 +13,15 @@
     "tool:start-a-recipe-run"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:personalized-reach-out\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:personalized-reach-out) and works through its steps in order: fit, message, deliver, follow.",
-    "3. Read what each step hands back; the last step is follow."
+    "1. Write the request, the scope (who counts as relevant), the constraints (what not to do) and the authorized actions (for example \"reply in the same thread\"); all four are required.",
+    "2. Say \"Run workflow:personalized-reach-out\" with them. It works through fit, message, deliver and follow.",
+    "3. At fit, it verifies each person's identity, source, relationship and channel and reviews the Marketplace for useful tools; evidence is kept with an id, a source and what was observed.",
+    "4. At message, write each message to be individually useful and truthful; respect opt-outs and suppression lists. At deliver, send only inside the authorized actions and read the delivery state back; at follow, answer real replies only."
   ],
   "worked_examples": [
     {
-      "title": "Personalized Reach Out Mode from its first step",
-      "ask": "Run workflow:personalized-reach-out.",
+      "title": "Find the relevant people from their own comments",
+      "ask": "Run workflow:personalized-reach-out: thank the three people who commented on my bakery video, by reply only.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,18 +32,24 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:personalized-reach-out",
-              "request": "<request: string>",
-              "scope": "<scope: string>",
-              "constraints": [],
-              "authorized_actions": []
+              "request": "Thank the three people who commented on my bakery video with a useful reply",
+              "scope": "People who commented on my latest video, https://example.com/video/bake-day",
+              "constraints": [
+                "Do not contact anyone who opted out",
+                "No direct messages"
+              ],
+              "authorized_actions": [
+                "Draft replies in the same comment thread",
+                "Read the comment thread"
+              ]
             }
           }
         }
       },
       "workflow": "workflow:personalized-reach-out",
       "step": "fit",
-      "hands_back": "Step fit answers with summary, evidence, requirements.",
-      "given": "The person gives: request, scope (shown as <name> in the input)."
+      "given": "Read from tools/workflows/recipes/workflows.json, step fit: its submit shape is summary, evidence (id, source, observed) and requirements, where recipient-source and capability-review-fit are each state \"completed\" with what_happened (at least 12 characters) and evidence_refs.",
+      "hands_back": "{\"summary\":\"Three commenters on the video are relevant: each asked a question the video can answer. All three allow replies and none opted out.\",\"evidence\":[{\"id\":\"e1\",\"source\":\"https://example.com/video/bake-day#comment-1\",\"observed\":\"Sam asked how long the dough proofs.\"},{\"id\":\"e2\",\"source\":\"https://example.com/video/bake-day#comment-2\",\"observed\":\"Alex asked whether the recipe works with rye.\"},{\"id\":\"e3\",\"source\":\"https://example.com/video/bake-day#comment-3\",\"observed\":\"Lee said the sheet idea helped their shop.\"}],\"requirements\":{\"recipient-source\":{\"state\":\"completed\",\"what_happened\":\"Read the comment thread and verified each commenter and the reply channel; no direct messages were used.\",\"evidence_refs\":[\"e1\",\"e2\",\"e3\"]},\"capability-review-fit\":{\"state\":\"completed\",\"what_happened\":\"Searched the Marketplace for comment-reply tools and found the reply tool the person already uses.\",\"evidence_refs\":[\"e1\"]}}}"
     }
   ]
 }

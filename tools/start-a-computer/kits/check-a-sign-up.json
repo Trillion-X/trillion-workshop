@@ -1,38 +1,37 @@
 {
-  "draft": true,
-  "drafted_from": "tool:check-a-sign-up's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-a-sign-up with origin.\" Prove a public address takes a new account end to end: sign up, sign in and read a signed-in page",
+  "drafted_from": "tool row in tools/start-a-computer/tool-rows.json, do-work/check-a-sign-up.mjs and tools/start-a-computer/test/start-a-computer.test.mjs",
+  "start_here": "Say to your AI: \"Prove https://front.example takes a new account end to end: sign up, sign in and read a signed-in page.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it takes one https origin, makes one synthetic account with a one-run software passkey and answers each step's status.",
   "workflows": [],
   "tools": [
-    "tool:check-a-sign-up"
+    "tool:check-a-sign-up",
+    "tool:start-a-computer",
+    "tool:read-a-computer"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-a-sign-up\", and give it origin.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-sign-up and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields origin, address, steps, signed_in_read."
+    "1. Pick the origin: https://host with no path (a path is refused).",
+    "2. Say the line in start_here. Your AI reads the row with tools:list {tool: \"tool:check-a-sign-up\"} and runs node tools/start-a-computer/do-work/check-a-sign-up.mjs https://front.example. No credential is needed.",
+    "3. Read the JSON line: origin, address, steps and signed_in_read. Exit code 1 when signed_in_read is false; name the step that stopped.",
+    "4. Each run leaves one synthetic account at the computer that took it: call it synthetic wherever accounts are counted."
   ],
   "worked_examples": [
     {
-      "title": "Check a sign-up on a sample input",
-      "ask": "Run tool:check-a-sign-up.",
+      "title": "A passing check: seven steps, a new address, a signed-in read",
+      "ask": "Does the sign-up at front.example work end to end?",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:check-a-sign-up",
-            "input": {
-              "origin": "<origin: https://host, no path>"
-            }
+            "tool": "tool:check-a-sign-up"
           }
         }
       },
-      "hands_back": "An answer with the fields origin, address, steps, signed_in_read.",
-      "given": "The person gives: origin (shown as <name> in the input)."
+      "given": "From tools/start-a-computer/test/start-a-computer.test.mjs ('the sign-up check answers the way a browser does and its passkey signs what it says'). The origin answers /sign-up 200, /sign-up/options 200, /sign-up/finish 200 with address cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc, the sign-in options and finish 200, the signed-in page 200 with the new session and 303 without it. Run: node tools/start-a-computer/do-work/check-a-sign-up.mjs https://front.example",
+      "hands_back": "{\"origin\":\"https://front.example\",\"address\":\"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"steps\":[{\"step\":\"sign-up page\",\"status\":200},{\"step\":\"sign-up options\",\"status\":200},{\"step\":\"sign-up finish\",\"status\":200},{\"step\":\"sign-in options\",\"status\":200},{\"step\":\"sign-in finish\",\"status\":200},{\"step\":\"signed-in read\",\"status\":200},{\"step\":\"read without the session\",\"status\":303}],\"signed_in_read\":true}. No cookie or session value is in the answer. A path like https://front.example/path is refused: \"ORIGIN is https://host with no path.\""
     }
   ]
 }

@@ -1,29 +1,197 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:find-moments-in-a-recording's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:find-moments-in-a-recording.\" Inspect a recording, keep what is seen and heard as timed rows linked to its file, then turn useful material into source-linked drafts without inventing speech or approving a post.",
-  "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "drafted_from": "workflow:find-moments-in-a-recording's row in tools/workflows/recipes/workflows.json (its input schema, steps and submit shapes)",
+  "start_here": "Say to your AI: \"Run workflow:find-moments-in-a-recording on the recording 1f:ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12, a 62-second Saturday morning bake clip.\"",
+  "lists": [
+    {
+      "list": "list:recording-moments",
+      "label": "Recording moments",
+      "row_type": "record:recording-moment",
+      "holds": "One timed stretch of a recording, with what was heard or seen there.",
+      "fields": [
+        {
+          "id": "moment",
+          "kind": "text",
+          "label": "Moment",
+          "alike": [
+            "clip",
+            "title"
+          ]
+        },
+        {
+          "id": "recording",
+          "kind": "text",
+          "label": "Recording",
+          "alike": [
+            "file"
+          ]
+        },
+        {
+          "id": "start",
+          "kind": "number",
+          "label": "Start in seconds",
+          "alike": [
+            "from",
+            "in"
+          ]
+        },
+        {
+          "id": "end",
+          "kind": "number",
+          "label": "End in seconds",
+          "alike": [
+            "to",
+            "out"
+          ]
+        },
+        {
+          "id": "evidence",
+          "kind": "long-text",
+          "label": "Evidence",
+          "alike": [
+            "proof",
+            "notes"
+          ]
+        },
+        {
+          "id": "picture",
+          "kind": "text",
+          "label": "Picture",
+          "alike": [
+            "frame",
+            "thumbnail"
+          ]
+        },
+        {
+          "id": "spoken_words",
+          "kind": "long-text",
+          "label": "Spoken words from transcript",
+          "alike": [
+            "transcript",
+            "words"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "ab12-12-18",
+          "values": {
+            "moment": "Pre-orders turned Saturday around",
+            "recording": "1f:ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12",
+            "start": 12.0,
+            "end": 18.5,
+            "evidence": "Transcript words 12.0-18.5 s; picture at 15 s shows the counter with the order tray.",
+            "spoken_words": "Pre-orders turned our Saturday around."
+          }
+        },
+        {
+          "id": "ab12-40-47",
+          "values": {
+            "moment": "Boxes stacked on the counter",
+            "recording": "1f:ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12",
+            "start": 40.0,
+            "end": 47.2,
+            "evidence": "Picture at 43 s shows twenty boxes stacked; no speech in this stretch.",
+            "picture": "frame-43s.jpg"
+          }
+        }
+      ],
+      "alike": [
+        "a clip log in a spreadsheet",
+        "a video editor's marker list",
+        "shot notes"
+      ]
+    },
+    {
+      "list": "list:recording-pieces",
+      "label": "Recording pieces",
+      "row_type": "record:recording-piece",
+      "holds": "One recording, named by its content identity, with its length and what was inspected.",
+      "fields": [
+        {
+          "id": "piece",
+          "kind": "text",
+          "label": "Piece",
+          "alike": [
+            "recording name",
+            "title"
+          ]
+        },
+        {
+          "id": "recording",
+          "kind": "text",
+          "label": "Recording",
+          "alike": [
+            "file"
+          ]
+        },
+        {
+          "id": "duration",
+          "kind": "number",
+          "label": "Duration in seconds",
+          "alike": [
+            "length"
+          ]
+        },
+        {
+          "id": "coverage",
+          "kind": "long-text",
+          "label": "What was inspected",
+          "alike": [
+            "coverage",
+            "notes"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "sat-morning-clip",
+          "values": {
+            "piece": "Saturday morning bake clip",
+            "recording": "1f:ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12",
+            "duration": 62.4,
+            "coverage": "0-62.4 s: transcript heard whole; pictures at 0, 12, 30 and 60 s."
+          }
+        },
+        {
+          "id": "market-stall-walk",
+          "values": {
+            "piece": "Market stall walkthrough",
+            "recording": "1f:cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34cd34",
+            "duration": 41.0,
+            "coverage": "0-41 s: no speech; pictures at 0, 20 and 40 s."
+          }
+        }
+      ],
+      "alike": [
+        "a media library table",
+        "a footage log spreadsheet",
+        "a clip inventory"
+      ]
+    }
+  ],
   "workflows": [
     "workflow:find-moments-in-a-recording",
     "workflow:turn-what-you-said-into-content"
   ],
   "tools": [
-    "tool:find-action-moments",
+    "tool:start-a-recipe-run",
+    "tool:transcribe-audio-and-repair-whisper-loops",
     "tool:find-scene-changes",
     "tool:pick-cover-frame",
-    "tool:transcribe-audio-and-repair-whisper-loops",
-    "tool:who-is-in-this"
+    "tool:find-action-moments",
+    "tool:who-is-in-this",
+    "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:find-moments-in-a-recording\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:find-moments-in-a-recording) and works through its steps in order: inspect, moments, content.",
-    "3. Read what each step hands back; the last step is content."
+    "1. Pour the example rows into the list where you log clips (see pour), or let the moments step make list:recording-moments and list:recording-pieces.",
+    "2. Say \"Run workflow:find-moments-in-a-recording\" with the recording's content identity (1f: and 64 hex characters) as file.",
+    "3. The AI works inspect, moments and content: it hears the whole recording, looks at real pictures at explicit seconds, keeps each moment as a timed row with its evidence, and drafts content only from words actually heard.",
+    "4. Read the drafts it kept as status Draft in your content list; nothing is posted."
   ],
   "worked_examples": [
     {
-      "title": "Find useful moments in a recording from its first step",
-      "ask": "Run workflow:find-moments-in-a-recording.",
+      "title": "A spoken line becomes a timed moment row",
+      "ask": "Find the moments in my Saturday clip.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -34,15 +202,58 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:find-moments-in-a-recording",
-              "file": "<file: The recording in this account by its content identity>"
+              "file": "1f:ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12"
             }
           }
         }
       },
       "workflow": "workflow:find-moments-in-a-recording",
-      "step": "inspect",
-      "hands_back": "Step inspect answers with words, evidence, coverage.",
-      "given": "The person gives: file (shown as <name> in the input)."
+      "step": "moments",
+      "given": "The inspect step answered duration 62.4 and words \"Pre-orders turned our Saturday around.\" heard from 12.0 to 18.5 s, with a picture taken at 15 s showing the counter and the order tray. The moments step keeps one piece row for the recording and one moment row with 0 <= start < end <= 62.4. Read from the moments step of the workflow row.",
+      "hands_back": "The submit shape of step moments: {\"source_row\":\"recording-pieces/sat-morning-clip\",\"moments\":[{\"row\":\"recording-moments/ab12-12-18\",\"start\":12.0,\"end\":18.5,\"evidence\":\"Transcript words 12.0-18.5 s; picture at 15 s shows the counter with the order tray.\"}]}"
     }
-  ]
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "example": {
+      "kit_list": "list:recording-moments",
+      "into": {
+        "list": "list:my-recording-moments",
+        "row_type": "record:my-recording-moment",
+        "fields": [
+          {
+            "id": "my_moment",
+            "label": "Moment"
+          },
+          {
+            "id": "my_recording",
+            "label": "Recording"
+          },
+          {
+            "id": "my_start",
+            "label": "Start in seconds"
+          },
+          {
+            "id": "my_end",
+            "label": "End in seconds"
+          },
+          {
+            "id": "my_evidence",
+            "label": "Evidence"
+          },
+          {
+            "id": "my_picture",
+            "label": "Picture"
+          },
+          {
+            "id": "my_spoken_words",
+            "label": "Spoken words from transcript"
+          }
+        ]
+      },
+      "field_map": {}
+    }
+  }
 }

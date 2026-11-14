@@ -1,36 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:measure-speech-in-my-recordings's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:measure-speech-in-my-recordings with nothing more.\" Show me how loud, noisy, hummy, windy, echoey or clipped the speech in each part of my recordings is, before I choose what counts as good",
+  "drafted_from": "tools/grade-and-repair-speech-audio/tool-rows.json (tool:measure-speech-in-my-recordings), do-work/probe_speech.py and show_probe.py, read-data/measure.py, test/grade-and-repair-speech-audio.test.mjs (the probe test)",
+  "start_here": "Say to your AI: \"Measure how loud and noisy the speech in the spans of /Work/demo/spans.json is, without grading it, writing to /Work/demo/probe, so I can choose my settings.\" It runs tool:measure-speech-in-my-recordings on your computer and tells you each span's numbers.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of yours: it reads a spans file on your computer and writes cuts and probe.json into a folder you name.",
   "workflows": [],
   "tools": [
     "tool:measure-speech-in-my-recordings",
     "tool:grade-and-repair-speech-audio"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:measure-speech-in-my-recordings\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:measure-speech-in-my-recordings and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Show me how loud, noisy, hummy, windy, echoey or clipped the speech in each part of my recordings is, before I choose what counts as good"
+    "1. Install ffmpeg, numpy, scipy and soundfile; this tool needs no settings and no models.",
+    "2. Write a spans file ({\"spans\":[{\"clip\",\"source\",\"from\",\"to\",\"text\",\"words\"}]}); word times make the noise floor come from the pauses between words.",
+    "3. Say \"Measure the speech in my spans file\". Your AI reads the row with tools:list and runs its run command with your spans file and a new output folder.",
+    "4. Read the one-line-per-span table and probe.json, then use the numbers to choose the settings tool:grade-and-repair-speech-audio will judge against."
   ],
   "worked_examples": [
     {
-      "title": "Measure the speech in my recordings, without grading or changing it (runs on your computer) on a sample input",
-      "ask": "Run tool:measure-speech-in-my-recordings.",
+      "title": "Three synthetic recordings measured side by side",
+      "ask": "Measure the speech in my three spans so I can choose what counts as good.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:measure-speech-in-my-recordings",
-            "input": {}
+            "tool": "tool:measure-speech-in-my-recordings"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Show me how loud, noisy, hummy, windy, echoey or clipped the speech in each part of my recordings is, before I choose what counts as good"
+      "given": "From tools/grade-and-repair-speech-audio/test/grade-and-repair-speech-audio.test.mjs (the probe test), run here for real on a spans file /Work/demo/spans.json with three spans of three synthetic recordings (clean.wav, noisy.wav with a 60 Hz hum and loud floor, clipped.wav driven into clipping), each from 0.4 to 5.0 s with its five word times, and one repeat of the first. The AI reads the row with this tools:list call, then runs: python3 trillion-workshop/tools/grade-and-repair-speech-audio/do-work/probe_speech.py --spans /Work/demo/spans.json --out /Work/demo/probe && python3 trillion-workshop/tools/grade-and-repair-speech-audio/do-work/show_probe.py /Work/demo/probe/probe.json. Paths shown for /Work/demo/probe.",
+      "hands_back": "probe_speech.py prints each span's measures as JSON and then {\"result\": {\"probe\": \"/Work/demo/probe/probe.json\", \"spans\": 3}} (the repeat is measured once). show_probe.py prints three lines: \"clean_0.40_5.00 dur 4.6 lufs -15.6 tp -4.8 nf -80.2 snr 66.4 clip0.0000 hum 0.0@0 lf-104.1/0.00 tail-40.0 word\", \"noisy_0.40_5.00 dur 4.6 lufs -15.8 tp -4.0 nf -32.3 snr 18.6 clip0.0000 hum 15.4@100 lf -33.9/0.69 tail-26.8 word\" and \"clipped_0.40_5.00 dur 4.6 lufs -5.2 tp 0.2 nf -64.7 snr 61.8 clip0.2200 hum 5.0@120 lf -88.7/0.00 tail-40.0 word\" (columns padded as printed). The cut is exactly from..to (duration 4.6), with no handle."
     }
   ]
 }

@@ -1,22 +1,119 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:find-their-own-map's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:find-their-own-map.\" Before using a default map, look through everything a person keeps for how they themselves divide their life (the parts they name, the areas they keep coming back to, a framework they wrote or follow) and keep their map as rows of their own map list in their own words, each with where they said it; when they have none, keep the default map.",
-  "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "drafted_from": "workflow:find-their-own-map's row in tools/workflows/recipes/workflows.json (its input schema, steps and submit shapes)",
+  "start_here": "Say to your AI: \"Run workflow:find-their-own-map: look through everything I keep for how I divide my life, and keep my own map in my words.\"",
+  "lists": [
+    {
+      "list": "list:your-map",
+      "label": "Your map",
+      "row_type": "record:your-map",
+      "holds": "One area of the person's life, what it means and what it is part of.",
+      "fields": [
+        {
+          "id": "area",
+          "kind": "text",
+          "label": "Area",
+          "alike": [
+            "part",
+            "name"
+          ]
+        },
+        {
+          "id": "part_of",
+          "kind": "link",
+          "label": "Part of",
+          "alike": [
+            "parent",
+            "belongs to"
+          ]
+        },
+        {
+          "id": "means",
+          "kind": "long-text",
+          "label": "What it means",
+          "alike": [
+            "meaning",
+            "description"
+          ]
+        },
+        {
+          "id": "sides",
+          "kind": "text",
+          "label": "Both sides",
+          "alike": [
+            "range",
+            "poles"
+          ]
+        },
+        {
+          "id": "optional",
+          "kind": "choice",
+          "label": "Optional",
+          "alike": [
+            "can be skipped"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "body",
+          "values": {
+            "area": "Your body",
+            "part_of": [
+              "inside"
+            ],
+            "means": "How well your body is and what you do for it.",
+            "sides": "strong / weak",
+            "optional": "No"
+          }
+        },
+        {
+          "id": "things",
+          "values": {
+            "area": "Things, places and money",
+            "part_of": [
+              "around"
+            ],
+            "means": "The objects, places and resources around you.",
+            "sides": "rich / poor",
+            "optional": "No"
+          }
+        },
+        {
+          "id": "living",
+          "values": {
+            "area": "People and living things",
+            "part_of": [
+              "around"
+            ],
+            "means": "The people and animals in your life.",
+            "optional": "No"
+          }
+        }
+      ],
+      "alike": [
+        "a life-areas wheel",
+        "a values spreadsheet",
+        "a journal topic list"
+      ]
+    }
+  ],
   "workflows": [
     "workflow:find-their-own-map"
   ],
-  "tools": [],
+  "tools": [
+    "tool:start-a-recipe-run",
+    "tool:pour-example-rows-into-my-list"
+  ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:find-their-own-map\".",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:find-their-own-map) and works through its steps in order: look, compare, keep.",
-    "3. Read what each step hands back; the last step is keep."
+    "1. Pour the example areas into the list where you keep the parts of your life (see pour), or make list:your-map from them.",
+    "2. Say \"Run workflow:find-their-own-map\".",
+    "3. The AI works look, compare and keep: it searches your notes, messages, transcripts and framework files for the parts you name, lays each beside the map, and keeps each new or renamed area in your words with where you said it.",
+    "4. Read the kept area ids; nothing you did not say to remove is removed, and your pursuits are placed on your own map again."
   ],
   "worked_examples": [
     {
-      "title": "Find a person's own map of their life from its first step",
-      "ask": "Run workflow:find-their-own-map.",
+      "title": "One quote matches an existing area and one becomes a new area",
+      "ask": "Find my own map.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,8 +129,44 @@
         }
       },
       "workflow": "workflow:find-their-own-map",
-      "step": "look",
-      "hands_back": "Step look answers with searched, found."
+      "step": "compare",
+      "given": "The look step searched [\"notes\",\"messages\",\"transcripts\"] and found: \"I split my life into the shop, my family and my running\" (a note, 2026-09-14) and \"bread is a craft I want to master\" (a note, 2026-10-02). The map already has the areas things, living and body; read from the compare step of the workflow row.",
+      "hands_back": "The submit shape of step compare: {\"rows\":[{\"part\":\"The shop\",\"area_id\":\"things\",\"new\":false},{\"part\":\"My family\",\"area_id\":\"living\",\"new\":false},{\"part\":\"My running\",\"area_id\":\"body\",\"new\":false},{\"part\":\"The craft of bread\",\"area_id\":\"craft-of-bread\",\"new\":true,\"part_of\":\"mind\",\"means\":\"bread is a craft I want to master\"}]}"
     }
-  ]
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "example": {
+      "kit_list": "list:your-map",
+      "into": {
+        "list": "list:my-your-map",
+        "row_type": "record:my-your-map",
+        "fields": [
+          {
+            "id": "my_area",
+            "label": "Area"
+          },
+          {
+            "id": "my_part_of",
+            "label": "Part of"
+          },
+          {
+            "id": "my_means",
+            "label": "What it means"
+          },
+          {
+            "id": "my_sides",
+            "label": "Both sides"
+          },
+          {
+            "id": "my_optional",
+            "label": "Optional"
+          }
+        ]
+      },
+      "field_map": {}
+    }
+  }
 }

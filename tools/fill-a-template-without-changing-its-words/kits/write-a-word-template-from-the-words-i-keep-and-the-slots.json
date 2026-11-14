@@ -1,13 +1,11 @@
 {
-  "draft": true,
-  "drafted_from": "tool:write-a-word-template-from-the-words-i-keep-and-the-slots's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:write-a-word-template-from-the-words-i-keep-and-the-slots with request.\" Write a word template for a spoken line from the words that stay and the slots that change, when no reader can measure its file",
+  "start_here": "Say to your AI: \"Write a word template for my 2.5 second opening line: Meet the, then the baker as a slot, who rose early, then Two days ago as a slot.\" It runs tool:write-a-word-template-from-the-words-i-keep-and-the-slots.",
   "lists": [
     {
       "list": "list:settings",
       "label": "Settings",
       "row_type": "record:setting",
-      "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON.",
+      "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON. For this folder the account row holds your own dimensions registry.",
       "fields": [
         {
           "id": "name",
@@ -71,81 +69,80 @@
           "label": "Status",
           "alike": [
             "state",
-            "on or off"
+            "active"
           ]
         }
       ],
       "example_rows": [
         {
-          "id": "caption-style",
+          "id": "tasting-note-registry",
           "values": {
-            "name": "Caption style",
-            "tool": "tool:example-captioner",
-            "scope_kind": "person",
-            "scope_id": "example-person",
-            "settings": "{\"style\":\"plain\",\"size\":\"large\"}",
+            "name": "Tasting-note registry",
+            "tool": "tool:make-a-word-template",
+            "scope_kind": "account",
+            "scope_id": "main",
+            "settings": "{\"registry\":{\"dimensions\":[{\"id\":\"taste.note\",\"name\":\"tasting note\",\"media\":[\"podcast\"],\"region\":\"speech\",\"value_kind\":\"category\",\"measure\":[{\"method\":\"a taster writes it down\"}],\"drift\":{\"threshold\":1.0}}]}}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         },
         {
-          "id": "quiet-hours",
+          "id": "open-line-candidates",
           "values": {
-            "name": "Quiet hours",
-            "tool": "tool:example-notifier",
-            "scope_kind": "account",
-            "scope_id": "whole-account",
-            "settings": "{\"from\":\"22:00\",\"to\":\"07:00\"}",
+            "name": "Open line candidates",
+            "tool": "tool:make-spoken-line-candidates-one-slot-at-a-time",
+            "scope_kind": "piece",
+            "scope_id": "open-line",
+            "settings": "{\"id_prefix\":\"open-\",\"script_path\":\"scripts/{id}.txt\"}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         }
       ],
       "alike": [
-        "an app's settings screen",
-        "a config file per tool",
-        "a spreadsheet of options"
+        "a config sheet or settings spreadsheet",
+        "an app's preferences list",
+        "a notes page of defaults per project"
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
     "tool:write-a-word-template-from-the-words-i-keep-and-the-slots",
     "tool:check-words-against-a-word-template",
-    "tool:fill-a-word-template"
+    "tool:fill-a-word-template",
+    "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:write-a-word-template-from-the-words-i-keep-and-the-slots\", and give it request.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:write-a-word-template-from-the-words-i-keep-and-the-slots and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Write a word template for a spoken line from the words that stay and the slots that change, when no reader can measure its file"
+    "1. Write a request file, for example bakery/parts-request.json: {\"out\": folder, \"dim\": \"speech.word\", \"templates\": [{\"name\",\"t0\",\"t1\",\"source\",\"parts\",\"slots\"}]}. A kept part is [\"K\",\"words\"]; a slot part is [\"S\",\"SLOTNAME\",\"the words in it\"]; slots maps each name to [type, note].",
+    "2. Say to your AI: \"Write the word template from bakery/parts-request.json\". It reads the row with tools:list and runs python3 -I tools/fill-a-template-without-changing-its-words/do-work/token_table_from_parts.py --request bakery/parts-request.json",
+    "3. Read the last line: {\"result\":{\"written\":[{\"file\",\"tokens\",\"slots\"}]}} lists each template written; {\"error\": ...} says what to change (for example a slot part naming a slot that is not in slots).",
+    "4. Take the template to tool:fill-a-word-template, then judge rewrites with tool:check-words-against-a-word-template.",
+    "5. Keep your own words, slots and ids in a list:settings row and pass it as settings_record in the request; never write them into the tool's folder."
   ],
   "worked_examples": [
     {
-      "title": "Write a word template by hand from the words I keep and the slots I leave open (runs on your computer) on a sample input",
-      "ask": "Run tool:write-a-word-template-from-the-words-i-keep-and-the-slots.",
+      "title": "An opening line with a person slot and a time slot",
+      "ask": "Write a word template for my opening line.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:write-a-word-template-from-the-words-i-keep-and-the-slots",
-            "input": {
-              "request": "<request: The request JSON file, put where {request} is in the command: {out, registry?, dim, templates: [{name, t0, t1, source, parts, slots, piece_id?, unit_id?, medium?, kind?, notes?}], reader?, by?}>"
-            }
+            "tool": "tool:write-a-word-template-from-the-words-i-keep-and-the-slots"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Write a word template for a spoken line from the words that stay and the slots that change, when no reader can measure its file",
-      "given": "The person gives: request (shown as <name> in the input)."
+      "given": "From tools/fill-a-template-without-changing-its-words/test/test_token_table_from_parts.py (its made-up parts) run for real: bakery/parts-request.json is {\"out\":\"bakery/templates\",\"dim\":\"speech.word\",\"templates\":[{\"name\":\"open-line\",\"t0\":1.5,\"t1\":4.0,\"source\":\"bakery/voice-notes.txt\",\"parts\":[[\"K\",\"Meet the\"],[\"S\",\"WHO\",\"baker, Sam Example\"],[\"K\",\"who rose early.\"],[\"S\",\"WHEN\",\"Two days ago.\"]],\"slots\":{\"WHO\":[\"PERSON\",\"who the line is about\"],\"WHEN\":[\"TIME\",\"how long ago\"]}}]}. Command: python3 -I tools/fill-a-template-without-changing-its-words/do-work/token_table_from_parts.py --request bakery/parts-request.json",
+      "hands_back": "Exit 0 and the last line {\"result\": {\"written\": [{\"file\": \"bakery/templates/open-line.template.json\", \"tokens\": 11, \"slots\": 2}]}}. The 11 words are KEEP or SLOT in order (Meet the | baker, Sam Example | who rose early. | Two days ago.); slots WHO (PERSON) and WHEN (TIME) are listed with rule \"hand\"."
     }
   ],
   "pour": {
     "tool": "tool:pour-example-rows-into-my-list",
     "least_coverage": 0.8,
-    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "how": "Name the list you already keep for tool settings and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and list:settings as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
     "example": {
       "kit_list": "list:settings",
       "into": {
@@ -181,7 +178,9 @@
             "label": "Status"
           }
         ]
-      }
+      },
+      "field_map": {}
     }
-  }
+  },
+  "drafted_from": "tool:write-a-word-template-from-the-words-i-keep-and-the-slots's row in tools/fill-a-template-without-changing-its-words/tool-rows.json, do-work/*.py and the tests in tools/fill-a-template-without-changing-its-words/test/; the worked run was executed on made-up bakery words"
 }

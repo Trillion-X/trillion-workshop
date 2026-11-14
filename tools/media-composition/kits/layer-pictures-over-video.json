@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:layer-pictures-over-video's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:layer-pictures-over-video with video, pictures.\" Put a logo, a photo, or a picture-in-picture or b-roll video over a video at chosen times, with position, size and opacity",
+  "drafted_from": "tool:layer-pictures-over-video's own row in tools/media-composition/tool-rows.json, tools/media-composition/do-work/layer-over-video.mjs, tools/media-composition/test/layer-over-video.test.mjs, and the script run on a synthetic 7 second clip with a 200x100 logo",
+  "start_here": "Say to your AI: \"Put my logo in the top right corner of my video from second 1 to second 4, at 90% opacity.\" It runs tool:layer-pictures-over-video and saves the new video in your files.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It makes a new video in your files from the video you name and keeps no list of its own.",
   "workflows": [],
   "tools": [
     "tool:layer-pictures-over-video"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:layer-pictures-over-video\", and give it video, pictures.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:layer-pictures-over-video and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields result, files."
+    "1. Find the identities in your files of the video and of each picture or b-roll clip (logo, photo, picture-in-picture).",
+    "2. Say \"Lay this logo over the video\" with video and pictures, back to front: each is {file, start (seconds into the video), optional to, x and y (0 to 1, where its centre sits), size (its width as a share of the frame, default 0.3), opacity, fade_in, fade_out, kind, from, label}.",
+    "3. The AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:layer-pictures-over-video. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
+    "4. Read result (duration_seconds, bytes, pictures: how many were laid) and files.video, the new video in your files."
   ],
   "worked_examples": [
     {
-      "title": "Lay pictures over a video on a sample input",
-      "ask": "Run tool:layer-pictures-over-video.",
+      "title": "A logo in the top right for three seconds",
+      "ask": "Put my logo in the top right from second 1 to 4.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,19 +26,26 @@
           "input": {
             "tool": "tool:layer-pictures-over-video",
             "input": {
-              "video": "<video: The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it>",
+              "video": "1f:7320b49113520185e2ad8938759857db29ec6b0ed6a30cd1a2cfc05c68d932c6",
               "pictures": [
                 {
-                  "file": "<file: The picture's or video's identity in your files (1f: then 64 hex): a logo, a photo or b-roll>",
-                  "start": "<start: Seconds into the video where it appears>"
+                  "file": "1f:e46c71cdfd22e4b826952bda7cc4120d50cc78c48b6214b47c4d1714ebeba8f1",
+                  "label": "Logo",
+                  "start": 1,
+                  "to": 4,
+                  "x": 0.85,
+                  "y": 0.12,
+                  "size": 0.2,
+                  "opacity": 0.9,
+                  "fade_in": 0.3
                 }
               ]
             }
           }
         }
       },
-      "hands_back": "An answer with the fields result, files.",
-      "given": "The person gives: video, file, start (shown as <name> in the input)."
+      "given": "read from tools/media-composition/do-work/layer-over-video.mjs (the translation is tested in tools/media-composition/test/layer-over-video.test.mjs) and run on a 7 second 320x180 clip: a still shows from its start for to minus from seconds",
+      "hands_back": "{\"result\":{\"duration_seconds\":7.021,\"width\":320,\"height\":180,\"has_audio\":true,\"bytes\":130217,\"segments\":1,\"expected_duration_seconds\":7,\"sounds\":0,\"pictures\":1},\"files\":{\"video\":{\"identity\":\"1f:9eca11d780e0dfe11877458026fce8ffc77f26d1f3509cb457a84f7879f18182\",\"bytes\":130217,\"media_type\":\"video/mp4\",\"name\":\"layered.mp4\"}}}"
     }
   ]
 }

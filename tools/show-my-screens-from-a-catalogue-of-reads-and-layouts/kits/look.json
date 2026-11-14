@@ -1,0 +1,34 @@
+{
+  "drafted_from": "tools/show-my-screens-from-a-catalogue-of-reads-and-layouts/tool-rows.json (tool:look), tools/show-my-screens-from-a-catalogue-of-reads-and-layouts/test/catalogue-screen-look.test.mjs and test/fixtures/look-descriptions.json",
+  "start_here": "Say to your AI: \"Show me the Look screen: how Trillion looks and feels on my screens.\" It reads the row of tool:look and tells you the three sections the screen host draws: Screen look, Panes and Feel.",
+  "lists": [],
+  "no_lists_because": "It reads no list and runs nothing: the screen host draws its fixed layout, and each part keeps its own choice in your account's records.",
+  "workflows": [],
+  "tools": [
+    "tool:look"
+  ],
+  "instructions": [
+    "1. Open the Look screen at /work/api/screens/look in the app (the screen host draws it), or ask your AI to read the row with tools:list {tool: \"tool:look\"}.",
+    "2. Read the layout: a title, a lead and three sections, each lending a shared part (screen-look, pane-sizes, feel).",
+    "3. Make your choices in the parts themselves: choose a look, drag a pane's edge to feel the snap, press play on a feel to try it; each change appears right away and is kept in your account's records."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read the three sections of the Look screen",
+      "ask": "Show me how Trillion looks and feels on my screens.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:list",
+          "input": {
+            "tool": "tool:look"
+          }
+        }
+      },
+      "given": "From tools/show-my-screens-from-a-catalogue-of-reads-and-layouts/test/catalogue-screen-look.test.mjs: the row is a reads screen with no reads and no invoke, so it runs nothing and has no run to call; the screen host draws its layout as it is, and the test checks that layout equals the golden in test/fixtures/look-descriptions.json.",
+      "hands_back": "The row's screen layout: title \"Look\", lead \"How Trillion looks and feels on every screen you open it on.\", and three sections: {id \"look\", heading \"Screen look\", body \"Choose a look. Changes appear right away.\", part \"screen-look\"}, {id \"panes\", heading \"Panes\", body \"Drag the edge to feel it. Changes appear right away.\", part \"pane-sizes\"} and {id \"feel\", heading \"Feel\", body \"How each moment feels: the touch, the sound and the motion. Press play to feel one.\", part \"feel\"}."
+    }
+  ]
+}

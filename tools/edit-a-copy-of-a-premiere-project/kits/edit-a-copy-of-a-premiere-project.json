@@ -1,39 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:edit-a-copy-of-a-premiere-project's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:edit-a-copy-of-a-premiere-project with plan, written.\" Make a new copy of my Premiere Pro project with these edits done on the timeline: put these files or placeholders in at these points, cut these stretches, move this part, or rebuild the sequence in a new order",
+  "drafted_from": "tool:edit-a-copy-of-a-premiere-project row, do-work/premiere_insert.py and test/test_edit_a_copy.py (test_cut_and_move_write_a_checked_copy_and_record_it) with test/synthetic_prproj.py; the answer was observed by running the command on that made-up project",
+  "start_here": "Say to your AI: \"Make a copy of my Premiere project film/made-up.prproj as film/out.prproj with the 2 seconds from 00:00:02:00 cut out and the clip A002 from seconds 10 to 12 moved to the start, and keep the record of what you wrote in film/written.json.\" It writes the plan, runs the tool and tells you the new length.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It reads a Premiere project file and a plan file and writes a new project file and a record of outputs; it names no list of yours.",
   "workflows": [],
   "tools": [
-    "tool:edit-a-copy-of-a-premiere-project"
+    "tool:edit-a-copy-of-a-premiere-project",
+    "tool:insert-frame-holds-into-a-filmcraft-project-copy"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:edit-a-copy-of-a-premiere-project\", and give it plan, written.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:edit-a-copy-of-a-premiere-project and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Make a new copy of my Premiere Pro project with these edits done on the timeline: put these files or placeholders in at these points, cut these stretches, move this part, or rebuild the sequence in a new order"
+    "1. Choose your project (the .prproj stays untouched), a NEW output name and a written record file in your film folder, and write the plan: {\"project\": \"film/made-up.prproj\", \"output\": \"film/out.prproj\", \"ops\": [{\"op\": \"cut\", ...}, {\"op\": \"move\", ...}]}; ops are insert, cut, move or assemble.",
+    "2. Read the tool with tools:list {tool: \"tool:edit-a-copy-of-a-premiere-project\"}, then from the root of the Workshop checkout run its command with the plan and --written file.",
+    "3. Read the last line: {\"result\": {\"output\", \"blake3\", \"written\", \"replaced\", \"length\", \"inserts\", \"log\"}} names the new project and its length; {\"error\": ...} says what to change (a frame rate, mono audio or a drop-frame timecode it will not guess at).",
+    "4. Check the copy with do-work/validate.py and do-work/prdump.py, then open the new project in Premiere; the original is untouched."
   ],
   "worked_examples": [
     {
-      "title": "Edit a copy of my Premiere project from a plan: insert, cut, move, reorder (runs on your computer) on a sample input",
-      "ask": "Run tool:edit-a-copy-of-a-premiere-project.",
+      "title": "Cut two seconds and move a clip to the start",
+      "ask": "Cut 00:00:02:00 to 00:00:04:00 out of my project and put the A002 clip from seconds 10 to 12 first.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:edit-a-copy-of-a-premiere-project",
-            "input": {
-              "plan": "<plan: The plan JSON file, put where {plan} is in the command: {project, output, sequence?, timecodes?, create_tracks?, ops: [{op: insert|cut|move|assemble, ...}]}>",
-              "written": "<written: The JSON record of outputs this tool wrote (path -> BLAKE3), put where {written} is>"
-            }
+            "tool": "tool:edit-a-copy-of-a-premiere-project"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Make a new copy of my Premiere Pro project with these edits done on the timeline: put these files or placeholders in at these points, cut these stretches, move this part, or rebuild the sequence in a new order",
-      "given": "The person gives: plan, written (shown as <name> in the input)."
+      "given": "From tools/edit-a-copy-of-a-premiere-project/test/test_edit_a_copy.py and test/synthetic_prproj.py: the AI runs `python3 tools/edit-a-copy-of-a-premiere-project/do-work/premiere_insert.py film/plan.json --written film/written.json` where film/plan.json is {\"project\": \"film/made-up.prproj\", \"output\": \"film/out.prproj\", \"ops\": [{\"op\": \"cut\", \"range\": {\"from\": \"00:00:02:00\", \"to\": \"00:00:04:00\"}}, {\"op\": \"move\", \"range\": {\"clip\": \"A002\", \"src_in\": 10, \"src_out\": 12}, \"to\": {\"before\": {\"clip\": \"A001\", \"src_in\": 0, \"src_out\": 1}}}]}. The made-up project is 20 s at 23.976 fps with A001.mov (10 s) then A002.mov (10 s from source second 5) on V1 and A1. I ran this exact plan, so the answer is observed.",
+      "hands_back": "{\"result\": {\"output\": \"film/out.prproj\", \"blake3\": \"<64 hex digits of the new file>\", \"written\": \"film/written.json\", \"replaced\": null, \"length\": \"00:00:18:00\", \"inserts\": [], \"log\": [\"cut : 00:00:02:00 -> 00:00:04:00\", \"  2 ranges, 2 items razored, 2 items removed, length 00:00:20:00 -> 00:00:18:00\", \"move : 00:00:13:00 -> 00:00:15:00 to 00:00:00:00\", \"  3 ranges, 2 items razored, 0 items removed, length 00:00:18:00 -> 00:00:18:00\"]}}. The copy's V1 reads A002.mov 00:00:00:00-00:00:02:00, A001.mov to 00:00:04:00 and 00:00:10:00, A002.mov to 00:00:15:00 and 00:00:18:00 (5 items), A1 matches it, and the input project is byte for byte unchanged."
     }
   ]
 }

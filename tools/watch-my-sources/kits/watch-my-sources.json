@@ -1,0 +1,574 @@
+{
+  "drafted_from": "tool:watch-my-sources's row in tools/watch-my-sources/tool-rows.json, do-work/watch-my-sources.mjs, read-data/watch-sources.mjs and test/watch-my-sources.test.mjs; the lists' fields are the real lists' fields read from the account; the answers were observed by running watchMySources on the test's made-up blog feed",
+  "start_here": "Say to your AI: \"Watch my sources and tell me what is new that moves my podcast pursuit. Run tool:watch-my-sources, answer its weighing question yourself and run it again with your answer.\" It reads each source marked Yes in your list signal-sources and keeps what is new in your list signals.",
+  "lists": [
+    {
+      "list": "list:signal-sources",
+      "label": "Sources I watch",
+      "row_type": "record:signal-sources",
+      "holds": "One place the person follows (a site's feed, a YouTube channel, an X account or a page) and how the last read of it went.",
+      "fields": [
+        {
+          "id": "name",
+          "kind": "text",
+          "label": "Name",
+          "alike": [
+            "title",
+            "site",
+            "source"
+          ]
+        },
+        {
+          "id": "address",
+          "kind": "text",
+          "label": "Address",
+          "alike": [
+            "url",
+            "website",
+            "link"
+          ]
+        },
+        {
+          "id": "feed",
+          "kind": "text",
+          "label": "Feed address",
+          "alike": [
+            "rss",
+            "feed url"
+          ]
+        },
+        {
+          "id": "kind",
+          "kind": "choice",
+          "label": "Kind",
+          "alike": [
+            "type"
+          ]
+        },
+        {
+          "id": "watching",
+          "kind": "choice",
+          "label": "Watching",
+          "alike": [
+            "on",
+            "active",
+            "follow"
+          ]
+        },
+        {
+          "id": "last_read",
+          "kind": "text",
+          "label": "Last read",
+          "alike": [
+            "checked at"
+          ]
+        },
+        {
+          "id": "new_last_time",
+          "kind": "number",
+          "label": "New item last kept (ms)"
+        },
+        {
+          "id": "problem",
+          "kind": "text",
+          "label": "Problem",
+          "alike": [
+            "error",
+            "issue"
+          ]
+        },
+        {
+          "id": "etag",
+          "kind": "text",
+          "label": "ETag the address gave"
+        },
+        {
+          "id": "modified",
+          "kind": "text",
+          "label": "Last-Modified the address gave"
+        },
+        {
+          "id": "failed_runs",
+          "kind": "number",
+          "label": "Runs that failed in a row"
+        },
+        {
+          "id": "failing_since",
+          "kind": "text",
+          "label": "Failing since"
+        },
+        {
+          "id": "history",
+          "kind": "choice",
+          "label": "Take in"
+        },
+        {
+          "id": "history_taken",
+          "kind": "text",
+          "label": "Whole history taken in"
+        },
+        {
+          "id": "list_dated",
+          "kind": "text",
+          "label": "Date the site gave its list"
+        },
+        {
+          "id": "on_the_list",
+          "kind": "link",
+          "label": "On the list now"
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "blog",
+          "values": {
+            "name": "The Blog",
+            "address": "https://blog.example",
+            "feed": "https://blog.example/feed.xml",
+            "kind": "feed",
+            "watching": "Yes",
+            "last_read": "2026-10-06T00:00:00.000Z",
+            "new_last_time": 1791334800000,
+            "problem": "",
+            "etag": "w-1",
+            "modified": "Tue, 06 Oct 2026 00:00:00 GMT",
+            "failed_runs": 0,
+            "history": "New items only"
+          }
+        },
+        {
+          "id": "bread-channel",
+          "values": {
+            "name": "Bread Club channel",
+            "address": "https://video.example/channel/bread-club",
+            "feed": "https://video.example/feeds/bread-club.xml",
+            "kind": "youtube-channel",
+            "watching": "Yes",
+            "last_read": "2026-10-06T12:00:00.000Z",
+            "new_last_time": 1791378000000,
+            "failed_runs": 0,
+            "history": "New items only"
+          }
+        },
+        {
+          "id": "changelog",
+          "values": {
+            "name": "Example app changelog",
+            "address": "https://app.example/changelog",
+            "kind": "page",
+            "watching": "No",
+            "last_read": "2026-10-01T00:00:00.000Z",
+            "failed_runs": 0,
+            "history": "New items only",
+            "new_last_time": 0,
+            "problem": "Not read yet",
+            "etag": "w-9",
+            "modified": "Thu, 01 Oct 2026 00:00:00 GMT"
+          }
+        }
+      ],
+      "alike": [
+        "a feed reader's subscriptions",
+        "a spreadsheet of sites to check",
+        "bookmarks of blogs and channels"
+      ]
+    },
+    {
+      "list": "list:signals",
+      "label": "Signals",
+      "row_type": "record:signals",
+      "holds": "One new item a watched place gave, kept once, with whether it moves one of the person's pursuits and why.",
+      "fields": [
+        {
+          "id": "title",
+          "kind": "text",
+          "label": "Title",
+          "alike": [
+            "headline",
+            "name"
+          ]
+        },
+        {
+          "id": "link",
+          "kind": "text",
+          "label": "Link",
+          "alike": [
+            "url"
+          ]
+        },
+        {
+          "id": "key",
+          "kind": "text",
+          "label": "Identity",
+          "alike": [
+            "id",
+            "key"
+          ]
+        },
+        {
+          "id": "source",
+          "kind": "link",
+          "label": "Source",
+          "alike": [
+            "from",
+            "site"
+          ]
+        },
+        {
+          "id": "published",
+          "kind": "date",
+          "label": "Published",
+          "alike": [
+            "date"
+          ]
+        },
+        {
+          "id": "summary",
+          "kind": "long-text",
+          "label": "Summary",
+          "alike": [
+            "excerpt",
+            "description"
+          ]
+        },
+        {
+          "id": "state",
+          "kind": "choice",
+          "label": "State",
+          "alike": [
+            "status"
+          ]
+        },
+        {
+          "id": "pursuit",
+          "kind": "text",
+          "label": "Pursuit",
+          "alike": [
+            "project",
+            "goal"
+          ]
+        },
+        {
+          "id": "how",
+          "kind": "choice",
+          "label": "How it moves it"
+        },
+        {
+          "id": "why",
+          "kind": "text",
+          "label": "Why",
+          "alike": [
+            "reason"
+          ]
+        },
+        {
+          "id": "kept_run",
+          "kind": "number",
+          "label": "Kept in run (ms)"
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "guests",
+          "values": {
+            "title": "Booking podcast guests",
+            "link": "https://blog.example/guests",
+            "key": "https://blog.example/guests",
+            "source": "blog",
+            "published": "2026-10-07",
+            "summary": "How to ask guests and book a time.",
+            "state": "Moves a pursuit",
+            "pursuit": "pursuit:podcast",
+            "how": "direct",
+            "why": "It is about booking guests.",
+            "kept_run": 1791360000000
+          }
+        },
+        {
+          "id": "tax",
+          "values": {
+            "title": "Ten tax tips",
+            "link": "https://blog.example/tax",
+            "key": "https://blog.example/tax",
+            "source": "blog",
+            "published": "2026-10-07",
+            "summary": "Ten ways to lower a tax bill.",
+            "state": "Set aside",
+            "why": "It shares a word, nothing more.",
+            "kept_run": 1791360000000
+          }
+        }
+      ],
+      "alike": [
+        "a read-later list",
+        "a news inbox with a status column",
+        "a research log"
+      ]
+    },
+    {
+      "list": "list:ranked-items",
+      "label": "Ranked items",
+      "row_type": "record:ranked-items",
+      "holds": "One entry on a best-seller or trending list a watched place gives, with its rank today, the day before and its best.",
+      "fields": [
+        {
+          "id": "title",
+          "kind": "text",
+          "label": "Title",
+          "alike": [
+            "name",
+            "product"
+          ]
+        },
+        {
+          "id": "link",
+          "kind": "text",
+          "label": "Link",
+          "alike": [
+            "url"
+          ]
+        },
+        {
+          "id": "item",
+          "kind": "text",
+          "label": "Item id on its site"
+        },
+        {
+          "id": "source",
+          "kind": "link",
+          "label": "Source",
+          "alike": [
+            "list",
+            "site"
+          ]
+        },
+        {
+          "id": "rank",
+          "kind": "number",
+          "label": "Rank now",
+          "alike": [
+            "position",
+            "place"
+          ]
+        },
+        {
+          "id": "previous_rank",
+          "kind": "number",
+          "label": "Rank the day before"
+        },
+        {
+          "id": "best_rank",
+          "kind": "number",
+          "label": "Best rank"
+        },
+        {
+          "id": "first_seen",
+          "kind": "date",
+          "label": "First seen"
+        },
+        {
+          "id": "last_seen",
+          "kind": "date",
+          "label": "Last seen on the list"
+        },
+        {
+          "id": "ranked_on",
+          "kind": "date",
+          "label": "Day of the rank now"
+        },
+        {
+          "id": "days_listed",
+          "kind": "number",
+          "label": "Days on the list"
+        },
+        {
+          "id": "recent_ranks",
+          "kind": "text",
+          "label": "Recent ranks"
+        },
+        {
+          "id": "price",
+          "kind": "text",
+          "label": "Price the list gave",
+          "alike": [
+            "cost"
+          ]
+        },
+        {
+          "id": "sales",
+          "kind": "text",
+          "label": "Sales the list gave"
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "sourdough-book",
+          "values": {
+            "title": "The Sourdough Handbook",
+            "link": "https://books.example/sourdough-handbook",
+            "item": "B0001",
+            "source": "bread-bestsellers",
+            "rank": 3,
+            "previous_rank": 5,
+            "best_rank": 3,
+            "first_seen": "2026-09-20",
+            "last_seen": "2026-10-07",
+            "ranked_on": "2026-10-07",
+            "days_listed": 18,
+            "recent_ranks": "7,5,3",
+            "price": "$14.99"
+          }
+        },
+        {
+          "id": "rye-book",
+          "values": {
+            "title": "Rye for Beginners",
+            "link": "https://books.example/rye-beginners",
+            "item": "B0002",
+            "source": "bread-bestsellers",
+            "rank": 12,
+            "previous_rank": 9,
+            "best_rank": 6,
+            "first_seen": "2026-08-30",
+            "last_seen": "2026-10-07",
+            "ranked_on": "2026-10-07",
+            "days_listed": 39,
+            "recent_ranks": "9,9,12",
+            "price": "$11.50"
+          }
+        }
+      ],
+      "alike": [
+        "a spreadsheet of best-seller ranks",
+        "a chart-tracking sheet",
+        "a product ranking tracker"
+      ]
+    }
+  ],
+  "workflows": [],
+  "tools": [
+    "tool:watch-my-sources",
+    "tool:pour-example-rows-into-my-list"
+  ],
+  "instructions": [
+    "1. Make list:signal-sources from the example rows, or pour them into the list of sites you already follow (see pour). Mark a place Yes in Watching to have it read; starter places are made turned off. A new list:signals and list:ranked-items are made by the tool itself when needed.",
+    "2. Say \"Watch my sources\". The AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:watch-my-sources with input {} (the first worked example shows it). The first read of a source is a quiet baseline: it keeps what is there and moves nothing.",
+    "3. On a later run, when new items wait, the answer carries weigh_wanted: one question {purpose, identity, messages, max_tokens} listing your pursuits and the new items. Answer it yourself as your AI with the JSON {\"items\": [{n, link, moves, how, format, why}]} and nothing else, then run the tool again with weighed {identity, reply}.",
+    "4. Read the answer: read (sources read), kept (new items kept), moves (items that move a pursuit, with the pursuit and how), set_aside, waiting and problems (a source that failed, with its name). Hand each entry of arrivals to your arrival door exactly as it is. Tell the person the moves; the rest is in their Signals list.",
+    "5. Run it again on a schedule (hourly) or when the person asks what is new. It sends nothing outward and never writes to a source."
+  ],
+  "worked_examples": [
+    {
+      "title": "A blog's two new posts wait to be weighed",
+      "ask": "Watch my sources and tell me what is new.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:watch-my-sources",
+            "input": {}
+          }
+        }
+      },
+      "given": "From tools/watch-my-sources/test/watch-my-sources.test.mjs, run for real on its made-up world: list:signal-sources holds the row blog (The Blog, feed https://blog.example/feed.xml, kind feed, Watching Yes, last read 2026-10-06T00:00:00.000Z); the feed has the posts 'Booking podcast guests' and 'Ten tax tips'; the pursuit pursuit:podcast is 'Launch the podcast', after: 'Publish weekly'.",
+      "hands_back": "{\"read\":1,\"kept\":2,\"ranked\":0,\"moves\":[],\"set_aside\":0,\"waiting\":2,\"problems\":[],\"sources_waiting\":0,\"arrivals\":[],\"weigh_wanted\":{\"purpose\":\"signal-weigh\",\"identity\":\"1f:7247061cccf15715b65d148c482c0fbf2be0283b73b7b27c2a8cc2b497f21e8a\",\"max_tokens\":1500,\"messages\":[...]}}. The last message lists the pursuit 'pursuit:podcast | Launch the podcast | after: Publish weekly' and numbers the items: 1 Ten tax tips, 2 Booking podcast guests, each with its link."
+    },
+    {
+      "title": "The AI answers the question and one post moves the podcast",
+      "ask": "Here is my answer to the weighing question; finish the run.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:watch-my-sources",
+            "input": {
+              "weighed": {
+                "identity": "1f:7247061cccf15715b65d148c482c0fbf2be0283b73b7b27c2a8cc2b497f21e8a",
+                "reply": "{\"items\":[{\"n\":1,\"link\":\"https://blog.example/tax\",\"moves\":null,\"how\":null,\"format\":null,\"why\":\"It shares a word, nothing more.\"},{\"n\":2,\"link\":\"https://blog.example/guests\",\"moves\":\"pursuit:podcast\",\"how\":\"direct\",\"format\":null,\"why\":\"It is about booking guests.\"}]}"
+              }
+            }
+          }
+        }
+      },
+      "given": "The same run, an hour later, answered with the identity of the question above (read from the test and observed by running it).",
+      "hands_back": "{\"read\":1,\"kept\":0,\"ranked\":0,\"moves\":[{\"title\":\"Booking podcast guests\",\"link\":\"https://blog.example/guests\",\"pursuit\":\"pursuit:podcast\",\"how\":\"direct\"}],\"set_aside\":1,\"waiting\":0,\"problems\":[],\"sources_waiting\":0,\"arrivals\":[{\"route\":\"watch-sources\",\"source_id\":\"https://blog.example/guests\",\"from_person\":false,\"title\":\"Booking podcast guests\",\"from\":\"The Blog\",\"text\":\"The Blog: Booking podcast guests\\nIt is about booking guests.\\nhttps://blog.example/guests\",\"at\":\"2026-10-07T07:00:00.000Z\"}]}. The post 'Ten tax tips' is set aside; the signals rows end as Moves a pursuit and Set aside."
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list of sites you already follow and its fields. The tool matches each kit field to one of yours (by the map you give, the same id, the same label, or a name in alike), refuses when fewer than least_coverage of the kit's fields match, and otherwise answers the records:write that adds the example places to your list, leaving your own rows untouched.",
+    "example": {
+      "kit_list": "list:signal-sources",
+      "into": {
+        "list": "list:sites-i-follow",
+        "row_type": "record:site-i-follow",
+        "fields": [
+          {
+            "id": "name",
+            "label": "Name"
+          },
+          {
+            "id": "address",
+            "label": "Address"
+          },
+          {
+            "id": "feed",
+            "label": "Feed address"
+          },
+          {
+            "id": "kind",
+            "label": "Kind"
+          },
+          {
+            "id": "watching",
+            "label": "Watching"
+          },
+          {
+            "id": "last_read",
+            "label": "Last read"
+          },
+          {
+            "id": "new_last_time",
+            "label": "New item last kept (ms)"
+          },
+          {
+            "id": "problem",
+            "label": "Problem"
+          },
+          {
+            "id": "etag",
+            "label": "ETag the address gave"
+          },
+          {
+            "id": "modified",
+            "label": "Last-Modified the address gave"
+          },
+          {
+            "id": "failed_runs",
+            "label": "Runs that failed in a row"
+          },
+          {
+            "id": "failing_since",
+            "label": "Failing since"
+          },
+          {
+            "id": "history",
+            "label": "Take in"
+          },
+          {
+            "id": "history_taken",
+            "label": "Whole history taken in"
+          }
+        ]
+      },
+      "field_map": {}
+    }
+  }
+}

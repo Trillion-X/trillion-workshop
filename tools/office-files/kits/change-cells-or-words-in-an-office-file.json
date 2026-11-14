@@ -1,41 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:change-cells-or-words-in-an-office-file's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:change-cells-or-words-in-an-office-file with file, rules, output.\" Change the cells of a spreadsheet or the words of a Word document by rules, and write a new file that keeps every other part, style and chart as it was",
+  "drafted_from": "tool row in tools/office-files/tool-rows.json, do-work/rewrite-office-open-xml-cells.py and test/decode-office-open-xml.test.py (run on its fixture)",
+  "start_here": "Say to your AI: \"In /work/budget.xlsx change the price text from $2,499 per seat to $100/month bundle, and make the 999 in the formula say n/a, writing /work/budget-new.xlsx.\" It writes a rules file, runs rewrite-office-open-xml-cells.py on your computer and reads the new file back.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads or rewrites one file on the person's own computer and prints what it found or changed.",
   "workflows": [],
   "tools": [
     "tool:change-cells-or-words-in-an-office-file",
     "tool:read-an-office-file"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:change-cells-or-words-in-an-office-file\", and give it file, rules, output.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:change-cells-or-words-in-an-office-file and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields rules, written, warning."
+    "1. Read the file first with tool:read-an-office-file so you know the cell text, formulas and sheets.",
+    "2. Write a rules file (a JSON list): each rule has kind (cell, shared-string or document-text), match (formula_contains, value_equals, text_contains, or equals and contains for words) and set (formula, formula_replace, value, text_replace, text or replace).",
+    "3. The AI reads the row with tools:list {tool: tool:change-cells-or-words-in-an-office-file} and runs its `run` command with the file, rules and a new output path. Read the report: a rule with matched 0 changed nothing, so fix the rule.",
+    "4. Read the new file with tool:read-an-office-file to confirm what it holds before saying it is done; the input file is never changed."
   ],
   "worked_examples": [
     {
-      "title": "Change cells or words in a spreadsheet or document, keeping everything else (runs on your computer) on a sample input",
-      "ask": "Run tool:change-cells-or-words-in-an-office-file.",
+      "title": "Change a price and a formula in a workbook",
+      "ask": "In /work/budget.xlsx change the price text to $100/month bundle and make the 999 in the formula say n/a, writing /work/budget-new.xlsx.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:change-cells-or-words-in-an-office-file",
-            "input": {
-              "file": "<file: Path of the xlsx or docx file to read>",
-              "rules": "<rules: Path of the JSON rules file>",
-              "output": "<output: Path of the new file to write>"
-            }
+            "tool": "tool:change-cells-or-words-in-an-office-file"
           }
         }
       },
-      "hands_back": "An answer with the fields rules, written, warning.",
-      "given": "The person gives: file, rules, output (shown as <name> in the input)."
+      "given": "From tools/office-files/test/decode-office-open-xml.test.py; I ran its rewriter on that fixture to observe the report. Command: python3 -I tools/office-files/do-work/rewrite-office-open-xml-cells.py /work/budget.xlsx /work/rules.json /work/budget-new.xlsx, where rules.json is [{\"kind\":\"cell\",\"match\":{\"formula_contains\":\"999\"},\"set\":{\"formula_replace\":[\"999\",\"\\\"n/a\\\"\"],\"value\":\"n/a\"}},{\"kind\":\"cell\",\"match\":{\"text_contains\":\"$2,499\"},\"set\":{\"text_replace\":[\"$2,499 per seat\",\"$100/month bundle\"]}},{\"kind\":\"cell\",\"match\":{\"text_contains\":\"never present\"},\"set\":{\"text_replace\":[\"x\",\"y\"]}}] and the workbook is the one tool:read-an-office-file's kit reads.",
+      "hands_back": "{\"rules\":[{\"index\":0,\"kind\":\"cell\",\"matched\":1},{\"index\":1,\"kind\":\"cell\",\"matched\":1},{\"index\":2,\"kind\":\"cell\",\"matched\":0}],\"written\":\"/work/budget-new.xlsx\",\"warning\":\"rules matched nothing: 2\"} Reading budget-new.xlsx with --formulas then gives B1 \"Price is $100/month bundle\" and B2 value \"n/a\" with formula IF(A2>0,\"n/a\",A2); A1 and A2 are as they were."
     }
   ]
 }

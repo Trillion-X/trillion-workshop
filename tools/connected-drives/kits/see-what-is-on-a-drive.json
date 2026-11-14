@@ -1,23 +1,23 @@
 {
-  "draft": true,
-  "drafted_from": "tool:see-what-is-on-a-drive's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:see-what-is-on-a-drive with mount.\" Tell what is on one drive connected to this person's computer by kind of file (videos, pictures, sound, documents), with how many of each and how much space they take",
+  "drafted_from": "tool row in tools/connected-drives/tool-rows.json, read-data/drives.mjs and test/drives.test.mjs",
+  "start_here": "Say to your AI: \"What is on my SAMPLE DRIVE, by kind of file, and which files are the biggest?\" It runs tool:see-what-is-on-a-drive with mount /Volumes/SAMPLE DRIVE and hands back counts and bytes per kind.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads the drives this computer shows and changes nothing.",
   "workflows": [],
   "tools": [
     "tool:see-what-is-on-a-drive",
     "tool:list-connected-drives"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:see-what-is-on-a-drive\", and give it mount.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:see-what-is-on-a-drive and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields mount, files, bytes, complete, kinds, largest."
+    "1. Run tool:list-connected-drives and copy the mount of the drive to look at.",
+    "2. Say \"What is on /Volumes/SAMPLE DRIVE?\"; the AI calls tools:run for tool:see-what-is-on-a-drive with that mount.",
+    "3. Read kinds (kind, label, files, bytes; biggest first) and largest (path and bytes of the biggest files).",
+    "4. When complete is false the drive had more files than one run may read; the numbers cover what was read. Use tool:list-a-drive-folder to look into one folder."
   ],
   "worked_examples": [
     {
-      "title": "What is on a drive on a sample input",
-      "ask": "Run tool:see-what-is-on-a-drive.",
+      "title": "See a small drive by kind",
+      "ask": "What is on my SAMPLE DRIVE, by kind of file?",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,13 +27,13 @@
           "input": {
             "tool": "tool:see-what-is-on-a-drive",
             "input": {
-              "mount": "<mount: Where the drive is mounted on the computer, as tool:list-connected-drives lists it, like /Volumes/Drive>"
+              "mount": "/Volumes/SAMPLE DRIVE"
             }
           }
         }
       },
-      "hands_back": "An answer with the fields mount, files, bytes, complete, kinds, largest.",
-      "given": "The person gives: mount (shown as <name> in the input)."
+      "given": "From tools/connected-drives/test/drives.test.mjs (tells what is on a drive by kind): the drive holds DCIM/clip-10.mov (2 bytes), DCIM/clip-9.mov (1 byte) and an empty hidden file DCIM/.hidden; a link that leads off the drive is not followed.",
+      "hands_back": "{\"mount\":\"/Volumes/SAMPLE DRIVE\",\"files\":3,\"bytes\":3,\"complete\":true,\"kinds\":[{\"kind\":\"video\",\"label\":\"Videos\",\"files\":2,\"bytes\":3},{\"kind\":\"other\",\"label\":\"Other\",\"files\":1,\"bytes\":0}],\"largest\":[{\"path\":\"/Volumes/SAMPLE DRIVE/DCIM/clip-10.mov\",\"bytes\":2},{\"path\":\"/Volumes/SAMPLE DRIVE/DCIM/clip-9.mov\",\"bytes\":1},{\"path\":\"/Volumes/SAMPLE DRIVE/DCIM/.hidden\",\"bytes\":0}]}"
     }
   ]
 }

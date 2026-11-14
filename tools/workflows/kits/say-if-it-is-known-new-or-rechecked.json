@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:say-if-it-is-known-new-or-rechecked's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:say-if-it-is-known-new-or-rechecked.\" Before answering any question about what exists, what was decided or what was found, read everything already held about it, then label every claim as known before (since when, linked to where), a new finding, or re-checked now (still true or changed).",
+  "drafted_from": "tools/workflows/recipes/workflows.json (the workflow:say-if-it-is-known-new-or-rechecked row: input_schema and steps read and label with their submit shapes); no test names it",
+  "start_here": "Say to your AI: \"Run workflow:say-if-it-is-known-new-or-rechecked for the question: do we already offer refunds on the weekend bread box, and since when?\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "The workflow reads whatever places the person already keeps notes, decisions and messages in, and writes new findings where the next reader looks; it names no list of its own.",
   "workflows": [
     "workflow:say-if-it-is-known-new-or-rechecked"
   ],
   "tools": [],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:say-if-it-is-known-new-or-rechecked\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:say-if-it-is-known-new-or-rechecked) and works through its steps in order: read, label, write_back, answer.",
-    "3. Read what each step hands back; the last step is answer."
+    "1. Ask the question you are about to answer, in the words you would say it, as the question input (came_from is optional: a message id, a file or a date).",
+    "2. Say \"Run workflow:say-if-it-is-known-new-or-rechecked\". Step read searches every place earlier work is kept (decisions, notes, messages, handoffs, files) and says what it searched and what came back, including nothing.",
+    "3. Step label puts each claim in exactly one list: known (since when, linked to where), rechecked (known before, checked again now: still true or changed) or new (not found anywhere read).",
+    "4. Step write_back puts each new finding and each changed re-check where the next reader looks first; step answer gives the labelled answer and the address of any screen that already shows it."
   ],
   "worked_examples": [
     {
-      "title": "Say whether it is known, new or re-checked from its first step",
-      "ask": "Run workflow:say-if-it-is-known-new-or-rechecked.",
+      "title": "One claim was known, one was rechecked, one is new",
+      "ask": "Do we already offer refunds on the weekend bread box, and since when?",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,15 +27,15 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:say-if-it-is-known-new-or-rechecked",
-              "question": "<question: The question being answered, in the words it was asked>"
+              "question": "Do we already offer refunds on the weekend bread box, and since when?"
             }
           }
         }
       },
       "workflow": "workflow:say-if-it-is-known-new-or-rechecked",
-      "step": "read",
-      "hands_back": "Step read answers with looked_in.",
-      "given": "The person gives: question (shown as <name> in the input)."
+      "step": "label",
+      "given": "Read from the step in tools/workflows/recipes/workflows.json. Synthetic places read: a decision note \"refunds within 7 days\" dated 2026-09-02 and a message from Sam (2026-10-11) saying the window is 7 days. Today the shop page was read again and still says 7 days; no place mentions refunds on gift orders.",
+      "hands_back": "{\"known\":[{\"claim\":\"Refunds are offered within 7 days of delivery\",\"since\":\"2026-09-02\",\"source\":\"decision:refund-window\"}],\"rechecked\":[{\"claim\":\"The refund window is 7 days\",\"since\":\"2026-10-11\",\"source\":\"message from Sam\",\"now\":\"still true\",\"how\":\"Read the live shop page today; it still says 7 days\"}],\"new\":[{\"claim\":\"Gift orders have no stated refund rule\",\"how_found\":\"Searched every place read for gift and refund together and found nothing\"}]}"
     }
   ]
 }

@@ -1,38 +1,183 @@
 {
-  "draft": true,
-  "drafted_from": "tool:compose-thumbnails-from-layout-templates's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:compose-thumbnails-from-layout-templates with request.\" Make thumbnail candidates for my video from real frames of my footage, laid out like proven thumbnails: my face, the thing, big words, arrows and tags",
-  "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "drafted_from": "tool:compose-thumbnails-from-layout-templates's row (tools/compose-thumbnails-from-layout-templates/tool-rows.json), do-work/compose_thumbnails.py, tools/settings/read-data/settings.py and test/test_compose_thumbnails.py",
+  "start_here": "Say to your AI: \"Build thumbnail candidate A for my sample-film from the frames in ./frames and the cut-outs in ./cutouts, with the font fonts/DejaVuSans-Bold.ttf, into ./out.\" It reads your settings row for that film, writes the request file and runs the layout script on your computer.",
+  "lists": [
+    {
+      "list": "list:settings",
+      "label": "Settings",
+      "row_type": "record:setting",
+      "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON. For this tool the settings hold the candidates, each one a template name and its values.",
+      "fields": [
+        {
+          "id": "name",
+          "kind": "text",
+          "label": "Setting",
+          "alike": [
+            "title",
+            "key",
+            "label"
+          ]
+        },
+        {
+          "id": "tool",
+          "kind": "text",
+          "label": "Tool",
+          "alike": [
+            "tool id",
+            "owner"
+          ]
+        },
+        {
+          "id": "scope_kind",
+          "kind": "text",
+          "label": "For a",
+          "alike": [
+            "scope",
+            "applies to"
+          ]
+        },
+        {
+          "id": "scope_id",
+          "kind": "text",
+          "label": "For",
+          "alike": [
+            "scope id",
+            "target"
+          ]
+        },
+        {
+          "id": "settings",
+          "kind": "long-text",
+          "label": "Settings (JSON)",
+          "alike": [
+            "values",
+            "config",
+            "options"
+          ]
+        },
+        {
+          "id": "from",
+          "kind": "text",
+          "label": "From",
+          "alike": [
+            "source",
+            "origin"
+          ]
+        },
+        {
+          "id": "status",
+          "kind": "text",
+          "label": "Status",
+          "alike": [
+            "state",
+            "on or off"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "compose-thumbnails-sample-film",
+          "values": {
+            "name": "Thumbnail candidates for the sample film",
+            "tool": "tool:compose-thumbnails-from-layout-templates",
+            "scope_kind": "film",
+            "scope_id": "sample-film",
+            "settings": "{\"candidates\":{\"A\":{\"template\":\"split_claim\",\"person\":\"one\",\"face\":[1500,500,500],\"subject_frame\":\"two\",\"subject\":[1300,1300,900],\"text\":\"BIG CLAIM\",\"arrow_to\":[900,420]}}}",
+            "from": "the person",
+            "status": "active"
+          }
+        },
+        {
+          "id": "compose-thumbnails-tags-film",
+          "values": {
+            "name": "Price-tag candidates for the bakery film",
+            "tool": "tool:compose-thumbnails-from-layout-templates",
+            "scope_kind": "film",
+            "scope_id": "bakery-film",
+            "settings": "{\"candidates\":{\"D\":{\"template\":\"tags\",\"person\":\"one\",\"face\":[1500,500,500],\"face_px\":230,\"cut_x\":800,\"face_y\":40,\"backdrop\":[28,110,220],\"tags\":[[\"300 CAL\",50,120,104,8],[\"12G\",90,330,150,-8]]}}}",
+            "from": "the person",
+            "status": "active"
+          }
+        }
+      ],
+      "alike": [
+        "an app's settings screen",
+        "a config file per tool",
+        "a spreadsheet of options"
+      ]
+    }
+  ],
   "workflows": [],
   "tools": [
     "tool:compose-thumbnails-from-layout-templates"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:compose-thumbnails-from-layout-templates\", and give it request.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:compose-thumbnails-from-layout-templates and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields result, error."
+    "1. Pour the two example settings rows into the settings list you already keep (see pour), or make list:settings from them; change scope_id and the candidates to your own film, frames and face boxes. Keep status active: a row with any other status is refused.",
+    "2. Put full-size frames in a folder as <name>.png, cut-outs in another as <name>_cut.png (cut from the crop whose top-left is cut_offset, 1000,150 unless you say otherwise), and have a TrueType or OpenType font file ready.",
+    "3. Say \"Build thumbnail candidates for my film\" to your AI. It reads the row with tools:list {tool: tool:compose-thumbnails-from-layout-templates}, installs Pillow (python3 -m pip install -U pillow), reads your settings row from your records and writes a request JSON file.",
+    "4. The AI runs python3 tools/compose-thumbnails-from-layout-templates/do-work/compose_thumbnails.py request.json from the Workshop checkout root and reads the last line: {\"result\": {\"thumbnails\": [paths]}} lists one 1280x720 PNG per candidate, or {\"error\": ...} says what to change (a missing frame, cut-out, font, or a value the template needs).",
+    "5. Open the pictures, change the values in the candidate (words, face box, sizes, arrow ends) in your settings row and run again with only set to the candidate ids you want redone."
   ],
   "worked_examples": [
     {
-      "title": "Build thumbnail candidates from my frames with layout templates (runs on your computer) on a sample input",
-      "ask": "Run tool:compose-thumbnails-from-layout-templates.",
+      "title": "One split-claim candidate from made-up frames",
+      "ask": "Build thumbnail candidate A for my sample-film.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:compose-thumbnails-from-layout-templates",
-            "input": {
-              "request": "<request: A JSON file on the person's computer holding the request, put where {request} is in the command: frames, cutouts, out, font {file, variable}, cut_offset, only, settings_record (the person's row record:setting:compose-thumbnails-from-layout-templates~<scope_kind>~<scope_id>, handed as the record) and settings>"
-            }
+            "tool": "tool:compose-thumbnails-from-layout-templates"
           }
         }
       },
-      "hands_back": "An answer with the fields result, error.",
-      "given": "The person gives: request (shown as <name> in the input)."
+      "given": "From tools/compose-thumbnails-from-layout-templates/test/test_compose_thumbnails.py (candidate A, only=['A']): the AI saves this request as request.json: {\"frames\":\"frames\",\"cutouts\":\"cutouts\",\"out\":\"out\",\"font\":{\"file\":\"fonts/DejaVuSans-Bold.ttf\",\"variable\":false},\"only\":[\"A\"],\"settings_record\":{\"id\":\"record:setting:compose-thumbnails-from-layout-templates~film~sample-film\",\"type\":\"record:setting\",\"value\":{\"name\":\"sample\",\"tool\":\"tool:compose-thumbnails-from-layout-templates\",\"scope_kind\":\"film\",\"scope_id\":\"sample-film\",\"settings\":\"{\\\"candidates\\\":{\\\"A\\\":{\\\"template\\\":\\\"split_claim\\\",\\\"person\\\":\\\"one\\\",\\\"face\\\":[1500,500,500],\\\"subject_frame\\\":\\\"two\\\",\\\"subject\\\":[1300,1300,900],\\\"text\\\":\\\"BIG CLAIM\\\",\\\"arrow_to\\\":[900,420]}}}\",\"from\":\"made up\",\"status\":\"active\"}}} with frames/one.png, frames/two.png, cutouts/one_cut.png and cutouts/two_cut.png present, then runs python3 tools/compose-thumbnails-from-layout-templates/do-work/compose_thumbnails.py request.json. The script creates out/ and builds candidate A with the split_claim layout. The test asserts the picture is 1280x720, the top of the split is white (255,255,255) and the claim box at (45,525) is red (214,32,39).",
+      "hands_back": "{\"result\": {\"thumbnails\": [\"out/A.png\"]}} as the last line, exit code 0; out/A.png is a 1280x720 PNG."
     }
-  ]
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the settings list you already keep and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "example": {
+      "kit_list": "list:settings",
+      "into": {
+        "list": "list:my-tool-options",
+        "row_type": "record:tool-option",
+        "fields": [
+          {
+            "id": "title",
+            "label": "Option"
+          },
+          {
+            "id": "owner",
+            "label": "Tool"
+          },
+          {
+            "id": "scope",
+            "label": "Applies to"
+          },
+          {
+            "id": "target",
+            "label": "Target"
+          },
+          {
+            "id": "values",
+            "label": "Values"
+          },
+          {
+            "id": "origin",
+            "label": "Origin"
+          },
+          {
+            "id": "state",
+            "label": "State"
+          }
+        ]
+      },
+      "field_map": {}
+    }
+  }
 }

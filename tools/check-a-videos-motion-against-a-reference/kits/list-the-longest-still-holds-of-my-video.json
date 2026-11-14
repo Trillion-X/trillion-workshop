@@ -1,39 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:list-the-longest-still-holds-of-my-video's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:list-the-longest-still-holds-of-my-video with video.\" Show me where my video holds still the longest, and the second each of those holds starts, so I can find it and fix it",
+  "drafted_from": "tool:list-the-longest-still-holds-of-my-video's row in tools/check-a-videos-motion-against-a-reference/tool-rows.json, do-work/list-holds.mjs, read-data/measure-motion.mjs and test/list-holds.test.mjs; the answers were observed by running the command on an ffmpeg test clip",
+  "start_here": "Say to your AI: \"List the three longest places where clips/draft.mp4 holds still, with the second each one starts, up to its end card at 5 seconds.\" It reads the video on your computer and gives each hold as its length and start second, longest first.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list: it reads one video file on your computer and prints the holds it found.",
   "workflows": [],
   "tools": [
     "tool:list-the-longest-still-holds-of-my-video",
     "tool:check-a-videos-motion-against-a-reference"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:list-the-longest-still-holds-of-my-video\", and give it video.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-the-longest-still-holds-of-my-video and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Show me where my video holds still the longest, and the second each of those holds starts, so I can find it and fix it"
+    "1. On your computer, clone the Workshop checkout and run brew install ffmpeg (this brings ffprobe). Run everything from the root of the checkout.",
+    "2. If you just ran tool:check-a-videos-motion-against-a-reference, take its still_threshold and the end card second; passing them makes the list match the holds the check counted.",
+    "3. Say to your AI: \"Where does my video hold still longest?\" It reads the row with tools:list {tool}, then runs: node tools/check-a-videos-motion-against-a-reference/do-work/list-holds.mjs --video clips/draft.mp4 [--seconds S] [--still LEVEL] [--top N]",
+    "4. Read the last line: {\"result\": {video, seconds, still_threshold, holds, text}}. holds is longest first, each {seconds: length, at: start second}; top defaults to 12. Open the video at each start second and fix the hold."
   ],
   "worked_examples": [
     {
-      "title": "List where my video holds still longest (runs on your computer) on a sample input",
-      "ask": "Run tool:list-the-longest-still-holds-of-my-video.",
+      "title": "Two holds in a 7 second clip, then only the first 3.5 seconds at the check's still level",
+      "ask": "Where does clips/two-holds.mp4 hold still longest?",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:list-the-longest-still-holds-of-my-video",
-            "input": {
-              "video": "<video: The video file to read, put where {video} is in the command>"
-            }
+            "tool": "tool:list-the-longest-still-holds-of-my-video"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Show me where my video holds still the longest, and the second each of those holds starts, so I can find it and fix it",
-      "given": "The person gives: video (shown as <name> in the input)."
+      "given": "Run locally from the Workshop checkout after tools:list: node tools/check-a-videos-motion-against-a-reference/do-work/list-holds.mjs --video clips/two-holds.mp4. clips/two-holds.mp4 is made as in tools/check-a-videos-motion-against-a-reference/test/list-holds.test.mjs: a moving pattern for 2 seconds, grey for 1, moving for 1, grey for 2, moving for 1 (7 seconds). Read from do-work/list-holds.mjs and observed by running it; adding --seconds 3.5 --still 1.5 answers {\"result\":{\"video\":\"clips/two-holds.mp4\",\"seconds\":3.5,\"still_threshold\":1.5,\"holds\":[{\"seconds\":0.93,\"at\":2}],\"text\":\"0.93s@2.00\"}}.",
+      "hands_back": "{\"result\":{\"video\":\"clips/two-holds.mp4\",\"seconds\":7,\"still_threshold\":0.5,\"holds\":[{\"seconds\":1.93,\"at\":4},{\"seconds\":0.93,\"at\":2}],\"text\":\"1.93s@4.00  0.93s@2.00\"}}"
     }
   ]
 }

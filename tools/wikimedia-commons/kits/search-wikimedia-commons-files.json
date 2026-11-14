@@ -1,22 +1,23 @@
 {
-  "draft": true,
-  "drafted_from": "tool:search-wikimedia-commons-files's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:search-wikimedia-commons-files with query.\" Find real images and other source files on Wikimedia Commons for any objective by searching for the exact place, object, event or subject",
+  "drafted_from": "tool row in tools/wikimedia-commons/tool-rows.json (invoke http GET to commons.wikimedia.org/w/api.php); the answer shown was observed from that exact request on 2026-11-13",
+  "start_here": "Say to your AI: \"Search Wikimedia Commons for real photos of the Eiffel Tower at night, two results, and give me each file's title and page link.\" It runs tool:search-wikimedia-commons-files and hands back the file titles and canonical file-page URLs.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It is a read-only search of Wikimedia Commons that takes a query and answers a page of file titles, and it keeps no list of yours.",
   "workflows": [],
   "tools": [
-    "tool:search-wikimedia-commons-files"
+    "tool:search-wikimedia-commons-files",
+    "tool:read-wikimedia-commons-file-metadata"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:search-wikimedia-commons-files\", and give it query.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:search-wikimedia-commons-files and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields query, continue, batchcomplete."
+    "1. Say what real place, object or event you need a photo of, for example \"Eiffel Tower at night\".",
+    "2. The AI calls tools:run for tool:search-wikimedia-commons-files with {\"query\":\"Eiffel Tower night\",\"limit\":2}. It asks Commons for File-namespace pages only (gsrnamespace 6) and downloads no media.",
+    "3. Read query.pages: each page has title (a File: title) and fullurl. Keep a candidate's title and run tool:read-wikimedia-commons-file-metadata on it to read its licence before you use it.",
+    "4. For more results, run it again with offset set to continue.gsroffset (2 in the example); stop when the answer has no continue."
   ],
   "worked_examples": [
     {
-      "title": "Search Wikimedia Commons files on a sample input",
-      "ask": "Run tool:search-wikimedia-commons-files.",
+      "title": "Two Commons files for the Eiffel Tower at night",
+      "ask": "Search Wikimedia Commons for real photos of the Eiffel Tower at night, two results.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,13 +27,14 @@
           "input": {
             "tool": "tool:search-wikimedia-commons-files",
             "input": {
-              "query": "<query: Exact place, object, event or subject to find in Commons>"
+              "query": "Eiffel Tower night",
+              "limit": 2
             }
           }
         }
       },
-      "hands_back": "An answer with the fields query, continue, batchcomplete.",
-      "given": "The person gives: query (shown as <name> in the input)."
+      "given": "Observed by sending the row's request (action=query, generator=search, gsrnamespace=6, gsrsearch=Eiffel Tower night, gsrlimit=2, gsroffset=0, prop=info, inprop=url) to commons.wikimedia.org/w/api.php on 2026-11-13. Commons results change over time, so a later run may list other files.",
+      "hands_back": "{\"batchcomplete\":true,\"continue\":{\"gsroffset\":2,\"continue\":\"gsroffset||\"},\"query\":{\"pages\":[{\"pageid\":18143546,\"ns\":6,\"title\":\"File:Reflet-tour-Eiffel-Paris-Luc-Viatour.jpg\",\"index\":2,\"fullurl\":\"https://commons.wikimedia.org/wiki/File:Reflet-tour-Eiffel-Paris-Luc-Viatour.jpg\",\"canonicalurl\":\"https://commons.wikimedia.org/wiki/File:Reflet-tour-Eiffel-Paris-Luc-Viatour.jpg\"},{\"pageid\":18748369,\"ns\":6,\"title\":\"File:Eiffel Tower and Pont Alexandre III at night.jpg\",\"index\":1,\"fullurl\":\"https://commons.wikimedia.org/wiki/File:Eiffel_Tower_and_Pont_Alexandre_III_at_night.jpg\"}]}} (each page also carries contentmodel, pagelanguage, touched, lastrevid, length and editurl; shortened here). continue.gsroffset 2 is the offset for the next page."
     }
   ]
 }

@@ -1,22 +1,21 @@
 {
-  "draft": true,
-  "drafted_from": "tool:read-an-email-sending-domain's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-an-email-sending-domain with domain_id.\" See whether a domain of my email-sending account is verified, and the state of each DNS record it needs",
+  "start_here": "Say to your AI: \"Is my Resend domain 4dd369bc-aa82-4ff3-97de-514ae3000ee0 verified, and how is each DNS record doing?\" It runs tool:read-an-email-sending-domain.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of yours: it reads one domain of your email-sending account by its id and writes nothing.",
   "workflows": [],
   "tools": [
     "tool:read-an-email-sending-domain"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-an-email-sending-domain\", and give it domain_id.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-an-email-sending-domain and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields id, name, status, records."
+    "1. Connect your Resend account once so your key is held under the name resend-api-key; the key is never typed into the request.",
+    "2. Get the domain id from tool:add-an-email-sending-domain (its answer) or the account's list.",
+    "3. Say to your AI: \"Read my Resend domain <id>\". It calls tools:run with tool tool:read-an-email-sending-domain and {\"domain_id\": \"<id>\"} (letters, digits and dashes only).",
+    "4. Read status and each record's own status. When every record says verified, the domain can send; if not, run tool:check-an-email-sending-domain after fixing DNS."
   ],
   "worked_examples": [
     {
-      "title": "Read an email sending domain on a sample input",
-      "ask": "Run tool:read-an-email-sending-domain.",
+      "title": "A domain with one record verified and one still waiting",
+      "ask": "Is my Resend domain 4dd369bc-aa82-4ff3-97de-514ae3000ee0 verified?",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,13 +25,14 @@
           "input": {
             "tool": "tool:read-an-email-sending-domain",
             "input": {
-              "domain_id": "<domain_id: string>"
+              "domain_id": "4dd369bc-aa82-4ff3-97de-514ae3000ee0"
             }
           }
         }
       },
-      "hands_back": "An answer with the fields id, name, status, records.",
-      "given": "The person gives: domain_id (shown as <name> in the input)."
+      "given": "Read from tools/email-sending-domains/tool-rows.json: the row sends GET https://api.resend.com/domains/4dd369bc-aa82-4ff3-97de-514ae3000ee0 with your key in the Authorization header and returns Resend's reply unchanged. The record states are a synthetic sample.",
+      "hands_back": "{\"id\":\"4dd369bc-aa82-4ff3-97de-514ae3000ee0\",\"name\":\"example.com\",\"status\":\"pending\",\"records\":[{\"record\":\"SPF\",\"name\":\"send\",\"type\":\"MX\",\"value\":\"feedback-smtp.us-east-1.amazonses.com\",\"ttl\":\"Auto\",\"priority\":10,\"status\":\"verified\"},{\"record\":\"DKIM\",\"name\":\"resend._domainkey\",\"type\":\"TXT\",\"value\":\"p=MIGfMA0GCSqGSIb3DQEB-example\",\"ttl\":\"Auto\",\"status\":\"pending\"}]}"
     }
-  ]
+  ],
+  "drafted_from": "tools/email-sending-domains/tool-rows.json (its row), test/list-email-sending-domains.test.mjs"
 }

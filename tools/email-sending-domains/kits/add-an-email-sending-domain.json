@@ -1,23 +1,24 @@
 {
-  "draft": true,
-  "drafted_from": "tool:add-an-email-sending-domain's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:add-an-email-sending-domain with name.\" Add a domain my email-sending account should send from, and see the DNS records it needs",
+  "start_here": "Say to your AI: \"Add example.com to my Resend account in us-east-1 and show me the DNS records I must add.\" It runs tool:add-an-email-sending-domain.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of yours: it adds a domain to your email-sending account and answers the DNS records its owner must add; it changes no DNS.",
   "workflows": [],
   "tools": [
     "tool:add-an-email-sending-domain",
-    "tool:check-an-email-sending-domain"
+    "tool:check-an-email-sending-domain",
+    "tool:read-an-email-sending-domain"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:add-an-email-sending-domain\", and give it name.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:add-an-email-sending-domain and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields id, name, status, records."
+    "1. Connect your Resend account once so your key is held under the name resend-api-key; the key is never typed into the request.",
+    "2. Say to your AI: \"Add <domain> to my Resend account\". It calls tools:run with tool tool:add-an-email-sending-domain and {\"name\": \"<domain>\", \"region\": \"us-east-1\"} (region is optional: us-east-1, eu-west-1, sa-east-1 or ap-northeast-1).",
+    "3. Read the answer: the domain's id (keep it), its status, and records: each DNS record's kind, name, type, value and priority.",
+    "4. Add those records at the DNS host yourself; nothing here changes DNS.",
+    "5. Then run tool:check-an-email-sending-domain with the id, and read the result with tool:read-an-email-sending-domain."
   ],
   "worked_examples": [
     {
-      "title": "Add an email sending domain on a sample input",
-      "ask": "Run tool:add-an-email-sending-domain.",
+      "title": "Add example.com in us-east-1",
+      "ask": "Add example.com to my Resend account and show me the DNS records.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,13 +28,15 @@
           "input": {
             "tool": "tool:add-an-email-sending-domain",
             "input": {
-              "name": "<name: string>"
+              "name": "example.com",
+              "region": "us-east-1"
             }
           }
         }
       },
-      "hands_back": "An answer with the fields id, name, status, records.",
-      "given": "The person gives: name (shown as <name> in the input)."
+      "given": "Read from tools/email-sending-domains/tool-rows.json: the row POSTs https://api.resend.com/domains with {\"name\":\"example.com\",\"region\":\"us-east-1\"} and your key in the Authorization header and returns Resend's reply unchanged; id, name, status and records are the fields its output_schema names. The id is the one test/list-email-sending-domains.test.mjs uses; the record values are synthetic.",
+      "hands_back": "{\"id\":\"4dd369bc-aa82-4ff3-97de-514ae3000ee0\",\"name\":\"example.com\",\"status\":\"not_started\",\"records\":[{\"record\":\"SPF\",\"name\":\"send\",\"type\":\"MX\",\"value\":\"feedback-smtp.us-east-1.amazonses.com\",\"ttl\":\"Auto\",\"priority\":10,\"status\":\"not_started\"},{\"record\":\"DKIM\",\"name\":\"resend._domainkey\",\"type\":\"TXT\",\"value\":\"p=MIGfMA0GCSqGSIb3DQEB-example\",\"ttl\":\"Auto\",\"status\":\"not_started\"}]}"
     }
-  ]
+  ],
+  "drafted_from": "tools/email-sending-domains/tool-rows.json (its row), test/list-email-sending-domains.test.mjs"
 }

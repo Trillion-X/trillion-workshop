@@ -1,39 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:split-a-document-into-item-documents's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:split-a-document-into-item-documents with mapping, root.\" Turn long markdown documents that hold many numbered items (rules, lessons, questions) into one document per item with its fields in frontmatter, so each item is a row of a folder list",
+  "drafted_from": "tools/documents-as-list-rows/tool-rows.json (tool:split-a-document-into-item-documents), read-data/split.mjs, do-work/documents.mjs and test/documents-as-list-rows.test.mjs (the JSON list split); run on a made-up folder",
+  "start_here": "Say to your AI: \"Split my garden notes in /tmp/garden-notes into one document per plant using the mapping file mapping.json, and check it first.\" It reads the tool row, runs the split with --check, then into an empty folder, and shows you the item documents.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it reads a mapping and documents in a folder and writes item documents and a leftover folder, keeping no rows.",
   "workflows": [],
   "tools": [
     "tool:split-a-document-into-item-documents"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:split-a-document-into-item-documents\", and give it mapping, root.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:split-a-document-into-item-documents and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Turn long markdown documents that hold many numbered items (rules, lessons, questions) into one document per item with its fields in frontmatter, so each item is a row of a folder list"
+    "1. Put the documents and a mapping.json in one folder (root). For a JSON list the mapping is {\"sources\":[{\"name\":\"garden\",\"file\":\"garden.json\"}],\"items_at\":\"plants\",\"id\":\"{name}-{#}\"}; for markdown it names a heading and row pattern with an (?<id>...) group.",
+    "2. Say \"Split my documents into one per item\"; your AI reads the row with tools:list and runs the command with --check in place of --out and --leftover. Read the report: items, lines or items read, leftover.",
+    "3. Run it again with --out plants --leftover rest, into a folder that does not exist yet or is empty (a used folder is refused).",
+    "4. Open two or three of the item documents (plants/basil-1.md) and the leftover (rest/garden.json) with your AI before anything else changes."
   ],
   "worked_examples": [
     {
-      "title": "Split a long document of many items into one document per item on a sample input",
-      "ask": "Run tool:split-a-document-into-item-documents.",
+      "title": "Split a JSON list of two plants into one document each",
+      "ask": "Split my garden notes into one document per plant, checking first.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:split-a-document-into-item-documents",
-            "input": {
-              "mapping": "<mapping: The mapping file, relative to root (the README describes its keys)>",
-              "root": "<root: The folder the mapping's documents are relative to>"
-            }
+            "tool": "tool:split-a-document-into-item-documents"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Turn long markdown documents that hold many numbered items (rules, lessons, questions) into one document per item with its fields in frontmatter, so each item is a row of a folder list",
-      "given": "The person gives: mapping, root (shown as <name> in the input)."
+      "given": "Read from tools/documents-as-list-rows/read-data/split.mjs and checked against the JSON-list case of test/documents-as-list-rows.test.mjs, and run on a made-up folder. In /tmp/garden-notes, garden.json is {\"about\":\"made-up garden notes\",\"plants\":[{\"name\":\"basil\",\"water\":\"daily\",\"sun\":6},{\"name\":\"mint\",\"water\":\"weekly\",\"sun\":3}]} and mapping.json is {\"sources\":[{\"name\":\"garden\",\"file\":\"garden.json\"}],\"items_at\":\"plants\",\"id\":\"{name}-{#}\",\"field_order\":[\"name\"]}. The AI then runs: node tools/documents-as-list-rows/do-work/documents.mjs split --root /tmp/garden-notes --mapping mapping.json --out plants --leftover rest",
+      "hands_back": "The last line printed is {\"items\":2,\"items_in\":2,\"leftover_documents\":1}. plants/basil-1.md holds the frontmatter id: basil-1, name: basil, sun: 6, water: daily (the field_order field first, the rest sorted); plants/mint-2.md is the same for mint; rest/garden.json holds {\"about\":\"made-up garden notes\"}. With --check in place of --out and --leftover it prints the same line and writes nothing."
     }
   ]
 }

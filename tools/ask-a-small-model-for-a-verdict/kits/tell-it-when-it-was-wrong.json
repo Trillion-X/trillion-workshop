@@ -1,41 +1,37 @@
 {
-  "draft": true,
-  "drafted_from": "tool:tell-it-when-it-was-wrong's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:tell-it-when-it-was-wrong with rubrics_file, rubric_id, should_have_been.\" Turn a verdict that was wrong into a known case in my rubrics file, so every model is tested against it from the next calibration on",
+  "drafted_from": "tool:tell-it-when-it-was-wrong row in tools/ask-a-small-model-for-a-verdict/tool-rows.json, its code in tools/ask-a-small-model-for-a-verdict/do-work/ and tools/ask-a-small-model-for-a-verdict/test/tool.test.mjs; the answers were produced by running the tool against a stand-in model server",
+  "start_here": "Say to your AI: \"The claims-done verdict was wrong for 'rye ready, checked twice': it should have been false because it says it was checked. Add it to my rubric.\" It adds the case to your rubrics file and says calibration runs again.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of its own: it adds one known case to a rubric inside the rubrics file you name on this computer.",
   "workflows": [],
   "tools": [
     "tool:tell-it-when-it-was-wrong",
-    "tool:ask-a-small-model-for-a-verdict"
+    "tool:ask-a-small-model-for-a-verdict",
+    "tool:see-which-models-can-judge"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:tell-it-when-it-was-wrong\", and give it rubrics_file, rubric_id, should_have_been.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:tell-it-when-it-was-wrong and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields rubric, outcome, cases_now, what_happens_next."
+    "1. Find the verdict that was wrong: its text (give it in about) or a log_file kept by tool:ask-a-small-model-for-a-verdict with excerpt_characters, which holds what it looked at.",
+    "2. Write /work/judge/request.json: {\"rubrics_file\": ..., \"rubric_id\": ..., \"should_have_been\": \"false\", \"about\": \"<the text>\", \"because\": \"<why>\"}.",
+    "3. Say \"Tell it it was wrong\". The AI reads the row with tools:list and runs: node tools/ask-a-small-model-for-a-verdict/do-work/ask-a-small-model.mjs record-wrong < /work/judge/request.json. It edits your rubrics file, so say so.",
+    "4. Read result.outcome (\"added\" or \"this case is already there with the same answer\") and cases_now, then run tool:see-which-models-can-judge to see who still passes the larger set."
   ],
   "worked_examples": [
     {
-      "title": "Tell a judge it was wrong, so it is tested on that case from now on (runs on your computer) on a sample input",
-      "ask": "Run tool:tell-it-when-it-was-wrong.",
+      "title": "A wrong verdict becomes the third known case, once",
+      "ask": "Add this wrong verdict to my rubric as a known case.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:tell-it-when-it-was-wrong",
-            "input": {
-              "rubrics_file": "<rubrics_file: string>",
-              "rubric_id": "<rubric_id: string>",
-              "should_have_been": "<should_have_been: The answer it should have given>"
-            }
+            "tool": "tool:tell-it-when-it-was-wrong"
           }
         }
       },
-      "hands_back": "An answer with the fields rubric, outcome, cases_now, what_happens_next.",
-      "given": "The person gives: rubrics_file, rubric_id, should_have_been (shown as <name> in the input)."
+      "given": "From tools/ask-a-small-model-for-a-verdict/test/tool.test.mjs (test \"record-wrong: a wrong verdict becomes a known case in the rubric, once\"), run for real on a rubrics file {\"rubrics\": [{\"id\": \"claims-done\", \"question\": \"Does the note say the order is ready without saying it was checked?\", \"answer_shape\": {\"kind\": \"true-or-false\"}, \"accept_when_answer_in\": [true], \"calibration\": [{\"content\": \"the sourdough order is ready, trust me\", \"expect\": true}, {\"content\": \"counted 12 loaves against the slip: ready\", \"expect\": false}]}]}: request {\"rubrics_file\": \"/work/judge/rubrics.json\", \"rubric_id\": \"claims-done\", \"should_have_been\": \"false\", \"about\": \"rye ready, checked twice\", \"because\": \"it says it was checked\"}. Command: node tools/ask-a-small-model-for-a-verdict/do-work/ask-a-small-model.mjs record-wrong < /work/judge/request.json",
+      "hands_back": "Last line: {\"result\": {\"rubric\": \"claims-done\", \"outcome\": \"added\", \"cases_now\": 3, \"what_happens_next\": \"candidates are scored against all the cases on the next calibration, so one that cannot handle this stops being chosen for this question; run scoreboard to see who still passes and find-lines because the threshold may have moved\"}}. rubrics.json calibration[2] is now {content \"rye ready, checked twice\", expect false}. Run again, outcome is \"this case is already there with the same answer\" and cases_now stays 3."
     }
   ]
 }

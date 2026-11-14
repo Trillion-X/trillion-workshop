@@ -1,40 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:send-list-row-batches's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:send-list-row-batches with config, batches, status.\" Put the batches of rows I prepared into my lists one at a time, wait and retry when the list is busy, split a batch that is too big, and remember what was already sent",
+  "drafted_from": "tool:send-list-row-batches row (tools/export-records-as-list-rows/tool-rows.json), do-work/send_list_rows.py, read-data/send_batches.py, test/test_send_batches.py and test/fixtures/fake_list_service.py; the answer is what the script printed against that fake service on the made-up bakery batch",
+  "start_here": "Say to your AI: \"Send the prepared bakery orders batches in payloads into my lists with my send config, and tell me how many batches went.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of its own: the config names the command that writes rows, and it only reads batch files and keeps a status file of what was sent.",
   "workflows": [],
   "tools": [
-    "tool:send-list-row-batches"
+    "tool:send-list-row-batches",
+    "tool:export-records-as-list-rows"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:send-list-row-batches\", and give it config, batches, status.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:send-list-row-batches and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Put the batches of rows I prepared into my lists one at a time, wait and retry when the list is busy, split a batch that is too big, and remember what was already sent"
+    "1. Run tool:export-records-as-list-rows first so a payloads folder holds manifest.json and its batch files such as orders-000.json.",
+    "2. Write send-config.json: send (argv of the command that puts rows into a list, input with the texts \"$list_id\" and \"$rows\", kept_count the dotted path of the kept ids in its JSON answer), optional warm, retry_if and halve_if error texts, and waits in seconds.",
+    "3. Say \"Send my batches\"; your AI reads the row with tools:list and runs its command with {config}, {batches} and {status}, only when you ask to send.",
+    "4. Read state: all_batches_sent (exit 0) or stopped_on_refusal with last_refusal (exit 1); run the same command again to resume, as sent batches are skipped."
   ],
   "worked_examples": [
     {
-      "title": "Send prepared batches into my lists, resuming where I stopped (runs on your computer) on a sample input",
-      "ask": "Run tool:send-list-row-batches.",
+      "title": "One batch of two rows is sent after a warm-up",
+      "ask": "Send my prepared bakery batches into my orders list.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:send-list-row-batches",
-            "input": {
-              "config": "<config: The config file, put where {config} is in the command>",
-              "batches": "<batches: The folder an export wrote, put where {batches} is in the command>",
-              "status": "<status: The progress file, put where {status} is in the command>"
-            }
+            "tool": "tool:send-list-row-batches"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Put the batches of rows I prepared into my lists one at a time, wait and retry when the list is busy, split a batch that is too big, and remember what was already sent",
-      "given": "The person gives: config, batches, status (shown as <name> in the input)."
+      "given": "Read from a real run of do-work/send_list_rows.py against test/fixtures/fake_list_service.py. The AI runs: python3 -I trillion-workshop/tools/export-records-as-list-rows/do-work/send_list_rows.py --config send-config.json --batches payloads --status status.json. payloads holds orders-000.json with rows O-1 and O-2 and a manifest naming it; send-config.json runs the fake service with put for send and warm for warm, kept_count \"kept\", waits [0,0,0].",
+      "hands_back": "{\"batches_done\": {\"orders-000.json\": 2}, \"state\": \"all_batches_sent\"}, exit 0, and status.json holds the same. The service saw a warm for orders then a put of 2 rows; running it again sends nothing."
     }
   ]
 }

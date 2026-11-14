@@ -1,40 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:find-music-windows-that-follow-a-loudness-arc's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:find-music-windows-that-follow-a-loudness-arc with brief, out, tracks.\" Find in each candidate music track the window whose loudness follows my film's arc",
+  "drafted_from": "tool:find-music-windows-that-follow-a-loudness-arc row in tools/generate-and-judge-sound-effects/tool-rows.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
+  "start_here": "Say to your AI: \"Find the 10 second stretch of /work/music/track.wav whose loudness follows my film's arc in BRIEF.json and cut it as an excerpt.\" It runs the window finder and reads which window won.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads BRIEF.json and music tracks on this computer and writes windows.json and excerpt files into the folder it is given.",
   "workflows": [],
   "tools": [
-    "tool:find-music-windows-that-follow-a-loudness-arc"
+    "tool:find-music-windows-that-follow-a-loudness-arc",
+    "tool:listen-to-music-windows-against-a-film-brief"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:find-music-windows-that-follow-a-loudness-arc\", and give it brief, out, tracks.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-music-windows-that-follow-a-loudness-arc and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Find in each candidate music track the window whose loudness follows my film's arc"
+    "1. Write /work/music/brief.json with arc [[seconds, dB], ...], length_s, and the measured constraints open, lift and swell as [start, end] seconds.",
+    "2. Say \"Find the music windows\". The AI reads the row with tools:list and runs: python3 -I tools/generate-and-judge-sound-effects/do-work/find_music_windows.py /work/music/brief.json /work/music/out /work/music/track.wav (name more tracks after it).",
+    "3. Read the last line, then open out/music/windows.json: each window has start_s, end_s, arc_score, corr, open_db, lift_db, swell_db and the excerpt path in out/music/excerpts/.",
+    "4. Run tool:listen-to-music-windows-against-a-film-brief on the same folder to judge the excerpts by ear."
   ],
   "worked_examples": [
     {
-      "title": "Find the stretch of each music track that follows my film's loudness arc (runs on your computer) on a sample input",
-      "ask": "Run tool:find-music-windows-that-follow-a-loudness-arc.",
+      "title": "A 40 s track with a loud swell at 25 s: the 10 s window starting at 19 s follows the arc",
+      "ask": "Find the stretch of this track that follows my film's loudness arc.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:find-music-windows-that-follow-a-loudness-arc",
-            "input": {
-              "brief": "<brief: BRIEF.json: {arc, length_s, open, lift, swell}>",
-              "out": "<out: The folder (music/windows.json, music/excerpts/)>",
-              "tracks": []
-            }
+            "tool": "tool:find-music-windows-that-follow-a-loudness-arc"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Find in each candidate music track the window whose loudness follows my film's arc",
-      "given": "The person gives: brief, out (shown as <name> in the input)."
+      "given": "From tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (test_the_window_that_follows_the_arc_wins_and_is_listened_to, run for real): track.wav is 40 s of a 220 Hz tone with loudness 0.02 until 20 s, rising to 0.4 at 25 s, falling to 0.05 by 30 s; brief.json has arc [[0, -12], [5, 0], [10, -6]], length_s 10, open [0, 2], lift [4, 6], swell [4, 6]. Command: python3 -I tools/generate-and-judge-sound-effects/do-work/find_music_windows.py /work/music/brief.json /work/music/out /work/music/track.wav",
+      "hands_back": "Last line: {\"result\": {\"windows\": \"/work/music/out/music/windows.json\", \"tracks\": 1}}. windows.json has hop_s 0.25 and one window for track: start_s 19.0, end_s 29.0, arc_score 1.119, corr 0.971, open_db -31.8, lift_db -13.2, swell_db -11.9, excerpt /work/music/out/music/excerpts/{track}@{19}.wav (the track name, @ and the start second, as find_music_windows.py names it)."
     }
   ]
 }

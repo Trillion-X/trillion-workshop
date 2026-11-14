@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:cut-and-caption's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:cut-and-caption with files, from, to.\" Cut one stretch out of a video and burn in its spoken words as captions",
+  "drafted_from": "tool:cut-and-caption's own row in tools/media-composition/tool-rows.json, tools/media-composition/do-work/cut-and-caption.mjs, and the script run on a synthetic 7 second clip",
+  "start_here": "Say to your AI: \"Cut seconds 3.5 to 6 out of my video and caption it with the words spoken there.\" It runs tool:cut-and-caption and saves the clip in your files.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It makes a new video in your files from the video you name and keeps no list of its own.",
   "workflows": [],
   "tools": [
     "tool:cut-and-caption"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:cut-and-caption\", and give it files, from, to.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:cut-and-caption and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields result, files."
+    "1. Find your video's identity and exact length in bytes in your files, and the start and end in seconds of the stretch to keep (tool:find-action-moments or tool:find-silence can name one).",
+    "2. Say \"Cut this stretch and caption it\" with files, from and to. Add transcript (timed words for the whole video, or for the clip alone with transcript_from set to the clip's start) and a style; without a transcript it only cuts.",
+    "3. The AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:cut-and-caption. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
+    "4. Read result.duration_seconds, result.captions and files.video, the clip in your files."
   ],
   "worked_examples": [
     {
-      "title": "Cut a clip and caption it on a sample input",
-      "ask": "Run tool:cut-and-caption.",
+      "title": "A 2.5 second clip with one caption line",
+      "ask": "Cut 3.5 to 6 seconds of my video and caption it.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -29,18 +29,86 @@
               "files": [
                 {
                   "name": "source.mp4",
-                  "identity": "<identity: The clip's identity in your files (1f: then 64 hex)>",
-                  "bytes": "<bytes: integer>"
+                  "identity": "1f:7320b49113520185e2ad8938759857db29ec6b0ed6a30cd1a2cfc05c68d932c6",
+                  "bytes": 40118
                 }
               ],
-              "from": "<from: Start of the clip>",
-              "to": "<to: End of the clip>"
+              "from": 3.5,
+              "to": 6,
+              "transcript": {
+                "words": [
+                  {
+                    "text": "Welcome",
+                    "start": 0.2,
+                    "end": 0.6
+                  },
+                  {
+                    "text": "to",
+                    "start": 0.6,
+                    "end": 0.8
+                  },
+                  {
+                    "text": "the",
+                    "start": 0.8,
+                    "end": 1
+                  },
+                  {
+                    "text": "bakery.",
+                    "start": 1,
+                    "end": 1.6
+                  },
+                  {
+                    "text": "Fresh",
+                    "start": 4.2,
+                    "end": 4.6
+                  },
+                  {
+                    "text": "bread",
+                    "start": 4.6,
+                    "end": 5
+                  },
+                  {
+                    "text": "daily.",
+                    "start": 5,
+                    "end": 5.6
+                  }
+                ]
+              },
+              "transcript_from": 0
             }
           }
         }
       },
-      "hands_back": "An answer with the fields result, files.",
-      "given": "The person gives: identity, bytes, from, to (shown as <name> in the input)."
+      "given": "read from tools/media-composition/do-work/cut-and-caption.mjs and run on a 7 second clip with the transcript of the whole video: only \"Fresh bread daily.\" (4.2 to 5.6 s) falls inside 3.5 to 6, so one caption line is made",
+      "hands_back": "{\"result\":{\"expected_duration_seconds\":2.5,\"duration_seconds\":2.544,\"width\":320,\"height\":180,\"has_audio\":true,\"bytes\":64490,\"segments\":1,\"captions\":1},\"files\":{\"video\":{\"identity\":\"1f:d5d54a98cfd53a82800e3eb7582ea005b59fce84c791a412bc3e2ad2b3c3952d\",\"bytes\":64490,\"media_type\":\"video/mp4\",\"name\":\"clip.mp4\"}}}"
+    },
+    {
+      "title": "No transcript: it only cuts",
+      "ask": "Just cut 1 to 3 seconds out of my video.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:cut-and-caption",
+            "input": {
+              "files": [
+                {
+                  "name": "source.mp4",
+                  "identity": "1f:7320b49113520185e2ad8938759857db29ec6b0ed6a30cd1a2cfc05c68d932c6",
+                  "bytes": 40118
+                }
+              ],
+              "from": 1,
+              "to": 3
+            }
+          }
+        }
+      },
+      "given": "read from tools/media-composition/do-work/cut-and-caption.mjs: with no transcript there are no lines, so captions is 0 and no subtitles are burned in",
+      "hands_back": "{\"result\":{\"expected_duration_seconds\":2,\"duration_seconds\":2.021,\"width\":320,\"height\":180,\"has_audio\":true,\"bytes\":35357,\"segments\":1,\"captions\":0},\"files\":{\"video\":{\"identity\":\"1f:570a4f1d2588c2ee50b121196224fbb01f83c8e218ad2f28adbdf4e1db61ef72\",\"bytes\":35357,\"media_type\":\"video/mp4\",\"name\":\"clip.mp4\"}}}"
     }
   ]
 }

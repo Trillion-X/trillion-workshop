@@ -1,39 +1,52 @@
 {
-  "draft": true,
-  "drafted_from": "tool:keep-trillion-in-your-instructions's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:keep-trillion-in-your-instructions with harness, action.\" Put, check or take out Trillion's standing instructions as one marked block in my AI harness's own global instruction file, leaving every other line of it as it was",
+  "drafted_from": "tool:keep-trillion-in-your-instructions's row in tools/tell-ais-how-to-act/tool-rows.json, do-work/keep-standing-instructions.mjs, do-work/standing-instructions.mjs, read-data/harness-instruction-files.json and test/standing-instructions.test.mjs",
+  "start_here": "Say to your AI: \"Check whether Trillion's standing instructions are in my Codex instruction file, and tell me what applying them would change before you write anything.\" It reads the tool's row, then runs it on your computer with harness codex and action inspect.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads and writes one marked block in the harness's own instruction file on the person's computer, and answers a report.",
   "workflows": [],
   "tools": [
     "tool:keep-trillion-in-your-instructions"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:keep-trillion-in-your-instructions\", and give it harness, action.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:keep-trillion-in-your-instructions and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields schema, observed_at, text_from, report."
+    "1. Say which AI harness it is for (claude-code, codex, gemini-cli, or a hosted app such as chatgpt) and that you want Trillion's standing instructions checked first.",
+    "2. The AI reads the tool's row with @workshop-tools tools:list {tool: \"tool:keep-trillion-in-your-instructions\"}, then runs its command on your computer from the root of the Workshop checkout: write {\"harness\":\"codex\",\"action\":\"inspect\"} to a file and run node tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs < that file.",
+    "3. Read the report.status: absent (no block yet), present (up to date), outdated (the words changed) or blocked (the markers are broken, nothing is written). Only when you ask for it, run again with action apply (writes or replaces only the marked block) or remove (takes out only the block). Every other byte of the file stays as it was.",
+    "4. A hosted app with no file answers status use-host-control and names the setting to put the text in; nothing is written."
   ],
   "worked_examples": [
     {
-      "title": "Keep Trillion's standing instructions in my AI's own instruction file (runs on your computer) on a sample input",
-      "ask": "Run tool:keep-trillion-in-your-instructions.",
+      "title": "Ask a hosted app where the standing words go",
+      "ask": "Put Trillion's standing instructions into ChatGPT for me.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:keep-trillion-in-your-instructions",
-            "input": {
-              "harness": "<harness: The harness row id (claude-code, codex, gemini-cli, or a hosted app's id)>",
-              "action": "inspect"
-            }
+            "tool": "tool:keep-trillion-in-your-instructions"
           }
         }
       },
-      "hands_back": "An answer with the fields schema, observed_at, text_from, report.",
-      "given": "The person gives: harness (shown as <name> in the input)."
+      "given": "Read from tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs and standing-instructions.mjs (the test 'a hosted app with no file is answered with its own control and never written' runs the same case). The AI runs the row's run command on your computer with this input file: {\"harness\":\"chatgpt\",\"action\":\"apply\",\"text\":\"Say what you did in plain words.\"}. In read-data/harness-instruction-files.json chatgpt is a host-control row, so no file is read or written.",
+      "hands_back": "Its last JSON line: {\"schema\":\"trillion.standing-instructions-result/v1\",\"observed_at\":\"<the time of the run>\",\"text_from\":\"caller\",\"report\":{\"schema\":\"trillion.standing-instructions-report/v1\",\"harness\":\"chatgpt\",\"name\":\"ChatGPT\",\"action\":\"apply\",\"text\":\"Say what you did in plain words.\",\"kind\":\"host-control\",\"control\":\"ChatGPT's Custom instructions or Memory in its personalization settings\",\"status\":\"use-host-control\",\"changed\":false,\"reason\":\"ChatGPT has no instruction file to write. Put the text in ChatGPT's Custom instructions or Memory in its personalization settings.\"}}"
+    },
+    {
+      "title": "Inspect a Codex file that does not exist yet",
+      "ask": "Is Trillion in my Codex instructions yet?",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:list",
+          "input": {
+            "tool": "tool:keep-trillion-in-your-instructions"
+          }
+        }
+      },
+      "given": "From tools/tell-ais-how-to-act/test/standing-instructions.test.mjs ('the entry checks its input'): the input file is {\"harness\":\"codex\",\"action\":\"inspect\"} on a home with no .codex folder, run as node tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs < input.json.",
+      "hands_back": "Its last JSON line has schema trillion.standing-instructions-result/v1, text_from \"this tool\", and a report with kind \"file\", status \"absent\", file_exists false and changed false, with path ending in .codex/AGENTS.md. Nothing is written."
     }
   ]
 }

@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:read-what-is-on-screen's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-what-is-on-screen with nothing more.\" Read what the person is doing on their Mac as text from the front window (app, window title, page address and visible words), when they switch apps or windows and every minute, for a short watch, so their AIs keep continuity across the day.",
+  "drafted_from": "tool:read-what-is-on-screen row in tool-rows.json, do-work/read-what-is-on-screen.mjs, do-work/read.swift, read-data/rules.json and test/read-what-is-on-screen.test.mjs",
+  "start_here": "Say to your AI: \"Watch what I am doing on my Mac for 20 seconds, re-reading the same window every 30 seconds, and tell me which apps and windows I used.\" It runs tool:read-what-is-on-screen on your Mac and answers one capture per read, as text, never a screenshot.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list: it reads the front window's accessibility text for a short watch and answers captures, keeping nothing.",
   "workflows": [],
   "tools": [
     "tool:read-what-is-on-screen"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-what-is-on-screen\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-what-is-on-screen and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields captures, needs_access, said, error."
+    "1. Turn on Accessibility for the app that runs the tool in System Settings, Privacy & Security; without it the answer is needs_access and nothing is read.",
+    "2. Say \"Watch my screen for N seconds\"; your AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:read-what-is-on-screen and input {watch_seconds (5 to 240, default 50), tick_seconds (10 to 600, default 60)}.",
+    "3. Read the answer: captures, each with at, app, bundle_id, window, url (browsers), reason (changed or tick), and text on a window's first capture in the run or added and removed lines on later ones; a value outside the bounds is refused with the bounds.",
+    "4. Know what it never reads: password managers, Keychain, Settings, private browser windows and pages whose address holds a never-read word; passwords, keys and card numbers are replaced with [removed] on your Mac before anything is returned."
   ],
   "worked_examples": [
     {
-      "title": "Read what is on my screen on a sample input",
-      "ask": "Run tool:read-what-is-on-screen.",
+      "title": "A 20 second watch while a notes window changes",
+      "ask": "Watch what I am doing on my Mac for 20 seconds and tell me which windows I used.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -25,11 +25,35 @@
           "method": "tools:run",
           "input": {
             "tool": "tool:read-what-is-on-screen",
-            "input": {}
+            "input": {
+              "watch_seconds": 20,
+              "tick_seconds": 30
+            }
           }
         }
       },
-      "hands_back": "An answer with the fields captures, needs_access, said, error."
+      "given": "Read from do-work/read-what-is-on-screen.mjs and do-work/read.swift (a live window read needs the Accessibility grant, so no test runs it; the made-up desktop is worked out from the code): the tool runs `swift read.swift --rules read-data/rules.json --watch-seconds 20 --tick-seconds 30`; Accessibility is on, a Notes window titled \"Tuesday meeting\" is in front and its text gains one line during the watch.",
+      "hands_back": "{captures: [{at: <time of the read>, app: \"Notes\", bundle_id: \"com.apple.Notes\", window: \"Tuesday meeting\", reason: \"changed\", text: \"Agenda\\nBudget summary\"}, {at: <a later time>, app: \"Notes\", bundle_id: \"com.apple.Notes\", window: \"Tuesday meeting\", reason: \"tick\", added: [\"Next steps\"], removed: []}]}: the first capture of a window carries its whole text, later ones only the lines added and removed."
+    },
+    {
+      "title": "Accessibility is off",
+      "ask": "Watch my screen for 20 seconds.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-what-is-on-screen",
+            "input": {
+              "watch_seconds": 20
+            }
+          }
+        }
+      },
+      "given": "From tools/read-what-is-on-screen/test/read-what-is-on-screen.test.mjs and read-data/rules.json: the app that runs the tool has not been given Accessibility.",
+      "hands_back": "{needs_access: \"accessibility\", said: \"Turn on Accessibility for the app that runs this tool in System Settings, Privacy & Security, so it can read what is on your screen.\"} and nothing is read."
     }
   ]
 }

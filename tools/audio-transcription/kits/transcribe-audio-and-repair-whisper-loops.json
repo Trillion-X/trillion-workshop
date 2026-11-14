@@ -1,35 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:transcribe-audio-and-repair-whisper-loops's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:transcribe-audio-and-repair-whisper-loops with nothing more.\" Turn a recording into a transcript with a time for every word, and fix the places where the transcription got stuck repeating one sentence",
+  "drafted_from": "tools/audio-transcription/tool-rows.json, do-work/audio_transcription.py, read-data/whisper_loops.py, test/test_whisper_loops.py (observed find-loops run)",
+  "start_here": "Say to your AI: \"Transcribe /Recordings/walk.m4a with word times using my ggml model, then find and repair any Whisper loops.\" It runs audio_transcription.py transcribe, find-loops and repair on your computer.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads recordings and writes transcript JSON files on the person's computer.",
   "workflows": [],
   "tools": [
     "tool:transcribe-audio-and-repair-whisper-loops"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:transcribe-audio-and-repair-whisper-loops\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:transcribe-audio-and-repair-whisper-loops and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Turn a recording into a transcript with a time for every word, and fix the places where the transcription got stuck repeating one sentence"
+    "1. Install whisper-cli (whisper.cpp), ffmpeg and python, and keep one ggml Whisper model file.",
+    "2. Say \"Transcribe my recording\"; the AI reads the tool row with tools:list and runs audio_transcription.py transcribe --audio ... --out ... --model-path ....",
+    "3. It runs find-loops --transcript on the result; if a stretch looped it runs repair --transcript ... --audio ... --model-path ... and then find-loops again to show the loops are gone.",
+    "4. Run judge --transcript before trusting the transcript; text --transcript ... --out ... writes [m:ss] paragraphs. For a folder use transcribe-many, repair-many and index."
   ],
   "worked_examples": [
     {
-      "title": "Transcribe a recording with a time for every word, and repair Whisper loops (runs on your computer) on a sample input",
-      "ask": "Run tool:transcribe-audio-and-repair-whisper-loops.",
+      "title": "A segment that says one sentence five times is found as a 20 second loop",
+      "ask": "Find the Whisper loops in my transcript /Recordings/walk.json.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:transcribe-audio-and-repair-whisper-loops",
-            "input": {}
+            "tool": "tool:transcribe-audio-and-repair-whisper-loops"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Turn a recording into a transcript with a time for every word, and fix the places where the transcription got stuck repeating one sentence"
+      "given": "Observed by running do-work/audio_transcription.py find-loops (read-data/whisper_loops.py, as exercised by tools/audio-transcription/test/test_whisper_loops.py) on a transcript with segment 0 \"Hello there.\" at 0-3 s and segment 1 \"Thanks for watching.\" said five times at 10-30 s; run as: python3 trillion-workshop/tools/audio-transcription/do-work/audio_transcription.py find-loops --transcript /Recordings/walk.json",
+      "hands_back": "Last line {\"result\": {\"transcripts_with_loops\": [{\"transcript\": \"/Recordings/walk.json\", \"segments\": 1, \"seconds\": 20}], \"total_looped_seconds\": 20}}; the AI then runs repair for that 20 second stretch and find-loops again."
     }
   ]
 }

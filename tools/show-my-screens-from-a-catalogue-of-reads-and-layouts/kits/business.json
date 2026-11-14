@@ -1,0 +1,37 @@
+{
+  "drafted_from": "tools/show-my-screens-from-a-catalogue-of-reads-and-layouts/tool-rows.json (tool:business), tools/see-what-my-business-took-in-this-month/test/business-screen.test.mjs and its test/fixtures/business-descriptions.json",
+  "start_here": "Say to your AI: \"Show me my Business screen: what my business took in this month on the payment services I connected.\" It reads the row of tool:business, which draws what tool:read-business read from my Stripe connection.",
+  "lists": [],
+  "no_lists_because": "It keeps no list: the screen draws the money that tool:read-business reads this month from your connected payment services, and it writes nothing.",
+  "workflows": [],
+  "tools": [
+    "tool:business",
+    "tool:read-business",
+    "tool:stripe-events-read_money_since"
+  ],
+  "instructions": [
+    "1. Connect a payment service first (Stripe) in Connections; without one the screen sends you there.",
+    "2. Open the Business screen at /work/api/screens/business in the app, or ask your AI to read the row with tools:list {tool: \"tool:business\"} and to run tool:read-business (input {now?}) for the facts.",
+    "3. Read each connected service's block, headed \"<service> since <first of the month>\": money in, fees, refunded and net for each currency, and the payment count; a service it could not read says so with no number.",
+    "4. Where the figures count only the latest entries (100), the screen says there were more this month."
+  ],
+  "worked_examples": [
+    {
+      "title": "One Stripe payment this month",
+      "ask": "Show me what my business took in this month.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:list",
+          "input": {
+            "tool": "tool:business"
+          }
+        }
+      },
+      "given": "From tools/see-what-my-business-took-in-this-month/test/business-screen.test.mjs and its golden test/fixtures/business-descriptions.json (case 4): Stripe is connected and read since October 1 with one US dollar payment of 10000 cents with 320 cents of fees, 0 refunded and 9680 net, 1 payment, not truncated. The layout of tool:business (one read, business, of tool:read-business) draws it.",
+      "hands_back": "{\"title\":\"Business\",\"lead\":\"What your business took in this month.\",\"sections\":[{\"heading\":\"Stripe since October 1\",\"stats\":[{\"id\":\"in:usd\",\"label\":\"Money in\",\"value\":\"$100\"},{\"id\":\"fees:usd\",\"label\":\"Stripe fees\",\"value\":\"$3.20\"},{\"id\":\"net:usd\",\"label\":\"Net\",\"value\":\"$96.80\"},{\"id\":\"payments\",\"label\":\"Payments\",\"value\":\"1\"}]}]}. With no payment service connected it is one row, \"No payment service is connected\", with the action Open Connections."
+    }
+  ]
+}

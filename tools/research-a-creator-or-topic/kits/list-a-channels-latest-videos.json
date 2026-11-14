@@ -1,35 +1,37 @@
 {
-  "draft": true,
-  "drafted_from": "tool:list-a-channels-latest-videos's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:list-a-channels-latest-videos with nothing more.\" Get the latest videos of a creator's channel: their titles, dates, lengths and links",
+  "drafted_from": "tools/research-a-creator-or-topic/tool-rows.json (tool:list-a-channels-latest-videos), do-work/research-from-this-computer.mjs and sources.mjs, test/commands.test.mjs; the example was run here with the folder's stand-in yt-dlp",
+  "start_here": "Say to your AI: \"List the 5 latest videos of the channel @sourdough and tell me their titles and links.\" It runs the channel command on your computer with yt-dlp and reads the file it writes.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it asks yt-dlp for a channel's videos and writes them to one JSON file on your computer.",
   "workflows": [],
   "tools": [
-    "tool:list-a-channels-latest-videos"
+    "tool:list-a-channels-latest-videos",
+    "tool:read-a-videos-captions"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:list-a-channels-latest-videos\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-a-channels-latest-videos and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Get the latest videos of a creator's channel: their titles, dates, lengths and links"
+    "1. Check that node and yt-dlp are installed (brew install yt-dlp) and clone the Workshop repository. No key is needed and nothing is sent to Trillion.",
+    "2. Name the channel as a link, a channel id (UC...) or a @handle. The AI reads the row with tools:list {tool: \"tool:list-a-channels-latest-videos\"}.",
+    "3. It runs: node trillion-workshop/tools/research-a-creator-or-topic/do-work/research-from-this-computer.mjs channel --channel @sourdough --limit 5 --out channel.json (30 videos when --limit is left out; --yt-dlp PATH when yt-dlp is not on the path).",
+    "4. Read the last line it prints, {\"result\": {source, subject_ref, listing_url, count, out}}, then channel.json for the items: item_id, title, duration, published, url and the first 500 characters of the description. A failure prints {\"failed\": {code, message}} with exit 2: bad-request, no-yt-dlp or no-listing (the site gave nothing; say so rather than guess).",
+    "5. For the words of one of the videos, run tool:read-a-videos-captions with its item_id."
   ],
   "worked_examples": [
     {
-      "title": "List a channel's latest videos (runs on your computer) on a sample input",
-      "ask": "Run tool:list-a-channels-latest-videos.",
+      "title": "The latest videos of a sourdough channel",
+      "ask": "List the latest videos of @sourdough.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:list-a-channels-latest-videos",
-            "input": {}
+            "tool": "tool:list-a-channels-latest-videos"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Get the latest videos of a creator's channel: their titles, dates, lengths and links"
+      "given": "From tools/research-a-creator-or-topic/test/commands.test.mjs (the channel test) and run here with the folder's stand-in yt-dlp (test/stand-in/yt-dlp), which answers two videos for https://www.youtube.com/@sourdough/videos: vid-aaa \"Shaping a boule\" and vid-bbb \"Scoring tips\", channel Sourdough Notes. The AI runs: node trillion-workshop/tools/research-a-creator-or-topic/do-work/research-from-this-computer.mjs channel --channel @sourdough --limit 5 --out channel.json",
+      "hands_back": "{\"result\":{\"source\":\"Sourdough Notes\",\"subject_ref\":\"@sourdough\",\"listing_url\":\"https://www.youtube.com/@sourdough/videos\",\"count\":2,\"out\":\"channel.json\"}} and channel.json holds items with item_id vid-aaa (title \"Shaping a boule\", url https://www.youtube.com/watch?v=vid-aaa, published 20301105) and vid-bbb (title \"Scoring tips\"). With no yt-dlp installed the last line is {\"failed\":{\"code\":\"no-yt-dlp\",...}} and the exit is 2."
     }
   ]
 }

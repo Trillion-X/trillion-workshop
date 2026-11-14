@@ -1,39 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:score-soundtrack-variants-by-ear's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:score-soundtrack-variants-by-ear with request, variants.\" Score my film's soundtrack variants with earshot: critique, sync to the picture, and how well each sound effect reads at its cue",
+  "drafted_from": "tool:score-soundtrack-variants-by-ear row in tools/generate-and-judge-sound-effects/tool-rows.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
+  "start_here": "Say to your AI: \"Score soundtrack variant A, with soundtrack and effects layer both /work/sfx/a-layer.wav, at every cue of my cue plan.\" It runs the scorer and reads each sound's match at its cue.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads REQUEST.json, the cue plan and the variants' WAV files on this computer and merges its scores into one scores file.",
   "workflows": [],
   "tools": [
-    "tool:score-soundtrack-variants-by-ear"
+    "tool:score-soundtrack-variants-by-ear",
+    "tool:place-sound-effect-cues-into-an-effects-layer"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:score-soundtrack-variants-by-ear\", and give it request, variants.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:score-soundtrack-variants-by-ear and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Score my film's soundtrack variants with earshot: critique, sync to the picture, and how well each sound effect reads at its cue"
+    "1. Have each variant's full soundtrack WAV and its effects-layer WAV (make the layer with tool:place-sound-effect-cues-into-an-effects-layer).",
+    "2. Write /work/sfx/score.json: {picture, cues (the cue plan), palette (folder of <sound>.wav), sounds [{name, query}], scores (the file to write)}.",
+    "3. Say \"Score my variants\". The AI reads the row with tools:list and runs: EARSHOT_THREADS=3 <earshot python> -I tools/generate-and-judge-sound-effects/do-work/score_soundtrack_variants.py /work/sfx/score.json A=/work/sfx/a-layer.wav,/work/sfx/a-layer.wav (one NAME=SOUNDTRACK.wav,SFX_LAYER.wav per variant).",
+    "4. Read the last line, then open the scores file: per variant the critique, sync to the picture, realness, a match z at each cue (layer alone and in the mix) and cue_z_by_sound. A second run with variant B is merged in, not replaced."
   ],
   "worked_examples": [
     {
-      "title": "Score soundtrack variants of a film by ear at every cue (runs on your computer) on a sample input",
-      "ask": "Run tool:score-soundtrack-variants-by-ear.",
+      "title": "Variant A scored at three cues for a hit and a tick",
+      "ask": "Score my soundtrack variant A at every cue.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:score-soundtrack-variants-by-ear",
-            "input": {
-              "request": "<request: REQUEST.json: {picture, cues, sounds, palette, scores}>",
-              "variants": []
-            }
+            "tool": "tool:score-soundtrack-variants-by-ear"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Score my film's soundtrack variants with earshot: critique, sync to the picture, and how well each sound effect reads at its cue",
-      "given": "The person gives: request (shown as <name> in the input)."
+      "given": "From tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (test_each_variant_is_scored_at_every_cue_on_its_layer_and_in_its_mix, stand-in earshot): score.json has cues /work/sfx/cues.json (hit at 0.5 s, tick at 1.0005 s, hit at 2.0 s), palette /work/sfx/a, sounds [{\"name\": \"hit\", \"query\": \"a low hit\"}, {\"name\": \"tick\", \"query\": \"a high tick\"}] and scores /work/sfx/scores.json; the variant is A=/work/sfx/a-layer.wav,/work/sfx/a-layer.wav. Command: EARSHOT_THREADS=3 python -I tools/generate-and-judge-sound-effects/do-work/score_soundtrack_variants.py /work/sfx/score.json A=/work/sfx/a-layer.wav,/work/sfx/a-layer.wav",
+      "hands_back": "Last line: {\"result\": {\"scores\": \"/work/sfx/scores.json\", \"variants\": {\"A\": {\"verdict\": \"stand-in\", \"cue_z_layer_median\": 3.0, \"cue_z_mix_median\": 3.0}}}}. scores.json A.cues lists hit, tick, hit in order and cue_z_by_sound.hit has n 2."
     }
   ]
 }

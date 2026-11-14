@@ -1,38 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:read-a-computer-price's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-a-computer-price with request_file.\" See what a machine for a computer would cost each month before renting it",
+  "drafted_from": "tool row in tools/start-a-computer/tool-rows.json, read-data/providers.json, do-work/start-a-computer.mjs (priceOfAPlace) and tools/start-a-computer/test/start-a-computer.test.mjs",
+  "start_here": "Say to your AI: \"What would a cax11 machine at Hetzner cost me each month before I rent it?\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads a request file and the provider row's price request, and rents nothing.",
   "workflows": [],
   "tools": [
-    "tool:read-a-computer-price"
+    "tool:read-a-computer-price",
+    "tool:start-a-computer",
+    "tool:rent-a-machine"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-a-computer-price\", and give it request_file.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-a-computer-price and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields provider, placement, price."
+    "1. Write request.json with machine {provider: \"hetzner\", placement: {size: \"cax11\"}} (location, image and the rest come from the provider row).",
+    "2. Say the line in start_here. Your AI reads the row with tools:list {tool: \"tool:read-a-computer-price\"} and runs node tools/start-a-computer/do-work/start-a-computer.mjs price request.json with the vault credential hetzner-api-token handed on descriptor 3.",
+    "3. Read the JSON line: provider, placement and price {cents, currency}. A null price means the row reads none (a machine you already run with no price given)."
   ],
   "worked_examples": [
     {
-      "title": "Read a computer's price on a sample input",
-      "ask": "Run tool:read-a-computer-price.",
+      "title": "The monthly price of a cax11 in the default location",
+      "ask": "What does a cax11 cost per month?",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:read-a-computer-price",
-            "input": {
-              "request_file": "<request_file: string>"
-            }
+            "tool": "tool:read-a-computer-price"
           }
         }
       },
-      "hands_back": "An answer with the fields provider, placement, price.",
-      "given": "The person gives: request_file (shown as <name> in the input)."
+      "given": "From tools/start-a-computer/test/start-a-computer.test.mjs ('the price is the size\\'s monthly price at the lease\\'s location, in cents'): the provider answers GET /server_types?name=cax11 with prices fsn1 7.9900 and hel1 6.9900 (gross, EUR). request.json = {\"machine\":{\"provider\":\"hetzner\",\"placement\":{\"size\":\"cax11\"}}}; hel1 is the row's default location. Run: node tools/start-a-computer/do-work/start-a-computer.mjs price request.json",
+      "hands_back": "{\"provider\":\"hetzner\",\"placement\":{\"size\":\"cax11\",\"location\":\"hel1\",\"image\":\"ubuntu-24.04\"},\"price\":{\"cents\":699,\"currency\":\"EUR\"}}: 6.99 EUR at hel1. With \"location\":\"ash\" the price is refused (\"no monthly price\") because the row lists none there."
     }
   ]
 }

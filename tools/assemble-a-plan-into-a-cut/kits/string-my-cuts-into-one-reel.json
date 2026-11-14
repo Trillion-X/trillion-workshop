@@ -1,38 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:string-my-cuts-into-one-reel's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:string-my-cuts-into-one-reel with input.\" Put all my finished cuts into one video to watch in a row, with a short card naming each one before it, and tell me where each starts",
+  "drafted_from": "tools/assemble-a-plan-into-a-cut/tool-rows.json, do-work/reel.py, test/test_assemble.py",
+  "start_here": "Say to your AI: \"Put my two finished cuts first.mp4 and second.mp4 into one reel with a card before the second, and tell me where each starts.\" It runs the string-together step.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of yours: it reads the film files you name and writes one reel and an optional index text file.",
   "workflows": [],
   "tools": [
     "tool:string-my-cuts-into-one-reel"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:string-my-cuts-into-one-reel\", and give it input.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:string-my-cuts-into-one-reel and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Put all my finished cuts into one video to watch in a row, with a short card naming each one before it, and tell me where each starts"
+    "1. Clone the Workshop checkout and run brew install ffmpeg node; the reel is rendered by tools/media-composition.",
+    "2. Write reel.json: films [{file, label, card_text}], card {seconds, size, wrap_chars, line_step, colour, text_colour, border_px, noise_amplitude}, work, out, index.",
+    "3. Say \"String my cuts into one reel\"; the AI runs python3 tools/assemble-a-plan-into-a-cut/do-work/assemble.py string-together --request reel.json.",
+    "4. Read reel, seconds, each film's start and clock, and missing (a listed file that does not exist is named and left out); the index file lists the same starts."
   ],
   "worked_examples": [
     {
-      "title": "Put my finished cuts one after another into one reel to watch (runs on your computer) on a sample input",
-      "ask": "Run tool:string-my-cuts-into-one-reel.",
+      "title": "Two cuts and one missing file become one reel",
+      "ask": "Put my finished cuts into one reel with a card between them.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:string-my-cuts-into-one-reel",
-            "input": {
-              "input": "<input: The request file: films [{file, label, card_text}], card {seconds, size, wrap_chars, line_step, colour, text_colour, border_px, noise_amplitude, font?}, work, out, index>"
-            }
+            "tool": "tool:string-my-cuts-into-one-reel"
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Put all my finished cuts into one video to watch in a row, with a short card naming each one before it, and tell me where each starts",
-      "given": "The person gives: input (shown as <name> in the input)."
+      "given": "From test_7_string_together_puts_a_card_between_cuts in tools/assemble-a-plan-into-a-cut/test/test_assemble.py, run here: films = the same 11.1 second cut labelled first (no card) and second (card_text 'next one'), plus /no/such/file.mp4 labelled gone; card seconds 1.",
+      "hands_back": "It printed {\"result\": {\"reel\": \"<out>/reel.mp4\", \"seconds\": 23.3, \"films\": [{\"start\": 0.0, \"clock\": \"0:00.0\", \"label\": \"first\", \"seconds\": 11.1}, {\"start\": 12.13, \"clock\": \"0:12.1\", \"label\": \"second\", \"seconds\": 11.1}], \"missing\": [\"/no/such/file.mp4\"]}}, and the index file holds '0:00.0  0.00s  first  (11.1s)' and '0:12.1  12.13s  second  (11.1s)'."
     }
   ]
 }

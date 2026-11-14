@@ -1,9 +1,8 @@
 {
-  "draft": true,
-  "drafted_from": "tool:read-transcript-files-and-captions-into-timed-words's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-transcript-files-and-captions-into-timed-words with nothing more.\" Read a folder of transcript files (srt, vtt, txt, json) or a channel's downloaded YouTube captions into one timed-words shape, and check that quotes really are in the transcripts at the times they cite",
+  "drafted_from": "tools/audio-transcription/tool-rows.json, do-work/read_transcript_files.py, test/test_transcript_files.py (observed run)",
+  "start_here": "Say to your AI: \"Read my transcript file /Transcripts/day1.srt into timed words and write /Transcripts/day1.words.json.\" It runs read_transcript_files.py read-file on your computer.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads transcript files from the person's computer and writes words files beside them.",
   "workflows": [],
   "tools": [
     "tool:read-transcript-files-and-captions-into-timed-words",
@@ -11,27 +10,28 @@
     "tool:keep-channels-latest-videos-and-captions"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-transcript-files-and-captions-into-timed-words\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-transcript-files-and-captions-into-timed-words and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Read a folder of transcript files (srt, vtt, txt, json) or a channel's downloaded YouTube captions into one timed-words shape, and check that quotes really are in the transcripts at the times they cite"
+    "1. Put the transcript file (srt, vtt, txt or json) where your computer can read it; only python 3.10 or later is needed.",
+    "2. Say \"Read my transcript file /Transcripts/day1.srt into timed words\"; the AI reads the tool row with tools:list and runs read_transcript_files.py read-file --file ... --out ....",
+    "3. Read the last line {\"result\": {words_json, timing, segments, words, duration}}: timing says whether times are per word, per segment or none.",
+    "4. For a whole drive use pick_transcript_files.py then read-files; for a channel download use caption_transcripts.py; for videos with no captions use tool:hear-a-link; check quotes with find_whisper_quotes.py."
   ],
   "worked_examples": [
     {
-      "title": "Read transcript and caption files into timed words, and check quotes against them (runs on your computer) on a sample input",
-      "ask": "Run tool:read-transcript-files-and-captions-into-timed-words.",
+      "title": "A two-cue srt becomes segment-timed words",
+      "ask": "Read my transcript file /Transcripts/day1.srt into timed words.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:read-transcript-files-and-captions-into-timed-words",
-            "input": {}
+            "tool": "tool:read-transcript-files-and-captions-into-timed-words"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Read a folder of transcript files (srt, vtt, txt, json) or a channel's downloaded YouTube captions into one timed-words shape, and check that quotes really are in the transcripts at the times they cite"
+      "given": "From tools/audio-transcription/test/test_transcript_files.py (observed by running do-work/read_transcript_files.py on the same srt): day1.srt holds cue 1 at 00:00:01,500 --> 00:00:03,000 \"Hello &amp; welcome\" and cue 2 at 00:00:04,000 --> 00:00:06,250 \"to the   river walk\"; run as: python3 trillion-workshop/tools/audio-transcription/do-work/read_transcript_files.py read-file --file /Transcripts/day1.srt --out /Transcripts/day1.words.json",
+      "hands_back": "Last line {\"result\": {\"words_json\": \"/Transcripts/day1.words.json\", \"timing\": \"segment\", \"segments\": 2, \"words\": 0, \"duration\": 6.25}}; the file holds segments [{text \"Hello & welcome\", start 1.5, end 3.0}, {text \"to the river walk\", start 4.0, end 6.25}]."
     }
   ]
 }

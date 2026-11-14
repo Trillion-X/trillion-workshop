@@ -1,32 +1,301 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:make-the-piece-without-waiting-for-the-person's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:make-the-piece-without-waiting-for-the-person.\" When a piece of content is waiting on a step only the person can do (filming, a voiceover), list the other ways to reach the finished piece, and when the due time passes without their step, make it from the written script in the person's own cloned voice with their own assets, check it, draft it, and keep that path as a permanent branch so nobody asks next time.",
-  "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "start_here": "Say to your AI: \"Run workflow:make-the-piece-without-waiting-for-the-person for record:content-pieces:answer-how-do-you-train-staff, due 2026-11-22 09:00, waiting on my voiceover.\"",
+  "lists": [
+    {
+      "list": "list:content-pieces",
+      "label": "Content pieces",
+      "row_type": "record:content-pieces",
+      "holds": "Every piece to make for a pursuit: when it goes out, which pillar and format it serves and why, who does the next step, the script and the draft.",
+      "fields": [
+        {
+          "id": "piece",
+          "kind": "text",
+          "label": "Piece",
+          "alike": [
+            "title",
+            "post",
+            "headline"
+          ]
+        },
+        {
+          "id": "goes_out",
+          "kind": "date",
+          "label": "Goes out",
+          "alike": [
+            "publish date",
+            "scheduled"
+          ]
+        },
+        {
+          "id": "pursuit",
+          "kind": "text",
+          "label": "Pursuit",
+          "alike": [
+            "brand",
+            "niche"
+          ]
+        },
+        {
+          "id": "pillar",
+          "kind": "link",
+          "label": "Pillar",
+          "alike": [
+            "theme",
+            "category"
+          ]
+        },
+        {
+          "id": "kind",
+          "kind": "choice",
+          "label": "Kind",
+          "alike": [
+            "type",
+            "medium"
+          ]
+        },
+        {
+          "id": "why",
+          "kind": "long-text",
+          "label": "Why make it",
+          "alike": [
+            "goal",
+            "reason"
+          ]
+        },
+        {
+          "id": "state",
+          "kind": "choice",
+          "label": "State",
+          "alike": [
+            "status",
+            "stage"
+          ]
+        },
+        {
+          "id": "who",
+          "kind": "tags",
+          "label": "Who does the next step",
+          "alike": [
+            "owner",
+            "assignee"
+          ]
+        },
+        {
+          "id": "script",
+          "kind": "long-text",
+          "label": "Script",
+          "alike": [
+            "copy",
+            "caption",
+            "words"
+          ]
+        },
+        {
+          "id": "came_from",
+          "kind": "text",
+          "label": "Came from",
+          "alike": [
+            "source",
+            "origin"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "rows-not-instructions-thread",
+          "values": {
+            "piece": "Stop writing instructions. Hand people the rows.",
+            "goes_out": "2026-11-20",
+            "pursuit": "Small bakery owners",
+            "pillar": "record:content-pillars:start-from-rows",
+            "kind": "Writing",
+            "why": "The seed says new staff learn the order sheet faster from filled-in rows.",
+            "state": "Needs you to approve",
+            "who": [
+              "owner"
+            ],
+            "script": "Nobody reads the how-to. Everyone copies the filled-in order sheet. So ship the filled-in sheet.",
+            "came_from": "record:calendar-task:tree-hand-people-the-rows"
+          }
+        },
+        {
+          "id": "answer-how-do-you-train-staff",
+          "values": {
+            "piece": "How we train a new baker in one morning",
+            "goes_out": "2026-11-22",
+            "pursuit": "Small bakery owners",
+            "pillar": "record:content-pillars:start-from-rows",
+            "kind": "Video",
+            "why": "A commenter asked how a new baker learns the morning bake in one shift.",
+            "state": "Being made",
+            "who": [
+              "AI"
+            ],
+            "script": "You asked how a new baker learns the bake in a morning. We hand them yesterday's finished sheet, not a manual.",
+            "came_from": "record:comment-leads:post-123-1"
+          }
+        }
+      ],
+      "alike": [
+        "a content calendar",
+        "an editorial board in Airtable or Trello",
+        "a Notion content database"
+      ]
+    },
+    {
+      "list": "list:tree-branches",
+      "label": "Tree branches",
+      "row_type": "record:tree-branches",
+      "holds": "Every branch of the one tree as a row: which workflow it runs, when it fires, how many agents, whether its work is public or internal by default. Adding a branch is adding a row.",
+      "fields": [
+        {
+          "id": "branch",
+          "kind": "text",
+          "label": "Branch",
+          "alike": [
+            "name",
+            "path"
+          ]
+        },
+        {
+          "id": "workflow",
+          "kind": "text",
+          "label": "Workflow",
+          "alike": [
+            "playbook",
+            "process",
+            "recipe"
+          ]
+        },
+        {
+          "id": "fires_when",
+          "kind": "long-text",
+          "label": "Fires when",
+          "alike": [
+            "trigger",
+            "when"
+          ]
+        },
+        {
+          "id": "agents",
+          "kind": "number",
+          "label": "Agents",
+          "alike": [
+            "workers",
+            "parallel runs"
+          ]
+        },
+        {
+          "id": "visibility_default",
+          "kind": "choice",
+          "label": "Visibility",
+          "alike": [
+            "public or internal",
+            "audience"
+          ]
+        },
+        {
+          "id": "state",
+          "kind": "choice",
+          "label": "State",
+          "alike": [
+            "status",
+            "on/off"
+          ]
+        },
+        {
+          "id": "evidence",
+          "kind": "long-text",
+          "label": "Evidence",
+          "alike": [
+            "why",
+            "notes"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "turn-what-you-said-into-content",
+          "values": {
+            "agents": 1,
+            "branch": "Turn what was said into content",
+            "evidence": "Default branch of workflow:grow-the-one-tree, 2026-11-12.",
+            "fires_when": "the seed is the person's own words",
+            "state": "On",
+            "visibility_default": "public",
+            "workflow": "workflow:turn-what-you-said-into-content"
+          }
+        },
+        {
+          "id": "research-what-everyone-says",
+          "values": {
+            "agents": 1,
+            "branch": "Research what everyone says",
+            "evidence": "Default branch of workflow:grow-the-one-tree, 2026-11-12.",
+            "fires_when": "a seed makes a claim or names a subject",
+            "state": "On",
+            "visibility_default": "internal",
+            "workflow": "workflow:research-what-everyone-says"
+          }
+        },
+        {
+          "id": "real-life-cases",
+          "values": {
+            "agents": 1,
+            "branch": "Find real situations and the friction in them",
+            "evidence": "Existing mode workflow chosen as a branch of workflow:grow-the-one-tree, 2026-11-12; the row points at the workflow id, it is no second registry.",
+            "fires_when": "at the start of a pursuit and when new evidence arrives",
+            "state": "On",
+            "visibility_default": "internal",
+            "workflow": "workflow:real-life-cases"
+          }
+        },
+        {
+          "id": "read-the-week",
+          "values": {
+            "agents": 1,
+            "branch": "Read the week and make more of what won",
+            "evidence": "Default branch of workflow:grow-the-one-tree, 2026-11-12.",
+            "fires_when": "weekly, once pieces are published",
+            "state": "On",
+            "visibility_default": "internal",
+            "workflow": "workflow:read-the-week-and-make-more-of-what-won"
+          }
+        }
+      ],
+      "alike": [
+        "a list of standard operating procedures with their triggers",
+        "a Zapier or Make list of automations",
+        "a team playbook index"
+      ]
+    }
+  ],
   "workflows": [
     "workflow:make-the-piece-without-waiting-for-the-person",
     "workflow:make-one-piece-of-content-from-audience-to-publish",
     "workflow:make-short-videos-from-footage"
   ],
   "tools": [
+    "tool:start-a-recipe-run",
+    "tool:pour-example-rows-into-my-list",
     "tool:check-a-post",
     "tool:cut-and-caption",
     "tool:draft-a-post",
     "tool:layer-pictures-over-video",
     "tool:say-with-a-voice-model",
-    "tool:start-a-recipe-run",
     "tool:voices"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:make-the-piece-without-waiting-for-the-person\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:make-the-piece-without-waiting-for-the-person) and works through its steps in order: read-the-piece, find-the-alternative-paths, wait-until-the-due-time, voice-clone-the-script, make-the-video, check-and-draft, keep-the-path-as-a-permanent-branch.",
-    "3. Read what each step hands back; the last step is keep-the-path-as-a-permanent-branch."
+    "1. Have the piece as a content-pieces row with its script and goes_out date (pour the example rows, or make list:content-pieces from them).",
+    "2. Enroll your own voice once so a cloned voiceover is allowed (tool:voices lists it as yours); without it the run chooses another path, such as a recording you already made or text on screen.",
+    "3. Say \"Run workflow:make-the-piece-without-waiting-for-the-person\" with piece_row (and due_at, waiting_on when they differ from the row).",
+    "4. Until the due time it waits; if your own recording arrives first it hands the piece back, since your own always wins.",
+    "5. After the due time it voices the script in your voice, makes the video, checks it for each place and keeps it as a draft for your approval; it writes the no-wait branch into list:tree-branches."
   ],
   "worked_examples": [
     {
-      "title": "Make the piece without waiting for the person from its first step",
-      "ask": "Run workflow:make-the-piece-without-waiting-for-the-person.",
+      "title": "A voiceover past its due time",
+      "ask": "The training video is waiting on my voiceover; don't wait past Saturday 9 am.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -37,15 +306,71 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:make-the-piece-without-waiting-for-the-person",
-              "piece_row": "<piece_row: string>"
+              "piece_row": "record:content-pieces:answer-how-do-you-train-staff",
+              "due_at": "2026-11-22T09:00:00-06:00",
+              "waiting_on": "owner voiceover"
             }
           }
         }
       },
       "workflow": "workflow:make-the-piece-without-waiting-for-the-person",
-      "step": "read-the-piece",
-      "hands_back": "Step read-the-piece answers with piece_row, script, due_at, waiting_on.",
-      "given": "The person gives: piece_row (shown as <name> in the input)."
+      "step": "find-the-alternative-paths",
+      "given": "The piece row holds the script \"You asked how a new baker learns the bake in a morning...\", state Being made, and the owner's enrolled voice is listed by tool:voices.",
+      "hands_back": "paths: cloned voice from the script (needs the enrolled voice, allowed true); an earlier recording that covers it (none found, allowed true); text on screen over b-roll (needs b-roll, allowed true). chosen: cloned voice."
     }
-  ]
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "example": {
+      "kit_list": "list:content-pieces",
+      "into": {
+        "list": "list:my-content-calendar",
+        "row_type": "record:post",
+        "fields": [
+          {
+            "id": "title",
+            "label": "Title"
+          },
+          {
+            "id": "publish_date",
+            "label": "Publish date"
+          },
+          {
+            "id": "brand",
+            "label": "Brand"
+          },
+          {
+            "id": "theme",
+            "label": "Theme"
+          },
+          {
+            "id": "type",
+            "label": "Type"
+          },
+          {
+            "id": "goal",
+            "label": "Goal"
+          },
+          {
+            "id": "status",
+            "label": "Status"
+          },
+          {
+            "id": "owner",
+            "label": "Owner"
+          },
+          {
+            "id": "caption",
+            "label": "Caption"
+          },
+          {
+            "id": "source",
+            "label": "Source"
+          }
+        ]
+      }
+    }
+  }
 }

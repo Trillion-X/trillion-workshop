@@ -1,35 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:github:yt-dlp-yt-dlp's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:github:yt-dlp-yt-dlp with nothing more.\" Download a video or its audio from a web address such as YouTube, Instagram or TikTok",
+  "drafted_from": "tool:github:yt-dlp-yt-dlp's row in tools/tools-from-github/tool-rows.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic names filled in. What it prints or writes is read from the tool's documented behavior; the folder test test/index-github-tools.test.mjs only checks the row, never runs yt-dlp.",
+  "start_here": "Say to your AI: \"Use yt-dlp on my computer to download a video or its audio from a web address such as YouTube: the file is https://example.com/watch?v=demo123.\" It reads the row, installs yt-dlp if it is missing, runs it on that one file and shows you what it made.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: yt-dlp is a program that runs on the person's own computer and works on the one file or address it is handed.",
   "workflows": [],
   "tools": [
     "tool:github:yt-dlp-yt-dlp"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:github:yt-dlp-yt-dlp\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:github:yt-dlp-yt-dlp and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Download a video or its audio from a web address such as YouTube, Instagram or TikTok"
+    "1. Say to your AI: \"Use yt-dlp on https://example.com/watch?v=demo123\". It reads the row with run_resource_operation at @workshop-tools, method tools:list, input {tool: \"tool:github:yt-dlp-yt-dlp\"}.",
+    "2. It checks that python, ffmpeg are on your computer, and if yt-dlp is missing it runs the get_it steps: git clone https://github.com/yt-dlp/yt-dlp.git ; python -m pip install -U --pre \"yt-dlp[default]\".",
+    "3. It runs the row's command with your file in place of {input}: yt-dlp https://example.com/watch?v=demo123",
+    "4. Read what it shows you and open the result. Trillion runs none of this; it all happens on your own computer."
   ],
   "worked_examples": [
     {
-      "title": "yt-dlp (open source, runs on your computer) on a sample input",
-      "ask": "Run tool:github:yt-dlp-yt-dlp.",
+      "title": "yt-dlp on a public video page at example.com",
+      "ask": "Use yt-dlp on https://example.com/watch?v=demo123.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:github:yt-dlp-yt-dlp",
-            "input": {}
+            "tool": "tool:github:yt-dlp-yt-dlp"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Download a video or its audio from a web address such as YouTube, Instagram or TikTok"
+      "given": "Read from tools/tools-from-github/tool-rows.json: tool:github:yt-dlp-yt-dlp runs on your computer, so after tools:list the AI runs, in the folder it got yt-dlp in, the command line: yt-dlp https://example.com/watch?v=demo123  (synthetic input: a public video page at example.com).",
+      "hands_back": "yt-dlp prints the lines it downloads by (\"[download] Destination: ...\"), then \"[download] 100% of 12.40MiB\", and leaves the video file in the folder it ran in, named with the video's title and id."
     }
   ]
 }

@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:same-abilities-each-device-its-own-look's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:same-abilities-each-device-its-own-look.\" When a person asks for something to be the same everywhere (phone, browser, computer, share sheet), make every device offer the same abilities in the same order, each drawn in that device's own native way, instead of putting one device's page inside another.",
+  "drafted_from": "tools/workflows/recipes/workflows.json (the workflow:same-abilities-each-device-its-own-look row: input_schema and steps abilities and devices with their submit shapes); no test names it",
+  "start_here": "Say to your AI: \"Run workflow:same-abilities-each-device-its-own-look for saved places: I want it the same on my phone, browser and desktop app, each in its own native controls.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "The workflow works from the person's feature and devices and writes its answers in each step; it names no list in its words, input or steps.",
   "workflows": [
     "workflow:same-abilities-each-device-its-own-look"
   ],
   "tools": [],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:same-abilities-each-device-its-own-look\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:same-abilities-each-device-its-own-look) and works through its steps in order: abilities, devices, match.",
-    "3. Read what each step hands back; the last step is match."
+    "1. Name the feature that should be the same everywhere (for example \"Saved places\") and the devices you use it on.",
+    "2. Say \"Run workflow:same-abilities-each-device-its-own-look\" with feature set to that name.",
+    "3. Step abilities lists every ability on the device where it works best, in the order a person meets them; step devices says which abilities each device offers and whether each is drawn natively or borrowed from another device's page.",
+    "4. Step match adds each missing ability in each device's own native controls in the same order, replaces borrowed pages with native screens, and shows you a picture of each device's result."
   ],
   "worked_examples": [
     {
-      "title": "Same abilities on every device, each in its own look from its first step",
-      "ask": "Run workflow:same-abilities-each-device-its-own-look.",
+      "title": "The abilities of \"Saved places\" on the device it works best on",
+      "ask": "Make saved places the same on every device.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,15 +27,38 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:same-abilities-each-device-its-own-look",
-              "feature": "<feature: string>"
+              "feature": "Saved places"
             }
           }
         }
       },
       "workflow": "workflow:same-abilities-each-device-its-own-look",
       "step": "abilities",
-      "hands_back": "Step abilities answers with abilities.",
-      "given": "The person gives: feature (shown as <name> in the input)."
+      "given": "Read from the step in tools/workflows/recipes/workflows.json (each ability needs an id and a what of at least 5 characters). Synthetic: on the browser, the feature offers three abilities in the order a person meets them.",
+      "hands_back": "{\"abilities\":[{\"id\":\"save\",\"what\":\"Save the place you are looking at\"},{\"id\":\"list\",\"what\":\"See every saved place in one list\"},{\"id\":\"share\",\"what\":\"Send one saved place to a friend\"}]}"
+    },
+    {
+      "title": "The phone borrows the browser page for one ability",
+      "ask": "Check which devices offer these abilities natively.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:same-abilities-each-device-its-own-look",
+              "feature": "Saved places"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:same-abilities-each-device-its-own-look",
+      "step": "devices",
+      "given": "Read from the step: the phone app offers save and list in its own controls but shows share by opening the browser page; the browser offers all three in its own controls.",
+      "hands_back": "{\"devices\":[{\"device\":\"phone\",\"offers\":[\"save\",\"list\",\"share\"],\"native\":false},{\"device\":\"browser\",\"offers\":[\"save\",\"list\",\"share\"],\"native\":true}]}"
     }
   ]
 }

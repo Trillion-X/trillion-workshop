@@ -1,23 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:read-my-treg-team's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-my-treg-team with account.\" Read the treg team a connection's token belongs to, with the team's number that its balance is read by",
+  "start_here": "Say to your AI: \"Which treg team does my connection pay from? I need the team number to read the balance.\" It runs tool:read-my-treg-team with {\"account\":\"service_connection:treg\"}.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of yours: it asks treg who your held token is and writes nothing.",
   "workflows": [],
   "tools": [
     "tool:read-my-treg-team",
     "tool:read-my-treg-balance"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-my-treg-team\", and give it account.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-my-treg-team and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields org_id."
+    "1. Connect treg once as service_connection:treg (or service_connection:treg:<account> for another team).",
+    "2. Say to your AI: \"Which treg team does my connection pay from?\". It calls tools:run with tool tool:read-my-treg-team and {\"account\": \"service_connection:treg\"}.",
+    "3. Read org_id in the answer: that is the team_id tool:read-my-treg-balance takes.",
+    "4. Nothing is spent and the token is never shown."
   ],
   "worked_examples": [
     {
-      "title": "Read which treg team my connection pays from on a sample input",
-      "ask": "Run tool:read-my-treg-team.",
+      "title": "Find the team number for the balance",
+      "ask": "Which treg team does my connection pay from?",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,13 +26,14 @@
           "input": {
             "tool": "tool:read-my-treg-team",
             "input": {
-              "account": "<account: Which of the person's treg connections, by its id: service_connection:treg, or service_connection:treg:<account>>"
+              "account": "service_connection:treg"
             }
           }
         }
       },
-      "hands_back": "An answer with the fields org_id.",
-      "given": "The person gives: account (shown as <name> in the input)."
+      "given": "Read from tools/treg/tool-rows.json: the row sends GET https://treg.to/auth/me with your token in X-Treg-Token and returns treg's reply unchanged. org_id is the field the row's output_schema and provenance name; the value 42 is a synthetic sample.",
+      "hands_back": "{\"org_id\":42}"
     }
-  ]
+  ],
+  "drafted_from": "tools/treg/tool-rows.json (its row), its README (org_id read from /auth/me); the value is a synthetic sample"
 }

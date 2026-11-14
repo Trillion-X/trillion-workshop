@@ -1,22 +1,24 @@
 {
-  "draft": true,
-  "drafted_from": "tool:make-a-sending-key-with-resend's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:make-a-sending-key-with-resend with name, keep_as.\" Make a new key that can only send email from my email-sending account, kept under its own name",
+  "start_here": "Say to your AI: \"Make a send-only Resend key named Bakery newsletter and keep it as bakery-newsletter-key.\" It runs tool:make-a-sending-key-with-resend with those two values.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of yours: it asks your email-sending account for a new send-only key and keeps that key in your vault under the name you give.",
   "workflows": [],
   "tools": [
-    "tool:make-a-sending-key-with-resend"
+    "tool:make-a-sending-key-with-resend",
+    "tool:list-sending-keys-with-resend",
+    "tool:remove-a-sending-key-with-resend"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:make-a-sending-key-with-resend\", and give it name, keep_as.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:make-a-sending-key-with-resend and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields id, token."
+    "1. Connect your Resend account once so your key is held under the name resend-api-key; the key is never typed into the request.",
+    "2. Choose a name Resend should show (1 to 50 characters) and a vault name keep_as (lower case letters, digits and dashes, for example bakery-newsletter-key). If that vault name is already held, nothing is asked and nothing is replaced.",
+    "3. Say to your AI: \"Make a sending key named <name> and keep it as <keep_as>\". It calls tools:run with tool tool:make-a-sending-key-with-resend and {\"name\", \"keep_as\"}, plus domain_id to limit the key to one domain.",
+    "4. Read the answer: the new key's id and the held word in place of the key. The key itself is never shown; it sits in your vault under keep_as.",
+    "5. Later list keys with tool:list-sending-keys-with-resend and turn one off with tool:remove-a-sending-key-with-resend."
   ],
   "worked_examples": [
     {
-      "title": "Make a sending key with Resend on a sample input",
-      "ask": "Run tool:make-a-sending-key-with-resend.",
+      "title": "A send-only key kept as bakery-newsletter-key",
+      "ask": "Make a send-only Resend key named Bakery newsletter and keep it as bakery-newsletter-key.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,14 +28,15 @@
           "input": {
             "tool": "tool:make-a-sending-key-with-resend",
             "input": {
-              "name": "<name: string>",
-              "keep_as": "<keep_as: string>"
+              "name": "Bakery newsletter",
+              "keep_as": "bakery-newsletter-key"
             }
           }
         }
       },
-      "hands_back": "An answer with the fields id, token.",
-      "given": "The person gives: name, keep_as (shown as <name> in the input)."
+      "given": "Read from tools/email-sending-domains/tool-rows.json and test/list-email-sending-domains.test.mjs: the row POSTs https://api.resend.com/api-keys with {\"name\":\"Bakery newsletter\",\"permission\":\"sending_access\"} and your key in the Authorization header; reply_holds_values moves the reply's token into your vault as bakery-newsletter-key. The id below is a synthetic sample.",
+      "hands_back": "{\"id\":\"0f1e2d3c-4b5a-4968-8776-a5b4c3d2e1f0\",\"token\":\"<the held word standing for bakery-newsletter-key, not the key>\"}"
     }
-  ]
+  ],
+  "drafted_from": "tools/email-sending-domains/tool-rows.json (its row), test/list-email-sending-domains.test.mjs"
 }

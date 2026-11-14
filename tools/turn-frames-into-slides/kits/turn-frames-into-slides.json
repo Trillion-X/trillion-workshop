@@ -1,41 +1,55 @@
 {
-  "draft": true,
-  "drafted_from": "tool:turn-frames-into-slides's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:turn-frames-into-slides with request, out.\" Turn a board's presentation frames into slides in story order, one page each, as SVG, printable HTML, a PDF and a picture of every page",
+  "drafted_from": "tool:turn-frames-into-slides's row in tools/turn-frames-into-slides/tool-rows.json, do-work/make-slides.mjs and test/make-slides.test.mjs; the answers were observed by running make-slides.mjs on the test's made-up board",
+  "start_here": "Say to your AI: \"Turn the presentation frames of my board in board.json into slides with my look, as Example deck, and put the pages in the folder out.\" It writes a request file and runs make-slides.mjs on your computer, then looks at every page.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads a board file and a request file on the person's computer and writes slide files into a folder.",
   "workflows": [],
   "tools": [
     "tool:turn-frames-into-slides",
-    "tool:fill-a-word-template",
-    "tool:resolve-a-look"
+    "tool:resolve-a-look",
+    "tool:fill-a-word-template"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:turn-frames-into-slides\", and give it request, out.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:turn-frames-into-slides and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields slides, html, pdf, pictures."
+    "1. Have the board's items in a JSON file (a presentation frame is an item with extra.presentationFrame.order; every item centred inside it is on that slide) and, for your look, the values and stylesheet tool:resolve-a-look gives you.",
+    "2. Write request.json beside them: {board, title, look_values, look_css, assets: {name: file}, frames?, words_from?}. Paths are relative to the request. Use frames to make only some slides in that order, and words_from (a piece from tool:fill-a-word-template) to put filled words in place of an item's words.",
+    "3. The AI reads the tool's row with @workshop-tools tools:list {tool}, then from the root of the Workshop checkout runs node tools/turn-frames-into-slides/do-work/make-slides.mjs request.json --out out --pdf --pictures (the PDF and pictures need a Chromium; leave those two flags off without one).",
+    "4. Read the last JSON line: slides (order, label, number of items, svg path), html, and pdf and pictures when asked. Open the pictures and look at every page: text cut short ends in an ellipsis, so give that item more room.",
+    "5. If it exits 2, standard error names what to change: a look variable the look lacks, an unknown asset, a frame name that is not a frame, or frames of different sizes."
   ],
   "worked_examples": [
     {
-      "title": "Turn frames into slides on a sample input",
-      "ask": "Run tool:turn-frames-into-slides.",
+      "title": "Two frames become two slides in story order",
+      "ask": "Turn my board's frames into slides.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:turn-frames-into-slides",
-            "input": {
-              "request": "<request: The request JSON file, put where {request} is in the command>",
-              "out": "<out: The folder to write the slides, the document, the PDF and the pictures into, put where {out} is in the command>"
-            }
+            "tool": "tool:turn-frames-into-slides"
           }
         }
       },
-      "hands_back": "An answer with the fields slides, html, pdf, pictures.",
-      "given": "The person gives: request, out (shown as <name> in the input)."
+      "given": "From tools/turn-frames-into-slides/test/make-slides.test.mjs, run for real on its made-up board: frame 'first' (order 1) holds a title 'Made for Example Co and its 70 people.' and a logo (asset mark); frame 'second' (order 2) holds a two-line body and a swatch line 'Ink is {{--ink}}.'; both frames 1280 x 720; the look has --paper #f5f1ea and --ink #202020. Command: node tools/turn-frames-into-slides/do-work/make-slides.mjs request.json --out out (no --pdf or --pictures).",
+      "hands_back": "Last line: {\"slides\":[{\"order\":1,\"label\":\"Slide 1\",\"items\":2,\"svg\":\"<out>/slides/01.svg\"},{\"order\":2,\"label\":\"Slide 2\",\"items\":2,\"svg\":\"<out>/slides/02.svg\"}],\"html\":\"<out>/deck.html\"}, where <out> is the full path of the out folder; exit 0. Slide 1 is a 1280 x 720 page filled #f5f1ea; slide 2 shows the line 'Ink is #202020.'."
+    },
+    {
+      "title": "A name that is not a frame stops the run",
+      "ask": "Make just the second-body slide.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:list",
+          "input": {
+            "tool": "tool:turn-frames-into-slides"
+          }
+        }
+      },
+      "given": "From the test 'a request that names frames makes only those slides': the same request with frames: [\"second-body\"], which is a text item, not a frame. Run for real.",
+      "hands_back": "Nothing is written. Standard error: \"make-slides: frames names second-body, which is not a frame on the board.\" and exit 2."
     }
   ]
 }

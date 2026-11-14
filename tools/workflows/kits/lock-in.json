@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:lock-in's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:lock-in.\" Run one locked-in work session on the needle mover: pick the block from the person's pursuits and calendar, shut out everything else on their computer for the length of it, practise what they keep getting wrong, then say what got done and book the next one",
+  "drafted_from": "workflow:lock-in's row in tools/workflows/recipes/workflows.json (its input schema, steps and submit shapes)",
+  "start_here": "Say to your AI: \"Run workflow:lock-in for 90 minutes on finishing the pricing page for my bakery site, and shut everything else out until I am done.\" It picks the block, sets up the room, silences your computer for 90 minutes, then asks what got done and books the next session.",
   "lists": [],
   "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
@@ -15,14 +14,15 @@
     "tool:release-a-device"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:lock-in\".",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:lock-in) and works through its steps in order: before, surroundings, during, after.",
-    "3. Read what each step hands back; the last step is after."
+    "1. Connect your computer to Trillion if you want it quieted (the during step says so and carries on when none is connected).",
+    "2. Say \"Run workflow:lock-in\" with minutes (5 to 720; left out it is 120, or the free time before your next calendar event) and what, when you already know what the session is for.",
+    "3. Answer the one question in step before if it asks what must be ready before you sit down to work; it is saved, and anything not ready is set up in step surroundings or put on your Waiting on you list.",
+    "4. Work. At the end say you are done; step after releases your computer, asks what got done against the result it named, runs your due practice questions and books the next session at the next free block."
   ],
   "worked_examples": [
     {
-      "title": "Lock in from its first step",
-      "ask": "Run workflow:lock-in.",
+      "title": "A 90-minute session on a pricing page",
+      "ask": "Lock me in for 90 minutes to finish the bakery pricing page.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -32,14 +32,17 @@
           "input": {
             "tool": "tool:start-a-recipe-run",
             "input": {
-              "row": "workflow:lock-in"
+              "row": "workflow:lock-in",
+              "minutes": 90,
+              "what": "Finish the pricing page for the bakery site"
             }
           }
         }
       },
       "workflow": "workflow:lock-in",
       "step": "before",
-      "hands_back": "Step before answers with what, minutes, done_means."
+      "given": "Read from tools/workflows/recipes/workflows.json: input minutes 90 and what \"Finish the pricing page for the bakery site\"; the pursuit marked needle_mover is the bakery site, and the calendar shows no event for the next 3 hours, so 90 stays as asked.",
+      "hands_back": "{\"what\":\"Finish the pricing page for the bakery site\",\"minutes\":90,\"done_means\":\"The pricing page shows three plans with prices and is ready to publish\",\"not_ready\":\"Photos of the three plans are not on the computer yet\"}"
     }
   ]
 }

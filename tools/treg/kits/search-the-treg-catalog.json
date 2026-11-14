@@ -1,9 +1,7 @@
 {
-  "draft": true,
-  "drafted_from": "tool:search-the-treg-catalog's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:search-the-treg-catalog with job.\" Find the external endpoints that can do a job (backlinks for a domain, a company's job openings, a brand's ads, a channel's posts) and what each costs, before spending anything",
+  "start_here": "Say to your AI: \"Search the treg catalog for backlinks summary for a domain, and show me the 3 cheapest matches.\" It runs tool:search-the-treg-catalog with {\"job\":\"backlinks summary for a domain\",\"limit\":3}; nothing is spent.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of yours: it reads treg's public catalog with the job you name and spends nothing.",
   "workflows": [],
   "tools": [
     "tool:search-the-treg-catalog",
@@ -11,14 +9,15 @@
     "tool:read-a-treg-endpoint-and-its-price"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:search-the-treg-catalog\", and give it job.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:search-the-treg-catalog and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields query, count, total, results."
+    "1. Say to your AI: \"Search the treg catalog for backlinks summary for a domain\", and name how many matches you want (limit, 1 to 25, default 10).",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:search-the-treg-catalog and {\"job\": ..., \"limit\": ...}. No treg account or token is needed.",
+    "3. Read the matches: each has its id, method and cost (usd per unit). Pick by the inputs you hold first, then by how often it works, then by price.",
+    "4. Read the chosen id in full with tool:read-a-treg-endpoint-and-its-price before calling it with tool:call-a-treg-endpoint."
   ],
   "worked_examples": [
     {
-      "title": "Search treg's catalog of paid endpoints on a sample input",
-      "ask": "Run tool:search-the-treg-catalog.",
+      "title": "Find a backlinks endpoint and its price",
+      "ask": "Search the treg catalog for a backlinks summary for a domain.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -28,13 +27,15 @@
           "input": {
             "tool": "tool:search-the-treg-catalog",
             "input": {
-              "job": "<job: The job in plain words, for example \"backlinks summary for a domain\">"
+              "job": "backlinks summary for a domain",
+              "limit": 3
             }
           }
         }
       },
-      "hands_back": "An answer with the fields query, count, total, results.",
-      "given": "The person gives: job (shown as <name> in the input)."
+      "given": "Read from tools/treg/tool-rows.json: the row sends GET https://treg.to/catalog/search?q=backlinks summary for a domain&limit=3 with no token and returns treg's reply unchanged (result_selector \"$\"). Endpoint id taken from tools/treg/test/treg-rows.test.mjs.",
+      "hands_back": "{\"query\":\"backlinks summary for a domain\",\"count\":1,\"total\":1,\"results\":[{\"id\":\"dataforseo.web.backlinks.summary\",\"method\":\"POST\",\"cost\":{\"usd\":0.02,\"unit\":\"call\"}}]}"
     }
-  ]
+  ],
+  "drafted_from": "tools/treg/tool-rows.json (its row), its README and test/treg-rows.test.mjs; the reply values are a worked sample of the shape its output_schema names"
 }

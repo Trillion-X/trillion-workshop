@@ -1,22 +1,119 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:check-a-decision-against-your-map's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:check-a-decision-against-your-map.\" Weigh one decision against the person's own map of their life: which areas of that map it serves or lives and which it leaves out or takes from, especially the ones none of their pursuits touch, and keep the result on the decision.",
-  "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "drafted_from": "workflow:check-a-decision-against-your-map's row in tools/workflows/recipes/workflows.json (its input schema, steps and submit shapes)",
+  "start_here": "Say to your AI: \"Run workflow:check-a-decision-against-your-map for case_id case:lease-a-second-oven and keep the result on the decision.\"",
+  "lists": [
+    {
+      "list": "list:your-map",
+      "label": "Your map",
+      "row_type": "record:your-map",
+      "holds": "One area of the person's life, what it means and what it is part of.",
+      "fields": [
+        {
+          "id": "area",
+          "kind": "text",
+          "label": "Area",
+          "alike": [
+            "part",
+            "name"
+          ]
+        },
+        {
+          "id": "part_of",
+          "kind": "link",
+          "label": "Part of",
+          "alike": [
+            "parent",
+            "belongs to"
+          ]
+        },
+        {
+          "id": "means",
+          "kind": "long-text",
+          "label": "What it means",
+          "alike": [
+            "meaning",
+            "description"
+          ]
+        },
+        {
+          "id": "sides",
+          "kind": "text",
+          "label": "Both sides",
+          "alike": [
+            "range",
+            "poles"
+          ]
+        },
+        {
+          "id": "optional",
+          "kind": "choice",
+          "label": "Optional",
+          "alike": [
+            "can be skipped"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "body",
+          "values": {
+            "area": "Your body",
+            "part_of": [
+              "inside"
+            ],
+            "means": "How well your body is and what you do for it.",
+            "sides": "strong / weak",
+            "optional": "No"
+          }
+        },
+        {
+          "id": "things",
+          "values": {
+            "area": "Things, places and money",
+            "part_of": [
+              "around"
+            ],
+            "means": "The objects, places and resources around you.",
+            "sides": "rich / poor",
+            "optional": "No"
+          }
+        },
+        {
+          "id": "living",
+          "values": {
+            "area": "People and living things",
+            "part_of": [
+              "around"
+            ],
+            "means": "The people and animals in your life.",
+            "optional": "No"
+          }
+        }
+      ],
+      "alike": [
+        "a life-areas wheel",
+        "a values spreadsheet",
+        "a journal topic list"
+      ]
+    }
+  ],
   "workflows": [
     "workflow:check-a-decision-against-your-map"
   ],
-  "tools": [],
+  "tools": [
+    "tool:start-a-recipe-run",
+    "tool:pour-example-rows-into-my-list"
+  ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:check-a-decision-against-your-map\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:check-a-decision-against-your-map) and works through its steps in order: read, weigh, keep.",
-    "3. Read what each step hands back; the last step is keep."
+    "1. Pour the example areas into the list where you keep the parts of your life (see pour), or make list:your-map from them.",
+    "2. Say \"Run workflow:check-a-decision-against-your-map\" with the decision's case_id.",
+    "3. The AI works read, weigh and keep: it reads the decision and your map, says for every area whether the option serves it, leaves it out or takes from it with evidence, and names a better version that also lives an area none of your pursuits touch.",
+    "4. Read the note kept on the decision."
   ],
   "worked_examples": [
     {
-      "title": "Check a decision against your map from its first step",
-      "ask": "Run workflow:check-a-decision-against-your-map.",
+      "title": "Leasing a second oven serves money and takes from the body",
+      "ask": "Weigh the second-oven decision against my map.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,15 +124,50 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:check-a-decision-against-your-map",
-              "case_id": "<case_id: The decision's case_id>"
+              "case_id": "case:lease-a-second-oven"
             }
           }
         }
       },
       "workflow": "workflow:check-a-decision-against-your-map",
-      "step": "read",
-      "hands_back": "Step read answers with case_id, map_areas, missing.",
-      "given": "The person gives: case_id (shown as <name> in the input)."
+      "step": "weigh",
+      "given": "The read step returned map_areas [\"Things, places and money\",\"Your body\"] and missing [\"Your body\"] (no pursuit touches it). The decision text says the lease is 800 a month, adds 40 loaves a day, and the baker would start at 3 AM five days a week. Read from the weigh step of the workflow row.",
+      "hands_back": "The submit shape of step weigh: {\"areas\":[{\"area\":\"Things, places and money\",\"effect\":\"serves\",\"how\":\"The lease adds 40 loaves a day of capacity against an 800 a month cost.\",\"evidence\":[{\"where\":\"case:lease-a-second-oven option A\",\"quote\":\"adds 40 loaves a day\"}]},{\"area\":\"Your body\",\"effect\":\"takes-from\",\"how\":\"A 3 AM start five days a week cuts the sleep the person has said they need.\",\"evidence\":[{\"where\":\"case:lease-a-second-oven option A\",\"quote\":\"start at 3 AM five days a week\"}]}],\"better_version\":\"Lease the oven but hire a second baker for the early shift so the owner keeps a normal morning.\"}"
     }
-  ]
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "example": {
+      "kit_list": "list:your-map",
+      "into": {
+        "list": "list:my-your-map",
+        "row_type": "record:my-your-map",
+        "fields": [
+          {
+            "id": "my_area",
+            "label": "Area"
+          },
+          {
+            "id": "my_part_of",
+            "label": "Part of"
+          },
+          {
+            "id": "my_means",
+            "label": "What it means"
+          },
+          {
+            "id": "my_sides",
+            "label": "Both sides"
+          },
+          {
+            "id": "my_optional",
+            "label": "Optional"
+          }
+        ]
+      },
+      "field_map": {}
+    }
+  }
 }

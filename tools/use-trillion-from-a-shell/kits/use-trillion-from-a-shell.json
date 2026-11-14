@@ -1,37 +1,52 @@
 {
-  "draft": true,
-  "drafted_from": "tool:use-trillion-from-a-shell's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:use-trillion-from-a-shell with arguments.\" Let an AI that can run shell commands see my AIs and their jobs, hand and take work, and run my Workshop tools, with no MCP connection of its own",
+  "drafted_from": "tool:use-trillion-from-a-shell's row in tools/use-trillion-from-a-shell/tool-rows.json, do-work/trillion.mjs (render, jobLines, argumentsFor), do-work/trillion.json and test/trillion-cli.test.mjs",
+  "start_here": "Say to your AI: \"Use the trillion command in a shell to hand the job 'Fix the build' to any of my AIs, then show me the job.\" It reads the tool's row and runs trillion send any Fix the build on your computer, with no MCP connection of its own.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of its own: it is a command that makes one call of the engine's door per command, and the rows it moves belong to the tools it calls.",
   "workflows": [],
   "tools": [
     "tool:use-trillion-from-a-shell"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:use-trillion-from-a-shell\", and give it arguments.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:use-trillion-from-a-shell and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Let an AI that can run shell commands see my AIs and their jobs, hand and take work, and run my Workshop tools, with no MCP connection of its own"
+    "1. Clone the Workshop repository and have node 22 or later. Run node tools/use-trillion-from-a-shell/do-work/trillion.mjs setup once: it signs in in the browser, puts trillion on the PATH and writes the skill for each AI app here. Never put the key on a command line.",
+    "2. Say what you want in plain words, such as \"hand a job to any of my AIs\", \"what work is waiting\" or \"run tool:<id>\". The AI reads the row with @workshop-tools tools:list {tool: \"tool:use-trillion-from-a-shell\"} and runs trillion with the matching words: who, send, work, take, finish, fail, stuck, release, withdraw, remove, tools, call, op, records or publish.",
+    "3. Read what the command prints. A refusal says which door refused and why, with a non-zero exit code; add --json to a command to get the answer itself instead of plain lines.",
+    "4. A send or a call that times out is run again with the same request key (--key on send), so it is counted once."
   ],
   "worked_examples": [
     {
-      "title": "Use Trillion from any AI's shell: the trillion command (runs on your computer) on a sample input",
-      "ask": "Run tool:use-trillion-from-a-shell.",
+      "title": "Hand a job to any AI, then read it back",
+      "ask": "Hand the job 'Fix the build' to any of my AIs.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:use-trillion-from-a-shell",
-            "input": {
-              "arguments": []
-            }
+            "tool": "tool:use-trillion-from-a-shell"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Let an AI that can run shell commands see my AIs and their jobs, hand and take work, and run my Workshop tools, with no MCP connection of its own"
+      "given": "From tools/use-trillion-from-a-shell/test/trillion-cli.test.mjs (the work-table test, run against its stand-in door as the AI app Claude Code on a computer named mac): trillion send any Fix the build --key k1. The command makes one tools:run call at @workshop-tools of tool:hand-a-job-to-an-ai with input {as: \"ai:claude-code-on-mac\", job: \"Fix the build\", key: \"k1\", to: null}.",
+      "hands_back": "It prints four lines: \"Sent ai-job:k1.\", then \"ai-job:k1  waiting  for any AI  from ai:claude-code-on-mac\", then \"  job: Fix the build\", then \"Any of your AIs can take it.\" Running trillion work ai-job:k1 afterwards prints the job's own lines, and once another AI finished it: \"ai-job:k1  done  for any AI  from ai:claude-code-on-mac\", \"  job: Fix the build\" and \"  result: Built.\"."
+    },
+    {
+      "title": "List the Workshop tools through the command",
+      "ask": "What Workshop tools can I run from the shell?",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:list",
+          "input": {
+            "tool": "tool:use-trillion-from-a-shell"
+          }
+        }
+      },
+      "given": "From the test 'tools: every page of the Workshop list until next is null': a stand-in door with three pages of one tool each. trillion tools reads @workshop-tools tools:list page by page until next is null, then trillion call tool:b '{\"x\":1}' runs tools:run with {tool: \"tool:b\", input: {\"x\": 1}}.",
+      "hands_back": "trillion tools prints \"tool:a  Does a\", \"tool:b  Does b\" and \"tool:c  Does c\", one per line. trillion call tool:b '{\"x\":1}' prints the door's answer, here {\"ran\":\"tool:b\",\"with\":{\"x\":1}}; an input that is not one JSON object is refused with \"one JSON object\"."
     }
   ]
 }

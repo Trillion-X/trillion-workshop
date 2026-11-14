@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:match-colour's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:match-colour with video, match_to.\" Make one video's colours match another video's, so clips from different cameras or light look like one shoot",
+  "drafted_from": "tool:match-colour's own row in tools/media-composition/tool-rows.json, tools/media-composition/do-work/grade-a-video.mjs (the script this tool runs with only the match options), and the script run on a synthetic 7 second clip and a 26 second test-pattern clip",
+  "start_here": "Say to your AI: \"Make my second camera video match the colour of my first camera video at 8 seconds in.\" It runs tool:match-colour and saves the matched video in your files.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It makes a new video in your files from the video you name and keeps no list of its own.",
   "workflows": [],
   "tools": [
     "tool:match-colour"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:match-colour\", and give it video, match_to.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:match-colour and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields result, files."
+    "1. Find the identities in your files of the video to change (video) and of the video whose colour to copy (match_to).",
+    "2. Say \"Match this video's colour to that one\". Add match_at, the seconds into match_to to take its colour from (default 0).",
+    "3. The AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:match-colour. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
+    "4. Read result (duration_seconds, width, height, bytes) and files.video, the matched video in your files at its own size and length. To grade it further, run tool:grade-a-video on that new video."
   ],
   "worked_examples": [
     {
-      "title": "Match a video's colour to another on a sample input",
-      "ask": "Run tool:match-colour.",
+      "title": "One clip matched to the colour of another at 8 seconds",
+      "ask": "Make this clip match the colour of my main camera at 8 seconds in.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,14 +26,15 @@
           "input": {
             "tool": "tool:match-colour",
             "input": {
-              "video": "<video: The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it>",
-              "match_to": "<match_to: The video whose colour to match (its identity, 1f: then 64 hex)>"
+              "video": "1f:7320b49113520185e2ad8938759857db29ec6b0ed6a30cd1a2cfc05c68d932c6",
+              "match_to": "1f:70a8d10dc294aa9694d134b3750830b0e6e3686c7d50e63a557f4c84b079878a",
+              "match_at": 8
             }
           }
         }
       },
-      "hands_back": "An answer with the fields result, files.",
-      "given": "The person gives: video, match_to (shown as <name> in the input)."
+      "given": "read from tools/media-composition/do-work/grade-a-video.mjs and run on a 7 second 320x180 clip matched to a 26 second test-pattern clip at 8 seconds; no look is applied, so looks is empty",
+      "hands_back": "{\"result\":{\"expected_duration_seconds\":7,\"duration_seconds\":7.034,\"width\":320,\"height\":180,\"has_audio\":true,\"bytes\":130289,\"segments\":1,\"looks\":[]},\"files\":{\"video\":{\"identity\":\"1f:1013d3f7ffa9de32f3303db938e4bccf5fb2d00cf1d2744c7e8a11c9e6a85c30\",\"bytes\":130289,\"media_type\":\"video/mp4\",\"name\":\"matched.mp4\"}}}"
     }
   ]
 }

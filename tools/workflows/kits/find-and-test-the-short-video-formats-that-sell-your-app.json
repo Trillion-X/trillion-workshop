@@ -1,26 +1,28 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:find-and-test-the-short-video-formats-that-sell-your-app's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:find-and-test-the-short-video-formats-that-sell-your-app.\" Map which short-video formats won in the person's category over the last 30 and 90 days, read the 8 most relevant videos in detail, score the formats and pick the top 3, write 9 scripts (3 per format, 3 hooks each, the app on screen by 0:03) that keep each format's structure and change every word, list the creators who already posted for the person's competitors, then plan a 2-week test of 3 videos per format and end every format that gets under 5 downloads per 1,000 views.",
+  "drafted_from": "workflow:find-and-test-the-short-video-formats-that-sell-your-app's row in tools/workflows/recipes/workflows.json (its input schema, steps and submit shapes)",
+  "start_here": "Say to your AI: \"Run workflow:find-and-test-the-short-video-formats-that-sell-your-app for my bake-planning app for bakery owners on TikTok, competitors BakePlan and TrayTally, with public video addresses.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "Its output is scripts, a test plan and a log the person starts empty in their own analytics, not rows of a list.",
   "workflows": [
     "workflow:find-and-test-the-short-video-formats-that-sell-your-app"
   ],
   "tools": [
+    "tool:start-a-recipe-run",
     "tool:github:yt-dlp-yt-dlp",
     "tool:read-a-page-in-my-browser",
     "tool:tell-the-person"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:find-and-test-the-short-video-formats-that-sell-your-app\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:find-and-test-the-short-video-formats-that-sell-your-app) and works through its steps in order: scope, map-niche, read-videos, score-formats, write-scripts, creators, approve, test-plan, weekly-rerun.",
-    "3. Read what each step hands back; the last step is weekly-rerun."
+    "1. Write the app in one sentence, its best feature, the category in your words, up to five competitors and the platform you post on.",
+    "2. Say \"Run workflow:find-and-test-the-short-video-formats-that-sell-your-app\" with those values; add library own-tools when you have no DarkUGC account connected.",
+    "3. The AI works scope, map-niche, read-videos, score-formats, write-scripts, creators, approve, test-plan and weekly-rerun: it maps what won in 30 and 90 days, reads the 8 best videos, scores formats, writes up to 9 scripts with the app on screen by second 3 and plans a 2-week test.",
+    "4. Approve each script exactly as written; nothing is posted by the AI. Film and post on your chosen dates.",
+    "5. After the measuring window, drop every format under the stop bar of 5 downloads per 1,000 views and keep the rest; rerun each Monday."
   ],
   "worked_examples": [
     {
-      "title": "Find and test the short-video formats that sell your app from its first step",
-      "ask": "Run workflow:find-and-test-the-short-video-formats-that-sell-your-app.",
+      "title": "Own-tools route: competitors become public profile addresses",
+      "ask": "Find the short-video formats for my app.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,21 +33,23 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:find-and-test-the-short-video-formats-that-sell-your-app",
-              "app": "<app: The person's app, in one plain sentence: what it is and who it is for>",
-              "best_feature": "<best_feature: The one feature that shows the app's value fastest on a phone screen>",
-              "category": "<category: The app's category in the person's own words, for example language learning or period tracking>",
+              "app": "A phone app that helps bakery owners plan the day's bake from yesterday's sales.",
+              "best_feature": "The bake planner that turns yesterday's sales into today's tray list",
+              "category": "small business tools",
               "competitors": [
-                "<competitors: string>"
+                "BakePlan",
+                "TrayTally"
               ],
-              "platform": "tiktok"
+              "platform": "tiktok",
+              "library": "own-tools"
             }
           }
         }
       },
       "workflow": "workflow:find-and-test-the-short-video-formats-that-sell-your-app",
       "step": "scope",
-      "hands_back": "Step scope answers with route, category_name, competitors_matched, competitors_missing, format_names.",
-      "given": "The person gives: app, best_feature, category, competitors (shown as <name> in the input)."
+      "given": "The input library is own-tools, so no library tool is called; per the scope step's own words, matched names stay empty and each competitor is described by the public profile address the person gives (here https://www.tiktok.com/@bakeplan and https://www.tiktok.com/@traytally). Read from the scope step of the workflow row.",
+      "hands_back": "The submit shape of step scope: {\"route\":\"own-tools\",\"category_name\":\"small business tools\",\"competitors_matched\":[\"https://www.tiktok.com/@bakeplan\",\"https://www.tiktok.com/@traytally\"],\"competitors_missing\":[],\"format_names\":[]}"
     }
   ]
 }

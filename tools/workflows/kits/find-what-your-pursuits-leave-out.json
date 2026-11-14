@@ -1,22 +1,256 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:find-what-your-pursuits-leave-out's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:find-what-your-pursuits-leave-out.\" Find the areas of a person's map of their life that none of their pursuits touches (for example, no pursuit that looks after their health or their money), look in their own words for what they already want there, and either put an existing pursuit on that area or record the pursuit they already described, quoting them; never invent one.",
-  "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "drafted_from": "workflow:find-what-your-pursuits-leave-out's row in tools/workflows/recipes/workflows.json (its input schema, steps and submit shapes)",
+  "start_here": "Say to your AI: \"Run workflow:find-what-your-pursuits-leave-out about Your body: what do none of my pursuits do for it, and what have I already said I want there?\"",
+  "lists": [
+    {
+      "list": "list:your-map",
+      "label": "Your map",
+      "row_type": "record:your-map",
+      "holds": "One area of the person's life, what it means and what it is part of.",
+      "fields": [
+        {
+          "id": "area",
+          "kind": "text",
+          "label": "Area",
+          "alike": [
+            "part",
+            "name"
+          ]
+        },
+        {
+          "id": "part_of",
+          "kind": "link",
+          "label": "Part of",
+          "alike": [
+            "parent",
+            "belongs to"
+          ]
+        },
+        {
+          "id": "means",
+          "kind": "long-text",
+          "label": "What it means",
+          "alike": [
+            "meaning",
+            "description"
+          ]
+        },
+        {
+          "id": "sides",
+          "kind": "text",
+          "label": "Both sides",
+          "alike": [
+            "range",
+            "poles"
+          ]
+        },
+        {
+          "id": "optional",
+          "kind": "choice",
+          "label": "Optional",
+          "alike": [
+            "can be skipped"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "body",
+          "values": {
+            "area": "Your body",
+            "part_of": [
+              "inside"
+            ],
+            "means": "How well your body is and what you do for it.",
+            "sides": "strong / weak",
+            "optional": "No"
+          }
+        },
+        {
+          "id": "things",
+          "values": {
+            "area": "Things, places and money",
+            "part_of": [
+              "around"
+            ],
+            "means": "The objects, places and resources around you.",
+            "sides": "rich / poor",
+            "optional": "No"
+          }
+        },
+        {
+          "id": "living",
+          "values": {
+            "area": "People and living things",
+            "part_of": [
+              "around"
+            ],
+            "means": "The people and animals in your life.",
+            "optional": "No"
+          }
+        }
+      ],
+      "alike": [
+        "a life-areas wheel",
+        "a values spreadsheet",
+        "a journal topic list"
+      ]
+    },
+    {
+      "list": "list:waiting-on-you",
+      "label": "Waiting on you",
+      "row_type": "record:waiting-on-you",
+      "holds": "One thing only the person can finish, with why, how they finish it and what was tried first.",
+      "fields": [
+        {
+          "id": "what",
+          "kind": "text",
+          "label": "What",
+          "alike": [
+            "task",
+            "action"
+          ]
+        },
+        {
+          "id": "why",
+          "kind": "long-text",
+          "label": "Why",
+          "alike": [
+            "reason"
+          ]
+        },
+        {
+          "id": "where",
+          "kind": "link",
+          "label": "Where",
+          "alike": [
+            "address",
+            "link"
+          ]
+        },
+        {
+          "id": "needs",
+          "kind": "text",
+          "label": "Needs",
+          "alike": [
+            "requires"
+          ]
+        },
+        {
+          "id": "only_you_because",
+          "kind": "text",
+          "label": "Only you because",
+          "alike": [
+            "why you"
+          ]
+        },
+        {
+          "id": "unlocks",
+          "kind": "text",
+          "label": "Unlocks",
+          "alike": [
+            "enables"
+          ]
+        },
+        {
+          "id": "tried",
+          "kind": "long-text",
+          "label": "Tried",
+          "alike": [
+            "attempts"
+          ]
+        },
+        {
+          "id": "done_when",
+          "kind": "text",
+          "label": "Done when",
+          "alike": [
+            "finished when"
+          ]
+        },
+        {
+          "id": "finish",
+          "kind": "choice",
+          "label": "Finish",
+          "alike": [
+            "how to finish"
+          ]
+        },
+        {
+          "id": "status",
+          "kind": "choice",
+          "label": "Status",
+          "alike": [
+            "state",
+            "stage"
+          ]
+        },
+        {
+          "id": "added",
+          "kind": "date",
+          "label": "Added",
+          "alike": [
+            "created"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "sign-the-stall-form",
+          "values": {
+            "what": "Sign the market stall form",
+            "why": "The market only accepts a form signed by the shop owner.",
+            "where": "https://example.com/market/stall-form",
+            "needs": "Your signature",
+            "only_you_because": "A signature is your own consent",
+            "unlocks": "The Saturday market stall",
+            "tried": "Filled in every other field from the shop facts; the signature line stayed empty.",
+            "done_when": "The signed form is sent back",
+            "finish": "Send a file",
+            "status": "Waiting",
+            "added": "2026-11-13"
+          }
+        },
+        {
+          "id": "approve-the-box-order",
+          "values": {
+            "what": "Tap to order 50 paper bakery boxes for 41.50",
+            "why": "The plan says to bring boxes by Saturday.",
+            "needs": "One tap approving the price",
+            "only_you_because": "Money only you can approve",
+            "unlocks": "Boxes delivered by 9 AM Friday",
+            "tried": "Found the store, built the order up to payment.",
+            "done_when": "The order is placed",
+            "finish": "Tap done",
+            "status": "Waiting",
+            "added": "2026-11-13"
+          }
+        }
+      ],
+      "alike": [
+        "a to-do app inbox",
+        "a shared tasks spreadsheet",
+        "a \"needs my approval\" folder"
+      ]
+    }
+  ],
   "workflows": [
     "workflow:find-what-your-pursuits-leave-out"
   ],
-  "tools": [],
+  "tools": [
+    "tool:start-a-recipe-run",
+    "tool:pour-example-rows-into-my-list"
+  ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:find-what-your-pursuits-leave-out\".",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:find-what-your-pursuits-leave-out) and works through its steps in order: read, look, keep.",
-    "3. Read what each step hands back; the last step is keep."
+    "1. Pour the example areas into the list where you keep the parts of your life (see pour), or make list:your-map from them; list:waiting-on-you holds only the rare area that needs you.",
+    "2. Say \"Run workflow:find-what-your-pursuits-leave-out\" (add about to look at one area).",
+    "3. The AI works read, look and keep: it finds the map areas none of your pursuits touch, searches your own words for each, and either puts an existing pursuit on the area or records the pursuit you already described with each quote.",
+    "4. Read what was kept and what was left on the map as missing; an area no evidence can decide becomes one row on your Waiting on you list."
   ],
   "worked_examples": [
     {
-      "title": "Find what your pursuits leave out from its first step",
-      "ask": "Run workflow:find-what-your-pursuits-leave-out.",
+      "title": "The body is the one area no pursuit touches",
+      "ask": "What do my pursuits leave out about my body?",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,14 +260,51 @@
           "input": {
             "tool": "tool:start-a-recipe-run",
             "input": {
-              "row": "workflow:find-what-your-pursuits-leave-out"
+              "row": "workflow:find-what-your-pursuits-leave-out",
+              "about": "Your body"
             }
           }
         }
       },
       "workflow": "workflow:find-what-your-pursuits-leave-out",
       "step": "read",
-      "hands_back": "Step read answers with missing, pursuits."
+      "given": "The map list has the area body (\"Your body\"); the pursuits are pursuit:example-bakery (things, living) and pursuit:example-content (mind). With about set to Your body only that area is kept, and no pursuit touches it. Read from the read step of the workflow row.",
+      "hands_back": "The submit shape of step read: {\"missing\":[\"body\"],\"pursuits\":[\"pursuit:example-bakery\",\"pursuit:example-content\"]}"
     }
-  ]
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "example": {
+      "kit_list": "list:your-map",
+      "into": {
+        "list": "list:my-your-map",
+        "row_type": "record:my-your-map",
+        "fields": [
+          {
+            "id": "my_area",
+            "label": "Area"
+          },
+          {
+            "id": "my_part_of",
+            "label": "Part of"
+          },
+          {
+            "id": "my_means",
+            "label": "What it means"
+          },
+          {
+            "id": "my_sides",
+            "label": "Both sides"
+          },
+          {
+            "id": "my_optional",
+            "label": "Optional"
+          }
+        ]
+      },
+      "field_map": {}
+    }
+  }
 }

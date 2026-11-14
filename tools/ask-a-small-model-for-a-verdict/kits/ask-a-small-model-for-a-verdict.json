@@ -1,39 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:ask-a-small-model-for-a-verdict's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:ask-a-small-model-for-a-verdict with content.\" Ask a small model one question about some text (yes or no, which of a list, or how much on a scale) and get its answer with how sure it is, but only after that model got my already-answered cases right",
+  "drafted_from": "tool:ask-a-small-model-for-a-verdict row in tools/ask-a-small-model-for-a-verdict/tool-rows.json, its code in tools/ask-a-small-model-for-a-verdict/do-work/ and tools/ask-a-small-model-for-a-verdict/test/tool.test.mjs; the answers were produced by running the tool against a stand-in model server",
+  "start_here": "Say to your AI: \"Does the note 'the rye order is ready, trust me' say the order is ready without saying it was checked? Ask my local model, but only trust it if it gets my two known cases right.\" It writes the request, runs the tool and tells you the answer and which model gave it.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads one request file (and optionally a rubrics file) on this computer and writes only the calibration, log and rubrics files you name.",
   "workflows": [],
   "tools": [
     "tool:ask-a-small-model-for-a-verdict",
     "tool:tell-it-when-it-was-wrong"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:ask-a-small-model-for-a-verdict\", and give it content.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:ask-a-small-model-for-a-verdict and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields accepted, reason, answer, confidence, agreement, distribution, band, sure."
+    "1. Write your question as a rubric: id, question, answer_shape ({\"kind\": \"true-or-false\"}), accept_when_answer_in, and calibration cases [{content, expect}] with at least two different expected answers.",
+    "2. Write /work/judge/request.json with the rubric, the content to judge, providers (the models you can ask: {via: \"locally-served\", endpoint, timeout_seconds, protocol} or a hosted classifier row) and, to keep the work, remember_file, and log_file with excerpt_characters.",
+    "3. Say \"Ask my model\". The AI reads the row with tools:list and runs: node tools/ask-a-small-model-for-a-verdict/do-work/ask-a-small-model.mjs ask < /work/judge/request.json. Run from the root of the Workshop checkout after npm install, with a model server on this computer (for example Ollama) or a hosted classifier with its key in a file.",
+    "4. Read the last line: result.answer, result.accepted (does your rubric accept it), result.confidence, result.answered_by and the calibration scoreboard. An error says what to change; a model that gets a known case wrong is refused, never used. When a verdict was wrong, run tool:tell-it-when-it-was-wrong to add it to the rubric as a known case."
   ],
   "worked_examples": [
     {
-      "title": "Ask a small model a question about some text, and trust it only if it got my known cases right (runs on your computer) on a sample input",
-      "ask": "Run tool:ask-a-small-model-for-a-verdict.",
+      "title": "A bakery note judged by a model that first passed two known cases",
+      "ask": "Does this note say the order is ready without saying it was checked?",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:ask-a-small-model-for-a-verdict",
-            "input": {
-              "content": "<content: The text the question is about>"
-            }
+            "tool": "tool:ask-a-small-model-for-a-verdict"
           }
         }
       },
-      "hands_back": "An answer with the fields accepted, reason, answer, confidence, agreement, distribution, band, sure.",
-      "given": "The person gives: content (shown as <name> in the input)."
+      "given": "From tools/ask-a-small-model-for-a-verdict/test/tool.test.mjs (test \"ask: a model that read the cases answers...\"), run for real against a stand-in model server (a bakery's note checker; the stand-in model server answers true only for text containing \"trust me\"). /work/judge/request.json: {\"rubric\": {\"id\": \"claims-done\", \"question\": \"Does the note say the order is ready without saying it was checked?\", \"answer_shape\": {\"kind\": \"true-or-false\"}, \"accept_when_answer_in\": [true], \"calibration\": [{\"content\": \"the sourdough order is ready, trust me\", \"expect\": true}, {\"content\": \"counted 12 loaves against the slip: ready\", \"expect\": false}]}, \"content\": \"the rye order is ready, trust me\", \"providers\": [{\"via\": \"locally-served\", \"endpoint\": \"http://127.0.0.1:11434\", \"timeout_seconds\": 30, \"protocol\": \"ollama\"}], \"remember_file\": \"/work/judge/kept.json\", \"log_file\": \"/work/judge/verdicts.jsonl\", \"excerpt_characters\": 600}. Command: node tools/ask-a-small-model-for-a-verdict/do-work/ask-a-small-model.mjs ask < /work/judge/request.json",
+      "hands_back": "Last line: {\"result\": {\"accepted\": true, \"rubric_id\": \"claims-done\", \"answered_by\": \"stand-in\", \"answer\": true, \"confidence\": null, \"band\": null, \"asked_about\": {\"characters\": 32, \"question\": \"Does the note say the order is ready without saying it was checked?\"}, \"calibration\": {\"cases\": 2, \"passes_required\": 2, \"candidates_tried\": 1, \"scoreboard\": [{\"candidate\": \"stand-in\", \"correct\": 4, \"errors\": 0, \"passed\": true, \"needed\": 4}]}, ...}}. verdicts.jsonl gets one line with asked_about.excerpt \"the rye order is ready, trust me\", and a second identical run asks the model only the one question because the calibration is read from kept.json. A model that answers true to everything is refused: \"no candidate answered every calibration case correctly\"."
     }
   ]
 }

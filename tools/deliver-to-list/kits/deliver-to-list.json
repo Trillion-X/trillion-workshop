@@ -1,44 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:deliver-to-list's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:deliver-to-list with config, row_type, to, subject, text, kind, idempotencyKey.\" Write a message (to, subject, text, kind) as one row of a list in my records, with the row's id set to an idempotency key, so a send again writes the same row",
+  "drafted_from": "tool:deliver-to-list's row in tools/deliver-to-list/tool-rows.json, tools/deliver-to-list/do-work/deliver-to-list.mjs and tools/deliver-to-list/test/deliver-to-list.test.mjs",
+  "start_here": "Say to your AI: \"Write a sign-in code message for sam@example.com, subject 'Your code', text '123456', kind sign-in-code, as a row of my sign-in-code list with key k1, using my door config file door.json.\" It runs tool:deliver-to-list on your computer and tells you the row was written.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no fixed list: it writes one row into whichever list row type you pass in row_type, so the list is your own choice and not part of the tool.",
   "workflows": [],
   "tools": [
     "tool:deliver-to-list"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:deliver-to-list\", and give it config, row_type, to, subject, text, kind, idempotencyKey.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:deliver-to-list and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields sent, unknown."
+    "1. Have your door config file ready (for example door.json) and pick the row type of the list that should receive the message (for example sign-in-code).",
+    "2. Say \"Write this message as a row of my list\" and give your AI to, subject, text, kind and an idempotencyKey; the AI reads the row with tools:list {tool: tool:deliver-to-list}, because it runs on your computer.",
+    "3. The AI runs the row's command from the root of the Workshop checkout with the message as one JSON object on standard input.",
+    "4. Read the last JSON line: {\"sent\":[{\"messageId\":\"k1\"}]} means the row was written; {\"sent\":[{\"error\":...}],\"unknown\":false} means the door refused it; {\"sent\":[{\"unknown\":true}],\"unknown\":true} means it may have been written, so send again with the same key (the same key writes the same row).",
+    "5. Exit code 0 means written, 2 means not written or unknown."
   ],
   "worked_examples": [
     {
-      "title": "Write a message as a row of a list on a sample input",
-      "ask": "Run tool:deliver-to-list.",
+      "title": "A sign-in code written as one row",
+      "ask": "Write a sign-in code message for sam@example.com as a row of my sign-in-code list.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:deliver-to-list",
-            "input": {
-              "config": "<config: The person's door config file (the read-a-list-view README describes its keys)>",
-              "row_type": "<row_type: The list's row type; the row's type is record:<row_type>>",
-              "to": "<to: The address the message is for>",
-              "subject": "<subject: string>",
-              "text": "<text: string>",
-              "kind": "<kind: What the message is, such as sign-in-code>",
-              "idempotencyKey": "<idempotencyKey: The row's id; the same key writes the same row>"
-            }
+            "tool": "tool:deliver-to-list"
           }
         }
       },
-      "hands_back": "An answer with the fields sent, unknown.",
-      "given": "The person gives: config, row_type, to, subject, text, kind, idempotencyKey (shown as <name> in the input)."
+      "given": "From tools/deliver-to-list/test/deliver-to-list.test.mjs and read from tools/deliver-to-list/do-work/deliver-to-list.mjs: the AI runs, from the Workshop checkout root, echo '{\"config\":\"door.json\",\"row_type\":\"sign-in-code\",\"to\":\"sam@example.com\",\"subject\":\"Your code\",\"text\":\"123456\",\"kind\":\"sign-in-code\",\"idempotencyKey\":\"k1\"}' | node tools/deliver-to-list/do-work/deliver-to-list.mjs. The door accepts the write of one row with id k1 and type record:sign-in-code, whose value is {to: sam@example.com, subject: Your code, text: 123456, kind: sign-in-code, at: <the time of the send>}.",
+      "hands_back": "{\"sent\":[{\"messageId\":\"k1\"}]} on one line, exit code 0."
     }
   ]
 }

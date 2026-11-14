@@ -1,40 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:bring-an-effects-layer-to-a-reference-loudness's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:bring-an-effects-layer-to-a-reference-loudness with palette, cues, reference.\" Scale my variant sound palette by one common gain so its effects track has the reference track's loudness",
+  "drafted_from": "tool:bring-an-effects-layer-to-a-reference-loudness row in tools/generate-and-judge-sound-effects/tool-rows.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
+  "start_here": "Say to your AI: \"Scale my variant palette /work/sfx/b by one gain so its effects track is as loud as the reference layer /work/sfx/a-layer.wav.\" It runs the leveler and reports the common gain.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads CUES.json, a variant palette folder and a reference layer on this computer and changes the palette's WAV files in place.",
   "workflows": [],
   "tools": [
-    "tool:bring-an-effects-layer-to-a-reference-loudness"
+    "tool:bring-an-effects-layer-to-a-reference-loudness",
+    "tool:place-sound-effect-cues-into-an-effects-layer"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:bring-an-effects-layer-to-a-reference-loudness\", and give it palette, cues, reference.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:bring-an-effects-layer-to-a-reference-loudness and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Scale my variant sound palette by one common gain so its effects track has the reference track's loudness"
+    "1. Make the reference layer from the first palette with tool:place-sound-effect-cues-into-an-effects-layer (for example /work/sfx/a-layer.wav).",
+    "2. Have the variant palette folder (for example /work/sfx/b) and the same cues.json. It is changed in place, so keep a copy if you want the original.",
+    "3. Say \"Level my variant to the reference\". The AI reads the row with tools:list and runs: python3 -I tools/generate-and-judge-sound-effects/do-work/match_an_effects_layer_loudness.py /work/sfx/b /work/sfx/cues.json /work/sfx/a-layer.wav",
+    "4. Read the last line: layer_lufs_before, target_lufs and common_gain_db; the same numbers are saved in /work/sfx/b/level.json. Every sound moved by the one gain, so balance between sounds is kept."
   ],
   "worked_examples": [
     {
-      "title": "Give a variant sound palette one gain so its effects track is as loud as the reference (runs on your computer) on a sample input",
-      "ask": "Run tool:bring-an-effects-layer-to-a-reference-loudness.",
+      "title": "A quiet variant palette is raised by 12.0 dB to match the reference layer",
+      "ask": "Level my variant palette to the reference effects layer.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:bring-an-effects-layer-to-a-reference-loudness",
-            "input": {
-              "palette": "<palette: The variant palette folder (changed in place)>",
-              "cues": "<cues: CUES.json>",
-              "reference": "<reference: The reference layer>"
-            }
+            "tool": "tool:bring-an-effects-layer-to-a-reference-loudness"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Scale my variant sound palette by one common gain so its effects track has the reference track's loudness",
-      "given": "The person gives: palette, cues, reference (shown as <name> in the input)."
+      "given": "From tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (test_a_variant_palette_gets_one_common_gain_to_the_reference_layers_loudness, run for real): variant b has hit.wav (210 Hz) and tick.wav (1900 Hz) at level 0.1, the reference a-layer.wav was made from level 0.4 sounds with the same cues. Command: python3 -I tools/generate-and-judge-sound-effects/do-work/match_an_effects_layer_loudness.py /work/sfx/b /work/sfx/cues.json /work/sfx/a-layer.wav",
+      "hands_back": "Last line: {\"result\": {\"layer_lufs_before\": -25.9, \"target_lufs\": -13.9, \"common_gain_db\": 12.0}}, also written to /work/sfx/b/level.json. Placing the cues from b again then gives a layer at -13.9 LUFS, within 0.2 of the target."
     }
   ]
 }

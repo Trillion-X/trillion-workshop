@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "tool:time-a-small-local-decider's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:time-a-small-local-decider with nothing more.\" Time how long a small decider model takes to load and to answer on my computer, and how much memory it holds",
+  "drafted_from": "tool row in tools/benchmark-small-local-models/tool-rows.json, do-work/time_a_decider.py and test/test_benchmark.py (Decider)",
+  "start_here": "Say to your AI: \"Time how long the decider someone/decider-small takes to load and to answer on my computer, and how much memory it holds.\"",
   "lists": [
     {
       "list": "list:settings",
@@ -77,27 +76,27 @@
       ],
       "example_rows": [
         {
-          "id": "caption-style",
+          "id": "person-sample-person",
           "values": {
-            "name": "Caption style",
-            "tool": "tool:example-captioner",
+            "name": "benchmark-small-local-models defaults",
+            "tool": "tool:benchmark-small-local-models",
             "scope_kind": "person",
-            "scope_id": "example-person",
-            "settings": "{\"style\":\"plain\",\"size\":\"large\"}",
+            "scope_id": "sample-person",
+            "settings": "{\"commands\":{\"time_a_decider\":{\"model\":\"someone/decider-small\",\"device\":\"cpu\"}}}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         },
         {
-          "id": "quiet-hours",
+          "id": "film-sample-film",
           "values": {
-            "name": "Quiet hours",
-            "tool": "tool:example-notifier",
-            "scope_kind": "account",
-            "scope_id": "whole-account",
-            "settings": "{\"from\":\"22:00\",\"to\":\"07:00\"}",
+            "name": "benchmark-small-local-models for one film",
+            "tool": "tool:benchmark-small-local-models",
+            "scope_kind": "film",
+            "scope_id": "sample-film",
+            "settings": "{\"commands\":{\"time_a_decider\":{\"revision\":\"abc\"}}}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         }
       ],
@@ -108,34 +107,36 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
     "tool:time-a-small-local-decider",
-    "tool:read-a-tool-setting"
+    "tool:read-a-tool-setting",
+    "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:time-a-small-local-decider\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:time-a-small-local-decider and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Time how long a small decider model takes to load and to answer on my computer, and how much memory it holds"
+    "1. Pour the two example settings rows into your own list:settings (see pour), or write your own row record:setting:benchmark-small-local-models~person~<you> whose settings hold {\"commands\":{\"time_a_decider\":{...your defaults}}}.",
+    "2. Say the line in start_here. Your AI reads this tool's row with tools:list {tool: \"tool:time-a-small-local-decider\"} and gets its run command.",
+    "3. Your AI writes the request as a JSON file (request.json), adds settings_record from your settings row if you keep one, and runs python3 trillion-workshop/tools/benchmark-small-local-models/do-work/time_a_decider.py request.json on your computer.",
+    "4. It reads the last line the script prints: {\"result\": ...} or {\"error\": \"what to change\"} (exit code 2), then tells you the result in plain words.",
+    "5. Tell the person the load seconds, the milliseconds per answer (the case is asked four times) and the memory. A model not in the Hugging Face cache is refused with the command to fetch it."
   ],
   "worked_examples": [
     {
-      "title": "Time how fast a small decider model loads and answers on my computer (runs on your computer) on a sample input",
-      "ask": "Run tool:time-a-small-local-decider.",
+      "title": "A decider timed over four answers on the cpu",
+      "ask": "How fast does this small decider run on my computer?",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:time-a-small-local-decider",
-            "input": {}
+            "tool": "tool:time-a-small-local-decider"
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Time how long a small decider model takes to load and to answer on my computer, and how much memory it holds"
+      "given": "From tools/benchmark-small-local-models/test/test_benchmark.py (Decider.test_a_decider_is_timed), run with the test's stand-in decider snapshot. request.json = {\"model\":\"someone/decider-small\",\"revision\":\"abc\",\"device\":\"cpu\"}. Run: python3 trillion-workshop/tools/benchmark-small-local-models/do-work/time_a_decider.py request.json",
+      "hands_back": "{\"result\":{\"device\":\"cpu\",\"load_s\":0.0,\"ms\":[0,0,0,0],\"choice\":\"billing\",\"confidence\":0.333,\"alloc_GB\":0.0,\"maxrss_GB\":0.01}}: four timed answers (ms list of 4), the made-up two-question case answered \"billing\" with 0.333. With {\"model\":\"someone/absent\"} the last line is {\"error\":\"someone/absent is not in this computer's model cache (...); download it there (hf download someone/absent) or set HF_HUB_CACHE\"} and the exit code is 2."
     }
   ],
   "pour": {
@@ -145,39 +146,40 @@
     "example": {
       "kit_list": "list:settings",
       "into": {
-        "list": "list:my-settings",
-        "row_type": "record:setting",
+        "list": "list:my-tool-options",
+        "row_type": "record:tool-option",
         "fields": [
           {
-            "id": "name",
-            "label": "Setting"
+            "id": "title",
+            "label": "Title"
           },
           {
-            "id": "tool",
-            "label": "Tool"
+            "id": "owner",
+            "label": "Owner"
           },
           {
-            "id": "scope_kind",
-            "label": "For a"
+            "id": "scope",
+            "label": "Scope"
           },
           {
-            "id": "scope_id",
-            "label": "For"
+            "id": "target",
+            "label": "Target"
           },
           {
-            "id": "settings",
-            "label": "Settings (JSON)"
+            "id": "config",
+            "label": "Config"
           },
           {
-            "id": "from",
-            "label": "From"
+            "id": "source",
+            "label": "Source"
           },
           {
-            "id": "status",
-            "label": "Status"
+            "id": "state",
+            "label": "State"
           }
         ]
-      }
+      },
+      "field_map": {}
     }
   }
 }

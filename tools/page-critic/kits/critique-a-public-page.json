@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:critique-a-public-page's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:critique-a-public-page with nothing more.\" Judge public web pages (one page, or every page a sitemap lists) against the saved craft rules at phone and desktop width, with a marked picture of each",
+  "drafted_from": "tool:critique-a-public-page row in tools/page-critic/tool-rows.json, do-work/critique-a-page.mjs and read-data/page-craft-rules.json (the tests in test/ cover the rules, not a whole run)",
+  "start_here": "Say to your AI: \"Critique https://bakery.example/ against the craft rules at phone and desktop width, and tell me what to change on the page.\" It runs tool:critique-a-public-page and lists each finding with its marked picture.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list: it only reads the public page you give it and answers findings and pictures kept in your files.",
   "workflows": [],
   "tools": [
     "tool:critique-a-public-page"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:critique-a-public-page\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:critique-a-public-page and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields result, files."
+    "1. Say which page to judge (url), or a sitemap to judge every page it lists (pages_from, with skip for paths to leave out); add fresh_within_days if a page's newest date must be recent.",
+    "2. Your AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:critique-a-public-page and your input; the page is only read, at 240, 390 and 1280 pixels wide.",
+    "3. Read the answer: said is one line with the number of findings and the worst page; findings lists each as {url, rule, width, says, text, selector, rect, picture}, and pictures lists each width's whole-page picture kept in your files with findings boxed and numbered.",
+    "4. Change what each finding's says asks for, then run it again; a run with no findings says all pages follow the craft rules."
   ],
   "worked_examples": [
     {
-      "title": "Critique a public page on a sample input",
-      "ask": "Run tool:critique-a-public-page.",
+      "title": "One page that follows every rule",
+      "ask": "Critique https://bakery.example/ against the craft rules.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -25,11 +25,14 @@
           "method": "tools:run",
           "input": {
             "tool": "tool:critique-a-public-page",
-            "input": {}
+            "input": {
+              "url": "https://bakery.example/"
+            }
           }
         }
       },
-      "hands_back": "An answer with the fields result, files."
+      "given": "Read from tools/page-critic/do-work/critique-a-page.mjs and read-data/page-craft-rules.json (no test runs a whole page; the tests cover single rules): a made-up page at https://bakery.example/ that breaks none of the rules. The widths in the rules are 240, 390 and 1280 pixels, so each is opened once.",
+      "hands_back": "result {said: \"All 1 pages follow the craft rules.\", pages: 1, findings_count: 0, findings: [], pictures: [{url: \"https://bakery.example/\", width: \"240\", picture: \"pictures/bakery.example-240.png\", findings: 0}, the same for width \"390\" (pictures/bakery.example-390.png) and \"1280\" (pictures/bakery.example-1280.png)]}, the pictures kept in your files. Had the page a link \"Menu\" pointing at #menu that is not on it, findings would hold {rule: \"broken_anchor\", says: \"The link \\\"Menu\\\" points at #menu, which is not on the page.\"} with its width, selector and boxed picture, and said would read \"<n> findings on 1 pages; the most on https://bakery.example/.\""
     }
   ]
 }

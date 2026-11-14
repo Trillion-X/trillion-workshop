@@ -1,46 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:add-reviewed-videos-to-a-packaging-ledger's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:add-reviewed-videos-to-a-packaging-ledger with root, ledger, source_key, intake, channel_catalog, review, coverage, source_coverage, readback.\" Record the titles, thumbnails, thumbnail words and opening hooks of a channel's videos I reviewed in one ledger, keeping every earlier row exactly as it was",
+  "drafted_from": "tool row in tools/keep-a-video-packaging-ledger/tool-rows.json, do-work/ingest_channel_intake.py and test/test_channel_intake_append_new.py (run on its fixture)",
+  "start_here": "Say to your AI: \"Add the two videos I reviewed in admission/batch to my packaging ledger under source key ch-example-videos, as a later batch (append new), working in /work/example-channel.\" It reads the tool's row, then runs ingest_channel_intake.py on your computer and tells you how many rows the ledger has now.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no Trillion list: the ledger is a JSON Lines file in the person's own working folder, one row per video, and the tool reads and writes files there.",
   "workflows": [],
   "tools": [
-    "tool:add-reviewed-videos-to-a-packaging-ledger"
+    "tool:add-reviewed-videos-to-a-packaging-ledger",
+    "tool:check-a-packaging-intake-against-the-ledger"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:add-reviewed-videos-to-a-packaging-ledger\", and give it root, ledger, source_key, intake, channel_catalog, review, coverage, source_coverage, readback.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:add-reviewed-videos-to-a-packaging-ledger and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Record the titles, thumbnails, thumbnail words and opening hooks of a channel's videos I reviewed in one ledger, keeping every earlier row exactly as it was"
+    "1. Put the batch's files in your working folder (root): an intake manifest (INTAKE.json), the channel catalog (CATALOG.json), the review record (REVIEW.json), and the coverage files the ledger keeps beside it (COVERAGE-REPORT.json, SOURCE-COVERAGE.json).",
+    "2. Say which source key the batch goes under. The AI reads the row with tools:list {tool: tool:add-reviewed-videos-to-a-packaging-ledger}, checks blake3 is installed (python3 -c 'import blake3') and runs its `run` command from the Workshop checkout; add --append-new when the source key already has rows.",
+    "3. Read the last JSON line it prints: videos, rows_before, rows_after, all_old_non_target_rows_preserved, source_key and operation; the read-back file at --readback lists the ids added.",
+    "4. Check the result with tool:check-a-packaging-intake-against-the-ledger, using a copy of the ledger made before you ran this."
   ],
   "worked_examples": [
     {
-      "title": "Add or update reviewed videos in my video-packaging ledger without touching any other row (runs on your computer) on a sample input",
-      "ask": "Run tool:add-reviewed-videos-to-a-packaging-ledger.",
+      "title": "Append two reviewed videos to a ledger of four rows",
+      "ask": "Add the two videos I reviewed in admission/batch to my packaging ledger under source key ch-example-videos, as a later batch.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:add-reviewed-videos-to-a-packaging-ledger",
-            "input": {
-              "root": "<root: The folder every other path is relative to (the person's own working folder that holds the ledger, captions, metadata, thumbnails and review notes), put where {root} is in the command>",
-              "ledger": "<ledger: The packaging ledger: a JSON Lines file, one row per video (video_id, source_key, channel, titles, thumbnail identity and review, caption file references, hook evidence locators), put where {ledger} is in the command>",
-              "source_key": "<source_key: The source key: the name the person gives one channel or playlist batch in the ledger, put where {source_key} is in the command>",
-              "intake": "<intake: The intake manifest JSON ({videos: [{video_id, title, metadata_path, transcript_path}]}), put where {intake} is in the command>",
-              "channel_catalog": "<channel_catalog: The channel catalog JSON ({channel_id, channel_name, entries: [{video_id, title, url, duration_seconds}]}), put where {channel_catalog} is in the command>",
-              "review": "<review: The review record JSON ({items: [{video_id, image_path, image_bytes, image_blake3, thumbnail_words, composition, title_thumbnail_relation, opening_evidence, internal_hook_evidence}]}), put where {review} is in the command>",
-              "coverage": "<coverage: The coverage summary JSON this ledger keeps beside it, put where {coverage} is in the command>",
-              "source_coverage": "<source_coverage: The per-source coverage list JSON, put where {source_coverage} is in the command>",
-              "readback": "<readback: Where to write the read-back JSON of what changed, put where {readback} is in the command>"
-            }
+            "tool": "tool:add-reviewed-videos-to-a-packaging-ledger"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Record the titles, thumbnails, thumbnail words and opening hooks of a channel's videos I reviewed in one ledger, keeping every earlier row exactly as it was",
-      "given": "The person gives: root, ledger, source_key, intake, channel_catalog, review, coverage, source_coverage, readback (shown as <name> in the input)."
+      "given": "From tools/keep-a-video-packaging-ledger/test/test_channel_intake_append_new.py (test_second_batch_appends_once_and_preserves_all_prior_lines), which I ran on its fixture to observe the output. Command: python3 -I tools/keep-a-video-packaging-ledger/do-work/ingest_channel_intake.py --root /work/example-channel --ledger /work/example-channel/VIDEO-PACKAGING.jsonl --source-key ch-example-videos --intake /work/example-channel/admission/batch/INTAKE.json --channel-catalog /work/example-channel/admission/batch/CATALOG.json --review /work/example-channel/admission/batch/REVIEW.json --coverage /work/example-channel/COVERAGE-REPORT.json --source-coverage /work/example-channel/SOURCE-COVERAGE.json --readback /work/example-channel/admission/batch/READBACK.json --append-new. The ledger holds 3 rows of source key ch-example-videos (old-video-1 to 3) and 1 row of another key; the batch is new-video-1 and new-video-2, each with a metadata file, a caption file and a thumbnail image.",
+      "hands_back": "{\"videos\": 2, \"rows_before\": 4, \"rows_after\": 6, \"all_old_non_target_rows_preserved\": true, \"source_key\": \"ch-example-videos\", \"operation\": \"append-new\"} The first four ledger lines are byte for byte as they were; two rows follow, each pinning the metadata, image and caption files by BLAKE3 and holding the opening hook as a caption file, event index 0 and span 1.0 to 3.0 seconds with caption_text_copied false. Running the same command again changes no ledger byte and adds no second batch to the coverage files."
     }
   ]
 }

@@ -1,40 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:place-sound-effect-cues-into-an-effects-layer's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:place-sound-effect-cues-into-an-effects-layer with palette, cues, out.\" Lay every sound-effect cue of my cue plan at its time and gain into one effects-only track",
+  "drafted_from": "tool:place-sound-effect-cues-into-an-effects-layer row in tools/generate-and-judge-sound-effects/tool-rows.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
+  "start_here": "Say to your AI: \"Place the cues in /work/sfx/cues.json from palette /work/sfx/a into one effects-only track at /work/sfx/a-layer.wav and tell me its loudness.\" It runs the placer and reads the layer's LUFS.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads CUES.json and the palette's WAV files on this computer and writes one WAV layer.",
   "workflows": [],
   "tools": [
-    "tool:place-sound-effect-cues-into-an-effects-layer"
+    "tool:place-sound-effect-cues-into-an-effects-layer",
+    "tool:bring-an-effects-layer-to-a-reference-loudness"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:place-sound-effect-cues-into-an-effects-layer\", and give it palette, cues, out.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:place-sound-effect-cues-into-an-effects-layer and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Lay every sound-effect cue of my cue plan at its time and gain into one effects-only track"
+    "1. Have a palette folder with one <sound>.wav per sound (for example /work/sfx/a/hit.wav and tick.wav).",
+    "2. Write /work/sfx/cues.json: {\"DUR\": 3.0, \"cues\": [[0.5, \"hit\", 0.0], [1.0005, \"tick\", -6.0], [2.0, \"hit\", -3.0]]} (seconds, sound, gain dB).",
+    "3. Say \"Place my cues\". The AI reads the row with tools:list and runs: python3 -I tools/generate-and-judge-sound-effects/do-work/place_cues_into_an_effects_layer.py /work/sfx/a /work/sfx/cues.json /work/sfx/a-layer.wav",
+    "4. Read the last line: result.layer and result.lufs. Cues are placed at whole milliseconds with their gain and summed, with no music and no voice."
   ],
   "worked_examples": [
     {
-      "title": "Place a cue plan's sound effects into one effects track (runs on your computer) on a sample input",
-      "ask": "Run tool:place-sound-effect-cues-into-an-effects-layer.",
+      "title": "Three cues over 3 seconds make a layer at -13.9 LUFS",
+      "ask": "Place my sound cues into an effects-only track.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:place-sound-effect-cues-into-an-effects-layer",
-            "input": {
-              "palette": "<palette: The folder of <sound>.wav>",
-              "cues": "<cues: CUES.json: {DUR, cues}>",
-              "out": "<out: The layer written>"
-            }
+            "tool": "tool:place-sound-effect-cues-into-an-effects-layer"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Lay every sound-effect cue of my cue plan at its time and gain into one effects-only track",
-      "given": "The person gives: palette, cues, out (shown as <name> in the input)."
+      "given": "From tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (test_cues_are_placed_at_whole_milliseconds_with_their_gain_and_summed, run for real): palette a holds hit.wav (0.3 s, 200 Hz, level 0.4, stereo) and tick.wav (0.05 s, 2000 Hz, level 0.4, stereo); cues.json is {\"DUR\": 3.0, \"cues\": [[0.5, \"hit\", 0.0], [1.0005, \"tick\", -6.0], [2.0, \"hit\", -3.0]]}. Command: python3 -I tools/generate-and-judge-sound-effects/do-work/place_cues_into_an_effects_layer.py /work/sfx/a /work/sfx/cues.json /work/sfx/a-layer.wav",
+      "hands_back": "It prints \"/work/sfx/a-layer.wav integrated -13.9 LUFS\" and the last line {\"result\": {\"layer\": \"/work/sfx/a-layer.wav\", \"lufs\": -13.9}}. The layer is 3 s, 48000 Hz, 2 channels, silent before 0.5 s, and the 1.0005 s cue starts at 1.000 s."
     }
   ]
 }

@@ -1,23 +1,26 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:bring-in-a-framework's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:bring-in-a-framework.\" Turn any author's own book, notes or conversation into private framework data for their AI to run, preserving every question, exercise and source citation in order.",
+  "drafted_from": "workflow:bring-in-a-framework's row in tools/workflows/recipes/workflows.json (its input schema, steps and submit shapes)",
+  "start_here": "Say to your AI: \"Run workflow:bring-in-a-framework for the book The Bakery Handbook by Sam, from the file bakery-handbook.md in my files.\" It reads the file whole and keeps every question and exercise as a private, source-cited framework file.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It writes one private JSON framework file in the person's own files (/Frameworks/<framework id>.framework.json), not rows of a list.",
   "workflows": [
     "workflow:bring-in-a-framework",
     "workflow:work-through-a-framework"
   ],
-  "tools": [],
+  "tools": [
+    "tool:start-a-recipe-run"
+  ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:bring-in-a-framework\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:bring-in-a-framework) and works through its steps in order: sources, extract, verify.",
-    "3. Read what each step hands back; the last step is verify."
+    "1. Put the author's own source (a book, notes or a conversation export) in your files and note its exact file name.",
+    "2. Say \"Run workflow:bring-in-a-framework\" with title, author and sources (the file names).",
+    "3. The AI works the steps sources, extract and verify: read the file whole, write /Frameworks/<framework id>.framework.json with every question and exercise verbatim and cited by line range, then re-read it against the source.",
+    "4. Read the verify step's counts and its missing list (empty when nothing is lost); the file stays private.",
+    "5. Say \"Run workflow:work-through-a-framework\" on the new framework to use it."
   ],
   "worked_examples": [
     {
-      "title": "Bring in a framework from its first step",
-      "ask": "Run workflow:bring-in-a-framework.",
+      "title": "A two-part handbook is read into parts with line ranges",
+      "ask": "Bring in The Bakery Handbook by Sam as a framework.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -28,9 +31,10 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:bring-in-a-framework",
-              "title": "<title: string>",
+              "title": "The Bakery Handbook",
+              "author": "Sam",
               "sources": [
-                "<sources: string>"
+                "bakery-handbook.md"
               ]
             }
           }
@@ -38,8 +42,8 @@
       },
       "workflow": "workflow:bring-in-a-framework",
       "step": "sources",
-      "hands_back": "Step sources answers with read, framework_title, author, parts.",
-      "given": "The person gives: title, sources (shown as <name> in the input)."
+      "given": "Read from the workflow row: the person gives title \"The Bakery Handbook\", author \"Sam\" and the source file bakery-handbook.md, a 96-line manuscript whose lines 1-48 are \"Opening the shop\" and lines 49-96 \"Closing the shop\". The sources step reads the whole file and records each part with its file and line range.",
+      "hands_back": "The submit shape of step sources: {\"read\":[\"bakery-handbook.md\"],\"framework_title\":\"The Bakery Handbook\",\"author\":\"Sam\",\"parts\":[{\"id\":\"part-1\",\"title\":\"Opening the shop\",\"source\":{\"path\":\"bakery-handbook.md\",\"lines\":\"1-48\"}},{\"id\":\"part-2\",\"title\":\"Closing the shop\",\"source\":{\"path\":\"bakery-handbook.md\",\"lines\":\"49-96\"}}]}"
     }
   ]
 }

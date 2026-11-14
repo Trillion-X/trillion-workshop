@@ -1,9 +1,7 @@
 {
-  "draft": true,
-  "drafted_from": "tool:call-a-treg-endpoint's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:call-a-treg-endpoint with account, endpoint, method, max_cost_usd.\" Call any endpoint in treg's catalog by its id, with its inputs, paid from the person's treg balance, never above a cost ceiling the caller names",
+  "start_here": "Say to your AI: \"Call the treg endpoint dataforseo.web.backlinks.summary for example.com, spend at most 5 cents.\" It runs tool:call-a-treg-endpoint with max_cost_usd 0.05 from your treg connection.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of yours: it sends one call to treg and spends from your prepaid treg balance, under the ceiling you name.",
   "workflows": [],
   "tools": [
     "tool:call-a-treg-endpoint",
@@ -11,14 +9,16 @@
     "tool:read-a-treg-endpoint-and-its-price"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:call-a-treg-endpoint\", and give it account, endpoint, method, max_cost_usd.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:call-a-treg-endpoint and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $ holds the result: Call any endpoint in treg's catalog by its id, with its inputs, paid from the person's treg balance, never above a cost ceiling the caller names"
+    "1. Connect treg once (service_connection:treg holds your key; the key is never shown or placed in the input).",
+    "2. Find the endpoint with tool:search-the-treg-catalog and read its price with tool:read-a-treg-endpoint-and-its-price; say the price to the person.",
+    "3. Say to your AI: \"Call <endpoint> with <inputs>, spend at most <dollars>\". It calls tools:run with tool tool:call-a-treg-endpoint, account, endpoint, method (from the catalog), query or body, and max_cost_usd (required, above 0, at most 10).",
+    "4. Read the reply and its headers: x-treg-cost-micro (millionths of a dollar), x-treg-call-id (keep it). Tell the person the cost.",
+    "5. A 202 with _treg.outcome \"pending\" is a task still running: follow it with tool:read-a-treg-call and the call id; never call again."
   ],
   "worked_examples": [
     {
-      "title": "Call a treg endpoint on a sample input",
-      "ask": "Run tool:call-a-treg-endpoint.",
+      "title": "A video task submitted, held at 50 cents and left to be followed",
+      "ask": "Generate a short kite video with treg, spend at most a dollar.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -28,16 +28,20 @@
           "input": {
             "tool": "tool:call-a-treg-endpoint",
             "input": {
-              "account": "<account: Which of the person's treg connections pays, by its id: service_connection:treg, or service_connection:treg:<account> for another team>",
-              "endpoint": "<endpoint: The catalog endpoint's id (for example \"dataforseo.web.backlinks.summary\"), or a team's own tool as <tool-name>/<path>>",
-              "method": "GET",
-              "max_cost_usd": "<max_cost_usd: The most this one call may cost, in US dollars, at or above the price quoted from the catalog for the rows or targets asked for>"
+              "account": "service_connection:treg",
+              "endpoint": "made-up.video.generate",
+              "method": "POST",
+              "body": {
+                "prompt": "A kite"
+              },
+              "max_cost_usd": 1
             }
           }
         }
       },
-      "hands_back": "The answer's $ holds the result: Call any endpoint in treg's catalog by its id, with its inputs, paid from the person's treg balance, never above a cost ceiling the caller names",
-      "given": "The person gives: account, endpoint, max_cost_usd (shown as <name> in the input)."
+      "given": "From tools/treg/test/treg-rows.test.mjs (the stand-in treg test): POST https://treg.to/call/made-up.video.generate with X-Treg-Route-Max-Cost: 1 and the token in X-Treg-Token; the stand-in answers as treg does.",
+      "hands_back": "Status 202 with {\"_treg\":{\"outcome\":\"pending\"},\"reserved_micro\":500000,\"charged_micro\":null}; headers x-treg-cost-micro 500000 (50 cents held, not yet charged), x-treg-call-id 0123456789abcdef0123456789abcdef, x-treg-served-by made-up.video.generate and an x-treg-async descriptor. Follow it with tool:read-a-treg-call."
     }
-  ]
+  ],
+  "drafted_from": "tools/treg/tool-rows.json (its row), its README and test/treg-rows.test.mjs (the 202 pending call)"
 }

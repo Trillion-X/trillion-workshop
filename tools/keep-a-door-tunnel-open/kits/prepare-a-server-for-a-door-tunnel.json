@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:prepare-a-server-for-a-door-tunnel's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:prepare-a-server-for-a-door-tunnel with address, ssh_port, admin_user, host_key, user, remotePort, localPort, publicKey.\" Set up my rented server so one user can hold a tunnel back to a door on my computer and do nothing else",
+  "drafted_from": "tool:prepare-a-server-for-a-door-tunnel's row in keep-a-door-tunnel-open/tool-rows.json, do-work/keep-a-door-tunnel-open.mjs, do-work/prepare-a-tunnel-host.sh and test/keep-a-door-tunnel-open.test.mjs",
+  "start_here": "Say to your AI: \"Set up my rented server at 192.0.2.34 so the user tunnel-user can hold a tunnel from its port 18789 back to my door on port 8789 and do nothing else.\" It runs tool:prepare-a-server-for-a-door-tunnel with your server's host key and the public half of the tunnel's key, and tells you whether the server was prepared.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it takes its server details as input and changes the server over SSH.",
   "workflows": [],
   "tools": [
     "tool:prepare-a-server-for-a-door-tunnel"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:prepare-a-server-for-a-door-tunnel\", and give it address, ssh_port, admin_user, host_key, user, remotePort, localPort, publicKey.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:prepare-a-server-for-a-door-tunnel and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields prepared, said."
+    "1. Hold your server administration key under the name server-administration-ssh-key (the door mounts it for the run); make a tunnel key pair and keep its private half in your vault. You need the server's IPv4 address, SSH port, administrator user and host key (\"<type> <base64>\").",
+    "2. Say \"Set up my server to hold a door tunnel\" and give your AI the address, ssh_port, admin_user, host_key, the service user, remotePort (the server's loopback port), localPort (your door's port) and publicKey (the tunnel key's public half).",
+    "3. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:prepare-a-server-for-a-door-tunnel and that input (the worked example shows one).",
+    "4. Read what comes back: {\"prepared\": true, \"said\": \"tunnel-host-prepared: <user> may listen only on 127.0.0.1:<remotePort>\"}. Keeping the tunnel open afterwards is a launch agent that runs serve on your computer; it is not part of this tool."
   ],
   "worked_examples": [
     {
-      "title": "Set up a server to hold a door tunnel on a sample input",
-      "ask": "Run tool:prepare-a-server-for-a-door-tunnel.",
+      "title": "Prepare a server so tunnel-user may listen only on 127.0.0.1:18789",
+      "ask": "Set up my server at 192.0.2.34 so tunnel-user can hold a tunnel to my door and nothing else.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,20 +26,20 @@
           "input": {
             "tool": "tool:prepare-a-server-for-a-door-tunnel",
             "input": {
-              "address": "<address: The server's IPv4 address>",
-              "ssh_port": "<ssh_port: The server's SSH port>",
-              "admin_user": "<admin_user: The administrator the setup signs in as (it runs useradd and reloads sshd)>",
-              "host_key": "<host_key: The server's SSH host key: \"<type> <base64>\">",
-              "user": "<user: The service user that will hold the tunnel>",
-              "remotePort": "<remotePort: The server's loopback port the tunnel listens on>",
-              "localPort": "<localPort: The door's port on this computer the tunnel reaches>",
-              "publicKey": "<publicKey: The public half of the tunnel's held key: \"ssh-rsa <base64> <comment>\">"
+              "address": "192.0.2.34",
+              "ssh_port": 2222,
+              "admin_user": "admin",
+              "host_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleExampleExampleExampleExampleExample",
+              "user": "tunnel-user",
+              "remotePort": 18789,
+              "localPort": 8789,
+              "publicKey": "ssh-rsa AAAAB3NzaC1yc2EAAAAExample synthetic-tunnel"
             }
           }
         }
       },
-      "hands_back": "An answer with the fields prepared, said.",
-      "given": "The person gives: address, ssh_port, admin_user, host_key, user, remotePort, localPort, publicKey (shown as <name> in the input)."
+      "given": "From tools/keep-a-door-tunnel-open/test/keep-a-door-tunnel-open.test.mjs (the prepareFromRequest case, which stubs the SSH call; no real server was reached) with the same request. The run pins the host key as \"[192.0.2.34]:2222 <host_key>\", signs in as admin@192.0.2.34 through the run's proxy, runs do-work/prepare-a-tunnel-host.sh (which writes the restricted authorized_keys line and the sshd Match block, checks sshd -t, reloads ssh and prints its last line), and answers with that last line, read from the code.",
+      "hands_back": "{\"prepared\": true, \"said\": \"tunnel-host-prepared: tunnel-user may listen only on 127.0.0.1:18789\"}. A request without host_key is refused with an error that says host_key is missing."
     }
   ]
 }

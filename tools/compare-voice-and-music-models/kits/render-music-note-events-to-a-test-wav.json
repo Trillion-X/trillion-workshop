@@ -1,39 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:render-music-note-events-to-a-test-wav's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:render-music-note-events-to-a-test-wav with events, output.\" Hear what a music transcription model wrote down: turn its notes into a test audio file I can measure",
+  "drafted_from": "tool row in tools/compare-voice-and-music-models/tool-rows.json, do-work/render_note_events.py (run for real) and tools/compare-voice-and-music-models/test/test_compare_models.py",
+  "start_here": "Say to your AI: \"Render the note events in events.json to playback.wav so I can measure what the transcription model wrote down.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads one JSON file of note events and writes one WAV.",
   "workflows": [],
   "tools": [
     "tool:render-music-note-events-to-a-test-wav"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:render-music-note-events-to-a-test-wav\", and give it events, output.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:render-music-note-events-to-a-test-wav and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Hear what a music transcription model wrote down: turn its notes into a test audio file I can measure"
+    "1. Have events.json: a list of {type: start, pitch, start_time, index?}, {type: end, start_event_index, end_time} and {type: drum, start_time}.",
+    "2. Say the line in start_here. Your AI reads this tool's row with tools:list {tool: \"tool:render-music-note-events-to-a-test-wav\"}, installs numpy and soundfile if missing and runs the command in given.",
+    "3. Read the last line: {\"result\": {wav, seconds, events, sample_rate}}. The same events always give the same file.",
+    "4. Measure playback.wav beside the original with your audio meter; it is a test rendering, never music to use."
   ],
   "worked_examples": [
     {
-      "title": "Play back a music model's note transcription as a plain test WAV (runs on your computer) on a sample input",
-      "ask": "Run tool:render-music-note-events-to-a-test-wav.",
+      "title": "An A440 note, a drum hit and an unfinished note become 3.2 seconds of audio",
+      "ask": "Turn these note events into a WAV I can measure.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:render-music-note-events-to-a-test-wav",
-            "input": {
-              "events": "<events: The transcription's JSON list of note events, put where {events} is in the command>",
-              "output": "<output: The WAV to write, put where {output} is in the command>"
-            }
+            "tool": "tool:render-music-note-events-to-a-test-wav"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Hear what a music transcription model wrote down: turn its notes into a test audio file I can measure",
-      "given": "The person gives: events, output (shown as <name> in the input)."
+      "given": "From tools/compare-voice-and-music-models/test/test_compare_models.py (RenderNoteEvents.test_a_note_and_a_drum_become_a_stereo_wav_one_second_past_the_last_note), run for real. events.json = [{\"type\":\"start\",\"pitch\":69,\"start_time\":0.0,\"index\":0},{\"type\":\"drum\",\"start_time\":1.0},{\"type\":\"end\",\"start_event_index\":0,\"end_time\":0.5},{\"type\":\"start\",\"pitch\":81,\"start_time\":2.0}]. Run: python3 -I tools/compare-voice-and-music-models/do-work/render_note_events.py events.json playback.wav",
+      "hands_back": "{\"result\":{\"wav\":\"playback.wav\",\"seconds\":3.2,\"events\":3,\"sample_rate\":48000}}: a 48 kHz 24-bit stereo WAV peaking at half scale; the MIDI 69 note is 440 Hz in the first half second, the drum sounds at 1 s, and the last note (no end event) lasts 0.2 s by the length rule, so 2.2 + 1.0 = 3.2 s. With only one argument it answers {\"error\":\"pass <events.json> <out.wav>\"} (exit 2)."
     }
   ]
 }

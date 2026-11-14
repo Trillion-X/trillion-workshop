@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:record-a-web-demo's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:record-a-web-demo with url, steps.\" Record a web page as a demo video with a large clear pointer, click ripples and zoom, plus marked screenshots of each step for an article or post",
+  "drafted_from": "tool:record-a-web-demo row in tools/record-a-web-page/tool-rows.json, do-work/record-a-web-demo.mjs and test/record-a-web-page.test.mjs",
+  "start_here": "Say to your AI: \"Record a demo of https://bakery.example/ where I hover Features, type Ada in the name box, click Say hello and scroll down, with a red click ripple and a caption on the hover and the click.\" It runs tool:record-a-web-demo and hands you an MP4, a GIF and one marked picture per step.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list: it takes a page address and steps, and answers a video, a GIF and step pictures kept in your files.",
   "workflows": [],
   "tools": [
     "tool:record-a-web-demo"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:record-a-web-demo\", and give it url, steps.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:record-a-web-demo and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields result, files."
+    "1. Choose the page (url) and write the steps in order; each step is {do: click, hover, type, press, scroll, wait or go, target: {text} or {selector}, caption} and a step with a target or a caption gets its own picture.",
+    "2. Say \"Record a demo of this page\" with the steps; your AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:record-a-web-demo and input {url, steps, and optionally width, height, output_width, fps, cursor_size, zoom, gif_width, cookies, look}.",
+    "3. Read the answer: result gives seconds, frames, width, height, fps, video_bytes and one entry per step with whether its target was found; files gives the video, the gif and the step pictures (a cover picture at the first click and one marked picture per step).",
+    "4. A step whose target is not on the page stops the run with a message naming the step; mark a notice or banner step optional: true to leave it out when it does not show. For a signed-in page give cookies from a disposable account, since the run keeps its input."
   ],
   "worked_examples": [
     {
-      "title": "Record a demo of a web page on a sample input",
-      "ask": "Run tool:record-a-web-demo.",
+      "title": "Four steps on a page with a menu, a name box and a button",
+      "ask": "Record a demo of the bakery page: hover Features, type Ada, click Say hello, scroll.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,14 +26,23 @@
           "input": {
             "tool": "tool:record-a-web-demo",
             "input": {
-              "url": "<url: The page to open first, like https://gettrillion.ai/>",
-              "steps": []
+              "url": "https://bakery.example/",
+              "steps": [
+                { "do": "hover", "target": { "text": "Features" }, "caption": "Open the menu" },
+                { "do": "type", "target": { "selector": "#name" }, "text": "Ada" },
+                { "do": "click", "target": { "text": "Say hello" }, "caption": "Say hello" },
+                { "do": "scroll", "by": 600 }
+              ],
+              "output_width": 960,
+              "fps": 30,
+              "zoom": 1,
+              "look": { "accent": "#ff1d1d" }
             }
           }
         }
       },
-      "hands_back": "An answer with the fields result, files.",
-      "given": "The person gives: url (shown as <name> in the input)."
+      "given": "From tools/record-a-web-page/test/record-a-web-page.test.mjs, which runs these exact steps and options against its own small test page (test/menu-page.html, with a Features menu, a #name field and a Say hello button) in a 1280 by 720 window; https://bakery.example/ stands in for that page here.",
+      "hands_back": "result {width: 960, height: 540, fps: 30, seconds, frames, video_bytes, steps: [one entry per step with found true, true, true and false (the scroll has no target) and at_seconds for each]}; files: video demo.mp4 (960 pixels wide, a red ripple drawn where the pointer clicked), gif demo.gif, and the pictures cover.png, step-01.png, step-02.png and step-03.png (the scroll step has no picture). A click on the words \"Nowhere on this page\" at step 2 stops the run with \"Step 2 (click) could not find the words\"."
     }
   ]
 }

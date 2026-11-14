@@ -1,0 +1,36 @@
+{
+  "drafted_from": "tool:cross-techniques-with-a-goal row, do-work/cross.mjs, do-work/cross-techniques-with-a-goal.mjs, test/cross-medium.test.mjs and test/fixtures/cross-medium.json; the answer was observed by replaying the test's recorded writer answers (test/fixtures/cross-medium-cassette.json) through crossTechniquesWithAGoal, not by a live model",
+  "start_here": "Say to your AI: \"Cross my kept techniques with this goal: a sales page for a budgeting app, and no customer testimonials exist yet. Use my local Ollama model, and tell me which techniques fit, which pairs compound and how to use each one.\" It writes the request file, runs the tool and reads you the answer.",
+  "lists": [],
+  "no_lists_because": "It takes your technique rows and vocabulary in its request and answers a report; it keeps no list of its own.",
+  "workflows": [],
+  "tools": [
+    "tool:cross-techniques-with-a-goal",
+    "tool:say-why-a-technique-works"
+  ],
+  "instructions": [
+    "1. Give each technique you kept its crossing fields (mechanism, operates_on, needs, produces, from_medium) by running tool:say-why-a-technique-works on the rows first; keep the vocabulary it returns.",
+    "2. Write the request file: {goal, constraints, rows, vocabulary, models: {writing: {url, model}}}, where url is an OpenAI-compatible server on your computer (for example Ollama with qwen2.5:14b-instruct).",
+    "3. Read the tool with tools:list {tool: \"tool:cross-techniques-with-a-goal\"}, then from the root of the Workshop checkout run its command with the request file as input and read the last line.",
+    "4. Tell yourself, per technique, where it came from, why it works and its one line for the goal, then each pair and why the two compound; read ruled_out for the techniques your constraints removed and unknown for terms outside the vocabulary."
+  ],
+  "worked_examples": [
+    {
+      "title": "A budgeting app sales page crosses 20 techniques from four media",
+      "ask": "Which of my kept techniques would work for a sales page for a budgeting app?",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:list",
+          "input": {
+            "tool": "tool:cross-techniques-with-a-goal"
+          }
+        }
+      },
+      "given": "From tools/cross-techniques-with-a-goal/test/cross-medium.test.mjs and test/fixtures/cross-medium.json: after tools:list the AI runs `node tools/cross-techniques-with-a-goal/do-work/cross-techniques-with-a-goal.mjs < request.json`, where request.json holds goal \"a sales page for a budgeting app\", constraints [\"no customer testimonials exist yet\"], the fixture's 20 technique rows (board game, museum, radio drama and mobile game techniques, each with mechanism, operates_on, needs, produces and from_medium) and its vocabulary, and models.writing is a local model server. I worked the answer out by replaying the test's recorded writer answers; a live model may word the lines differently.",
+      "hands_back": "{\"result\": {\"goal\": \"a sales page for a budgeting app\", \"wants\": [6 wants, the first \"The visitor notices the budgeting app is relevant to their financial situation.\" with properties [\"self-relevance\", \"orientation\"]], \"techniques\": [9 techniques, from fixture:board:named-starting-roles (board game design, mechanism self-insertion, adaptation \"Create a section on the sales page where visitors can pick a named role that reflects their current financial situation.\") through fixture:radio:younger-self-narrator (radio drama, self-insertion) to fixture:mobile:one-finger-first-level], \"pairs\": [6 pairs, the first {first: \"fixture:board:named-starting-roles\", then: \"fixture:museum:one-question-per-room\", how: \"covers\"}], \"ruled_out\": [{\"key\": \"fixture:mobile:undo-the-last-move\", \"by\": \"no customer testimonials exist yet\"}], \"unadapted\": [], \"unknown\": [], \"lines\": [15 lines, the first \"Each player picks a named role with a short backstory (from board game design; self-insertion): Create a section on the sales page where visitors can pick a named role that reflects their current financial situation.\"]}}"
+    }
+  ]
+}

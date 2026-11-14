@@ -1,35 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:github:breakthrough-pyscenedetect's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:github:breakthrough-pyscenedetect with nothing more.\" Find the cuts and scenes in a video and split it into clips",
+  "drafted_from": "tool:github:breakthrough-pyscenedetect's row in tools/tools-from-github/tool-rows.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic names filled in. What it prints or writes is read from the tool's documented behavior; the folder test test/index-github-tools.test.mjs only checks the row, never runs PySceneDetect.",
+  "start_here": "Say to your AI: \"Use PySceneDetect on my computer to find the cuts and scenes in a video and split it into clips: the file is tour.mp4.\" It reads the row, installs PySceneDetect if it is missing, runs it on that one file and shows you what it made.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: PySceneDetect is a program that runs on the person's own computer and works on the one file or address it is handed.",
   "workflows": [],
   "tools": [
     "tool:github:breakthrough-pyscenedetect"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:github:breakthrough-pyscenedetect\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:github:breakthrough-pyscenedetect and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Find the cuts and scenes in a video and split it into clips"
+    "1. Say to your AI: \"Use PySceneDetect on tour.mp4\". It reads the row with run_resource_operation at @workshop-tools, method tools:list, input {tool: \"tool:github:breakthrough-pyscenedetect\"}.",
+    "2. It checks that python, ffmpeg are on your computer, and if PySceneDetect is missing it runs the get_it steps: git clone https://github.com/Breakthrough/PySceneDetect.git ; pip install scenedetect --upgrade.",
+    "3. It runs the row's command with your file in place of {input}: scenedetect -i tour.mp4 split-video",
+    "4. Read what it shows you and open the result. Trillion runs none of this; it all happens on your own computer."
   ],
   "worked_examples": [
     {
-      "title": "PySceneDetect (open source, runs on your computer) on a sample input",
-      "ask": "Run tool:github:breakthrough-pyscenedetect.",
+      "title": "PySceneDetect on a 90 second shop tour video with several cuts",
+      "ask": "Use PySceneDetect on tour.mp4.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:github:breakthrough-pyscenedetect",
-            "input": {}
+            "tool": "tool:github:breakthrough-pyscenedetect"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Find the cuts and scenes in a video and split it into clips"
+      "given": "Read from tools/tools-from-github/tool-rows.json: tool:github:breakthrough-pyscenedetect runs on your computer, so after tools:list the AI runs, in the folder it got PySceneDetect in, the command line: scenedetect -i tour.mp4 split-video  (synthetic input: a 90 second shop tour video with several cuts).",
+      "hands_back": "scenedetect prints how many scenes it found (a line such as \"Detected 6 scenes, average shot length 15.0 seconds.\") and splits tour.mp4 into one clip per scene named tour-Scene-001.mp4, tour-Scene-002.mp4 and so on."
     }
   ]
 }

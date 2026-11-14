@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:pick-cover-frame's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:pick-cover-frame with video.\" Choose the best frame of a video for its cover or thumbnail and save it as a picture",
+  "drafted_from": "tool:pick-cover-frame's own row in tools/media-composition/tool-rows.json, tools/media-composition/do-work/save-cover-frame.mjs, tools/media-composition/test/cover-frame-unknown-duration.test.mjs (same script), and the script run on a synthetic 26 second test-pattern clip",
+  "start_here": "Say to your AI: \"Pick the best cover frame from my video and save it as a picture 160 pixels wide.\" It runs tool:pick-cover-frame and saves a JPEG in your files.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It reads one video you name and saves one picture from it, so it keeps no list of its own.",
   "workflows": [],
   "tools": [
     "tool:pick-cover-frame"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:pick-cover-frame\", and give it video.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:pick-cover-frame and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields result, files."
+    "1. Find your video's identity in your files: 1f: then 64 hex.",
+    "2. Say \"Pick a cover frame for this video\". Add at (seconds) to use the frame at that time instead of choosing, and width in pixels (default the video's own).",
+    "3. The AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:pick-cover-frame. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
+    "4. Read result.time (which second was chosen), result.chosen_by and files.picture, the JPEG saved in your files."
   ],
   "worked_examples": [
     {
-      "title": "Pick a cover frame for a video on a sample input",
-      "ask": "Run tool:pick-cover-frame.",
+      "title": "The sharpest, best-exposed frame",
+      "ask": "Pick the best cover frame of my video, 160 pixels wide.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,13 +26,36 @@
           "input": {
             "tool": "tool:pick-cover-frame",
             "input": {
-              "video": "<video: The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it>"
+              "video": "1f:70a8d10dc294aa9694d134b3750830b0e6e3686c7d50e63a557f4c84b079878a",
+              "width": 160
             }
           }
         }
       },
-      "hands_back": "An answer with the fields result, files.",
-      "given": "The person gives: video (shown as <name> in the input)."
+      "given": "read from tools/media-composition/do-work/save-cover-frame.mjs and run on a 26 second 320x180 test-pattern clip; with no at it scores frames for sharpness and exposure",
+      "hands_back": "{\"result\":{\"time\":23.833,\"chosen_by\":\"sharpness and exposure\",\"score\":4.223,\"width\":160,\"height\":90,\"bytes\":4595},\"files\":{\"picture\":{\"identity\":\"1f:1aa0541a1e80f9415ec5bb50f4f987d64c91c516bdb9acb1256c82607642fff8\",\"bytes\":4595,\"media_type\":\"image/jpeg\",\"name\":\"cover.jpg\"}}}"
+    },
+    {
+      "title": "The frame at a time you choose",
+      "ask": "Use the frame at 3.5 seconds as the cover.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:pick-cover-frame",
+            "input": {
+              "video": "1f:7320b49113520185e2ad8938759857db29ec6b0ed6a30cd1a2cfc05c68d932c6",
+              "at": 3.5,
+              "width": 160
+            }
+          }
+        }
+      },
+      "given": "read from tools/media-composition/do-work/save-cover-frame.mjs and run on a 7 second clip: with at given nothing is scored, so chosen_by is \"the time given\" and score is null",
+      "hands_back": "{\"result\":{\"time\":3.5,\"chosen_by\":\"the time given\",\"score\":null,\"width\":160,\"height\":90,\"bytes\":314},\"files\":{\"picture\":{\"identity\":\"1f:8a02960fd205f67ee719ca08c49149854f06021576e3cd5f65c180fc4add9e12\",\"bytes\":314,\"media_type\":\"image/jpeg\",\"name\":\"cover.jpg\"}}}"
     }
   ]
 }

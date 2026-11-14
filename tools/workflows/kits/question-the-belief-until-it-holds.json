@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:question-the-belief-until-it-holds's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:question-the-belief-until-it-holds.\" Turn a broad belief, strategy or claim into a checked one: say the decision it would change, list every limit it assumes and where each came from, name what would show each limit is wrong, look for evidence far outside the original field, revise both the belief and the question, propose the smallest real test that could overturn it, then run the same questioning on the method itself and repeat at every level it applies to.",
+  "drafted_from": "workflow row in tools/workflows/recipes/workflows.json (input_schema and the six steps with their submit shapes); read from the row's words, no test runs it",
+  "start_here": "Say to your AI: \"Run workflow:question-the-belief-until-it-holds on the belief: small bakeries cannot win customers from the big chain without discounts, for my pursuit Sunrise Bakery.\"",
   "lists": [],
   "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
@@ -10,14 +9,16 @@
   ],
   "tools": [],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:question-the-belief-until-it-holds\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:question-the-belief-until-it-holds) and works through its steps in order: state, limits, evidence, revise, test, recurse.",
-    "3. Read what each step hands back; the last step is recurse."
+    "1. Write the belief in your own words (at least 3 characters); add the pursuit it serves and any context you have.",
+    "2. Say \"Run workflow:question-the-belief-until-it-holds\". The AI starts it with tool:start-a-recipe-run and works the steps state, limits, evidence, revise, test, recurse.",
+    "3. At limits, read each assumed limit marked observed, inferred, inherited or imagined, with what would show it wrong; at evidence, read each source and what it does not establish.",
+    "4. At test, read the smallest real test, what is counted and the threshold; run it with workflow:possibility-to-proof when it should be run.",
+    "5. At recurse, read what changed in the method itself and which level to question next, then run the workflow again on that level."
   ],
   "worked_examples": [
     {
-      "title": "Question the belief until it holds from its first step",
-      "ask": "Run workflow:question-the-belief-until-it-holds.",
+      "title": "A belief about discounts turns into a checked limit list",
+      "ask": "Question my belief that a small bakery cannot win customers without discounts.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -28,15 +29,16 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:question-the-belief-until-it-holds",
-              "belief": "<belief: string>"
+              "belief": "Small bakeries cannot win customers from the big chain without discounts.",
+              "pursuit": "Sunrise Bakery"
             }
           }
         }
       },
       "workflow": "workflow:question-the-belief-until-it-holds",
-      "step": "state",
-      "hands_back": "Step state answers with belief, decision.",
-      "given": "The person gives: belief (shown as <name> in the input)."
+      "step": "limits",
+      "given": "Read from tools/workflows/recipes/workflows.json (step limits): the step lists every limit the belief takes for granted, marks each observed, inferred, inherited or imagined, and names what would show it does not hold.",
+      "hands_back": "{\"limits\":[{\"limit\":\"Customers choose the cheapest loaf\",\"basis\":\"imagined\",\"would_be_wrong_if\":\"Regulars pay more for a loaf baked that morning in a sold-out count of a week\"},{\"limit\":\"A small shop cannot afford ads\",\"basis\":\"inherited\",\"would_be_wrong_if\":\"A 20 dollar local post brings 10 new customers in a week\"},{\"limit\":\"The big chain sells at a lower price per loaf\",\"basis\":\"observed\",\"would_be_wrong_if\":\"Shelf prices at both shops are written down side by side and match\"}]}"
     }
   ]
 }

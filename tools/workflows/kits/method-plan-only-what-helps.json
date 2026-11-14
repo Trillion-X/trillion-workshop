@@ -1,22 +1,24 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:method-plan-only-what-helps's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:method-plan-only-what-helps.\" Write a short plan only when it helps: the change and the exact messages it answers, who owns it now, the smallest change, the features asked for, made possible and found by combining, and the proof, with every identified step done in the same pass.",
+  "drafted_from": "workflow:method-plan-only-what-helps's row in tools/workflows/recipes/workflows.json (its job, input schema and the step named in the worked example)",
+  "start_here": "Say to your AI: \"Run workflow:method-plan-only-what-helps on: let bakery customers change a pre-order until the evening before pickup.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It is a way of thinking a request through, answered in words step by step, and it reads and writes no list.",
   "workflows": [
     "workflow:method-plan-only-what-helps"
   ],
-  "tools": [],
+  "tools": [
+    "tool:start-a-recipe-run"
+  ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:method-plan-only-what-helps\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-plan-only-what-helps) and works through its steps in order: outcome, baseline, delete, owner, combine, smallest-change, risk, production, proof, focused-choice.",
-    "3. Read what each step hands back; the last step is focused-choice."
+    "1. Say the work in one plain sentence, for example \"let bakery customers change a pre-order until the evening before pickup\", and say \"Run workflow:method-plan-only-what-helps\" with it as request.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-plan-only-what-helps) and answers its steps in order: outcome, baseline, delete, owner, combine, smallest-change, risk, production, proof, focused-choice; each answer is refused until every check of the step is answered about this request.",
+    "3. Keep a section only when it helps: delete mirror checks and ceremony that makes work wait, and do every step you identify in the same pass.",
+    "4. At proof, give a test that could fail, a before and after view, and measured numbers where speed matters."
   ],
   "worked_examples": [
     {
-      "title": "Write only the plan that helps, then do it from its first step",
-      "ask": "Run workflow:method-plan-only-what-helps.",
+      "title": "Tie the change to the person's own messages and words",
+      "ask": "Run workflow:method-plan-only-what-helps: let bakery customers change a pre-order until the evening before pickup.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,15 +29,15 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:method-plan-only-what-helps",
-              "request": "<request: What you are deciding, designing or building, in plain words>"
+              "request": "Let bakery customers change a pre-order until the evening before pickup"
             }
           }
         }
       },
       "workflow": "workflow:method-plan-only-what-helps",
       "step": "outcome",
-      "hands_back": "Step outcome answers with answer, checks.",
-      "given": "The person gives: request (shown as <name> in the input)."
+      "given": "Read from tools/workflows/recipes/workflows.json, step outcome: its submit shape is answer and checks with outcome-asked-in, outcome-observable-done and outcome-in-their-own-words. The request is the one in the input above.",
+      "hands_back": "{\"answer\":\"Customers cannot change a pre-order once placed and phone the bakery instead -> customers change it themselves until 6 pm the day before pickup. Fact: 9 of the last 20 messages asked for a change.\",\"checks\":{\"outcome-asked-in\":\"Answers the owner's message of Tuesday 9 am: \\\"people keep calling to swap a loaf, it is driving me nuts\\\".\",\"outcome-observable-done\":\"A customer can open their reservation and swap a loaf without calling; checked on the live page. First gap: the reservation page has no change button (seen on the live page).\",\"outcome-in-their-own-words\":\"In the owner's words: \\\"swap a loaf\\\" without a call; what matters most is \\\"no more phone calls\\\".\"}}"
     }
   ]
 }

@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:set-up-brand-and-branded-emails's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:set-up-brand-and-branded-emails.\" Run the brand book job, resolve the brand (source-only tool, gap if absent), send one test email to the owner from the verified domain, and have the owner confirm it reached the inbox.",
+  "drafted_from": "tools/workflows/recipes/workflows.json (the workflow:set-up-brand-and-branded-emails row: steps resolve-the-brand, send-test-branded-email, record-the-stage); no test names it",
+  "start_here": "Say to your AI: \"Run workflow:set-up-brand-and-branded-emails for Sunrise Bakery: make the brand book, then send one test email to sam@example.com and I will tell you if it arrived.\"",
   "lists": [
     {
       "list": "list:business-setup-checklist",
@@ -59,25 +58,25 @@
       ],
       "example_rows": [
         {
-          "id": "replies",
+          "id": "brand-and-emails",
           "values": {
-            "stage": "replies",
-            "label": "Comments and messages",
+            "stage": "brand-and-emails",
+            "label": "Brand and branded emails",
             "status": "Gap",
-            "steps_status": "{\"read-facts\":\"Done\",\"pull-messages\":\"Done\",\"read-reply-templates\":\"Done\",\"pick-a-template\":\"Done\",\"fill-the-replies\":\"Done\",\"check-the-replies\":\"Done\",\"hand-the-replies-to-the-person\":\"Gap\"}",
+            "steps_status": "{\"read-facts\":\"Done\",\"run-the-brand-book\":\"Done\",\"resolve-the-brand\":\"Gap\",\"send-test-branded-email\":\"Done\",\"ask-the-owner-to-confirm-the-inbox\":\"Done\"}",
             "gaps": [
-              "record:setup-gap:hand-the-replies-to-the-person-1"
+              "record:setup-gap:resolve-the-brand-1"
             ],
             "updated_at": "2026-11-13"
           }
         },
         {
-          "id": "social-posting",
+          "id": "accounts",
           "values": {
-            "stage": "social-posting",
-            "label": "Posting on social channels",
+            "stage": "accounts",
+            "label": "Accounts and connections",
             "status": "Not done",
-            "steps_status": "",
+            "steps_status": "{}",
             "gaps": [],
             "updated_at": "2026-11-13"
           }
@@ -143,25 +142,25 @@
       ],
       "example_rows": [
         {
-          "id": "hand-the-replies-to-the-person-1",
+          "id": "resolve-the-brand-1",
           "values": {
-            "stage": "replies",
-            "step": "hand-the-replies-to-the-person",
-            "undecided": "No live tool sends an Instagram direct-message reply.",
-            "chosen": "Handed 3 checked replies to the person to send by hand.",
-            "evidence": "The live catalog has no send tool for Instagram direct messages.",
+            "stage": "brand-and-emails",
+            "step": "resolve-the-brand",
+            "undecided": "tool:resolve-a-brand is in the Workshop source but not in the live catalog.",
+            "chosen": "Submitted live false and went on with the brand book's result.",
+            "evidence": "tool:resolve-a-brand answered not found when called.",
             "status": "open"
           }
         },
         {
-          "id": "pull-messages-1",
+          "id": "ask-the-owner-to-confirm-the-inbox-1",
           "values": {
-            "stage": "replies",
-            "step": "pull-messages",
-            "undecided": "Instagram sign-in expired.",
-            "chosen": "Submitted status needs_login and pulled nothing.",
-            "evidence": "tool:pull-my-instagram-messages answered needs_login.",
-            "status": "open"
+            "stage": "brand-and-emails",
+            "step": "ask-the-owner-to-confirm-the-inbox",
+            "undecided": "The owner said the test email landed in spam.",
+            "chosen": "Submitted confirmed false and named the inbox the owner used.",
+            "evidence": "The owner's answer in this step.",
+            "status": "closed"
           }
         }
       ],
@@ -172,7 +171,6 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
     "workflow:set-up-brand-and-branded-emails",
     "workflow:make-a-brand-book-and-decks",
@@ -184,14 +182,15 @@
     "tool:start-a-recipe-run"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:set-up-brand-and-branded-emails\".",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:set-up-brand-and-branded-emails) and works through its steps in order: read-facts, run-the-brand-book, resolve-the-brand, send-test-branded-email, ask-the-owner-to-confirm-the-inbox, record-the-stage.",
-    "3. Read what each step hands back; the last step is record-the-stage."
+    "1. Pour the example checklist rows into the checklist you already keep (see pour), or make list:business-setup-checklist and list:business-setup-gaps from them.",
+    "2. Write record:business-setup:facts with workflow:set-up-a-business-on-trillion (business_name and owner_email are read from it), and verify the email sending domain with workflow:set-up-business-accounts-and-connections first.",
+    "3. Say \"Run workflow:set-up-brand-and-branded-emails\". It runs workflow:make-a-brand-book-and-decks, resolves the brand if tool:resolve-a-brand is live (a gap if not), and sends one test email only to the owner's own address.",
+    "4. Open your inbox, check the test email is in it (not spam) and shows the business name, and tell your AI yes or no; a no becomes a gap naming the inbox you used."
   ],
   "worked_examples": [
     {
-      "title": "Set up brand and branded emails from its first step",
-      "ask": "Run workflow:set-up-brand-and-branded-emails.",
+      "title": "The brand tool is not live: the step reports a gap and goes on",
+      "ask": "Resolve my brand's words and colours.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -207,8 +206,31 @@
         }
       },
       "workflow": "workflow:set-up-brand-and-branded-emails",
-      "step": "read-facts",
-      "hands_back": "Step read-facts answers with facts."
+      "step": "resolve-the-brand",
+      "given": "Read from the step in tools/workflows/recipes/workflows.json: the AI calls tool:resolve-a-brand with {\"request\":{\"business_name\":\"Sunrise Bakery\"}}; the step says the tool is source-only, so the live catalog answers that it is not found.",
+      "hands_back": "{\"live\":false} with a gap naming tool:resolve-a-brand; the brand book job's result is used instead."
+    },
+    {
+      "title": "The owner confirms the test email arrived",
+      "ask": "Did my test email arrive?",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:set-up-brand-and-branded-emails"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:set-up-brand-and-branded-emails",
+      "step": "ask-the-owner-to-confirm-the-inbox",
+      "given": "Read from the step: the test email \"Test: Sunrise Bakery email is set up\" was sent to sam@example.com; Sam answers that it is in the inbox, not spam, and shows \"Sunrise Bakery\".",
+      "hands_back": "{\"confirmed\":true}"
     }
   ],
   "pour": {

@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "tool:measure-narration-takes's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:measure-narration-takes with line, takes.\" Measure my narration takes side by side so I can compare voice models with numbers as well as my ear",
+  "drafted_from": "tool row in tools/compare-voice-and-music-models/tool-rows.json, do-work/measure_takes.py and tools/compare-voice-and-music-models/test/test_voice_ab.py",
+  "start_here": "Say to your AI: \"Measure my takes take-kokoro.wav and take-qwen3.wav against my narration line in line.json: pauses, pace, pitch, word errors and how much each sounds like the reference.\"",
   "lists": [
     {
       "list": "list:settings",
@@ -77,27 +76,27 @@
       ],
       "example_rows": [
         {
-          "id": "caption-style",
+          "id": "person-sample-person",
           "values": {
-            "name": "Caption style",
-            "tool": "tool:example-captioner",
+            "name": "compare-voice-and-music-models defaults",
+            "tool": "tool:compare-voice-and-music-models",
             "scope_kind": "person",
-            "scope_id": "example-person",
-            "settings": "{\"style\":\"plain\",\"size\":\"large\"}",
+            "scope_id": "sample-person",
+            "settings": "{\"clone_takes\":7}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         },
         {
-          "id": "quiet-hours",
+          "id": "film-sample-film",
           "values": {
-            "name": "Quiet hours",
-            "tool": "tool:example-notifier",
-            "scope_kind": "account",
-            "scope_id": "whole-account",
-            "settings": "{\"from\":\"22:00\",\"to\":\"07:00\"}",
+            "name": "compare-voice-and-music-models for one film",
+            "tool": "tool:compare-voice-and-music-models",
+            "scope_kind": "film",
+            "scope_id": "sample-film",
+            "settings": "{\"clone_takes\":5,\"master_command\":\"\",\"takes\":[{\"engine\":\"pocket\",\"maker\":\"clone\",\"name\":\"B pocket\",\"work\":\"pocket\"},{\"maker\":\"kokoro\",\"name\":\"A kokoro\",\"voice\":\"af_heart\",\"work\":\"synthetic-601f4f805f94\"}]}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         }
       ],
@@ -108,37 +107,38 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
-    "tool:measure-narration-takes"
+    "tool:measure-narration-takes",
+    "tool:read-a-tool-setting",
+    "tool:say-a-narration-line-in-a-kokoro-voice",
+    "tool:say-a-narration-line-in-a-cloned-voice-model",
+    "tool:make-and-measure-every-voice-take-of-a-line",
+    "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:measure-narration-takes\", and give it line, takes.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:measure-narration-takes and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Measure my narration takes side by side so I can compare voice models with numbers as well as my ear"
+    "1. Have line.json (script, vowel_check.word, voice_reference, hear_prompt) and the takes as WAV files.",
+    "2. Say the line in start_here. Your AI reads the row with tools:list {tool: \"tool:measure-narration-takes\"}, installs numpy, soundfile, praat-parselmouth, mlx-whisper (and torch, pyannote.audio, transformers, librosa for the voice and accent) if missing, and runs the command in given. If you keep a list:settings row for this folder (record:setting:compare-voice-and-music-models~film~<film>) your AI reads it with tool:read-a-tool-setting, saves it to a file and adds --settings-record that file --film <film>; its values go over the defaults.",
+    "3. Read the last line: {\"result\": {\"takes\": [one row per take]}}; each row also printed on its own line.",
+    "4. Show the takes side by side and say which numbers fall outside the person's ranges; naturalness is their ear's call."
   ],
   "worked_examples": [
     {
-      "title": "Measure narration takes: pace, pauses, pitch, words heard, same voice and accent (runs on your computer) on a sample input",
-      "ask": "Run tool:measure-narration-takes.",
+      "title": "A take with one 0.6 s pause between its first two words",
+      "ask": "Measure these takes of my narration line.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:measure-narration-takes",
-            "input": {
-              "line": "<line: The narration line as JSON (units, pause_after, inner_most, script; hear_prompt, voice_reference and vowel_check for the measure), put where {line} is in the command>",
-              "takes": []
-            }
+            "tool": "tool:measure-narration-takes"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Measure my narration takes side by side so I can compare voice models with numbers as well as my ear",
-      "given": "The person gives: line (shown as <name> in the input)."
+      "given": "From tools/compare-voice-and-music-models/test/test_voice_ab.py (Measure.test_pauses_of_120_ms_or_more_with_the_words_on_each_side and test_the_measures_of_a_take_from_saved_word_times). A made-up take.wav: 0.2 s quiet, tone 0.8 s, pause 0.6 s, tone 1.0 s, pause 0.1 s, tone 0.5 s, 0.3 s quiet; whisper's words are Close. (0.2-1.0 s), The, kettle, boils. (to 3.2 s). line.json = {\"script\":\"Close. The kettle boils.\",\"vowel_check\":{\"word\":\"close\"}}. Run: python3 -I tools/compare-voice-and-music-models/do-work/measure_takes.py line.json take.wav --no-voice-models",
+      "hands_back": "{\"result\":{\"takes\":[{\"take\":\"take.wav\",\"seconds\":<length>,\"speech_seconds\":3.0,\"words_per_s\":1.33,\"articulation_wps\":<4 / (3.0 - 0.6)>,\"longest_pause_s\":0.6,\"pauses\":[{\"after\":\"Close.\",\"before\":\"The\",\"s\":0.6}],\"f0_p5\":...,\"f0_p95\":...,\"span_st\":...,\"vowel_onset_f2\":...,\"vowel_ms\":...,\"word_errors\":0,\"script_words\":4,\"heard\":\"Close. The kettle boils.\"}]}}: the 0.1 s gap is under the 120 ms line and is not a pause, same_voice and the accent are left out by --no-voice-models, and the word times are saved to work/take.words.json."
     }
   ],
   "pour": {
@@ -148,39 +148,40 @@
     "example": {
       "kit_list": "list:settings",
       "into": {
-        "list": "list:my-settings",
-        "row_type": "record:setting",
+        "list": "list:my-tool-options",
+        "row_type": "record:tool-option",
         "fields": [
           {
-            "id": "name",
-            "label": "Setting"
+            "id": "title",
+            "label": "Title"
           },
           {
-            "id": "tool",
-            "label": "Tool"
+            "id": "owner",
+            "label": "Owner"
           },
           {
-            "id": "scope_kind",
-            "label": "For a"
+            "id": "scope",
+            "label": "Scope"
           },
           {
-            "id": "scope_id",
-            "label": "For"
+            "id": "target",
+            "label": "Target"
           },
           {
-            "id": "settings",
-            "label": "Settings (JSON)"
+            "id": "config",
+            "label": "Config"
           },
           {
-            "id": "from",
-            "label": "From"
+            "id": "source",
+            "label": "Source"
           },
           {
-            "id": "status",
-            "label": "Status"
+            "id": "state",
+            "label": "State"
           }
         ]
-      }
+      },
+      "field_map": {}
     }
   }
 }

@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "tool:check-takes-are-complete-with-a-small-local-model's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-takes-are-complete-with-a-small-local-model with nothing more.\" Test whether a small decider model on my computer can tell a complete, usable take from one cut short, restarted or self-corrected, on takes made from my own transcripts",
+  "drafted_from": "tool row in tools/benchmark-small-local-models/tool-rows.json, do-work/check_takes_with_decider.py and test/test_benchmark.py (Decider)",
+  "start_here": "Say to your AI: \"Test whether the decider someone/decider-small can tell a complete take from a cut-short one, using the word-timed transcripts in my transcripts folder.\"",
   "lists": [
     {
       "list": "list:settings",
@@ -77,27 +76,27 @@
       ],
       "example_rows": [
         {
-          "id": "caption-style",
+          "id": "person-sample-person",
           "values": {
-            "name": "Caption style",
-            "tool": "tool:example-captioner",
+            "name": "benchmark-small-local-models defaults",
+            "tool": "tool:benchmark-small-local-models",
             "scope_kind": "person",
-            "scope_id": "example-person",
-            "settings": "{\"style\":\"plain\",\"size\":\"large\"}",
+            "scope_id": "sample-person",
+            "settings": "{\"commands\":{\"check_takes_with_decider\":{\"transcripts\":\"transcripts\",\"model\":\"someone/decider-small\",\"device\":\"cpu\"}}}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         },
         {
-          "id": "quiet-hours",
+          "id": "film-sample-film",
           "values": {
-            "name": "Quiet hours",
-            "tool": "tool:example-notifier",
-            "scope_kind": "account",
-            "scope_id": "whole-account",
-            "settings": "{\"from\":\"22:00\",\"to\":\"07:00\"}",
+            "name": "benchmark-small-local-models for one film",
+            "tool": "tool:benchmark-small-local-models",
+            "scope_kind": "film",
+            "scope_id": "sample-film",
+            "settings": "{\"commands\":{\"check_takes_with_decider\":{\"transcripts\":\"transcripts-film-2\"}}}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         }
       ],
@@ -108,34 +107,36 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
     "tool:check-takes-are-complete-with-a-small-local-model",
-    "tool:read-a-tool-setting"
+    "tool:read-a-tool-setting",
+    "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-takes-are-complete-with-a-small-local-model\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-takes-are-complete-with-a-small-local-model and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Test whether a small decider model on my computer can tell a complete, usable take from one cut short, restarted or self-corrected, on takes made from my own transcripts"
+    "1. Pour the two example settings rows into your own list:settings (see pour), or write your own row record:setting:benchmark-small-local-models~person~<you> whose settings hold {\"commands\":{\"check_takes_with_decider\":{...your defaults}}}.",
+    "2. Say the line in start_here. Your AI reads this tool's row with tools:list {tool: \"tool:check-takes-are-complete-with-a-small-local-model\"} and gets its run command.",
+    "3. Your AI writes the request as a JSON file (request.json), adds settings_record from your settings row if you keep one, and runs python3 trillion-workshop/tools/benchmark-small-local-models/do-work/check_takes_with_decider.py request.json on your computer.",
+    "4. It reads the last line the script prints: {\"result\": ...} or {\"error\": \"what to change\"} (exit code 2), then tells you the result in plain words.",
+    "5. Say plainly to the person that the labels are true by construction (a take as said is usable, one with a controlled fault is not), not real footage."
   ],
   "worked_examples": [
     {
-      "title": "Check whether my spoken takes are complete with a small model (runs on your computer) on a sample input",
-      "ask": "Run tool:check-takes-are-complete-with-a-small-local-model.",
+      "title": "Three takes built from 20 transcripts, two complete and one cut",
+      "ask": "Can this small model tell a complete take from a cut-off one?",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:check-takes-are-complete-with-a-small-local-model",
-            "input": {}
+            "tool": "tool:check-takes-are-complete-with-a-small-local-model"
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Test whether a small decider model on my computer can tell a complete, usable take from one cut short, restarted or self-corrected, on takes made from my own transcripts"
+      "given": "From tools/benchmark-small-local-models/test/test_benchmark.py (Decider.test_takes_are_labelled_by_construction_and_scored), run with the test's stand-in decider. transcripts holds 20 files t00..t19, each {\"words\":[{\"text\":\"This\",\"type\":\"word\"},...]} for \"This is sentence number <k> and it has enough words in it to count. Short one.\" request.json = {\"transcripts\":\"transcripts\",\"model\":\"someone/decider-small\",\"device\":\"cpu\"}. Run: python3 trillion-workshop/tools/benchmark-small-local-models/do-work/check_takes_with_decider.py request.json",
+      "hands_back": "{\"result\":{\"meta\":{\"n\":3,\"acc\":0.667,\"by_kind\":{\"complete\":\"2/2\",\"cut\":\"0/1\"},\"abstain\":{\"0.7\":{\"answered\":0,\"right\":0},\"0.8\":{\"answered\":0,\"right\":0},\"0.9\":{\"answered\":0,\"right\":0}},\"ms_per_decision\":0},\"rows\":[{\"video\":\"t8\",\"kind\":\"complete\",\"usable\":true,\"take\":\"This is sentence number 8 and it has enough words in it to count.\",\"p_yes\":0.5},{\"video\":\"t0\",\"kind\":\"complete\",\"usable\":true,...},{\"video\":\"t17\",\"kind\":\"cut\",\"usable\":false,\"take\":\"This is sentence number 17 and it\",\"p_yes\":0.5}]}}: the stand-in answers 0.5 so it never reaches 0.7 sure (answered 0 at every line); a real decider fills accuracy per fault and how many it gets right when sure."
     }
   ],
   "pour": {
@@ -145,39 +146,40 @@
     "example": {
       "kit_list": "list:settings",
       "into": {
-        "list": "list:my-settings",
-        "row_type": "record:setting",
+        "list": "list:my-tool-options",
+        "row_type": "record:tool-option",
         "fields": [
           {
-            "id": "name",
-            "label": "Setting"
+            "id": "title",
+            "label": "Title"
           },
           {
-            "id": "tool",
-            "label": "Tool"
+            "id": "owner",
+            "label": "Owner"
           },
           {
-            "id": "scope_kind",
-            "label": "For a"
+            "id": "scope",
+            "label": "Scope"
           },
           {
-            "id": "scope_id",
-            "label": "For"
+            "id": "target",
+            "label": "Target"
           },
           {
-            "id": "settings",
-            "label": "Settings (JSON)"
+            "id": "config",
+            "label": "Config"
           },
           {
-            "id": "from",
-            "label": "From"
+            "id": "source",
+            "label": "Source"
           },
           {
-            "id": "status",
-            "label": "Status"
+            "id": "state",
+            "label": "State"
           }
         ]
-      }
+      },
+      "field_map": {}
     }
   }
 }

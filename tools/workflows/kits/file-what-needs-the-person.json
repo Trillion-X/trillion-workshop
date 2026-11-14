@@ -1,28 +1,166 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:file-what-needs-the-person's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:file-what-needs-the-person.\" Take any sentence or plan that has the person doing something, do every step the host can, weigh what is left (a last resort, or truly better from them), keep each remaining step as one fully explained row on their Waiting on you list with how they finish it and what was tried, then take them to the oldest one.",
-  "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "drafted_from": "workflow:file-what-needs-the-person's row in tools/workflows/recipes/workflows.json (its input schema, steps and submit shapes)",
+  "start_here": "Say to your AI: \"Run workflow:file-what-needs-the-person on this plan: bring 50 paper boxes to the market stall on Saturday and sign the stall form.\"",
+  "lists": [
+    {
+      "list": "list:waiting-on-you",
+      "label": "Waiting on you",
+      "row_type": "record:waiting-on-you",
+      "holds": "One thing only the person can finish, with why, how they finish it and what was tried first.",
+      "fields": [
+        {
+          "id": "what",
+          "kind": "text",
+          "label": "What",
+          "alike": [
+            "task",
+            "action"
+          ]
+        },
+        {
+          "id": "why",
+          "kind": "long-text",
+          "label": "Why",
+          "alike": [
+            "reason"
+          ]
+        },
+        {
+          "id": "where",
+          "kind": "link",
+          "label": "Where",
+          "alike": [
+            "address",
+            "link"
+          ]
+        },
+        {
+          "id": "needs",
+          "kind": "text",
+          "label": "Needs",
+          "alike": [
+            "requires"
+          ]
+        },
+        {
+          "id": "only_you_because",
+          "kind": "text",
+          "label": "Only you because",
+          "alike": [
+            "why you"
+          ]
+        },
+        {
+          "id": "unlocks",
+          "kind": "text",
+          "label": "Unlocks",
+          "alike": [
+            "enables"
+          ]
+        },
+        {
+          "id": "tried",
+          "kind": "long-text",
+          "label": "Tried",
+          "alike": [
+            "attempts"
+          ]
+        },
+        {
+          "id": "done_when",
+          "kind": "text",
+          "label": "Done when",
+          "alike": [
+            "finished when"
+          ]
+        },
+        {
+          "id": "finish",
+          "kind": "choice",
+          "label": "Finish",
+          "alike": [
+            "how to finish"
+          ]
+        },
+        {
+          "id": "status",
+          "kind": "choice",
+          "label": "Status",
+          "alike": [
+            "state",
+            "stage"
+          ]
+        },
+        {
+          "id": "added",
+          "kind": "date",
+          "label": "Added",
+          "alike": [
+            "created"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "sign-the-stall-form",
+          "values": {
+            "what": "Sign the market stall form",
+            "why": "The market only accepts a form signed by the shop owner.",
+            "where": "https://example.com/market/stall-form",
+            "needs": "Your signature",
+            "only_you_because": "A signature is your own consent",
+            "unlocks": "The Saturday market stall",
+            "tried": "Filled in every other field from the shop facts; the signature line stayed empty.",
+            "done_when": "The signed form is sent back",
+            "finish": "Send a file",
+            "status": "Waiting",
+            "added": "2026-11-13"
+          }
+        },
+        {
+          "id": "approve-the-box-order",
+          "values": {
+            "what": "Tap to order 50 paper bakery boxes for 41.50",
+            "why": "The plan says to bring boxes by Saturday.",
+            "needs": "One tap approving the price",
+            "only_you_because": "Money only you can approve",
+            "unlocks": "Boxes delivered by 9 AM Friday",
+            "tried": "Found the store, built the order up to payment.",
+            "done_when": "The order is placed",
+            "finish": "Tap done",
+            "status": "Waiting",
+            "added": "2026-11-13"
+          }
+        }
+      ],
+      "alike": [
+        "a to-do app inbox",
+        "a shared tasks spreadsheet",
+        "a \"needs my approval\" folder"
+      ]
+    }
+  ],
   "workflows": [
     "workflow:file-what-needs-the-person"
   ],
   "tools": [
     "tool:start-a-recipe-run",
-    "tool:take-me-there",
     "tool:what-can-trillion-do",
+    "tool:who-does-each-step",
     "tool:what-is-waiting-on-me",
-    "tool:who-does-each-step"
+    "tool:take-me-there",
+    "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:file-what-needs-the-person\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:file-what-needs-the-person) and works through its steps in order: steps, weigh, do, judge, file, tell, take-there.",
-    "3. Read what each step hands back; the last step is take-there."
+    "1. Pour the example rows into the list where you keep things waiting on you (see pour), or make list:waiting-on-you from them.",
+    "2. Before any message or plan tells you to do something, say \"Run workflow:file-what-needs-the-person\" with the sentence in said.",
+    "3. The AI works steps, weigh, do, judge, file, tell and take-there: it splits the sentence into steps, does every step it can, keeps only last-resort or better-from-you steps as one fully explained row each, and tells you only your part.",
+    "4. Read the card it opens for the oldest row and finish it the way its finish field says."
   ],
   "worked_examples": [
     {
-      "title": "File what needs the person from its first step",
-      "ask": "Run workflow:file-what-needs-the-person.",
+      "title": "One step is done for you and one stays as your signature",
+      "ask": "File what this plan has me doing.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,15 +171,76 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:file-what-needs-the-person",
-              "said": "<said: The sentence or plan that has the person doing something, as written>"
+              "said": "Bring 50 paper boxes to the market stall on Saturday and sign the stall form.",
+              "asked_by": "the market organiser",
+              "near": "Sunrise Bakery, 12 Example Street"
             }
           }
         }
       },
       "workflow": "workflow:file-what-needs-the-person",
-      "step": "steps",
-      "hands_back": "Step steps answers with steps.",
-      "given": "The person gives: said (shown as <name> in the input)."
+      "step": "judge",
+      "given": "The steps step split the sentence into \"Bring 50 paper boxes to the stall\" (needs a purchase and a tap) and \"Sign the stall form\" (needs a signature). The do step prepared the box order up to its price as one Waiting on you row; read from the judge step of the workflow row. The person's messages and decisions hold no signed yes for the stall form.",
+      "hands_back": "The submit shape of step judge: {\"left\":[{\"step\":\"Sign the stall form\",\"because\":\"last-resort\",\"reason\":\"Only the shop owner can sign for the shop; a signature is their own consent.\",\"searched\":\"Searched the person's messages and decisions for a signed yes about the stall form and found none.\"}]}"
     }
-  ]
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "example": {
+      "kit_list": "list:waiting-on-you",
+      "into": {
+        "list": "list:my-waiting-on-you",
+        "row_type": "record:my-waiting-on-you",
+        "fields": [
+          {
+            "id": "my_what",
+            "label": "What"
+          },
+          {
+            "id": "my_why",
+            "label": "Why"
+          },
+          {
+            "id": "my_where",
+            "label": "Where"
+          },
+          {
+            "id": "my_needs",
+            "label": "Needs"
+          },
+          {
+            "id": "my_only_you_because",
+            "label": "Only you because"
+          },
+          {
+            "id": "my_unlocks",
+            "label": "Unlocks"
+          },
+          {
+            "id": "my_tried",
+            "label": "Tried"
+          },
+          {
+            "id": "my_done_when",
+            "label": "Done when"
+          },
+          {
+            "id": "my_finish",
+            "label": "Finish"
+          },
+          {
+            "id": "my_status",
+            "label": "Status"
+          },
+          {
+            "id": "my_added",
+            "label": "Added"
+          }
+        ]
+      },
+      "field_map": {}
+    }
+  }
 }

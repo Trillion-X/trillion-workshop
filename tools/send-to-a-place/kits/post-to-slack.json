@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:post-to-slack's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:post-to-slack with things.\" Post a message to a Slack channel from a note, or anything picked",
+  "drafted_from": "tool:post-to-slack row in tools/send-to-a-place/tool-rows.json and tools/send-to-a-place/test/send-to-a-place-rows.test.mjs",
+  "start_here": "Say to your AI: \"Post 'Draft is ready for review.' with a link to my Spring menu draft (https://example.com/menu/spring) in Slack channel #general.\" It runs tool:post-to-slack.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it takes the things and note it is given and posts them once to the person's connected service.",
   "workflows": [],
   "tools": [
     "tool:post-to-slack"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:post-to-slack\", and give it things.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:post-to-slack and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields status, said, answer."
+    "1. Connect Slack in your Trillion account (service_connection:slack); for a private channel invite the app to it first.",
+    "2. Pick the channel: its name like #general, or its id.",
+    "3. Say to your AI the start_here sentence; it calls tools:run for tool:post-to-slack with things, note and channel.",
+    "4. Read $.said, and look in the channel for the message with the linked attachment."
   ],
   "worked_examples": [
     {
-      "title": "Post to Slack on a sample input",
-      "ask": "Run tool:post-to-slack.",
+      "title": "Post a picked note to a Slack channel",
+      "ask": "Post a picked note to a Slack channel",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,12 +26,21 @@
           "input": {
             "tool": "tool:post-to-slack",
             "input": {
-              "things": []
+              "things": [
+                {
+                  "kind": "note",
+                  "label": "Spring menu draft",
+                  "address": "https://example.com/menu/spring"
+                }
+              ],
+              "note": "Draft is ready for review.",
+              "channel": "#general"
             }
           }
         }
       },
-      "hands_back": "An answer with the fields status, said, answer."
+      "given": "Read from tools/send-to-a-place/tool-rows.json (the row's invoke body) and checked against tools/send-to-a-place/test/send-to-a-place-rows.test.mjs: the person has connected Slack (service_connection:slack). The body posts text \"Draft is ready for review.\" in #general with an attachment titled \"Spring menu draft\" linking to https://example.com/menu/spring; Slack's own ok: false is treated as a refusal (answer_ok_field ok). I could not run it: it needs a live Slack bot token, so the answer is worked out from the row, and the exact \"said\" wording follows the webhook sibling's pattern \"<host> answered <status>\".",
+      "hands_back": "{\"status\":200,\"said\":\"slack.com answered 200\",\"answer\":\"<Slack's reply as text, with ok true>\"}. If Slack cannot find the channel it answers ok false and the reply is told in Slack's words (for example channel_not_found)."
     }
   ]
 }

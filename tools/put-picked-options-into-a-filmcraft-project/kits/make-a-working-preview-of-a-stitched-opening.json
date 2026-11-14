@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "tool:make-a-working-preview-of-a-stitched-opening's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:make-a-working-preview-of-a-stitched-opening with request.\" Make a quick working preview of a stitched opening from a render of my cut, to judge its timing and sound while FilmCraft cannot export",
+  "drafted_from": "tool:make-a-working-preview-of-a-stitched-opening's row, do-work/working_preview.py and test/test_filmcraft_preview.py",
+  "start_here": "Say to your AI: \"Make a working preview of option x00-r8-1 in /films/made-up-film from my cut render /films/made-up-film/cut.mp4, to judge timing, and say it has no grade.\" It runs working_preview.py and tells you where the file landed.",
   "lists": [
     {
       "list": "list:settings",
@@ -108,36 +107,34 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
-    "tool:make-a-working-preview-of-a-stitched-opening"
+    "tool:make-a-working-preview-of-a-stitched-opening",
+    "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:make-a-working-preview-of-a-stitched-opening\", and give it request.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:make-a-working-preview-of-a-stitched-opening and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields result, error."
+    "1. Pour the two example setting rows into your own settings list (see pour) and fill the film's row.",
+    "2. Have a full render of your cut and a spec whose edit has prepend ranges; the overlay and its sound go in out-round-<n>/<option>/.",
+    "3. Say what you said in start_here. Your AI reads the row with tools:list, writes request.json with film, option and cut, and runs `python3 tools/put-picked-options-into-a-filmcraft-project/do-work/working_preview.py /films/made-up-film/request.json` with plan true, then for real.",
+    "4. Open work-round-<n>/working/<option>.mp4 to judge timing and sound. It is never published and is not what a pick is made from."
   ],
   "worked_examples": [
     {
-      "title": "Make a working preview of a stitched opening with ffmpeg (runs on your computer) on a sample input",
-      "ask": "Run tool:make-a-working-preview-of-a-stitched-opening.",
+      "title": "The plan for a stitched opening cut from a render of the cut",
+      "ask": "Show me the commands for a working preview of option x00-r8-1 from my cut render.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:make-a-working-preview-of-a-stitched-opening",
-            "input": {
-              "request": "<request: A JSON file on the person's computer holding the request, put where {request} is in the command>"
-            }
+            "tool": "tool:make-a-working-preview-of-a-stitched-opening"
           }
         }
       },
-      "hands_back": "An answer with the fields result, error.",
-      "given": "The person gives: request (shown as <name> in the input)."
+      "given": "From tools/put-picked-options-into-a-filmcraft-project/test/test_filmcraft_preview.py (the_working_preview_is_planned_from_the_cut), run for real with plan true on its made-up film. The spec is {\"id\":\"x00-r8-1\",\"edit\":{\"prepend\":[[100.0,102.0],[103.0,104.5]],\"hold\":{\"at\":0,\"seconds\":1.5},\"a1_mute\":[[0.2,0.6]],\"overlay\":{\"at\":0},\"preview\":[0,10.0]}}. The AI runs `python3 tools/put-picked-options-into-a-filmcraft-project/do-work/working_preview.py /films/made-up-film/request.json` with request.json = {\"film\":\"/films/made-up-film\",\"option\":\"x00-r8-1\",\"cut\":\"/made/up/cut.mp4\",\"plan\":true,\"settings\":{...}}. Without cut it answers an error asking you to give cut; for an option with no edit.prepend (x05-r4-1) it answers an error saying there is no edit.prepend.",
+      "hands_back": "{\"result\":{\"option\":\"x00-r8-1\",\"preview\":\"/films/made-up-film/cuts/options-one/work-round-8/working/x00-r8-1.mp4\",\"plan\":[...]}}. The plan holds a mkdir of work-round-8/working and one `nice -n 10 ffmpeg` command with /made/up/cut.mp4 four times (the hold, two ranges, the film from 0:00), the ranges starting at -ss 100.01658 and 103.01958, a hold of loop=loop=35, the cut's sound muted by volume=0:enable='between(t,0.20000,0.60000)', and -t 10.01000. Nothing is written in plan mode."
     }
   ],
   "pour": {

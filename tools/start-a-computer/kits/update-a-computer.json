@@ -1,39 +1,37 @@
 {
-  "draft": true,
-  "drafted_from": "tool:update-a-computer's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:update-a-computer with lease_file, request_file.\" Bring a running computer to what a new one gets: the product settings file, the signed release feed and a release that knows both",
+  "drafted_from": "tool row in tools/start-a-computer/tool-rows.json, do-work/start-a-computer.mjs (updateAComputer) and tools/start-a-computer/test/start-a-computer.test.mjs",
+  "start_here": "Say to your AI: \"Update my computer a-computer to release new with my product settings and the signed release feed, keep a backup, and tell me the backup folder.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads the computer's own service unit and config over SSH and a request file, and writes the computer's settings, feed and release.",
   "workflows": [],
   "tools": [
-    "tool:update-a-computer"
+    "tool:update-a-computer",
+    "tool:give-a-computer-a-new-release",
+    "tool:read-a-computer"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:update-a-computer\", and give it lease_file, request_file.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:update-a-computer and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields release, backup, product_settings, release_feed, sign_up_status, layout, copies."
+    "1. Write request.json: ssh {known_hosts}, engine {file, release_name, release}, product_data (your settings manifest), release_feed {urls, public_keys, releases} (required), name {host_name}.",
+    "2. Say the line in start_here. Your AI reads the row with tools:list {tool: \"tool:update-a-computer\"} and runs node tools/start-a-computer/do-work/start-a-computer.mjs update lease.json request.json. No credential is needed; update one computer at a time.",
+    "3. Read the answer: layout, release, backup, product_settings, release_feed, copies and sign_up_status. Keep the backup folder it names.",
+    "4. To go back run node tools/start-a-computer/do-work/start-a-computer.mjs rollback lease.json request.json <backup>. A failed service or sign-up health restores the backup by itself."
   ],
   "worked_examples": [
     {
-      "title": "Update a computer on a sample input",
-      "ask": "Run tool:update-a-computer.",
+      "title": "A computer updated to release \"new\", with its backup named",
+      "ask": "Update my computer to the new release and give me the backup.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:update-a-computer",
-            "input": {
-              "lease_file": "<lease_file: string>",
-              "request_file": "<request_file: A request JSON with ssh, engine.file, required product_settings object or file and explicit release_feed; name, release to install, layout and copies are optional>"
-            }
+            "tool": "tool:update-a-computer"
           }
         }
       },
-      "hands_back": "An answer with the fields release, backup, product_settings, release_feed, sign_up_status, layout, copies.",
-      "given": "The person gives: lease_file, request_file (shown as <name> in the input)."
+      "given": "From tools/start-a-computer/test/start-a-computer.test.mjs ('an update reads a start-a-computer computer\\'s own layout...'), run at 2026-11-04 17:15:00 UTC. The computer is laid out the way set-up-the-machine.sh makes it: unit place.service, state /var/lib/place, base /opt/place. request.json = {\"product_data\":\"product-data.json\",\"release_feed\":{\"urls\":[\"https://releases.example.test/feed.json\"],\"public_keys\":[\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"],\"releases\":{\"keep\":3}},\"ssh\":{\"known_hosts\":\"/dev/null\"},\"name\":{\"host_name\":\"computer.example.com\"},\"engine\":{\"file\":\"trillion-local\",\"release_name\":\"new\",\"release\":{\"on_machine\":\"/opt/build/new\"}}}. The feed has a release for the computer's target and https://computer.example.com/readyz answers 200. Run: node tools/start-a-computer/do-work/start-a-computer.mjs update lease.json request.json",
+      "hands_back": "{\"layout\":{\"unit\":\"place.service\",\"config\":\"/var/lib/place/place.json\",\"current\":\"/opt/place/current\",\"state\":\"/var/lib/place\",\"releases\":\"/opt/place/releases\"},\"release\":\"/opt/place/releases/new\",\"backup\":\"/var/lib/place/backups/update-2026-11-04T17-15-00-000Z\",\"product_settings\":\"/var/lib/place/product-settings.json\",\"release_feed\":{\"urls\":[\"https://releases.example.test/feed.json\"],\"releases\":\"/opt/place/releases\"},\"copies\":{\"least_copy_keepers\":1,\"least_voters\":1,\"least_may_answer\":1,\"least_always_on\":0},\"sign_up_status\":200}: copies is 1 because the computer is alone; the backup holds the old place.json, unit and release pointer."
     }
   ]
 }

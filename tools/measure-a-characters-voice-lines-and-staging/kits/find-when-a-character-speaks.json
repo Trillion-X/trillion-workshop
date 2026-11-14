@@ -1,37 +1,38 @@
 {
-  "draft": true,
-  "drafted_from": "tool:find-when-a-character-speaks's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:find-when-a-character-speaks with step.\" Find every stretch where one character of a show speaks, in all of its recordings, from a few stretches the person labels, even when the character is a cast member's own voice pitched up",
+  "drafted_from": "tool:find-when-a-character-speaks's row in tools/measure-a-characters-voice-lines-and-staging/tool-rows.json, its script in tools/measure-a-characters-voice-lines-and-staging/do-work/ and the tests in tools/measure-a-characters-voice-lines-and-staging/test/",
+  "start_here": "Say to your AI: \"Find when the parrot speaks in recording rec-a: score it with the seeds I labelled.\" It runs tool:find-when-a-character-speaks (step score) on your computer and writes the recording's turns file.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of its own: it reads one settings row of yours (record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>) or the settings you pass, and works on files in the show's folder.",
   "workflows": [],
   "tools": [
-    "tool:find-when-a-character-speaks"
+    "tool:find-when-a-character-speaks",
+    "tool:find-high-pitched-stretches-of-a-recording",
+    "tool:count-a-characters-turns-from-caption-marks",
+    "tool:list-what-a-character-says"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:find-when-a-character-speaks\", and give it step.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-when-a-character-speaks and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Find every stretch where one character of a show speaks, in all of its recordings, from a few stretches the person labels, even when the character is a cast member's own voice pitched up"
+    "1. Clone the repository https://github.com/Trillion-X/trillion-workshop and check the needs listed on the row (python 3 and its libraries, ffmpeg where named).",
+    "2. Your AI reads the row with run_resource_operation at @workshop-tools, method tools:list and input {\"tool\":\"tool:find-when-a-character-speaks\"}, saves your settings row (records:read record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>) to a file and puts it in the request as settings_record, or passes settings.",
+    "3. It runs: python3 -I trillion-workshop/tools/measure-a-characters-voice-lines-and-staging/do-work/find_voice.py < REQUEST.json. First embed two or three recordings you know (step embed with audio and out), then label the character's stretches (step seed with npz, label and ranges \"a-b,a-b\") and some of other high voices under another label, then step score.",
+    "4. Check the precision and recall with do-work/check_seed_model.py and check_voice_finder.py before step batch over the catalog; show/show_turns.py prints each turn with its caption words to check by reading."
   ],
   "worked_examples": [
     {
-      "title": "Find when one character speaks in a show's recordings, by voice and pitch (runs on your computer) on a sample input",
-      "ask": "Run tool:find-when-a-character-speaks.",
+      "title": "Score one recording after seeding",
+      "ask": "Find when the parrot speaks in rec-a.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:find-when-a-character-speaks",
-            "input": {
-              "step": "embed"
-            }
+            "tool": "tool:find-when-a-character-speaks"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Find every stretch where one character of a show speaks, in all of its recordings, from a few stretches the person labels, even when the character is a cast member's own voice pitched up"
+      "given": "From VoiceFinderTest in tools/measure-a-characters-voice-lines-and-staging/test/test_measures.py. The AI reads the row with tools:list, then runs in the show folder: python3 -I trillion-workshop/tools/measure-a-characters-voice-lines-and-staging/do-work/find_voice.py < REQUEST.json with REQUEST.json = {\"step\": \"score\", \"data_folder\": \"show\", \"npz\": \"show/voice/rec-a.emb.npz\", \"json\": \"show/voice/rec-a.turns.json\", \"settings\": {\"character_label\": \"parrot\", \"embed_min_pitch_hz\": 180.0, \"embed_pitch_ratio\": 1.4, \"gate_pitch_ratio\": 1.6, \"gate_max_hz\": 220.0, \"voice_cosine_min\": 0.5}}. rec-a.emb.npz holds the made-up windows (the parrot high, from 10 to 14 s and 30 to 33 s); the seeds hold parrot (16 windows) and guest (8 windows).",
+      "hands_back": "{\"result\": {\"id\": \"rec-a\", \"duration_s\": 41.0, \"character_s\": 7.0, \"turns\": 2, \"json\": \"show/voice/rec-a.turns.json\"}}; rec-a.turns.json lists the turns [[10.0, 14.0], [30.0, 33.0]] with gate_hz 176.0 (1.6 x the recording's median 110 Hz) and not the guest's 20-23 s."
     }
   ]
 }

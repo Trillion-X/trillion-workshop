@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:add-to-notion's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:add-to-notion with things.\" Add a page to a Notion database from a note, or anything picked",
+  "drafted_from": "tool:add-to-notion row in tools/send-to-a-place/tool-rows.json and tools/send-to-a-place/test/send-to-a-place-rows.test.mjs",
+  "start_here": "Say to your AI: \"Add my Spring menu draft (https://example.com/menu/spring) to my Notion database 0123456789abcdef0123456789abcdef with the note 'Check prices before we print.'\" It runs tool:add-to-notion and makes the page.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it takes the things and note it is given and posts them once to the person's connected service.",
   "workflows": [],
   "tools": [
     "tool:add-to-notion"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:add-to-notion\", and give it things.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:add-to-notion and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields status, said, answer."
+    "1. Connect Notion in your Trillion account (service_connection:notion) and share the target database with that integration.",
+    "2. Copy the database id: the 32 letters and numbers in the database's address.",
+    "3. Say to your AI the start_here sentence; it calls tools:run for tool:add-to-notion with things, note, database and optional title.",
+    "4. Read $.said (it must say answered with the status) and open the new page in Notion to see the note and the link."
   ],
   "worked_examples": [
     {
-      "title": "Add to Notion on a sample input",
-      "ask": "Run tool:add-to-notion.",
+      "title": "Add a picked note to a Notion database",
+      "ask": "Add a picked note to a Notion database",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,12 +26,22 @@
           "input": {
             "tool": "tool:add-to-notion",
             "input": {
-              "things": []
+              "things": [
+                {
+                  "kind": "note",
+                  "label": "Spring menu draft",
+                  "address": "https://example.com/menu/spring"
+                }
+              ],
+              "note": "Check prices before we print.",
+              "database": "0123456789abcdef0123456789abcdef",
+              "title": "Spring menu review"
             }
           }
         }
       },
-      "hands_back": "An answer with the fields status, said, answer."
+      "given": "Read from tools/send-to-a-place/tool-rows.json (the row's invoke body) and checked against tools/send-to-a-place/test/send-to-a-place-rows.test.mjs: the person has connected Notion (service_connection:notion). The body makes a page in database 0123456789abcdef0123456789abcdef titled \"Spring menu review\", with a paragraph holding the note and a paragraph linking \"Spring menu draft\" to https://example.com/menu/spring. I could not run it: it needs a live Notion token, so the answer is worked out from the row, and the exact \"said\" wording follows the webhook sibling's pattern \"<host> answered <status>\".",
+      "hands_back": "{\"status\":200,\"said\":\"api.notion.com answered 200\",\"answer\":\"<Notion's page object as text>\"}: the verify step requires $.said to contain \"answered\". With no title the page is titled with things.0.label."
     }
   ]
 }

@@ -1,40 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:pin-video-frames-as-evidence-pages's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:pin-video-frames-as-evidence-pages with library, schema, command.\" Turn a manifest of extracted video frames into labelled page images, with timestamps, that an AI can look at and cite",
+  "start_here": "Say to your AI: \"Pin the 5 frames in clip/manifest.json by file identity and tile them into labelled review pages, 2 frames a page.\" It runs tool:pin-video-frames-as-evidence-pages.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of yours: it reads a frame manifest and writes a projection and page images into folders you name.",
   "workflows": [],
   "tools": [
     "tool:pin-video-frames-as-evidence-pages"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:pin-video-frames-as-evidence-pages\", and give it library, schema, command.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:pin-video-frames-as-evidence-pages and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Turn a manifest of extracted video frames into labelled page images, with timestamps, that an AI can look at and cite"
+    "1. Extract frames from your video with your own tool and have a manifest: {\"source\": {\"path\"}, \"frames\": [{\"index\", \"pts\", \"seconds\", \"path\"}]}. Paths may be relative to the manifest. Pillow must be installed for pages.",
+    "2. Have a schema file whose frame_evidence profile names the projection schema (the projection command needs it; frame-pages needs neither schema nor library).",
+    "3. Say to your AI: \"Pin these frames\". It reads the row with tools:list and runs python3 -I tools/keep-a-record-library-valid/do-work/keep_a_record_library.py --library <library> --schema <schema> project-frame-manifest --manifest clip/manifest.json --output clip/projection.json",
+    "4. Then python3 -I tools/keep-a-record-library-valid/do-work/keep_a_record_library.py --library <library> --schema <schema> frame-pages clip/manifest.json clip/pages --per-page 2 --tile-width 160 --quality 40 (add --candidate-pairs to pair adjacent candidate frames).",
+    "5. Look at the page images and cite frames by the frame number and time written on them. A page is generated, not reviewed: its index says generated_not_reviewed."
   ],
   "worked_examples": [
     {
-      "title": "Pin a video's frames into labelled contact-sheet pages (runs on your computer) on a sample input",
-      "ask": "Run tool:pin-video-frames-as-evidence-pages.",
+      "title": "Five frames pinned and tiled into three labelled pages",
+      "ask": "Pin these 5 frames and make review pages of 2.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:pin-video-frames-as-evidence-pages",
-            "input": {
-              "library": "<library: The folder the library's files are relative to, put where {library} is in the command>",
-              "schema": "<schema: The schema file on the person's computer, put where {schema} is in the command>",
-              "command": "<command: One of: project-frame-manifest --manifest FILE --output FILE; frame-pages MANIFEST OUTPUT [--per-page N] [--tile-width N] [--quality N] [--font FILE] [--candidate-pairs] [--pairs-per-page N]>"
-            }
+            "tool": "tool:pin-video-frames-as-evidence-pages"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Turn a manifest of extracted video frames into labelled page images, with timestamps, that an AI can look at and cite",
-      "given": "The person gives: library, schema, command (shown as <name> in the input)."
+      "given": "Read from tools/keep-a-record-library-valid/read-data/frame_evidence.py and run for real: clip/manifest.json lists 5 made-up 64x36 frames (index 0 to 4, pts 0, 1001, 2002, 3003, 4004 at time base 1/24000), source.mp4 of 19 bytes and change_candidates 1, 2, 3 (the shape test/test_frame_evidence.py uses); clip/schema.json holds the frame_evidence profile from that test. python3 -I tools/keep-a-record-library-valid/do-work/keep_a_record_library.py --library clip --schema clip/schema.json project-frame-manifest --manifest clip/manifest.json --output clip/projection.json; then python3 -I tools/keep-a-record-library-valid/do-work/keep_a_record_library.py --library clip --schema clip/schema.json frame-pages clip/manifest.json clip/pages --per-page 2 --tile-width 160 --quality 40",
+      "hands_back": "project-frame-manifest exit 0: {\"output\": \".../clip/projection.json\", \"frame_count\": 5, \"source_identity\": {\"algorithm\": \"blake3\", \"bytes\": 19, ...}, \"manifest_identity\": {\"algorithm\": \"blake3\", ...}}; projection.json has schema \"frames-blake3/v1\" and 5 frames each with index, pts, seconds, path, bytes and identity. frame-pages exit 0: {\"frame_count\": 5, \"page_count\": 3, \"review_status\": \"generated_not_reviewed\"} and clip/pages holds index.json, page-001.jpg, page-002.jpg, page-003.jpg. With --candidate-pairs --pairs-per-page 2 it answers {\"pair_count\": 3, \"page_count\": 2, ...} and writes pair-page-001.jpg and pair-page-002.jpg."
     }
-  ]
+  ],
+  "drafted_from": "tool:pin-video-frames-as-evidence-pages's row in tools/keep-a-record-library-valid/tool-rows.json, do-work/keep_a_record_library.py and read-data/*.py, and the fixtures and tests in tools/keep-a-record-library-valid/test/; the worked run was executed here on the made-up greenhouse fixtures"
 }

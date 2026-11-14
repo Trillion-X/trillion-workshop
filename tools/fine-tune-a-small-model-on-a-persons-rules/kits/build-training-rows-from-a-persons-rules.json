@@ -1,13 +1,43 @@
 {
-  "draft": true,
-  "drafted_from": "tool:build-training-rows-from-a-persons-rules's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:build-training-rows-from-a-persons-rules with out_dir, laws, labelled_lines.\" Make the training set to teach a small model my writing rules, with the test lines held out before any training",
+  "drafted_from": "tool row in tools/fine-tune-a-small-model-on-a-persons-rules/tool-rows.json, do-work/build_training_rows.py and test/test_fine_tune.py (BuildRows), which I ran on its made-up fixture",
+  "start_here": "Say to your AI: \"Build the training rows for my two writing rules plain-words and said-aloud from my ruled lines, holding the test lines out first, into /work/out.\" It reads your settings row and your rules, writes a request file and runs build_training_rows.py on your computer.",
+  "tools": [
+    "tool:build-training-rows-from-a-persons-rules",
+    "tool:read-a-tool-setting",
+    "tool:train-a-small-model-on-a-persons-rules",
+    "tool:pour-example-rows-into-my-list"
+  ],
+  "instructions": [
+    "1. Pour the two example rows into your own settings list (see pour), or make list:settings from them, then put your own seed, test share, set names and numbers in the build, train and score objects: every law, line, set name and number is yours, none is built in.",
+    "2. Collect your laws ({law id: question, options (two answers), fail (the answer that fails a line), bad_from}) and the lines you ruled on ({text, sets, bad_for}) from your own lists; the AI reads your settings row with tool:read-a-tool-setting and passes it as settings_record.",
+    "3. The AI writes the request to a file and runs python3 -I tools/fine-tune-a-small-model-on-a-persons-rules/do-work/build_training_rows.py <request file>; the same request always makes the same rows.",
+    "4. Read the summary lines and the last line {\"result\": {items_file, train_file, items, train_items, test_items, train_rows, synthetic_rows, synthetic_dropped, per_law}}. A law with only a handful of bad test lines cannot be measured: say so. Then train with tool:train-a-small-model-on-a-persons-rules."
+  ],
+  "worked_examples": [
+    {
+      "title": "Build rows for two rules from four ruled lines, a transcript and captions",
+      "ask": "Build the training rows for my two writing rules plain-words and said-aloud, holding the test lines out first.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:list",
+          "input": {
+            "tool": "tool:build-training-rows-from-a-persons-rules"
+          }
+        }
+      },
+      "given": "From tools/fine-tune-a-small-model-on-a-persons-rules/test/test_fine_tune.py (BuildRows.test_builds_items_and_rows), which I ran. Request: laws plain-words (\"Does this line use a word a child would not know?\", options no and yes, fail yes) and said-aloud (\"Would a person say this line out loud?\", fail no); four ruled lines (\"We leverage synergies.\" bad for plain-words, \"We fix the sink.\" good, \"Herewith the parcel.\" bad for stiff, \"A line ruled nothing.\"); a talk transcript of 12 sentences, six videos of captions, seven made-up lines, one held-out card, seed 7, test_share 0.5, never_train [\"Herewith the parcel.\"]. Command: python3 -I tools/fine-tune-a-small-model-on-a-persons-rules/do-work/build_training_rows.py /work/request.json.",
+      "hands_back": "Summary lines \"items 13: train 6, test 7; train rows 15 (5 synthetic); synthetic dropped as test overlap 1\", \"  plain-words              train bad   2 good   6 | test bad   0 good   7\" and \"  said-aloud               train bad   2 good   5 | test bad   0 good   7\", then {\"result\": {\"items_file\": \"/work/out/items.json\", \"train_file\": \"/work/out/train.jsonl\", \"items\": 13, \"train_items\": 6, \"test_items\": 7, \"train_rows\": 15, \"synthetic_rows\": 5, \"synthetic_dropped\": 1, \"per_law\": {\"plain-words\": {\"train_bad\": 2, \"train_good\": 6, \"test_bad\": 0, \"test_good\": 7}, \"said-aloud\": {\"train_bad\": 2, \"train_good\": 5, \"test_bad\": 0, \"test_good\": 7}}}}. \"Herewith the parcel.\" and the held-out card are in no training row; the first train row is {law plain-words, text \"I walked to shop number 3 today.\", gold 0, bad false, source real}. Both laws have 0 bad test lines here, so neither is measurable yet."
+    }
+  ],
   "lists": [
     {
       "list": "list:settings",
       "label": "Settings",
       "row_type": "record:setting",
-      "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON.",
+      "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON. For the fine-tune tools the row id is record:setting:fine-tune-a-small-model-on-a-persons-rules~<scope_kind>~<scope_id> and its settings hold a build, a train and a score object that fill every request key the request leaves out.",
       "fields": [
         {
           "id": "name",
@@ -77,27 +107,27 @@
       ],
       "example_rows": [
         {
-          "id": "caption-style",
+          "id": "account-my-rules",
           "values": {
-            "name": "Caption style",
-            "tool": "tool:example-captioner",
-            "scope_kind": "person",
-            "scope_id": "example-person",
-            "settings": "{\"style\":\"plain\",\"size\":\"large\"}",
+            "name": "Fine-tune settings for my writing rules",
+            "tool": "tool:build-training-rows-from-a-persons-rules",
+            "scope_kind": "account",
+            "scope_id": "my-rules",
+            "settings": "{\"build\":{\"seed\":7,\"test_share\":0.5,\"good_sets\":[\"good-set\",\"spoken\"],\"fail_set\":\"bad-set\",\"pass_set\":\"good-set\",\"per_law\":{\"spoken_goods\":2,\"other_goods\":1,\"short_goods\":1}},\"train\":{\"rank\":8,\"epochs\":1,\"batch\":8},\"score\":{\"batch\":4,\"pass_set\":\"good-set\"}}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         },
         {
-          "id": "quiet-hours",
+          "id": "account-second-rules",
           "values": {
-            "name": "Quiet hours",
-            "tool": "tool:example-notifier",
+            "name": "Fine-tune settings for a second rule set",
+            "tool": "tool:train-a-small-model-on-a-persons-rules",
             "scope_kind": "account",
-            "scope_id": "whole-account",
-            "settings": "{\"from\":\"22:00\",\"to\":\"07:00\"}",
+            "scope_id": "second-rules",
+            "settings": "{\"build\":{\"seed\":11,\"test_share\":0.4,\"good_sets\":[\"good-set\"],\"fail_set\":\"bad-set\",\"pass_set\":\"good-set\"},\"train\":{\"rank\":16,\"epochs\":2,\"batch\":8,\"budget_minutes\":30}}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         }
       ],
@@ -108,41 +138,7 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
-  "tools": [
-    "tool:build-training-rows-from-a-persons-rules",
-    "tool:read-a-tool-setting"
-  ],
-  "instructions": [
-    "1. Say to your AI: \"Run tool:build-training-rows-from-a-persons-rules\", and give it out_dir, laws, labelled_lines.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:build-training-rows-from-a-persons-rules and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Make the training set to teach a small model my writing rules, with the test lines held out before any training"
-  ],
-  "worked_examples": [
-    {
-      "title": "Build the train rows and held-out test lines for teaching a small model my rules (runs on your computer) on a sample input",
-      "ask": "Run tool:build-training-rows-from-a-persons-rules.",
-      "mcp": {
-        "server": "trillion",
-        "tool": "run_resource_operation",
-        "input": {
-          "address": "@workshop-tools",
-          "method": "tools:run",
-          "input": {
-            "tool": "tool:build-training-rows-from-a-persons-rules",
-            "input": {
-              "out_dir": "<out_dir: The folder items.json and train.jsonl are written to>",
-              "laws": {},
-              "labelled_lines": "<labelled_lines: Rows {text, sets, bad_for}, inline or {\"file\": a JSON Lines file}>"
-            }
-          }
-        }
-      },
-      "hands_back": "The result the item's own job names: Make the training set to teach a small model my writing rules, with the test lines held out before any training",
-      "given": "The person gives: out_dir, labelled_lines (shown as <name> in the input)."
-    }
-  ],
   "pour": {
     "tool": "tool:pour-example-rows-into-my-list",
     "least_coverage": 0.8,
@@ -182,7 +178,8 @@
             "label": "Status"
           }
         ]
-      }
+      },
+      "field_map": {}
     }
   }
 }

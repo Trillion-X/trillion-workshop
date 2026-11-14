@@ -1,13 +1,12 @@
 {
-  "draft": true,
-  "drafted_from": "tool:read-my-youtube-watch-later-and-playlists's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-my-youtube-watch-later-and-playlists with cookies, out_dir.\" Read my YouTube Watch Later, subscriptions and playlists from my signed-in channels",
+  "drafted_from": "tool:read-my-youtube-watch-later-and-playlists row in tools/sort-youtube-watch-later-into-playlists/tool-rows.json, do-work/read_channel.py and test/test_sort.py (test_list_accounts_and_read_channel)",
+  "start_here": "Say to your AI: \"Read my YouTube Watch Later, subscriptions and playlists for my kitchen channel into a private folder.\" It reads the tool's row, writes the request file with your cookies.txt and sort settings, runs read_channel.py on your computer and tells you the counts per channel.",
   "lists": [
     {
       "list": "list:settings",
       "label": "Settings",
       "row_type": "record:setting",
-      "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON.",
+      "holds": "One row per tool and scope: here the row record:setting:sort-youtube-watch-later-into-playlists~person~<person> whose settings JSON names the channels to read and how each is sorted.",
       "fields": [
         {
           "id": "name",
@@ -77,25 +76,25 @@
       ],
       "example_rows": [
         {
-          "id": "caption-style",
+          "id": "sort-youtube-kitchen",
           "values": {
-            "name": "Caption style",
-            "tool": "tool:example-captioner",
+            "name": "Sort YouTube Watch Later",
+            "tool": "tool:plan-sorting-youtube-watch-later-into-playlists",
             "scope_kind": "person",
-            "scope_id": "example-person",
-            "settings": "{\"style\":\"plain\",\"size\":\"large\"}",
+            "scope_id": "sam",
+            "settings": "{\"channels\":[{\"slug\":\"kitchen\",\"label\":\"Kitchen Channel\",\"sign_in_as\":\"@kitchen-example\",\"sort\":\"rules\",\"rules\":{\"max_per_video\":2,\"rules\":[{\"key\":\"bread\",\"title\":\"Bread Baking\",\"description\":\"Loaves.\",\"channels\":\"^(Crumb Club)\",\"strong\":\"(sourdough)\",\"weak\":\"(flour)\"}]}}]}",
             "from": "the person",
             "status": "on"
           }
         },
         {
-          "id": "quiet-hours",
+          "id": "sort-youtube-bakery",
           "values": {
-            "name": "Quiet hours",
-            "tool": "tool:example-notifier",
-            "scope_kind": "account",
-            "scope_id": "whole-account",
-            "settings": "{\"from\":\"22:00\",\"to\":\"07:00\"}",
+            "name": "Sort YouTube Watch Later (second channel)",
+            "tool": "tool:plan-sorting-youtube-watch-later-into-playlists",
+            "scope_kind": "person",
+            "scope_id": "sam-bakery",
+            "settings": "{\"channels\":[{\"slug\":\"bakery\",\"label\":\"Bakery Channel\",\"sign_in_as\":\"@bakery-example\"}]}",
             "from": "the person",
             "status": "on"
           }
@@ -108,38 +107,36 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
     "tool:read-my-youtube-watch-later-and-playlists",
-    "tool:export-browser-login-cookies-for-yt-dlp"
+    "tool:export-browser-login-cookies-for-yt-dlp",
+    "tool:plan-sorting-youtube-watch-later-into-playlists",
+    "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-my-youtube-watch-later-and-playlists\", and give it cookies, out_dir.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-my-youtube-watch-later-and-playlists and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Read my YouTube Watch Later, subscriptions and playlists from my signed-in channels"
+    "1. Pour the example settings row into your own settings list (see pour), or make list:settings from it, and change the channel's slug, label and sign_in_as to your own.",
+    "2. Export your browser's YouTube login with tool:export-browser-login-cookies-for-yt-dlp, then check it: echo '{\"cookies\":\"cookies.txt\"}' | python3 -I tools/sort-youtube-watch-later-into-playlists/do-work/list_signed_in_accounts.py must say signed_in true.",
+    "3. Say the start_here sentence. Your AI reads this tool's row with tools:list, writes a request {cookies, settings_record, out_dir} and runs python3 -I tools/sort-youtube-watch-later-into-playlists/do-work/read_channel.py < request.json from the Workshop checkout.",
+    "4. Read the last printed JSON line: {\"result\":{\"channels\":[...]}} gives each channel's counts; {\"error\":...} says what to change. Keep the folder private, then run tool:plan-sorting-youtube-watch-later-into-playlists on it."
   ],
   "worked_examples": [
     {
-      "title": "Read my YouTube Watch Later, subscriptions and playlists (runs on your Mac) on a sample input",
-      "ask": "Run tool:read-my-youtube-watch-later-and-playlists.",
+      "title": "Read one channel's Watch Later, subscriptions and playlists",
+      "ask": "Read my YouTube Watch Later and playlists for my kitchen channel.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:read-my-youtube-watch-later-and-playlists",
-            "input": {
-              "cookies": "<cookies: The cookies.txt tool:export-browser-login-cookies-for-yt-dlp wrote, put where {request} is>",
-              "out_dir": "<out_dir: string>"
-            }
+            "tool": "tool:read-my-youtube-watch-later-and-playlists"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Read my YouTube Watch Later, subscriptions and playlists from my signed-in channels",
-      "given": "The person gives: cookies, out_dir (shown as <name> in the input)."
+      "given": "From tools/sort-youtube-watch-later-into-playlists/test/test_sort.py (test_list_accounts_and_read_channel), with the signed-in account @a holding 1 Watch Later video, 1 subscription and 1 playlist titled Old. The AI runs, from the Workshop checkout: echo '{\"cookies\":\"cookies.txt\",\"out_dir\":\"yt-read\",\"channels\":[{\"slug\":\"a\",\"label\":\"A\",\"sign_in_as\":\"@a\"}]}' | python3 -I tools/sort-youtube-watch-later-into-playlists/do-work/read_channel.py",
+      "hands_back": "{\"result\": {\"channels\": [{\"slug\": \"a\", \"watch_later\": 1, \"subscriptions\": 1, \"playlists\": 1, \"folder\": \"yt-read/a\"}]}} and yt-read/a/ holds watch-later.json, subscriptions.json and playlists.json (playlists.json item title \"Old\")."
     }
   ],
   "pour": {

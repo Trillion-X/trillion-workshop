@@ -1,42 +1,37 @@
 {
-  "draft": true,
-  "drafted_from": "tool:make-youtube-playlists-from-a-sort-plan's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:make-youtube-playlists-from-a-sort-plan with cookies, plan_file, applied_file.\" Make the YouTube playlists my Watch Later sort plan names, adding videos and removing none",
+  "drafted_from": "tool:make-youtube-playlists-from-a-sort-plan row in tools/sort-youtube-watch-later-into-playlists/tool-rows.json, do-work/apply_sort.py and test/test_sort.py (ApplyAndVerifyTests)",
+  "start_here": "Say to your AI: \"I read SORT-PLAN.md and it is fine: make the planned YouTube playlists from sort-plan.json, one playlist first.\" It runs apply_sort.py with limit_playlists 1 on your computer and tells you which playlist it made and how many videos it added.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads a plan file and writes only what it made to the applied_file you name.",
   "workflows": [],
   "tools": [
     "tool:make-youtube-playlists-from-a-sort-plan",
-    "tool:export-browser-login-cookies-for-yt-dlp",
-    "tool:plan-sorting-youtube-watch-later-into-playlists"
+    "tool:plan-sorting-youtube-watch-later-into-playlists",
+    "tool:export-browser-login-cookies-for-yt-dlp"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:make-youtube-playlists-from-a-sort-plan\", and give it cookies, plan_file, applied_file.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:make-youtube-playlists-from-a-sort-plan and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Make the YouTube playlists my Watch Later sort plan names, adding videos and removing none"
+    "1. Make the plan with tool:plan-sorting-youtube-watch-later-into-playlists and read SORT-PLAN.md; held-back and low-confidence videos are marked there. This tool publishes, so say yes only when the plan is right.",
+    "2. Export your browser's YouTube login with tool:export-browser-login-cookies-for-yt-dlp (cookies.txt).",
+    "3. Say the start_here sentence. Your AI reads the tool's row with tools:list and runs python3 -I tools/sort-youtube-watch-later-into-playlists/do-work/apply_sort.py < request.json from the Workshop checkout, with {cookies, plan_file, applied_file, limit_playlists: 1}.",
+    "4. Read the last JSON line: {\"result\":{\"playlists\":[...]}} names each playlist and how many videos were added now; run it again without the limit to make the rest (it adds only what is missing), then run do-work/verify_sort.py with {cookies, plan_file, applied_file, accounts_dir} and read INDEX.md."
   ],
   "worked_examples": [
     {
-      "title": "Make the planned public playlists on YouTube (runs on your Mac) on a sample input",
-      "ask": "Run tool:make-youtube-playlists-from-a-sort-plan.",
+      "title": "Make one planned playlist, then run again safely",
+      "ask": "Make the first playlist of my sort plan on YouTube.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:make-youtube-playlists-from-a-sort-plan",
-            "input": {
-              "cookies": "<cookies: string>",
-              "plan_file": "<plan_file: sort-plan.json from the plan row>",
-              "applied_file": "<applied_file: Where what was made is kept (read, then updated)>"
-            }
+            "tool": "tool:make-youtube-playlists-from-a-sort-plan"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Make the YouTube playlists my Watch Later sort plan names, adding videos and removing none",
-      "given": "The person gives: cookies, plan_file, applied_file (shown as <name> in the input)."
+      "given": "From tools/sort-youtube-watch-later-into-playlists/test/test_sort.py (test_creates_adds_only_missing_reuses_and_is_safe_to_rerun): sort-plan.json has account a with playlist Bread (description Loaves., videos w1 w2 w3) and playlist Old (video w1); the channel already has an empty playlist titled Old. The AI runs, from the Workshop checkout: echo '{\"cookies\":\"cookies.txt\",\"plan_file\":\"sort-plan.json\",\"applied_file\":\"applied.json\",\"batch\":2}' | python3 -I tools/sort-youtube-watch-later-into-playlists/do-work/apply_sort.py",
+      "hands_back": "{\"result\": {\"playlists\": [{\"slug\": \"a\", \"title\": \"Bread\", \"id\": \"<the new playlist id>\", \"created\": true, \"reused\": false, \"planned\": 3, \"added_now\": 1}, {\"slug\": \"a\", \"title\": \"Old\", \"id\": \"PLold\", \"created\": false, \"reused\": true, \"planned\": 1, \"added_now\": 1}]}} (Bread was made with its first 2 videos, so 1 is added now). Run again, every added_now is 0 and nothing is written; no video is ever removed."
     }
   ]
 }

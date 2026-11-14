@@ -1,22 +1,23 @@
 {
-  "draft": true,
-  "drafted_from": "tool:read-wikimedia-commons-file-metadata's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-wikimedia-commons-file-metadata with file_title.\" Read one Commons file's original license, author, title, source URL and rights metadata for any objective before selecting it for use",
+  "drafted_from": "tool row in tools/wikimedia-commons/tool-rows.json (invoke http GET to commons.wikimedia.org/w/api.php, prop imageinfo); the answer shown was observed from that exact request on 2026-11-13",
+  "start_here": "Say to your AI: \"Read the Wikimedia Commons metadata for File:Eiffel_Tower_20051010.jpg and tell me its licence, size and whether credit is required.\" It runs tool:read-wikimedia-commons-file-metadata and hands back the licence, size, mime type and original URL.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It is a read-only lookup of one Commons file page that takes a File: title and answers its metadata, and it keeps no list of yours.",
   "workflows": [],
   "tools": [
-    "tool:read-wikimedia-commons-file-metadata"
+    "tool:read-wikimedia-commons-file-metadata",
+    "tool:search-wikimedia-commons-files"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-wikimedia-commons-file-metadata\", and give it file_title.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-wikimedia-commons-file-metadata and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields query."
+    "1. Get an exact File: title, from tool:search-wikimedia-commons-files or from a page you trust (a title, not a URL; no | # ? in it).",
+    "2. The AI calls tools:run for tool:read-wikimedia-commons-file-metadata with {\"file_title\":\"File:Eiffel_Tower_20051010.jpg\"}.",
+    "3. Read query.pages[0].imageinfo[0]: url (the original media), width, height, size, mime and extmetadata (LicenseShortName, UsageTerms, AttributionRequired, Artist, Copyrighted). extmetadata can hold HTML: keep it as data, never render it.",
+    "4. Only a file whose metadata says public domain, CC0 or CC-BY is a candidate; BY-SA, NC, ND, missing or conflicting rights are out. The metadata is the source's claim, not legal clearance."
   ],
   "worked_examples": [
     {
-      "title": "Read Wikimedia Commons file metadata on a sample input",
-      "ask": "Run tool:read-wikimedia-commons-file-metadata.",
+      "title": "Read the licence of a public-domain Eiffel Tower photo",
+      "ask": "Read the Wikimedia Commons metadata for File:Eiffel_Tower_20051010.jpg.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,13 +27,13 @@
           "input": {
             "tool": "tool:read-wikimedia-commons-file-metadata",
             "input": {
-              "file_title": "<file_title: Exact `File:` page title, such as `File:Example.jpg`>"
+              "file_title": "File:Eiffel_Tower_20051010.jpg"
             }
           }
         }
       },
-      "hands_back": "An answer with the fields query.",
-      "given": "The person gives: file_title (shown as <name> in the input)."
+      "given": "Observed by sending the row's request (action=query, redirects=1, prop=imageinfo, titles=File:Eiffel_Tower_20051010.jpg, iiprop=url|size|mime|extmetadata, iilimit=1) to commons.wikimedia.org/w/api.php on 2026-11-13. A Commons page can be edited, so a later run may differ.",
+      "hands_back": "{\"batchcomplete\":true,\"query\":{\"normalized\":[{\"from\":\"File:Eiffel_Tower_20051010.jpg\",\"to\":\"File:Eiffel Tower 20051010.jpg\"}],\"pages\":[{\"pageid\":3691175,\"ns\":6,\"title\":\"File:Eiffel Tower 20051010.jpg\",\"imagerepository\":\"local\",\"imageinfo\":[{\"size\":4369354,\"width\":4048,\"height\":3040,\"mime\":\"image/jpeg\",\"url\":\"https://upload.wikimedia.org/wikipedia/commons/d/d4/Eiffel_Tower_20051010.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original\",\"descriptionurl\":\"https://commons.wikimedia.org/wiki/File:Eiffel_Tower_20051010.jpg\",\"extmetadata\":{\"LicenseShortName\":{\"value\":\"Public domain\"},\"UsageTerms\":{\"value\":\"Public domain\"},\"AttributionRequired\":{\"value\":\"false\"},\"Copyrighted\":{\"value\":\"False\"},\"License\":{\"value\":\"pd\"},\"DateTimeOriginal\":{\"value\":\"2005-10-10\"},\"Credit\":{\"value\":\"Own work\"},\"Artist\":{\"value\":\"a link to the uploader's Commons user page\"}}}]}]}} (extmetadata also holds DateTime, ObjectName, Categories and ImageDescription, shortened here)."
     }
   ]
 }

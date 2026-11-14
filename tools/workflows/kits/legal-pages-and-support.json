@@ -1,7 +1,5 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:legal-pages-and-support's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:legal-pages-and-support.\" Write the terms, privacy and refunds pages from the person's facts, mark them as not reviewed by a lawyer, publish them on the site, and put the support address where buyers can find it, recording the missing support inbox as a gap.",
+  "start_here": "Say to your AI: \"Run workflow:legal-pages-and-support for Harbor Coaching: write its terms, privacy and refund pages from my saved business facts and publish them.\" It reads record:business-setup:facts, writes the three pages marked not reviewed by a lawyer, publishes them and ticks the stage on your checklist.",
   "lists": [
     {
       "list": "list:business-setup-checklist",
@@ -182,14 +180,16 @@
     "tool:write-legal-documents"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:legal-pages-and-support\".",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:legal-pages-and-support) and works through its steps in order: read-facts, write-the-legal-pages, publish-the-legal-pages, name-the-support-address, record-the-stage.",
-    "3. Read what each step hands back; the last step is record-the-stage."
+    "1. Make sure your business facts row exists: record:business-setup:facts with business_name, support_email, first_offer_name and seller_return_url (the parent workflow:set-up-a-business-on-trillion writes it in its step write-the-business-facts).",
+    "2. Pour the example checklist and gap rows into the lists you keep for launch tasks and blockers (see pour), or make list:business-setup-checklist and list:business-setup-gaps from them.",
+    "3. Say \"Run workflow:legal-pages-and-support\". The AI starts it with tool:start-a-recipe-run and works the steps in order: read-facts, write-the-legal-pages, publish-the-legal-pages, name-the-support-address, record-the-stage.",
+    "4. Read the three documents it wrote and confirm each fact in them (every page is marked not reviewed by a lawyer); have your lawyer check them before you rely on them.",
+    "5. Open the checklist row legal-and-support: it says Gap while no live support inbox tool exists, and the gap row says so in one line."
   ],
   "worked_examples": [
     {
-      "title": "Legal pages and support from its first step",
-      "ask": "Run workflow:legal-pages-and-support.",
+      "title": "Terms, privacy and refunds written from a coaching business's facts",
+      "ask": "Write and publish the legal pages for Harbor Coaching from my saved facts.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -205,8 +205,9 @@
         }
       },
       "workflow": "workflow:legal-pages-and-support",
-      "step": "read-facts",
-      "hands_back": "Step read-facts answers with facts."
+      "step": "write-the-legal-pages",
+      "given": "Read from tools/legal-document-builder/do-work/write-legal-documents.mjs: read-facts returned business_name \"Harbor Coaching LLC\", support_email \"help@example.com\", first_offer_name \"Harbor Coaching\", seller_return_url \"https://harbor.example\", and a monthly subscription offer; the step calls tool:write-legal-documents with documents [\"terms\",\"privacy\",\"refunds\"], has_paid_offers true, has_subscriptions true and reviewed_by_a_lawyer false.",
+      "hands_back": "{\"documents\":[{\"title\":\"Terms of Service\",\"text\":\"# Terms of Service ... between you and Harbor Coaching LLC ... https://harbor.example ...\"},{\"title\":\"Privacy Policy\",\"text\":\"# Privacy Policy ... Contact: help@example.com ...\"},{\"title\":\"Refund and Cancellation Policy\",\"text\":\"# Refund and Cancellation Policy ...\"}]}. The tool also flags each document as needing lawyer review, and names the facts still to confirm (for the terms: service_description, governing_law_state, venue, among others); those are gaps, never guessed."
     }
   ],
   "pour": {
@@ -246,5 +247,6 @@
         ]
       }
     }
-  }
+  },
+  "drafted_from": "workflow:legal-pages-and-support's row in tools/workflows/recipes/workflows.json (steps, submit shapes) and the answer of tools/legal-document-builder/do-work/write-legal-documents.mjs on the sample facts"
 }

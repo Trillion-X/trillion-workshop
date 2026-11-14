@@ -1,35 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:file-spoken-moments-into-topic-buckets's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:file-spoken-moments-into-topic-buckets with nothing more.\" Go through my transcribed recordings, cut them into moments, file each moment under topics, and tell me which moments stand alone as a usable idea, story or lesson",
+  "drafted_from": "tools/file-spoken-moments-into-topic-buckets/tool-rows.json, do-work/bucket_moments.py and test/bucket-moments.test.mjs, run against the test's stand-in model (test/fake_ollama.py) on test/write_fixtures.py's synthetic transcript",
+  "start_here": "Say to your AI: \"Go through the transcripts in /tmp/my-transcripts, cut them into moments, file each under topics and tell me how many moments are usable.\" It checks Ollama is running with the model pulled, runs the tag step, then the report step and tells you the counts per bucket.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it writes moments, buckets and relevance into your transcript files and a buckets.json vocabulary file beside them.",
   "workflows": [],
   "tools": [
     "tool:file-spoken-moments-into-topic-buckets"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:file-spoken-moments-into-topic-buckets\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:file-spoken-moments-into-topic-buckets and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Go through my transcribed recordings, cut them into moments, file each moment under topics, and tell me which moments stand alone as a usable idea, story or lesson"
+    "1. Put your word-timed transcripts (<name>.words.json with segments) in one folder; start Ollama and pull the model once: ollama pull qwen2.5:14b-instruct.",
+    "2. Say \"File what I said in my recordings into topics\"; your AI reads the row with tools:list and runs: python3 trillion-workshop/tools/file-spoken-moments-into-topic-buckets/do-work/bucket_moments.py tag --transcripts <folder>.",
+    "3. Run the same script with report --transcripts <folder> and read the counts: moments, how many are usable (relevance 0.5 or more) and which buckets hold the most.",
+    "4. Edit buckets.json in that folder to rename or remove the buckets the model proposed; transcripts that already hold moments are skipped on a rerun, so use --dry-out FILE to tag again to a separate file."
   ],
   "worked_examples": [
     {
-      "title": "Sort what I said in my recordings into topics and rate how usable each moment is (runs on your computer) on a sample input",
-      "ask": "Run tool:file-spoken-moments-into-topic-buckets.",
+      "title": "Tag one transcript of four moments",
+      "ask": "File the moments in my transcripts folder under topics.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:file-spoken-moments-into-topic-buckets",
-            "input": {}
+            "tool": "tool:file-spoken-moments-into-topic-buckets"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Go through my transcribed recordings, cut them into moments, file each moment under topics, and tell me which moments stand alone as a usable idea, story or lesson"
+      "given": "From tools/file-spoken-moments-into-topic-buckets/test/bucket-moments.test.mjs: the folder holds take.words.json (5 segments: \"I save money every week.\", \"Money makes everything easier.\", \"A forgotten idea about gardens.\", \"Gardens need patience.\", \"um uh okay\") and words-only.words.json (no segments). The AI runs: python3 trillion-workshop/tools/file-spoken-moments-into-topic-buckets/do-work/bucket_moments.py tag --transcripts /tmp/my-transcripts. Observed with the test's stand-in for the model; a real Ollama model will word its buckets and scores its own way.",
+      "hands_back": "The script prints take 4 moments and words-only has no segments, left alone, then the last line {\"result\": {\"clips\": [{\"clip\": \"take\", \"moments\": 4}], \"moments_tagged\": 4, \"vocabulary\": \"/tmp/my-transcripts/buckets.json\", \"buckets_in_vocabulary\": 4}}. take.words.json now holds 4 moments: take#0 (money_talk, relevance 0.8), take#1 and take#2 (gardening_tips, plants, soil, 0.7) and take#3 (no buckets, 0.05). The report step then ends {\"result\": {\"moments\": 4, \"untagged\": 0, \"bands\": {\"usable >=0.5\": 3, \"irrelevant <0.15\": 1}, \"per_bucket\": [{\"bucket\": \"gardening_tips\", \"moments\": 2, ...}, ... {\"bucket\": \"money_talk\", \"moments\": 1, \"description\": \"talk about money\"}], \"buckets_in_vocabulary\": 4}}."
     }
   ]
 }

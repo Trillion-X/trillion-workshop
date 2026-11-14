@@ -1,35 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:predict-viewer-response-to-a-video's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:predict-viewer-response-to-a-video with nothing more.\" See, second by second, where a video should hold a viewer's attention and where it goes flat, by predicting the brain's response to it",
+  "drafted_from": "tool:predict-viewer-response-to-a-video row in tool-rows.json, do-work/predict_viewer_response.py and test/test_response_curve.py (the test uses synthetic predictions, with no model download)",
+  "start_here": "Say to your AI: \"Predict where a viewer's attention spikes and goes flat in clips/cake-cut-a.mp4, using the video and sound only; I use this for non-commercial work.\" It writes a request file, runs the model on your computer and tells you the spike seconds and flat stretches.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list: it reads one request file and one video, and writes curve.json and curve.png into a new folder.",
   "workflows": [],
   "tools": [
     "tool:predict-viewer-response-to-a-video"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:predict-viewer-response-to-a-video\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:predict-viewer-response-to-a-video and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: See, second by second, where a video should hold a viewer's attention and where it goes flat, by predicting the brain's response to it"
+    "1. Say whether you will use the result non-commercially: the model weights (TRIBE v2) are licensed CC-BY-NC-4.0 for non-commercial use only.",
+    "2. Set it up once: clone the Workshop repository, make a virtual environment with numpy, pandas, matplotlib, torch and tribev2, and have a graphics processor (an NVIDIA GPU, or Apple silicon with mps_memory_fraction and mps_synchronize_after set); the first run downloads the model weights.",
+    "3. Your AI writes a request file {video, out_dir, model \"facebook/tribev2\", modalities [\"video\", \"audio\"], device, spike_z 1.0, flat_z -0.5, min_flat_seconds 3} and runs `tribev2-env/bin/python trillion-workshop/tools/predict-viewer-response-to-a-video/do-work/predict_viewer_response.py < request.json`.",
+    "4. Read the last line's result: spikes [{t, z}] are the seconds the predicted response peaks, flat_zones [{start, end, seconds, mean_z}] are the stretches it stays flat; open curve.png. It is a prediction for an average viewer: compare two cuts of one video, never two different videos."
   ],
   "worked_examples": [
     {
-      "title": "Predict how a viewer's brain responds to a video, second by second (runs on your computer) on a sample input",
-      "ask": "Run tool:predict-viewer-response-to-a-video.",
+      "title": "Eleven seconds with one early spike, a late one and a flat stretch between",
+      "ask": "Where does the predicted response spike and go flat in clips/cake-cut-a.mp4?",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:predict-viewer-response-to-a-video",
-            "input": {}
+            "tool": "tool:predict-viewer-response-to-a-video"
           }
         }
       },
-      "hands_back": "The result the item's own job names: See, second by second, where a video should hold a viewer's attention and where it goes flat, by predicting the brain's response to it"
+      "given": "From tools/predict-viewer-response-to-a-video/test/test_response_curve.py (the model replaced by synthetic predictions): request.json is {\"video\": \"clips/cake-cut-a.mp4\", \"out_dir\": \"predicted-a\", \"model\": \"facebook/tribev2\", \"modalities\": [\"video\", \"audio\"], \"device\": \"cuda\", \"spike_z\": 1.0, \"flat_z\": -0.5, \"min_flat_seconds\": 3}, and the predicted mean response per second for seconds 0 to 10 is 0.0, 0.1, 2.0, 0.1, -1.0, -1.0, -1.0, -1.0, 0.2, 1.5, 0.0. Read from the script: each second is scored against the video's own mean and spread (z).",
+      "hands_back": "The last line is {\"result\": {\"kind\": \"predicted-brain-response-curve\", \"video\": ..., \"model\": \"facebook/tribev2\", \"modalities\": [\"video\", \"audio\"], \"device\": \"cuda\", \"spikes\": [{\"t\": 2.0, \"z\": 2.0753}, {\"t\": 9.0, \"z\": 1.5588}], \"flat_zones\": [{\"start\": 4.0, \"end\": 8.0, \"seconds\": 4.0, \"mean_z\": -1.0236}], \"thresholds\": {\"spike_z\": 1.0, \"flat_z\": -0.5, \"min_flat_seconds\": 3}, \"curve_json\": \"predicted-a/curve.json\", \"curve_png\": \"predicted-a/curve.png\", ...}} (also vertices and the load and predict seconds, which depend on the computer); curve.json holds the whole curve. With min_flat_seconds 5 the flat zone is not reported."
     }
   ]
 }

@@ -1,39 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:search-mixkit-for-free-sound-effects's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:search-mixkit-for-free-sound-effects with queries, out.\" Find Mixkit sound effects on its tag pages for each kind of sound I need",
+  "drafted_from": "tool:search-mixkit-for-free-sound-effects row in tools/generate-and-judge-sound-effects/tool-rows.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
+  "start_here": "Say to your AI: \"Search Mixkit for sound effects tagged click that last at most 2 seconds and write /work/sfx/mk-candidates.json.\" It runs the Mixkit search and tells you how many it found per category.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads a queries.json on this computer, reads Mixkit's public tag pages and writes a candidates.json file.",
   "workflows": [],
   "tools": [
-    "tool:search-mixkit-for-free-sound-effects"
+    "tool:search-mixkit-for-free-sound-effects",
+    "tool:fetch-free-sound-effects-with-their-licences"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:search-mixkit-for-free-sound-effects\", and give it queries, out.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:search-mixkit-for-free-sound-effects and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Find Mixkit sound effects on its tag pages for each kind of sound I need"
+    "1. Write /work/sfx/mk-queries.json: {\"tick\": {\"tags\": [\"click\"], \"max_s\": 2}} (category, the Mixkit tag pages to read, the longest length in seconds).",
+    "2. Say \"Search Mixkit\". The AI reads the row with tools:list and runs: python3 -I tools/generate-and-judge-sound-effects/do-work/search_mixkit.py /work/sfx/mk-queries.json /work/sfx/mk-candidates.json (it needs the internet and waits 1.5 s between requests).",
+    "3. Read the last line (count per category), then open mk-candidates.json for each item's id, title, duration, tag page and WAV address; a tag page that does not exist is reported and skipped.",
+    "4. Choose items and pass them to tool:fetch-free-sound-effects-with-their-licences."
   ],
   "worked_examples": [
     {
-      "title": "Search Mixkit for free sound effects (runs on your computer) on a sample input",
-      "ask": "Run tool:search-mixkit-for-free-sound-effects.",
+      "title": "Tag click gives one short sound; a long one and a missing tag page are left out",
+      "ask": "Search Mixkit for click sounds under 2 seconds.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:search-mixkit-for-free-sound-effects",
-            "input": {
-              "queries": "<queries: queries.json: {category: {tags, max_s}}>",
-              "out": "<out: candidates.json>"
-            }
+            "tool": "tool:search-mixkit-for-free-sound-effects"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Find Mixkit sound effects on its tag pages for each kind of sound I need",
-      "given": "The person gives: queries, out (shown as <name> in the input)."
+      "given": "From tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (test_freesound_and_mixkit_searches_keep_each_item_once_within_its_length, made-up Mixkit page): mk-queries.json is {\"tick\": {\"tags\": [\"click\", \"gone\"], \"max_s\": 2}}; the click page lists \"Small click\" (0:01, id 501) and \"Long hum\" (1:05, id 502); the gone page answers HTTP 404. Command: python3 -I tools/generate-and-judge-sound-effects/do-work/search_mixkit.py /work/sfx/mk-queries.json /work/sfx/mk-candidates.json",
+      "hands_back": "It prints \"tick: click -> 1\" and \"tick: gone -> HTTP 404\", then the last line {\"result\": {\"out\": \"/work/sfx/mk-candidates.json\", \"counts\": {\"tick\": 1}}}. mk-candidates.json tick[0] is {\"id\": 501, \"title\": \"Small click\", \"duration_s\": 1, \"tag_page\": \"https://mixkit.co/free-sound-effects/click/\", \"wav_url\": \"https://assets.mixkit.co/active_storage/sfx/501/501.wav\"}."
     }
   ]
 }

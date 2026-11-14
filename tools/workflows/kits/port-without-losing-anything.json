@@ -1,22 +1,24 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:port-without-losing-anything's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:port-without-losing-anything.\" When a screen, app or feature moves to a new home, list everything the old one let a person do and see (actions on hover, metadata, layouts, shortcuts, data), check each in the new home, bring back what is missing there, and show the old and new side by side.",
+  "drafted_from": "workflow:port-without-losing-anything's row in tools/workflows/recipes/workflows.json (its job, input schema and the step named in the worked example)",
+  "start_here": "Say to your AI: \"Run workflow:port-without-losing-anything: the Orders page of the old admin at https://old.example.com/admin moves to the Orders screen of the new dashboard at https://app.example.com/orders.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It compares what one screen lets a person do against another and keeps the answers in the run itself, so it reads and writes no list.",
   "workflows": [
     "workflow:port-without-losing-anything"
   ],
-  "tools": [],
+  "tools": [
+    "tool:start-a-recipe-run"
+  ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:port-without-losing-anything\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:port-without-losing-anything) and works through its steps in order: inventory, check, restore.",
-    "3. Read what each step hands back; the last step is restore."
+    "1. Name where the old one is and where it moves to, for example \"https://old.example.com/admin/orders\" and \"https://app.example.com/orders\", and say \"Run workflow:port-without-losing-anything\" with old and new (each at least 3 characters).",
+    "2. At inventory, use the old one yourself and list at least 3 capabilities, including what only shows on hover, selection or right-click, each with an id, what it does and how it is reached.",
+    "3. At check, try each in the new home the way a person would and mark it there, missing or worse.",
+    "4. At restore, bring back each missing or worse one through the shared parts, not a one-off copy, and attach before and after pictures of old and new."
   ],
   "worked_examples": [
     {
-      "title": "Port a screen without losing anything from its first step",
-      "ask": "Run workflow:port-without-losing-anything.",
+      "title": "List what the old Orders page let a person do",
+      "ask": "Run workflow:port-without-losing-anything: the old admin Orders page moves to the new dashboard.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,16 +29,16 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:port-without-losing-anything",
-              "old": "<old: Where the old one is>",
-              "new": "<new: Where it moves to>"
+              "old": "https://old.example.com/admin/orders",
+              "new": "https://app.example.com/orders"
             }
           }
         }
       },
       "workflow": "workflow:port-without-losing-anything",
       "step": "inventory",
-      "hands_back": "Step inventory answers with capabilities.",
-      "given": "The person gives: old, new (shown as <name> in the input)."
+      "given": "Read from tools/workflows/recipes/workflows.json, step inventory: its submit shape is capabilities, at least 3 items each with id, what (at least 5 characters) and how_reached (at least 3 characters). The old page is used by hand for the list below.",
+      "hands_back": "{\"capabilities\":[{\"id\":\"filter-by-day\",\"what\":\"Show only orders due on one day\",\"how_reached\":\"Day picker above the table\"},{\"id\":\"hover-note\",\"what\":\"See the customer's note for an order\",\"how_reached\":\"Hover over the order number\"},{\"id\":\"right-click-print\",\"what\":\"Print one order as a bake sheet\",\"how_reached\":\"Right-click the row, then Print\"}]}"
     }
   ]
 }

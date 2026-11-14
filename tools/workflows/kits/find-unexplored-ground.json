@@ -1,22 +1,103 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:find-unexplored-ground's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:find-unexplored-ground.\" Find many things nobody has explored, researched or talked about enough (unusual combinations of fields, overlooked everyday things, questions without good answers) and match each to what one person is good at, is aiming for, values and keeps coming back to, so they see where they would be a strong explorer; then ask them about the best few and keep the list for them.",
-  "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "drafted_from": "workflow:find-unexplored-ground's row in tools/workflows/recipes/workflows.json (its input schema, steps and submit shapes)",
+  "start_here": "Say to your AI: \"Run workflow:find-unexplored-ground with count 10, near small bakeries, keeping the rows in list unexplored-ground.\"",
+  "lists": [
+    {
+      "list": "list:unexplored-ground",
+      "label": "Unexplored ground",
+      "row_type": "record:unexplored-ground",
+      "holds": "One little-explored area, how well it fits the person, why and the evidence it is unexplored.",
+      "fields": [
+        {
+          "id": "area",
+          "kind": "text",
+          "label": "Area",
+          "alike": [
+            "topic",
+            "question"
+          ]
+        },
+        {
+          "id": "fit",
+          "kind": "choice",
+          "label": "Fit",
+          "alike": [
+            "match"
+          ]
+        },
+        {
+          "id": "because",
+          "kind": "long-text",
+          "label": "Because",
+          "alike": [
+            "reason",
+            "why"
+          ]
+        },
+        {
+          "id": "evidence",
+          "kind": "long-text",
+          "label": "Evidence",
+          "alike": [
+            "proof",
+            "search"
+          ]
+        },
+        {
+          "id": "answer",
+          "kind": "long-text",
+          "label": "Your answer",
+          "alike": [
+            "response",
+            "reply"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "bakery-and-sleep",
+          "values": {
+            "area": "How early shift times change a small bakery team's health",
+            "fit": "strong",
+            "because": "Matches the person's skill in running a bakery and their aim to look after their body.",
+            "evidence": "A search of trade and health papers found two surveys on bakers and none on shift times in small shops."
+          }
+        },
+        {
+          "id": "queue-walkaways",
+          "values": {
+            "area": "Why people leave short queues at small food stalls",
+            "fit": "some",
+            "because": "Matches what they keep returning to: the Saturday bread queue.",
+            "evidence": "Searches found studies of long queues at large shops, none of short queues at stalls.",
+            "answer": "This pulls at me because I count walk-aways every Saturday."
+          }
+        }
+      ],
+      "alike": [
+        "a research ideas list",
+        "a someday/maybe list",
+        "a notebook of questions"
+      ]
+    }
+  ],
   "workflows": [
     "workflow:find-unexplored-ground"
   ],
-  "tools": [],
+  "tools": [
+    "tool:start-a-recipe-run",
+    "tool:pour-example-rows-into-my-list"
+  ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:find-unexplored-ground\".",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:find-unexplored-ground) and works through its steps in order: person, areas, match, ask, keep.",
-    "3. Read what each step hands back; the last step is keep."
+    "1. Pour the example rows into the list where you keep research ideas (see pour), or let the keep step make list:unexplored-ground.",
+    "2. Say \"Run workflow:find-unexplored-ground\" with count (10 to 1000, 100 when left out), near and list_id if you want them.",
+    "3. The AI works person, areas, match, ask and keep: it reads who you are first, finds little-explored areas with the search that shows how little exists, ranks each by fit, asks you about the best few one question at a time and keeps every area as a row.",
+    "4. Read the rows ranked by fit; answer the open questions in your own words."
   ],
   "worked_examples": [
     {
-      "title": "Find unexplored ground that fits you from its first step",
-      "ask": "Run workflow:find-unexplored-ground.",
+      "title": "Reading the person comes before searching for ground",
+      "ask": "Find unexplored ground near small bakeries.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,14 +107,53 @@
           "input": {
             "tool": "tool:start-a-recipe-run",
             "input": {
-              "row": "workflow:find-unexplored-ground"
+              "row": "workflow:find-unexplored-ground",
+              "count": 10,
+              "near": "small bakeries",
+              "list_id": "unexplored-ground"
             }
           }
         }
       },
       "workflow": "workflow:find-unexplored-ground",
       "step": "person",
-      "hands_back": "Step person answers with skills, aims, sources."
+      "given": "The pursuit pursuit:example-bakery says the person runs a one-shop bakery and wants more time for their body; the About me list says they teach new bakers; their messages return to the Saturday bread queue. Read from the person step of the workflow row.",
+      "hands_back": "The submit shape of step person: {\"skills\":[\"bread baking\",\"teaching new bakers\"],\"aims\":[\"run a bakery that leaves time for their body\"],\"values\":[\"plain honest food\"],\"draws_them\":[\"the Saturday bread queue\"],\"sources\":[\"pursuit:example-bakery\",\"About me list\",\"messages from the last month\"]}"
     }
-  ]
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "example": {
+      "kit_list": "list:unexplored-ground",
+      "into": {
+        "list": "list:my-unexplored-ground",
+        "row_type": "record:my-unexplored-ground",
+        "fields": [
+          {
+            "id": "my_area",
+            "label": "Area"
+          },
+          {
+            "id": "my_fit",
+            "label": "Fit"
+          },
+          {
+            "id": "my_because",
+            "label": "Because"
+          },
+          {
+            "id": "my_evidence",
+            "label": "Evidence"
+          },
+          {
+            "id": "my_answer",
+            "label": "Your answer"
+          }
+        ]
+      },
+      "field_map": {}
+    }
+  }
 }

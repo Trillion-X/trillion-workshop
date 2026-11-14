@@ -1,39 +1,37 @@
 {
-  "draft": true,
-  "drafted_from": "tool:count-a-characters-turns-from-caption-marks's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:count-a-characters-turns-from-caption-marks with data_folder, youtube_folder.\" Count a character's turns in each episode a second, independent way: the captions' speaker-change marks, and whether each marked turn is spoken high",
+  "drafted_from": "tool:count-a-characters-turns-from-caption-marks's row in tools/measure-a-characters-voice-lines-and-staging/tool-rows.json, its script in tools/measure-a-characters-voice-lines-and-staging/do-work/ and the tests in tools/measure-a-characters-voice-lines-and-staging/test/",
+  "start_here": "Say to your AI: \"Count the parrot's turns in my episodes from the >> marks in the captions and the pitch of each turn.\" It runs tool:count-a-characters-turns-from-caption-marks on your computer and writes character-caption-turns.tsv.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of its own: it reads one settings row of yours (record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>) or the settings you pass, and works on files in the show's folder.",
   "workflows": [],
   "tools": [
-    "tool:count-a-characters-turns-from-caption-marks"
+    "tool:count-a-characters-turns-from-caption-marks",
+    "tool:find-when-a-character-speaks",
+    "tool:catalog-a-channels-videos-by-format"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:count-a-characters-turns-from-caption-marks\", and give it data_folder, youtube_folder.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:count-a-characters-turns-from-caption-marks and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Count a character's turns in each episode a second, independent way: the captions' speaker-change marks, and whether each marked turn is spoken high"
+    "1. Clone the repository https://github.com/Trillion-X/trillion-workshop and check the needs listed on the row (python 3 and its libraries, ffmpeg where named).",
+    "2. Your AI reads the row with run_resource_operation at @workshop-tools, method tools:list and input {\"tool\":\"tool:count-a-characters-turns-from-caption-marks\"}, saves your settings row (records:read record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>) to a file and puts it in the request as settings_record, or passes settings.",
+    "3. It runs: python3 -I trillion-workshop/tools/measure-a-characters-voice-lines-and-staging/do-work/count_caption_turns.py < REQUEST.json. It needs the catalog (tool:catalog-a-channels-videos-by-format), each episode's captions with at least five >> marks and its <id>.emb.npz (find_voice.py embed); ratio in the request wins over the setting.",
+    "4. Compare its character_s per episode with that of tool:find-when-a-character-speaks and tell the person where the two disagree most."
   ],
   "worked_examples": [
     {
-      "title": "Count a character's turns from the speaker marks in captions and the pitch of each turn (runs on your computer) on a sample input",
-      "ask": "Run tool:count-a-characters-turns-from-caption-marks.",
+      "title": "One episode, one high-pitched turn of five",
+      "ask": "Count the parrot's turns from the caption marks.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:count-a-characters-turns-from-caption-marks",
-            "input": {
-              "data_folder": "<data_folder: The show's folder: catalog.tsv, voice/ (seeds.npz, <id>.emb.npz, <id>.turns.json) and the tables the scripts write>",
-              "youtube_folder": "<youtube_folder: The person's YouTube library folder: flat/, captions/, videos/, comments/ and measure/<id>/>"
-            }
+            "tool": "tool:count-a-characters-turns-from-caption-marks"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Count a character's turns in each episode a second, independent way: the captions' speaker-change marks, and whether each marked turn is spoken high",
-      "given": "The person gives: data_folder, youtube_folder (shown as <name> in the input)."
+      "given": "From CaptionTurnsTest in tools/measure-a-characters-voice-lines-and-staging/test/test_measures.py. The AI reads the row with tools:list, then runs python3 -I trillion-workshop/tools/measure-a-characters-voice-lines-and-staging/do-work/count_caption_turns.py < REQUEST.json with REQUEST.json = {\"data_folder\": \"show\", \"youtube_folder\": \"youtube\", \"extra_voice_folders\": [\"elsewhere\"], \"settings\": {\"caption_turn_pitch_ratio\": 1.6}}. Episode vid-a has captions with five >> marks (at 2, 10, 14, 20 and 22 s) and a pitch track at 110 Hz except 300 Hz from 9.25 to 13 s.",
+      "hands_back": "{\"result\": {\"table\": \"show/character-caption-turns.tsv\", \"videos\": 1}}; the table row is vid-a, caption_turns 5, character_turns 1 (the turn from 10 s), character_s 4.0, character_s_first5min 4.0, episode_median_f0 110.0. With ratio 3 in the request the same run counts character_turns 0."
     }
   ]
 }

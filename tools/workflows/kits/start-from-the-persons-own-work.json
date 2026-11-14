@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:start-from-the-persons-own-work's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:start-from-the-persons-own-work.\" Plan something for a person (their week, a training season, a launch, a trip), design something for them (a screen, a programme, a logo) or advise them on a choice (keep or sell, which offer, what to do next), starting from their own work: find what their own body of work already says on the topic (their own frameworks, philosophy, notes, recordings, past AI conversations, files and pursuits), apply each of their frameworks and principles to the request, and give the result citing their own words with where each is kept, so the person never has to point an AI to their own material.",
+  "drafted_from": "tools/workflows/recipes/workflows.json (the workflow:start-from-the-persons-own-work row: input_schema and steps search and gather with their submit shapes); no test names it",
+  "start_here": "Say to your AI: \"Run workflow:start-from-the-persons-own-work for this request: plan my autumn bakery menu, starting from my own notes and principles.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "The workflow searches the places the person already keeps their own work in and writes new learnings back where the next AI reads first; it names no list of its own.",
   "workflows": [
     "workflow:start-from-the-persons-own-work"
   ],
   "tools": [],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:start-from-the-persons-own-work\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:start-from-the-persons-own-work) and works through its steps in order: search, gather, apply, answer.",
-    "3. Read what each step hands back; the last step is answer."
+    "1. Say the plan, design or advice you want, in your words, as request (came_from is optional).",
+    "2. Say \"Run workflow:start-from-the-persons-own-work\". Step search looks in your files, notes, recordings, your AIs' past conversations, your pursuits and any framework rows, and says what it searched and what came back in each place, including nothing.",
+    "3. Step gather lists each framework or principle you yourself put in words, quoted exactly with where it is kept; it adds none you did not write or say. Step apply says whether each fits and what it changes.",
+    "4. Step answer gives the plan, design or advice citing your own words and where each is kept, and writes anything new it learned about your thinking back where the next AI reads first."
   ],
   "worked_examples": [
     {
-      "title": "Plan, design or advise from the person's own work from its first step",
-      "ask": "Run workflow:start-from-the-persons-own-work.",
+      "title": "Two of the person's own principles are found for a menu plan",
+      "ask": "Plan my autumn bakery menu from my own notes and principles.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,15 +27,15 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:start-from-the-persons-own-work",
-              "request": "<request: What you are about to plan, design, build or advise on, in the words it was asked>"
+              "request": "Plan my autumn bakery menu from my own notes and principles"
             }
           }
         }
       },
       "workflow": "workflow:start-from-the-persons-own-work",
-      "step": "search",
-      "hands_back": "Step search answers with looked_in.",
-      "given": "The person gives: request (shown as <name> in the input)."
+      "step": "gather",
+      "given": "Read from the step in tools/workflows/recipes/workflows.json. Synthetic search results: the note notes/baking-principles.md holds the line \"Never sell what I would not eat the next morning\" and the note notes/menu-rules.md holds \"Three breads, never more, so every loaf sells out\".",
+      "hands_back": "{\"frameworks\":[{\"name\":\"Next-morning test\",\"their_words\":\"Never sell what I would not eat the next morning\",\"kept_at\":\"notes/baking-principles.md\"},{\"name\":\"Three breads\",\"their_words\":\"Three breads, never more, so every loaf sells out\",\"kept_at\":\"notes/menu-rules.md\"}],\"none_because\":\"\"}"
     }
   ]
 }

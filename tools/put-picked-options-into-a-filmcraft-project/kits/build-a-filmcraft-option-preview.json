@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "tool:build-a-filmcraft-option-preview's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:build-a-filmcraft-option-preview with request.\" Build one picked option on its own copy of my FilmCraft project with filmcraft-cli and export its preview",
+  "drafted_from": "tool:build-a-filmcraft-option-preview's row, do-work/filmcraft_preview.py and test/test_filmcraft_preview.py",
+  "start_here": "Say to your AI: \"Build option x05-r4-1 of my film in /films/made-up-film on its own copy of the project and export its preview; show me the plan first.\" It writes a request file, runs it with plan true, then for real.",
   "lists": [
     {
       "list": "list:settings",
@@ -108,39 +107,37 @@
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
     "tool:build-a-filmcraft-option-preview",
+    "tool:pour-example-rows-into-my-list",
     "tool:publish-a-checked-filmcraft-preview",
     "tool:put-a-picked-option-into-a-filmcraft-project",
     "tool:render-a-motion-graphics-overlay"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:build-a-filmcraft-option-preview\", and give it request.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:build-a-filmcraft-option-preview and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields result, error."
+    "1. Pour the two example setting rows into your own settings list (see pour) and fill the film's row with a preview object: chapters, lock, export and loudness.",
+    "2. Put the option's spec at <chapter folder>/specs-round-<n>/<option>.json and the chapter's base-graded-copy.fcproj beside it.",
+    "3. Say what you said in start_here. Your AI reads the row with tools:list, writes request.json and runs `python3 tools/put-picked-options-into-a-filmcraft-project/do-work/filmcraft_preview.py /films/made-up-film/request.json` with plan true first.",
+    "4. Read the last JSON line: the project, the preview and its still land in work-round-<n>/pending/. Publish it with tool:publish-a-checked-filmcraft-preview once it is checked."
   ],
   "worked_examples": [
     {
-      "title": "Build an option on its own copy of my FilmCraft project and export its preview (runs on your computer) on a sample input",
-      "ask": "Run tool:build-a-filmcraft-option-preview.",
+      "title": "Option x05-r4-1 is built on its own copy of the project",
+      "ask": "Build option x05-r4-1 of my film on its own copy and export its preview.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:build-a-filmcraft-option-preview",
-            "input": {
-              "request": "<request: A JSON file on the person's computer holding the request, put where {request} is in the command>"
-            }
+            "tool": "tool:build-a-filmcraft-option-preview"
           }
         }
       },
-      "hands_back": "An answer with the fields result, error.",
-      "given": "The person gives: request (shown as <name> in the input)."
+      "given": "From tools/put-picked-options-into-a-filmcraft-project/test/test_filmcraft_preview.py, run for real with its made-up film and stand-in filmcraft-cli, ffmpeg and ffprobe (test/preview_world.py). The spec specs-round-4/x05-r4-1.json is {\"id\":\"x05-r4-1\",\"still_at\":40.0,\"duration_s\":6.0,\"edit\":{\"cuts\":[[80.0,81.5]],\"overlay\":{\"at\":44.0},\"preview\":[38.0,58.0]}}; the settings are preview.chapters.one {options_folder: cuts/options-one, option_ids: ^x} and preview.lock.file cuts/.render.lock. The AI runs `python3 tools/put-picked-options-into-a-filmcraft-project/do-work/filmcraft_preview.py /films/made-up-film/request.json` with request.json = {\"film\":\"/films/made-up-film\",\"option\":\"x05-r4-1\",\"settings\":{...}}. With \"plan\": true the answer also lists in order: mkdir, copy of the base project, filmcraft-cli --save run (sequence.addEditAllTracks, edit.rippleDelete, file.import, timeline.place, clip.fillFrame), export --format h264 --start 38.0 --end 58.0 --scale 0.5 --quality 70, a two-pass loudnorm (I=-15, TP=-1.5, LRA=11) and the still.",
+      "hands_back": "{\"result\":{\"option\":\"x05-r4-1\",\"project\":\"/films/made-up-film/cuts/options-one/projects-round-4/x05-r4-1.fcproj\",\"preview\":\"/films/made-up-film/cuts/options-one/work-round-4/pending/x05-r4-1.mp4\",\"still\":\"/films/made-up-film/cuts/options-one/work-round-4/pending/x05-r4-1.jpg\"}}. The base-graded-copy.fcproj is unchanged."
     }
   ],
   "pour": {

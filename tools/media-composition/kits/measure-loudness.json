@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:measure-loudness's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:measure-loudness with video.\" Measure how loud a video or recording is and whether it is ready to publish",
+  "drafted_from": "tool:measure-loudness's own row in tools/media-composition/tool-rows.json, tools/media-composition/do-work/measure-loudness.mjs, and the script run on a synthetic 7 second tone clip",
+  "start_here": "Say to your AI: \"Is my video loud enough to publish? Measure its loudness against -14 LUFS.\" It runs tool:measure-loudness and says whether it passes and why not.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It reads one video you name by its file identity and answers from that video alone, so it keeps no list of its own.",
   "workflows": [],
   "tools": [
     "tool:measure-loudness"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:measure-loudness\", and give it video.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:measure-loudness and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields result."
+    "1. Find your video's identity in your files: 1f: then 64 hex.",
+    "2. Say \"Measure this video's loudness\" with that identity. Add target_lufs if your site wants something other than -14.",
+    "3. The AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:measure-loudness. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
+    "4. Read result.ok and result.reasons (for example too-quiet), with integrated_lufs, lra_lu and true_peak_dbfs. If it is off, fix it with tool:mix-sound-layers and loudness_lufs."
   ],
   "worked_examples": [
     {
-      "title": "Measure a video's loudness on a sample input",
-      "ask": "Run tool:measure-loudness.",
+      "title": "A quiet clip fails the -14 LUFS target",
+      "ask": "Is this video loud enough to publish?",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,13 +26,34 @@
           "input": {
             "tool": "tool:measure-loudness",
             "input": {
-              "video": "<video: The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it>"
+              "video": "1f:7320b49113520185e2ad8938759857db29ec6b0ed6a30cd1a2cfc05c68d932c6"
             }
           }
         }
       },
-      "hands_back": "An answer with the fields result.",
-      "given": "The person gives: video (shown as <name> in the input)."
+      "given": "read from tools/media-composition/do-work/measure-loudness.mjs and run on a 7 second 440 Hz tone clip at default level, target -14",
+      "hands_back": "{\"result\":{\"integrated_lufs\":-22.3,\"lra_lu\":3,\"true_peak_dbfs\":-17.1,\"ok\":false,\"reasons\":[\"too-quiet\"]}}"
+    },
+    {
+      "title": "A quieter target passes",
+      "ask": "Is this rally video fine at a target of -26 LUFS?",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:measure-loudness",
+            "input": {
+              "video": "1f:70a8d10dc294aa9694d134b3750830b0e6e3686c7d50e63a557f4c84b079878a",
+              "target_lufs": -26
+            }
+          }
+        }
+      },
+      "given": "read from tools/media-composition/do-work/measure-loudness.mjs and run on the 26 second rally clip: -26.3 is within 1 LU of the -26 target and its true peak is under -1 dBFS",
+      "hands_back": "{\"result\":{\"integrated_lufs\":-26.3,\"lra_lu\":1.2,\"true_peak_dbfs\":-17.3,\"ok\":true,\"reasons\":[]}}"
     }
   ]
 }

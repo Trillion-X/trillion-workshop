@@ -1,45 +1,49 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:hire-help-for-a-step's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:hire-help-for-a-step.\" Hire a person nearby (TaskRabbit and services like it, or an employee by email) to do a step that needs someone physically there, after one tap with the price, then make sure they did it",
-  "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
-  "workflows": [
-    "workflow:hire-help-for-a-step"
-  ],
-  "tools": [
-    "tool:hold-to-it",
-    "tool:send-an-email-with-amazon-ses",
-    "tool:send-an-email-with-resend"
-  ],
-  "instructions": [
-    "1. Say to your AI: \"Run workflow:hire-help-for-a-step\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:hire-help-for-a-step) and works through its steps in order: task, ask, book.",
-    "3. Read what each step hands back; the last step is book."
-  ],
-  "worked_examples": [
-    {
-      "title": "Hire help for a step from its first step",
-      "ask": "Run workflow:hire-help-for-a-step.",
-      "mcp": {
-        "server": "trillion",
-        "tool": "run_resource_operation",
-        "input": {
-          "address": "@workshop-tools",
-          "method": "tools:run",
-          "input": {
-            "tool": "tool:start-a-recipe-run",
-            "input": {
-              "row": "workflow:hire-help-for-a-step",
-              "step": "<step: string>"
-            }
-          }
-        }
-      },
-      "workflow": "workflow:hire-help-for-a-step",
-      "step": "task",
-      "hands_back": "Step task answers with task, who, price.",
-      "given": "The person gives: step (shown as <name> in the input)."
+ "start_here": "Say to your AI: \"Run workflow:hire-help-for-a-step: I need someone to photograph the shelf at Example Market on 12 Example Street on Saturday at 10:00, and the proof I want is three photos of the shelf.\"",
+ "lists": [],
+ "no_lists_because": "It keeps no list of its own: one waiting row goes on the person's Waiting on you list, and the booking and proof are kept on the run record.",
+ "workflows": [
+  "workflow:hire-help-for-a-step"
+ ],
+ "tools": [
+  "tool:start-a-recipe-run",
+  "tool:hold-to-it",
+  "tool:send-an-email-with-amazon-ses",
+  "tool:send-an-email-with-resend"
+ ],
+ "instructions": [
+  "1. Say what must be done in person (step), and where, when and what proof you want (where, when, proof_wanted); only step is required.",
+  "2. Say \"Run workflow:hire-help-for-a-step\". The AI writes the task as a tasker reads it, finds who can do it near you and the total price.",
+  "3. One row appears on your Waiting on you list with the task, who and the price. Press it to book; nothing is booked or emailed before that tap.",
+  "4. After the tap it books or emails, puts the time on your calendar with tool:hold-to-it, and checks the proof arrived, following up and telling you if it did not."
+ ],
+ "worked_examples": [
+  {
+   "title": "The task and the price are written first",
+   "ask": "Hire someone to photograph the shelf at the market.",
+   "mcp": {
+    "server": "trillion",
+    "tool": "run_resource_operation",
+    "input": {
+     "address": "@workshop-tools",
+     "method": "tools:run",
+     "input": {
+      "tool": "tool:start-a-recipe-run",
+      "input": {
+       "row": "workflow:hire-help-for-a-step",
+       "step": "Photograph the bakery shelf at Example Market",
+       "where": "12 Example Street, Springfield",
+       "when": "Saturday 10:00",
+       "proof_wanted": "Three photos of the shelf with the price tags readable"
+      }
+     }
     }
-  ]
+   },
+   "workflow": "workflow:hire-help-for-a-step",
+   "step": "task",
+   "given": "Read from the task step in tools/workflows/recipes/workflows.json: the step wants task (at least 20 characters), who and price, and the AI finds a task marketplace category near the address.",
+   "hands_back": "{\"task\": \"On Saturday at 10:00 go to Example Market, 12 Example Street, Springfield. Photograph the bakery shelf, three photos with the price tags readable, and send them back within an hour.\", \"who\": \"A nearby errand tasker from a task marketplace, listed at an hourly rate\", \"price\": \"$30 total for one hour\"}"
+  }
+ ],
+ "drafted_from": "tools/workflows/recipes/workflows.json row of workflow:hire-help-for-a-step (input schema, steps and submit shapes)"
 }

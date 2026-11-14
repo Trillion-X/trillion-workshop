@@ -1,35 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:github:ffmpeg-ffmpeg's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:github:ffmpeg-ffmpeg with nothing more.\" Convert, trim, compress or extract the sound from a video or audio file",
+  "drafted_from": "tool:github:ffmpeg-ffmpeg's row in tools/tools-from-github/tool-rows.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic names filled in. What it prints or writes is read from the tool's documented behavior; the folder test test/index-github-tools.test.mjs only checks the row, never runs FFmpeg.",
+  "start_here": "Say to your AI: \"Use FFmpeg on my computer to convert: the file is interview.mp4.\" It reads the row, installs FFmpeg if it is missing, runs it on that one file and shows you what it made.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: FFmpeg is a program that runs on the person's own computer and works on the one file or address it is handed.",
   "workflows": [],
   "tools": [
     "tool:github:ffmpeg-ffmpeg"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:github:ffmpeg-ffmpeg\", and give it nothing more.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:github:ffmpeg-ffmpeg and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Convert, trim, compress or extract the sound from a video or audio file"
+    "1. Say to your AI: \"Use FFmpeg on interview.mp4\". It reads the row with run_resource_operation at @workshop-tools, method tools:list, input {tool: \"tool:github:ffmpeg-ffmpeg\"}.",
+    "2. It checks that nothing else is on your computer, and if FFmpeg is missing it runs the get_it steps: git clone https://github.com/FFmpeg/FFmpeg.git ; brew install ffmpeg (macOS), or apt install ffmpeg (Linux), or the builds linked from ffmpeg.org.",
+    "3. It runs the row's command with your file in place of {input} and where the result goes in place of {output}: ffmpeg -i interview.mp4 interview.mp3",
+    "4. Read what it shows you and open the result. Trillion runs none of this; it all happens on your own computer."
   ],
   "worked_examples": [
     {
-      "title": "FFmpeg (open source, runs on your computer) on a sample input",
-      "ask": "Run tool:github:ffmpeg-ffmpeg.",
+      "title": "FFmpeg on a 5 minute video file",
+      "ask": "Use FFmpeg on interview.mp4.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:github:ffmpeg-ffmpeg",
-            "input": {}
+            "tool": "tool:github:ffmpeg-ffmpeg"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Convert, trim, compress or extract the sound from a video or audio file"
+      "given": "Read from tools/tools-from-github/tool-rows.json: tool:github:ffmpeg-ffmpeg runs on your computer, so after tools:list the AI runs, in the folder it got FFmpeg in, the command line: ffmpeg -i interview.mp4 interview.mp3  (synthetic input: a 5 minute video file).",
+      "hands_back": "ffmpeg prints its build banner and the stream details, then ends with a progress line such as \"size=4608KiB time=00:05:00.00 bitrate= 128.0kbits/s\" and leaves interview.mp3 (the sound only) beside the video."
     }
   ]
 }

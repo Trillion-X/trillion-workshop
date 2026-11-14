@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:find-silence's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:find-silence with video.\" Find the silent stretches in a video or recording and the parts worth keeping between them",
+  "drafted_from": "tool:find-silence's own row in tools/media-composition/tool-rows.json, tools/media-composition/do-work/detect-silence.mjs, and the script run on a synthetic 7 second clip (a tone with silence from 2 to 4 s and from 6 to 7 s)",
+  "start_here": "Say to your AI: \"Find the silent pauses in my talking video and the parts worth keeping.\" It runs tool:find-silence and hands back the silences and the keep stretches in seconds.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It reads one video you name by its file identity and answers from that video alone, so it keeps no list of its own.",
   "workflows": [],
   "tools": [
     "tool:find-silence"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:find-silence\", and give it video.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-silence and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields result."
+    "1. Find your video's identity in your files: 1f: then 64 hex.",
+    "2. Say \"Find the silence in this video\" with that identity. Optional: threshold_db (quieter than this is silence, default -30), min_silence_seconds (default 0.5), pad_seconds (sound kept around each kept stretch, default 0.05).",
+    "3. The AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:find-silence. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
+    "4. Read result.silences (start and end) and result.keep (in and out): cut the keep stretches together to remove the pauses."
   ],
   "worked_examples": [
     {
-      "title": "Find the quiet parts of a video on a sample input",
-      "ask": "Run tool:find-silence.",
+      "title": "Two pauses found in a 7 second clip",
+      "ask": "Find the silent parts of my video.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,13 +26,36 @@
           "input": {
             "tool": "tool:find-silence",
             "input": {
-              "video": "<video: The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it>"
+              "video": "1f:7320b49113520185e2ad8938759857db29ec6b0ed6a30cd1a2cfc05c68d932c6"
             }
           }
         }
       },
-      "hands_back": "An answer with the fields result.",
-      "given": "The person gives: video (shown as <name> in the input)."
+      "given": "read from tools/media-composition/do-work/detect-silence.mjs and run on a 7 second tone clip that is silent from 2 to 4 seconds and from 6 to 7 seconds",
+      "hands_back": "{\"result\":{\"silences\":[{\"start\":2.043,\"end\":4.04},{\"start\":6.037,\"end\":7.012}],\"keep\":[{\"in\":0,\"out\":2.093},{\"in\":3.99,\"out\":6.087}],\"duration\":7,\"threshold_db\":-30,\"min_silence\":0.5,\"pad\":0.05,\"count\":2}}"
+    },
+    {
+      "title": "Only pauses over a second, no padding",
+      "ask": "Only count pauses longer than a second, keep no extra sound around them.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:find-silence",
+            "input": {
+              "video": "1f:7320b49113520185e2ad8938759857db29ec6b0ed6a30cd1a2cfc05c68d932c6",
+              "threshold_db": -40,
+              "min_silence_seconds": 1,
+              "pad_seconds": 0
+            }
+          }
+        }
+      },
+      "given": "read from tools/media-composition/do-work/detect-silence.mjs, same clip; the 6 to 7 second pause measures 0.975 seconds, under the 1 second minimum, so it is not a silence and its stretch is kept to the end",
+      "hands_back": "{\"result\":{\"silences\":[{\"start\":2.043,\"end\":4.04}],\"keep\":[{\"in\":0,\"out\":2.043},{\"in\":4.04,\"out\":7}],\"duration\":7,\"threshold_db\":-40,\"min_silence\":1,\"pad\":0,\"count\":2}}"
     }
   ]
 }

@@ -1,60 +1,65 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:keep-pages-cited-by-answer-engines's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:keep-pages-cited-by-answer-engines.\" Every 90 days, measure every planned page × question × answer engine cell, preserve the complete answers and their exact links and context, find stale facts on those pages, refresh only facts confirmed by current sources, and run changed words through the person's rules.",
-  "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
-  "workflows": [
-    "workflow:keep-pages-cited-by-answer-engines"
-  ],
-  "tools": [
-    "tool:check-against-a-persons-rules-and-verdicts",
-    "tool:measure-page-citation-coverage",
-    "tool:read-a-page-in-my-browser",
-    "tool:read-public-web-page"
-  ],
-  "instructions": [
-    "1. Say to your AI: \"Run workflow:keep-pages-cited-by-answer-engines\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:keep-pages-cited-by-answer-engines) and works through its steps in order: plan-cells, ask, measure-citations, read-pages, find-current, rewrite, check-words, approve-and-publish, record.",
-    "3. Read what each step hands back; the last step is record."
-  ],
-  "worked_examples": [
-    {
-      "title": "Keep your pages cited by answer engines from its first step",
-      "ask": "Run workflow:keep-pages-cited-by-answer-engines.",
-      "mcp": {
-        "server": "trillion",
-        "tool": "run_resource_operation",
-        "input": {
-          "address": "@workshop-tools",
-          "method": "tools:run",
-          "input": {
-            "tool": "tool:start-a-recipe-run",
-            "input": {
-              "row": "workflow:keep-pages-cited-by-answer-engines",
-              "pages": [
-                {
-                  "url": "<url: string>",
-                  "questions": [
-                    "<questions: string>"
-                  ]
-                }
-              ],
-              "answer_engines": [
-                "<answer_engines: The search address of an answer engine with {question} where the question goes>"
-              ],
-              "freshness_days": "<freshness_days: A fact dated longer ago than this many days is refreshed>",
-              "rules": [
-                {}
-              ]
-            }
-          }
+ "start_here": "Say to your AI: \"Run workflow:keep-pages-cited-by-answer-engines for https://bakery.example.com/pricing against https://chat.example.com/?q= with facts older than 90 days refreshed, using my word rules.\"",
+ "lists": [],
+ "no_lists_because": "It keeps no list of its own: it writes one page-citations record to the person's own records and compares it with the earlier one.",
+ "workflows": [
+  "workflow:keep-pages-cited-by-answer-engines"
+ ],
+ "tools": [
+  "tool:start-a-recipe-run",
+  "tool:check-against-a-persons-rules-and-verdicts",
+  "tool:read-a-page-in-my-browser",
+  "tool:read-public-web-page",
+  "tool:measure-page-citation-coverage"
+ ],
+ "instructions": [
+  "1. Give pages (your own pages and the questions each answers), answer_engines (the address of each engine with a question slot), freshness_days and rules; message is optional.",
+  "2. Say \"Run workflow:keep-pages-cited-by-answer-engines\". It forms one cell for every page, question and engine, asks each engine and measures which cells cite your page.",
+  "3. It reads each page, marks facts older than freshness_days as stale, finds the current value in a primary source and rewrites only changed or undated sections, then checks them against your rules.",
+  "4. It saves a draft, previews and publishes only through tools it actually has, reads the live page back and records the date, citations and changes; a missing tool is reported as a gap."
+ ],
+ "worked_examples": [
+  {
+   "title": "Two questions on one page make two cells",
+   "ask": "Check whether the engine cites my pricing page.",
+   "mcp": {
+    "server": "trillion",
+    "tool": "run_resource_operation",
+    "input": {
+     "address": "@workshop-tools",
+     "method": "tools:run",
+     "input": {
+      "tool": "tool:start-a-recipe-run",
+      "input": {
+       "row": "workflow:keep-pages-cited-by-answer-engines",
+       "pages": [
+        {
+         "url": "https://bakery.example.com/pricing",
+         "questions": [
+          "How much does bakery order software cost?",
+          "Is there a free plan for bakery order software?"
+         ]
         }
-      },
-      "workflow": "workflow:keep-pages-cited-by-answer-engines",
-      "step": "plan-cells",
-      "hands_back": "Step plan-cells answers with cells.",
-      "given": "The person gives: url, questions, answer_engines, freshness_days (shown as <name> in the input)."
+       ],
+       "answer_engines": [
+        "https://chat.example.com/?q="
+       ],
+       "freshness_days": 90,
+       "rules": [
+        {
+         "id": "no-hype",
+         "rule": "Never use the word best"
+        }
+       ]
+      }
+     }
     }
-  ]
+   },
+   "workflow": "workflow:keep-pages-cited-by-answer-engines",
+   "step": "plan-cells",
+   "given": "Read from the plan-cells step in tools/workflows/recipes/workflows.json: one cell for every page, question and engine, with cell_id the JSON text of [page_url, question, engine].",
+   "hands_back": "{\"cells\": [{\"cell_id\": \"[\\\"https://bakery.example.com/pricing\\\",\\\"How much does bakery order software cost?\\\",\\\"https://chat.example.com/?q=\\\"]\", \"page_url\": \"https://bakery.example.com/pricing\", \"question\": \"How much does bakery order software cost?\", \"engine\": \"https://chat.example.com/?q=\"}, {\"cell_id\": \"[\\\"https://bakery.example.com/pricing\\\",\\\"Is there a free plan for bakery order software?\\\",\\\"https://chat.example.com/?q=\\\"]\", \"page_url\": \"https://bakery.example.com/pricing\", \"question\": \"Is there a free plan for bakery order software?\", \"engine\": \"https://chat.example.com/?q=\"}]}"
+  }
+ ],
+ "drafted_from": "tools/workflows/recipes/workflows.json row of workflow:keep-pages-cited-by-answer-engines (input schema, steps and submit shapes)"
 }

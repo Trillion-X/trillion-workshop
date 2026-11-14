@@ -1,13 +1,11 @@
 {
-  "draft": true,
-  "drafted_from": "tool:gate-a-pieces-delivery-checklist's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:gate-a-pieces-delivery-checklist with library, schema, command.\" Before I show or deliver a piece, tell me which checks of my delivery checklist are still open, failed or answered on old bytes, record each answer with its evidence, and hold back anything already linked for me to watch that has not passed",
+  "start_here": "Say to your AI: \"Before I show test-piece, run the delivery gate at stage S5 and tell me which checks are still open.\" It runs tool:gate-a-pieces-delivery-checklist with the gate command.",
   "lists": [
     {
       "list": "list:settings",
       "label": "Settings",
       "row_type": "record:setting",
-      "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON.",
+      "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON. For the delivery gate the row holds the delivery_gate rules the schema argument can point at.",
       "fields": [
         {
           "id": "name",
@@ -71,81 +69,78 @@
           "label": "Status",
           "alike": [
             "state",
-            "on or off"
+            "active"
           ]
         }
       ],
       "example_rows": [
         {
-          "id": "caption-style",
+          "id": "film-delivery-gate",
           "values": {
-            "name": "Caption style",
-            "tool": "tool:example-captioner",
-            "scope_kind": "person",
-            "scope_id": "example-person",
-            "settings": "{\"style\":\"plain\",\"size\":\"large\"}",
+            "name": "Film delivery gate",
+            "tool": "tool:gate-a-pieces-delivery-checklist",
+            "scope_kind": "account",
+            "scope_id": "main",
+            "settings": "{\"delivery_gate\":{\"checklist_pool\":\"checklist\",\"answers_file\":\"checklist-answers.jsonl\",\"film_config_file\":\"film-gate.json\",\"films_folder\":\"films\",\"min_evidence_chars\":12}}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         },
         {
-          "id": "quiet-hours",
+          "id": "bakery-ad-gate",
           "values": {
-            "name": "Quiet hours",
-            "tool": "tool:example-notifier",
-            "scope_kind": "account",
-            "scope_id": "whole-account",
-            "settings": "{\"from\":\"22:00\",\"to\":\"07:00\"}",
+            "name": "Bakery ad gate",
+            "tool": "tool:gate-a-pieces-delivery-checklist",
+            "scope_kind": "piece",
+            "scope_id": "bakery-ad",
+            "settings": "{\"delivery_gate\":{\"default_profile\":\"first-look\",\"audit_at\":\"review\"}}",
             "from": "the person",
-            "status": "on"
+            "status": "active"
           }
         }
       ],
       "alike": [
-        "an app's settings screen",
-        "a config file per tool",
-        "a spreadsheet of options"
+        "a config sheet or settings spreadsheet",
+        "an app's preferences list",
+        "a notes page of defaults per project"
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
-    "tool:gate-a-pieces-delivery-checklist"
+    "tool:gate-a-pieces-delivery-checklist",
+    "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:gate-a-pieces-delivery-checklist\", and give it library, schema, command.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:gate-a-pieces-delivery-checklist and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Before I show or deliver a piece, tell me which checks of my delivery checklist are still open, failed or answered on old bytes, record each answer with its evidence, and hold back anything already linked for me to watch that has not passed"
+    "1. Have a library with a schema (or a list:settings row holding it) whose delivery_gate names the checklist pool, the answers file, the stages and the rules, and a piece folder whose header lists its tags (the made-up film library in the test fixtures is a worked one). Pour the example settings rows into your own settings list (see pour).",
+    "2. Say to your AI: \"Run the delivery gate on test-piece at S5\". It reads the row with tools:list and runs python3 -I tools/keep-a-record-library-valid/do-work/keep_a_record_library.py --library <library> --schema <schema> gate <piece> --stage S5",
+    "3. Read every unanswered_must, failed_must and stale item to the person with the command that answers it (each carries an answer_with line). Exit 1 means something is still open.",
+    "4. Answer a check only with evidence you read, under your own name: python3 -I tools/keep-a-record-library-valid/do-work/keep_a_record_library.py --library <library> --schema <schema> answer <piece> --check S5.1 --answer pass --evidence \"<file, number or list>\" --by <name>. Never use a machine's name.",
+    "5. Run gate again: all_passed turns true when every routed MUST check has a pass row on the current bytes. Run audit-watch before linking anything into a watch folder."
   ],
   "worked_examples": [
     {
-      "title": "Hold a piece back until every check of its delivery checklist has a pass with evidence (runs on your computer) on a sample input",
-      "ask": "Run tool:gate-a-pieces-delivery-checklist.",
+      "title": "Two open checks, answered, then the gate passes",
+      "ask": "Before I show test-piece, which delivery checks are still open at S5?",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:gate-a-pieces-delivery-checklist",
-            "input": {
-              "library": "<library: The folder the library's files are relative to, put where {library} is in the command>",
-              "schema": "<schema: The schema file, or a file holding the person's list:settings row record:setting:keep-a-record-library-valid~<scope_kind>~<scope_id>, with its delivery_gate; put where {schema} is in the command>",
-              "command": "<command: One of: gate <piece> --stage S5,S6 [--option IDS] [--at review|final]; answer <piece> --check ID --answer pass|fail|n/a --evidence TEXT --by NAME [--option ID]; answer-from-render-check <piece> --json REPORT; sweep <piece> --previews DIR; content-gates <piece> --lane-dir DIR [--option IDS] [--at STAGE]; audition-gates <piece> --file F [--at STAGE]; audit-watch <piece> [--hold] [--file F]; scope-options <piece> [--lane L]>"
-            }
+            "tool": "tool:gate-a-pieces-delivery-checklist"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Before I show or deliver a piece, tell me which checks of my delivery checklist are still open, failed or answered on old bytes, record each answer with its evidence, and hold back anything already linked for me to watch that has not passed",
-      "given": "The person gives: library, schema, command (shown as <name> in the input)."
+      "given": "Read from tools/keep-a-record-library-valid/read-data/delivery_gate.py and run for real on a copy of tools/keep-a-record-library-valid/test/fixtures/delivery with films/test-piece (SCRIPT.md header: medium video, source data:git, shape list, flags hf; film-gate.json {}): python3 -I tools/keep-a-record-library-valid/do-work/keep_a_record_library.py --library library --schema library/schema.json gate library/films/test-piece --stage S5; then two answer calls by Sam; then gate again.",
+      "hands_back": "First gate, exit 1: {\"all_passed\": false, \"stages\": [\"S5\"], \"tags\": [\"data\", \"data:git\", \"hf\", \"list\", \"video\"], \"problems\": [], \"failed_must\": [], \"at\": \"final\", ...} with unanswered_must S5.1 (\"The overlay lint has 0 errors.\", verify \"a listing\") and S5.2 (\"The picture renders in every aspect the header names.\"), each with an answer_with command. answer --check S5.1 --answer pass --evidence \"overlay lint listing: 0 errors\" --by Sam writes {\"check_id\": \"S5.1\", \"answer\": \"pass\", \"evidence\": \"overlay lint listing: 0 errors\", \"by\": \"Sam\", ...}; after both are answered the gate answers all_passed true with unanswered_must [] and failed_must []."
     }
   ],
   "pour": {
     "tool": "tool:pour-example-rows-into-my-list",
     "least_coverage": 0.8,
-    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "how": "Name the list you already keep for tool settings and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and list:settings as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
     "example": {
       "kit_list": "list:settings",
       "into": {
@@ -181,7 +176,9 @@
             "label": "Status"
           }
         ]
-      }
+      },
+      "field_map": {}
     }
-  }
+  },
+  "drafted_from": "tool:gate-a-pieces-delivery-checklist's row in tools/keep-a-record-library-valid/tool-rows.json, do-work/keep_a_record_library.py and read-data/*.py, and the fixtures and tests in tools/keep-a-record-library-valid/test/; the worked run was executed here on the made-up greenhouse fixtures"
 }

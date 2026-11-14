@@ -1,40 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:export-records-as-list-rows's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:export-records-as-list-rows with mapping, root, out.\" Take records I keep in files (JSON, spreadsheets saved as tab-separated text, markdown tables) and prepare them as rows for my lists, using a mapping I write once",
+  "drafted_from": "tool:export-records-as-list-rows row (tools/export-records-as-list-rows/tool-rows.json), do-work/export_records_as_list_rows.py, read-data/list_rows.py and test/test_list_rows.py; the answer is what the script printed on the same made-up bakery input",
+  "start_here": "Say to your AI: \"Turn my bakery orders in data/orders.json into rows for my orders list with the mapping I wrote, and tell me how many rows came out.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of its own: every list and column comes from the mapping, and it only writes payload files into a folder and sends nothing.",
   "workflows": [],
   "tools": [
-    "tool:export-records-as-list-rows"
+    "tool:export-records-as-list-rows",
+    "tool:send-list-row-batches"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:export-records-as-list-rows\", and give it mapping, root, out.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:export-records-as-list-rows and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Take records I keep in files (JSON, spreadsheets saved as tab-separated text, markdown tables) and prepare them as rows for my lists, using a mapping I write once"
+    "1. Put your records in a folder (here data/orders.json holding {\"orders\":[{\"id\":\"O-1\",\"customer\":\"Sam\",\"item\":\"sourdough loaf\",\"qty\":\"2\",\"status\":\"paid\"}, ...]}) and write mapping.json: new_lists names the list and its fields, and each source names the file, the path to the records, the row id template and a map saying how each field is made (from, number, choice with a table, const).",
+    "2. Say \"Turn my records into rows\"; your AI reads the row with tools:list {tool: \"tool:export-records-as-list-rows\"} and runs its command with {mapping}, {root} and {out} filled in.",
+    "3. Read the counts it prints and open manifest.json and the orders-000.json batch in the out folder; a refusal on stderr (exit 2) says what to change, for example two records making one row id.",
+    "4. Nothing has been sent yet: when you agree, put the batches into your list with tool:send-list-row-batches."
   ],
   "worked_examples": [
     {
-      "title": "Turn my records into rows for my Trillion lists (runs on your computer) on a sample input",
-      "ask": "Run tool:export-records-as-list-rows.",
+      "title": "Two bakery orders become two list rows",
+      "ask": "Turn my bakery orders in data/orders.json into rows for my orders list.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:export-records-as-list-rows",
-            "input": {
-              "mapping": "<mapping: The mapping file on the person's computer (the README describes its keys), put where {mapping} is in the command>",
-              "root": "<root: The folder the mapping's files and globs are relative to, put where {root} is in the command>",
-              "out": "<out: The folder to write the payloads into, put where {out} is in the command>"
-            }
+            "tool": "tool:export-records-as-list-rows"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Take records I keep in files (JSON, spreadsheets saved as tab-separated text, markdown tables) and prepare them as rows for my lists, using a mapping I write once",
-      "given": "The person gives: mapping, root, out (shown as <name> in the input)."
+      "given": "Read from a real run of tools/export-records-as-list-rows/do-work/export_records_as_list_rows.py on made-up input (the toy-library mapping in test/test_list_rows.py uses the same keys). The AI runs: python3 -I trillion-workshop/tools/export-records-as-list-rows/do-work/export_records_as_list_rows.py --mapping mapping.json --root bakery --out payloads. data/orders.json holds O-1 (Sam, sourdough loaf, qty \"2\", status paid) and O-2 (Ana, rye bun, qty \"12\", status open); the mapping maps customer and item with from, qty with number, and status with choice and the table paid to Paid, open to Open.",
+      "hands_back": "{\"orders\": {\"list_id\": \"orders\", \"rows\": 2}}, exit 0. payloads/ holds make_lists.json, manifest.json and orders-000.json: {\"list_id\": \"orders\", \"rows\": [{\"id\": \"O-1\", \"values\": {\"customer\": \"Sam\", \"item\": \"sourdough loaf\", \"qty\": 2, \"status\": \"Paid\"}}, {\"id\": \"O-2\", \"values\": {\"customer\": \"Ana\", \"item\": \"rye bun\", \"qty\": 12, \"status\": \"Open\"}}]}."
     }
   ]
 }

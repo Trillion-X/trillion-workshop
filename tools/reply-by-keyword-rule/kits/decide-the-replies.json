@@ -1,22 +1,126 @@
 {
-  "draft": true,
-  "drafted_from": "tool:decide-the-replies's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:decide-the-replies with place.\" Say which automatic reply to send now to each message or comment a person received on one of their connected places, by their keyword rules, and which to leave and why",
-  "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "drafted_from": "tools/reply-by-keyword-rule/tool-rows.json (tool:decide-the-replies), do-work/decide-the-replies.mjs, read-data/reply-rules.mjs and reply-places.json, test/decide-and-send.test.mjs; the example was run on the test fixture",
+  "start_here": "Say to your AI: \"Decide which Instagram messages from account-one my reply rules answer now.\" It runs tool:decide-the-replies with place reply-place:instagram and tells you each reply to send, and which it leaves and why. It sends nothing.",
+  "lists": [
+    {
+      "list": "list:reply-rules",
+      "label": "Reply rules",
+      "row_type": "record:reply-rule",
+      "holds": "One keyword rule: the words that pick it, whether any or all must match, the reply it sends and where it comes in the order.",
+      "fields": [
+        {
+          "id": "id",
+          "kind": "text",
+          "label": "Rule id",
+          "alike": [
+            "name",
+            "rule name"
+          ]
+        },
+        {
+          "id": "enabled",
+          "kind": "choice",
+          "label": "On or off",
+          "alike": [
+            "active",
+            "status"
+          ]
+        },
+        {
+          "id": "words",
+          "kind": "tags",
+          "label": "Words that match",
+          "alike": [
+            "keywords",
+            "triggers",
+            "shortcut"
+          ]
+        },
+        {
+          "id": "mode",
+          "kind": "choice",
+          "label": "Match any or all words",
+          "alike": [
+            "match type",
+            "match"
+          ]
+        },
+        {
+          "id": "reply",
+          "kind": "long-text",
+          "label": "Reply text",
+          "alike": [
+            "message",
+            "body",
+            "response",
+            "answer"
+          ]
+        },
+        {
+          "id": "order",
+          "kind": "number",
+          "label": "Order",
+          "alike": [
+            "priority",
+            "position"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "prices",
+          "values": {
+            "id": "rule:prices",
+            "enabled": "on",
+            "words": [
+              "price",
+              "cost",
+              "how much"
+            ],
+            "mode": "any",
+            "reply": "Hi, the price list is here: https://example.com/prices",
+            "order": 1
+          }
+        },
+        {
+          "id": "hours",
+          "values": {
+            "id": "rule:hours",
+            "enabled": "on",
+            "words": [
+              "open",
+              "hours"
+            ],
+            "mode": "any",
+            "reply": "We are open 9 to 5, Monday to Friday.",
+            "order": 2
+          }
+        }
+      ],
+      "alike": [
+        "saved replies in a help desk",
+        "a canned-responses spreadsheet",
+        "keyword auto-replies in a social inbox tool"
+      ]
+    }
+  ],
   "workflows": [],
   "tools": [
-    "tool:decide-the-replies"
+    "tool:decide-the-replies",
+    "tool:send-a-reply-on-instagram",
+    "tool:send-a-reply-on-youtube"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:decide-the-replies\", and give it place.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:decide-the-replies and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields place, account, decisions, not_pulled."
+    "1. Pour the two example reply rules into your own saved-replies list (see pour), or make list:reply-rules from them. A rule is used only when On or off is on; the first on rule in Order whose words match decides the reply.",
+    "2. Pull the place first (an Instagram account's messages and comments are pulled and kept under a name such as account-one) or, for YouTube, run tool:read-youtube-comments and hand its answers in as pulled.comment.",
+    "3. Say \"Decide my replies for Instagram\": the AI runs tool:decide-the-replies at @workshop-tools with {place: \"reply-place:instagram\", account: \"<the name the pulls were kept under>\"}; add account_id for a place that reads your own id from your connection (YouTube).",
+    "4. Read decisions: each has action send (with reply_text, key, kind and recipient) or skip (with a reason such as already-sent or comment-is-ours), and not_pulled names a source nobody pulled yet.",
+    "5. Send each chosen reply with the place's send tool (tool:send-a-reply-on-instagram or tool:send-a-reply-on-youtube), passing its decision."
   ],
   "worked_examples": [
     {
-      "title": "Decide the replies on a sample input",
-      "ask": "Run tool:decide-the-replies.",
+      "title": "A price question in Instagram messages gets the price reply",
+      "ask": "Decide which of my Instagram messages the reply rules answer now.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,13 +130,54 @@
           "input": {
             "tool": "tool:decide-the-replies",
             "input": {
-              "place": "<place: The place's row id in reply-places.json, for example reply-place:instagram or reply-place:youtube>"
+              "place": "reply-place:instagram",
+              "account": "account-one",
+              "now": "2026-11-12T12:00:00Z"
             }
           }
         }
       },
-      "hands_back": "An answer with the fields place, account, decisions, not_pulled.",
-      "given": "The person gives: place (shown as <name> in the input)."
+      "given": "From tools/reply-by-keyword-rule/test/decide-and-send.test.mjs (the first test, run here on its fixture): the messages pulled under account-one hold one thread whose last message msg-1, from someone else 5 minutes before now, says \"what is the price\"; one rule, rule:prices, is on with words [\"price\"], mode any and reply \"Hi, the price list is here.\"; no comments were pulled.",
+      "hands_back": "{\"place\":\"reply-place:instagram\",\"account\":\"account-one\",\"decisions\":[{\"place\":\"reply-place:instagram\",\"kind\":\"dm\",\"thread_id\":\"thread-1\",\"message_id\":\"msg-1\",\"created_time\":\"2026-11-12T11:55:00.000Z\",\"window_ms\":86400000,\"recipient\":{\"id\":\"them\"},\"key\":\"msg-1:rule:prices\",\"rule_id\":\"rule:prices\",\"action\":\"send\",\"reply_text\":\"Hi, the price list is here.\"}],\"not_pulled\":[\"instagram-comments\"]}. Run again once that reply is kept, the decision is {action: \"skip\", reason: \"already-sent\"}."
     }
-  ]
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for the same job and its fields. The tool matches each kit field to one of yours (by the map you give, the same id, the same label, or a name in alike), refuses when fewer than least_coverage of the kit's fields match, and otherwise answers the records:write that adds the example rows to your list, leaving your own rows untouched.",
+    "example": {
+      "kit_list": "list:reply-rules",
+      "into": {
+        "list": "list:auto-replies",
+        "row_type": "record:auto-reply",
+        "fields": [
+          {
+            "id": "id",
+            "label": "Rule id"
+          },
+          {
+            "id": "enabled",
+            "label": "On or off"
+          },
+          {
+            "id": "keywords",
+            "label": "Words that match"
+          },
+          {
+            "id": "mode",
+            "label": "Match any or all words"
+          },
+          {
+            "id": "body",
+            "label": "Reply text"
+          },
+          {
+            "id": "order",
+            "label": "Order"
+          }
+        ]
+      },
+      "field_map": {}
+    }
+  }
 }

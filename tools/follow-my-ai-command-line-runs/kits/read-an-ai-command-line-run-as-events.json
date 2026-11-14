@@ -1,39 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:read-an-ai-command-line-run-as-events's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-an-ai-command-line-run-as-events with harness, stream.\" Turn the JSON event stream of my own AI command line's run into the same text, thinking, tool started, tool done and reply events, whichever command line it is",
+  "drafted_from": "tools/follow-my-ai-command-line-runs/tool-rows.json (tool:read-an-ai-command-line-run-as-events), do-work/follow-runs.mjs, read-data/ai-command-lines.json and test/session-runs.test.mjs",
+  "start_here": "Say to your AI: \"Read the Claude Code run I saved in run.jsonl as events and tell me which tools it started and what it replied.\" It runs the reader on your computer and lists one event per line.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It only reads a saved run stream from a file and prints events; it keeps no list of yours.",
   "workflows": [],
   "tools": [
     "tool:read-an-ai-command-line-run-as-events"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-an-ai-command-line-run-as-events\", and give it harness, stream.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-an-ai-command-line-run-as-events and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Turn the JSON event stream of my own AI command line's run into the same text, thinking, tool started, tool done and reply events, whichever command line it is"
+    "1. Save the run's JSON stream to a file, for example claude -p \"...\" --output-format stream-json --verbose > run.jsonl (Codex: codex exec --json).",
+    "2. Say \"Read run.jsonl as events from claude-code\". The AI reads the row with tools:list and runs node tools/follow-my-ai-command-line-runs/do-work/follow-runs.mjs --events claude-code < run.jsonl from the Workshop checkout.",
+    "3. Read the output, one JSON event per line: kind is thinking, text, tool_start, tool_done or reply. Lines that are not JSON or match no row are ignored.",
+    "4. An unknown command line id exits 2 and prints {\"error\": \"No command line ... Known: codex, claude-code.\"} on standard error; use one of the ids it lists."
   ],
   "worked_examples": [
     {
-      "title": "Read a run of my AI command line as live events (runs on your computer) on a sample input",
-      "ask": "Run tool:read-an-ai-command-line-run-as-events.",
+      "title": "A four-line Claude Code run becomes five events",
+      "ask": "Read run.jsonl as events from claude-code.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:read-an-ai-command-line-run-as-events",
-            "input": {
-              "harness": "<harness: The command line's row id in read-data/ai-command-lines.json (claude-code, codex), put where {harness} is>",
-              "stream": "<stream: The file holding the run's event stream, put where {stream} is>"
-            }
+            "tool": "tool:read-an-ai-command-line-run-as-events"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Turn the JSON event stream of my own AI command line's run into the same text, thinking, tool started, tool done and reply events, whichever command line it is",
-      "given": "The person gives: harness, stream (shown as <name> in the input)."
+      "given": "From tools/follow-my-ai-command-line-runs/test/session-runs.test.mjs (\"each CLI's own stream lines become the same normalised events\"). Command: node tools/follow-my-ai-command-line-runs/do-work/follow-runs.mjs --events claude-code < run.jsonl, where run.jsonl holds these lines: {\"type\":\"system\",\"subtype\":\"init\"} {\"type\":\"assistant\",\"message\":{\"content\":[{\"type\":\"thinking\",\"thinking\":\"plan it\"},{\"type\":\"text\",\"text\":\"Looking.\"},{\"type\":\"tool_use\",\"id\":\"t1\",\"name\":\"Read\"}]}} {\"type\":\"user\",\"message\":{\"content\":[{\"type\":\"tool_result\",\"tool_use_id\":\"t1\"}]}} {\"type\":\"result\",\"result\":\"All done.\"} followed by a line \"not json\".",
+      "hands_back": "{\"kind\":\"thinking\",\"text\":\"plan it\"} {\"kind\":\"text\",\"text\":\"Looking.\"} {\"kind\":\"tool_start\",\"name\":\"Read\",\"id\":\"t1\"} {\"kind\":\"tool_done\",\"id\":\"t1\"} {\"kind\":\"reply\",\"text\":\"All done.\"} (one per line; the init line and the \"not json\" line print nothing; the last line is the reply event)."
     }
   ]
 }

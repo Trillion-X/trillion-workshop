@@ -1,7 +1,6 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:prove-the-launch-on-the-real-url's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:prove-the-launch-on-the-real-url.\" Read the live page at its real address, check it for search and answer engines, check it at phone, tablet and desktop widths, and count the stage checklist so the launch is judged on what buyers see.",
+  "drafted_from": "workflow row in tools/workflows/recipes/workflows.json (steps, submit shapes), the shipped list rows in tools/workflows/kit-lists.json; values synthetic",
+  "start_here": "Say to your AI: \"Run workflow:prove-the-launch-on-the-real-url for my bakery site at https://example.com: read the live page, check it for search and answer engines, check phone, tablet and desktop, and count my launch checklist.\"",
   "lists": [
     {
       "list": "list:business-setup-checklist",
@@ -184,14 +183,15 @@
     "tool:read-public-web-page"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:prove-the-launch-on-the-real-url\".",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:prove-the-launch-on-the-real-url) and works through its steps in order: read-facts, read-the-live-page, check-search-and-answer-readiness, check-every-width, measure-the-checklist, record-the-stage.",
-    "3. Read what each step hands back; the last step is record-the-stage."
+    "1. Make sure record:business-setup:facts exists with your attached domain (workflow:set-up-a-business-on-trillion writes it) and that list:business-setup-checklist holds one row per stage (pour the example rows, see pour, or make the list from them).",
+    "2. Say \"Run workflow:prove-the-launch-on-the-real-url\". The AI starts it with tool:start-a-recipe-run and works the steps in order: read-facts, read-the-live-page, check-search-and-answer-readiness, check-every-width, measure-the-checklist, record-the-stage.",
+    "3. Read each step: the live page must answer 200 with its title; every failing search-readiness check or width problem is fixed in the page rows, the page is published again, and the step is run again.",
+    "4. Read the count from measure-the-checklist (done, total and the stages not done); record-the-stage writes the stage and any open gaps to list:business-setup-checklist and list:business-setup-gaps."
   ],
   "worked_examples": [
     {
-      "title": "Prove the launch on the real address from its first step",
-      "ask": "Run workflow:prove-the-launch-on-the-real-url.",
+      "title": "The real address answers 200 with its title",
+      "ask": "Prove my launch on the real address.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -207,8 +207,9 @@
         }
       },
       "workflow": "workflow:prove-the-launch-on-the-real-url",
-      "step": "read-facts",
-      "hands_back": "Step read-facts answers with facts."
+      "step": "read-the-live-page",
+      "given": "Read from tools/workflows/recipes/workflows.json (step read-the-live-page): facts.domain is example.com, so the step calls tool:read-public-web-page with {\"url\":\"https://example.com\"} on the real address, not a local copy.",
+      "hands_back": "{\"status\":200,\"title\":\"Sunrise Bakery - fresh sourdough every morning\"}"
     }
   ],
   "pour": {

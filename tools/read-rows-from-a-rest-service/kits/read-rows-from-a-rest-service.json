@@ -1,22 +1,22 @@
 {
-  "draft": true,
-  "drafted_from": "tool:read-rows-from-a-rest-service's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-rows-from-a-rest-service with account_id, project_url, table.\" Read the rows of one table in the person's connected database service, such as a Supabase project, with filters and an order",
+  "drafted_from": "tool:read-rows-from-a-rest-service row in tool-rows.json, do-work/read-rows.mjs, read-data/hosts.json and test/read-rows.test.mjs",
+  "start_here": "Say to your AI: \"Read the first 5 active rows of the members table in my Supabase project https://example-project.supabase.co, columns id and name, ordered by id.\" It runs tool:read-rows-from-a-rest-service with your connection and shows the rows and the total.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list: it reads one table of your connected database service and answers rows, a count and a total, writing nothing.",
   "workflows": [],
   "tools": [
     "tool:read-rows-from-a-rest-service"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-rows-from-a-rest-service\", and give it account_id, project_url, table.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-rows-from-a-rest-service and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields rows, count, total."
+    "1. Connect your PostgREST service (a Supabase project is one) so a service connection such as service_connection:supabase holds its service key; the key is never part of the request.",
+    "2. Say which table and which rows; your AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-rows-from-a-rest-service and input {account_id, project_url, table, select, filters, order, limit, offset}.",
+    "3. Read the answer {rows, count, total}: count is the rows in this page (limit at most 1000), total the whole table's matching rows when the service reports it; ask again with offset to read the next page.",
+    "4. Filters are column to \"operator.value\" with eq, neq, gt, gte, lt, lte, like, ilike, is or in; a refused key (401 or 403) means connect the service again; the key goes only to a project under supabase.co."
   ],
   "worked_examples": [
     {
-      "title": "Read rows from a REST database service on a sample input",
-      "ask": "Run tool:read-rows-from-a-rest-service.",
+      "title": "Five active members, two columns, ordered by id",
+      "ask": "Read the first 5 active rows of members in my project, columns id and name.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,15 +26,19 @@
           "input": {
             "tool": "tool:read-rows-from-a-rest-service",
             "input": {
-              "account_id": "<account_id: The PostgREST service connection, service_connection:supabase or service_connection:supabase:<account>>",
-              "project_url": "<project_url: The project's address, https://<project>.supabase.co, as the connection shows it>",
-              "table": "<table: One table of the project, plain letters, digits and underscores>"
+              "account_id": "service_connection:supabase",
+              "project_url": "https://example-project.supabase.co",
+              "table": "members",
+              "select": "id,name",
+              "filters": { "status": "eq.active" },
+              "order": "id.asc",
+              "limit": 5
             }
           }
         }
       },
-      "hands_back": "An answer with the fields rows, count, total.",
-      "given": "The person gives: account_id, project_url, table (shown as <name> in the input)."
+      "given": "From tools/read-rows-from-a-rest-service/test/read-rows.test.mjs (the service replaced by a stand-in): the tool sends one GET to https://example-project.supabase.co/rest/v1/members?select=id,name&limit=5&order=id.asc&status=eq.active with the key as apikey and Bearer headers; the service answers one row {id: 1, name: \"Example Member\"} with content-range 0-0/11.",
+      "hands_back": "{rows: [{id: 1, name: \"Example Member\"}], count: 1, total: 11}. A 401 answers \"The service refused the held key (401). Connect the service again with a current key.\"; a project_url under another domain is refused before any request with \"the key is not sent anywhere else\"."
     }
   ]
 }

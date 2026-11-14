@@ -1,46 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:check-a-packaging-intake-against-the-ledger's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-a-packaging-intake-against-the-ledger with root, ledger, source_key, intake, channel_catalog, review, before_ledger, output.\" Check that the videos I admitted are in my packaging ledger with the right titles, thumbnails and caption evidence, and that nothing else changed",
+  "drafted_from": "tool row in tools/keep-a-video-packaging-ledger/tool-rows.json, do-work/readback_packaging_intake.py and the fixture of test/test_channel_intake_append_new.py (run to observe)",
+  "start_here": "Say to your AI: \"Check that the two videos I just added under ch-example-videos are in my packaging ledger with the right titles, thumbnails and caption evidence, against the copy I kept as BEFORE.jsonl.\" It reads the tool's row and runs readback_packaging_intake.py on your computer.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no Trillion list: the ledger is a JSON Lines file in the person's own working folder, one row per video, and the tool reads and writes files there.",
   "workflows": [],
   "tools": [
     "tool:check-a-packaging-intake-against-the-ledger",
     "tool:add-reviewed-videos-to-a-packaging-ledger"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-a-packaging-intake-against-the-ledger\", and give it root, ledger, source_key, intake, channel_catalog, review, before_ledger, output.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-packaging-intake-against-the-ledger and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Check that the videos I admitted are in my packaging ledger with the right titles, thumbnails and caption evidence, and that nothing else changed"
+    "1. Before adding a batch, copy the ledger (for example to BEFORE.jsonl); add the batch with tool:add-reviewed-videos-to-a-packaging-ledger.",
+    "2. Say which batch to check. The AI reads the row with tools:list {tool: tool:check-a-packaging-intake-against-the-ledger} and runs its `run` command with absolute paths inside your root (add --update-existing when the batch filled in rows that were unreviewed).",
+    "3. Read the last JSON line: rows, evidence_references_resolved and output; the report at --output lists each video's resolved identities. A failed check stops with an assertion naming it.",
+    "4. When every video resolved and the other rows are unchanged, build the template source (tool:project-a-packaging-ledger-into-template-source)."
   ],
   "worked_examples": [
     {
-      "title": "Check that an intake batch landed in my packaging ledger exactly, changing nothing (runs on your computer) on a sample input",
-      "ask": "Run tool:check-a-packaging-intake-against-the-ledger.",
+      "title": "Check a two-video batch against the ledger",
+      "ask": "Check that the two videos I just added under ch-example-videos are in my packaging ledger.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:check-a-packaging-intake-against-the-ledger",
-            "input": {
-              "root": "<root: The folder every other path is relative to (the person's own working folder that holds the ledger, captions, metadata, thumbnails and review notes), put where {root} is in the command>",
-              "ledger": "<ledger: The packaging ledger: a JSON Lines file, one row per video (video_id, source_key, channel, titles, thumbnail identity and review, caption file references, hook evidence locators), put where {ledger} is in the command>",
-              "source_key": "<source_key: The source key: the name the person gives one channel or playlist batch in the ledger, put where {source_key} is in the command>",
-              "intake": "<intake: The intake manifest JSON, put where {intake} is in the command>",
-              "channel_catalog": "<channel_catalog: The channel catalog JSON, put where {channel_catalog} is in the command>",
-              "review": "<review: The review record JSON, put where {review} is in the command>",
-              "before_ledger": "<before_ledger: A copy of the ledger from before the batch was added, put where {before_ledger} is in the command>",
-              "output": "<output: Where to write the read-back report JSON, put where {output} is in the command>"
-            }
+            "tool": "tool:check-a-packaging-intake-against-the-ledger"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Check that the videos I admitted are in my packaging ledger with the right titles, thumbnails and caption evidence, and that nothing else changed",
-      "given": "The person gives: root, ledger, source_key, intake, channel_catalog, review, before_ledger, output (shown as <name> in the input)."
+      "given": "I ran readback_packaging_intake.py on the fixture of tools/keep-a-video-packaging-ledger/test/test_channel_intake_append_new.py after its append-new run (read from do-work/readback_packaging_intake.py). Command: python3 -I tools/keep-a-video-packaging-ledger/do-work/readback_packaging_intake.py --root /work/example-channel --intake /work/example-channel/admission/batch/INTAKE.json --channel-catalog /work/example-channel/admission/batch/CATALOG.json --review /work/example-channel/admission/batch/REVIEW.json --source-key ch-example-videos --ledger /work/example-channel/VIDEO-PACKAGING.jsonl --before-ledger /work/example-channel/BEFORE.jsonl --output /work/example-channel/READ.json. BEFORE.jsonl holds the 4 rows from before the batch.",
+      "hands_back": "{\"rows\": 2, \"evidence_references_resolved\": true, \"output\": \"/work/example-channel/READ.json\"} The report READ.json (schema youtube-packaging-intake-consumer-readback@1) has video_ids new-video-1 and new-video-2, ledger_row_count 6, and for each video its title (Title 0, Title 1), its metadata file and thumbnail identity, the thumbnail words [\"TEXT\"], one opening caption event reference and resolved_reference_count 6."
     }
   ]
 }

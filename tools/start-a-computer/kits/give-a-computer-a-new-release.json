@@ -1,39 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:give-a-computer-a-new-release's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:give-a-computer-a-new-release with lease_file, request_file.\" Put a new engine release on a running computer and restart it",
+  "drafted_from": "tool row in tools/start-a-computer/tool-rows.json, do-work/start-a-computer.mjs (installOnPlace) and tools/start-a-computer/test/start-a-computer.test.mjs",
+  "start_here": "Say to your AI: \"Put engine release r2, already built at /opt/build/release on my computer arm1, live on it and restart it.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads a lease file and a request file and changes the release on one machine.",
   "workflows": [],
   "tools": [
-    "tool:give-a-computer-a-new-release"
+    "tool:give-a-computer-a-new-release",
+    "tool:update-a-computer",
+    "tool:read-a-computer"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:give-a-computer-a-new-release\", and give it lease_file, request_file.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:give-a-computer-a-new-release and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields release, sign_up_status."
+    "1. Have the lease file (lease.json) and write request.json with ssh {known_hosts}, engine {file, release_name, release {on_machine} or {tarball}} and name {host_name}.",
+    "2. Say the line in start_here. Your AI reads the row with tools:list {tool: \"tool:give-a-computer-a-new-release\"} and runs node tools/start-a-computer/do-work/start-a-computer.mjs install lease.json request.json. No credential is needed; it reaches the machine over SSH.",
+    "3. Read {release, sign_up_status}. The old release stays beside the new one: going back is the same command with the old release_name."
   ],
   "worked_examples": [
     {
-      "title": "Give a computer a new release on a sample input",
-      "ask": "Run tool:give-a-computer-a-new-release.",
+      "title": "Release r2 copied beside the old ones, the service restarted, the page read",
+      "ask": "Switch my computer to release r2.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:give-a-computer-a-new-release",
-            "input": {
-              "lease_file": "<lease_file: string>",
-              "request_file": "<request_file: string>"
-            }
+            "tool": "tool:give-a-computer-a-new-release"
           }
         }
       },
-      "hands_back": "An answer with the fields release, sign_up_status.",
-      "given": "The person gives: lease_file, request_file (shown as <name> in the input)."
+      "given": "From tools/start-a-computer/test/start-a-computer.test.mjs ('an install on a running place is judged by its health row...'). lease.json = {\"schema\":\"place-lease/1\",\"provider\":\"existing-machine\",\"name\":\"arm1\",\"address\":\"192.0.2.9\",\"adopted\":true,\"hostName\":\"place.example.com\"}; request.json = {\"ssh\":{\"known_hosts\":\"known_hosts\"},\"engine\":{\"file\":\"trillion-local\",\"release_name\":\"r2\",\"release\":{\"on_machine\":\"/opt/build/release\"}},\"name\":{\"host_name\":\"place.example.com\"}}; the config on the machine says listen 127.0.0.1:7199 and https://place.example.com/readyz answers 200. Run: node tools/start-a-computer/do-work/start-a-computer.mjs install lease.json request.json",
+      "hands_back": "{\"release\":\"/opt/place/releases/r2\",\"sign_up_status\":200}: /opt/place/releases/r2 was copied from /opt/build/release, /opt/place/releases/current now points at it, place.service was restarted and the public /readyz page answered 200."
     }
   ]
 }

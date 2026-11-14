@@ -1,25 +1,25 @@
 {
-  "draft": true,
-  "drafted_from": "tool:trade-a-short-facebook-token-for-a-long-one's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:trade-a-short-facebook-token-for-a-long-one with connection.\" Trade the connection's short-lived Facebook user token for its 60-day user token, kept sealed in the vault",
+  "drafted_from": "tool:trade-a-short-facebook-token-for-a-long-one's row in tools/connect-a-service-and-seal-its-key/tool-rows.json (job, description, input_schema, invoke) and the folder's test/connect-by-signing-in.test.mjs, whose stand-in answers give the reply and the held word",
+  "start_here": "Say to your AI: \"Trade a short Facebook token for the 60-day one for the new connection service_connection:facebook-messenger:7d3c88e1 with the code made-up-code-4f9a2c.\" It runs tool:trade-a-short-facebook-token-for-a-long-one and tells you the tokens are kept in the vault without showing any of them.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list of yours: it sends one request to Facebook for the connection it is handed and keeps the tokens in the vault as that connection's fields.",
   "workflows": [],
   "tools": [
     "tool:trade-a-short-facebook-token-for-a-long-one",
-    "tool:connect-an-account-by-signing-in-to-the-service",
     "tool:list-the-facebook-pages-a-sign-in-reaches",
+    "tool:connect-an-account-by-signing-in-to-the-service",
     "tool:trade-a-facebook-sign-in-code-for-its-short-token"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:trade-a-short-facebook-token-for-a-long-one\", and give it connection.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:trade-a-short-facebook-token-for-a-long-one and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $ holds the result: Trade the connection's short-lived Facebook user token for its 60-day user token, kept sealed in the vault"
+    "1. Do not run this by hand: tool:connect-an-account-by-signing-in-to-the-service runs it for you at the sign-in callback, after you open the sign-in address it gave you. Start that tool first (its kit shows the call) and keep the connection_id it answers: service_connection:facebook-messenger:7d3c88e1 is the shape.",
+    "2. To run this step alone, the AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:trade-a-short-facebook-token-for-a-long-one and the input the worked example shows (the connection by its handle only).",
+    "3. Read what comes back: the service's reply with every kept token already replaced by the word [held]. The 60-day user token now sits in the vault as the connection's user_access_token field.",
+    "4. A refusal (a used-up code, a wrong callback address) is shown as the service's own error; nothing is kept, so start the sign-in again for a new link."
   ],
   "worked_examples": [
     {
-      "title": "Trade a short-lived Facebook token for a long-lived one on a sample input",
-      "ask": "Run tool:trade-a-short-facebook-token-for-a-long-one.",
+      "title": "Trade a short Facebook token for the 60-day one for a made-up connection",
+      "ask": "Trade a short Facebook token for the 60-day one for service_connection:facebook-messenger:7d3c88e1.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -30,14 +30,14 @@
             "tool": "tool:trade-a-short-facebook-token-for-a-long-one",
             "input": {
               "connection": {
-                "connection_id": "<connection_id: The new connection the sign-in fills: service_connection:<vendor>:<account>, made by tool:connect-an-account-by-signing-in-to-the-service when the sign-in started>"
+                "connection_id": "service_connection:facebook-messenger:7d3c88e1"
               }
             }
           }
         }
       },
-      "hands_back": "The answer's $ holds the result: Trade the connection's short-lived Facebook user token for its 60-day user token, kept sealed in the vault",
-      "given": "The person gives: connection_id (shown as <name> in the input)."
+      "given": "From tools/connect-a-service-and-seal-its-key/test/connect-by-signing-in.test.mjs (its stand-in for this tool's answer, made up the way the engine answers: every token is already the held word \"[held]\", because reply_holds_values keeps each token in the vault before the reply is read): the vault places the app id, the app secret and the held short-lived token into graph.facebook.com/v23.0/oauth/access_token as the request leaves.. Input: {\"connection\":{\"connection_id\":\"service_connection:facebook-messenger:7d3c88e1\"}}.",
+      "hands_back": "{\"access_token\":\"[held]\",\"token_type\":\"bearer\",\"expires_in\":5183944}. The 60-day user token now sits in the vault as the connection's user_access_token field."
     }
   ]
 }

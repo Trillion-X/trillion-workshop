@@ -1,0 +1,238 @@
+{
+  "drafted_from": "tool:connect-an-account-by-signing-in-to-the-service's row in tools/connect-a-service-and-seal-its-key/tool-rows.json, sign-in-settings.json, do-work/connect-by-signing-in.mjs, the real list:service-connections definition (read only) and test/connect-by-signing-in.test.mjs, whose made-up Gmail start and callback give the answers below",
+  "start_here": "Say to your AI: \"Connect my Gmail by signing in, as someone@example.com, read only, and give me the address to open.\" It starts the sign-in with tool:connect-an-account-by-signing-in-to-the-service and hands you Google's own sign-in address.",
+  "lists": [
+    {
+      "list": "list:service-connections",
+      "label": "Service connections",
+      "row_type": "record:service-connection",
+      "holds": "One outside service Trillion reaches for you per row: a connected account (kind signed-in-account) or a sign-in app's id (kind sign-in-app), with the starting values the connection was made with.",
+      "fields": [
+        {
+          "id": "name",
+          "kind": "text",
+          "label": "Service",
+          "alike": [
+            "service",
+            "app",
+            "account name"
+          ]
+        },
+        {
+          "id": "kind",
+          "kind": "text",
+          "label": "Kind of row",
+          "alike": [
+            "type",
+            "category"
+          ]
+        },
+        {
+          "id": "connection_id",
+          "kind": "text",
+          "label": "Connection",
+          "alike": [
+            "connection",
+            "account id",
+            "handle"
+          ]
+        },
+        {
+          "id": "status",
+          "kind": "choice",
+          "label": "Status",
+          "alike": [
+            "state",
+            "active"
+          ]
+        },
+        {
+          "id": "can_send_as",
+          "kind": "checkbox",
+          "label": "Can send as",
+          "alike": [
+            "may send",
+            "send as"
+          ]
+        },
+        {
+          "id": "can_be_primary",
+          "kind": "checkbox",
+          "label": "Can be primary",
+          "alike": [
+            "primary",
+            "default account"
+          ]
+        },
+        {
+          "id": "read_only",
+          "kind": "checkbox",
+          "label": "Read only",
+          "alike": [
+            "view only",
+            "read-only"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "gmail-someone",
+          "values": {
+            "name": "Gmail",
+            "kind": "signed-in-account",
+            "connection_id": "service_connection:google-account:9c1d4e7a",
+            "status": "Active",
+            "can_send_as": false,
+            "can_be_primary": false,
+            "read_only": true
+          }
+        },
+        {
+          "id": "instagram-sams-bakery",
+          "values": {
+            "name": "Instagram",
+            "kind": "signed-in-account",
+            "connection_id": "service_connection:instagram:2a6f0c93",
+            "status": "Active",
+            "can_send_as": true,
+            "can_be_primary": true,
+            "read_only": false
+          }
+        }
+      ],
+      "alike": [
+        "a spreadsheet of accounts and logins you keep",
+        "the connected-apps page of an account",
+        "a password manager's list of services"
+      ]
+    }
+  ],
+  "workflows": [],
+  "tools": [
+    "tool:connect-an-account-by-signing-in-to-the-service",
+    "tool:trade-a-gmail-sign-in-code-for-its-tokens",
+    "tool:trade-a-youtube-sign-in-code-for-its-tokens",
+    "tool:trade-an-instagram-sign-in-code-for-its-short-token",
+    "tool:trade-a-short-instagram-token-for-a-long-one",
+    "tool:trade-a-facebook-sign-in-code-for-its-short-token",
+    "tool:trade-a-short-facebook-token-for-a-long-one",
+    "tool:list-the-facebook-pages-a-sign-in-reaches",
+    "tool:keep-a-facebook-pages-token",
+    "tool:trade-a-threads-sign-in-code-for-its-short-token",
+    "tool:trade-a-short-threads-token-for-a-long-one",
+    "tool:trade-an-x-sign-in-code-for-its-tokens",
+    "tool:check-the-x-connection",
+    "tool:check-the-instagram-connection",
+    "tool:check-the-threads-connection",
+    "tool:check-the-youtube-connection",
+    "tool:google-account-find_my_mailbox"
+  ],
+  "instructions": [
+    "1. Pour the two example rows into your own connected-accounts list (see pour), or keep list:service-connections as it is: the connect tool reads its choice and checkbox fields (status, read_only, can_send_as, can_be_primary) as the starting values and writes one new row for the account.",
+    "2. Say \"Connect my Gmail by signing in, read only\". The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:connect-an-account-by-signing-in-to-the-service and {path: \"/connect/start\", method: \"GET\", query: {service, status, read_only, can_send_as, can_be_primary, account}} (the worked example shows one).",
+    "3. Open the authorize_url it answers in a browser, sign in on the service's own page and agree. The service sends you back to /work/api/connect/callback, which trades the code, checks the account and writes the connection row once.",
+    "4. Read the page it shows: \"<Service> is connected as <account>. Your AI can use it now.\" The link waits 15 minutes to be opened and the state is used once; an expired, refused or other-account sign-in saves nothing, so ask for a new link."
+  ],
+  "worked_examples": [
+    {
+      "title": "Start a read-only Gmail sign-in as one named account",
+      "ask": "Connect my Gmail by signing in, as someone@example.com, read only.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:connect-an-account-by-signing-in-to-the-service",
+            "input": {
+              "path": "/connect/start",
+              "method": "GET",
+              "query": {
+                "service": "google-account",
+                "status": "Active",
+                "read_only": "true",
+                "can_send_as": "false",
+                "can_be_primary": "false",
+                "account": "someone@example.com"
+              }
+            }
+          }
+        }
+      },
+      "given": "From tools/connect-a-service-and-seal-its-key/test/connect-by-signing-in.test.mjs (the start test): list:service-connections holds a sign-in-app row for google-sign-in-client-id with client id made-up-client-id.apps.example.com; the query above is the test's startQuery.",
+      "hands_back": "status 200 and body {authorize_url, service: \"google-account\", connection_id: \"service_connection:google-account:<hex>\", expires_at}. authorize_url is https://accounts.google.com/o/oauth2/v2/auth with client_id=made-up-client-id.apps.example.com, redirect_uri=https://app.gettrillion.ai/work/api/connect/callback, response_type=code, access_type=offline, login_hint=someone@example.com, code_challenge_method=S256 and the descriptor's scopes. One service-connection-pending record is kept (the PKCE verifier and the starting values wait in it only); no connection row is written yet."
+    },
+    {
+      "title": "The callback connects Gmail once the person has signed in",
+      "ask": "I signed in; finish connecting my Gmail.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:connect-an-account-by-signing-in-to-the-service",
+            "input": {
+              "path": "/connect/callback",
+              "method": "GET",
+              "query": {
+                "state": "<the state in the sign-in address>",
+                "code": "made-up-code-4f9a2c"
+              }
+            }
+          }
+        }
+      },
+      "given": "From the same test (the one-write test): the callback follows the start above; the Gmail check finds the mailbox someone@example.com, the same as the account named at the start.",
+      "hands_back": "status 200 and a plain text page: \"Gmail is connected as someone@example.com. Your AI can use it now. You can close this tab.\" Exactly one records:write created the service-connection row with status Active, read_only true, can_send_as false, can_be_primary false, account_label someone@example.com and granted_scopes openid, email and gmail.readonly; the pending sign-in is removed, and a second call with the same state answers 410 with nothing traded."
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for connected accounts and its fields. The tool matches each kit field to one of yours (by the map you give, the same id, the same label, or a name in alike), refuses when fewer than 80% of the kit's fields match, and otherwise answers the records:write that adds the two example rows to your list, leaving your own rows untouched.",
+    "example": {
+      "kit_list": "list:service-connections",
+      "into": {
+        "list": "list:my-accounts",
+        "row_type": "record:my-account",
+        "fields": [
+          {
+            "id": "service",
+            "label": "Service"
+          },
+          {
+            "id": "type",
+            "label": "Kind of row"
+          },
+          {
+            "id": "account_id",
+            "label": "Account id"
+          },
+          {
+            "id": "state",
+            "label": "Status"
+          },
+          {
+            "id": "may_send",
+            "label": "Can send as"
+          },
+          {
+            "id": "primary",
+            "label": "Primary"
+          },
+          {
+            "id": "view_only",
+            "label": "Read only"
+          }
+        ]
+      },
+      "field_map": {
+        "connection_id": "account_id",
+        "can_be_primary": "primary"
+      }
+    }
+  }
+}

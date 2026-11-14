@@ -1,39 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:edit-a-presentations-text's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:edit-a-presentations-text with request.\" Change the words on slides, rebuild a slide, change speaker notes, delete slides and reorder them in a presentation file, and read the new file back as proof",
+  "drafted_from": "tool row in tools/office-files/tool-rows.json, do-work/apply-declared-presentation-text-edits.mjs and test/apply-presentation-edits.test.mjs (run on its stand-in runtime)",
+  "start_here": "Say to your AI: \"In /work/in.pptx change 'harbour tour' to 'Welcome to the lighthouse tour' on slide 1, set its notes to 'Greet everyone', change 'ten coins' on slide 2 to 'Pricing starts at twelve coins', delete slide 3, and put slide 2 first; write /work/out.pptx.\" It writes a request file and runs apply-declared-presentation-text-edits.mjs on your computer.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads or rewrites one file on the person's own computer and prints what it found or changed.",
   "workflows": [],
   "tools": [
     "tool:edit-a-presentations-text",
     "tool:describe-a-presentation-runtime"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:edit-a-presentations-text\", and give it request.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:edit-a-presentations-text and its input (the worked example shows one).",
-    "3. Read what comes back: An answer with the fields output, slideCount, edits, readback."
+    "1. If you do not know your presentation runtime's property names, run tool:describe-a-presentation-runtime first.",
+    "2. Write the request JSON: runtimeModule, source, output, slides (edits by ORIGINAL slide number: replace_text, notes, or a whole rebuild), delete and slide_order, plus fonts when you rebuild a slide.",
+    "3. The AI reads the row with tools:list {tool: tool:edit-a-presentations-text} and runs its `run` command with --request. Read the last JSON: a replace_text rule with matched 0 changed nothing; exit 2 means slide_order did not list every surviving slide exactly once.",
+    "4. Tell the person the readback titles in final order and the notes: the readback, not the request, is the proof; the source file is never changed."
   ],
   "worked_examples": [
     {
-      "title": "Edit a presentation's text and slide order from a request, then read it back (runs on your computer) on a sample input",
-      "ask": "Run tool:edit-a-presentations-text.",
+      "title": "Reword, delete and reorder slides",
+      "ask": "Change the harbour tour title, set slide 1's notes, reword slide 2, delete slide 3 and put slide 2 first.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:edit-a-presentations-text",
-            "input": {
-              "request": "<request: Path of the JSON request: runtimeModule, source, output, slides, delete, slide_order, fonts>"
-            }
+            "tool": "tool:edit-a-presentations-text"
           }
         }
       },
-      "hands_back": "An answer with the fields output, slideCount, edits, readback.",
-      "given": "The person gives: request (shown as <name> in the input)."
+      "given": "From tools/office-files/test/apply-presentation-edits.test.mjs (replace_text, notes, delete and slide_order apply by original index and the readback shows the result); I ran the editor on its stand-in runtime and three-slide deck. Command: node tools/office-files/do-work/apply-declared-presentation-text-edits.mjs --request /work/request.json, where request.json is {\"runtimeModule\":\"/work/runtime.mjs\",\"source\":\"/work/in.pptx\",\"output\":\"/work/out.pptx\",\"slides\":[{\"index\":1,\"replace_text\":[{\"contains\":\"harbour tour\",\"with\":\"Welcome to the lighthouse tour\"},{\"contains\":\"never in the deck\",\"with\":\"x\"}],\"notes\":\"Greet everyone\"},{\"index\":2,\"replace_text\":[{\"contains\":\"ten coins\",\"with\":\"Pricing starts at twelve coins\"}]}],\"delete\":[3],\"slide_order\":[2,1]}.",
+      "hands_back": "{\"output\":\"/work/out.pptx\",\"slideCount\":2,\"edits\":[{\"index\":1,\"replace_text\":[{\"contains\":\"harbour tour\",\"matched\":1},{\"contains\":\"never in the deck\",\"matched\":0}],\"notes\":true},{\"index\":2,\"replace_text\":[{\"contains\":\"ten coins\",\"matched\":1}]}],\"readback\":[{\"slide\":1,\"title\":\"Pricing starts at twelve coins\",\"notes\":\"\"},{\"slide\":2,\"title\":\"Welcome to the lighthouse tour\",\"notes\":\"Greet everyone\"}]}"
     }
   ]
 }

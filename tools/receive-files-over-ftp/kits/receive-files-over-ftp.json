@@ -1,39 +1,35 @@
 {
-  "draft": true,
-  "drafted_from": "tool:receive-files-over-ftp's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:receive-files-over-ftp with folder, settings.\" Receive the files a device pushes over FTP, such as a scanner, camera, drone or printer, into a folder on my computer, with nobody there",
+  "drafted_from": "tool:receive-files-over-ftp row in tool-rows.json, README.md, do-work/receive-pushed-files.mjs and test/receive-pushed-files.test.mjs",
+  "start_here": "Say to your AI: \"Start a receiver on my computer so my front-desk scanner can push its scans over FTP into the folder inbox, with one login called scanner.\" It writes the settings file with you, starts the receiver and tells you the host, port and login to type into the scanner.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It names no list: it keeps files in the folder you give it, each with a .finished.json note beside it, and reads one settings file.",
   "workflows": [],
   "tools": [
     "tool:receive-files-over-ftp"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:receive-files-over-ftp\", and give it folder, settings.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:receive-files-over-ftp and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Receive the files a device pushes over FTP, such as a scanner, camera, drone or printer, into a folder on my computer, with nobody there"
+    "1. Choose the folder the files are kept in and, with the person, a login and a password for each device that will push (never an invented weak password) and a short opaque name for handed_over_by such as device:front-desk-scanner; write them in a settings file with listen_host (127.0.0.1 unless the devices are on another machine) and listen_port.",
+    "2. Clone the Workshop repository and run npm install once; say \"Start the FTP receiver\" and your AI reads the row with tools:list and runs `node trillion-workshop/tools/receive-files-over-ftp/do-work/receive-pushed-files.mjs --folder <folder> --settings <settings file>` in the background.",
+    "3. Read its first line {\"listening\": {\"host\", \"port\"}, \"folder\"} and give the host, port, login and password to the person for the device; the port is never opened to the internet.",
+    "4. Each finished file appears in the folder with a note named like the file plus .finished.json (content_identity, byte_length, media_type, finished_at_ms, handed_over_by); a file with no note is still arriving. Stop the receiver with Control-C or SIGTERM."
   ],
   "worked_examples": [
     {
-      "title": "Receive files pushed by a camera, scanner or printer over FTP (runs on your computer) on a sample input",
-      "ask": "Run tool:receive-files-over-ftp.",
+      "title": "A scanner pushes a 500 000 byte PDF",
+      "ask": "Start the FTP receiver for my front-desk scanner and tell me where its scans land.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:receive-files-over-ftp",
-            "input": {
-              "folder": "<folder: The folder on the person's computer files are kept in, put where {folder} is in the command>",
-              "settings": "<settings: The settings file the person (or you, with them) wrote, put where {settings} is in the command>"
-            }
+            "tool": "tool:receive-files-over-ftp"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Receive the files a device pushes over FTP, such as a scanner, camera, drone or printer, into a folder on my computer, with nobody there",
-      "given": "The person gives: folder, settings (shown as <name> in the input)."
+      "given": "From tools/receive-files-over-ftp/test/receive-pushed-files.test.mjs: the command is `node trillion-workshop/tools/receive-files-over-ftp/do-work/receive-pushed-files.mjs --folder inbox-files --settings ftp-settings.json`, where ftp-settings.json is {\"listen_host\": \"127.0.0.1\", \"listen_port\": 2121, \"senders\": [{\"login\": \"scanner\", \"password\": \"push-it\", \"handed_over_by\": \"device:front-desk-scanner\"}], \"media_types_by_extension\": {\"pdf\": \"application/pdf\"}}. The scanner then signs in as scanner, makes inbox/scans and stores inbox/scans/page-0001.pdf as 500 000 bytes.",
+      "hands_back": "The first line printed is {\"listening\": {\"host\": \"127.0.0.1\", \"port\": 2121}, \"folder\": \"<the folder's full path>\"}. While the file is arriving there is no note. When it is whole, inbox-files/inbox/scans/page-0001.pdf.finished.json exists with content_identity \"1f:\" followed by 64 hex digits (the BLAKE3 of the bytes on disk), byte_length 500000, media_type \"application/pdf\", finished_at_ms the finish time and handed_over_by \"device:front-desk-scanner\"; only after that note is written does the scanner get its 226 done reply. A wrong password gets 530, a path like ../outside.bin gets 553, and a finished file cannot be deleted or renamed over the wire."
     }
   ]
 }

@@ -1,22 +1,20 @@
 {
-  "draft": true,
-  "drafted_from": "tool:check-every-claim-against-its-facts-and-sources's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-every-claim-against-its-facts-and-sources with request.\" Check every sentence my narrator says and every text on screen against the facts I keep and the sources I cite, and tell me which claims fail and why",
+  "drafted_from": "tool:check-every-claim-against-its-facts-and-sources's row in tools/check-every-claim-against-its-facts-and-sources/tool-rows.json, README.md, do-work/check_claims.py, read-data/claim_gate.py and test/fixture_world.py and test/test_claim_check.py; the answer was observed by building the fixture's made-up world and running check_claims.py on three of its shots",
+  "start_here": "Say to your AI: \"Check every claim in the shots own-claim-plain, unsupported and attributed-hedge against my world facts and sources before they are voiced.\" It runs the claim check on your computer and tells you which shots fail and why.",
   "lists": [
     {
       "list": "list:settings",
-      "label": "Settings",
+      "label": "Settings (one row per tool and scope)",
       "row_type": "record:setting",
-      "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON.",
+      "holds": "The rule words and names one Workshop tool reads at run time for one person or film, kept as JSON text.",
       "fields": [
         {
           "id": "name",
           "kind": "text",
           "label": "Setting",
           "alike": [
-            "title",
-            "key",
-            "label"
+            "name",
+            "title"
           ]
         },
         {
@@ -24,8 +22,8 @@
           "kind": "text",
           "label": "Tool",
           "alike": [
-            "tool id",
-            "owner"
+            "used by",
+            "which tool"
           ]
         },
         {
@@ -34,7 +32,7 @@
           "label": "For a",
           "alike": [
             "scope",
-            "applies to"
+            "applies to a"
           ]
         },
         {
@@ -42,8 +40,8 @@
           "kind": "text",
           "label": "For",
           "alike": [
-            "scope id",
-            "target"
+            "scope name",
+            "which one"
           ]
         },
         {
@@ -51,9 +49,9 @@
           "kind": "long-text",
           "label": "Settings (JSON)",
           "alike": [
-            "values",
             "config",
-            "options"
+            "values",
+            "json"
           ]
         },
         {
@@ -62,7 +60,7 @@
           "label": "From",
           "alike": [
             "source",
-            "origin"
+            "came from"
           ]
         },
         {
@@ -71,115 +69,115 @@
           "label": "Status",
           "alike": [
             "state",
-            "on or off"
+            "active"
           ]
         }
       ],
       "example_rows": [
         {
-          "id": "caption-style",
+          "id": "claim-rules-of-sample-film",
           "values": {
-            "name": "Caption style",
-            "tool": "tool:example-captioner",
-            "scope_kind": "person",
-            "scope_id": "example-person",
-            "settings": "{\"style\":\"plain\",\"size\":\"large\"}",
-            "from": "the person",
-            "status": "on"
+            "name": "claim rules of a made-up film",
+            "tool": "tool:check-every-claim-against-its-facts-and-sources",
+            "scope_kind": "film",
+            "scope_id": "sample-film",
+            "settings": "{\"hedge_row\":\"check row no-hedge-or-attribution\",\"narrator_name\":\"Pip\",\"rules\":{\"accounting_skips\":[\"mara\",\"pip\",\"ep-1\"],\"auto_topic_kinds\":[\"item\"],\"bind_from_level\":2,\"claim_fact_kinds\":[\"claim\"],\"claim_said_by\":[\"mara\"],\"compounds\":[{\"entity\":\"lentil-soup\",\"phrase\":\"lentil soup\",\"tags\":[\"lentil soup\",\"soup\"]}],\"fillers\":[\"uh\",\"um\"],\"labels\":[\"narrated by Pip\"],\"no_claim\":{\"imperative_verbs\":[\"tell\",\"comment\",\"subscribe\",\"watch\"]},\"qualifiers\":{\"\":{\"or_rounds_to_integer\":true,\"rel\":0.005},\"about\":{\"rel\":0.1},\"almost\":{\"rel\":0.1,\"side\":\"below\"},\"around\":{\"rel\":0.1},\"at least\":{\"bound\":true,\"side\":\"above_or_equal\"},\"at most\":{\"bound\":true,\"side\":\"below_or_equal\"},\"less than\":{\"bound\":true,\"side\":\"below\"},\"more than\":{\"bound\":true,\"side\":\"above\"},\"nearly\":{\"rel\":0.1,\"side\":\"below\"},\"over\":{\"bound\":true,\"side\":\"above\"},\"under\":{\"bound\":true,\"side\":\"below\"},\"up to\":{\"bound\":true,\"side\":\"below_or_equal\"}},\"quantity_units\":{\"batch\":[\"batch\",\"batches\"],\"pot\":[\"pot\",\"pots\"],\"serving\":[\"serving\",\"servings\"],\"tablet\":[\"tablet\",\"tablets\",\"pill\",\"pills\"]},\"same_quantity_unit\":[{\"units\":[\"pot\",\"batch\"],\"why\":\"her one batch fills the one pot\"}],\"strength\":{\"certainty\":{\"1\":[\"guess\",\"guessing\",\"thinks\",\"think\",\"hopes\",\"maybe\",\"perhaps\",\"wonders\",\"reckons\"],\"2\":[\"expects\",\"believes\",\"likely\",\"probably\"],\"3\":[\"confident\",\"certain\",\"sure\",\"knows\",\"definitely\",\"proves\",\"proven\",\"guaranteed\"]},\"scope\":{\"1\":[\"many\",\"some\",\"up to\",\"often\",\"can\",\"may\",\"might\",\"typically\",\"sometimes\",\"several\"],\"2\":[\"most\",\"almost all\",\"nearly all\",\"usually\",\"mostly\",\"generally\"],\"3\":[\"the most\",\"at most\",\"no more than\",\"at least\",\"all\",\"every\",\"always\",\"never\",\"none\",\"nothing\",\"only\",\"cannot\",\"can't\",\"must\",\"has to\",\"have to\",\"no one\",\"nobody\"]}},\"subject_words\":[\"mara\",\"she\",\"she's\",\"her\",\"hers\",\"herself\"],\"support_said_by_not\":[\"pip\"],\"tense_markers\":{\"past\":[\"was\",\"were\",\"did\",\"had\",\"used to\",\"made\",\"said\",\"took\",\"before\",\"once\"],\"plan\":[\"next\",\"will\",\"'ll\",\"going to\",\"plans\",\"next time\"]},\"unit_clause_breaks\":[\"than\",\"which\",\"but\",\"while\",\"because\",\"so\",\"and\",\"or\"]},\"subject_name\":\"Mara\"}",
+            "from": "made up",
+            "status": "active"
           }
         },
         {
-          "id": "quiet-hours",
+          "id": "claim-rules-of-sample-film-two",
           "values": {
-            "name": "Quiet hours",
-            "tool": "tool:example-notifier",
-            "scope_kind": "account",
-            "scope_id": "whole-account",
-            "settings": "{\"from\":\"22:00\",\"to\":\"07:00\"}",
-            "from": "the person",
-            "status": "on"
+            "name": "claim rules of a second made-up film",
+            "tool": "tool:check-every-claim-against-its-facts-and-sources",
+            "scope_kind": "film",
+            "scope_id": "sample-film-two",
+            "settings": "{\"hedge_row\":\"check row no-hedge-or-attribution\",\"narrator_name\":\"Pip\",\"rules\":{\"accounting_skips\":[\"mara\",\"pip\",\"ep-1\"],\"auto_topic_kinds\":[\"item\"],\"bind_from_level\":2,\"claim_fact_kinds\":[\"claim\"],\"claim_said_by\":[\"mara\"],\"compounds\":[{\"entity\":\"lentil-soup\",\"phrase\":\"lentil soup\",\"tags\":[\"lentil soup\",\"soup\"]}],\"fillers\":[\"uh\",\"um\"],\"labels\":[\"narrated by Pip\"],\"no_claim\":{\"imperative_verbs\":[\"tell\",\"comment\",\"subscribe\",\"watch\"]},\"qualifiers\":{\"\":{\"or_rounds_to_integer\":true,\"rel\":0.005},\"about\":{\"rel\":0.1},\"almost\":{\"rel\":0.1,\"side\":\"below\"},\"around\":{\"rel\":0.1},\"at least\":{\"bound\":true,\"side\":\"above_or_equal\"},\"at most\":{\"bound\":true,\"side\":\"below_or_equal\"},\"less than\":{\"bound\":true,\"side\":\"below\"},\"more than\":{\"bound\":true,\"side\":\"above\"},\"nearly\":{\"rel\":0.1,\"side\":\"below\"},\"over\":{\"bound\":true,\"side\":\"above\"},\"under\":{\"bound\":true,\"side\":\"below\"},\"up to\":{\"bound\":true,\"side\":\"below_or_equal\"}},\"quantity_units\":{\"batch\":[\"batch\",\"batches\"],\"pot\":[\"pot\",\"pots\"],\"serving\":[\"serving\",\"servings\"],\"tablet\":[\"tablet\",\"tablets\",\"pill\",\"pills\"]},\"same_quantity_unit\":[{\"units\":[\"pot\",\"batch\"],\"why\":\"her one batch fills the one pot\"}],\"strength\":{\"certainty\":{\"1\":[\"guess\",\"guessing\",\"thinks\",\"think\",\"hopes\",\"maybe\",\"perhaps\",\"wonders\",\"reckons\"],\"2\":[\"expects\",\"believes\",\"likely\",\"probably\"],\"3\":[\"confident\",\"certain\",\"sure\",\"knows\",\"definitely\",\"proves\",\"proven\",\"guaranteed\"]},\"scope\":{\"1\":[\"many\",\"some\",\"up to\",\"often\",\"can\",\"may\",\"might\",\"typically\",\"sometimes\",\"several\"],\"2\":[\"most\",\"almost all\",\"nearly all\",\"usually\",\"mostly\",\"generally\"],\"3\":[\"the most\",\"at most\",\"no more than\",\"at least\",\"all\",\"every\",\"always\",\"never\",\"none\",\"nothing\",\"only\",\"cannot\",\"can't\",\"must\",\"has to\",\"have to\",\"no one\",\"nobody\"]}},\"subject_words\":[\"mara\",\"she\",\"she's\",\"her\",\"hers\",\"herself\"],\"support_said_by_not\":[\"pip\"],\"tense_markers\":{\"past\":[\"was\",\"were\",\"did\",\"had\",\"used to\",\"made\",\"said\",\"took\",\"before\",\"once\"],\"plan\":[\"next\",\"will\",\"'ll\",\"going to\",\"plans\",\"next time\"]},\"unit_clause_breaks\":[\"than\",\"which\",\"but\",\"while\",\"because\",\"so\",\"and\",\"or\"]},\"subject_name\":\"Sam\"}",
+            "from": "made up",
+            "status": "active"
           }
         }
       ],
       "alike": [
-        "an app's settings screen",
-        "a config file per tool",
-        "a spreadsheet of options"
+        "an app's settings table",
+        "a config file kept in a spreadsheet",
+        "key-value settings in a notes app"
       ]
     }
   ],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [],
   "tools": [
-    "tool:check-every-claim-against-its-facts-and-sources"
+    "tool:check-every-claim-against-its-facts-and-sources",
+    "tool:make-plain-text-extracts-of-claim-sources",
+    "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-every-claim-against-its-facts-and-sources\", and give it request.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-every-claim-against-its-facts-and-sources and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Check every sentence my narrator says and every text on screen against the facts I keep and the sources I cite, and tell me which claims fail and why"
+    "1. Pour the two example rows into your own settings list (see pour), or make list:settings from them. Keep the row for this tool under the record id record:setting:check-every-claim-against-its-facts-and-sources~film~sample-film; its settings JSON holds rules, subject_name, narrator_name and hedge_row.",
+    "2. Have the files ready: shots/<id>.json and claims/<id>.json in a lane folder, your world rows (lists.json, rows/<list>.json, relations.json), a sources file with plain-text extracts (tool:make-plain-text-extracts-of-claim-sources makes them from the raw files), and the words of your no-hedge row.",
+    "3. Write the request file {shots, lane_dir, sources, frames_root, world_dir, hedge_phrases, settings_record}. Say \"Check these claims.\" The AI reads the row with tools:list {tool}, then runs: node tools/settings/do-work/run-with-settings.mjs --folder check-every-claim-against-its-facts-and-sources -- python3 -I tools/check-every-claim-against-its-facts-and-sources/do-work/check_claims.py < request.json",
+    "4. Read the last line {\"result\": {ok, shots: [{id, ok, fails, notes, lines}], world}}: exit 0 when every shot passes, 1 when one fails. Fix each failing claim by cutting it or giving it real support; never add a hedge or an attribution. An {\"error\"} line (exit 2) says what to change."
   ],
   "worked_examples": [
     {
-      "title": "Check every claim my narrator makes, spoken or on screen, against my facts and sources before it is voiced (runs on your computer) on a sample input",
-      "ask": "Run tool:check-every-claim-against-its-facts-and-sources.",
+      "title": "One plain claim passes; an unsupported claim and a hedged claim fail",
+      "ask": "Check every claim in my three shots against my facts and sources.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:check-every-claim-against-its-facts-and-sources",
-            "input": {
-              "request": "<request: The request JSON file, put where {request} is in the command: {shots, lane_dir, sources, frames_root, world_dir, hedge_phrases, settings_record, settings?, path_map?, check_world?, quiet?}>"
-            }
+            "tool": "tool:check-every-claim-against-its-facts-and-sources"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Check every sentence my narrator says and every text on screen against the facts I keep and the sources I cite, and tell me which claims fail and why",
-      "given": "The person gives: request (shown as <name> in the input)."
+      "given": "Run locally from the Workshop checkout after tools:list, with the request {\"shots\": [\"own-claim-plain\", \"unsupported\", \"attributed-hedge\"], \"lane_dir\": \"film/lane\", \"sources\": \"film/gate/sources.json\", \"frames_root\": \"film\", \"world_dir\": \"film/world\", \"hedge_phrases\": [\"she reports\", \"reports:\", \"her estimate\", \"estimate\", \"not yet tested\", \"reportedly\"], \"settings_record\": {\"id\": \"record:setting:check-every-claim-against-its-facts-and-sources~film~sample-film\", \"type\": \"record:setting\", \"value\": \"the row claim-rules-of-sample-film above, as records:read gives it\"}} on stdin of check_claims.py. The folders hold the made-up world of tools/check-every-claim-against-its-facts-and-sources/test/fixture_world.py (Mara cooks cheap meals, Pip narrates): shot own-claim-plain says her mission plainly and cites fact f-mission-claim; unsupported says \"Lentil soup beats every other meal.\" with no support; attributed-hedge says \"Mara reports: the cheapest balanced meals in town, by her estimate.\" Observed by running do-work/check_claims.py on that fixture (settings given in the request, so no door read).",
+      "hands_back": "{\"result\": {\"ok\": false, \"shots\": [{\"id\": \"own-claim-plain\", \"ok\": true, \"fails\": [], \"notes\": [], \"lines\": [\"fact gate own-claim-plain: PASS\"]}, {\"id\": \"unsupported\", \"ok\": false, \"fails\": [\"unsupported voice 1: \\\"Lentil soup beats every other meal.\\\": cites no world fact and no source\", \"unsupported voice 1: \\\"Lentil soup beats every other meal.\\\": says \\\"every\\\" (scope level 3) without naming, in `strength`, the cited support that says it as strongly\"], \"notes\": [\"unsupported voice 1: names \\\"lentil soup\\\" (lentil-soup) as a reference, not a topic; declare it in `topics` if the line says something about it\"]}, {\"id\": \"attributed-hedge\", \"ok\": false, \"fails\": [\"attributed-hedge voice 1: \\\"Mara reports: the cheapest balanced meals in town, by her estimate.\\\": carries the hedge or attribution \\\"reports:\\\" (check row no-hedge-or-attribution): state it plainly, or cut the line if it is too weak to state plainly\", \"... the same line carries \\\"her estimate\\\" and \\\"estimate\\\", each reported the same way\"], \"notes\": []}], \"world\": {\"ok\": true, \"lines\": [\"   8  entities\", \"   8  facts\", \"   1  relations\", \"   5  entity kinds\", \"   2  fact kinds\", \"   1  relation roles\", \"   1  quotes checked against transcripts\", \"   7  quotes checked against file lines\", \"verify: ok\"]}}} (exit 1; each shot's lines hold the same text with FAIL or ok prefixes)"
     }
   ],
   "pour": {
     "tool": "tool:pour-example-rows-into-my-list",
     "least_coverage": 0.8,
-    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "how": "Name the settings list you already keep and its fields. The tool matches each kit field to one of yours (by the map you give, the same id, the same label, or a name in alike), refuses when fewer than 80% match, and otherwise answers the records:write that adds the two example rows, leaving your own rows untouched.",
     "example": {
       "kit_list": "list:settings",
       "into": {
-        "list": "list:my-settings",
-        "row_type": "record:setting",
+        "list": "list:app-config",
+        "row_type": "record:app-config",
         "fields": [
           {
-            "id": "name",
-            "label": "Setting"
+            "id": "title",
+            "label": "Title"
           },
           {
-            "id": "tool",
-            "label": "Tool"
+            "id": "used_by",
+            "label": "Used by"
           },
           {
-            "id": "scope_kind",
-            "label": "For a"
+            "id": "scope",
+            "label": "Scope"
           },
           {
-            "id": "scope_id",
-            "label": "For"
+            "id": "scope_name",
+            "label": "Scope name"
           },
           {
-            "id": "settings",
-            "label": "Settings (JSON)"
+            "id": "config",
+            "label": "Config"
           },
           {
-            "id": "from",
-            "label": "From"
+            "id": "source",
+            "label": "Source"
           },
           {
-            "id": "status",
-            "label": "Status"
+            "id": "state",
+            "label": "State"
           }
         ]
-      }
+      },
+      "field_map": {}
     }
   }
 }

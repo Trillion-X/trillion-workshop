@@ -1,39 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:check-a-record-library's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:check-a-record-library with library, schema.\" Check that my library of record files is consistent: every id a record names exists, ids are unique, counts match, tables use only their allowed values, and files derived from a source are not stale",
+  "start_here": "Say to your AI: \"Check my greenhouse record library at tools/keep-a-record-library-valid/test/fixtures/greenhouse with its schema.json and tell me which checks break.\" It runs tool:check-a-record-library.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list of yours: it reads your own record files through the schema file you give it and changes nothing.",
   "workflows": [],
   "tools": [
-    "tool:check-a-record-library"
+    "tool:check-a-record-library",
+    "tool:rebuild-files-derived-from-my-records"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:check-a-record-library\", and give it library, schema.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-record-library and its input (the worked example shows one).",
-    "3. Read what comes back: The result the item's own job names: Check that my library of record files is consistent: every id a record names exists, ids are unique, counts match, tables use only their allowed values, and files derived from a source are not stale"
+    "1. Have a library folder of JSON record files and a schema file that names its pools, checks, tables and derived files (the README lists the schema keys; the made-up greenhouse fixture is a worked schema).",
+    "2. Say to your AI: \"Check my record library\". It reads the row with tools:list {tool: \"tool:check-a-record-library\"} and runs its command from the root of the Workshop checkout, filling in your library folder and schema file: python3 -I tools/keep-a-record-library-valid/do-work/keep_a_record_library.py --library <library> --schema <schema> validate",
+    "3. Read the JSON report: all_passed, passed and total, each check as true or the list of ids or values that break it (id_problems), the table cells outside their allowed values, and stale_derived_files.",
+    "4. Exit 0 means all passed, 1 something broke, 2 the schema or a file could not be read. Fix the named ids in the named files; a stale derived file is rebuilt with tool:rebuild-files-derived-from-my-records, not by hand."
   ],
   "worked_examples": [
     {
-      "title": "Check that a library of records is valid (runs on your computer) on a sample input",
-      "ask": "Run tool:check-a-record-library.",
+      "title": "A clean greenhouse library, then one with a dangling crop id",
+      "ask": "Check my greenhouse record library.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:check-a-record-library",
-            "input": {
-              "library": "<library: The folder the library's files are relative to, put where {library} is in the command>",
-              "schema": "<schema: The schema file on the person's computer (see the README for its keys), put where {schema} is in the command>"
-            }
+            "tool": "tool:check-a-record-library"
           }
         }
       },
-      "hands_back": "The result the item's own job names: Check that my library of record files is consistent: every id a record names exists, ids are unique, counts match, tables use only their allowed values, and files derived from a source are not stale",
-      "given": "The person gives: library, schema (shown as <name> in the input)."
+      "given": "Read from tools/keep-a-record-library-valid/do-work/keep_a_record_library.py and run for real on the fixture in tools/keep-a-record-library-valid/test/fixtures/greenhouse: python3 -I tools/keep-a-record-library-valid/do-work/keep_a_record_library.py --library tools/keep-a-record-library-valid/test/fixtures/greenhouse --schema tools/keep-a-record-library-valid/test/fixtures/greenhouse/schema.json validate. It writes nothing. Then on a copy where card CD-003 in data/crop-cards.json names crop_id CR-009 (no such crop).",
+      "hands_back": "First run, exit 0: {\"all_passed\": true, \"passed\": 19, \"total\": 19, \"checks\": {\"question_ids_unique\": true, ..., \"card_crop_ids_resolve\": true, \"readings_values_in_vocabulary\": true, \"crop_count_current\": true}, \"id_problems\": {}, \"stale_derived_files\": [], \"scope\": \"Structural checks only: references, vocabulary and freshness.\"} plus a readings block (1 file, 8 cells, 0 bad cells). Second run on the broken copy, exit 1: all_passed false, passed 18 of 19, checks.card_crop_ids_resolve false and id_problems {\"card_crop_ids_resolve\": [\"CR-009\"]}."
     }
-  ]
+  ],
+  "drafted_from": "tool:check-a-record-library's row in tools/keep-a-record-library-valid/tool-rows.json, do-work/keep_a_record_library.py and read-data/*.py, and the fixtures and tests in tools/keep-a-record-library-valid/test/; the worked run was executed here on the made-up greenhouse fixtures"
 }

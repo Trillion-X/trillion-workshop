@@ -1,22 +1,24 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:combine-several-ai-answers's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:combine-several-ai-answers.\" Take several answers to the same question (from different AIs, people or runs), pull out every claim, group the ones that mean the same thing, find the different assumption behind each disagreement, check the disputed claims against a primary source or a test, and write one answer that shows how many agree, what is still disputed and what none of them established.",
+  "drafted_from": "workflow:combine-several-ai-answers's row in tools/workflows/recipes/workflows.json (its input schema, steps and submit shapes)",
+  "start_here": "Say to your AI: \"Run workflow:combine-several-ai-answers on the question: should a one-shop bakery add online pre-orders? Here are three answers from three different AIs.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It reads the answers you paste in and writes one combined answer; it keeps no list.",
   "workflows": [
     "workflow:combine-several-ai-answers"
   ],
-  "tools": [],
+  "tools": [
+    "tool:start-a-recipe-run"
+  ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:combine-several-ai-answers\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:combine-several-ai-answers) and works through its steps in order: collect, claims, agree-and-differ, check, answer.",
-    "3. Read what each step hands back; the last step is answer."
+    "1. Paste the question and at least two answers, each with where it came from.",
+    "2. Say \"Run workflow:combine-several-ai-answers\" with question and answers.",
+    "3. The AI works collect, claims, agree-and-differ, check and answer: every claim is pulled out, answers resting on the same source count once, each disagreement gets the assumption that differs, and disputed claims are checked or marked unchecked.",
+    "4. Read the one answer: what holds and how many independent answers support it, what is disputed, what no answer established."
   ],
   "worked_examples": [
     {
-      "title": "Combine several answers to one question into one answer from its first step",
-      "ask": "Run workflow:combine-several-ai-answers.",
+      "title": "Two answers on one source count as one",
+      "ask": "Combine these three answers on pre-orders.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,18 +29,20 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:combine-several-ai-answers",
-              "question": "<question: string>",
+              "question": "Should a one-shop bakery add online pre-orders?",
               "answers": [
-                "<answers: string>"
+                "run-1: Yes. Pre-orders cut weekend waste, per a trade article. Walk-in sales will not drop.",
+                "run-2: Yes. Pre-orders cut weekend waste, per the same trade article. Add a 30% revenue lift.",
+                "run-3: Yes. Pre-orders cut waste. Walk-in sales may drop because most customers live nearby."
               ]
             }
           }
         }
       },
       "workflow": "workflow:combine-several-ai-answers",
-      "step": "collect",
-      "hands_back": "Step collect answers with answers.",
-      "given": "The person gives: question, answers (shown as <name> in the input)."
+      "step": "agree-and-differ",
+      "given": "The claims step found: all three say pre-orders cut waste (run-1 and run-2 both rest on the same trade article); only run-2 claims a 30% revenue lift; run-1 says walk-in sales will not drop while run-3 says they may. Read from the agree-and-differ step of the workflow row.",
+      "hands_back": "The submit shape of step agree-and-differ: {\"agreements\":[{\"claim\":\"Pre-orders cut weekend waste\",\"independent_count\":2}],\"single_source_claims\":[\"Pre-orders add a 30% revenue lift\"],\"disagreements\":[{\"topic\":\"Whether walk-in sales drop\",\"differing_assumption\":\"run-1 assumes the shop sits on a busy street; run-3 assumes most customers live nearby and would switch to ordering ahead\"}]}"
     }
   ]
 }

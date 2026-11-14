@@ -1,0 +1,270 @@
+{
+  "drafted_from": "tools/export-documents-to-files/tool-rows.json (tool:export-a-markdown-book-to-word), do-work/export-a-book.mjs, README.md (the book settings row), test/export-a-book.test.mjs, and the real definitions of list:settings and list:checks read from the account",
+  "start_here": "Say to your AI: \"Export my book rye-cookbook to Word. Its settings row is already in my settings list, and the checks branch bakery-book judges the words first.\" It runs the exporter on your computer and tells you whether the Word file was written or why it was blocked.",
+  "lists": [
+    {
+      "list": "list:settings",
+      "label": "Settings",
+      "row_type": "record:setting",
+      "holds": "One row per tool and scope; for a book the row names the manuscript, its role, the bytes it must have, the Word template, the output folder and the checks branch.",
+      "fields": [
+        {
+          "id": "name",
+          "kind": "text",
+          "label": "Setting",
+          "alike": [
+            "title",
+            "setting name"
+          ]
+        },
+        {
+          "id": "tool",
+          "kind": "text",
+          "label": "Tool",
+          "alike": [
+            "app",
+            "program"
+          ]
+        },
+        {
+          "id": "scope_kind",
+          "kind": "text",
+          "label": "For a",
+          "alike": [
+            "applies to kind",
+            "scope"
+          ]
+        },
+        {
+          "id": "scope_id",
+          "kind": "text",
+          "label": "For",
+          "alike": [
+            "applies to",
+            "book id"
+          ]
+        },
+        {
+          "id": "settings",
+          "kind": "long-text",
+          "label": "Settings (JSON)",
+          "alike": [
+            "values",
+            "options",
+            "config"
+          ]
+        },
+        {
+          "id": "from",
+          "kind": "text",
+          "label": "From",
+          "alike": [
+            "source",
+            "came from"
+          ]
+        },
+        {
+          "id": "status",
+          "kind": "text",
+          "label": "Status",
+          "alike": [
+            "state"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "rye-cookbook",
+          "values": {
+            "name": "Rye cookbook export",
+            "tool": "tool:export-a-markdown-book-to-word",
+            "scope_kind": "piece",
+            "scope_id": "rye-cookbook",
+            "settings": "{\"role\":\"current_prose\",\"manuscript\":\"/srv/books/rye-cookbook.md\",\"template\":\"/srv/books/template.docx\",\"output_folder\":\"/srv/books/out\",\"checks_branch\":\"bakery-book\",\"source_blake3\":\"0000000000000000000000000000000000000000000000000000000000000000\"}",
+            "from": "example",
+            "status": "active"
+          }
+        },
+        {
+          "id": "old-notes",
+          "values": {
+            "name": "Old notes export",
+            "tool": "tool:export-a-markdown-book-to-word",
+            "scope_kind": "piece",
+            "scope_id": "old-notes",
+            "settings": "{\"role\":\"comparison\",\"manuscript\":\"/srv/books/old-notes.md\",\"template\":\"/srv/books/template.docx\",\"output_folder\":\"/srv/books/out\",\"source_blake3\":\"1111111111111111111111111111111111111111111111111111111111111111\"}",
+            "from": "example",
+            "status": "active"
+          }
+        }
+      ],
+      "alike": [
+        "a settings sheet per project",
+        "a config table in a spreadsheet",
+        "a publishing checklist per book"
+      ]
+    },
+    {
+      "list": "list:checks",
+      "label": "Checks",
+      "row_type": "record:check",
+      "holds": "The tree of rules a text is judged against: a branch row for a kind of writing and check rows under it, each with the words it forbids and what it says.",
+      "fields": [
+        {
+          "id": "id",
+          "kind": "text",
+          "label": "Rule",
+          "alike": [
+            "name",
+            "rule name"
+          ]
+        },
+        {
+          "id": "kind",
+          "kind": "text",
+          "label": "Kind",
+          "alike": [
+            "type"
+          ]
+        },
+        {
+          "id": "part_of",
+          "kind": "link",
+          "label": "Part of",
+          "alike": [
+            "parent",
+            "belongs to"
+          ]
+        },
+        {
+          "id": "words",
+          "kind": "tags",
+          "label": "Words",
+          "alike": [
+            "banned words",
+            "keywords"
+          ]
+        },
+        {
+          "id": "says",
+          "kind": "long-text",
+          "label": "Says",
+          "alike": [
+            "message",
+            "explanation",
+            "note"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "bakery-writing",
+          "values": {
+            "id": "bakery-writing",
+            "kind": "branch",
+            "says": "Anything the bakery writes."
+          }
+        },
+        {
+          "id": "bakery-book",
+          "values": {
+            "id": "bakery-book",
+            "kind": "branch",
+            "part_of": "bakery-writing",
+            "says": "The rye cookbook."
+          }
+        },
+        {
+          "id": "no-glitter",
+          "values": {
+            "id": "no-glitter",
+            "kind": "check",
+            "part_of": "bakery-writing",
+            "words": [
+              "glitter"
+            ],
+            "says": "No glitter."
+          }
+        }
+      ],
+      "alike": [
+        "a style guide checklist",
+        "a banned-words sheet",
+        "an editor review checklist"
+      ]
+    }
+  ],
+  "workflows": [],
+  "tools": [
+    "tool:export-a-markdown-book-to-word",
+    "tool:check-against-a-persons-rules-and-verdicts"
+  ],
+  "instructions": [
+    "1. Pour the example rows into your own settings list (see pour), put the manuscript, the Word template and the output folder in the book's settings JSON, and set source_blake3 to the BLAKE3 of the manuscript bytes. For current prose also name checks_branch and keep the example check rows in your checks list.",
+    "2. Say \"Export my book rye-cookbook to Word\". The AI reads the row with tools:list, writes {\"book_id\":\"rye-cookbook\"} to a request file and runs the row's run command from the Workshop checkout with your records door.",
+    "3. Read the last line, {\"result\": ...}. status exported names the Word file; blocked gives the reason (changed source bytes, the checks failed or ask reading questions, missing writing evidence). Answer reading questions in answers and run again.",
+    "4. After an export render the Word file to PDF and run verify_book_against_its_source.py as the row says; passing proves coverage only, never author approval."
+  ],
+  "worked_examples": [
+    {
+      "title": "A current-prose book with a banned word is blocked before any Word file is made",
+      "ask": "Export my book rye-cookbook to Word.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:list",
+          "input": {
+            "tool": "tool:export-a-markdown-book-to-word"
+          }
+        }
+      },
+      "given": "Read from tools/export-documents-to-files/do-work/export-a-book.mjs (the same path test/export-a-book.test.mjs runs: \"current prose whose checks fail is blocked before any DOCX is written\"), not run here against a real door. Command: node tools/records-door/do-work/run-with-stdio-mcp.mjs door-client.json tools/export-documents-to-files/do-work/export-a-book.mjs exportABook request.json, with request.json {\"book_id\":\"rye-cookbook\"}. The settings row above gives role current_prose and checks_branch bakery-book; the manuscript holds the line \"Some glitter here.\"; list:checks holds the no-glitter check with words [\"glitter\"] under bakery-writing, which bakery-book is part of.",
+      "hands_back": "{\"result\":{\"status\":\"blocked\",\"reason\":\"The book's checks answered failed; no DOCX was created.\",\"checks\":{\"branch\":\"bakery-book\",\"lineage\":[\"bakery-book\",\"bakery-writing\"],\"status\":\"failed\",\"passed\":false}}} (checks also carries document_blake3 and the lines that failed); no .docx file is written."
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the settings list you already keep and its fields. The tool matches the kit's fields to yours by id, label or alike name, refuses under least_coverage, and otherwise answers the records:write that adds the example rows, leaving yours untouched.",
+    "example": {
+      "kit_list": "list:settings",
+      "into": {
+        "list": "list:project-settings",
+        "row_type": "record:project-setting",
+        "fields": [
+          {
+            "id": "name",
+            "label": "Setting name"
+          },
+          {
+            "id": "tool",
+            "label": "Program"
+          },
+          {
+            "id": "scope_kind",
+            "label": "Scope"
+          },
+          {
+            "id": "scope_id",
+            "label": "Book id"
+          },
+          {
+            "id": "settings",
+            "label": "Values"
+          },
+          {
+            "id": "from",
+            "label": "Source"
+          },
+          {
+            "id": "status",
+            "label": "State"
+          }
+        ]
+      },
+      "field_map": {}
+    }
+  }
+}

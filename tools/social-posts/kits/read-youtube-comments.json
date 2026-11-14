@@ -1,22 +1,23 @@
 {
-  "draft": true,
-  "drafted_from": "tool:read-youtube-comments's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:read-youtube-comments with account_id, video_id.\" Read the top-level comment threads of one YouTube video, with each comment's text, like count, publish time and the commenter's channel id",
+  "drafted_from": "tools/social-posts/tool-rows.json (tool:read-youtube-comments), tools/social-posts/test/youtube-connection.test.mjs and the row's request and fields mask; the answer is worked out from the row, not observed",
+  "start_here": "Say to your AI: \"Read the comments on my YouTube video vid-aaa, newest first, and tell me which ask a question.\" It runs tool:read-youtube-comments with my YouTube connection and that video id.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It keeps no list: it reads one video's comment threads through your YouTube connection and posts, rates and moderates nothing.",
   "workflows": [],
   "tools": [
-    "tool:read-youtube-comments"
+    "tool:read-youtube-comments",
+    "tool:list-my-youtube-videos"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:read-youtube-comments\", and give it account_id, video_id.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-youtube-comments and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $ holds the result: Read the top-level comment threads of one YouTube video, with each comment's text, like count, publish time and the commenter's channel id"
+    "1. Connect your YouTube account (service_connection:youtube, or service_connection:youtube:<name>).",
+    "2. Get the video id: tool:list-my-youtube-videos gives each video's id.",
+    "3. Say \"Read the comments on that video\": the AI runs tool:read-youtube-comments at @workshop-tools with {account_id, video_id}, once for each video.",
+    "4. Read the answer: threads, newest first, 100 to a page, each with the comment's text, like count, publish time, reply count and the commenter's channel id (no display name). Pass nextPageToken as page_token for the next page, until none comes back. A video with comments turned off comes back as YouTube's refusal."
   ],
   "worked_examples": [
     {
-      "title": "Read the comments on a YouTube video on a sample input",
-      "ask": "Run tool:read-youtube-comments.",
+      "title": "Two comments on one video",
+      "ask": "Read the comments on my YouTube video vid-aaa.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,14 +27,14 @@
           "input": {
             "tool": "tool:read-youtube-comments",
             "input": {
-              "account_id": "<account_id: One of the person's accounts of this kind, service_connection:youtube or service_connection:youtube:<account>>",
-              "video_id": "<video_id: The id of the video whose comments to read>"
+              "account_id": "service_connection:youtube:one",
+              "video_id": "vid-aaa"
             }
           }
         }
       },
-      "hands_back": "The answer's $ holds the result: Read the top-level comment threads of one YouTube video, with each comment's text, like count, publish time and the commenter's channel id",
-      "given": "The person gives: account_id, video_id (shown as <name> in the input)."
+      "given": "Read from tools/social-posts/tool-rows.json (the row's http request and its fields mask), not run live: the engine sends GET https://www.googleapis.com/youtube/v3/commentThreads with videoId=vid-aaa, order=time, maxResults=100, textFormat=plainText and the fields mask nextPageToken,items(id,snippet(totalReplyCount,topLevelComment(snippet(textDisplay,likeCount,publishedAt,authorChannelId)))); the connection's token goes only to www.googleapis.com. The video (synthetic) has two comments.",
+      "hands_back": "{\"items\":[{\"id\":\"Ugx1\",\"snippet\":{\"totalReplyCount\":0,\"topLevelComment\":{\"snippet\":{\"textDisplay\":\"what is the price\",\"likeCount\":1,\"publishedAt\":\"2030-11-12T11:00:00Z\",\"authorChannelId\":{\"value\":\"UCfan\"}}}}},{\"id\":\"Ugx2\",\"snippet\":{\"totalReplyCount\":0,\"topLevelComment\":{\"snippet\":{\"textDisplay\":\"Love this loaf\",\"likeCount\":3,\"publishedAt\":\"2030-11-12T09:30:00Z\",\"authorChannelId\":{\"value\":\"UCother\"}}}}}]} (values synthetic; the fields are exactly the ones the mask keeps). This is the shape tool:decide-the-replies reads for YouTube comments."
     }
   ]
 }

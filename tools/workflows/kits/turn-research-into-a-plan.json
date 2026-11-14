@@ -1,22 +1,24 @@
 {
-  "draft": true,
-  "drafted_from": "workflow:turn-research-into-a-plan's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run workflow:turn-research-into-a-plan.\" Research a missing or weak capability across the whole industry and turn it into a facts-only plan document: current state, sourced findings, deepest cause, the constraint stack, and what everyone still gets wrong.",
+  "start_here": "Say to your AI: \"Run workflow:turn-research-into-a-plan for the capability 'customers find their past orders without asking us' in the shop's order page, and give me a facts-only plan with no recommendations.\"",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "Its plan is one document kept in the person's files and every finding is cited by id inside that document, so it reads and writes no list.",
   "workflows": [
     "workflow:turn-research-into-a-plan"
   ],
-  "tools": [],
+  "tools": [
+    "tool:start-a-recipe-run"
+  ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:turn-research-into-a-plan\" with the input in the worked example.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:turn-research-into-a-plan) and works through its steps in order: scope, current_state, research, per_system, root_cause, constraint_stack, plan, audit.",
-    "3. Read what each step hands back; the last step is audit."
+    "1. Name the capability that is missing or weak (at least 3 characters) and, if you know it, the project, codebase or product it affects.",
+    "2. Say \"Run workflow:turn-research-into-a-plan\" with capability and where.",
+    "3. Step scope writes every hard constraint as an outcome (c1, c2 and so on) before any research; step current_state audits what exists now with the file and line behind each claim and the searches behind each \"missing\".",
+    "4. Steps research and per_system run six open lanes (discovery, failures, cutting-edge, two domains, industry-floor) and a deep dive on each system found; every finding is a fact with a source and a status.",
+    "5. Steps root_cause, constraint_stack and plan assemble the facts-only document (what they all get wrong is its longest section) and give where it is kept; step audit has an independent reviewer check it for recommendations, missing research and wrong facts. Read the document; it recommends nothing."
   ],
   "worked_examples": [
     {
-      "title": "Turn research into a plan from its first step",
-      "ask": "Run workflow:turn-research-into-a-plan.",
+      "title": "Scope names the constraints as outcomes before any research",
+      "ask": "Research how customers can find their past orders without asking us, and give me a plan of facts.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,15 +29,17 @@
             "tool": "tool:start-a-recipe-run",
             "input": {
               "row": "workflow:turn-research-into-a-plan",
-              "capability": "<capability: What is missing or needs hardening>"
+              "capability": "customers find their past orders without asking us",
+              "where": "the shop's order page"
             }
           }
         }
       },
       "workflow": "workflow:turn-research-into-a-plan",
       "step": "scope",
-      "hands_back": "Step scope answers with capability, affects, constraints.",
-      "given": "The person gives: capability (shown as <name> in the input)."
+      "given": "Read from the scope step of workflow:turn-research-into-a-plan in tools/workflows/recipes/workflows.json (at least two constraints, each an outcome with why it is not a mechanism, at least 15 characters each).",
+      "hands_back": "{\"capability\":\"customers find their past orders without asking us\",\"affects\":[\"the shop's order page\",\"the order confirmation email\"],\"constraints\":[{\"id\":\"c1\",\"outcome\":\"A customer sees every order they have placed without contacting the shop.\",\"why_not_a_mechanism\":\"It names what the customer gets, not a login, an account or a lookup form that delivers it.\"},{\"id\":\"c2\",\"outcome\":\"A customer who never made an account can still reach their own orders and nobody else's.\",\"why_not_a_mechanism\":\"It states who may see what, and leaves open how that is proved.\"}]}"
     }
-  ]
+  ],
+  "drafted_from": "workflow:turn-research-into-a-plan row (input_schema and steps scope to audit)"
 }

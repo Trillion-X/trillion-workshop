@@ -1,41 +1,36 @@
 {
-  "draft": true,
-  "drafted_from": "tool:make-marketplace-tiles-with-their-icons's own row (its words, input schema, sample run and steps); read it before relying on it",
-  "start_here": "Say to your AI: \"Run tool:make-marketplace-tiles-with-their-icons with tools, workflows, icons.\" Make tiles of my Marketplace tools and workflows, each with its own icon drawn, for a page or a film to show",
+  "drafted_from": "tool row in tools/browse-and-publish-what-my-ai-can-use/tool-rows.json, code in do-work/make-shelf-tiles.mjs, test/make-shelf-tiles.test.mjs, marketplace-kinds.json",
+  "start_here": "Say to your AI: \"Make Marketplace tiles with their icons from tools.json and workflows.json using my lucide-react icons folder, and write tiles.js for my page.\" It runs make-shelf-tiles.mjs on your computer and tells you how many tiles it made and how many have their own icon.",
   "lists": [],
-  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "no_lists_because": "It reads two JSON files of shelf items and an icons folder and writes a page file, so it keeps no list of its own.",
   "workflows": [],
   "tools": [
     "tool:make-marketplace-tiles-with-their-icons",
     "tool:read-rows-as-marketplace-shelf-items"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run tool:make-marketplace-tiles-with-their-icons\", and give it tools, workflows, icons.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:make-marketplace-tiles-with-their-icons and its input (the worked example shows one).",
-    "3. Read what comes back: The answer's $.result holds the result: Make tiles of my Marketplace tools and workflows, each with its own icon drawn, for a page or a film to show"
+    "1. Save your tools and your workflows as two JSON files of {\"items\": [{id, kind, title, job, steps?, icon?}]} (tool:read-rows-as-marketplace-shelf-items reads them from the shelf), for example tools.json and workflows.json.",
+    "2. Run npm install lucide-react in any folder; its node_modules/lucide-react/dist/esm/icons folder is the icons input.",
+    "3. From the Workshop checkout say \"Make the tiles\". Your AI reads the row with tools:list and runs node tools/browse-and-publish-what-my-ai-can-use/do-work/make-shelf-tiles.mjs --tools tools.json --workflows workflows.json --icons <that icons folder> --out tiles.js.",
+    "4. Read the last JSON line: {\"result\": {tiles, counts, written}}. Load tiles.js in your page (it sets window.TILES; add --global NAME for another name). Items whose title reads as a machine name (an underscore, or word-word) are left out; an item without a known icon is drawn as its kind's icon (Wrench for a tool, Workflow for a workflow)."
   ],
   "worked_examples": [
     {
-      "title": "Make Marketplace tiles with their icons (runs on your computer) on a sample input",
-      "ask": "Run tool:make-marketplace-tiles-with-their-icons.",
+      "title": "Four items become four tiles, one with its own icon",
+      "ask": "Make tiles of my tools and workflows with their icons.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
           "address": "@workshop-tools",
-          "method": "tools:run",
+          "method": "tools:list",
           "input": {
-            "tool": "tool:make-marketplace-tiles-with-their-icons",
-            "input": {
-              "tools": "<tools: The JSON file of tool items, put where {tools} is in the command>",
-              "workflows": "<workflows: The JSON file of workflow items, put where {workflows} is in the command>",
-              "icons": "<icons: The dist/esm/icons folder of an installed lucide-react, put where {icons} is in the command>"
-            }
+            "tool": "tool:make-marketplace-tiles-with-their-icons"
           }
         }
       },
-      "hands_back": "The answer's $.result holds the result: Make tiles of my Marketplace tools and workflows, each with its own icon drawn, for a page or a film to show",
-      "given": "The person gives: tools, workflows, icons (shown as <name> in the input)."
+      "given": "From tools/browse-and-publish-what-my-ai-can-use/test/make-shelf-tiles.test.mjs (made-up icons folder with garden-hose.mjs, wrench.mjs and workflow.mjs) and do-work/make-shelf-tiles.mjs. Command: node tools/browse-and-publish-what-my-ai-can-use/do-work/make-shelf-tiles.mjs --tools tools.json --workflows workflows.json --icons icons --out tiles.js. tools.json holds {id tool:hose, title Water the beds, job a 120-character text, icon GardenHose} and {id tool:none, title No icon of its own, job kind icon}, plus {id tool:machine, title garden-hose_list}; workflows.json holds {id workflow:season, kind workflow, title Plan a season, job steps kept, steps [sow, water]}. In the test icons folder, garden-hose draws a path and a circle and wrench draws one path.",
+      "hands_back": "The last line printed is {\"result\":{\"tiles\":[{\"id\":\"tool:hose\",\"kind\":\"tool\",\"title\":\"Water the beds\",\"job\":\"<the job cut to 90 characters>\",\"steps\":null,\"icon\":\"GardenHose\",\"svg\":\"<path d=\\\"M4 4v8\\\"/><circle cx=\\\"9\\\" cy=\\\"9\\\" r=\\\"2\\\"/>\"},{\"id\":\"tool:none\",\"kind\":\"tool\",\"title\":\"No icon of its own\",\"job\":\"kind icon\",\"steps\":null,\"icon\":\"Wrench\",\"svg\":\"<path d=\\\"M1 1h2\\\"/>\"},{\"id\":\"workflow:season\",\"kind\":\"workflow\",\"title\":\"Plan a season\",\"job\":\"steps kept\",\"steps\":[\"sow\",\"water\"],\"icon\":\"Workflow\",\"svg\":\"<rect width=\\\"8\\\" height=\\\"8\\\" x=\\\"3\\\" y=\\\"3\\\" rx=\\\"2\\\"/>\"}],\"counts\":{\"items\":3,\"tools\":2,\"workflows\":1,\"own_icons\":1},\"written\":\"tiles.js\"}}. tool:machine is left out (its title has an underscore), and tiles.js holds window.TILES=[...];."
     }
   ]
 }

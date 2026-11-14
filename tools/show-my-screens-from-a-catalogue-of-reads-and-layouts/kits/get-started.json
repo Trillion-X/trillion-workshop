@@ -1,0 +1,37 @@
+{
+  "drafted_from": "tools/show-my-screens-from-a-catalogue-of-reads-and-layouts/tool-rows.json (tool:get-started), tools/show-my-screens-from-a-catalogue-of-reads-and-layouts/test/catalogue-screen-get-started.test.mjs, tools/set-up-my-account/test/read-setup.test.mjs and test/fixtures/get-started-descriptions.json",
+  "start_here": "Say to your AI: \"Show me my Get started screen: which setup steps my account still has to finish.\" It reads the row of tool:get-started, which draws what tool:read-setup answered for this browser and account.",
+  "lists": [],
+  "no_lists_because": "It keeps no list: the screen draws the setup facts that tool:read-setup reads from your account, and it writes nothing.",
+  "workflows": [],
+  "tools": [
+    "tool:get-started",
+    "tool:read-setup",
+    "tool:see-what-is-left-to-set-up"
+  ],
+  "instructions": [
+    "1. Open the Get started screen at /work/api/screens/get-started in the app; the screen host sends tool:read-setup the asking browser's user agent and origin and the page's account id, and draws what it answers.",
+    "2. Or ask your AI to read the row with tools:list {tool: \"tool:get-started\"} and to run tool:read-setup with {account_id, user_agent?, origin?} to see the same steps.",
+    "3. Read the answer: a title (Connect your AI to start while no AI is connected, You are all set when everything is done), ready, and requirements, each with done (true, false, or null while unknown), body, result and the place to finish it.",
+    "4. Do the steps marked person_only yourself; your AI sets up the rest. A source that could not be read is left unknown, so the screen stays not ready rather than opening on a guess."
+  ],
+  "worked_examples": [
+    {
+      "title": "A new account is asked for the one thing that starts everything",
+      "ask": "Show me which setup steps my account still has to finish.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:list",
+          "input": {
+            "tool": "tool:get-started"
+          }
+        }
+      },
+      "given": "From tools/show-my-screens-from-a-catalogue-of-reads-and-layouts/test/catalogue-screen-get-started.test.mjs and tools/set-up-my-account/test/read-setup.test.mjs (the pending setup golden, tools/set-up-my-account/test/fixtures/get-started-descriptions.json): the row has one read, setup, of tool:read-setup, asked with the browser's user_agent and origin and the page's account_id acct-a, and its layout is that read's answer whole; the account has no AI connected yet.",
+      "hands_back": "A screen whose title is \"Connect your AI to start\", lead \"Your AI connects what you already use and checks that each part works. Only something that needs your own hand asks you.\", ready false, workspace_ready false, setup_complete false, and requirements that start with {id \"identity\", title \"Add your name\", done null, audience \"person_only\", result \"Your name is saved.\", required true} and include {id \"ai-connection\", title \"Connect your AIs to Trillion\", done false, place \"/ai\", required true}. Once every step is done the title is \"You are all set\"."
+    }
+  ]
+}
