@@ -64,6 +64,10 @@ const MAX_SAVED_BYTES = 20 * 1024 * 1024;
 const nonempty = value => typeof value === 'string' && value.trim().length > 0;
 // The words a person used to ask for a saved screen (`screen.asked`): the same words typed again pick it at once
 // (src/instant-screens.mjs). Bounded by src/screen-spec.json limits (asked_lines, asked_chars), the one rule make_screen keeps too.
+/** What a screen with no `kind` may carry: how a tool is offered on a file, which opens no tab (work-workshop.mjs thingActions). */
+/** The ways a tool's own screen is shown (tool-screen.tsx SHOWS, and `reads` for the page's own list screens). There is no screen drawn from a tool's input schema. */
+const SCREEN_KINDS = new Set(['web-address', 'app-entry', 'module', 'parts', 'reads']);
+const OFFERED_ON_A_FILE = new Set(['group', 'icon', 'label', 'about', 'inputs']);
 const askedWordsValid = asked => Array.isArray(asked) && asked.length <= screenSpecLimits.asked_lines
   && asked.every(words => typeof words === 'string' && words.trim() && words.length <= screenSpecLimits.asked_chars)
   && new Set(asked.map(words => words.trim().toLowerCase())).size === asked.length;
@@ -1331,7 +1335,11 @@ export function makeWorkshop({ data, store, pool, executors, host, handedToCalle
       problems.push(`licence_class ${licence.id} lets a tool run only at ${licence.allowed_placements.join(', ')}, and placements names none of those.`);
     }
     if (row.screen !== undefined) {
-      if (!object(row.screen) || !nonempty(row.screen.kind)) problems.push('screen: the tool\'s own screen for a person, an object with a kind: {"kind": "described"} (Trillion draws a form from input_schema, a Run button and the result), {"kind": "web-address", "url": "https://..."} (your own web frontend) or {"kind": "app-entry", "entry": "<a Trillion screen>"}. Leave it out for a tool only AIs use.');
+      if (!object(row.screen)) problems.push('screen: an object. Leave it out for a tool only AIs use, or give it a kind: {"kind": "web-address", "url": "https://..."} (your own web frontend) or {"kind": "app-entry", "entry": "<a Trillion screen>"}.');
+      else if (row.screen.kind === undefined) {
+        const extra = Object.keys(row.screen).filter(key => !OFFERED_ON_A_FILE.has(key));
+        if (extra.length) problems.push(`screen: a screen with no kind only says how the tool is offered on a file (${[...OFFERED_ON_A_FILE].join(', ')}); ${extra.join(', ')} needs a kind: {"kind": "web-address", "url": "https://..."} or {"kind": "app-entry", "entry": "<a Trillion screen>"}.`);
+      } else if (!SCREEN_KINDS.has(row.screen.kind)) problems.push(`screen.kind: the way the screen is shown, one of ${[...SCREEN_KINDS].join(', ')}. A tool with no screen of its own declares none.`);
       else if (row.screen.url !== undefined && !/^https:\/\/[^\s]+$/.test(String(row.screen.url))) problems.push('screen.url: a full https:// web address.');
       if (object(row.screen) && row.screen.asked !== undefined && !askedWordsValid(row.screen.asked)) problems.push(`screen.asked: the person's own words that asked for this screen, a list of up to ${screenSpecLimits.asked_lines} different lines of at most ${screenSpecLimits.asked_chars} characters each, like ["timer 25 min"]. The same words typed again open this screen at once.`);
     }

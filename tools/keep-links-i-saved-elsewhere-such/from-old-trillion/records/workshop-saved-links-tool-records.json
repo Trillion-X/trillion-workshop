@@ -103,19 +103,15 @@
           }
         ],
         "screen": {
-          "group": "saving-links",
-          "kind": "described",
           "icon": "Bookmark",
           "label": "Browser bookmarks",
           "about": "Saves your browser's pinned tabs and folders to your files.",
           "inputs": {
             "file": {
               "label": "Saved items",
-              "file": { "takes": "data" }
-            },
-            "format": {
-              "label": "Browser",
-              "placeholder": "Only when the file does not say"
+              "file": {
+                "takes": "data"
+              }
             }
           }
         }
@@ -205,19 +201,7 @@
             "output_selector": "$.file",
             "text": "/Saved links/"
           }
-        ],
-        "screen": {
-          "group": "saving-links",
-          "kind": "described",
-          "icon": "Bookmark",
-          "label": "X bookmarks",
-          "about": "Saves your X bookmarks to your files.",
-          "inputs": {
-            "since": {
-              "hidden": true
-            }
-          }
-        }
+        ]
       }
     },
     {
@@ -304,19 +288,7 @@
             "output_selector": "$.file",
             "text": "/Saved links/"
           }
-        ],
-        "screen": {
-          "group": "saving-links",
-          "kind": "described",
-          "icon": "Bookmark",
-          "label": "X likes",
-          "about": "Saves the posts you liked on X to your files.",
-          "inputs": {
-            "since": {
-              "hidden": true
-            }
-          }
-        }
+        ]
       }
     }
   ]

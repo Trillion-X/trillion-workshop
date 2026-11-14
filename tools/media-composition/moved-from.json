@@ -774,6 +774,14 @@
       "to": "tools/media-composition/do-work/narration/runtime.json",
       "key_here": "programs[local-narration-python].search_path",
       "note": "The computer helper's seven program folders, appended after ~/.showtime/venv/bin in their source order; author-voice-script.mjs no longer reads the old helper settings."
+    },
+    {
+      "from": "records/workshop-tool-records.json",
+      "key": "records[package::ai-tool-catalog::tool::generate-local-image, package::ai-tool-catalog::tool::edit-local-image]",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/media-composition/from-old-trillion/records/workshop-local-image-tool-records.json",
+      "key_here": "records",
+      "note": "The two local image tools, moved out of tools/connect-a-service-and-seal-its-key/from-old-trillion/records/workshop-tool-records.json (a connections folder) beside the app-job owner and the mflux app they run (do-work/apps-here.json); the rows are byte for byte, their screens removed because no tool screen is drawn from an input schema."
     }
   ]
 }

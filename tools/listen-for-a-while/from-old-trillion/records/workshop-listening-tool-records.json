@@ -120,11 +120,17 @@
     "output_schema": { "type": "object" },
     "invoke": { "kind": "computer-tool", "tool_id": "tool:who-is-in-this" },
     "screen": {
-     "kind": "described",
-     "label": "Who is in it",
      "icon": "UsersRound",
+     "label": "Who is in it",
      "about": "Names who speaks in a recording, and whose faces are in a picture, against the people your computer knows.",
-     "inputs": { "file": { "label": "Recording or picture", "file": { "takes": "seen-or-heard" } }, "path": { "hidden": true } }
+     "inputs": {
+      "file": {
+       "label": "Recording or picture",
+       "file": {
+        "takes": "seen-or-heard"
+       }
+      }
+     }
     },
     "provenance": { "source": "computer/listen.mjs listeningTools.who and computer/know-who.py voices and faces" }
    }
@@ -295,29 +301,6 @@
     "invoke": {
      "kind": "computer-tool",
      "tool_id": "tool:hear-for-a-device"
-    },
-    "screen": {
-     "kind": "described",
-     "label": "Hear a recording",
-     "icon": "Ear",
-     "about": "Hears a recording made on another device and sends what each person said, as theirs.",
-     "inputs": {
-      "file": {
-       "label": "Recording",
-       "file": {
-        "takes": "heard"
-       }
-      },
-      "path": {
-       "hidden": true
-      },
-      "at": {
-       "hidden": true
-      },
-      "device": {
-       "label": "Recorded on"
-      }
-     }
     },
     "provenance": {
      "source": "computer/listen.mjs listeningTools.hear (listen with a device)"

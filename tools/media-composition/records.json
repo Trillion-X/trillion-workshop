@@ -4667,32 +4667,7 @@
       },
       "tolerance": 0
      }
-    ],
-    "screen": {
-     "group": "content-make",
-     "kind": "described",
-     "shows": [
-      "files"
-     ],
-     "icon": "AudioLines",
-     "inputs": {
-      "video": {
-       "label": "Video",
-       "file": {
-        "takes": "video"
-       }
-      },
-      "loudness_lufs": {
-       "label": "Loudness",
-       "placeholder": "-14 suits most sites"
-      },
-      "sounds": {
-       "hidden": true
-      }
-     },
-     "label": "Mix sounds",
-     "about": "Lays music and sounds under a video."
-    }
+    ]
    }
   },
   {
@@ -4979,28 +4954,7 @@
       },
       "tolerance": 0
      }
-    ],
-    "screen": {
-     "group": "content-make",
-     "kind": "described",
-     "shows": [
-      "files"
-     ],
-     "icon": "Layers",
-     "inputs": {
-      "video": {
-       "label": "Video",
-       "file": {
-        "takes": "video"
-       }
-      },
-      "pictures": {
-       "hidden": true
-      }
-     },
-     "label": "Layer pictures",
-     "about": "Lays pictures and clips over a video."
-    }
+    ]
    }
   },
   {
@@ -5150,22 +5104,7 @@
        "python3": "cat >/dev/null; exit 1"
       }
      }
-    ],
-    "screen": {
-     "group": "content-make",
-     "kind": "described",
-     "icon": "Link",
-     "inputs": {
-      "moves": {
-       "hidden": true
-      },
-      "projects": {
-       "hidden": true
-      }
-     },
-     "label": "Fix moved clips",
-     "about": "Points your Premiere projects at clips you moved."
-    }
+    ]
    }
   },
   {
@@ -5490,11 +5429,9 @@
     },
     "screen": {
      "group": "content-make",
-     "kind": "described",
-     "shows": [
-      "files"
-     ],
      "icon": "Palette",
+     "label": "Colour a video",
+     "about": "Changes a video's colour and look.",
      "inputs": {
       "video": {
        "label": "Video",
@@ -5502,46 +5439,13 @@
         "takes": "video"
        }
       },
-      "looks": {
-       "hidden": true
-      },
       "match_to": {
        "label": "Match the colour of",
        "file": {
         "takes": "video"
        }
-      },
-      "match_at": {
-       "label": "From second",
-       "placeholder": "Where in that video; the start when empty"
-      },
-      "brightness": {
-       "label": "Brightness",
-       "placeholder": "-0.5 to 0.5; 0 leaves it"
-      },
-      "contrast": {
-       "label": "Contrast",
-       "placeholder": "0.5 to 1.5; 1 leaves it"
-      },
-      "saturation": {
-       "label": "Saturation",
-       "placeholder": "0 to 2; 1 leaves it"
-      },
-      "exposure": {
-       "label": "Exposure",
-       "placeholder": "-2 to 2; 0 leaves it"
-      },
-      "warmth": {
-       "label": "Warmth",
-       "placeholder": "-1 to 1; 0 leaves it"
-      },
-      "vibrance": {
-       "label": "Vibrance",
-       "placeholder": "-1 to 1; 0 leaves it"
       }
-     },
-     "label": "Colour a video",
-     "about": "Changes a video's colour and look."
+     }
     },
     "controls": {
      "about": "How the video looks: warmer or cooler, more or less colour, brighter or darker.",
@@ -5837,34 +5741,6 @@
     "maker": "maker:media-composition",
     "provenance": {
      "source": "trillion parts/media-composition/do-work/grade-a-video.mjs with read-data/looks.json, ported from the Mac editor's colour presets"
-    },
-    "screen": {
-     "group": "content-make",
-     "kind": "described",
-     "shows": [
-      "files"
-     ],
-     "icon": "Pipette",
-     "inputs": {
-      "video": {
-       "label": "Video",
-       "file": {
-        "takes": "video"
-       }
-      },
-      "match_to": {
-       "label": "Match the colour of",
-       "file": {
-        "takes": "video"
-       }
-      },
-      "match_at": {
-       "label": "From second",
-       "placeholder": "Where in that video; the start when empty"
-      }
-     },
-     "label": "Match colour",
-     "about": "Makes one video's colour match another's."
     },
     "verify": [
      {

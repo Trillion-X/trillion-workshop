@@ -563,7 +563,7 @@ export function makeMadeControls({ describeTool, findTool, saveWorkflow, describ
       for (const name of descriptor.input_schema?.required ?? []) if (!Object.hasOwn(definition.inputs, name)) throw new Error(`Composed view "${definition.id}" needs a mapping for required input "${name}".`);
       resolved.push({ id: definition.id, tool_id: toolId, label: descriptor.label ?? toolId,
         preview: { kind: 'screen', entry: 'tool-screen', input: { tool_id: toolId } },
-        screen: descriptor.screen ?? { kind: 'described' },
+        ...(descriptor.screen ? { screen: descriptor.screen } : {}),
         input_schema: descriptor.input_schema ?? { type: 'object', properties: {} }, inputs: structuredClone(definition.inputs) });
     }
     return resolved;

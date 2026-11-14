@@ -340,7 +340,6 @@
         ],
         "screen": {
           "group": "content-make",
-          "kind": "described",
           "icon": "AudioLines",
           "label": "Transcribe",
           "about": "Turns a recording in your files into timed words.",
@@ -441,7 +440,6 @@
         ],
         "screen": {
           "group": "content-make",
-          "kind": "described",
           "icon": "FileSearch",
           "label": "Read a file's words",
           "about": "Reads what a document in your files says, so search finds it.",
@@ -1006,32 +1004,7 @@
             "output_selector": "$.work",
             "input_field": "work"
           }
-        ],
-        "screen": {
-          "kind": "described",
-          "icon": "UsersRound",
-          "label": "Team review",
-          "about": "One of your AIs does a job and another checks it.",
-          "inputs": {
-            "work": {
-              "label": "What to do",
-              "placeholder": "Say what should be done"
-            },
-            "rounds": {
-              "label": "Rounds",
-              "placeholder": "How many times it may go back and forth"
-            },
-            "request_key": {
-              "hidden": true
-            },
-            "assign": {
-              "hidden": true
-            },
-            "from_agent": {
-              "hidden": true
-            }
-          }
-        }
+        ]
       }
     },
     {
@@ -1285,21 +1258,6 @@
         "invoke": {
           "kind": "account-action",
           "action": "send-to-all-ais"
-        },
-        "screen": {
-          "kind": "described",
-          "icon": "Send",
-          "label": "Send to all my AIs",
-          "about": "Sends one message to every AI you use.",
-          "inputs": {
-            "text": {
-              "label": "Message",
-              "placeholder": "What to send"
-            },
-            "files": {
-              "hidden": true
-            }
-          }
         },
         "provenance": {
           "source": "the web Home and Messages send-all route (src/work-messages.mjs) and the iPhone Home composer (ios/Shared/TrillionAppData.swift sendHomeInput), made one owner in src/send-to-all-ais.mjs"
@@ -1860,50 +1818,6 @@
           "kind": "account-action",
           "action": "suggest-next-edit"
         },
-        "screen": {
-          "group": "content-plan",
-          "kind": "described",
-          "icon": "Clapperboard",
-          "label": "What to make next",
-          "about": "Suggests your next video from recordings you haven't used yet.",
-          "shows": [
-            "said",
-            "pick"
-          ],
-          "inputs": {
-            "action": {
-              "label": "What to do",
-              "choices": [
-                {
-                  "value": "",
-                  "label": "Suggest one"
-                },
-                {
-                  "value": "another",
-                  "label": "Show another"
-                },
-                {
-                  "value": "not-now",
-                  "label": "Not today"
-                },
-                {
-                  "value": "destination",
-                  "label": "Pick where to post"
-                }
-              ]
-            },
-            "id": {
-              "label": "Where it will be posted",
-              "placeholder": "Where you will post it",
-              "shows_when": {
-                "name": "action",
-                "values": [
-                  "destination"
-                ]
-              }
-            }
-          }
-        },
         "provenance": {
           "source": "src/media-next-edit.mjs, ported from media-workspace (the Mac's What to make next)"
         },
@@ -2002,28 +1916,7 @@
             "output_selector": "$.identity",
             "input_field": "identity"
           }
-        ],
-        "screen": {
-          "group": "content-files",
-          "kind": "described",
-          "icon": "Tags",
-          "label": "File facts",
-          "about": "Add dates, places and your own fields to a file.",
-          "inputs": {
-            "identity": {
-              "label": "File",
-              "file": {
-                "takes": "any"
-              }
-            },
-            "facts": {
-              "hidden": true
-            },
-            "produced_by": {
-              "hidden": true
-            }
-          }
-        }
+        ]
       }
     },
     {
@@ -2499,33 +2392,7 @@
             "output_selector": "$.editor",
             "text": "Filmcraft"
           }
-        ],
-        "screen": {
-          "group": "content-make",
-          "kind": "described",
-          "icon": "Send",
-          "label": "Send to editor",
-          "about": "Prepares an editable Filmcraft project using your Namespace files.",
-          "inputs": {
-            "edit": {
-              "label": "Edit",
-              "placeholder": "The edit from Media"
-            },
-            "editor": {
-              "label": "Editor",
-              "choices": [
-                {
-                  "value": "filmcraft",
-                  "label": "Filmcraft"
-                }
-              ]
-            },
-            "frame_rate": {
-              "label": "Frames a second",
-              "placeholder": "30 when empty"
-            }
-          }
-        }
+        ]
       }
     },
     {
@@ -2627,26 +2494,7 @@
             "output_selector": "$.finished.media_type",
             "text": "video/"
           }
-        ],
-        "screen": {
-          "group": "content-make",
-          "kind": "described",
-          "icon": "Film",
-          "label": "Attach finished video",
-          "about": "Puts the video you exported back with its edit.",
-          "inputs": {
-            "edit": {
-              "label": "Edit",
-              "placeholder": "The edit from Media"
-            },
-            "file": {
-              "label": "Finished video",
-              "file": {
-                "takes": "video"
-              }
-            }
-          }
-        }
+        ]
       }
     },
     {

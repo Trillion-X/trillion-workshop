@@ -30,19 +30,15 @@ function connectionsOf(styleId) {
   return [...new Map(makers.filter(maker => maker.key).map(maker => [maker.key.connection.mount_path, maker.key.connection])).values()];
 }
 
-test('every style is its own Workshop tool with a described screen, derived from the style row alone', async () => {
+test('every style is its own Workshop tool with no screen of its own, derived from the style row alone', async () => {
   const tools = await derivedRows();
   assert.deepEqual(tools.map(tool => tool.id), [...rows.styles.keys()].map(id => `tool:make-${id}`));
   for (const tool of tools) {
     const id = tool.id.slice('tool:make-'.length);
     const style = rows.styles.get(id);
     assert.equal(tool.label, style.label);
-    const { inputs, shows, ...screen } = tool.screen;
-    assert.deepEqual(shows, ['files'], 'what a style made shows as the files themselves');
-    // The folder it sits in (screen.group) is the template's, the same for every style.
-    assert.deepEqual(screen, { kind: 'described', group: 'make-pictures-and-sounds', icon: style.icon, label: style.short_label, about: style.about });
-    // Every input the style takes is named for people by the one shared inputs row.
-    for (const name of Object.keys(style.input_schema.properties)) assert.ok(inputs[name]?.label, `${id} ${name}`);
+    // The editor's Make panel is the person's screen for every style; the tool itself declares none.
+    assert.equal(tool.screen, undefined);
     assert.deepEqual(tool.invoke.stdin, { fill: { from: 'input' } }, 'the whole input is read on standard input at run time');
     // A style that runs a model or a program on the person's own computer (runs_on) is a computer tool that writes into the folder they grant.
     if (style.runs_on === 'your-computer') {

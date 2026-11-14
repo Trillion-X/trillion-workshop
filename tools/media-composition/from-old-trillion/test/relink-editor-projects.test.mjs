@@ -68,8 +68,7 @@ test('the relink tool runs on the person\'s own computer and its licence allows 
   assert.deepEqual(refused, []);
   const row = rows.find(item => item.id === 'tool:point-editor-projects-at-new-places');
   assert.deepEqual(row.placements, ['placement:caller-sandbox']);
-  assert.deepEqual({ kind: row.screen.kind, icon: row.screen.icon }, { kind: 'described', icon: 'Link' });
-  assert.equal(row.screen.label, 'Fix moved clips', 'its screen is named in the person\'s words');
+  assert.equal(row.screen, undefined, 'only AIs run it: no screen of its own');
   assert.deepEqual(row.invoke.files.package_files.paths, ['do-work/relink-editor-projects.mjs', 'do-work/relink-in-resolve.py']);
   const licence = licences.records.map(record => record.payload).find(item => item.id === row.licence_class);
   assert.ok(licence.allowed_placements.includes('placement:caller-sandbox'));

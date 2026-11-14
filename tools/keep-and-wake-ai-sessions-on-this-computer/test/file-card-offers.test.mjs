@@ -33,7 +33,7 @@ const ids = actions => actions.map(action => action.id);
 
 test('a video is offered its editor, posting, its folder and the tools that take a recording', () => {
   const offered = thingActions(cards, { type: 'video/mp4', name: 'C9506S03.MP4' });
-  for (const id of ['tool:screen-media-edit', 'tool:check-a-post', 'tool:screen-files', 'tool:screen-file', 'tool:transcribe-file', 'tool:who-is-in-this', 'tool:read-file-words']) assert.ok(ids(offered).includes(id), id);
+  for (const id of ['tool:screen-media-edit', 'tool:check-a-post', 'tool:screen-files', 'tool:screen-file', 'tool:transcribe-file', 'tool:read-file-words']) assert.ok(ids(offered).includes(id), id);
   const edit = offered.find(action => action.id === 'tool:screen-media-edit');
   assert.equal(edit.kind, 'open');
   assert.equal(edit.surface, 'trillion.media-edit');
@@ -65,7 +65,7 @@ test('a tool that needs more than the file is never a button that would fail', (
 });
 
 test('a tool the person cannot run here is left out, and a new tool that takes a file appears with no card change', () => {
-  const extra = { tool_id: 'tool:made-by-someone', label: 'Make captions', input_schema: { type: 'object', required: ['clip'] }, screen: { kind: 'described', inputs: { clip: { file: { takes: 'video' } } } }, next_call: { tool: 'run_tool' } };
+  const extra = { tool_id: 'tool:made-by-someone', label: 'Make captions', input_schema: { type: 'object', required: ['clip'] }, screen: { inputs: { clip: { file: { takes: 'video' } } } }, next_call: { tool: 'run_tool' } };
   assert.ok(ids(thingActions([...cards, extra], { type: 'video/quicktime', name: 'a.mov' })).includes('tool:made-by-someone'));
   assert.ok(!ids(thingActions([...cards, { ...extra, runs_here: false }], { type: 'video/quicktime', name: 'a.mov' })).includes('tool:made-by-someone'));
 });

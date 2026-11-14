@@ -99,59 +99,7 @@
             "output_selector": "$.rules",
             "contains": "["
           }
-        ],
-        "screen": {
-          "group": "automations",
-          "kind": "described",
-          "icon": "Zap",
-          "label": "When this happens",
-          "about": "Run a tool or workflow by itself when something is recorded or arrives.",
-          "inputs": {
-            "operation": {
-              "label": "Do",
-              "choices": [
-                {
-                  "value": "",
-                  "label": "List them"
-                },
-                {
-                  "value": "set",
-                  "label": "Set one"
-                },
-                {
-                  "value": "remove",
-                  "label": "Remove one"
-                },
-                {
-                  "value": "run-now",
-                  "label": "Run one now"
-                },
-                {
-                  "value": "reset",
-                  "label": "Put Trillion's version back"
-                }
-              ]
-            },
-            "rule_id": {
-              "label": "Rule"
-            },
-            "when": {
-              "label": "When"
-            },
-            "then": {
-              "label": "Then"
-            },
-            "label": {
-              "label": "Name"
-            },
-            "enabled": {
-              "label": "On"
-            },
-            "input": {
-              "hidden": true
-            }
-          }
-        }
+        ]
       }
     },
     {
@@ -289,65 +237,7 @@
             "output_selector": "$.schedules",
             "contains": "["
           }
-        ],
-        "screen": {
-          "group": "automations",
-          "kind": "described",
-          "icon": "Clock",
-          "label": "At a time",
-          "about": "Run a tool or workflow by itself at a time, or every day or week.",
-          "inputs": {
-            "operation": {
-              "label": "Do",
-              "choices": [
-                {
-                  "value": "",
-                  "label": "List them"
-                },
-                {
-                  "value": "set",
-                  "label": "Set one"
-                },
-                {
-                  "value": "remove",
-                  "label": "Remove one"
-                },
-                {
-                  "value": "run-now",
-                  "label": "Run one now"
-                },
-                {
-                  "value": "reset",
-                  "label": "Put Trillion's version back"
-                }
-              ]
-            },
-            "schedule_id": {
-              "label": "Schedule"
-            },
-            "once_at": {
-              "label": "Once at"
-            },
-            "every": {
-              "label": "Every"
-            },
-            "starts_on": {
-              "label": "Starts on"
-            },
-            "then": {
-              "label": "Then"
-            },
-            "label": {
-              "label": "Name"
-            },
-            "enabled": {
-              "label": "On"
-            },
-            "input": {
-              "hidden": true
-            }
-          }
-        }
+        ]
       }
     }
   ]

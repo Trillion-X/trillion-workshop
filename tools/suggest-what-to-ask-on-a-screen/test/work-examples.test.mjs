@@ -92,7 +92,7 @@ test('a failed pursuit capability read refuses its generated prompt on handoff',
 
 test('a newly saved tool screen is discovered and reconstructed from its current account descriptor', async () => {
   const calls = [];
-  const descriptor = { id: 'tool:review-intake', label: 'Review intake', description: 'Checks incoming requests against the current pursuit brief.', screen: { kind: 'described' } };
+  const descriptor = { id: 'tool:review-intake', label: 'Review intake', description: 'Checks incoming requests against the current pursuit brief.', screen: { kind: 'app-entry', entry: 'files' } };
   const currentPerson = { fetch: async request => {
     const path = new URL(request.url).pathname;
     calls.push({ path, body: request.method === 'POST' ? await request.json() : null });
@@ -121,7 +121,7 @@ test('withdrawn and non-screen tool descriptors are not suggested, while unknown
   const calls = [];
   const person = { fetch: async request => {
     calls.push(new URL(request.url).pathname);
-    return Response.json({ descriptor: { id: 'tool:retired', status: 'withdrawn', label: 'Retired', description: 'Old tool.', screen: { kind: 'described' } } });
+    return Response.json({ descriptor: { id: 'tool:retired', status: 'withdrawn', label: 'Retired', description: 'Old tool.', screen: { kind: 'app-entry', entry: 'files' } } });
   } };
   assert.equal(await examplesFor('file', { person, stories: async () => [], origin: ORIGIN }), null);
   assert.deepEqual(calls, []);

@@ -114,7 +114,7 @@ export function toolListing(card) {
     ...(maker.shareable ? { shareable: true } : {}),
     ...(maker.own ? { own: true } : {}),
     // A tool with its own screen for a person opens it from its page (the same screen its sidebar row opens).
-    ...(card.screen && typeof card.screen === 'object' ? { has_screen: true } : {}),
+    ...(typeof card.screen?.kind === 'string' ? { has_screen: true } : {}),
     service: service ?? '',
     runs_on: where,
     worked: worked.filter,
@@ -169,10 +169,11 @@ const inputsOf = schema => Object.entries(schema?.properties ?? {}).map(([name, 
 // The colour each value of a table's tag column takes, from the tone its row carries.
 const tagsOf = (rows, field) => Object.fromEntries(rows.map(row => [row[field], { tone: looks.tag_colours[row.tone] ?? looks.tag_colours.quiet }]));
 
-/** Every runnable tool and screen-only tool, as the placeable screen the workspace lists, arranges and opens: one
- *  row per tool whose id IS the tool's id, with where it came from (`source`) so lists hold it by a rule over rows.
- *  A runnable tool without custom screen DATA uses tool-screen's described form. Nothing here or in the tool names
- *  a list, a place in the sidebar or an address; they all derive from this row. */
+/** Every tool that declares a screen of its own (`screen.kind`), as the placeable screen the workspace lists, arranges
+ *  and opens: one row per tool whose id IS the tool's id, with where it came from (`source`) so lists hold it by a rule
+ *  over rows. A tool with no `screen.kind` has no tab: its job is done on the screen that already hosts it, or by the
+ *  person's AI. Nothing here or in the tool names a list, a place in the sidebar or an address; they all derive from
+ *  this row. */
 /** What a thing's ⋯ menu and a file's card offer, from the tools this person can use (the cards /tools/list answers).
  *  A thing carries values by the input `format` they fill (`carries`: `namespace-file` for a file, `trillion:<kind>`
  *  for any thing's own id, such as `trillion:decision` or `trillion:screen`; the page says which, menu-rows.json).
@@ -229,7 +230,7 @@ export function toolSurfaces(tools) {
     || !defaults.placement_labels.length || !defaults.placement_labels.every(named)) {
     throw new TypeError('Tool screen mount DATA is missing or invalid.');
   }
-  return (tools ?? []).filter(card => card?.tool_id && (card.next_call || (card.screen && typeof card.screen === 'object'))).map(card => replacing(card, {
+  return (tools ?? []).filter(card => card?.tool_id && typeof card.screen?.kind === 'string' && card.screen.kind).map(card => replacing(card, {
     id: card.tool_id,
     surface_id: card.tool_id,
     kind: 'placeable-surface',

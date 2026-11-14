@@ -228,19 +228,6 @@
           "show_at_most": 6,
           "collections": [
             {
-              "id": "tools-make-pictures-and-sounds",
-              "name": "Make pictures and sound",
-              "icon": "Sparkles",
-              "holds": {
-                "path": [
-                  "source",
-                  "group"
-                ],
-                "equals": "make-pictures-and-sounds"
-              },
-              "show_at_most": 6
-            },
-            {
               "id": "tools-business",
               "name": "Business",
               "icon": "Briefcase",
@@ -250,32 +237,6 @@
                   "group"
                 ],
                 "equals": "business"
-              },
-              "show_at_most": 6
-            },
-            {
-              "id": "tools-automations",
-              "name": "Automations",
-              "icon": "Zap",
-              "holds": {
-                "path": [
-                  "source",
-                  "group"
-                ],
-                "equals": "automations"
-              },
-              "show_at_most": 6
-            },
-            {
-              "id": "tools-saving-links",
-              "name": "Saving links",
-              "icon": "Link",
-              "holds": {
-                "path": [
-                  "source",
-                  "group"
-                ],
-                "equals": "saving-links"
               },
               "show_at_most": 6
             }
