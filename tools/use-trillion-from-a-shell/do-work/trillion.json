@@ -321,6 +321,15 @@
       "release"
     ]
   },
+  "bearers": {
+    "_what": "The shapes of credential the door accepts as a bearer, one row each: a `pattern` the whole value must match. The command sends whatever bearer it is given (TRILLION_KEY, the kept key, a key read on standard input) as it is, and refuses only a value no row matches, so a new kind of key or pass is one row here and no change in code. nm_ is the Mac app's account key; tr_ is a Better Auth API key (the prefix and 64 letters, no digits or separators, as the apiKey plugin mints it: better-auth-official, Nov 14); the third is an access token that is a signed JWT (three base64url parts).",
+    "shapes": [
+      { "kind": "account key", "pattern": "^nm_[0-9a-f]+$" },
+      { "kind": "API key", "pattern": "^tr_[A-Za-z]{64}$" },
+      { "kind": "signed token", "pattern": "^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$" }
+    ],
+    "refused": "That is not a kind of key or token the door takes ({kinds})."
+  },
   "keep": {
     "_what": "Where a result too long for the job row is kept (keep-result.mjs): one file of the person's files, named {folder}/<job id>/result by the program, never by the caller; the job row's result then holds the `pointer` line. The inline limit is not here: it is the `maxLength` of the result input of the tool that finishes jobs, read from the door. piece_bytes is the account files' fixed span size (pages-32k-v1) a resumable upload takes at a time; read_bytes is how much one read asks for (the door answers at most its own most).",
     "folder": "/ai-job-results",

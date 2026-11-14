@@ -705,3 +705,19 @@ test('keep: a door that states no most length for the result refuses before anyt
     assert.equal(kept.files.size, 0);
   } finally { await fake.close(); }
 });
+
+test('bearer: whatever kind of key or token TRILLION_KEY holds reaches the door unchanged; a value of no declared kind is not sent', async () => {
+  const apiKey = `tr_${'AbCdEfGh'.repeat(8)}`;
+  const token = `${Buffer.from('{"typ":"at+jwt"}').toString('base64url')}.${Buffer.from('{"sub":"x"}').toString('base64url')}.${'s'.repeat(20)}`;
+  const nobody = { where: 'nothing kept', read: () => null, write: () => {} };
+  const fake = await fakeDoor({ bearers: [KEY, apiKey, token] });
+  try {
+    for (const bearer of [KEY, apiKey, token]) {
+      const said = await main(['whoami'], seamsFor(home(), { localDoor: () => fake.mcp, store: nobody, env: { CLAUDECODE: '1', TRILLION_KEY: bearer } }));
+      assert.match(said, new RegExp(`^account ${ACCOUNT}`), 'the door took the bearer exactly as given');
+    }
+    assert.deepEqual((await credentialFor({ env: { TRILLION_KEY: apiKey }, store: nobody, grants: noGrants })).bearer, apiKey);
+    assert.equal(await credentialFor({ env: { TRILLION_KEY: 'not a key' }, store: nobody, grants: noGrants }), null, 'a value no shape row matches is not a credential');
+    assert.deepEqual(settings.bearers.shapes.map(row => row.kind), ['account key', 'API key', 'signed token'], 'the kinds are DATA');
+  } finally { await fake.close(); }
+});

@@ -253,6 +253,10 @@ export function placeOf({ cwd = process.cwd(), exec = run, rules = settings } = 
  * With `account` (an account id) the key is that account's own Keychain entry (`<keychain_account>:<id>`) or file (`<key_file>.<id>`),
  * so several accounts on one computer never overwrite each other; with none it is the single entry it has always been.
  */
+/** `value` when it is a credential of a kind the door takes (trillion.json `bearers.shapes`), else null. Nothing here names a
+ *  prefix: a new kind of key or token is a new row. */
+export const bearerOf = (value, rules = settings) => (typeof value === 'string' && rules.bearers.shapes.some(row => new RegExp(row.pattern).test(value)) ? value : null);
+
 export function keyStore({ rules = settings, home = homedir(), platform = process.platform, exec = run, account = null } = {}) {
   if (account !== null && !/^[A-Za-z0-9_-]{1,80}$/.test(String(account))) throw new TrillionError('An account id is letters, digits, dashes and underscores.');
   const file = account === null ? expand(rules.key_file, home) : `${expand(rules.key_file, home)}.${account}`;
@@ -264,13 +268,13 @@ export function keyStore({ rules = settings, home = homedir(), platform = proces
       if (keychain) {
         const answer = exec('/usr/bin/security', ['find-generic-password', ...(account === null ? [] : ['-a', holder]), '-s', rules.keychain_item, '-w'], { stdio: ['ignore', 'pipe', 'ignore'] });
         const key = answer.status === 0 ? String(answer.stdout).trim() : '';
-        return key.startsWith('nm_') ? key : null;
+        return bearerOf(key, rules);
       }
-      try { const key = readFileSync(file, 'utf8').trim(); return key.startsWith('nm_') ? key : null; } catch { return null; }
+      try { return bearerOf(readFileSync(file, 'utf8').trim(), rules); } catch { return null; }
     },
     // The value goes to `security -i` on standard input, never into an argument another process can list.
     write(key) {
-      if (!/^nm_[0-9a-f]+$/.test(key)) throw new TrillionError('The account answered something that is not a Trillion key.');
+      if (bearerOf(key, rules) === null) throw new TrillionError('The account answered something that is not a Trillion key.');
       if (keychain) {
         const answer = exec('/usr/bin/security', ['-i'], { input: `add-generic-password -U -a ${holder} -s ${rules.keychain_item} -w ${key}\n`, stdio: ['pipe', 'ignore', 'pipe'] });
         if (answer.status !== 0) throw new TrillionError(`The key could not be kept in the Keychain (${String(answer.stderr ?? '').trim() || answer.status}).`);
@@ -348,7 +352,7 @@ export async function refreshGrant(grant, { fetchImpl = fetch, rules = settings,
  *  login kept, renewed first when it ends within `grant.refresh_before_seconds`. { kind: 'key'|'sign-in', bearer, where,
  *  origin? }, or null when there is none. */
 export async function credentialFor({ env = process.env, store = keyStore(), grants = grantStore(), fetchImpl = fetch, rules = settings, now = Date.now } = {}) {
-  if (env.TRILLION_KEY?.startsWith('nm_')) return { kind: 'key', bearer: env.TRILLION_KEY, where: 'TRILLION_KEY' };
+  if (bearerOf(env.TRILLION_KEY, rules) !== null) return { kind: 'key', bearer: env.TRILLION_KEY, where: 'TRILLION_KEY' };
   const key = store.read();
   if (key) return { kind: 'key', bearer: key, where: store.where };
   let grant = grants.read();
@@ -952,7 +956,7 @@ async function login(context, { again = false } = {}) {
     const chunks = [];
     for await (const chunk of process.stdin) chunks.push(chunk);
     const key = Buffer.concat(chunks).toString('utf8').trim();
-    if (!key.startsWith('nm_')) throw new TrillionError('Standard input did not hold a Trillion key.', { status: 2 });
+    if (bearerOf(key, settings) === null) throw new TrillionError(fill(settings.bearers.refused, { kinds: settings.bearers.shapes.map(row => row.kind).join(', ') }), { status: 2 });
     context.store.write(key);
   } else {
     const grant = await signInWithBrowser({ origin: context.asked ?? settings.origin, fetchImpl: context.fetchImpl, ...(context.open ? { open: context.open } : {}) });
