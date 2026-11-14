@@ -1,0 +1,1142 @@
+{
+  "about": "Files moved here byte for byte from Trillion-X/trillion-apps web/parts/chat at a89474c0211e2353c9ce96b8c21fc21ee9021f91 on the owner's order (Nov 13 2026, about 7:20 PM CST): every screen and screen part lives in the Workshop, not in the app. Each names its source path and commit and the identity of its bytes there and here; a file whose bytes here differ only in import paths names that.",
+  "source": "Trillion-X/trillion-apps",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/data/incoming-message-questions.json",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/data/incoming-message-questions.json",
+      "source_identity": "1f:e7612332d78419506d6bc9f655d5b86157be0aad447886104f170891ca67d7a4",
+      "identity": "1f:e7612332d78419506d6bc9f655d5b86157be0aad447886104f170891ca67d7a4",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/do-work/addressed-exchange-ids.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/do-work/addressed-exchange-ids.ts",
+      "source_identity": "1f:9eb4462823fa7da51b529a44a2a99b1ebd9093d91c4bcaf073661c3f60bbbe77",
+      "identity": "1f:9eb4462823fa7da51b529a44a2a99b1ebd9093d91c4bcaf073661c3f60bbbe77",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/do-work/advance-capability-round.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/do-work/advance-capability-round.ts",
+      "source_identity": "1f:08731a053ad2a714f57dfb0cdb4640217ef5fb5fe5518ba313ac8f2f595a117d",
+      "identity": "1f:08731a053ad2a714f57dfb0cdb4640217ef5fb5fe5518ba313ac8f2f595a117d",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/do-work/advance-chat-tool-round.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/do-work/advance-chat-tool-round.ts",
+      "source_identity": "1f:6b07795c61079b81901130d614448a1b1ff6a6fbdda783de32d80e599c2b4b8d",
+      "identity": "1f:6b07795c61079b81901130d614448a1b1ff6a6fbdda783de32d80e599c2b4b8d",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/do-work/ask-file-classification-for-chat.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/do-work/ask-file-classification-for-chat.ts",
+      "source_identity": "1f:a653e2debbd6231ada03e70ad626c99041acc7ebda106a1099a1460b56b882e1",
+      "identity": "1f:a653e2debbd6231ada03e70ad626c99041acc7ebda106a1099a1460b56b882e1",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/do-work/build-live-chat-prompt.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/do-work/build-live-chat-prompt.ts",
+      "source_identity": "1f:943808285850867ed6b14f6d68425d8639b7b64036220a9ac6ee3277cc56c2eb",
+      "identity": "1f:943808285850867ed6b14f6d68425d8639b7b64036220a9ac6ee3277cc56c2eb",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/do-work/cancel-in-flight-capability.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/do-work/cancel-in-flight-capability.ts",
+      "source_identity": "1f:65c86a29fa6e4f9197126add97f64b6b6865a7efa6770bb674b2e4b465185fdb",
+      "identity": "1f:65c86a29fa6e4f9197126add97f64b6b6865a7efa6770bb674b2e4b465185fdb",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/do-work/chat-send-work.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/do-work/chat-send-work.ts",
+      "source_identity": "1f:4702aae75c8a7acef6f58eb8cb9483c03ab25ddf31f3e94dae2a819bcf3125ae",
+      "identity": "1f:4702aae75c8a7acef6f58eb8cb9483c03ab25ddf31f3e94dae2a819bcf3125ae",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/do-work/create-idea-from-chat.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/do-work/create-idea-from-chat.ts",
+      "source_identity": "1f:3163df5f7c57c430e800599bf9e2c4afd4819b17ff129bfa2ee9317a0de1c9f6",
+      "identity": "1f:3163df5f7c57c430e800599bf9e2c4afd4819b17ff129bfa2ee9317a0de1c9f6",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/do-work/discover-capabilities.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/do-work/discover-capabilities.ts",
+      "source_identity": "1f:466c534a1e2bf8a7580b588718fd50676860325d5362b7acf6a86c33f0b53e62",
+      "identity": "1f:466c534a1e2bf8a7580b588718fd50676860325d5362b7acf6a86c33f0b53e62",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/do-work/dispatch-addressed-message.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/do-work/dispatch-addressed-message.ts",
+      "source_identity": "1f:0e478a8560ebe7d55b8e30c23a7e3149589ae5ab98998209d6c7d8ee983bc01e",
+      "identity": "1f:0e478a8560ebe7d55b8e30c23a7e3149589ae5ab98998209d6c7d8ee983bc01e",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/do-work/execute-chat-work-requests.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/do-work/execute-chat-work-requests.ts",
+      "source_identity": "1f:dd16770c9bc2e1c41b537d23952e38c60ad68ba32c95370652ab5bce630fabf6",
+      "identity": "1f:dd16770c9bc2e1c41b537d23952e38c60ad68ba32c95370652ab5bce630fabf6",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/do-work/execute-message-perform-control.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/do-work/execute-message-perform-control.ts",
+      "source_identity": "1f:59eb7c38173f5560031d54c21f9e0b0523ca0cdf74aed9d2985be5f16a38d0fe",
+      "identity": "1f:59eb7c38173f5560031d54c21f9e0b0523ca0cdf74aed9d2985be5f16a38d0fe",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/do-work/materialize-addressed-exchange.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/do-work/materialize-addressed-exchange.ts",
+      "source_identity": "1f:7523e266d59ac62f5945755805403fe376034ff9b67940558e95f10a89a8cfdf",
+      "identity": "1f:7523e266d59ac62f5945755805403fe376034ff9b67940558e95f10a89a8cfdf",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/do-work/read-chat-conversation-page.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/do-work/read-chat-conversation-page.ts",
+      "source_identity": "1f:b8bcbf9d81e6f225516db8053119a86bcd94b3d372c46e4d8c8024f28cefffaf",
+      "identity": "1f:b8bcbf9d81e6f225516db8053119a86bcd94b3d372c46e4d8c8024f28cefffaf",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/do-work/read-chat-transcript-page.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/do-work/read-chat-transcript-page.ts",
+      "source_identity": "1f:21f663814337331c352f581493c860eab5bfd5a8b58e0d13784bc27dfc565912",
+      "identity": "1f:21f663814337331c352f581493c860eab5bfd5a8b58e0d13784bc27dfc565912",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/do-work/record-capability-observation.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/do-work/record-capability-observation.ts",
+      "source_identity": "1f:961021489daa740946559cb588b4a1fa0e6f41debf465724511ede01120d20a6",
+      "identity": "1f:961021489daa740946559cb588b4a1fa0e6f41debf465724511ede01120d20a6",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/do-work/refresh-chat-history.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/do-work/refresh-chat-history.ts",
+      "source_identity": "1f:e5f02b4b392b836213201ad321aa0c5108d5f89be009f55bfb0c0a1d4bf02d3f",
+      "identity": "1f:e5f02b4b392b836213201ad321aa0c5108d5f89be009f55bfb0c0a1d4bf02d3f",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/do-work/refresh-chat-model-inventory.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/do-work/refresh-chat-model-inventory.ts",
+      "source_identity": "1f:8669dcf39eaf7bfd4dcd8b813dbf2c8c0be3d3d817fa6771d27061540823e222",
+      "identity": "1f:8669dcf39eaf7bfd4dcd8b813dbf2c8c0be3d3d817fa6771d27061540823e222",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/do-work/submit-chat-turn-via-producer.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/do-work/submit-chat-turn-via-producer.ts",
+      "source_identity": "1f:a4a26ff502a689c8adf3b3aace3209bd26ba80cf8e076a3eef2e72bf7e5db75d",
+      "identity": "1f:a4a26ff502a689c8adf3b3aace3209bd26ba80cf8e076a3eef2e72bf7e5db75d",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/do-work/submit-connect-action.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/do-work/submit-connect-action.ts",
+      "source_identity": "1f:7efa0d356444b95c8858252bb5f730bf9e50a8ed3895de3a515271c371502184",
+      "identity": "1f:7efa0d356444b95c8858252bb5f730bf9e50a8ed3895de3a515271c371502184",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/do-work/submit-message-egress-from-chat.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/do-work/submit-message-egress-from-chat.ts",
+      "source_identity": "1f:9128b8df5a16a4c90da8af3c81eb9708eba29194e74f94623b88ee9d11155cf5",
+      "identity": "1f:9128b8df5a16a4c90da8af3c81eb9708eba29194e74f94623b88ee9d11155cf5",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/do-work/submit-message-intent-from-chat.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/do-work/submit-message-intent-from-chat.ts",
+      "source_identity": "1f:37ba0cbdc6887ff0c760b37fe8b7c453212901afb25238d4f3e08523c72825b7",
+      "identity": "1f:37ba0cbdc6887ff0c760b37fe8b7c453212901afb25238d4f3e08523c72825b7",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/do-work/write-addressed-exchange-through-conversations.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/do-work/write-addressed-exchange-through-conversations.ts",
+      "source_identity": "1f:e7819ee3b80c9052e5e50c0733a16d01ba2b2795d4edd9de01f989f75f4ebe28",
+      "identity": "1f:e7819ee3b80c9052e5e50c0733a16d01ba2b2795d4edd9de01f989f75f4ebe28",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/read-data/compaction-detection.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/read-data/compaction-detection.ts",
+      "source_identity": "1f:219e612290adf072faa48a37f9e079e14841baebce12708ea391a3c7307a20c8",
+      "identity": "1f:219e612290adf072faa48a37f9e079e14841baebce12708ea391a3c7307a20c8",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/read-data/current-model-availability.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/read-data/current-model-availability.ts",
+      "source_identity": "1f:91fe8ff461ca32e388401e5818dc283a39d71f030008e3e6bfd7bd2b8010d165",
+      "identity": "1f:91fe8ff461ca32e388401e5818dc283a39d71f030008e3e6bfd7bd2b8010d165",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/read-data/map-conversation-projections-to-chat.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/read-data/map-conversation-projections-to-chat.ts",
+      "source_identity": "1f:e5e32fe491dec728b11ff5142fd6f4ee041af090bd5949e646d26234e39faaee",
+      "identity": "1f:e5e32fe491dec728b11ff5142fd6f4ee041af090bd5949e646d26234e39faaee",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/read-data/merge-agent-selection-participants.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/read-data/merge-agent-selection-participants.ts",
+      "source_identity": "1f:38afeb37b67893a00b9d8017b3b25080e17c41eceaa68e9d5c42089014d68583",
+      "identity": "1f:38afeb37b67893a00b9d8017b3b25080e17c41eceaa68e9d5c42089014d68583",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/read-data/participant-configuration-intent.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/read-data/participant-configuration-intent.ts",
+      "source_identity": "1f:4c43978e912eda270ae34fe10df023c7492a310a203bd316af9e88585ba793b5",
+      "identity": "1f:4c43978e912eda270ae34fe10df023c7492a310a203bd316af9e88585ba793b5",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/read-data/paste-policy.json",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/read-data/paste-policy.json",
+      "source_identity": "1f:d17690c62338880fe6f8249b24edb01020d36cb821e54a450a907e2950523b48",
+      "identity": "1f:d17690c62338880fe6f8249b24edb01020d36cb821e54a450a907e2950523b48",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/read-data/paste-policy.mjs",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/read-data/paste-policy.mjs",
+      "source_identity": "1f:39d2d50502c6069f435b77bc70ddde7bc6f0bc2f90d06e2414fd9c4b44fd520a",
+      "identity": "1f:39d2d50502c6069f435b77bc70ddde7bc6f0bc2f90d06e2414fd9c4b44fd520a",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/read-data/project-conversation-owner-events.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/read-data/project-conversation-owner-events.ts",
+      "source_identity": "1f:75524076d40c6cde844b0c00eb91af33c13acf0e168d053df2bdb0c8b647cada",
+      "identity": "1f:75524076d40c6cde844b0c00eb91af33c13acf0e168d053df2bdb0c8b647cada",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/read-data/project-conversation-work.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/read-data/project-conversation-work.ts",
+      "source_identity": "1f:a63a08bd879ceaf834c100106bf7797e96d35f0bc98fae80342fcd0822b8b08d",
+      "identity": "1f:a63a08bd879ceaf834c100106bf7797e96d35f0bc98fae80342fcd0822b8b08d",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/read-data/read-addressed-exchange-participants.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/read-data/read-addressed-exchange-participants.ts",
+      "source_identity": "1f:f0c590fcdd5b55e6e59d0cca143b4c01399ee54da59add98f4efe71badf12006",
+      "identity": "1f:f0c590fcdd5b55e6e59d0cca143b4c01399ee54da59add98f4efe71badf12006",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/read-data/read-addressed-exchange.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/read-data/read-addressed-exchange.ts",
+      "source_identity": "1f:4b651bb2961e44060d4b6ab8818292c7cc293fd196a43fda204a77741fc0a1e5",
+      "identity": "1f:4b651bb2961e44060d4b6ab8818292c7cc293fd196a43fda204a77741fc0a1e5",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/read-data/read-agent-profile-participants.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/read-data/read-agent-profile-participants.ts",
+      "source_identity": "1f:63c237f25b1cf13001b8110a0c13a2543684c22b948881eea7639797e277fd49",
+      "identity": "1f:63c237f25b1cf13001b8110a0c13a2543684c22b948881eea7639797e277fd49",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/read-data/read-ai-tool-binding.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/read-data/read-ai-tool-binding.ts",
+      "source_identity": "1f:b82713ee87315bb6ebaefbd606310fa505ee8fea3e08fe65342a493775343815",
+      "identity": "1f:b82713ee87315bb6ebaefbd606310fa505ee8fea3e08fe65342a493775343815",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/read-data/read-chat-launch-options.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/read-data/read-chat-launch-options.ts",
+      "source_identity": "1f:14371a0da20bf44209d4c69f42c84e517ef7d57860333a4cb443bac85b6bae33",
+      "identity": "1f:14371a0da20bf44209d4c69f42c84e517ef7d57860333a4cb443bac85b6bae33",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/read-data/read-chat-placeable-surface-segments.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/read-data/read-chat-placeable-surface-segments.ts",
+      "source_identity": "1f:763da7374e13947d1f16638b1bed1091d4ac8396ea521b38dc197e21b9d3568c",
+      "identity": "1f:763da7374e13947d1f16638b1bed1091d4ac8396ea521b38dc197e21b9d3568c",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/read-data/read-chat-presets.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/read-data/read-chat-presets.ts",
+      "source_identity": "1f:4f5481f02a0930fbfd6f9e910cbea6f19e16b8fc75d916447e79f5508c42d749",
+      "identity": "1f:4f5481f02a0930fbfd6f9e910cbea6f19e16b8fc75d916447e79f5508c42d749",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/read-data/read-chat-producer-status.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/read-data/read-chat-producer-status.ts",
+      "source_identity": "1f:916a27a8475db6eda5d1dc576d02be54b65b0aa49e5b7d25e507b0a2786cfdd7",
+      "identity": "1f:916a27a8475db6eda5d1dc576d02be54b65b0aa49e5b7d25e507b0a2786cfdd7",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/read-data/read-chat-projects.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/read-data/read-chat-projects.ts",
+      "source_identity": "1f:fe6506c842351402a01dd187e5fc9d82e89c34fe852dd1e29d3a44cdc205b62a",
+      "identity": "1f:fe6506c842351402a01dd187e5fc9d82e89c34fe852dd1e29d3a44cdc205b62a",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/read-data/read-chat-prompt-assembly.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/read-data/read-chat-prompt-assembly.ts",
+      "source_identity": "1f:34bcd9a7ee9a4bcddb6fce289df39f64b2415c0b52508c6016e797c8bab0a2fb",
+      "identity": "1f:34bcd9a7ee9a4bcddb6fce289df39f64b2415c0b52508c6016e797c8bab0a2fb",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/read-data/read-chat-result-policy.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/read-data/read-chat-result-policy.ts",
+      "source_identity": "1f:3c603b43fee89c6133c419a4cc48aafd706ddbd9f1881c018f130f6a46417362",
+      "identity": "1f:3c603b43fee89c6133c419a4cc48aafd706ddbd9f1881c018f130f6a46417362",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/read-data/read-chat-sessions.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/read-data/read-chat-sessions.ts",
+      "source_identity": "1f:a95a2bb79e1245e26db3169e404f07a538d9a422d889eb3db99cc4b9d90e30fa",
+      "identity": "1f:a95a2bb79e1245e26db3169e404f07a538d9a422d889eb3db99cc4b9d90e30fa",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/read-data/read-chat-transition-policy.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/read-data/read-chat-transition-policy.ts",
+      "source_identity": "1f:1c5627c1b64f639adb1838470a2151d5a6e097aef3cc003cd75bd45689f0ffab",
+      "identity": "1f:1c5627c1b64f639adb1838470a2151d5a6e097aef3cc003cd75bd45689f0ffab",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/read-data/read-chat-work-actions.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/read-data/read-chat-work-actions.ts",
+      "source_identity": "1f:55b79ff6adeb68b7f9399ca53c3a6c99e4bdda47e32f7872d5740e2a882504f3",
+      "identity": "1f:55b79ff6adeb68b7f9399ca53c3a6c99e4bdda47e32f7872d5740e2a882504f3",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/read-data/read-cli-registry-participants.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/read-data/read-cli-registry-participants.ts",
+      "source_identity": "1f:737c9a20dfe175d0d9c6c4655d64df23238ff84201ecdaf43b5ac3b3b511e066",
+      "identity": "1f:737c9a20dfe175d0d9c6c4655d64df23238ff84201ecdaf43b5ac3b3b511e066",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/read-data/read-message-annotation-palette.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/read-data/read-message-annotation-palette.ts",
+      "source_identity": "1f:fbb4fcc2a597e270bd271df6086c8e4ca9bd425fefbce4600fac409c5ee6e106",
+      "identity": "1f:fbb4fcc2a597e270bd271df6086c8e4ca9bd425fefbce4600fac409c5ee6e106",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/read-data/read-private-conversations.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/read-data/read-private-conversations.ts",
+      "source_identity": "1f:f78b6f2a813cef4ad7586f255e74d0443b372eed31200216317530041e200d04",
+      "identity": "1f:f78b6f2a813cef4ad7586f255e74d0443b372eed31200216317530041e200d04",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/read-data/read-selected-text-for-next-agent-request.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/read-data/read-selected-text-for-next-agent-request.ts",
+      "source_identity": "1f:49721a80cad5c0889a88b8608f0e11c25cb7c6396901d52c3cc7c25c36302439",
+      "identity": "1f:49721a80cad5c0889a88b8608f0e11c25cb7c6396901d52c3cc7c25c36302439",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/read-data/read-session-transcripts.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/read-data/read-session-transcripts.ts",
+      "source_identity": "1f:52e59c0690989109f9b304354122ad67a4a671465fa9bc10ffa366485fe396ff",
+      "identity": "1f:52e59c0690989109f9b304354122ad67a4a671465fa9bc10ffa366485fe396ff",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/read-data/read-tool-result-surface-card.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/read-data/read-tool-result-surface-card.ts",
+      "source_identity": "1f:75faee06b2c360484f32ee90316fcfddd20385f50cab4560054ec2300cfef8f6",
+      "identity": "1f:75faee06b2c360484f32ee90316fcfddd20385f50cab4560054ec2300cfef8f6",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/read-data/resolve-decoder-session-id.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/read-data/resolve-decoder-session-id.ts",
+      "source_identity": "1f:e0ef6889dc1d72be8f9b901c5f072524a3c25de0d1d3fd25fab5f1f5fc744c12",
+      "identity": "1f:e0ef6889dc1d72be8f9b901c5f072524a3c25de0d1d3fd25fab5f1f5fc744c12",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/read-data/stream-parse-spec.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/read-data/stream-parse-spec.ts",
+      "source_identity": "1f:f7e8c747893fd1b906a50ac653a7dfb74364b9e8ca8e3d307d97cf84f68f838f",
+      "identity": "1f:f7e8c747893fd1b906a50ac653a7dfb74364b9e8ca8e3d307d97cf84f68f838f",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/read-data/use-chat-conversation-projections.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/read-data/use-chat-conversation-projections.ts",
+      "source_identity": "1f:fcf536e319f40c26fba83def9914d7cf9cd3c6841b77414d5ef0c84d7401e51b",
+      "identity": "1f:fcf536e319f40c26fba83def9914d7cf9cd3c6841b77414d5ef0c84d7401e51b",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/read-data/use-private-conversations.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/read-data/use-private-conversations.ts",
+      "source_identity": "1f:2143c6f824411da92f3d6cfdffabe81acf03422f6f4555a104560e8b864efbe2",
+      "identity": "1f:2143c6f824411da92f3d6cfdffabe81acf03422f6f4555a104560e8b864efbe2",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/AgentActivityRenderer.private-content.test.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/AgentActivityRenderer.private-content.test.tsx",
+      "source_identity": "1f:f9275e3e6d5a461b0840ebc9ad01d511cbaf19183eb18d308f82be28e9323ff3",
+      "identity": "1f:f9275e3e6d5a461b0840ebc9ad01d511cbaf19183eb18d308f82be28e9323ff3",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/AgentActivityRenderer.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/AgentActivityRenderer.tsx",
+      "source_identity": "1f:b1e82a7f8f5d839cecd2a487bae603552a799abcb846f8fac0b1132997c22ffa",
+      "identity": "1f:b1e82a7f8f5d839cecd2a487bae603552a799abcb846f8fac0b1132997c22ffa",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/AgentStatusStrip.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/AgentStatusStrip.tsx",
+      "source_identity": "1f:0fab309b02275c9a4cf4a9a158492ec2a879a3d84b32e1b6425fc399da9a09b6",
+      "identity": "1f:0fab309b02275c9a4cf4a9a158492ec2a879a3d84b32e1b6425fc399da9a09b6",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/ChatConnectAiCallout.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/ChatConnectAiCallout.tsx",
+      "source_identity": "1f:6f9b8e701241f87e403cc39ff8c0dd331a1a59bf794d6b16122973c548ec75cc",
+      "identity": "1f:6f9b8e701241f87e403cc39ff8c0dd331a1a59bf794d6b16122973c548ec75cc",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/ChatErrorBanner.test.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/ChatErrorBanner.test.tsx",
+      "source_identity": "1f:576311a190cf829c751436710c1eefa89445f617d328ca1350b6c7e2fa1dbfda",
+      "identity": "1f:576311a190cf829c751436710c1eefa89445f617d328ca1350b6c7e2fa1dbfda",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/ChatErrorBanner.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/ChatErrorBanner.tsx",
+      "source_identity": "1f:035becb93f0808d1dcf1bee643fd6ccd51a0732bd0d4281e088604db209f84c9",
+      "identity": "1f:035becb93f0808d1dcf1bee643fd6ccd51a0732bd0d4281e088604db209f84c9",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/ChatFileContent.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/ChatFileContent.tsx",
+      "source_identity": "1f:0d7e849bdbcbb513614757cb6e56d7681f99eaeda055ae0346fb0d8e51b577a5",
+      "identity": "1f:0d7e849bdbcbb513614757cb6e56d7681f99eaeda055ae0346fb0d8e51b577a5",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/ChatFilterPopover.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/ChatFilterPopover.tsx",
+      "source_identity": "1f:8c46fe48f403fc0129eac4bb9939d69265ab8b95e4a006de83d6b3eed6052140",
+      "identity": "1f:8c46fe48f403fc0129eac4bb9939d69265ab8b95e4a006de83d6b3eed6052140",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/ChatHeroState.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/ChatHeroState.tsx",
+      "source_identity": "1f:654ec5dd650d47da4a717a84aaf3d04bcaff06944858d678ead0ad85a9412012",
+      "identity": "1f:654ec5dd650d47da4a717a84aaf3d04bcaff06944858d678ead0ad85a9412012",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/ChatInlinePlaceableSurface.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/ChatInlinePlaceableSurface.tsx",
+      "source_identity": "1f:ffa2974c3721fc9037ef6c48706f0dc8fa9c52f49875d57d6db9226167f5f54a",
+      "identity": "1f:ffa2974c3721fc9037ef6c48706f0dc8fa9c52f49875d57d6db9226167f5f54a",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/ChatInput.test.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/ChatInput.test.tsx",
+      "source_identity": "1f:dbea86e59fb10bc8c99db12d192fabae80021945a02cefbb1b90b4736dca3ba2",
+      "identity": "1f:dbea86e59fb10bc8c99db12d192fabae80021945a02cefbb1b90b4736dca3ba2",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/ChatInput.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/ChatInput.tsx",
+      "source_identity": "1f:761eb73710ce1f0a5e926189b43676da949bc5285f9fe6cc9f21d2b885157dc2",
+      "identity": "1f:761eb73710ce1f0a5e926189b43676da949bc5285f9fe6cc9f21d2b885157dc2",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/ChatMessage.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/ChatMessage.tsx",
+      "source_identity": "1f:923ac0e3dd5bef806a02c984439c8c5f88278eed20086715f5c240b142877efa",
+      "identity": "1f:923ac0e3dd5bef806a02c984439c8c5f88278eed20086715f5c240b142877efa",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/ChatPanel.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/ChatPanel.tsx",
+      "source_identity": "1f:a578373bc1918d7b653b649637e23bfbfbee3f7dc97a8d3026c4e154a04f07af",
+      "identity": "1f:a578373bc1918d7b653b649637e23bfbfbee3f7dc97a8d3026c4e154a04f07af",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/ChatTeammateBar.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/ChatTeammateBar.tsx",
+      "source_identity": "1f:357e7d914b881a7d8a30f0c60f5996b9ebe11a823499c3b7f4dcd41b7cfa6c57",
+      "identity": "1f:357e7d914b881a7d8a30f0c60f5996b9ebe11a823499c3b7f4dcd41b7cfa6c57",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/ChatView.canonical-conversation-owner.test.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/ChatView.canonical-conversation-owner.test.tsx",
+      "source_identity": "1f:7c317f881a9c7c7f880b91e28ddc69c84125d9a3087e167c8d35cb53664e1a2d",
+      "identity": "1f:7c317f881a9c7c7f880b91e28ddc69c84125d9a3087e167c8d35cb53664e1a2d",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/ChatView.private-conversations.test.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/ChatView.private-conversations.test.tsx",
+      "source_identity": "1f:fa0e95070877d01d9147eb7af75f2633ddf6029dd85f710ee541a217445c1e50",
+      "identity": "1f:fa0e95070877d01d9147eb7af75f2633ddf6029dd85f710ee541a217445c1e50",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/ChatView.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/ChatView.tsx",
+      "source_identity": "1f:2ec5afa58fb71919cde328fee232802d0a7d70b8601ccaeeab7d881b48573522",
+      "identity": "1f:2ec5afa58fb71919cde328fee232802d0a7d70b8601ccaeeab7d881b48573522",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/ConversationNavigation.test.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/ConversationNavigation.test.tsx",
+      "source_identity": "1f:23b165238fec31bb3799ec87b0536d2b5ff849481cc42c13dec583402f0abd47",
+      "identity": "1f:23b165238fec31bb3799ec87b0536d2b5ff849481cc42c13dec583402f0abd47",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/ConversationNavigation.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/ConversationNavigation.tsx",
+      "source_identity": "1f:06b0db08c3688d03790a4142a750b5e5fc31092e2cf71962547c95218ccff933",
+      "identity": "1f:06b0db08c3688d03790a4142a750b5e5fc31092e2cf71962547c95218ccff933",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/EditAcceptReject.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/EditAcceptReject.tsx",
+      "source_identity": "1f:0d380d810453595e043732721d18cb61e6f2e6d213a64e5fe34803ba2fc1eb22",
+      "identity": "1f:0d380d810453595e043732721d18cb61e6f2e6d213a64e5fe34803ba2fc1eb22",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/IdeaModePill.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/IdeaModePill.tsx",
+      "source_identity": "1f:23f03d7d0519f863cd5d1b6fd4ee21e1011b217ba48a36c6af9eba5056727312",
+      "identity": "1f:23f03d7d0519f863cd5d1b6fd4ee21e1011b217ba48a36c6af9eba5056727312",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/MarkdownContent.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/MarkdownContent.tsx",
+      "source_identity": "1f:9f2c3e56c9ea767e0eef84e88915c6819aa96aa3cccfa5cc1949fc1ba29b7c26",
+      "identity": "1f:9f2c3e56c9ea767e0eef84e88915c6819aa96aa3cccfa5cc1949fc1ba29b7c26",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/MessageAnnotations.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/MessageAnnotations.tsx",
+      "source_identity": "1f:86e7dc190ae030e5590df0c3a9546a5bd8aa86319ed58d542faf2443c333bc84",
+      "identity": "1f:86e7dc190ae030e5590df0c3a9546a5bd8aa86319ed58d542faf2443c333bc84",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/MessageLinks.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/MessageLinks.tsx",
+      "source_identity": "1f:e320f6a50d049b4bb772ff73fcaeb1210cdf7a381f161ad47d212b801be84f93",
+      "identity": "1f:e320f6a50d049b4bb772ff73fcaeb1210cdf7a381f161ad47d212b801be84f93",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/ParticipantBrowser.test.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/ParticipantBrowser.test.tsx",
+      "source_identity": "1f:12736e6e3e75e1032ee088f0d635e425840a52ca724f9a52310866b2ce805ce6",
+      "identity": "1f:12736e6e3e75e1032ee088f0d635e425840a52ca724f9a52310866b2ce805ce6",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/ParticipantBrowser.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/ParticipantBrowser.tsx",
+      "source_identity": "1f:3cf5e1d8cd195599d8601b364a69e1ea5388baddb3ebed18cdea527fbb92d526",
+      "identity": "1f:3cf5e1d8cd195599d8601b364a69e1ea5388baddb3ebed18cdea527fbb92d526",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/PlanSidebar.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/PlanSidebar.tsx",
+      "source_identity": "1f:1ecb1e90ef9639657caa9fa57938b5f146bef8826d06c289fdc3971e35344ef3",
+      "identity": "1f:1ecb1e90ef9639657caa9fa57938b5f146bef8826d06c289fdc3971e35344ef3",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/PresetButton.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/PresetButton.tsx",
+      "source_identity": "1f:14a7c87734c712046cca22180e1dc9b01d7592198d80fc53f4495ef3fae0917b",
+      "identity": "1f:14a7c87734c712046cca22180e1dc9b01d7592198d80fc53f4495ef3fae0917b",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/PresetButtonRow.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/PresetButtonRow.tsx",
+      "source_identity": "1f:1bc20a6703c92cd518332bdbf19a4a126022ac4a107d8845259e23ee6279e9fd",
+      "identity": "1f:1bc20a6703c92cd518332bdbf19a4a126022ac4a107d8845259e23ee6279e9fd",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/PresetPopover.test.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/PresetPopover.test.tsx",
+      "source_identity": "1f:833e3600a2b8cd8ccf7e6d44fdd69d07790b54ea239d0e6565a8e57b91ea1580",
+      "identity": "1f:833e3600a2b8cd8ccf7e6d44fdd69d07790b54ea239d0e6565a8e57b91ea1580",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/PresetPopover.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/PresetPopover.tsx",
+      "source_identity": "1f:f20d6db1ed42925b06fb7576dae8544815cb3cffd6a35e2c08faf4993dea932b",
+      "identity": "1f:f20d6db1ed42925b06fb7576dae8544815cb3cffd6a35e2c08faf4993dea932b",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/ToolRendererCode.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/ToolRendererCode.tsx",
+      "source_identity": "1f:20e0fa08da1ac1045fc0c4c5ceb596635800de79dda71bbc97db7cd1e72f8f81",
+      "identity": "1f:20e0fa08da1ac1045fc0c4c5ceb596635800de79dda71bbc97db7cd1e72f8f81",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/ToolRendererDiff.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/ToolRendererDiff.tsx",
+      "source_identity": "1f:0709cf393ae16cd2e9e6d181ea544ba68c10f6c09eb27ae00bd8b066447e6774",
+      "identity": "1f:0709cf393ae16cd2e9e6d181ea544ba68c10f6c09eb27ae00bd8b066447e6774",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/ToolRendererSearch.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/ToolRendererSearch.tsx",
+      "source_identity": "1f:4b800f701bc6e65665950682c19da35218867ead8764ece774764f2f6a32219e",
+      "identity": "1f:4b800f701bc6e65665950682c19da35218867ead8764ece774764f2f6a32219e",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/ToolRendererTerminal.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/ToolRendererTerminal.tsx",
+      "source_identity": "1f:fb6a2b5961e547bdee2867abfff5c16d8215e34206d6e1d99f34831032a176eb",
+      "identity": "1f:fb6a2b5961e547bdee2867abfff5c16d8215e34206d6e1d99f34831032a176eb",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/ToolResultSurfaceCard.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/ToolResultSurfaceCard.tsx",
+      "source_identity": "1f:776c5a1a06aa8cb86865d68c8b31755ccb721ce9bd9171eb0f4632257e2c7b31",
+      "identity": "1f:776c5a1a06aa8cb86865d68c8b31755ccb721ce9bd9171eb0f4632257e2c7b31",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/ToolUseBlock.receipt-surface.test.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/ToolUseBlock.receipt-surface.test.tsx",
+      "source_identity": "1f:9e2b8d31f81ec51a879b3a0e82d03cf06b381809caa05e07d75d412914b07733",
+      "identity": "1f:9e2b8d31f81ec51a879b3a0e82d03cf06b381809caa05e07d75d412914b07733",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/ToolUseBlock.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/ToolUseBlock.tsx",
+      "source_identity": "1f:57128c146e401139b55a342cead9134cdded2aa679b0cf8d42e7e9de04f30ea9",
+      "identity": "1f:57128c146e401139b55a342cead9134cdded2aa679b0cf8d42e7e9de04f30ea9",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/__tests__/agent-status-strip.test.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/__tests__/agent-status-strip.test.tsx",
+      "source_identity": "1f:3d8cd6a909c7d53479476cc550ae6525380f9079881b7f372d88be1c61ca67d4",
+      "identity": "1f:3d8cd6a909c7d53479476cc550ae6525380f9079881b7f372d88be1c61ca67d4",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/__tests__/chat-config-ownership-arbitration.test.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/__tests__/chat-config-ownership-arbitration.test.ts",
+      "source_identity": "1f:338006d6a62eddfeb5345c73d4406de00acbf80cadf03ee22454df10575ae605",
+      "identity": "1f:338006d6a62eddfeb5345c73d4406de00acbf80cadf03ee22454df10575ae605",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/__tests__/chat-connect-ai-callout.test.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/__tests__/chat-connect-ai-callout.test.tsx",
+      "source_identity": "1f:82c0c1ebffe9535044dbe0224647e982629859769bd372638a422d23162466b6",
+      "identity": "1f:82c0c1ebffe9535044dbe0224647e982629859769bd372638a422d23162466b6",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/__tests__/chat-filter-popover-profile-labels.test.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/__tests__/chat-filter-popover-profile-labels.test.tsx",
+      "source_identity": "1f:13f2a0b5de2494db8debaab913de9559d7c6d2fe795273fac5170ee2a90fcbd8",
+      "identity": "1f:13f2a0b5de2494db8debaab913de9559d7c6d2fe795273fac5170ee2a90fcbd8",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/__tests__/transcript-row-dispatch.test.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/__tests__/transcript-row-dispatch.test.ts",
+      "source_identity": "1f:a4d0af40b313e335bdce760ee1d7079938fb5cfd7b76ca4c4589353934b7cdd6",
+      "identity": "1f:a4d0af40b313e335bdce760ee1d7079938fb5cfd7b76ca4c4589353934b7cdd6",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/build-agent-status-sessions.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/build-agent-status-sessions.ts",
+      "source_identity": "1f:35d9442b9d3dd48dfe2481affec7b4026704fbd67e3e2f5464ec2136d23d186c",
+      "identity": "1f:35d9442b9d3dd48dfe2481affec7b4026704fbd67e3e2f5464ec2136d23d186c",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/chat-config-ownership.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/chat-config-ownership.ts",
+      "source_identity": "1f:0e138cd0735118322527964a6f5d918bb233efd98a69311c7017bf868c146649",
+      "identity": "1f:0e138cd0735118322527964a6f5d918bb233efd98a69311c7017bf868c146649",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/chat-logic.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/chat-logic.ts",
+      "source_identity": "1f:23a6fd18618c25eb1ab73a580401b799290fa16b5ef83555bdd0ea10cad666fd",
+      "identity": "1f:23a6fd18618c25eb1ab73a580401b799290fa16b5ef83555bdd0ea10cad666fd",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/chat-reach-role-attributes.test.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/chat-reach-role-attributes.test.tsx",
+      "source_identity": "1f:fb61815fb6c9b19f2c62d5f9cf6fc75a3c1d771a915ec7f14416285d0ead4ec8",
+      "identity": "1f:fb61815fb6c9b19f2c62d5f9cf6fc75a3c1d771a915ec7f14416285d0ead4ec8",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/chat-send-readiness.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/chat-send-readiness.ts",
+      "source_identity": "1f:de3831ec92c444ae2f04e073e012b5fcf096be88a427e0bfbe0d4224bc5dfb82",
+      "identity": "1f:de3831ec92c444ae2f04e073e012b5fcf096be88a427e0bfbe0d4224bc5dfb82",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/initial-source-keys.test.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/initial-source-keys.test.ts",
+      "source_identity": "1f:c1c6eead4a601aa3a735dbc780c3e1d502bcdedddfd8cf712f65e90d35fccc39",
+      "identity": "1f:c1c6eead4a601aa3a735dbc780c3e1d502bcdedddfd8cf712f65e90d35fccc39",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/initial-source-keys.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/initial-source-keys.ts",
+      "source_identity": "1f:3bf79226655451cf02b39438f7d623c6f4bf0c65e8d81f35ac80169fab579e66",
+      "identity": "1f:3bf79226655451cf02b39438f7d623c6f4bf0c65e8d81f35ac80169fab579e66",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/input/__tests__/unified-agent-picker.test.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/input/__tests__/unified-agent-picker.test.tsx",
+      "source_identity": "1f:0b8d29f969d2f7a3e3b5eacb1d2577546489390bf77ea7742d04cb42822aa023",
+      "identity": "1f:0b8d29f969d2f7a3e3b5eacb1d2577546489390bf77ea7742d04cb42822aa023",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/input/chat-composer.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/input/chat-composer.tsx",
+      "source_identity": "1f:3b651f1cc8fae8d313d1305d4d98af3c14889743a805f7799676290faed93921",
+      "identity": "1f:3b651f1cc8fae8d313d1305d4d98af3c14889743a805f7799676290faed93921",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/input/index.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/input/index.ts",
+      "source_identity": "1f:7b736a2c7d06d3b0e694cf31d7fe13a13a0c68a7cef3008c788d0c0be70fb368",
+      "identity": "1f:7b736a2c7d06d3b0e694cf31d7fe13a13a0c68a7cef3008c788d0c0be70fb368",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/input/send-button.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/input/send-button.tsx",
+      "source_identity": "1f:f5b856a953b05ee81bdaaa986b6a559217e9b26fad3be5fe247c688c66c2680b",
+      "identity": "1f:f5b856a953b05ee81bdaaa986b6a559217e9b26fad3be5fe247c688c66c2680b",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/input/slash-command-menu.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/input/slash-command-menu.tsx",
+      "source_identity": "1f:5f87f6d511d4184a424c2df2878e1de693199788f4f4300f7810240e480b9376",
+      "identity": "1f:5f87f6d511d4184a424c2df2878e1de693199788f4f4300f7810240e480b9376",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/input/unified-agent-picker.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/input/unified-agent-picker.tsx",
+      "source_identity": "1f:6e839cad3dc709b550bec0881293a30538a11a5db17b115cfc936cb3f94aca4a",
+      "identity": "1f:6e839cad3dc709b550bec0881293a30538a11a5db17b115cfc936cb3f94aca4a",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/message-link-words.json",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/message-link-words.json",
+      "source_identity": "1f:a857cd087929fe0749846b4206bed9896d71b3b7ac2bdf551f0bde5a2a950fdc",
+      "identity": "1f:a857cd087929fe0749846b4206bed9896d71b3b7ac2bdf551f0bde5a2a950fdc",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/mount-chat.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/mount-chat.tsx",
+      "source_identity": "1f:66a31b24226e80e038e75e57531f5b76fe1ed4f619989121bf8cb99ede196321",
+      "identity": "1f:66a31b24226e80e038e75e57531f5b76fe1ed4f619989121bf8cb99ede196321",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/participant-mark-spec.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/participant-mark-spec.ts",
+      "source_identity": "1f:cf7fb57f15efcb45a707c22c977bccf6a9e2760b7dd89d5ae820850b069a7185",
+      "identity": "1f:cf7fb57f15efcb45a707c22c977bccf6a9e2760b7dd89d5ae820850b069a7185",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/plan-parser.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/plan-parser.ts",
+      "source_identity": "1f:eda622c8ac37beec8f3017e0276165a36cee2bbd9b1599cb50b0f7b1e91453e3",
+      "identity": "1f:eda622c8ac37beec8f3017e0276165a36cee2bbd9b1599cb50b0f7b1e91453e3",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/receipt-surface-intent.test.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/receipt-surface-intent.test.ts",
+      "source_identity": "1f:66fcf2a069b156a157e22fbc41420dd6cbe5b4fec70900851fc6069e7501deb7",
+      "identity": "1f:66fcf2a069b156a157e22fbc41420dd6cbe5b4fec70900851fc6069e7501deb7",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/receipt-surface-intent.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/receipt-surface-intent.ts",
+      "source_identity": "1f:2bb6553ce6bab83719c74c5d09e6a4e10ea16b8d367a3d32dcaee47a688d12c5",
+      "identity": "1f:2bb6553ce6bab83719c74c5d09e6a4e10ea16b8d367a3d32dcaee47a688d12c5",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/resolve-source-session-ref.test.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/resolve-source-session-ref.test.ts",
+      "source_identity": "1f:352952ab11f5f25e16a040a1425160e5655e902deabac1581684b8a144895d93",
+      "identity": "1f:352952ab11f5f25e16a040a1425160e5655e902deabac1581684b8a144895d93",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/resolve-source-session-ref.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/resolve-source-session-ref.ts",
+      "source_identity": "1f:cc3348aaa919912a535a47e1461dbcf583214d6fc7c36b5752cf5635397e2f8f",
+      "identity": "1f:cc3348aaa919912a535a47e1461dbcf583214d6fc7c36b5752cf5635397e2f8f",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/shiki-loader.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/shiki-loader.ts",
+      "source_identity": "1f:ce15ef067e266dab9051eea9186ce90a822e87762b1e96954f1418e085f56547",
+      "identity": "1f:ce15ef067e266dab9051eea9186ce90a822e87762b1e96954f1418e085f56547",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/use-conversation-pages.test.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/use-conversation-pages.test.tsx",
+      "source_identity": "1f:c5c7ce762b9f11fba23881a91fe631397c956e504825bf22fe14c18543a34655",
+      "identity": "1f:c5c7ce762b9f11fba23881a91fe631397c956e504825bf22fe14c18543a34655",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/show/use-conversation-pages.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/show/use-conversation-pages.ts",
+      "source_identity": "1f:1e877e20a939d8b94d18e7b1cf72026f9d41053e567756804b3f26596c178ba6",
+      "identity": "1f:1e877e20a939d8b94d18e7b1cf72026f9d41053e567756804b3f26596c178ba6",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/chat/things-to-store-and-run.json",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/chat/things-to-store-and-run.json",
+      "source_identity": "1f:1f6a84c6a064ee636ba7545ed1a33fbed1f6291c78fd2e27edc5e65849a618ef",
+      "identity": "1f:1f6a84c6a064ee636ba7545ed1a33fbed1f6291c78fd2e27edc5e65849a618ef",
+      "found_by": "byte copy"
+    }
+  ]
+}

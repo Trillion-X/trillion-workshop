@@ -1,0 +1,8 @@
+{
+  "imported_by": [
+    "Trillion-X/trillion-apps"
+  ],
+  "public": [
+    "read-data/paste-policy.mjs"
+  ]
+}
