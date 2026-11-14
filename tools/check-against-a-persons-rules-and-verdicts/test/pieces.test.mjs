@@ -94,7 +94,15 @@ test('a piece kept before pieces carried tags has its groups moved to tags when 
   const { tags, ...old } = row;
   const held = new Map([[`record:check:${row.id}`, { ...old, groups: ['made-up-tag'], checked_by: ['made-up-check'] }]]);
   const written = [];
-  const door = { async read(_type, id) { return held.get(id) ?? null; }, async write(batch) { written.push(...batch); } };
+  const door = {
+    async read(_type, id) { return held.get(id) ?? null; },
+    // The kept rows, greatest id first, as one page of the door's list.
+    async *listPages({ prefix, above, below }) {
+      const records = [...held].filter(([id]) => id.startsWith(prefix) && id > above && id < below).sort(([a], [b]) => (a < b ? 1 : -1)).map(([id, value]) => ({ id, type: 'record:check', value }));
+      yield { records, next: null };
+    },
+    async write(batch) { written.push(...batch); },
+  };
   const answer = await keepPieces({ text, file: 'made-up.md', file_identity: '1f:' + 'f'.repeat(64) }, door);
   assert.equal(answer.unchanged, 0);
   assert.equal(written.length, 1);
@@ -107,4 +115,22 @@ test('a piece kept before pieces carried tags has its groups moved to tags when 
   written.length = 0;
   const again = await keepPieces({ text, file: 'made-up.md', file_identity: '1f:' + 'f'.repeat(64) }, door);
   assert.deepEqual([again.unchanged, written.length], [1, 0]);
+});
+
+test('a document whose pieces are mostly kept already is learned in pages, far fewer door calls than one read per piece, and the rows kept are unchanged', async t => {
+  const text = Array.from({ length: 600 }, (_, at) => `## Made-up part ${at}\n\n**Made-up rule ${at}.** Made-up words about a made-up thing number ${at}, said plainly so a check can be written.\n`).join('\n');
+  const name = '/Skills/made-up/SKILL.md';
+  const mine = pieceRows([{ text, file: name }]);
+  assert.equal(mine.length, 600);
+  // The store holds this document's pieces among 2,400 made-up pieces of other files.
+  const others = pieceRows([{ text: Array.from({ length: 2400 }, (_, at) => `## Other ${at}\n\nOther made-up words ${at} of another made-up file.\n`).join('\n'), file: '/Skills/other/SKILL.md' }]);
+  const records = [...mine, ...others].map(value => ({ id: `record:check:${value.id}`, type: 'record:check', value }));
+  const row = JSON.parse(readFileSync(resolve(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload).find(item => item.id === 'tool:split-a-document-into-pieces');
+  const ran = await runRow(row, { name }, { records, door_files: { [name]: text }, doorOptions: { pageBytes: 60_000, mostRequestBytes: 65_536 } });
+  assert.equal(ran.code, 0, ran.stdout + ran.stderr);
+  assert.deepEqual([ran.last.result.pieces, ran.last.result.new, ran.last.result.sources_added, ran.last.result.unchanged, ran.last.result.writes], [600, 0, 0, 600, 0]);
+  const reads = ran.calls.filter(call => call.method === 'records:read').length, lists = ran.calls.filter(call => call.method === 'records:list').length;
+  t.diagnostic(`${mine.length} pieces among ${records.length} rows: ${reads} reads and ${lists} list pages`);
+  assert.ok(reads + lists < mine.length / 4, `${reads} reads and ${lists} list pages for ${mine.length} pieces`);
+  assert.ok(ran.calls.filter(call => call.method === 'records:list').every(call => call.input.prefix?.startsWith('record:check:piece-')));
 });

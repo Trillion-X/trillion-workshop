@@ -868,6 +868,7 @@
          "read-data/records-door.mjs",
          "read-data/settled-write.mjs",
          "read-data/stdio-mcp-door.mjs",
+         "read-data/read-many.mjs",
          "read-data/write-batches.mjs"
         ],
         "at": "/opt/records-door"
@@ -1378,6 +1379,7 @@
          "read-data/records-door.mjs",
          "read-data/settled-write.mjs",
          "read-data/stdio-mcp-door.mjs",
+         "read-data/read-many.mjs",
          "read-data/write-batches.mjs"
         ],
         "at": "/opt/records-door"
@@ -1720,6 +1722,7 @@
         "prefix": "record:check:piece-",
         "operations": [
          "records:read",
+         "records:list",
          "records:write"
         ]
        },

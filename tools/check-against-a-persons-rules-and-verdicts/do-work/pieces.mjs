@@ -29,7 +29,10 @@
 //      (the door refuses bodies over 64 KiB) is never sent in one.
 //   5. Its pieces are kept as the person's piece rows, merged over what is kept: a row already kept keeps its
 //      checked_by, no_check, tags and kinds, and gains only the source this file gives it (a source of the same file
-//      and section is replaced, never repeated). Every write is conditional on what was read (absent, or the exact value
+//      and section is replaced, never repeated). Which pieces are kept is learned in door calls that stay bounded
+//      however large the document or the store is (tools/records-door read-data/read-many.mjs: by page of the piece
+//      rows where the document's pieces are dense in the store, by key where they are few, whichever its own pages show
+//      is cheaper; never one read per piece). Every write is conditional on what was read (absent, or the exact value
 //      read), and the writes are cut so each fits one door message as the door carries it. A piece too large for one
 //      write is not kept and is named.
 //   6. The answer is counts and a bounded list of ids, never the pieces themselves: the pieces of a 31 KB file came to
@@ -38,6 +41,7 @@
 import { atomsOf, lead } from '../../documents-as-list-rows/read-data/atoms.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { writeBatches } from '../../records-door/read-data/write-batches.mjs';
+import { readMany } from '../../records-door/read-data/read-many.mjs';
 import SETTINGS from '../read-data/pieces.json' with { type: 'json' };
 
 export { atomsOf };
@@ -102,16 +106,6 @@ async function readByName(door, name, { read_bytes: readBytes, most_file_bytes: 
   return { text: bytes.toString('utf8'), identity: identity ?? makeHashCodeHexFromBytes(bytes) };
 }
 
-// `work` over every item, `at_once` at a time, answers in order.
-async function each(items, atOnce, work) {
-  const out = new Array(items.length);
-  let next = 0;
-  await Promise.all(Array.from({ length: Math.min(atOnce, items.length) }, async () => {
-    while (next < items.length) { const at = next++; out[at] = await work(items[at]); }
-  }));
-  return out;
-}
-
 /** A document's pieces kept as the person's piece rows, in one call: see invariants 4 to 6. */
 export async function keepPieces(input, door, settings = SETTINGS.split) {
   const hasText = typeof input?.text === 'string', hasName = typeof input?.name === 'string' && input.name.length > 0;
@@ -122,12 +116,14 @@ export async function keepPieces(input, door, settings = SETTINGS.split) {
   const file_identity = input.file_identity ?? read.identity ?? makeHashCodeHexFromBytes(new TextEncoder().encode(read.text));
   const rows = pieceRows([{ text: read.text, file, file_identity }]);
   const type = SETTINGS.check_type;
-  const held = await each(rows, settings.reads_at_once, row => door.read(type, `${SETTINGS.record_prefix}${row.id}`));
+  // Which pieces the person already keeps, in door calls that stay bounded: by page where the pieces are dense in the store,
+  // by key where they are few (records-door read-many.mjs), never one read per piece of a large document.
+  const { values: kept } = await readMany(door, rows.map(row => `${SETTINGS.record_prefix}${row.id}`), { type, at_once: settings.reads_at_once });
   const records = [], too_large = [];
   let added = 0, sourcesAdded = 0, unchanged = 0;
-  rows.forEach((row, at) => {
+  rows.forEach(row => {
     const id = `${SETTINGS.record_prefix}${row.id}`;
-    const was = object(held[at]) ? held[at] : null;
+    const was = object(kept.get(id)) ? kept.get(id) : null;
     let record;
     if (!was) record = { id, type, value: row, expected: null };
     else {

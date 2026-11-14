@@ -256,21 +256,30 @@ export function recordsDoorFromCall(call, { filesResource, resource, toolsResour
     return body;
   }
 
+  // Every page the query names, in the door's order: { records, next }, next null on the last page. One page is one door
+  // call, so a caller that must count or stop on calls (read-data/read-many.mjs) reads pages. A short page that names a
+  // next page is not the end.
+  async function* listPages({ type, order, prefix, above, below, reverse, fields, where, limit = PAGE } = {}) {
+    const query = Object.fromEntries(Object.entries({ type, order, prefix, above, below, reverse, fields, where, limit }).filter(([, value]) => value !== undefined));
+    for (let after; ;) {
+      const page = await call('records:list', after === undefined ? query : { ...query, after }, undefined, resource, true);
+      const next = page.next === null || page.next === undefined ? null : page.next;
+      yield { records: page.records.map(record => ({ ...record, value: recordValue(record.value) })), next };
+      if (next === null) return;
+      after = next;
+    }
+  }
+
   return {
     readRecord,
     readWorkspace,
     async read(type, id) {
       return (await readRecord(type, id))?.value ?? null;
     },
-    // Every record the query names, in the door's order. A short page that names a next page is not the end.
-    async *list({ type, order, prefix, above, below, reverse, fields, where, limit = PAGE } = {}) {
-      const query = Object.fromEntries(Object.entries({ type, order, prefix, above, below, reverse, fields, where, limit }).filter(([, value]) => value !== undefined));
-      for (let after; ;) {
-        const page = await call('records:list', after === undefined ? query : { ...query, after }, undefined, resource, true);
-        for (const record of page.records) yield { ...record, value: recordValue(record.value) };
-        if (page.next === null || page.next === undefined) return;
-        after = page.next;
-      }
+    listPages,
+    // Every record the query names, in the door's order.
+    async *list(query = {}) {
+      for await (const page of listPages(query)) yield* page.records;
     },
     // One question over the records (records:search { question, type?, limit? }): { question, terms, results, unavailable,
     // pending }, each result with its score and the address that reads it. A run reaches only the kind its right names.
